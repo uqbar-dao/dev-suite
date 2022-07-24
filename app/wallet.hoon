@@ -70,8 +70,8 @@
     =~
       |%
         ++  process-tx
-          |=  [from=@ux to=@ux gas-rate=@ud gas-bud=@ud town=@ux my-grains=(set @ux) our-grains=(set @ux) cont-grains=(set @ux) tx-parms=* arguments=@ formatted-args=(unit *)] :: TODO: make certain parms optional
-          ^-  *  ::  TODO: constrain output
+          |=  [from=@ux to=@ux gas-rate=@ud gas-bud=@ud town=@ux my-grains=(set @ux) our-grains=(set @ux) cont-grains=(set @ux) tx-parms=* arguments=@ =supported-args] :: TODO: make certain parms optional
+          ^-  (quip card state)
           ::  get & build relevant data
           =/  our-nonces     (~(gut by nonces.state) from ~)
           =/  nonce=@ud      (~(gut by our-nonces) town 0)
@@ -79,7 +79,7 @@
                             (fry-rice:smart from `@ux`'zigs-contract' town `@`'zigs')
           =/  =yolk:smart
           ::  TODO: check whether we called from submit-custom or submit
-          ?~  tx-parms
+          ?>  ?=(%custom -.supported-args)
             ::  submit-custom
             yolk=[caller `q:(slap !>(+:(cue q.q.smart-lib)) (ream arguments)) my-grains cont-grains]
           ::  submit
@@ -104,19 +104,19 @@
             ::  if we don't have private key for this address, set as pending
             ::  and allow frontend to sign with HW wallet or otherwise
             ~&  >>  "%wallet: storing unsigned tx"
-            `state(pending `[(sham yolk) egg tx-parms])
+            `state(pending `[(sham yolk) egg supported-args])
           ::  submit the transaction
           =+  egg-hash=(hash-egg egg)
             =/  our-txs
               ?~  o=(~(get by transaction-store) from)
-                [(malt ~[[egg-hash [egg tx-parms]]]) ~]
-              u.o(sent (~(put by sent.u.o) egg-hash [egg tx-parms]))
+                [(malt ~[[egg-hash [egg supported-args]]]) ~]
+              u.o(sent (~(put by sent.u.o) egg-hash [egg supported-args]))
             ~&  >>  "wallet: submitting tx"
             :_  %=  state
                   transaction-store  (~(put by transaction-store) from our-txs)
                   nonces  (~(put by nonces) from (~(put by our-nonces) town +(nonce)))
                 ==
-            :~  (tx-update-card egg `tx-parms)
+            :~  (tx-update-card egg `supported-args)
                 :*  %pass  /submit-tx/(scot %ux from)/(scot %ux egg-hash)
                     %agent  [our.bowl %uqbar]
                     %poke  %uqbar-write
@@ -255,7 +255,7 @@
       ::
           %submit-custom      
         ::  process the transaction
-        (process-tx from.act to.act rate.gas.act bud.gas.act town.act my-grains.act our-grains.formatted cont-grains.act [%custom args.act] args.act args.formatted)
+        (process-tx from.act to.act rate.gas.act bud.gas.act town.act my-grains.act our-grains.formatted cont-grains.act args.formatted args.act [%custom args.act])
         ==
       ::
           %submit
