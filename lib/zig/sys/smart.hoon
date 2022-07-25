@@ -2,6 +2,22 @@
 ::
 ::  smart contract functions
 ::
+::
+::  +assert-rice: check provenance and fit data to mold
+::
+::  this arm takes in a grain, a mold, and optional lord and holder
+::  metadata. if lord or holder given, the rice is asserted to have
+::  that property. the grain is also asserted to *be* rice, and we
+::  return the rice with the data inside asserted into the mold given.
+::
+++  assert-rice
+  |*  [typ=mold =grain lord=(unit address) holder=(unit address)]
+  ?>  ?&  ?~(lord %.y =(lord.p.grain u.lord))
+          ?~(holder %.y =(holder.p.grain u.holder))
+          ?=(%& -.grain)
+      ==
+  p.grain(data ;;(typ data.p.grain))
+::
 ::  +fry: hash lord+town+germ to make contract grain pubkey
 ::
 ++  fry-contract

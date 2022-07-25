@@ -402,7 +402,7 @@
         ?@  act  gra
         ?:  ?=([%grain id] act)
           ?~  found=(~(get by granary) +.act)
-            gra
+            (~(uni by $(act -.act)) $(act +.act))
           (~(put by (~(uni by $(act -.act)) $(act +.act))) +.act u.found)
         (~(uni by $(act -.act)) $(act +.act))
       --

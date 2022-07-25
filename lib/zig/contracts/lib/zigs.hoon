@@ -16,13 +16,13 @@
         cap=~
         mintable=%.n
         minters=~
-        deployer=id  ::  will be 0x0
-        salt=@       ::  'zigs'
+        deployer=address  ::  will be 0x0
+        salt=@            ::  'zigs'
     ==
   ::
   +$  account
     $:  balance=@ud
-        allowances=(map sender=id @ud)
+        allowances=(map address @ud)
         metadata=id
     ==
   ::
@@ -37,11 +37,16 @@
     ::
         $:  %take
             to=address
-            account=(unit [%grain =id])
-            from-account=[%grain id]
             amount=@ud
+            from-account=[%grain =id]
+            to-account=(unit [%grain =id])
         ==
-        [%set-allowance who=id amount=@ud]  ::  (to revoke, call with amount=0)
+    ::
+        $:  %set-allowance
+            who=address
+            amount=@ud  ::  (to revoke, call with amount=0)
+            account=[%grain =id]
+        ==
     ==
   --
 ::
@@ -55,22 +60,18 @@
       |=  =account:sur
       ^-  json
       %-  pairs
-      :^    [%balance (numb balance.account)]
+      :~  [%balance (numb balance.account)]
           [%allowances (allowances allowances.account)]
-        [%metadata (metadata metadata.account)]
-      ~
+          [%metadata [%s (scot %ux metadata.account)]]
+      ==
       ::
       ++  allowances
-        |=  a=(map id @ud)
+        |=  a=(map address @ud)
         ^-  json
         %-  pairs
         %+  turn  ~(tap by a)
-        |=  [i=id allowance=@ud]
-        [(scot %ux i) (numb allowance)]
-      ::
-      ++  metadata
-        |=  md-id=id
-        [%s (scot %ux md-id)]
+        |=  [=address allowance=@ud]
+        [(scot %ux address) (numb allowance)]
       --
     ::
     ++  token-metadata
@@ -84,13 +85,10 @@
           [%supply (numb supply.md)]
           [%cap ~]
           [%mintable %b mintable.md]
-          [%minters (minters minters.md)]
+          [%minters (set-id minters.md)]
           [%deployer %s (scot %ux deployer.md)]
           [%salt (numb salt.md)]
       ==
-      ::
-      ++  minters
-        set-id
       ::
       ++  set-id
         |=  set-id=(set id)
@@ -112,21 +110,24 @@
         :~  [%budget (numb budget.a)]
             [%to %s (scot %ux to.a)]
             [%amount (numb amount.a)]
+            [%from-account %s (scot %ux id.from-account.a)]
+            [%to-account ?~(to-account.a ~ [%s (scot %ux id.u.to-account.a)])]
         ==
       ::
           %take
         %-  pairs
         :~  [%to %s (scot %ux to.a)]
-            [%account ?~(account.a ~ [%s (scot %ux u.account.a)])]
-            [%from-account %s (scot %ux from-account.a)]
             [%amount (numb amount.a)]
+            [%from-account %s (scot %ux id.from-account.a)]
+            [%to-account ?~(to-account.a ~ [%s (scot %ux id.u.to-account.a)])]
         ==
       ::
           %set-allowance
         %-  pairs
-        :+  [%who %s (scot %ux who.a)]
-          [%amount (numb amount.a)]
-        ~
+        :~  [%who %s (scot %ux who.a)]
+            [%amount (numb amount.a)]
+            [%account %s (scot %ux id.account.a)]
+        ==
       ==
     --
   --
