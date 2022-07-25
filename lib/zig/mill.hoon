@@ -348,17 +348,16 @@
         =/  dor=vase  [-:!>(*contract) battery]
         ::
         ::  validate that action nests
-        ~&  >  "yolk: {<yolk.egg>}"
         ::  ?~  wrapped=(nesting interface.wheat action.egg)
         ::    ~&  >>>  "mill:error: action {<action.egg>} not found in {<~(key by interface.wheat)>}"
         ::    [~ ~ budget %6]
         ::
         ::  note that we can actually push whatever vased noun into the contract
         ::
-        ~&  >>>  cart
-        ::
-        ?.  test-mode
+        ?:  test-mode
           ::  run without zebra
+          ~&  >  "yolk: {<yolk.egg>}"
+          ~&  >>>  "cart: {<cart>}"
           =/  res
             :-  (mule |.(;;(chick q:(shut dor %write !>(cart) !>(yolk.egg)))))
             (sub budget (mul rate.shell.egg 7))

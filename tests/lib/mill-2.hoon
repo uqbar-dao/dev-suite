@@ -137,20 +137,19 @@
 ::  tests for +mill
 ::
 ++  test-mill-all-trivial-pass
-  ::  tag your @ux with %grain-id if you want it to be carried in cart
-  =/  =action  [%give 100 [%grain 0x1.beef]]
-  =/  hash=@ux  `@ux`(sham action)
+  ::  tag your @ux with %grain if you want it to be carried in cart
+  =/  =yolk  [%give 100 [%grain 0x1.beef]]
   =/  shel=shell
-    [caller-1 fake-sig ~ id.p:triv-wheat 1 1.000 town-id 0]
+    [caller-1 ~ id.p:triv-wheat 1 10.000 town-id 0]
+  =/  hash=@ux  `@ux`(sham [shel yolk])
   =/  [res=state-transition rej=carton]
     %^  ~(mill-all mil miller town-id 1)  ::  batch-num
-    fake-land  (silt ~[[hash [shel action]]])  1.024
-  ~&  >>>  crows.res
+    fake-land  (silt ~[[hash `egg`[fake-sig shel yolk]]])  1.024
   ;:  weld
   ::  assert that our call went through
     %+  expect-eq
       !>(%0)
-    !>(status.p.+.-.processed.res)
+    !>(status.shell.+.-.processed.res)
   ::  assert fee paid
     %+  expect-eq
       !>(299.993)
