@@ -194,10 +194,10 @@
     ?~  a
       b
     ?:  =(p.n.b p.n.a)
-      =:  l.a  $(a l.a, b l.b)
-          r.a  $(a r.a, b r.b)
+      =:  l.b  $(a l.a, b l.b)
+          r.b  $(a r.a, b r.b)
         ==
-      a(p.q.n (mer a [p q.q]:n.a))
+      b(p.q.n (mer b [p q.q]:n.b))
     ?:  (sure p.n.a p.n.b)
       ?:  (sore p.n.b p.n.a)
         =.  l.a  $(a l.a, r.b ~, p.q.n.b (mer b(r ~) [p q.q]:n.b))
