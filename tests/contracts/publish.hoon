@@ -26,7 +26,7 @@
     [owner-1 `[%deploy %.y [trivial-nok ~] ~] ~]
   =/  =cart
     [`@ux`'publish' init-now 0x1 ~]
-  =/  new-id  (fry-contract `@ux`'publish' 0x1 trivial-nok)
+  =/  new-id  (fry-wheat `@ux`'publish' 0x1 trivial-nok)
   =/  new-grain  ^-  grain
     :*  new-id
         `@ux`'publish'

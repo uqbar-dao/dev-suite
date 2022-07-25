@@ -16,7 +16,7 @@
       %deploy
     ::  0x0 denotes immutable contract
     =/  lord=id  ?.(mutable.act 0x0 me.cart)
-    =+  our-id=(fry-contract lord town-id.cart `cont.act)
+    =+  our-id=(fry-wheat lord town-id.cart `cont.act)
     ::  generate grains out of new rice we spawn
     =/  produced=(map id grain)
       %-  ~(gas by *(map id grain))

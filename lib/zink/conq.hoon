@@ -43,7 +43,7 @@
   =.  cax
     %^  cache-file  smartlib
       cax
-    'fry-contract'^~
+    'fry-wheat'^~
   ~&  >>  %core-hashing
   =/  con  (slop (slot 2 !>(*contract:smart)) (slop !>(*cart:smart) smartlib))
   ~&  (arm-axis con %dec)

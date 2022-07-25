@@ -444,7 +444,7 @@
               =(lord lord.p.grain)
               !(~(has by granary) id.p.grain)
               ?:  ?=(%| -.grain)
-                =(id (fry-contract lord town-id.p.grain cont.p.grain))
+                =(id (fry-wheat lord town-id.p.grain cont.p.grain))
               =(id (fry-rice lord holder.p.grain town-id.p.grain salt.p.grain))
           ==
         ::

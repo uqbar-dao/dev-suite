@@ -1,159 +1,50 @@
+::  ::                                         ::::::
+::  ::  smart.hoon: contract standard library  ::  ::
+::  ::                                         ::  ::
+::  ::                                         ::  ::
+::  ::  one: contract types                    ::  ::
+::::::                                         ::::  ::
+=>
 |%
-::
-::  smart contract functions
-::
-::
-::  +assert-rice: check provenance and fit data to mold
-::
-::  this arm takes in a grain, a mold, and optional lord and holder
-::  metadata. if lord or holder given, the rice is asserted to have
-::  that property. the grain is also asserted to *be* rice, and we
-::  return the rice with the data inside asserted into the mold given.
-::
-++  assert-rice
-  |*  [typ=mold =grain lord=(unit address) holder=(unit address)]
-  ?>  ?&  ?~(lord %.y =(lord.p.grain u.lord))
-          ?~(holder %.y =(holder.p.grain u.holder))
-          ?=(%& -.grain)
-      ==
-  p.grain(data ;;(typ data.p.grain))
-::
-::  +fry: hash lord+town+germ to make contract grain pubkey
-::
-++  fry-contract
-  |=  [lord=id town=id cont=(unit [bat=* pay=*])]
-  ^-  id
-  ^-  @ux
-  %-  shax
-  :((cury cat 3) lord town (sham cont))
-::
-++  fry-rice
-  |=  [lord=id holder=id town=id salt=@]
-  ^-  id
-  ^-  @ux
-  %-  shax
-  :((cury cat 3) town lord holder salt)
-::
-::  +pin: get ID from caller
-::
-++  pin
-  |=  =caller
-  ^-  id
-  ?:(?=(@ux caller) caller id.caller)
-::
-++  result
-  |=  [changed=(list grain) issued=(list grain) burned=(list grain) =crow]
-  ^-  chick
-  :-  %&
-  :^    (~(gas by *(map id grain)) (turn changed |=(=grain [id.p.grain grain])))
-      (~(gas by *(map id grain)) (turn issued |=(=grain [id.p.grain grain])))
-    (~(gas by *(map id grain)) (turn burned |=(=grain [id.p.grain grain])))
-  crow
-::
-++  continuation
-  |=  [next=(list [to=id town-id=id =yolk]) rooster=chick]
-  ^-  chick
-  ?>  ?=(%& -.rooster)
-  [%| next p.rooster]
-::
-::  smart contract types
-::
 +$  id       @ux            ::  pubkey
 +$  address  @ux            ::  42-char hex address, ETH compatible
 +$  sig      [v=@ r=@ s=@]  ::  ETH compatible ECDSA signature
-+$  typed-message  [domain=id message=@]  ::  message should be typed according to some mold specified by the wheat. Do we include the mold in the hash here or not?
+::
 ++  zigs-wheat-id  `@ux`'zigs-contract'   ::  hardcoded "native" token contract
 ::
-+$  account    [=id nonce=@ud zigs=id]
-+$  caller     $@(id account)
++$  account  [=id nonce=@ud zigs=id]
++$  caller   $@(id account)
 ::
-::  a grain holds either rice (data) or wheat (functions)
++$  typed-message  [domain=id message=@]  ::  message should be typed according to some mold specified by the wheat
+::
+::  grains populate the state.
+::
+::  they can only be modified by their lord, which must be
+::  a contract. the role of a holder is determined by the
+::  specific rules of the contract, usually implying some
+::  form of ownership.
+::
+::  a grain holds either rice (data) or wheat (functions).
 ::
 +$  grain  (each rice wheat)
-::
 ::  metadata stored in all grains
 +$  bran   [=id lord=id holder=id town-id=id]
 ::
-::  rice contains data as noun plus contract-defined salt and label indicating type
+::  each piece of data includes a contract-defined salt and label
+::  salt is for hashing, to be combined with lord/holder/town for
+::  a unique rice ID without needing to jam data. label matches
+::  types defined in contract wheat and allows apps to find a type
+::  representation for the contained data.
+::
 +$  rice   [salt=@ label=@tas data=* bran]
 ::
 ::  contract contains itself and every imported library in pay
+::
 +$  wheat  [cont=(unit [bat=* pay=*]) interface=lumps types=lumps bran]
 ::
-::  tagged "restricted types" that define contract actions and rice data
+::  labeled "restricted types" that define contract actions and rice data
+::
 +$  lumps  (map @tas lump)
-::
-::  cart: state accessible by contract
-::
-+$  cart
-  $:  me=id
-      from=[=id nonce=@ud]
-      batch=@ud
-      town-id=id
-      grains=(map id grain)
-  ==
-::
-::  contract definition
-::
-+$  contract
-  $_  ^|
-  |_  cart
-  ++  write
-    |~  *
-    chick
-  ::
-  ++  read
-    ^|  |_  path
-    ++  json
-      *^json
-    ++  noun
-      *^noun
-    --
-  --
-::
-::  transaction types, fed into contract
-::
-::  egg error codes:
-::  code can be anything upon submission,
-::  gets set for chunk inclusion in +mill
-::  NOTE: continuation calls generate their own eggs, which
-::  could potentially fail at one of these error points too.
-::  currently keeping this simple, but could try to differentiate
-::  between first-call and continuation-call errors later
-::
-+$  errorcode
-  $%  %0  ::  0: successfully performed
-      %1  ::  1: submitted with raw id / no account info
-      %2  ::  2: bad signature
-      %3  ::  3: incorrect nonce
-      %4  ::  4: lack zigs to fulfill budget
-      %5  ::  5: couldn't find contract
-      %6  ::  6: crash in contract execution
-      %7  ::  7: validation of changed/issued/burned rice failed
-      %8  ::  8: ran out of gas while executing
-      %9  ::  9: was not parallel / superceded by another egg in batch
-  ==
-::
-+$  egg     [=sig =shell =yolk]
-+$  yolk    (pair @tas *)
-+$  shell
-  $:  from=caller
-      eth-hash=(unit @)  ::  if transaction signed with eth wallet, use this to verify signature
-      to=id
-      rate=@ud
-      budget=@ud
-      town-id=id
-      status=@ud  ::  error code
-  ==
-::
-::  contract result types
-::
-+$  chick    (each rooster hen)
-::
-+$  rooster  [changed=(map id grain) issued=(map id grain) burned=(map id grain) =crow]
-+$  hen      [next=(list [to=id town-id=id =yolk]) =rooster]
-::
-+$  crow     (list [@tas json])
 ::
 ::  lump: restricted type
 ::  published inside wheat to share representation of action and rice nouns
@@ -163,7 +54,6 @@
   %+  pair  @tas
   $~  *iota
   $%  iota
-      ::  TODO:
       [%set lump]
       [%list lump]
       [%unit u=lump]
@@ -191,8 +81,149 @@
       [%address @ux]  [%grain @ux]
   ==
 ::
-::  JSON, from lull.hoon and zuse.hoon
-::  allows read arm of contracts to perform enjs operations
+::  cart: state context fed into contract
+::
++$  cart
+  $:  me=id
+      from=[=id nonce=@ud]
+      batch=@ud
+      town-id=id
+      grains=(map id grain)
+  ==
+::
+::  contract result types
+::
++$  chick    (each rooster hen)
+::
++$  rooster  [changed=(map id grain) issued=(map id grain) burned=(map id grain) =crow]
++$  hen      [next=(list [to=id town-id=id =yolk]) =rooster]
+::
++$  crow     (list [@tas json])
+::
+::  smart contract definition
+::
++$  contract
+  $_  ^|
+  |_  cart
+  ++  write
+    |~  *
+    chick
+  ::
+  ++  read
+    ^|  |_  path
+    ++  json
+      *^json
+    ++  noun
+      *^noun
+    --
+  --
+::
+::  transaction types, fed into contract
+::
++$  egg     [=sig =shell =yolk]
++$  yolk    (pair @tas *)
++$  shell
+  $:  from=caller
+      eth-hash=(unit @)  ::  if transaction signed with eth wallet, use this to verify signature
+      to=id
+      rate=@ud
+      budget=@ud
+      town-id=id
+      status=@ud  ::  error code
+  ==
+::
+::  egg error codes
+::
++$  errorcode
+  $%  %0  ::  0: successfully performed
+      %1  ::  1: submitted with raw id / no account info
+      %2  ::  2: bad signature
+      %3  ::  3: incorrect nonce
+      %4  ::  4: lack zigs to fulfill budget
+      %5  ::  5: couldn't find contract
+      %6  ::  6: crash in contract execution
+      %7  ::  7: validation of changed/issued/burned rice failed
+      %8  ::  8: ran out of gas while executing
+      %9  ::  9: was not parallel / superceded by another egg in batch
+  ==
+--  =>
+::  ::
+::  ::  two: contract functions
+::::::
+|%
+::
+::  +assert-rice: check provenance and fit data to mold
+::
+::  this arm takes in a grain, a mold, and optional lord and holder
+::  metadata. if lord or holder given, the rice is asserted to have
+::  that property. the grain is also asserted to *be* rice, and we
+::  return the rice with the data inside asserted into the mold given.
+::
+++  assert-rice
+  |*  [typ=mold =grain lord=(unit address) holder=(unit address)]
+  ?>  ?&  ?~(lord %.y =(lord.p.grain u.lord))
+          ?~(holder %.y =(holder.p.grain u.holder))
+          ?=(%& -.grain)
+      ==
+  p.grain(data ;;(typ data.p.grain))
+::
+::  +fry: standard hashing functions for rice and wheat grains
+::
+++  fry-wheat
+  |=  [lord=id town=id cont=(unit [bat=* pay=*])]
+  ^-  id
+  ^-  @ux
+  %-  shax
+  :((cury cat 3) lord town (sham cont))
+::
+++  fry-rice
+  |=  [lord=id holder=id town=id salt=@]
+  ^-  id
+  ^-  @ux
+  %-  shax
+  :((cury cat 3) town lord holder salt)
+::
+::  +pin: get ID from caller
+::
+++  pin
+  |=  =caller
+  ^-  id
+  ?:(?=(@ux caller) caller id.caller)
+::
+::  +result: generate a chick containing a final result
+::
+++  result
+  |=  [changed=(list grain) issued=(list grain) burned=(list grain) =crow]
+  ^-  chick
+  :-  %&
+  :^    (~(gas by *(map id grain)) (turn changed |=(=grain [id.p.grain grain])))
+      (~(gas by *(map id grain)) (turn issued |=(=grain [id.p.grain grain])))
+    (~(gas by *(map id grain)) (turn burned |=(=grain [id.p.grain grain])))
+  crow
+::
+::  +continuation: generate a chick containing an intermediate result and a list of next calls
+::
+++  continuation
+  |=  [next=(list [to=id town-id=id args=yolk]) rooster=chick]
+  ^-  chick
+  ?>  ?=(%& -.rooster)
+  [%| next p.rooster]
+--  =>
+::  ::
+::  ::  three: data structures
+::::::
+|%
+::
+::  TODO insert merk
+::
+--  =>
+::  ::
+::  ::  four: formatting (json from zuse/lull)
+::::::
+|%
+::
+::  JSONification
+::  allows read arm of contracts to generate JSON
 ::
 +$  ship  @p
 +$  json                                                ::  normal json value
@@ -247,10 +278,15 @@
       |=  a=^tank
       ^-  json
       [%a (turn (wash [0 80] a) tape)]
-    --  ::enjs
+    --
   --
+--
+::  ::
+::  ::  five: crypto (from zuse)
+::::::
+|%
 ::
-::::  from ethereum.hoon
+::  from ethereum.hoon
 ::
 ++  address-from-pub
   =,  keccak:crypto
