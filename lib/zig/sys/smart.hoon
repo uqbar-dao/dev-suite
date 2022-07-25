@@ -62,12 +62,10 @@
 +$  address  @ux            ::  42-char hex address, ETH compatible
 +$  sig      [v=@ r=@ s=@]  ::  ETH compatible ECDSA signature
 +$  typed-message  [domain=id message=@]  ::  message should be typed according to some mold specified by the wheat. Do we include the mold in the hash here or not?
-++  zigs-wheat-id  `@ux`'zigs-contract'  ::  hardcoded "native" token contract
+++  zigs-wheat-id  `@ux`'zigs-contract'   ::  hardcoded "native" token contract
 ::
 +$  account    [=id nonce=@ud zigs=id]
 +$  caller     $@(id account)
-::  currently only using ecdsa [v r s]
-::  +$  signature  [r=@ux s=@ux type=?(%schnorr %ecdsa)]
 ::
 ::  a grain holds either rice (data) or wheat (functions)
 ::
