@@ -140,7 +140,7 @@
   ::  tag your @ux with %grain if you want it to be carried in cart
   =/  =yolk  [%give 100 [%grain 0x1.beef]]
   =/  shel=shell
-    [caller-1 ~ id.p:triv-wheat 1 10.000 town-id 0]
+    [caller-1 ~ id.p:triv-wheat 1 1.000 town-id 0]
   =/  hash=@ux  `@ux`(sham [shel yolk])
   =/  [res=state-transition rej=carton]
     %^  ~(mill-all mil miller town-id 1)  ::  batch-num

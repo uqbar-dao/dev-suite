@@ -57,9 +57,11 @@
     =/  receiver  (assert-rice account:sur - `me.cart `to.act)
     =:  balance.data.giver     (sub balance.data.giver amount.act)
         balance.data.receiver  (add balance.data.receiver amount.act)
-        allowances.data.giver  %+  ~(jab by allowances.data.giver)
-                                 id.from.cart
-                               |=(old=@ud (sub old amount.act))
+    ::
+          allowances.data.giver
+      %+  ~(jab by allowances.data.giver)
+        id.from.cart
+      |=(old=@ud (sub old amount.act))
     ==
     (result [[%& giver] [%& receiver] ~] ~ ~ ~)
   ::

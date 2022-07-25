@@ -281,8 +281,12 @@
       ::  insert budget argument if egg is %give-ing zigs
       =?  q.yolk.egg  &(=(to.shell.egg zigs-wheat-id) =(p.yolk.egg %give))
         [budget.shell.egg q.yolk.egg]
-      ?~  gra=(~(get by granary) to.shell.egg)  [~ ~ ~ ~ budget.shell.egg %5]
-      ?.  ?=(%| -.u.gra)                    [~ ~ ~ ~ budget.shell.egg %5]
+      ?~  gra=(~(get by granary) to.shell.egg)
+        ::  can't find contract to call
+        [~ ~ ~ ~ budget.shell.egg %5]
+      ?.  ?=(%| -.u.gra)
+        ::  contract id found a rice
+        [~ ~ ~ ~ budget.shell.egg %5]
       (grow from p.u.gra egg hits burned)
     ::  +grow: recursively apply any calls stemming from egg,
     ::  return on rooster or failure
@@ -347,27 +351,26 @@
         =/  battery   .*([q.library payload] bat.u.cont.wheat)
         =/  dor=vase  [-:!>(*contract) battery]
         ::
-        ::  validate that action nests
-        ::  ?~  wrapped=(nesting interface.wheat action.egg)
-        ::    ~&  >>>  "mill:error: action {<action.egg>} not found in {<~(key by interface.wheat)>}"
-        ::    [~ ~ budget %6]
-        ::
-        ::  note that we can actually push whatever vased noun into the contract
+        =/  gun  (ajar dor %write !>(cart) !>(yolk.egg))
         ::
         ?:  test-mode
-          ::  run without zebra
+          ::  fake execution without hints or gas
+          ::
           ~&  >  "yolk: {<yolk.egg>}"
           ~&  >>>  "cart: {<cart>}"
-          =/  res
-            :-  (mule |.(;;(chick q:(shut dor %write !>(cart) !>(yolk.egg)))))
-            (sub budget (mul rate.shell.egg 7))
-          ?:  ?=(%| -.-.res)
+          =/  rem    (sub budget (mul rate.shell.egg 7))
+          =/  =toon  (mock gun test-search)
+          ?:  ?=(%2 -.toon)
             ::  error in contract execution
-            [~ ~ +.res %6]
-          [~ `p.-.res +.res %0]
+            ~&  >>>  p.toon
+            [~ ~ rem %6]
+          ?:  ?=(%1 -.toon)
+            ::  block (scry issue?)
+            ~&  >>>  "execution error: {<p.toon>}"
+            [~ ~ rem %6]
+          [~ `;;(chick p.toon) rem %0]
         ::  generate ZK-proof hints with zebra
-        =/  gun
-          (ajar dor %write !>(cart) !>(yolk.egg))
+        ::
         =/  =book
           (zebra budget zink-cax search gun)
         ~&  >>  p.book  ::  chick+(hole (unit chick) p.p.book)
@@ -391,6 +394,16 @@
         =/  grain  (~(get by granary) id)
         ::  TODO populate path using +mek in merk
         `[~ grain]
+      ::
+      ++  test-search
+        |=  pax=^
+        ^-  (unit (unit))
+        ?~  pat=((soft path) pax)     ~^~
+        ?.  ?=([%granary @ ~] u.pat)  ~^~
+        =/  id  (slav %ux i.t.u.pat)
+        =/  grain  (~(get by granary) id)
+        ::  TODO populate path using +mek in merk
+        ``grain
       ::
       ++  plant
         |=  act=*

@@ -3,7 +3,7 @@
 ::  Agent for managing a single UQ| town. Publishes diffs to rollup.hoon
 ::  Accepts transactions and batches them periodically as moves to town.
 ::
-/+  *sequencer, *rollup, zink=zink-zink, sig=zig-sig, default-agent, dbug, verb
+/+  *sequencer, *rollup, uqbar, zink=zink-zink, sig=zig-sig, default-agent, dbug, verb
 ::  Choose which library smart contracts are executed against here
 ::
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
@@ -150,7 +150,7 @@
       |=  [hash=@ux =egg:smart]
       ^-  card
       =/  usig  (ecdsa-raw-sign:secp256k1:secp:crypto `@uvI`hash (need private-key.state))
-      =+  [%uqbar-write !>([%receipt hash (sign:sig our.bowl now.bowl hash) usig])]
+      =+  [%uqbar-write !>(`write:uqbar`[%receipt hash (sign:sig our.bowl now.bowl hash) usig])]
       [%pass /submit-transaction/(scot %ux hash) %agent [src.bowl %uqbar] %poke -]
     ::
     ::  batching
