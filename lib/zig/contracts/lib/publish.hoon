@@ -1,7 +1,17 @@
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 |%
 +$  action
-  $%  [%deploy mutable=? cont=[bat=* pay=*] owns=(list rice)]
-      [%upgrade to-upgrade=id new-nok=[bat=* pay=*]]
+  $%  $:  %deploy
+          mutable=?
+          cont=[bat=* pay=*]
+          interface=(map @tas lump)
+          types=(map @tas lump)
+          owns=(list [salt=@ label=@tas data=*])
+      ==
+      ::
+      $:  %upgrade
+          to-upgrade=[%grain =id]
+          new-nok=[bat=* pay=*]
+      ==
   ==
 --

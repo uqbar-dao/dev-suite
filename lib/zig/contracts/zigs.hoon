@@ -77,28 +77,27 @@
 ++  read
   |_  =path
   ++  json
-    ~
-    ::  ^-  ^json
-    ::  ?+    path  !!
-    ::      [%rice-data ~]
-    ::    ?>  =(1 ~(wyt by owns.cart))
-    ::    =/  g=grain  -:~(val by owns.cart)
-    ::    ?>  ?=(%& -.germ.g)
-    ::    ?:  ?=(%account label.p.germ.g)
-    ::      (account:enjs:lib ;;(account:sur data.p.germ.g))
-    ::    (token-metadata:enjs:lib ;;(token-metadata:sur data.p.germ.g))
-    ::  ::
-    ::      [%rice-data @ ~]
-    ::    =/  g  ;;(grain (cue (slav %ud i.t.path)))
-    ::    ?>  ?=(%& -.germ.g)
-    ::    ?:  ?=(%account label.p.germ.g)
-    ::      (account:enjs:lib ;;(account:sur data.p.germ.g))
-    ::    (token-metadata:enjs:lib ;;(token-metadata:sur data.p.germ.g))
-    ::  ::
-    ::      [%egg-action @ ~]
-    ::    %-  action:enjs:lib
-    ::    ;;(action:sur (cue (slav %ud i.t.path)))
-    ::  ==
+    ^-  ^json
+    ?+    path  !!
+        [%rice-data ~]
+      ?>  =(1 ~(wyt by grains.cart))
+      =/  g=grain  -:~(val by grains.cart)
+      ?>  ?=(%& -.g)
+      ?:  ?=(%account label.p.g)
+        (account:enjs:lib ;;(account:sur data.p.g))
+      (token-metadata:enjs:lib ;;(token-metadata:sur data.p.g))
+    ::
+        [%rice-data @ ~]
+      =/  g  ;;(grain (cue (slav %ud i.t.path)))
+      ?>  ?=(%& -.g)
+      ?:  ?=(%account label.p.g)
+        (account:enjs:lib ;;(account:sur data.p.g))
+      (token-metadata:enjs:lib ;;(token-metadata:sur data.p.g))
+    ::
+        [%egg-action @ ~]
+      %-  action:enjs:lib
+      ;;(action:sur (cue (slav %ud i.t.path)))
+    ==
   ::
   ++  noun
     ~
