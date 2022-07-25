@@ -117,6 +117,59 @@
     ?~  b  a
     $(b t.b, a (put a i.b))
   ::
+  ++  get                                               ::  grab value by key
+    |=  [a=mert b=key]
+    ^-  (unit val)
+    ?~  a
+      ~
+    ?:  =(b p.n.a)
+      (some q.q.n.a)
+    ?:  (sore b p.n.a)
+      $(a l.a)
+    $(a r.a)
+  ::
+  ++  got                                               ::  need value by key
+    |=  [a=mert b=key]
+    ^-  val
+    (need (get a b))
+  ::
+  ++  has                                               ::  key existence check
+    |=  [a=mert b=key]
+    !=(~ (get a b))
+  ::
+  ++  int                                               ::  intersection
+    |=  [a=mert b=mert]
+    ^+  a
+    ?~  b
+      ~
+    ?~  a
+      ~
+    ?:  (sure p.n.a p.n.b)
+      ?:  =(p.n.b p.n.a)
+        =:  l.b  $(a l.a, b l.b)
+            r.b  $(a r.a, b r.b)
+          ==
+        b(p.q.n (mer b [p q.q]:n.b))
+      ?:  (sore p.n.b p.n.a)
+        %+  uni
+          $(a l.a, r.b ~, p.q.n.b (mer b(r ~) [p q.q]:n.b))
+        $(b r.b)
+      %+  uni
+        $(a r.a, l.b ~, p.q.n.b (mer b(l ~) [p q.q]:n.b))
+      $(b l.b)
+    ?:  =(p.n.a p.n.b)
+      =:  l.b  $(a l.a, b l.b)
+          r.b  $(a r.a, b r.b)
+        ==
+      b(p.q.n (mer b [p q.q]:n.b))
+    ?:  (sore p.n.a p.n.b)
+      %+  uni
+        $(b l.b, r.a ~, p.q.n.a (mer a(r ~) [p q.q]:n.a))
+      $(a r.a)
+    %+  uni
+      $(b r.b, l.a ~, p.q.n.a (mer a(l ~) [p q.q]:n.a))
+    $(a l.a)
+  ::
   ++  mek                                               ::  merkle hashes for key
     |=  [a=mert b=key]
     ^-  (list hash)
@@ -138,27 +191,6 @@
     :+  b
       ?~(l.a ~ p.q.n.l.a)
     ?~(r.a ~ p.q.n.r.a)
-  ::
-  ++  get                                               ::  grab value by key
-    |=  [a=mert b=key]
-    ^-  (unit val)
-    |-
-    ?~  a
-      ~
-    ?:  =(b p.n.a)
-      (some q.q.n.a)
-    ?:  (sore b p.n.a)
-      $(a l.a)
-    $(a r.a)
-  ::
-  ++  got                                               ::  need value by key
-    |=  [a=mert b=key]
-    ^-  val
-    (need (get a b))
-  ::
-  ++  has                                               ::  key existence check
-    |=  [a=mert b=key]
-    !=(~ (get a b))
   ::
   ++  put                                               ::  adds key-value pair
     |=  [a=mert b=key c=val]
@@ -194,10 +226,10 @@
     ?~  a
       b
     ?:  =(p.n.b p.n.a)
-      =:  l.a  $(a l.a, b l.b)
-          r.a  $(a r.a, b r.b)
+      =:  l.b  $(a l.a, b l.b)
+          r.b  $(a r.a, b r.b)
         ==
-      a(p.q.n (mer a [p q.q]:n.a))
+      b(p.q.n (mer b [p q.q]:n.b))
     ?:  (sure p.n.a p.n.b)
       ?:  (sore p.n.b p.n.a)
         =.  l.a  $(a l.a, r.b ~, p.q.n.b (mer b(r ~) [p q.q]:n.b))
