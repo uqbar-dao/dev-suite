@@ -1,10 +1,19 @@
-::  ::                                         ::::::
-::  ::  smart.hoon: contract standard library  ::  ::
-::  ::                                         ::  ::
-::  ::                                         ::  ::
-::  ::  one: contract types                    ::  ::
-::::::                                         ::::  ::
+::  ::                                         ::::::    ::::::    ::    ::::::
+::  ::  smart.hoon: contract standard library  ::  ::    ::  ::  ::  ::  ::  ::
+::  ::                                         ::  ::    ::::    ::::::  ::::
+::  ::                                         ::  ::    ::  ::  ::  ::  ::  ::
+::  ::  one: data structures                   ::  ::    ::  ::  ::  ::  ::  ::
+::::::                                         ::::  ::  ::::::  ::  ::  ::  ::
 =>
+|%
+::
+::  TODO insert merk
+::
++$  merk  *
+--  =>
+::  ::
+::  ::  two: contract types
+::::::
 |%
 +$  id       @ux            ::  pubkey
 +$  address  @ux            ::  42-char hex address, ETH compatible
@@ -118,9 +127,13 @@
     --
   --
 ::
-::  transaction types, fed into contract
+::  transaction type, fed into contract
 ::
 +$  egg     [=sig =shell =yolk]
+::
+::  @tas label should match to one in contract's interface
+::  yolk becomes the noun fed into contract write arm
+::
 +$  yolk    (pair @tas *)
 +$  shell
   $:  from=caller
@@ -148,7 +161,7 @@
   ==
 --  =>
 ::  ::
-::  ::  two: contract functions
+::  ::  three: contract functions
 ::::::
 |%
 ::
@@ -208,14 +221,6 @@
   ^-  chick
   ?>  ?=(%& -.rooster)
   [%| next p.rooster]
---  =>
-::  ::
-::  ::  three: data structures
-::::::
-|%
-::
-::  TODO insert merk
-::
 --  =>
 ::  ::
 ::  ::  four: formatting (json from zuse/lull)

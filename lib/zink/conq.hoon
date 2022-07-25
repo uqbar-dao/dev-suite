@@ -41,9 +41,14 @@
     ==
   ~&  >>  %hashing-smart-arms
   =.  cax
-    %^  cache-file  smartlib
+    %^  cache-file  hoonlib
       cax
-    'fry-wheat'^~
+    :~  'merk'
+        'id'
+        'assert-rice'
+        'ship'
+        'address-from-pub'
+    ==
   ~&  >>  %core-hashing
   =/  con  (slop (slot 2 !>(*contract:smart)) (slop !>(*cart:smart) smartlib))
   ~&  (arm-axis con %dec)
