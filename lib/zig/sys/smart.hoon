@@ -538,6 +538,7 @@
 ::  ::
 ::  ::  five: crypto (from zuse + pedersen hash)
 ::::::
+~%  %ped  ..part  ~
 |%
 ++  pedersen
   ~%  %pedersen  +  ~

@@ -118,14 +118,14 @@
 ::
 ++  fake-granary
   ^-  granary
-  %-  ~(gas by *(map id grain))
+  %+  gas:big:mill  *(merk id grain)
   :~  [id.p:triv-wheat triv-wheat]
       [id.p:beef-account:zigs beef-account:zigs]
       [id.p:miller-account:zigs miller-account:zigs]
   ==
 ++  fake-populace
   ^-  populace
-  %-  ~(gas by *(map id @ud))
+  %+  gas:pig:mill  *(merk id @ud)
   ~[[holder-1:zigs 0] [holder-2:zigs 0] [holder-3:zigs 0]]
 ++  fake-land
   ^-  land
@@ -153,13 +153,13 @@
   ::  assert fee paid
     %+  expect-eq
       !>(299.993)
-    =+  (~(got by p.land.res) id.p:beef-account:zigs)
+    =+  (got:big:mill p.land.res id.p:beef-account:zigs)
     ?>  ?=(%& -.-)
     !>(-.data.p.-)
   ::  assert fee received correctly
     %+  expect-eq
      !>(1.000.007)
-    =+  (~(got by p.land.res) id.p:miller-account:zigs)
+    =+  (got:big:mill p.land.res id.p:miller-account:zigs)
     ?>  ?=(%& -.-)
     !>(-.data.p.-)
   ==
