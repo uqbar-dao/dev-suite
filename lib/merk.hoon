@@ -120,7 +120,6 @@
   ++  get                                               ::  grab value by key
     |=  [a=mert b=key]
     ^-  (unit val)
-    |-
     ?~  a
       ~
     ?:  =(b p.n.a)
