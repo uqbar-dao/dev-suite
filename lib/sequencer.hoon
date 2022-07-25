@@ -17,7 +17,7 @@
   ^-  (unit (unit cage))
   ?>  ?=([%grain @ ~] path)
   =/  id  (slav %ux i.t.path)
-  ``noun+!>((~(get by granary) id))
+  ``noun+!>((get:big:mill granary id))
 ::
 ++  read-wheat
   |=  [=path now=time town-id=id:smart =granary library=vase]
@@ -34,22 +34,22 @@
     |=  addr=@
     ?:  =('~' addr)  ~
     `(slav %ux addr)
-  ?~  res=(~(get by granary) id)  ``noun+!>(~)
-  ?.  ?=(%| -.u.res)              ``noun+!>(~)
-  ?~  cont.p.u.res                ``noun+!>(~)
+  ?~  res=(get:big:mill granary id)  ``noun+!>(~)
+  ?.  ?=(%| -.u.res)                 ``noun+!>(~)
+  ?~  cont.p.u.res                   ``noun+!>(~)
   =*  cont  u.cont.p.u.res
   =/  owns
-    %-  ~(gas by *(map id:smart grain:smart))
+    %+  gas:big:mill  *(merk:smart id:smart grain:smart)
     %+  murn  contract-rice
     |=  find=id:smart
-    ?~  found=(~(get by granary) find)  ~
-    ?.  ?=(%& -.u.found)                ~
-    ?.  =(lord.p.u.found id)            ~
+    ?~  found=(get:big:mill granary find)  ~
+    ?.  ?=(%& -.u.found)                   ~
+    ?.  =(lord.p.u.found id)               ~
     `[find u.found]
   ::  this isn't an ideal method but okay for now
   ::  goal is to return ~ if some rice weren't found
-  ?.  =(~(wyt by owns) (lent contract-rice))
-    ``noun+!>(~)
+  ::  ?.  =(~(wyt by owns) (lent contract-rice))
+  ::    ``noun+!>(~)
   ::  TODO swap this with +zebra when able?
   =/  cart     [id from=[0x0 0] now town-id owns]
   =/  payload  .*(q.library pay.cont)

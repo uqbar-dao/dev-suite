@@ -804,7 +804,7 @@
       =|  parsed-grain=(list [@ux batch-location:ui])
       =|  parsed-holder=(list [@ux second-order-location:ui])
       =|  parsed-lord=(list [@ux second-order-location:ui])
-      =/  grains=(list [@ux grain:smart])
+      =/  grains=(list [@ @ux grain:smart])
         ~(tap by granary)
       |-
       ?~  grains  [parsed-grain parsed-holder parsed-lord]
@@ -1144,7 +1144,7 @@
         $(locations t.locations)
       =*  timestamp  -.u.b
       =*  granary    p.land.+.u.b
-      ?~  grain=(~(get by granary) grain-id)
+      ?~  grain=(get:(bi:smart id:smart grain:smart) granary grain-id)
         $(locations t.locations)
       %=  $
           locations  t.locations

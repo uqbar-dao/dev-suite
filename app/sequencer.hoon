@@ -132,7 +132,7 @@
         ~|("%sequencer: error: got asset while not active" !!)
       ?~  town.state  !!
       ~&  >>  "%sequencer: received assets from rollup: {<assets.act>}"
-      `state(town `u.town(p.land (~(uni by p.land.u.town.state) assets.act)))
+      `state(town `u.town(p.land (uni:big:mill p.land.u.town.state assets.act)))
     ::
     ::  transactions
     ::
