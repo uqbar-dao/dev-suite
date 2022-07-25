@@ -117,6 +117,27 @@
     ?~  b  a
     $(b t.b, a (put a i.b))
   ::
+  ++  get                                               ::  grab value by key
+    |=  [a=mert b=key]
+    ^-  (unit val)
+    |-
+    ?~  a
+      ~
+    ?:  =(b p.n.a)
+      (some q.q.n.a)
+    ?:  (sore b p.n.a)
+      $(a l.a)
+    $(a r.a)
+  ::
+  ++  got                                               ::  need value by key
+    |=  [a=mert b=key]
+    ^-  val
+    (need (get a b))
+  ::
+  ++  has                                               ::  key existence check
+    |=  [a=mert b=key]
+    !=(~ (get a b))
+  ::
   ++  mek                                               ::  merkle hashes for key
     |=  [a=mert b=key]
     ^-  (list hash)
@@ -138,27 +159,6 @@
     :+  b
       ?~(l.a ~ p.q.n.l.a)
     ?~(r.a ~ p.q.n.r.a)
-  ::
-  ++  get                                               ::  grab value by key
-    |=  [a=mert b=key]
-    ^-  (unit val)
-    |-
-    ?~  a
-      ~
-    ?:  =(b p.n.a)
-      (some q.q.n.a)
-    ?:  (sore b p.n.a)
-      $(a l.a)
-    $(a r.a)
-  ::
-  ++  got                                               ::  need value by key
-    |=  [a=mert b=key]
-    ^-  val
-    (need (get a b))
-  ::
-  ++  has                                               ::  key existence check
-    |=  [a=mert b=key]
-    !=(~ (get a b))
   ::
   ++  put                                               ::  adds key-value pair
     |=  [a=mert b=key c=val]
