@@ -133,6 +133,11 @@
     ^-  val
     (need (get a b))
   ::
+  ++  gut                                               ::  fall value by key
+    |=  [a=mert b=key c=val]
+    ^-  val
+    (fall (get a b) c)
+  ::
   ++  has                                               ::  key existence check
     |=  [a=mert b=key]
     !=(~ (get a b))
