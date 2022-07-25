@@ -1,3 +1,4 @@
+/+  *zink-pedersen
 |%
 +$  hash  @ux
 ++  merk
@@ -7,10 +8,10 @@
   ?:(=(~ a) & (apt:(bi key value) a))
 ::
 ++  shag                                                ::  256bit noun hash
-  |=  yux=*  ^-  hash  ^-  @
+  |=  yux=*  ^-  hash
   ?@  yux
-    (pedersen-hash %gash yux)
-  (pedersen-hash %shag (jam yux))
+    (hash:pedersen %gash yux)
+  (hash:pedersen %shag (jam yux))
 ::
 ::  +sore: single sha-256 hash in ascending order, uses +dor as
 ::  fallback
