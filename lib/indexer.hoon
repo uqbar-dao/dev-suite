@@ -102,9 +102,10 @@
     |=  =egg:smart
     ^-  json
     %-  pairs
-    :+  [%shell (shell p.egg)]
-      [%yolk (yolk q.egg)]
-    ~
+    :~  [%sig (sig sig.egg)]
+        [%shell (shell shell.egg)]
+        [%yolk (yolk yolk.egg)]
+    ==
   ::
   ++  shell
     |=  =shell:smart
@@ -112,7 +113,6 @@
     ?>  ?=(account:smart from.shell)
     %-  pairs
     :~  [%from (account from.shell)]
-        [%sig (sig sig.shell)]
         [%eth-hash (eth-hash eth-hash.shell)]
         [%to %s (scot %ux to.shell)]
         [%rate (numb rate.shell)]
@@ -122,22 +122,21 @@
     ==
   ::
   ++  yolk
-    |=  =yolk:smart
+    |=  [=yolk:smart]
     ^-  json
     %-  pairs
-    :~  [%action ~]
-        [%my-grains (ids my-grains.yolk)]
-        [%cont-grains (ids cont-grains.yolk)]
+    :~  [%action %s `@t`p.yolk]
+        ::  TODO get lump format from contract interface and convert
     ==
   ::
   ++  account
     |=  =account:smart
     ^-  json
     %-  pairs
-    :^    [%id %s (scot %ux id.account)]
+    :~  [%id %s (scot %ux id.account)]
         [%nonce (numb nonce.account)]
-      [%zigs %s (scot %ux zigs.account)]
-    ~
+        [%zigs %s (scot %ux zigs.account)]
+    ==
   ::
   :: ++  signature
   ::   |=  =signature:zig
@@ -149,10 +148,10 @@
   ::   ~
   ::
   ++  eth-hash
-    |=  eth-hash=(unit @ud)
+    |=  eth-hash=(unit @ux)
     ^-  json
     ?~  eth-hash  ~
-    (numb u.eth-hash)
+    [%s (scot %ux u.eth-hash)]
   ::
   ++  ids
     |=  ids=(set id:smart)
@@ -182,28 +181,26 @@
     |=  =grain:smart
     ^-  json
     %-  pairs
-    :~  [%id %s (scot %ux id.grain)]
-        [%lord %s (scot %ux lord.grain)]
-        [%holder %s (scot %ux holder.grain)]
-        [%town-id %s (scot %ux town-id.grain)]
-        [%germ (germ germ.grain)]
+    %+  welp
+      ?:  ?=(%& -.grain)
+        ::  rice
+        :~  [%is-rice %b %&]
+            [%salt (numb salt.p.grain)]
+            [%label %s `@ta`label.p.grain]
+            ::  TODO get lump format from contract types and convert
+            [%data ~]
+        ==
+      ::  wheat
+      :~  [%is-rice %b %|]
+          [%cont (numb (jam cont.p.grain))]
+          [%interface ~]  ::  TODO
+          [%types ~]  ::  TODO
+      ==
+    :~  [%id %s (scot %ux id.p.grain)]
+        [%lord %s (scot %ux lord.p.grain)]
+        [%holder %s (scot %ux holder.p.grain)]
+        [%town-id %s (scot %ux town-id.p.grain)]
     ==
-  ::
-  ++  germ
-    ::  TODO: rewrite when can get data/cont molds
-    |=  =germ:smart
-    ^-  json
-    ?:  ?=(%& -.germ)
-      %-  pairs
-      :^    [%is-rice %b %&]
-          [%salt (numb salt.p.germ)]
-        [%data ~]
-      ~
-    %-  pairs
-    :^    [%is-rice %b %|]
-        [%cont ~]
-      [%owns (ids owns.p.germ)]
-    ~
   ::
   ++  town
     |=  =town:seq
