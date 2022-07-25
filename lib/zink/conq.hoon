@@ -43,11 +43,11 @@
   =.  cax
     %^  cache-file  hoonlib
       cax
-    :~  'merk'
-        'id'
-        'assert-rice'
+    :~  'pedersen'
+        'merk'
         'ship'
-        'address-from-pub'
+        'id'
+        'husk'
     ==
   ~&  >>  %core-hashing
   =/  con  (slop (slot 2 !>(*contract:smart)) (slop !>(*cart:smart) smartlib))

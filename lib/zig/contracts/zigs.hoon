@@ -18,7 +18,7 @@
       %give
     ::  replace this with a scry once we have those
     =+  (~(got by grains.cart) id.from-account.act)
-    =/  giver  (assert-rice account:sur - `me.cart `id.from.cart)
+    =/  giver  (husk account:sur - `me.cart `id.from.cart)
     ::  unlike other assertions, this is non-optional: we must confirm
     ::  that the giver's zigs balance is enough to cover the maximum
     ::  cost in the original transaction, which is provided in budget
@@ -33,7 +33,7 @@
       (continuation [me.cart town-id.cart next]^~ (result ~ [%& rice]^~ ~ ~))
     ::  have a specified receiver account, grab it and add to balance
     =+  (~(got by grains.cart) id.u.to-account.act)
-    =/  receiver  (assert-rice account:sur - `me.cart `to.act)
+    =/  receiver  (husk account:sur - `me.cart `to.act)
     =:  balance.data.giver     (sub balance.data.giver amount.act)
         balance.data.receiver  (add balance.data.receiver amount.act)
     ==
@@ -42,7 +42,7 @@
       %take
     ::  replace this with a scry once we have those
     =+  (~(got by grains.cart) id.from-account.act)
-    =/  giver  (assert-rice account:sur - `me.cart ~)
+    =/  giver  (husk account:sur - `me.cart ~)
     ::  no assertions required here for balance or allowance,
     ::  because subtract underflow will crash when we try to edit these.
     ?~  to-account.act
@@ -54,7 +54,7 @@
       (continuation [me.cart town-id.cart next]^~ (result ~ [%& rice]^~ ~ ~))
     ::  have a specified receiver account, grab it and add to balance
     =+  (~(got by grains.cart) id.u.to-account.act)
-    =/  receiver  (assert-rice account:sur - `me.cart `to.act)
+    =/  receiver  (husk account:sur - `me.cart `to.act)
     =:  balance.data.giver     (sub balance.data.giver amount.act)
         balance.data.receiver  (add balance.data.receiver amount.act)
     ::
@@ -70,7 +70,7 @@
     ?>  !=(who.act id.from.cart)
     ::  replace with scry
     =+  (~(got by grains.cart) id.account.act)
-    =/  account  (assert-rice account:sur - `me.cart `id.from.cart)
+    =/  account  (husk account:sur - `me.cart `id.from.cart)
     =.  allowances.data.account
       (~(put by allowances.data.account) who.act amount.act)
     (result [%& account]^~ ~ ~ ~)
