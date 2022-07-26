@@ -282,7 +282,7 @@
           =/  metadata  (~(got by metadata-store.state) salt.args.act)
           ~|  "wallet can't find our zigs account for that town!"
           =/  our-account=grain:smart  +:(~(got by book) [town.act to.act salt.metadata])
-          =/  their-account-id  (fry-rice:smart to.args.act to.act town.act salt.metadata)
+          =/  their-account-id  (fry-rice:smart to.act to.args.act town.act salt.metadata)
           ?~  exists=(scry:uqbar %grain their-account-id [our now]:bowl)
             ::  they don't have an account for this token
             ?:  =(to.act `@ux`'zigs-contract')  ::  zigs special case
