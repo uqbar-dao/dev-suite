@@ -270,41 +270,31 @@
                         (fry-rice:smart `@ux`'zigs-contract' from.act town.act `@`'zigs')
       ::  need to check transaction type and collect rice based on it
       ::  only supporting small subset of contract calls, for tokens and NFTs
-      =/  formatted=[args=(unit *) our-grains=(set @ux) cont-grains=(set @ux)]
-        ?-    -.args.act
-            %give
-          ~|  "wallet can't find metadata for that token!"
-          =/  metadata  (~(got by metadata-store.state) salt.args.act)
-          ~|  "wallet can't find our zigs account for that town!"
-          =/  our-account=grain:smart  +:(~(got by book) [town.act to.act salt.metadata])
-          =/  their-account-id  (fry-rice:smart to.act to.args.act town.act salt.metadata)
-          ?~  exists=(scry:uqbar %grain their-account-id [our now]:bowl)
-            ::  they don't have an account for this token
-            ?:  =(to.act `@ux`'zigs-contract')  ::  zigs special case
-              [`[%give to.args.act ~ amount.args.act bud.gas.act] (silt ~[id.our-account]) ~]
-            [`[%give to.args.act ~ amount.args.act] (silt ~[id.our-account]) ~]
-          ::  they have an account for this token, include it in transaction
-          :+  ?:  =(to.act `@ux`'zigs-contract')  ::  zigs special case
-                `[%give to.args.act `their-account-id amount.args.act bud.gas.act]
-              `[%give to.args.act `their-account-id amount.args.act]
-            (silt ~[id.our-account])
-          (silt ~[their-account-id])
-        ::  ONLT difference between this and token give is amount vs. item-id.
-        ::  therefore should figure out way to just unify them.
-            %give-nft
-          ~|  "wallet can't find metadata for that token!"
-          =/  metadata  (~(got by metadata-store.state) salt.args.act)
-          ~|  "wallet can't find our zigs account for that town!"
-          =/  our-account=grain:smart  +:(~(got by book) [town.act to.act salt.metadata])
-          =/  their-account-id  (fry-rice:smart to.act to.args.act town.act salt.metadata)
-          ?~  exists=(scry:uqbar %grain their-account-id [our now]:bowl)
-            [`[%give to.args.act ~ item-id.args.act] (silt ~[id.our-account]) ~]
-          :+  `[%give to.args.act `their-account-id item-id.args.act]
-            (silt ~[id.our-account])
-          (silt ~[their-account-id])
-        ::
-          %custom  !!
-        ==
+      =/  formatted=[args=(unit *) my-grains=(set @ux) cont-grains=(set @ux)]
+      ::  if sending NFT, save item-id
+        =/  amount-or-id
+          ?:  =(-.args.act %give-nft)  item-id.args.act
+          ::  else, save amount to send
+          ?:  =(-.args.act %give)  amount.args.act
+          ~|  "in order to submit with %custom, use %submit-custom instead"
+          !!
+        ::  add data to subj.
+        ~|  "wallet can't find metadata for that token!"
+        =/  metadata  (~(got by metadata-store.state) salt.args.act)
+        ~|  "wallet can't find our zigs account for that town!"
+        =/  our-account=grain:smart  +:(~(got by book) [town.act to.act salt.metadata])
+        =/  their-account-id  (fry-rice:smart to.act to.args.act town.act salt.metadata)
+        ?~  exists=(scry:uqbar %grain their-account-id [our now]:bowl)
+          ::  they don't have an account for this token
+          ?:  =(to.act `@ux`'zigs-contract')  ::  zigs special case
+            [`[%give to.args.act ~ amount.args.act bud.gas.act] (silt ~[id.our-account]) ~]
+          [`[%give to.args.act ~ amount-or-id] (silt ~[id.our-account]) ~]
+        ::  they have an account for this token, include it in transaction
+        :+  ?:  =(to.act `@ux`'zigs-contract')  ::  zigs special case
+              `[%give to.args.act `their-account-id amount.args.act bud.gas.act]
+            `[%give to.args.act `their-account-id amount-or-id]
+          (silt ~[id.our-account])
+        (silt ~[their-account-id])
       =/  keypair       (~(got by keys.state) from.act)
       =/  =yolk:smart   [args.formatted our-grains.formatted cont-grains.formatted]
       =/  sig           ?~  priv.keypair
