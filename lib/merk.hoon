@@ -9,9 +9,10 @@
 ::
 ++  shag                                                ::  256bit noun hash
   |=  yux=*  ^-  hash
+  ::  TODO: make LRU-cache-optimized version for granary retrivial & modification
   ?@  yux
-    (hash:pedersen %gash yux)
-  (hash:pedersen %shag (jam yux))
+    (hash:pedersen yux 0)
+  (hash:pedersen (jam yux) 0)
 ::
 ::  +sore: single sha-256 hash in ascending order, uses +dor as
 ::  fallback
