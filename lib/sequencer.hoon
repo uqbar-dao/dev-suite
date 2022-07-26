@@ -2,14 +2,15 @@
 /+  mill=zig-mill
 |%
 ++  transition-state
-  |=  [old=(unit town) proposed=[=basket =land diff-hash=@ux root=@ux]]
+  |=  [old=(unit town) proposed=[num=@ud =basket =land diff-hash=@ux root=@ux]]
   ^-  (unit town)
   ?~  old  old
   :-  ~
   %=  u.old
-    land  land.proposed
+    batch-num.hall         num.proposed
+    land                   land.proposed
     latest-diff-hash.hall  diff-hash.proposed
-    roots.hall  (snoc roots.hall.u.old root.proposed)
+    roots.hall             (snoc roots.hall.u.old root.proposed)
   ==
 ::
 ++  read-grain

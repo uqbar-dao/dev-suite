@@ -8,10 +8,11 @@
       [%committee members=(map address:smart [ship (unit sig:smart)])]
   ==
 ::
-+$  town      [=land =hall]
++$  town  [=land =hall]
 ::
 +$  hall
   $:  town-id=id:smart
+      batch-num=@ud
       =sequencer
       mode=availability-method
       latest-diff-hash=@ux
@@ -22,6 +23,7 @@
 ::
 +$  batch  ::  state transition
   $:  town-id=id:smart
+      num=@ud
       mode=availability-method
       state-diffs=(list diff)
       diff-hash=@ux
