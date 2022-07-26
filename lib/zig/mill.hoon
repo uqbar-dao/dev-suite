@@ -368,7 +368,7 @@
             ~&  >>>  p.toon
             [~ ~ rem %6]
           ?:  ?=(%1 -.toon)
-            ::  block (scry issue?)
+            ::  block (scry failure)
             ~&  >>>  "execution error: {<p.toon>}"
             [~ ~ rem %6]
           [~ `;;(chick p.toon) rem %0]
@@ -401,12 +401,8 @@
       ++  test-search
         |=  pax=^
         ^-  (unit (unit))
-        ?~  pat=((soft path) pax)     ~^~
-        ?.  ?=([%granary @ ~] u.pat)  ~^~
-        =/  id  (slav %ux i.t.u.pat)
-        =/  grain  (get:big granary id)
-        ::  TODO populate path using +mek in merk
-        ``grain
+        ?~  sear=(search pax)  ~^~
+        ``product.u.sear
       ::
       ++  plant
         |=  act=*

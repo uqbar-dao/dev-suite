@@ -2,7 +2,7 @@
 ::  ::  smart.hoon: contract standard library  ::  ::    ::  ::  ::  ::  ::  ::
 ::  ::                                         ::  ::    ::::    ::::::  ::::
 ::  ::                                         ::  ::    ::  ::  ::  ::  ::  ::
-::  ::  one: contract functions                ::  ::    ::  ::  ::  ::  ::  ::
+::  ::  five: contract functions               ::  ::    ::  ::  ::  ::  ::  ::
 ::::::                                         ::::  ::  ::::::  ::  ::  ::  ::
 =<
 |%
@@ -21,6 +21,12 @@
           ?=(%& -.grain)
       ==
   p.grain(data ;;(typ data.p.grain))
+::
+::  +scry: scry wrapper
+::
+++  scry
+  |=  =id
+  .^(grain /granary/id)
 ::
 ::  +fry: standard hashing functions for rice and wheat grains
 ::
@@ -65,7 +71,7 @@
   [%| next p.rooster]
 --  =<
 ::  ::
-::  ::  two: contract types
+::  ::  four: contract types
 ::::::
 |%
 +$  id       @ux            ::  pubkey
@@ -278,7 +284,7 @@
   --
 --  =<
 ::  ::
-::  ::  four: data structures
+::  ::  two: data structures
 ::::::
 |%
 +$  hash  @ux
@@ -536,9 +542,9 @@
   --
 --
 ::  ::
-::  ::  five: crypto (from zuse + pedersen hash)
+::  ::  one: crypto (from zuse + pedersen hash)
 ::::::
-~%  %ped  ..part  ~
+~%  %ped  ..po  ~
 |%
 ++  pedersen
   ~%  %pedersen  +  ~
