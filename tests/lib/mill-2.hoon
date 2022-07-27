@@ -17,14 +17,17 @@
 ::  * executing multiple calls with +mill-all
 ::
 /-  zink
-/+  *test, mill=zig-mill, *zig-sys-smart, *sequencer
+/+  *test, smart=zig-sys-smart, *sequencer, merk
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
 /*  triv-contract   %noun  /lib/zig/compiled/trivial/noun
+/*  small-contract  %noun  /lib/zig/compiled/trivial-scry/noun
 |%
 ::
 ::  constants / dummy info for mill
 ::
+++  big  (bi:merk id:smart grain:smart)  ::  merkle engine for granary
+++  pig  (bi:merk id:smart @ud)          ::                for populace
 ++  town-id    0x0
 ++  set-fee    7
 ++  fake-sig   [0 0 0]
@@ -35,14 +38,14 @@
   %.y
 ::
 +$  mill-result
-  [fee=@ud =land burned=granary =errorcode hits=(list hints:zink) =crow]
+  [fee=@ud =land burned=granary =errorcode:smart hits=(list hints:zink) =crow:smart]
 ::
 ::  fake data
 ::
-++  miller    ^-  account  [0x1512.3341 1 0x1.1512.3341]
-++  caller-1  ^-  account  [0xbeef 1 0x1.beef]
-++  caller-2  ^-  account  [0xdead 1 0x1.dead]
-++  caller-3  ^-  account  [0xcafe 1 0x1.cafe]
+++  miller    ^-  account:smart  [0x1512.3341 1 0x1.1512.3341]
+++  caller-1  ^-  account:smart  [0xbeef 1 0x1.beef]
+++  caller-2  ^-  account:smart  [0xdead 1 0x1.dead]
+++  caller-3  ^-  account:smart  [0xcafe 1 0x1.cafe]
 ::
 ++  zigs
   |%
@@ -50,60 +53,60 @@
   ++  holder-2  0xdead
   ++  holder-3  0xcafe
   ++  miller-account
-    ^-  grain
+    ^-  grain:smart
     :*  %&
         `@`'zigs'
         %account
         [1.000.000 ~ `@ux`'zigs-metadata']
         0x1.1512.3341
-        zigs-wheat-id
+        zigs-wheat-id:smart
         0x1512.3341
         town-id
     ==
   ++  beef-account
-    ^-  grain
+    ^-  grain:smart
     :*  %&
         `@`'zigs'
         %account
-        [300.000 ~ `@ux`'zigs-metadata']
+        [300.000.000 ~ `@ux`'zigs-metadata']
         0x1.beef
-        zigs-wheat-id
+        zigs-wheat-id:smart
         holder-1
         town-id
     ==
   ++  dead-account
-    ^-  grain
+    ^-  grain:smart
     :*  %&
         `@`'zigs'
         %account
         [200.000 ~ `@ux`'zigs-metadata']
         0x1.dead
-        zigs-wheat-id
+        zigs-wheat-id:smart
         holder-2
         town-id
     ==
   ++  cafe-account
-    ^-  grain
+    ^-  grain:smart
     :*  %&
         `@`'zigs'
         %account
         [100.000 ~ `@ux`'zigs-metadata']
         0x1.cafe
-        zigs-wheat-id
+        zigs-wheat-id:smart
         holder-3
         town-id
     ==
   --
 ::
 ++  triv-wheat
-  ^-  grain
-  =/  cont  ;;([bat=* pay=*] (cue q.q.triv-contract))
-  =/  interface=lumps
-    %-  ~(gas by *lumps)
+  ^-  grain:smart
+  =/  cont  ;;([bat=* pay=*] (cue q.q.small-contract))
+  =/  interface=lumps:smart
+    %-  ~(gas by *lumps:smart)
     :~  %give^[%give [%pair [%amount [%ud *@ud]] [%my-account [%grain *@ux]]]]
     ==
-  =/  types=lumps
-    %-  ~(gas by *lumps)
+  =/  types=lumps:smart
+    %-  ~(gas by *lumps:smart)
     :~  %account^[%account [%pair [%balance [%ud *@ud]] [%metadata [%grain *@ux]]]]
     ==
   :*  %|
@@ -118,14 +121,15 @@
 ::
 ++  fake-granary
   ^-  granary
-  %+  gas:big:mill  *(merk id grain)
+  %+  gas:big  *(merk:merk id:smart grain:smart)
   :~  [id.p:triv-wheat triv-wheat]
       [id.p:beef-account:zigs beef-account:zigs]
+      [id.p:dead-account:zigs dead-account:zigs]
       [id.p:miller-account:zigs miller-account:zigs]
   ==
 ++  fake-populace
   ^-  populace
-  %+  gas:pig:mill  *(merk id @ud)
+  %+  gas:pig  *(merk:merk id:smart @ud)
   ~[[holder-1:zigs 0] [holder-2:zigs 0] [holder-3:zigs 0]]
 ++  fake-land
   ^-  land
@@ -138,29 +142,18 @@
 ::
 ++  test-mill-all-trivial-pass
   ::  tag your @ux with %grain if you want it to be carried in cart
-  =/  =yolk  [%give 100 [%grain 0x1.beef]]
-  =/  shel=shell
-    [caller-1 ~ id.p:triv-wheat 1 1.000 town-id 0]
+  =/  =yolk:smart  [%give 100 0x1.dead]
+  =/  shel=shell:smart
+    [caller-1 ~ id.p:triv-wheat 1 1.000.000 town-id 0]
   =/  hash=@ux  `@ux`(sham [shel yolk])
   =/  [res=state-transition rej=carton]
     %^  ~(mill-all mil miller town-id 1)  ::  batch-num
-    fake-land  (silt ~[[hash `egg`[fake-sig shel yolk]]])  1.024
+    fake-land  (silt ~[[hash `egg:smart`[fake-sig shel yolk]]])  1.024
+  ~&  >>  "output: {<crows.res>}"
   ;:  weld
   ::  assert that our call went through
     %+  expect-eq
       !>(%0)
     !>(status.shell.+.-.processed.res)
-  ::  assert fee paid
-    %+  expect-eq
-      !>(299.993)
-    =+  (got:big:mill p.land.res id.p:beef-account:zigs)
-    ?>  ?=(%& -.-)
-    !>(-.data.p.-)
-  ::  assert fee received correctly
-    %+  expect-eq
-     !>(1.000.007)
-    =+  (got:big:mill p.land.res id.p:miller-account:zigs)
-    ?>  ?=(%& -.-)
-    !>(-.data.p.-)
   ==
 --

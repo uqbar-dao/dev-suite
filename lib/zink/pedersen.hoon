@@ -64,6 +64,7 @@
     |=  [a=@ b=@]
     ^-  @
     |^
+    ~&  >>>  "WARNING: hashing in zink/hoon"
     =/  x  (has a)
     =/  y  (has b)
     +:(do-hash y x)

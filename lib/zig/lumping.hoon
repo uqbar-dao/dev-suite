@@ -1,10 +1,10 @@
 ::
 ::  parsing and nest-checking lumps
 ::
-/+  *zig-sys-smart
+/+  smart=zig-sys-smart
 |%
 ++  nesting
-  |=  [=lumps =action]
+  |=  [=lumps:smart =action:smart]
   ^-  (unit vase)
   ?~  choice=(~(get by lumps) p.action)  ~
   =/  typ  (make-action p.action u.choice)
@@ -13,12 +13,12 @@
   `[typ action]
 ::
 ++  make-action
-  |=  [tag=@tas =lump]
+  |=  [tag=@tas =lump:smart]
   ^-  type
   [%cell [%atom %tas `tag] (type-lump lump)]
 ::
 ++  type-lump
-  |=  =lump
+  |=  =lump:smart
   ^-  type
   :+  %face  p.lump
   ?@  q.lump  [%atom %tas ~]

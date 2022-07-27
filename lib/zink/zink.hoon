@@ -286,16 +286,15 @@
     ::       (similar process in nock 0)
     =^  ref=body  app
       $(f ref.f)
-    ?:  ?=(%| -.ref)     [%|^trace app]
+    ?:  ?=(%| -.ref)     ~&  289  [%|^trace app]
     ?~  p.ref            [%&^~ app]
     =^  path=body  app
       $(f path.f)
-    ?:  ?=(%| -.path)    [%|^trace app]
+    ?:  ?=(%| -.path)    ~&  293  [%|^trace app]
     ?~  p.path           [%&^~ app]
-    =/  result  (scry p.ref p.path)
-    ?~  result
-      [%|^trace app]
-    [%&^result app]
+    ?~  result=(scry p.ref p.path)
+      [%&^~^~ app]
+    [%&^[~ `product.u.result] app]
   ==
   :: Check if we are calling an arm in a core and if so lookup the axis
   :: in the jet map
@@ -320,6 +319,7 @@
     =.  bud  (sub bud 1)
     ?.  ?=([%9 arm-axis=@ %0 core-axis=@] head)  `app
     ?.  ?=([%9 %2 %10 [%6 sam=*] %0 %2] next)  `app
+    ~&  >>  "looking for jet: {<arm-axis.head>}"
     ?~  mjet=(~(get by jets) arm-axis.head)  `app
     =^  sub=body  app
       ^$(f head)
@@ -334,16 +334,96 @@
   ++  run-jet
     |=  [arm=@tas sam=*]
     ^-  body
+    ::  TODO: probably unsustainable to need to include assertions to
+    ::  make all jets crash safe
     ~&  arm
     ?+    arm  %|^trace
+    ::
+    ::  math
+    ::
+        %add
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (add sam))
+    ::
         %dec
       ?:  (lth bud 1)  %&^~
       =.  bud  (sub bud 1)
       ?.  ?=(@ sam)  %|^trace
-      ::  TODO: probably unsustainable to need to include assertions to
-      ::  make all jets crash safe
       ?.  (gth sam 0)  %|^trace
       %&^(some (dec sam))
+    ::
+        %div
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ @] sam)  %|^trace
+      ?.  (gth +.sam 0)  %|^trace
+      %&^(some (div sam))
+    ::
+        %dvr
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ @] sam)  %|^trace
+      ?.  (gth +.sam 0)  %|^trace
+      %&^(some (dvr sam))
+    ::
+        %gte
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (gte sam))
+    ::
+        %gth
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (gth sam))
+    ::
+        %lte
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (lte sam))
+    ::
+        %lth
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (lth sam))
+    ::
+        %max
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (max sam))
+    ::
+        %min
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (min sam))
+    ::
+        %mod
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ @] sam)  %|^trace
+      ?.  =(+.sam 0)     %|^trace
+      %&^(some (mod sam))
+    ::
+        %mul
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (mul sam))
+    ::
+    ::  etc
+    ::
+        %scot
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ta @] sam)  %|^trace
+      %&^(some (scot sam))
     ==
   ::
   ++  frag

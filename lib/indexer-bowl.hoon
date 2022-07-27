@@ -249,7 +249,7 @@
     ^-  json
     %-  pairs
     %+  turn  ~(tap by granary)
-    |=  [@ =id:smart g=grain:smart]
+    |=  [=id:smart @ g=grain:smart]
     [(scot %ux id) (grain g)]
   ::
   ++  populace
@@ -257,7 +257,7 @@
     ^-  json
     %-  pairs
     %+  turn  ~(tap by populace)
-    |=  [@ =id:smart nonce=@ud]
+    |=  [=id:smart @ nonce=@ud]
     [(scot %ux id) (numb nonce)]
   ::
   ++  hall

@@ -26,7 +26,9 @@
 ::
 ++  scry
   |=  =id
-  .^(grain /granary/id)
+  ^-  (unit grain)
+  =-  ;;((unit grain) -)
+  .*(0 [%12 [%0 1] [%1 /granary/(scot %ux id)]])
 ::
 ::  +fry: standard hashing functions for rice and wheat grains
 ::
@@ -299,9 +301,10 @@
 ::
 ++  shag                                                ::  256bit noun hash
   |=  yux=*  ^-  hash
+  ::  TODO: make LRU-cache-optimized version for granary retrivial & modification
   ?@  yux
-    (hash:pedersen %gash yux)
-  (hash:pedersen %shag (jam yux))
+    (hash:pedersen yux 0)
+  (hash:pedersen (jam yux) 0)
 ::
 ::  +sore: single sha-256 hash in ascending order, uses +dor as
 ::  fallback
@@ -544,10 +547,10 @@
 ::  ::
 ::  ::  one: crypto (from zuse + pedersen hash)
 ::::::
-~%  %ped  ..po  ~
+::  ~%  %ped  ..po  ~  ::  another option: `qat`
 |%
 ++  pedersen
-  ~%  %pedersen  +  ~
+  ::  ~%  %pedersen  +  ~
   |%
   ++  t
     ^-  domain:secp:crypto
@@ -606,7 +609,7 @@
           758.586.525.933.812.536.653.089.401.905.
           292.063.708.816.422
   ++  hash
-    ~/  %phash
+    ::  ~/  %phash
     |=  [a=@ b=@]
     ^-  @
     |^

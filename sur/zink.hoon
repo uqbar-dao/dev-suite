@@ -47,6 +47,21 @@
 ::  Axis map of jets in stdlib
 ++  jets
   %-  ~(gas by *jetmap)
-  :~  [2.398 %dec]
-  ==
+  :~  ::  math
+        [36 %add]   [2.398 %dec]  [1.198 %div]  [298 %dvr]  [38 %gte]
+        [75 %gth]   [148 %lte]    [2.399 %lth]  [598 %max]  [156 %min]
+        [157 %mod]  [8 %mul]      [79 %sub]
+        ::  tree
+
+        ::  list
+
+        ::  bits
+
+        ::  sets
+
+        ::  maps
+
+        ::  etc
+        [6.108 %scot]
+    ==
 --
