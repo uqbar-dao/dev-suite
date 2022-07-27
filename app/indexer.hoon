@@ -738,7 +738,6 @@
   ^-  indices-0
   =|  temporary-state=_state
   |^
-  |-
   ?~  batches-by-town-list  +.temporary-state
   =/  batches-list=(list [root=@ux timestamp=@da =batch:ui])
     ~(tap by batches.i.batches-by-town-list)
