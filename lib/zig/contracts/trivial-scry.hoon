@@ -1,6 +1,6 @@
 |_  =cart
 ++  write
-  |=  [%give amount=@ud my-account=id]
+  |=  [%find my-account=id]
   ^-  chick
   =/  mine=(unit grain)  (scry my-account)
   ?~  mine

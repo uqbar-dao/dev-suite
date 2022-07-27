@@ -54,9 +54,9 @@
         ::  tree
 
         ::  list
-
+        ::  [343 %lent]  [340 %welp]
         ::  bits
-
+        ::  [22 %cat]
         ::  sets
 
         ::  maps

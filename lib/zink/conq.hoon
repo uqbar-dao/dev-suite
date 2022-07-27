@@ -70,12 +70,26 @@
         %add  %dec  %div  %dvr  %gte  %gth  %lte
         %lth  %max  %min  %mod  %mul  %sub
         ::  tree
-
-        ::  list
-
+        %cap  %mas  %peg
+        ::  unit
+        %need
+        ::  list  [ADDED: lent]
+        %fand  %find  %flop  %lent  %levy  %lien
+        %murn  %oust  %reap  %rear  %reel  %roll
+        %scag  %skid  %skim  %skip  %slag  %snag
+        %snip  %sort  %spin  %spun  %turn  %weld
+        %snap  %into  %welp  %zing
         ::  bits
-
-        ::  sets
+        %bex  %can  %cat  %cut  %end  %fil  %lsh
+        %met  %rap  %rep  %rev  %rip  %rsh  %run
+        %rut  %sew  %swp  %xeb
+        ::
+        %con  %dis  %mix  
+        ::  mug, noun ordering
+        %mug  %aor  %dor  %gor  %mor
+        ::  powers
+        %pow  %sqt
+        ::  sets  (how to get stuff inside jet-door?)
 
         ::  maps
 

@@ -335,12 +335,13 @@
     |=  [arm=@tas sam=*]
     ^-  body
     ::  TODO: probably unsustainable to need to include assertions to
-    ::  make all jets crash safe
+    ::  make all jets crash safe. burning 1 gas per jet call atm, will
+    ::  need to set cost for each jet in future / allow sequencers to
     ~&  arm
     ?+    arm  %|^trace
-    ::
-    ::  math
-    ::
+    ::                                                                       ::
+    ::  math                                                                 ::
+    ::                                                                       ::
         %add
       ?:  (lth bud 1)  %&^~
       =.  bud  (sub bud 1)
@@ -416,9 +417,34 @@
       =.  bud  (sub bud 1)
       ?.  ?=([@ @] sam)  %|^trace
       %&^(some (mul sam))
+    ::                                                                       ::
+    ::  bits                                                                 ::
+    ::                                                                       ::
+      ::    %cat
+      ::  ?:  (lth bud 1)  %&^~
+      ::  =.  bud  (sub bud 1)
+      ::  ::  need to assert bloq-ness to first arg too...
+      ::  ?.  ?=([@ @ @] sam)  %|^trace
+      ::  %&^(some (cat sam))
+    ::                                                                       ::
+    ::  lists                                                                ::
+    ::                                                                       ::
+      ::  %lent
+      ::  ::  TODO this suuuuuuuuckkkkkkkkkks
+      ::  ::  need to validate sam as list without crashing
+      ::  ?:  (lth bud 1)  %&^~
+      ::  =.  bud  (sub bud 1)
+      ::  =/  lis  ;;((list) sam)
+      ::  %&^(some (lent lis))
     ::
-    ::  etc
-    ::
+      ::    %welp
+      ::  ?:  (lth bud 1)  %&^~
+      ::  =.  bud  (sub bud 1)
+      ::  ?.  ?=([* *] sam)  %|^trace
+      ::  %&^(some (welp sam))
+    ::                                                                       ::
+    ::  etc                                                                  ::
+    ::                                                                       ::
         %scot
       ?:  (lth bud 1)  %&^~
       =.  bud  (sub bud 1)

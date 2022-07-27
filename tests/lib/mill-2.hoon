@@ -140,9 +140,9 @@
 ::
 ::  tests for +mill
 ::
-++  test-mill-all-trivial-pass
+++  test-mill-all-trivial-scry
   ::  tag your @ux with %grain if you want it to be carried in cart
-  =/  =yolk:smart  [%give 100 0x1.dead]
+  =/  =yolk:smart  [%find 0x1.dead]
   =/  shel=shell:smart
     [caller-1 ~ id.p:triv-wheat 1 1.000.000 town-id 0]
   =/  hash=@ux  `@ux`(sham [shel yolk])
