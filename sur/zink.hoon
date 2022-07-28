@@ -43,27 +43,11 @@
 ::  map of a noun's merkle children. root -> [left right]
 +$  merk-tree  (map phash [phash phash])
 ::  map from axis to jet name
-+$  jetmap  (map @ @tas)
++$  jetset  (set @tas)
 ::  Axis map of jets in stdlib
 ++  jets
-  %-  ~(gas by *jetmap)
+  %-  ~(gas in *jetset)
   :~  ::  math
-        [36 %add]   [2.398 %dec]  [1.198 %div]  [298 %dvr]  [38 %gte]
-        [75 %gth]   [148 %lte]    [2.399 %lth]  [598 %max]  [156 %min]
-        [157 %mod]  [8 %mul]      [79 %sub]
-        ::  tree
-
-        ::  list
-        ::  [343 %lent]  [340 %welp]
-        ::  bits
-        ::  [22 %cat]
-        ::  sets
-
-        ::  maps
-
-        ::  etc
-        [6.108 %scot]
-        ::  guess
-        ::  [2.398 %phash]
+      %add
     ==
 --

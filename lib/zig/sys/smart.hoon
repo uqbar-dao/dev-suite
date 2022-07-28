@@ -538,10 +538,8 @@
 ::  ::
 ::  ::  one: crypto (from zuse + pedersen hash)
 ::::::
-::  ~%  %ped  ..po  ~  ::  another option: `qat`
 |%
 ++  pedersen
-  ::  ~%  %pedersen  +  ~
   |%
   ++  t
     ^-  domain:secp:crypto
@@ -600,7 +598,6 @@
           758.586.525.933.812.536.653.089.401.905.
           292.063.708.816.422
   ++  hash
-    ::  ~/  %phash
     |=  [a=@ b=@]
     ^-  @
     |^

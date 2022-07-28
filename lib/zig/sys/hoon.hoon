@@ -18,12 +18,12 @@
 ::    unsigned arithmetic
 +|  %math
 ++  add
-  ~/  %add
   ::  unsigned addition
   ::
   ::  a: augend
   ::  b: addend
   |=  [a=@ b=@]
+  ~>  %add.+<
   ::  sum
   ^-  @
   ?:  =(0 a)  b
