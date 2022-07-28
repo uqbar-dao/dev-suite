@@ -150,7 +150,6 @@
       from=[=id nonce=@ud]
       batch=@ud
       town-id=id
-      grains=(merk id grain)
   ==
 ::
 ::  contract result types

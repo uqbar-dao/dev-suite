@@ -344,7 +344,7 @@
         ^-  [hints (unit chick:smart) rem=@ud =errorcode:smart]
         ~>  %bout
         ?~  cont.wheat   [~ ~ budget %6]
-        =/  =cart:smart  [to from batch town-id ~]
+        =/  =cart:smart  [to from batch town-id]
         =/  payload   .*(q.library pay.u.cont.wheat)
         =/  cor       .*([q.library payload] bat.u.cont.wheat)
         =/  dor=vase  [-:!>(*contract:smart) cor]
@@ -379,19 +379,6 @@
         ^-  (unit (unit))
         ?~  sear=(search pax)  ~^~
         ``product.u.sear
-      ::
-      ++  plant
-        |=  act=*
-        ^-  ^granary
-        =|  gra=^granary
-        |-
-        ^-  ^granary
-        ?@  act  gra
-        ?:  ?=([%grain id:smart] act)
-          ?~  found=(get:big granary +.act)
-            (uni:big $(act -.act) $(act +.act))
-          (put:big (uni:big $(act -.act) $(act +.act)) +.act u.found)
-        (uni:big $(act -.act) $(act +.act))
       --
     ::
     ::  +harvest: take a completed execution and validate all changes
