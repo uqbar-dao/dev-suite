@@ -2,14 +2,12 @@
 ++  write
   |=  [%find my-account=id]
   ^-  chick
-  =+  res=(add 9.876 1.234)
-  ::  =/  mine=(unit grain)  (scry my-account)
-  ::  =+  (mul 2 2)
-  ::  ?~  mine
-  ::    ~>  %slog.[0 leaf/"grain not found"]
-  ::    [%& ~ ~ ~ ~]
-  ::  ~>  %slog.[0 leaf/"grain located"]
-  [%& ~ ~ ~ [[%found-grain-id [%n '6']] ~]]
+  =/  mine=(unit grain)  (scry my-account)
+  ?~  mine
+    ~>  %slog.[0 leaf/"grain not found"]
+    [%& ~ ~ ~ ~]
+  ~>  %slog.[0 leaf/"grain located"]
+  [%& ~ ~ ~ [[%found-grain-id [%n (scot %ux id.p.u.mine)]] ~]]
 ++  read
   |_  =path
   ++  json

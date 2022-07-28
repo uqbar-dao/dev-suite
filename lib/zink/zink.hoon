@@ -260,27 +260,19 @@
     [11 tag.f 1 u.p.next]
   ::
       [%11 [tag=@ clue=*] next=*]
-    ::  look for jet with this tag
-    ~&  >>  "jet: {<`@tas`tag.f>}:"
-    ?:  ?=(%add tag.f)
-      =^  sam=body  app
-        $(f clue.f)
-      ~&  >  "sam: {<sam>}"
-      ?:  ?=(%| -.sam)  ~&  269  [%|^trace app]
-      ?~  p.sam  [%&^~ app]
-      ?.  ?=([@ @] u.p.sam)  ~&  281  [%|^trace app]
-      :-  [%& ~ (add u.p.sam)]
-      ~&  "it worked"
-      app
-    
-    ::
-    ::
-    ::  =^  jax=body  app
-    ::    (jet tag.f clue.f)
-    ::  ?:  ?=(%| -.jax)  ~&  190  [%|^trace app]
-    ::  ?^  p.jax  [%& p.jax]^app
-    ::
-    ::
+    ::  look for jet with this tag and compute sample
+    ~&  >  "hint: {<`@tas`tag.f>}"
+    =^  sam=body  app
+      $(f clue.f)
+    ?:  ?=(%| -.sam)  ~&  269  [%|^trace app]
+    ?~  p.sam  [%&^~ app]
+    ::  if jet exists for this tag, and sample is good,
+    ::  replace execution with jet
+    =^  jax=body  app
+      (jet tag.f u.p.sam)
+    ?:  ?=(%| -.jax)  ~&  190  [%|^trace app]
+    ?^  p.jax  [%& p.jax]^app
+    ::  jet not found, proceed with normal computation
     =^  clue=body  app
       $(f clue.f)
     ?:  ?=(%| -.clue)  ~&  269  [%|^trace app]
@@ -317,37 +309,42 @@
   ++  jet
     |=  [tag=@ sam=*]
     ^-  book
-    ?.  (~(has in jets) tag)
+    ?:  ?=(%slog tag)
+      ::  ignore trace printfs
       [%&^~ app]
-    (run-jet tag sam)^app
+    ?~  cost=(~(get by jets) tag)
+      ~&  >>  "no jet found"  [%&^~ app]
+    ?:  (lth bud u.cost)  [%&^~ app]
+    :-  (run-jet tag sam u.cost)
+    app(bud (sub bud u.cost))
   ::
   ++  run-jet
-    |=  [tag=@ sam=*]
+    |=  [tag=@ sam=* cost=@ud]
     ^-  body
     ::  TODO: probably unsustainable to need to include assertions to
-    ::  make all jets crash safe. burning 1 gas per jet call atm, will
-    ::  need to set cost for each jet in future / allow sequencers to
-    ::  ?:  ?=(%add tag.f)
-    ::    =^  sam=body  app
-    ::      $(f clue.f)
-    ::    ~&  >  "sam: {<sam>}"
-    ::    ?:  ?=(%| -.sam)  ~&  269  [%|^trace app]
-    ::    ?~  p.sam  [%&^~ app]
-    ::    ?.  ?=([@ @] u.p.sam)  ~&  281  [%|^trace app]
-    ::    :-  [%& ~ (add u.p.sam)]
-    ::    ~&  "it worked"
-    ::    app
-    %|^trace
-    ::  ?+    arm  %|^trace
-    ::  ::                                                                       ::
-    ::  ::  math                                                                 ::
-    ::  ::                                                                       ::
-    ::      %add
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ @] sam)  %|^trace
-    ::    %&^(some (add sam))
-    ::  ::
+    ::  make all jets crash safe.
+    ?+    tag  %|^trace
+    ::                                                                       ::
+    ::  math                                                                 ::
+    ::                                                                       ::
+        %add
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (add sam))
+    ::                                                                       ::
+    ::  bits                                                                 ::
+    ::                                                                       ::
+
+    ::                                                                       ::
+    ::  list                                                                 ::
+    ::                                                                       ::
+
+    ::                                                                       ::
+    ::  etc                                                                  ::
+    ::                                                                       ::
+        %scot
+      ?.  ?=([@ta @] sam)  %|^trace
+      %&^(some (scot sam))
+    ==
     ::      %dec
     ::    ?:  (lth bud 1)  %&^~
     ::    =.  bud  (sub bud 1)
@@ -446,11 +443,6 @@
     ::  ::                                                                       ::
     ::  ::  etc                                                                  ::
     ::  ::                                                                       ::
-    ::      %scot
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ta @] sam)  %|^trace
-    ::    %&^(some (scot sam))
     ::  ::
     ::      %phash
     ::    ?:  (lth bud 1)  %&^~

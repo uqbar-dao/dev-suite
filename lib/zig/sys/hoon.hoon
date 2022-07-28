@@ -5904,8 +5904,9 @@
 ::::  4m: formatting functions
   ::
 ++  scot
-  ~/  %scot
-  |=(mol=dime ~(rent co %$ mol))
+  |=  mol=dime
+  ~>  %scot.+<
+  ~(rent co %$ mol)
 ++  scow
   ~/  %scow
   |=(mol=dime ~(rend co %$ mol))

@@ -42,12 +42,19 @@
 +$  hints  (list cairo-hint)
 ::  map of a noun's merkle children. root -> [left right]
 +$  merk-tree  (map phash [phash phash])
-::  map from axis to jet name
-+$  jetset  (set @tas)
+::  map from jet tag to gas cost
++$  jetmap  (map @tas @ud)
 ::  Axis map of jets in stdlib
 ++  jets
-  %-  ~(gas in *jetset)
+  ::  TODO: determine *real* costs
+  %-  ~(gas in *jetmap)
   :~  ::  math
-      %add
+      [%add 1]
+      ::  bits
+
+      ::  list
+
+      ::  etc
+      [%scot 5]
     ==
 --
