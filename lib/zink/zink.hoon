@@ -450,6 +450,12 @@
       =.  bud  (sub bud 1)
       ?.  ?=([@ta @] sam)  %|^trace
       %&^(some (scot sam))
+    ::
+        %phash
+      ?:  (lth bud 1)  %&^~
+      =.  bud  (sub bud 1)
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (hash:pedersen sam))
     ==
   ::
   ++  frag

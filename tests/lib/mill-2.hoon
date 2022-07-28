@@ -22,7 +22,7 @@
 /*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
 /*  triv-contract   %noun  /lib/zig/compiled/trivial/noun
 /*  scry-contract  %noun  /lib/zig/compiled/trivial-scry/noun
-
+/*  zigs-contract   %noun  /lib/zig/compiled/zigs/noun
 |%
 ::
 ::  constants / dummy info for mill
@@ -148,37 +148,31 @@
 ::  begin tests
 ::
 ++  test-mill-zigs-give
-  =/  =yolk:smart  [%give 0x1.dead]
+  =/  =yolk:smart  [%give holder-2:zigs 69 [%grain 0x1.beef] `[%grain 0x1.dead]]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:triv-wheat 1 1.000.000 town-id 0]
-  =/  hash=@ux  `@ux`(sham [shel yolk])
-  =/  [res=state-transition rej=carton]
-    %^  ~(mill-all mil miller town-id 1)  ::  batch-num
-    fake-land  (silt ~[[hash `egg:smart`[fake-sig shel yolk]]])  1.024
-  ~&  >>  "output: {<crows.res>}"
-  ;:  weld
+    [caller-1 ~ id.p:wheat:zigs 1 1.000.000 town-id 0]
+  =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
+    %+  ~(mill mil miller town-id 1)
+    fake-land  `egg:smart`[fake-sig shel yolk]
+  ~&  >  "output: {<crow.res>}"
+  ~&  >  "fee: {<fee.res>}"
   ::  assert that our call went through
-    %+  expect-eq
-      !>(%0)
-    !>(status.shell.+.-.processed.res)
-  ==
+  %+  expect-eq
+    !>(%0)
+  !>(errorcode.res)
 ::
-::  tests for +mill-all
-::
-++  test-mill-all-trivial-scry
+++  test-mill-trivial-scry
   ::  tag your @ux with %grain if you want it to be carried in cart
   =/  =yolk:smart  [%find 0x1.dead]
   =/  shel=shell:smart
     [caller-1 ~ id.p:scry-wheat 1 1.000.000 town-id 0]
-  =/  hash=@ux  `@ux`(sham [shel yolk])
-  =/  [res=state-transition rej=carton]
-    %^  ~(mill-all mil miller town-id 1)  ::  batch-num
-    fake-land  (silt ~[[hash `egg:smart`[fake-sig shel yolk]]])  1.024
-  ~&  >>  "output: {<crows.res>}"
-  ;:  weld
+  =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
+    %+  ~(mill mil miller town-id 1)
+    fake-land  `egg:smart`[fake-sig shel yolk]
+  ~&  >  "output: {<crow.res>}"
+  ~&  >  "fee: {<fee.res>}"
   ::  assert that our call went through
-    %+  expect-eq
-      !>(%0)
-    !>(status.shell.+.-.processed.res)
-  ==
+  %+  expect-eq
+    !>(%0)
+  !>(errorcode.res)
 --

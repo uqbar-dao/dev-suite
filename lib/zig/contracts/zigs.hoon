@@ -7,7 +7,7 @@
 ::  because %give must include their gas budget, in order for
 ::  zig spends to be guaranteed not to underflow.
 ::
-/+  *zig-sys-smart
+::  /+  *zig-sys-smart
 /=  zigs  /lib/zig/contracts/lib/zigs
 =,  zigs
 |_  =cart
@@ -16,8 +16,7 @@
   ^-  chick
   ?-    -.act
       %give
-    ::  replace this with a scry once we have those
-    =+  (~(got by grains.cart) id.from-account.act)
+    =+  (need (scry id.from-account.act))
     =/  giver  (husk account:sur - `me.cart `id.from.cart)
     ::  unlike other assertions, this is non-optional: we must confirm
     ::  that the giver's zigs balance is enough to cover the maximum
@@ -32,7 +31,7 @@
       =/  next  [%give to.act amount.act [%grain id.giver] `[%grain id.rice]]
       (continuation [me.cart town-id.cart next]^~ (result ~ [%& rice]^~ ~ ~))
     ::  have a specified receiver account, grab it and add to balance
-    =+  (~(got by grains.cart) id.u.to-account.act)
+    =+  (need (scry id.u.to-account.act))
     =/  receiver  (husk account:sur - `me.cart `to.act)
     =:  balance.data.giver     (sub balance.data.giver amount.act)
         balance.data.receiver  (add balance.data.receiver amount.act)
@@ -40,8 +39,7 @@
     (result [[%& giver] [%& receiver] ~] ~ ~ ~)
   ::
       %take
-    ::  replace this with a scry once we have those
-    =+  (~(got by grains.cart) id.from-account.act)
+    =+  (need (scry id.from-account.act))
     =/  giver  (husk account:sur - `me.cart ~)
     ::  no assertions required here for balance or allowance,
     ::  because subtract underflow will crash when we try to edit these.
@@ -53,7 +51,7 @@
       =/  next  [%take to.act amount.act [%grain id.giver] `[%grain id.rice]]
       (continuation [me.cart town-id.cart next]^~ (result ~ [%& rice]^~ ~ ~))
     ::  have a specified receiver account, grab it and add to balance
-    =+  (~(got by grains.cart) id.u.to-account.act)
+    =+  (need (scry id.u.to-account.act))
     =/  receiver  (husk account:sur - `me.cart `to.act)
     =:  balance.data.giver     (sub balance.data.giver amount.act)
         balance.data.receiver  (add balance.data.receiver amount.act)
@@ -68,8 +66,7 @@
       %set-allowance
     ::  cannot set an allowance to ourselves
     ?>  !=(who.act id.from.cart)
-    ::  replace with scry
-    =+  (~(got by grains.cart) id.account.act)
+    =+  (need (scry id.account.act))
     =/  account  (husk account:sur - `me.cart `id.from.cart)
     =.  allowances.data.account
       (~(put by allowances.data.account) who.act amount.act)
@@ -81,24 +78,10 @@
   ++  json
     ^-  ^json
     ?+    path  !!
-        [%rice-data ~]
-      ?>  =(1 ~(wyt by grains.cart))
-      =/  g=grain  -:~(val by grains.cart)
-      ?>  ?=(%& -.g)
-      ?:  ?=(%account label.p.g)
-        (account:enjs:lib ;;(account:sur data.p.g))
-      (token-metadata:enjs:lib ;;(token-metadata:sur data.p.g))
-    ::
-        [%rice-data @ ~]
-      =/  g  ;;(grain (cue (slav %ud i.t.path)))
-      ?>  ?=(%& -.g)
-      ?:  ?=(%account label.p.g)
-        (account:enjs:lib ;;(account:sur data.p.g))
-      (token-metadata:enjs:lib ;;(token-metadata:sur data.p.g))
-    ::
-        [%egg-action @ ~]
-      %-  action:enjs:lib
-      ;;(action:sur (cue (slav %ud i.t.path)))
+        [%get-balance @ ~]
+      =+  (need (scry (slav %ux i.t.path)))
+      =+  (husk account:sur - ~ ~)
+      `^json`[%n (scot %ud balance.data.-)]
     ==
   ::
   ++  noun

@@ -12,7 +12,14 @@
   ::  TODO: make LRU-cache-optimized version for granary retrivial & modification
   ?@  yux
     (hash:pedersen yux 0)
-  (hash:pedersen $(yux -.yux) $(yux +.yux))
+  ::
+  ::  NB:  first option here is more correct, but leads
+  ::  to extremely long hashing times for large nouns.
+  ::  second is a ~30x speedup on hashing contract nocks.
+  ::  TODO: jet +shag
+  ::
+  ::  (hash:pedersen $(yux -.yux) $(yux +.yux))
+  (hash:pedersen (jam yux) 0)
 ::
 ::  +sore: single sha-256 hash in ascending order, uses +dor as
 ::  fallback
@@ -115,8 +122,10 @@
   ::
   ++  gas                                               ::  concatenate
     |=  [a=mert b=(list [p=key q=val])]
+    ~>  %bout
     ^+  a
     ?~  b  a
+    ~&  >>  "merk: gassing val with key {<p.i.b>}"
     $(b t.b, a (put a i.b))
   ::
   ++  get                                               ::  grab value by key
