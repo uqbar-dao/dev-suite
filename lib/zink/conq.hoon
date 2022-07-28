@@ -31,7 +31,7 @@
 ::
 ++  conq
   |=  [hoonlib-txt=@t smartlib-txt=@t cax=cache bud=@ud]
-  ^-  [cax=(map * phash) jetmap=(map @ @tas)]
+  ^-  (map * phash)
   |^
   =.  cax
     %-  ~(gas by cax)
@@ -76,42 +76,7 @@
   =/  gun  (~(mint ut p.cont) %noun (ream '~'))
   =/  =book  (zebra bud cax *granary-scry [q.cont q.gun] %.n)
   ~&  p.book
-  ::
-  :-  cax.q.book
-  =/  jets
-    :~  ::  math  [ADDED TO ZINK]
-        %add  %dec  %div  %dvr  %gte  %gth  %lte
-        %lth  %max  %min  %mod  %mul  %sub
-        ::  tree
-        %cap  %mas  %peg
-        ::  unit
-        %need
-        ::  list  [ADDED: lent]
-        %fand  %find  %flop  %lent  %levy  %lien
-        %murn  %oust  %reap  %rear  %reel  %roll
-        %scag  %skid  %skim  %skip  %slag  %snag
-        %snip  %sort  %spin  %spun  %turn  %weld
-        %snap  %into  %welp  %zing
-        ::  bits
-        %bex  %can  %cat  %cut  %end  %fil  %lsh
-        %met  %rap  %rep  %rev  %rip  %rsh  %run
-        %rut  %sew  %swp  %xeb
-        ::
-        %con  %dis  %mix  
-        ::  mug, noun ordering
-        %mug  %aor  %dor  %gor  %mor
-        ::  powers
-        %pow  %sqt
-        ::  sets  (how to get stuff inside jet-door?)
-
-        ::  maps
-
-        ::  etc  [ADDED TO ZINK]
-        %scot
-    ==
-  %-  ~(gas by *(map @ @tas))
-  %+  turn  `(list @tas)`jets
-  |=(name=@tas [(arm-axis cont name) name])
+  cax.q.book
   ::
   ++  cache-file
     |=  [vax=vase cax=cache layers=(list @t)]
@@ -121,7 +86,6 @@
       cax
     =/  cor  (slap vax (ream (cat 3 '..' i.layers)))
     =/  min  (~(mint ut p.vax) %noun (ream (cat 3 '..' i.layers)))
-    ~&  >>  "..{<i.layers>} with nock: {<q.min>}"
     $(layers t.layers, cax (hash-arms cor cax))
   ::
   ++  hash-arms
