@@ -1,7 +1,7 @@
 ::  UQ| token standard v0.1
 ::  last updated: 2022/07/14
 ::
-::  /+  *zig-sys-smart
+  /+  *zig-sys-smart
 |%
 ::  TODO would be nice to make cap a @ud instead,
 ::  and make mintable a read query
@@ -14,27 +14,27 @@
   ::  types that populate grains this standard generates
   ::
   +$  token-metadata
-    $:  name=@t           ::  the name of a token (not unique!)
-        symbol=@t         ::  abbreviation (also not unique)
-        decimals=@ud      ::  granularity (maximum defined by implementation)
-        supply=@ud        ::  total amount of token in existence
-        cap=(unit @ud)    ::  supply cap (~ if mintable is false)
-        mintable=?        ::  whether or not more can be minted
-        minters=(set id)  ::  pubkeys permitted to mint, if any
-        deployer=id       ::  pubkey which first deployed token
-        salt=@            ::  salt value for rice holding accounts of this token
+    $:  name=@t                ::  the name of a token (not unique!)
+        symbol=@t              ::  abbreviation (also not unique)
+        decimals=@ud           ::  granularity (maximum defined by implementation)
+        supply=@ud             ::  total amount of token in existence
+        cap=(unit @ud)         ::  supply cap (~ if mintable is false)
+        mintable=?             ::  whether or not more can be minted
+        minters=(set address)  ::  pubkeys permitted to mint, if any
+        deployer=address       ::  pubkey which first deployed token
+        salt=@                 ::  salt value for rice holding accounts of this token
     ==
   ::
   +$  account
     $:  balance=@ud                     ::  the amount of tokens someone has
-        allowances=(map sender=id @ud)  ::  a map of pubkeys they've permitted to spend their tokens and how much
+        allowances=(map address @ud)    ::  a map of pubkeys they've permitted to spend their tokens and how much
         metadata=id                     ::  address of the rice holding this token's metadata
         nonce=@ud                       ::  necessary for gasless approves
     ==
   ::
   +$  approve
     $:  from=id       ::  pubkey giving
-        to=id         ::  pubkey permitted to take
+        to=address    ::  pubkey permitted to take
         amount=@ud    ::  how many tokens the taker can take
         nonce=@ud     ::  current nonce of the giver
         deadline=@da  ::  how long this approve is valid
@@ -43,26 +43,26 @@
   ::  patterns of arguments supported by this contract
   ::  "action" in input must fit one of these molds
   ::
-  +$  mint  [to=[%grain =id] account=(unit [%grain id]) amount=@ud]  ::  helper type for mint
+  +$  mint  [to=address account=(unit [%grain =id]) amount=@ud]  ::  helper type for mint
   +$  action
     $%  ::  token holder actions
         ::
         ::  TODO could just infer to from holder.to-account
-        [%give from-account=[%grain =id] to=id to-account=(unit [%grain =id]) amount=@ud]
+        [%give from-account=[%grain =id] to=address to-account=(unit [%grain =id]) amount=@ud]
         ::  TODO rename to=id -> taker or something. or isn't to caller?????
-        [%take to=id account=(unit [%grain =id]) from-account=[%grain =id] amount=@ud]
-        [%take-with-sig to=id account=(unit [%grain id]) from-account=[%grain =id] amount=@ud nonce=@ud deadline=@da =sig]
-        [%set-allowance who=id amount=@ud]  ::  (to revoke, call with amount=0)
+        [%take to=address account=(unit [%grain =id]) from-account=[%grain =id] amount=@ud]
+        [%take-with-sig to=address account=(unit [%grain =id]) from-account=[%grain =id] amount=@ud nonce=@ud deadline=@da =sig]
+        [%set-allowance who=address amount=@ud]  ::  (to revoke, call with amount=0)
         ::  token management actions
         ::
         [%mint token=id mints=(set mint)]  ::  can only be called by minters, can't mint above cap
         $:  %deploy
-            distribution=(set [id bal=@ud])  ::  sums to <= cap if mintable, == cap otherwise
-            minters=(set id)                 ::  ignored if !mintable, otherwise need at least one
+            distribution=(set [address bal=@ud])  ::  sums to <= cap if mintable, == cap otherwise
+            minters=(set address)                 ::  ignored if !mintable, otherwise need at least one
             name=@t
             symbol=@t
             decimals=@ud
-            cap=@ud                          ::  is equivalent to total supply unless token is mintable
+            cap=@ud                               ::  is equivalent to total supply unless token is mintable
             mintable=?
         ==
     ==
@@ -70,13 +70,14 @@
 ::
 ::  TODO extract out account creation code to arm here
 ++  lib
+  |%
   ++  mintable
     |=  meta=token-metadata:sur
     ^-  ?
     ?:  ?=(^ cap.meta)
       (lth supply.meta u.cap.meta)
     %.n
-  |%
+  ::
   ++  enjs
     =,  enjs:format
     |%
@@ -127,13 +128,13 @@
       ::
           %give
         %-  pairs
-        :~  [%to %s (scot %ux id.to.a)]
+        :~  [%to %s (scot %ux to.a)]
             [%amount (numb amount.a)]
         ==
       ::
           %take
         %-  pairs
-        :~  [%to %s (scot %ux id.to.a)]
+        :~  [%to %s (scot %ux to.a)]
             [%account ?~(account.a ~ [%s (scot %ux id.u.account.a)])]
             [%from-account %s (scot %ux id.from-account.a)]
             [%amount (numb amount.a)]
@@ -141,7 +142,7 @@
       ::
           %take-with-sig  ::  placeholder, not finished
         %-  pairs
-        :~  [%to %s (scot %ux id.to.a)]
+        :~  [%to %s (scot %ux to.a)]
             [%account ?~(account.a ~ [%s (scot %ux id.u.account.a)])]
             [%from-rice %s (scot %ux id.from-account.a)]
             [%amount (numb amount.a)]
@@ -178,7 +179,7 @@
         |=  =mint:sur
         %-  pairs
         :~  [%to %s (scot %ux to.mint)]
-            [%account ?~(account.mint ~ [%s (scot %ux u.account.mint)])]
+            [%account ?~(account.mint ~ [%s (scot %ux id.u.account.mint)])]
             [%amount (numb amount.mint)]
         ==
       ::
