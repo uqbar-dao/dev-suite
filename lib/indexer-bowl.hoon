@@ -126,9 +126,8 @@
   ++  shell
     |=  =shell:smart
     ^-  json
-    ?>  ?=(account:smart from.shell)
     %-  pairs
-    :~  [%from (account from.shell)]
+    :~  [%from (caller from.shell)]
         [%eth-hash (eth-hash eth-hash.shell)]
         [%to %s (scot %ux to.shell)]
         [%rate (numb rate.shell)]
@@ -145,13 +144,13 @@
         [%arguments ~]  ::  TODO get lump format from contract interface
     ==
   ::
-  ++  account
-    |=  =account:smart
+  ++  caller
+    |=  =caller:smart
     ^-  json
     %-  pairs
-    :^    [%id %s (scot %ux id.account)]
-        [%nonce (numb nonce.account)]
-      [%zigs %s (scot %ux zigs.account)]
+    :^    [%id %s (scot %ux id.caller)]
+        [%nonce (numb nonce.caller)]
+      [%zigs %s (scot %ux zigs.caller)]
     ~
   ::
   :: ++  signature

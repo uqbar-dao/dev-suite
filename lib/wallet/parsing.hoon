@@ -44,7 +44,6 @@
 ++  parse-transaction
   |=  [hash=@ux t=egg:smart args=(unit supported-args)]
   ^-  [p=@t q=json]
-  ?.  ?=(account:smart from.shell.t)  !!
   :-  (scot %ux hash)
   %-  pairs
   :~  ['from' [%s (scot %ux id.from.shell.t)]]

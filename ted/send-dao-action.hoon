@@ -21,7 +21,7 @@
   --
 ::
 =>
-  |_  [=account:smart contract-args=arguments]
+  |_  [=caller:smart contract-args=arguments]
   ::
   ++  dao-contract-id  ::  HARDCODE to work with gen/sequencer/init-dao.hoon
     `@ux`'dao'
@@ -73,14 +73,10 @@
   ::
   ++  caller-to-account
     |=  =caller:smart
-    =/  m  (strand ,account:smart)
+    =/  m  (strand ,caller:smart)
     ^-  form:m
-    ?:  ?=(account:smart caller)
+    ?:  ?=(caller:smart caller)
       (pure:m caller)
-    ;<  =account:smart  bind:m
-      %+  scry  account:smart
-      /gx/wallet/account/(scot %ux caller)/(scot %ud town-id)/noun
-    (pure:m account(nonce +(nonce.account)))
   ::
   --
 ::
@@ -98,7 +94,7 @@
 =*  sequencer  sequencer.u.args
 =*  caller     caller.u.args
 =*  contract-args  contract-args.u.args
-;<  =account:smart  bind:m  (caller-to-account caller)
+;<  =caller:smart  bind:m  (caller-to-account caller)
 ~&  >  "poking sequencer..."
 ;<  ~  bind:m
   %^  poke  [sequencer %sequencer]  %zig-weave-poke

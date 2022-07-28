@@ -46,13 +46,6 @@
   %-  shax
   :((cury cat 3) town lord holder salt)
 ::
-::  +pin: get ID from caller
-::
-++  pin
-  |=  =caller
-  ^-  id
-  ?:(?=(@ux caller) caller id.caller)
-::
 ::  +result: generate a chick containing a final result
 ::
 ++  result
@@ -82,8 +75,7 @@
 ::
 ++  zigs-wheat-id  `@ux`'zigs-contract'   ::  hardcoded "native" token contract
 ::
-+$  account  [=id nonce=@ud zigs=id]
-+$  caller   $@(id account)
++$  caller  [=id nonce=@ud zigs=id]
 ::
 +$  typed-message  [domain=id message=@]  ::  message should be typed according to some mold specified by the wheat
 ::

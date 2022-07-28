@@ -841,9 +841,7 @@
       =*  egg-hash     -.i.txs
       =*  egg          +.i.txs
       =*  to           to.shell.egg
-      =*  from
-        ?:  ?=(@ux from.shell.egg)  from.shell.egg
-        id.from.shell.egg
+      =*  from         id.from.shell.egg
       =/  =egg-location:ui  [town-id root egg-num]
       %=  $
           txs          t.txs

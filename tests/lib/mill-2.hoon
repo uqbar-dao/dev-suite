@@ -21,7 +21,8 @@
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
 /*  triv-contract   %noun  /lib/zig/compiled/trivial/noun
-/*  small-contract  %noun  /lib/zig/compiled/trivial-scry/noun
+/*  scry-contract  %noun  /lib/zig/compiled/trivial-scry/noun
+
 |%
 ::
 ::  constants / dummy info for mill
@@ -42,10 +43,10 @@
 ::
 ::  fake data
 ::
-++  miller    ^-  account:smart  [0x1512.3341 1 0x1.1512.3341]
-++  caller-1  ^-  account:smart  [0xbeef 1 0x1.beef]
-++  caller-2  ^-  account:smart  [0xdead 1 0x1.dead]
-++  caller-3  ^-  account:smart  [0xcafe 1 0x1.cafe]
+++  miller    ^-  caller:smart  [0x1512.3341 1 0x1.1512.3341]
+++  caller-1  ^-  caller:smart  [0xbeef 1 0x1.beef]
+++  caller-2  ^-  caller:smart  [0xdead 1 0x1.dead]
+++  caller-3  ^-  caller:smart  [0xcafe 1 0x1.cafe]
 ::
 ++  zigs
   |%
@@ -96,19 +97,27 @@
         holder-3
         town-id
     ==
+  ++  wheat
+    ^-  grain:smart
+    =/  cont  ;;([bat=* pay=*] (cue q.q.zigs-contract))
+    =/  interface=lumps:smart  ~
+    =/  types=lumps:smart  ~
+    :*  %|
+        `cont
+        interface
+        types
+        zigs-wheat-id:smart  ::  id
+        zigs-wheat-id:smart  ::  lord
+        zigs-wheat-id:smart  ::  holder
+        town-id
+    ==
   --
 ::
-++  triv-wheat
+++  scry-wheat
   ^-  grain:smart
-  =/  cont  ;;([bat=* pay=*] (cue q.q.small-contract))
-  =/  interface=lumps:smart
-    %-  ~(gas by *lumps:smart)
-    :~  %give^[%give [%pair [%amount [%ud *@ud]] [%my-account [%grain *@ux]]]]
-    ==
-  =/  types=lumps:smart
-    %-  ~(gas by *lumps:smart)
-    :~  %account^[%account [%pair [%balance [%ud *@ud]] [%metadata [%grain *@ux]]]]
-    ==
+  =/  cont  ;;([bat=* pay=*] (cue q.q.scry-contract))
+  =/  interface=lumps:smart  ~
+  =/  types=lumps:smart  ~
   :*  %|
       `cont
       interface
@@ -122,7 +131,8 @@
 ++  fake-granary
   ^-  granary
   %+  gas:big  *(merk:merk id:smart grain:smart)
-  :~  [id.p:triv-wheat triv-wheat]
+  :~  [id.p:scry-wheat scry-wheat]
+      [id.p:wheat:zigs wheat:zigs]
       [id.p:beef-account:zigs beef-account:zigs]
       [id.p:dead-account:zigs dead-account:zigs]
       [id.p:miller-account:zigs miller-account:zigs]
@@ -137,14 +147,29 @@
 ::
 ::  begin tests
 ::
+++  test-mill-zigs-give
+  =/  =yolk:smart  [%give 0x1.dead]
+  =/  shel=shell:smart
+    [caller-1 ~ id.p:triv-wheat 1 1.000.000 town-id 0]
+  =/  hash=@ux  `@ux`(sham [shel yolk])
+  =/  [res=state-transition rej=carton]
+    %^  ~(mill-all mil miller town-id 1)  ::  batch-num
+    fake-land  (silt ~[[hash `egg:smart`[fake-sig shel yolk]]])  1.024
+  ~&  >>  "output: {<crows.res>}"
+  ;:  weld
+  ::  assert that our call went through
+    %+  expect-eq
+      !>(%0)
+    !>(status.shell.+.-.processed.res)
+  ==
 ::
-::  tests for +mill
+::  tests for +mill-all
 ::
 ++  test-mill-all-trivial-scry
   ::  tag your @ux with %grain if you want it to be carried in cart
   =/  =yolk:smart  [%find 0x1.dead]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:triv-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:scry-wheat 1 1.000.000 town-id 0]
   =/  hash=@ux  `@ux`(sham [shel yolk])
   =/  [res=state-transition rej=carton]
     %^  ~(mill-all mil miller town-id 1)  ::  batch-num

@@ -184,7 +184,6 @@
       =:  sig.egg.p  sig.act
           eth-hash.shell.egg.p  `eth-hash.act
       ==
-      ?>  ?=(account:smart from.shell.egg.p)
       =*  from   id.from.shell.egg.p
       =*  nonce  nonce.from.shell.egg.p
       =+  egg-hash=(hash-egg egg.p)
@@ -440,7 +439,7 @@
     =/  town-id  (slav %ux i.t.t.t.path)
     =/  nonce  (~(gut by (~(gut by nonces.state) pub ~)) town-id 0)
     =+  (fry-rice:smart `@ux`'zigs-contract' pub town-id `@`'zigs')
-    ``noun+!>(`account:smart`[pub nonce -])
+    ``noun+!>(`caller:smart`[pub nonce -])
   ::
       [%book ~]
     ::  return entire book map for wallet frontend

@@ -177,7 +177,7 @@
       =/  batch-num  batch-num.hall.town
       =/  addr  p.sequencer.hall.town
       =+  /(scot %p our.bowl)/wallet/(scot %da now.bowl)/account/(scot %ux addr)/(scot %ux town-id.hall.town)/noun
-      =+  .^(account:smart %gx -)
+      =+  .^(caller:smart %gx -)
       =/  [new=state-transition rejected=carton]
         %^    ~(mill-all mil - town-id.hall.town batch-num)
             land.town

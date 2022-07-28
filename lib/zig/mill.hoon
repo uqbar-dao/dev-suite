@@ -8,7 +8,6 @@
 ++  verify-sig
   |=  =egg:smart
   ^-  ?
-  ?>  ?=(account:smart from.shell.egg)
   =/  hash=@
     ?~  eth-hash.shell.egg
       (sham [shell yolk]:egg)
@@ -54,7 +53,7 @@
   !<(typ [-:!>(*typ) val])
 ::
 ++  mill
-  |_  [miller=account:smart town-id=id:smart batch=@ud]
+  |_  [miller=caller:smart town-id=id:smart batch=@ud]
   ::
   ::  +mill-all
   ::
@@ -123,7 +122,7 @@
             all-burns
         ==
       ::
-      =/  caller-id  (pin:smart from.shell.egg.i.pending)
+      =/  caller-id  id.from.shell.egg.i.pending
       ?:  (~(has in callers) caller-id)
         %=  $
           pending   t.pending
@@ -174,8 +173,6 @@
   ++  mill
     |=  [=land =egg:smart]
     ^-  [fee=@ud ^land burned=granary =errorcode:smart hits=(list hints) =crow:smart]
-    ?.  ?=(account:smart from.shell.egg)
-      [0 [~ q.land] ~ %1 ~ ~]
     ::  validate transaction signature
     ?.  ?:(!test-mode (verify-sig egg) %.y)
       ~&  >>>  "mill: signature mismatch"
@@ -215,7 +212,6 @@
     ++  audit
       |=  =egg:smart
       ^-  ?
-      ?.  ?=(account:smart from.shell.egg)            %.n
       ?~  zigs=(get:big granary zigs.from.shell.egg)  %.n
       ?.  =(id.from.shell.egg holder.p.u.zigs)        %.n
       ?.  =(zigs-wheat-id:smart lord.p.u.zigs)        %.n
@@ -227,7 +223,7 @@
     ::  cannot crash after audit, as long as zigs contract adequately
     ::  validates balance >= budget+amount.
     ++  charge
-      |=  [diff=^granary payee=account:smart fee=@ud]
+      |=  [diff=^granary payee=caller:smart fee=@ud]
       ^-  [id:smart grain:smart]
       =/  zigs=grain:smart
         ::  find grain in diff, or fall back to full state
@@ -279,9 +275,7 @@
     ++  incubate
       |=  [=egg:smart hits=(list hints) burned=^granary]
       ^-  hatchling
-      =/  from=[=id:smart nonce=@ud]
-        ?:  ?=(@ux from.shell.egg)  [from.shell.egg 0]
-        [id.from.shell.egg nonce.from.shell.egg]
+      =/  from  [id.from.shell.egg nonce.from.shell.egg]
       ::  insert budget argument if egg is %give-ing zigs
       =?  q.yolk.egg  &(=(to.shell.egg zigs-wheat-id:smart) =(p.yolk.egg %give))
         [budget.shell.egg q.yolk.egg]
@@ -326,10 +320,10 @@
       =/  inter
         %+  ~(incubate farm (dif:big (uni:big granary all-diffs) all-burns))
           %=  egg
-            from.shell    to.shell.egg
-            to.shell      to.i.next
-            budget.shell  rem
-            yolk          yolk.i.next
+            id.from.shell  to.shell.egg
+            to.shell       to.i.next
+            budget.shell   rem
+            yolk           yolk.i.next
           ==
         [hits all-burns]
       ?.  =(%0 errorcode.inter)
@@ -406,7 +400,6 @@
     ++  harvest
       |=  [res=rooster:smart lord=id:smart from=caller:smart]
       ^-  (unit ^granary)
-      ?>  ?=(account:smart from)
       =-  ?.  -
             ~&  >>>  "harvest checks failed"
             ~
