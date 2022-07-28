@@ -60,7 +60,7 @@
 ::  +continuation: generate a chick containing an intermediate result and a list of next calls
 ::
 ++  continuation
-  |=  [next=(list [to=id town-id=id args=yolk]) rooster=chick]
+  |=  [next=(list [to=id town-id=id =yolk]) rooster=chick]
   ^-  chick
   ?>  ?=(%& -.rooster)
   [%| next p.rooster]
