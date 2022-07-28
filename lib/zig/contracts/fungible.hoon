@@ -274,8 +274,15 @@
   ++  json
     ^-  ^json
     ::  TODO potentially add /mintable here
-    ~
-    ::?+    path  !!
+    ?+    path  !!
+        [%mintable @ ~]
+      =/  g=grain  (need (scry (slav %ux i.t.path)))
+      ?>  =(lord.p.g me.cart)
+      =/  meta  ;;(token-metadata:sur g)
+      ::  husk breaks here and idk why :(
+      ::=/  meta=token-metadata:sur
+      ::  (husk token-metadata:sur - `me.cart `me.cart)
+      b+(mintable:lib meta)
     ::    [%rice-data ~]
     ::  ?>  =(1 ~(wyt by owns.cart))
     ::  =/  g=grain  -:~(val by owns.cart)
@@ -294,7 +301,7 @@
     ::    [%egg-act @ ~]
     ::  %-  action:enjs:lib
     ::  ;;(action:sur (cue (slav %ud i.t.path)))
-    ::==
+    ==
   ::
   ++  noun
     ~
