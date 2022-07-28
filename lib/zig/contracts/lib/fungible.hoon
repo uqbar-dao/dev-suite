@@ -3,6 +3,11 @@
 ::
 ::  /+  *zig-sys-smart
 |%
+::  TODO would be nice to make cap a @ud instead,
+::  and make mintable a read query
+::
+::  TODO should be consistent with abbreviating 
+::  token-metadata as either token or metadata
 ++  sur
   |%
   ::
@@ -38,13 +43,15 @@
   ::  patterns of arguments supported by this contract
   ::  "action" in input must fit one of these molds
   ::
-  +$  mint  [to=id account=(unit id) amount=@ud]  ::  helper type for mint
+  +$  mint  [to=[%grain =id] account=(unit [%grain id]) amount=@ud]  ::  helper type for mint
   +$  action
     $%  ::  token holder actions
         ::
-        [%give to=id amount=@ud]
-        [%take to=id account=(unit id) from-account=id amount=@ud]
-        [%take-with-sig to=id account=(unit id) from-account=id amount=@ud nonce=@ud deadline=@da =sig]
+        ::  TODO could just infer to from holder.to-account
+        [%give from-account=[%grain =id] to=id to-account=(unit [%grain =id]) amount=@ud]
+        ::  TODO rename to=id -> taker or something. or isn't to caller?????
+        [%take to=id account=(unit [%grain =id]) from-account=[%grain =id] amount=@ud]
+        [%take-with-sig to=id account=(unit [%grain id]) from-account=[%grain =id] amount=@ud nonce=@ud deadline=@da =sig]
         [%set-allowance who=id amount=@ud]  ::  (to revoke, call with amount=0)
         ::  token management actions
         ::
@@ -61,7 +68,14 @@
     ==
   --
 ::
+::  TODO extract out account creation code to arm here
 ++  lib
+  ++  mintable
+    |=  meta=token-metadata:sur
+    ^-  ?
+    ?:  ?=(^ cap.meta)
+      (lth supply.meta u.cap.meta)
+    %.n
   |%
   ++  enjs
     =,  enjs:format
@@ -113,23 +127,23 @@
       ::
           %give
         %-  pairs
-        :~  [%to %s (scot %ux to.a)]
+        :~  [%to %s (scot %ux id.to.a)]
             [%amount (numb amount.a)]
         ==
       ::
           %take
         %-  pairs
-        :~  [%to %s (scot %ux to.a)]
-            [%account ?~(account.a ~ [%s (scot %ux u.account.a)])]
-            [%from-account %s (scot %ux from-account.a)]
+        :~  [%to %s (scot %ux id.to.a)]
+            [%account ?~(account.a ~ [%s (scot %ux id.u.account.a)])]
+            [%from-account %s (scot %ux id.from-account.a)]
             [%amount (numb amount.a)]
         ==
       ::
           %take-with-sig  ::  placeholder, not finished
         %-  pairs
-        :~  [%to %s (scot %ux to.a)]
-            [%account ?~(account.a ~ [%s (scot %ux u.account.a)])]
-            [%from-rice %s (scot %ux from-account.a)]
+        :~  [%to %s (scot %ux id.to.a)]
+            [%account ?~(account.a ~ [%s (scot %ux id.u.account.a)])]
+            [%from-rice %s (scot %ux id.from-account.a)]
             [%amount (numb amount.a)]
         ==
           %set-allowance
