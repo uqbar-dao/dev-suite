@@ -104,7 +104,7 @@
       ::  maps
       ::  etc  [ADDED TO ZINK]
       ::  ~[%scot]
-      ~[%pedersen]  ::  716.782
+      ~[%in]  ::  716.782
       ::  ~[%all [%& 716.782]]   ::  2.398?
     ==
   %+  turn  looking-for
@@ -185,17 +185,5 @@
   =/  r=port  (~(find ut p.vax) %read arm)
   ?>  ?=(%& -.r)
   ?>  ?=(%| -.q.p.r)
-  ~&  `type`-:-:~(tap in q.q.p.r)
-  ~&  (~(find ut `type`-:-:~(tap in q.q.p.r)) %read ~[%in])
-  ::  ~&  (sloe `type`-:-:~(tap in q.q.p.r))
   p.q.p.r
-::
-::  ++  arm-vase
-::    |=  [vax=vase arm=wing]
-::    ^-  vase
-::    =/  r=port  (~(find ut p.vax) %read arm)
-::    ?>  ?=(%& -.r)
-::    ?>  ?=(%| -.q.p.r)
-::    ~&  q.q.p.r
-::  
 --
