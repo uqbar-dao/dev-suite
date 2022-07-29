@@ -489,6 +489,9 @@
   ++  hash
     |=  n=*
     ^-  [(unit phash) appendix]
+    ::  test mode disables hashing, so it won't generate valid hints.
+    ::  however, computation is *much* faster since hashing is the
+    ::  most expensive aspect of the process.
     ?:  test-mode  [`0x1 app]
     =/  mh  (~(get by cax) n)
     ?^  mh
