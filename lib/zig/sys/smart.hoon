@@ -6,6 +6,7 @@
 ::::::                                         ::::  ::  ::::::  ::  ::  ::  ::
 =<
 |%
+++  big  (bi id grain)  ::  merkle engine for granary
 ::
 ::  +husk: check provenance and fit data to mold
 ::
@@ -52,9 +53,9 @@
   |=  [changed=(list grain) issued=(list grain) burned=(list grain) =crow]
   ^-  chick
   :-  %&
-  :^    (gas:(bi id grain) *(merk id grain) (turn changed |=(=grain [id.p.grain grain])))
-      (gas:(bi id grain) *(merk id grain) (turn issued |=(=grain [id.p.grain grain])))
-    (gas:(bi id grain) *(merk id grain) (turn burned |=(=grain [id.p.grain grain])))
+  :^    (gas:big *(merk id grain) (turn changed |=(=grain [id.p.grain grain])))
+      (gas:big *(merk id grain) (turn issued |=(=grain [id.p.grain grain])))
+    (gas:big *(merk id grain) (turn burned |=(=grain [id.p.grain grain])))
   crow
 ::
 ::  +continuation: generate a chick containing an intermediate result and a list of next calls

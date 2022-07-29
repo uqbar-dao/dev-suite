@@ -162,7 +162,6 @@
 ::    !>(errorcode.res)
 ::
 ++  test-mill-trivial-scry
-  ::  tag your @ux with %grain if you want it to be carried in cart
   =/  =yolk:smart  [%find 0x1.dead]
   =/  shel=shell:smart
     [caller-1 ~ id.p:scry-wheat 1 1.000.000 town-id 0]

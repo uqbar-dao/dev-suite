@@ -47,23 +47,44 @@
     %^  cache-file  built-contract
       cax
     :~  ::  hoon
+        ::  four layers
         'add'
         'biff'
         'egcd'
         'po'
+        ::  inner layers
+        'dif:fe'
+        'all:in'
+        'all:by'
+        'get:ja'
+        'del:ju'
+        'apt:to'
+        'le:nl'
+        'abs:si'
+        'sb:ff'
         ::  smart
-        'mimes:html'
-        'aes:crypto'
-        'pass:ames'
-        'fu:number'
-        't:pedersen'
+        ::  five layers
         'pedersen'
-        ::
-        'merk'
-        ::
+        'hash'
         'ship'
         'id'
-        'husk'
+        'big'
+        ::  inner layers (reverse order)
+        'as-octs:secp:crypto'
+        'hmac-sha1:hmac:crypto'
+        'keccak-224:keccak:crypto'
+        'as:crub:crypto'
+        'sal:scr:crypto'
+        'ahem:aes:crypto'
+        'aes:crypto'
+        'as-octs:mimes:html'
+        'mimes:html'
+        'fu:number'
+        'pass:ames'
+        'hash:pedersen'
+        't:pedersen'
+        ::  'bif:bi'
+        'frond:enjs:format'
     ==
   ~&  >>  %core-hashing
   =/  [raw=(list [face=term =path]) contract-hoon=hoon]  (parse-pile (trip triv-txt))
@@ -104,7 +125,6 @@
                (trip (rap 3 (scot %ud i) '/' (scot %ud len) ~))
            ==
     =/  n  q:(slot (arm-axis vax t) vax)
-    ~&  >>  "size: {<(met 3 (jam n))>}"
     $(lis t.lis, cax (~(put by cax) n (hash n cax)), i +(i))
   --
 ::  conq helpers
