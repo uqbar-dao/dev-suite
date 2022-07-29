@@ -296,7 +296,7 @@
   ::  TODO: make LRU-cache-optimized version for granary retrivial & modification
   ?@  yux
     (hash:pedersen yux 0)
-  (hash:pedersen (jam yux) 0)
+  (hash:pedersen $(yux -.yux) $(yux +.yux))
 ::
 ::  +sore: single sha-256 hash in ascending order, uses +dor as
 ::  fallback
@@ -600,6 +600,7 @@
           292.063.708.816.422
   ++  hash
     |=  [a=@ b=@]
+    ~>  %pedersen-hash.+<
     ^-  @
     |^
     =/  x  (has a)

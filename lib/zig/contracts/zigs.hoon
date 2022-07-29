@@ -16,7 +16,7 @@
   ^-  chick
   ?-    -.act
       %give
-    =+  (need (scry id.from-account.act))
+    =+  (need (scry from-account.act))
     =/  giver  (husk account:sur - `me.cart `id.from.cart)
     ::  unlike other assertions, this is non-optional: we must confirm
     ::  that the giver's zigs balance is enough to cover the maximum
@@ -31,7 +31,7 @@
       =/  next  [%give to.act amount.act [%grain id.giver] `[%grain id.rice]]
       (continuation [me.cart town-id.cart next]^~ (result ~ [%& rice]^~ ~ ~))
     ::  have a specified receiver account, grab it and add to balance
-    =+  (need (scry id.u.to-account.act))
+    =+  (need (scry u.to-account.act))
     =/  receiver  (husk account:sur - `me.cart `to.act)
     =:  balance.data.giver     (sub balance.data.giver amount.act)
         balance.data.receiver  (add balance.data.receiver amount.act)
@@ -39,7 +39,7 @@
     (result [[%& giver] [%& receiver] ~] ~ ~ ~)
   ::
       %take
-    =+  (need (scry id.from-account.act))
+    =+  (need (scry from-account.act))
     =/  giver  (husk account:sur - `me.cart ~)
     ::  no assertions required here for balance or allowance,
     ::  because subtract underflow will crash when we try to edit these.
@@ -51,7 +51,7 @@
       =/  next  [%take to.act amount.act [%grain id.giver] `[%grain id.rice]]
       (continuation [me.cart town-id.cart next]^~ (result ~ [%& rice]^~ ~ ~))
     ::  have a specified receiver account, grab it and add to balance
-    =+  (need (scry id.u.to-account.act))
+    =+  (need (scry u.to-account.act))
     =/  receiver  (husk account:sur - `me.cart `to.act)
     =:  balance.data.giver     (sub balance.data.giver amount.act)
         balance.data.receiver  (add balance.data.receiver amount.act)
@@ -66,7 +66,7 @@
       %set-allowance
     ::  cannot set an allowance to ourselves
     ?>  !=(who.act id.from.cart)
-    =+  (need (scry id.account.act))
+    =+  (need (scry account.act))
     =/  account  (husk account:sur - `me.cart `id.from.cart)
     =.  allowances.data.account
       (~(put by allowances.data.account) who.act amount.act)

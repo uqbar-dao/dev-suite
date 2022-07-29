@@ -47,7 +47,7 @@
 ::  Axis map of jets in stdlib
 ++  jets
   ::  TODO: determine *real* costs
-  %-  ~(gas in *jetmap)
+  %-  ~(gas by *jetmap)
   :~  ::  math
       [%add 1]
       ::  bits
@@ -56,5 +56,6 @@
 
       ::  etc
       [%scot 5]
+      [%pedersen-hash 10]
     ==
 --

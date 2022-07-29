@@ -312,6 +312,9 @@
     ?:  ?=(%slog tag)
       ::  ignore trace printfs
       [%&^~ app]
+    ?:  ?=(%mean tag)
+      ::  this is a crash..
+      ~&  317  [%|^trace app]
     ?~  cost=(~(get by jets) tag)
       ~&  >>  "no jet found"  [%&^~ app]
     ?:  (lth bud u.cost)  [%&^~ app]
@@ -344,6 +347,10 @@
         %scot
       ?.  ?=([@ta @] sam)  %|^trace
       %&^(some (scot sam))
+    ::
+        %pedersen-hash
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (hash:pedersen sam))
     ==
     ::      %dec
     ::    ?:  (lth bud 1)  %&^~
