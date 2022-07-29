@@ -43,15 +43,15 @@
   ::  patterns of arguments supported by this contract
   ::  "action" in input must fit one of these molds
   ::
-  +$  mint  [to=address account=(unit [%grain =id]) amount=@ud]  ::  helper type for mint
+  +$  mint  [to=address account=(unit id) amount=@ud]  ::  helper type for mint
   +$  action
     $%  ::  token holder actions
         ::
         ::  TODO could just infer to from holder.to-account
-        [%give from-account=[%grain =id] to=address to-account=(unit [%grain =id]) amount=@ud]
-        ::  TODO rename to=id -> taker or something. or isn't to caller?????
-        [%take to=address account=(unit [%grain =id]) from-account=[%grain =id] amount=@ud]
-        [%take-with-sig to=address account=(unit [%grain =id]) from-account=[%grain =id] amount=@ud nonce=@ud deadline=@da =sig]
+        [%give from-account=id to=address to-account=(unit id) amount=@ud]
+        ::  TODO rename to=id -> taker or something. or isn't to the caller?????
+        [%take to=address account=(unit id) from-account=id amount=@ud]
+        [%take-with-sig to=address account=(unit id) from-account=id amount=@ud nonce=@ud deadline=@da =sig]
         [%set-allowance who=address amount=@ud]  ::  (to revoke, call with amount=0)
         ::  token management actions
         ::
@@ -135,16 +135,16 @@
           %take
         %-  pairs
         :~  [%to %s (scot %ux to.a)]
-            [%account ?~(account.a ~ [%s (scot %ux id.u.account.a)])]
-            [%from-account %s (scot %ux id.from-account.a)]
+            [%account ?~(account.a ~ [%s (scot %ux u.account.a)])]
+            [%from-account %s (scot %ux from-account.a)]
             [%amount (numb amount.a)]
         ==
       ::
           %take-with-sig  ::  placeholder, not finished
         %-  pairs
         :~  [%to %s (scot %ux to.a)]
-            [%account ?~(account.a ~ [%s (scot %ux id.u.account.a)])]
-            [%from-rice %s (scot %ux id.from-account.a)]
+            [%account ?~(account.a ~ [%s (scot %ux u.account.a)])]
+            [%from-rice %s (scot %ux from-account.a)]
             [%amount (numb amount.a)]
         ==
           %set-allowance
@@ -179,7 +179,7 @@
         |=  =mint:sur
         %-  pairs
         :~  [%to %s (scot %ux to.mint)]
-            [%account ?~(account.mint ~ [%s (scot %ux id.u.account.mint)])]
+            [%account ?~(account.mint ~ [%s (scot %ux u.account.mint)])]
             [%amount (numb amount.mint)]
         ==
       ::

@@ -39,7 +39,7 @@
   ::
   ?-    -.act
       %give
-    =/  giv=grain          (need (scry id.from-account.act))
+    =/  giv=grain          (need (scry from-account.act))
     ?>  ?=(%& -.giv)
     =/  giver=account:sur  data:(husk account:sur giv `me.cart `id.from.cart)
     ?>  (gte balance.giver amount.act)
@@ -48,14 +48,14 @@
       =/  =id          (fry-rice me.cart to.act town-id.cart salt.p.giv)
       =/  new=grain    [%& salt.p.giv %account [0 ~ metadata.giver 0] id me.cart to.act town-id.cart]
       ~!  giv
-      =/  =action:sur  [%give from-account=[%grain id.p.giv] to.act to-account=`[%grain id.p.new] amount.act]
+      =/  =action:sur  [%give from-account=id.p.giv to.act to-account=`id.p.new amount.act]
       ::  continuation call: %give to rice we issued
       %+  continuation
         [me.cart town-id.cart action]~
       (result ~ issued=[new ~] ~ ~)
     ::  otherwise, add to the existing account for that pubkey
     ::  giving account in embryo, and receiving one in owns.cart
-    =/  rec=grain  (need (scry id.u.to-account.act))
+    =/  rec=grain  (need (scry u.to-account.act))
     =/  receiver   data:(husk account:sur rec `me.cart `to.act)
     ?>  ?=(%& -.rec)
     ::  assert that tokens match
@@ -69,7 +69,7 @@
   ::
       %take
     ::  TODO possibly ?>  =(id.from.cart to.act)? or just removing it?
-    =/  giv=grain  (need (scry id.from-account.act))
+    =/  giv=grain  (need (scry from-account.act))
     ?>  ?=(%& -.giv)
     =/  giver=account:sur  data:(husk account:sur giv `me.cart ~)
     =/  allowance=@ud  (~(got by allowances.giver) id.from.cart)
@@ -80,13 +80,13 @@
       ::  create new rice for reciever and add it to state
       =/  =id          (fry-rice me.cart to.act town-id.cart salt.p.giv)
       =/  new=grain    [%& salt.p.giv %account [0 ~ metadata.giver 0] id me.cart to.act town-id.cart]
-      =/  =action:sur  [%take to.act `[%grain id.p.new] [%grain id.p.giv] amount.act]
+      =/  =action:sur  [%take to.act `id.p.new id.p.giv amount.act]
       ::  continuation call: %take to rice found in book
       %+  continuation
         [me.cart town-id.cart action]~
       (result ~ issued=[new ~] ~ ~)
     ::  direct send
-    =/  rec=grain  (need (scry id.u.account.act))
+    =/  rec=grain  (need (scry u.account.act))
     =/  receiver   data:(husk account:sur giv `me.cart `to.act)
     ?>  ?=(%& -.rec)
     ?>  =(metadata.receiver metadata.giver)
@@ -108,7 +108,7 @@
     ::  %take-with-sig allows for gasless approvals for transferring tokens
     ::  the giver must sign the from-account id and the typed +$approve struct above
     ::  and the taker will pass in the signature to take the tokens
-    =/  giv=grain          (need (scry id.from-account.act))
+    =/  giv=grain          (need (scry from-account.act))
     ?>  ?=(%& -.giv)
     =/  giver=account:sur  data:(husk account:sur giv `me.cart `id.from.cart)
     ::  reconstruct the typed message and hash
@@ -132,12 +132,12 @@
       =/  new=grain
         [%& salt.p.giv %account [amount.act ~ metadata.giver 0] - me.cart to.act town-id.cart]
       ::  continuation call: %take to rice found in book
-      =/  =action:sur  [%take-with-sig to.act `[%grain id.p.new] [%grain id.p.giv] amount.act nonce.act deadline.act sig.act]
+      =/  =action:sur  [%take-with-sig to.act `id.p.new id.p.giv amount.act nonce.act deadline.act sig.act]
       %+  continuation
         [me.cart town-id.cart action]~
       (result [new ~] ~ ~ ~)
     ::  direct send
-    =/  rec=grain  (need (scry id.u.account.act))
+    =/  rec=grain  (need (scry u.account.act))
     =/  receiver   data:(husk account:sur rec `me.cart `to.act)
     ?>  ?=(%& -.rec)
     ?>  =(metadata.receiver metadata.giver)
@@ -207,10 +207,10 @@
       %=  $
         mints        t.mints
         to-issue     [grain to-issue]
-        next-mints   (~(put in next-mints) [to.i.mints `[%grain id] amount.i.mints])
+        next-mints   (~(put in next-mints) [to.i.mints `id amount.i.mints])
       ==
     ::  have rice, can modify
-    =/  =grain  (need (scry id.u.account.i.mints))
+    =/  =grain  (need (scry u.account.i.mints))
     ?>  ?=(%& -.grain)
     =/  acc  data:(husk account:sur grain `me.cart ~)
     ?>  =(metadata.acc token.act)
@@ -258,7 +258,6 @@
           town-id.cart
       ==
     ::  generate accounts
-    =/  big  (bi id grain)
     =/  accounts
       %+  gas:big  *(merk id grain)
       %+  turn  ~(tap in distribution.act)
