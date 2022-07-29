@@ -18,20 +18,21 @@
   =/  ht  $(n +.n)
   (hash:pedersen hh ht)
 ::
-++  build
+++  build-slapped
   |=  [hoonlib-txt=@t smartlib-txt=@t]
   ^-  vase
-  ~&  >>  %building
   =/  [raw=(list [face=term =path]) contract-hoon=hoon]  (parse-pile (trip triv-txt))
   =/  smart-lib=vase  (slap (slap !>(~) (ream hoonlib-txt)) (ream smartlib-txt))
-  =/  full=hoon  [%clsg ~]
-  =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun full)
-  =/  payload=vase  (slap smart-lib full)
-  (~(mint ut p:(slop smart-lib payload)) %noun contract-hoon)
+  =/  libraries=hoon  [%clsg ~]
+  =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun libraries)
+  =/  payload=vase  (slap smart-lib libraries)
+  ::
+  (slap (slop smart-lib payload) contract-hoon)
 ::
 ++  conq
   |=  [hoonlib-txt=@t smartlib-txt=@t cax=cache bud=@ud]
-  ^-  cax=(map * phash)
+  ^-  (map * phash)
+  |^
   =.  cax
     %-  ~(gas by cax)
     %+  turn  (gulf 0 12)
@@ -39,77 +40,81 @@
     ^-  [* phash]
     [n (hash n ~)]
   ~&  >>  %compiling-hoon
-  =/  hoonlib   (slap !>(~) (ream hoonlib-txt))
   ~&  >>  %compiling-smart
-  =/  smartlib  (slap hoonlib (ream smartlib-txt))
-  ~&  >>  %hashing-hoon-arms
+  =/  built-contract  (build-slapped hoonlib-txt smartlib-txt)
+  ~&  >>  %hashing-arms
   =.  cax
-    %^  cache-file  hoonlib
+    %^  cache-file  built-contract
       cax
-    :~  'add'
+    :~  ::  hoon
+        'add'
         'biff'
         'egcd'
         'po'
-    ==
-  ~&  >>  %hashing-smart-arms
-  =.  cax
-    %^  cache-file  smartlib
-      cax
-    :~  'pedersen'
+        ::  smart
+        'mimes:html'
+        'aes:crypto'
+        'pass:ames'
+        'fu:number'
+        't:pedersen'
+        'pedersen'
+        ::
         'merk'
+        ::
         'ship'
         'id'
         'husk'
     ==
+  ~&  >>  %core-hashing
+  =/  [raw=(list [face=term =path]) contract-hoon=hoon]  (parse-pile (trip triv-txt))
+  =/  smart-lib=vase  (slap (slap !>(~) (ream hoonlib-txt)) (ream smartlib-txt))
+  =/  full=hoon  [%clsg ~]
+  =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun full)
+  =/  payload=vase  (slap smart-lib full)
+  =/  cont  (~(mint ut p:(slop smart-lib payload)) %noun contract-hoon)
   ::
-  =/  cont  (build hoonlib-txt smartlib-txt)
   =/  gun  (~(mint ut p.cont) %noun (ream '~'))
-  =/  =book  (zebra bud cax *granary-scry [q.cont q.gun])
+  =/  =book  (zebra bud cax *granary-scry [q.cont q.gun] %.n)
   ~&  p.book
   cax.q.book
-::
-+$  jet-path
-  $@  @tas
-  (list @tas)
-::
-++  get-jets
-  |=  [hoonlib-txt=@t smartlib-txt=@t]
-  ^-  (list [@ wing])
-  =/  cont  (build hoonlib-txt smartlib-txt)
-  =/  looking-for=(list wing)
-  :~  ::  math  [ADDED TO ZINK]
-      ::  %add  %dec  %div  %dvr  %gte  %gth  %lte
-      ::  %lth  %max  %min  %mod  %mul  %sub
-      ::  ::  tree
-      ::  %cap  %mas  %peg
-      ::  ::  unit
-      ::  %need
-      ::  ::  list  [ADDED: lent]
-      ::  %fand  %find  %flop  %lent  %levy  %lien
-      ::  %murn  %oust  %reap  %rear  %reel  %roll
-      ::  %scag  %skid  %skim  %skip  %slag  %snag
-      ::  %snip  %sort  %spin  %spun  %turn  %weld
-      ::  %snap  %into  %welp  %zing
-      ::  ::  bits
-      ::  %bex  %can  %cat  %cut  %end  %fil  %lsh
-      ::  %met  %rap  %rep  %rev  %rip  %rsh  %run
-      ::  %rut  %sew  %swp  %xeb
-      ::  ::
-      ::  %con  %dis  %mix  
-      ::  ::  mug, noun ordering
-      ::  %mug  %aor  %dor  %gor  %mor
-      ::  ::  powers
-      ::  %pow  %sqt
-      ::  sets  (how to get stuff inside jet-door?)
-      ::  maps
-      ::  etc  [ADDED TO ZINK]
-      ::  ~[%scot]
-      ~[%pedersen]  ::  716.782
-      ::  ~[%all [%& 716.782]]   ::  2.398?
-    ==
-  %+  turn  looking-for
-  |=(=wing [(arm-axis cont wing) wing])
-::
+  ::
+  ++  cache-file
+    |=  [vax=vase cax=cache layers=(list @t)]
+    ^-  cache
+    |-
+    ?~  layers
+      cax
+    =/  cor  (slap vax (ream (cat 3 '..' i.layers)))
+    =/  min  (~(mint ut p.vax) %noun (ream (cat 3 '..' i.layers)))
+    $(layers t.layers, cax (hash-arms cor cax))
+  ::
+  ++  hash-arms
+    |=  [vax=vase cax=(map * phash)]
+    ^-  (map * phash)
+    =/  lis  (sloe p.vax)
+    =/  len  (lent lis)
+    =/  i  1
+    |-
+    ?~  lis  cax
+    =*  t  i.lis
+    ~&  >  %-  crip
+           %-  zing
+           :~  (trip t)
+               (reap (sub 20 (met 3 t)) ' ')
+               (trip (rap 3 (scot %ud i) '/' (scot %ud len) ~))
+           ==
+    =/  n  q:(slot (arm-axis vax t) vax)
+    ~&  >>  "size: {<(met 3 (jam n))>}"
+    $(lis t.lis, cax (~(put by cax) n (hash n cax)), i +(i))
+  --
+::  conq helpers
+++  arm-axis
+  |=  [vax=vase arm=term]
+  ^-  @
+  =/  r  (~(find ut p.vax) %read ~[arm])
+  ?>  ?=(%& -.r)
+  ?>  ?=(%| -.q.p.r)
+  p.q.p.r
 ::
 ::  parser helpers
 ::
@@ -150,52 +155,4 @@
 ++  mast
   |*  [bus=rule fel=rule]
   ;~(sfix (more bus fel) bus)
-::
-++  cache-file
-  |=  [vax=vase cax=cache layers=(list @t)]
-  ^-  cache
-  |-
-  ?~  layers
-    cax
-  =/  cor  (slap vax (ream (cat 3 '..' i.layers)))
-  ~&  >>  i.layers
-  $(layers t.layers, cax (hash-arms cor cax))
-::
-++  hash-arms
-  |=  [vax=vase cax=(map * phash)]
-  ^-  (map * phash)
-  =/  lis  (sloe p.vax)
-  =/  len  (lent lis)
-  =/  i  1
-  |-
-  ?~  lis  cax
-  =*  t  i.lis
-  ~&  >  %-  crip
-         %-  zing
-         :~  (trip t)
-             (reap (sub 20 (met 3 t)) ' ')
-             (trip (rap 3 (scot %ud i) '/' (scot %ud len) ~))
-         ==
-  =/  n  q:(slot (arm-axis vax ~[t]) vax)
-  $(lis t.lis, cax (~(put by cax) n (hash n cax)), i +(i))
-::
-++  arm-axis
-  |=  [vax=vase arm=wing]
-  ^-  @
-  =/  r=port  (~(find ut p.vax) %read arm)
-  ?>  ?=(%& -.r)
-  ?>  ?=(%| -.q.p.r)
-  ~&  `type`-:-:~(tap in q.q.p.r)
-  ~&  (~(find ut `type`-:-:~(tap in q.q.p.r)) %read ~[%in])
-  ::  ~&  (sloe `type`-:-:~(tap in q.q.p.r))
-  p.q.p.r
-::
-::  ++  arm-vase
-::    |=  [vax=vase arm=wing]
-::    ^-  vase
-::    =/  r=port  (~(find ut p.vax) %read arm)
-::    ?>  ?=(%& -.r)
-::    ?>  ?=(%| -.q.p.r)
-::    ~&  q.q.p.r
-::  
 --

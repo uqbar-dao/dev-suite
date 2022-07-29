@@ -18,12 +18,12 @@
 ::    unsigned arithmetic
 +|  %math
 ++  add
-  ~/  %add
   ::  unsigned addition
   ::
   ::  a: augend
   ::  b: addend
   |=  [a=@ b=@]
+  ~>  %add.+<
   ::  sum
   ^-  @
   ?:  =(0 a)  b
@@ -5904,8 +5904,9 @@
 ::::  4m: formatting functions
   ::
 ++  scot
-  ~/  %scot
-  |=(mol=dime ~(rent co %$ mol))
+  |=  mol=dime
+  ~>  %scot.+<
+  ~(rent co %$ mol)
 ++  scow
   ~/  %scow
   |=(mol=dime ~(rend co %$ mol))

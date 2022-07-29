@@ -21,7 +21,7 @@
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
 /*  triv-contract   %noun  /lib/zig/compiled/trivial/noun
-/*  scry-contract  %noun  /lib/zig/compiled/trivial-scry/noun
+/*  scry-contract   %noun  /lib/zig/compiled/trivial-scry/noun
 /*  zigs-contract   %noun  /lib/zig/compiled/zigs/noun
 |%
 ::
@@ -132,7 +132,7 @@
   ^-  granary
   %+  gas:big  *(merk:merk id:smart grain:smart)
   :~  [id.p:scry-wheat scry-wheat]
-      [id.p:wheat:zigs wheat:zigs]
+      ::  [id.p:wheat:zigs wheat:zigs]
       [id.p:beef-account:zigs beef-account:zigs]
       [id.p:dead-account:zigs dead-account:zigs]
       [id.p:miller-account:zigs miller-account:zigs]
@@ -147,19 +147,19 @@
 ::
 ::  begin tests
 ::
-++  test-mill-zigs-give
-  =/  =yolk:smart  [%give holder-2:zigs 69 [%grain 0x1.beef] `[%grain 0x1.dead]]
-  =/  shel=shell:smart
-    [caller-1 ~ id.p:wheat:zigs 1 1.000.000 town-id 0]
-  =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
-    %+  ~(mill mil miller town-id 1)
-    fake-land  `egg:smart`[fake-sig shel yolk]
-  ~&  >  "output: {<crow.res>}"
-  ~&  >  "fee: {<fee.res>}"
-  ::  assert that our call went through
-  %+  expect-eq
-    !>(%0)
-  !>(errorcode.res)
+::  ++  test-mill-zigs-give
+::    =/  =yolk:smart  [%give holder-2:zigs 69 [%grain 0x1.beef] `[%grain 0x1.dead]]
+::    =/  shel=shell:smart
+::      [caller-1 ~ id.p:wheat:zigs 1 1.000.000 town-id 0]
+::    =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
+::      %+  ~(mill mil miller town-id 1)
+::      fake-land  `egg:smart`[fake-sig shel yolk]
+::    ~&  >  "output: {<crow.res>}"
+::    ~&  >  "fee: {<fee.res>}"
+::    ::  assert that our call went through
+::    %+  expect-eq
+::      !>(%0)
+::    !>(errorcode.res)
 ::
 ++  test-mill-trivial-scry
   ::  tag your @ux with %grain if you want it to be carried in cart

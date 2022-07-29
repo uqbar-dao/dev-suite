@@ -353,7 +353,7 @@
         ::  generate ZK-proof hints with zebra
         ::
         =/  =book
-          (zebra budget zink-cax search gun)
+          (zebra budget zink-cax search gun test-mode)
         :-  hit.q.book
         ?:  ?=(%| -.p.book)
           ::  error in contract execution
@@ -372,7 +372,7 @@
         ?~  id=(slaw %ux -.+.+.+.pat)     ~
         ?~  grain=(get:big granary u.id)  ~
         ::  TODO populate path using +mek in merk
-        `[~ u.grain]
+        `[(mek:big granary u.id) u.grain]
       ::
       ++  test-search
         |=  pax=^
