@@ -283,7 +283,7 @@
         [[tag.f u.p.clue] trace]
       $(f next.f)
     :_  app
-    ?:  ?=(%| -.next)  ~&  277  %|^trace
+    ?:  ?=(%| -.next)  ~&  286  %|^trace
     ?~  p.next  %&^~
     :+  %&  ~
     .*  s
@@ -310,7 +310,7 @@
     |=  [tag=@ sam=*]
     ^-  book
     ?:  ?=(%slog tag)
-      ::  ignore trace printfs
+      ::  print trace printfs?
       [%&^~ app]
     ?:  ?=(%mean tag)
       ::  this is a crash..

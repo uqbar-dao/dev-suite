@@ -143,21 +143,33 @@
       0xcafe.cafe  ::  holder
       town-id
   ==
+++  temp-grain
+  ^-  grain:smart
+  :*  %&
+      `@`'loach'
+      %account
+      [300.000.000 ~ `@ux`'custom-token']
+      0x1111.2222.3333
+      0xcafe.cafe
+      `@ux`123.456.789
+      town-id
+  ==
 ::
 ++  fake-granary
   ^-  granary
   %+  gas:big  *(merk:merk id:smart grain:smart)
-  :~  [id.p:scry-wheat scry-wheat]
-      [id.p:wheat:zigs wheat:zigs]
+  :~  :: [id.p:scry-wheat scry-wheat]
+      :: [id.p:wheat:zigs wheat:zigs]
       [id.p:temp-wheat temp-wheat]
+      [id.p:temp-grain temp-grain]
       [id.p:beef-account:zigs beef-account:zigs]
-      [id.p:dead-account:zigs dead-account:zigs]
-      [id.p:miller-account:zigs miller-account:zigs]
+      :: [id.p:dead-account:zigs dead-account:zigs]
+      :: [id.p:miller-account:zigs miller-account:zigs]
   ==
 ++  fake-populace
   ^-  populace
   %+  gas:pig  *(merk:merk id:smart @ud)
-  ~[[holder-1:zigs 0] [holder-2:zigs 0] [holder-3:zigs 0]]
+  ~[[holder-1:zigs 0]] :: [holder-2:zigs 0] [holder-3:zigs 0]]
 ++  fake-land
   ^-  land
   [fake-granary fake-populace]
@@ -165,14 +177,16 @@
 ::  begin tests
 ::
 ++  test-mill-tester
-  =/  =yolk:smart  [%look 0x1.dead]
+  =/  =yolk:smart  [%look 0x1111.2222.3333]
   =/  shel=shell:smart
     [caller-1 ~ id.p:temp-wheat 1 1.000.000 town-id 0]
   =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel yolk]
-  ~&  >  "output: {<crow.res>}"
-  ~&  >  "fee: {<fee.res>}"
+  ~&  >>  "output: {<crow.res>}"
+  ~&  >>  "fee: {<fee.res>}"
+  ~&  >>  "diff:"
+  ~&  p.land.res
   ::  assert that our call went through
   %+  expect-eq
     !>(%0)
