@@ -262,6 +262,9 @@
       [%11 [tag=@ clue=*] next=*]
     ::  look for jet with this tag and compute sample
     ~&  >  "hint: {<`@tas`tag.f>}"
+    ~?  ?=(%fast tag.f)
+      ?>  ?=([@ @ [@ @] @] clue.f)
+      "jet: {<`@tas`-.+.clue.f>}"
     =^  sam=body  app
       $(f clue.f)
     ?:  ?=(%| -.sam)  ~&  269  [%|^trace app]
@@ -333,6 +336,58 @@
         %add
       ?.  ?=([@ @] sam)  %|^trace
       %&^(some (add sam))
+    ::
+        %dec
+      ?.  ?=(@ sam)  %|^trace
+      %&^(some (dec sam))
+    ::
+        %div
+      ?.  ?=([@ @] sam)  %|^trace
+      ?.  (gth +.sam 0)  %|^trace
+      %&^(some (div sam))
+    ::
+        %dvr
+      ?.  ?=([@ @] sam)  %|^trace
+      ?.  (gth +.sam 0)  %|^trace
+      %&^(some (dvr sam))
+    ::
+        %gte
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (gte sam))
+    ::
+        %gth
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (gth sam))
+    ::
+        %lte
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (lte sam))
+    ::
+        %lth
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (lth sam))
+    ::
+        %max
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (max sam))
+    ::
+        %min
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (min sam))
+    ::
+        %mod
+      ?.  ?=([@ @] sam)  %|^trace
+      ?.  (gth +.sam 0)  %|^trace
+      %&^(some (mod sam))
+    ::
+        %mul
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (mul sam))
+    ::
+        %sub
+      ?.  ?=([@ @] sam)      %|^trace
+      ?.  (gte -.sam +.sam)  %|^trace
+      %&^(some (sub sam))
     ::                                                                       ::
     ::  bits                                                                 ::
     ::                                                                       ::
@@ -352,111 +407,6 @@
       ?.  ?=([@ @] sam)  %|^trace
       %&^(some (hash:pedersen sam))
     ==
-    ::      %dec
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=(@ sam)  %|^trace
-    ::    ?.  (gth sam 0)  %|^trace
-    ::    %&^(some (dec sam))
-    ::  ::
-    ::      %div
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ @] sam)  %|^trace
-    ::    ?.  (gth +.sam 0)  %|^trace
-    ::    %&^(some (div sam))
-    ::  ::
-    ::      %dvr
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ @] sam)  %|^trace
-    ::    ?.  (gth +.sam 0)  %|^trace
-    ::    %&^(some (dvr sam))
-    ::  ::
-    ::      %gte
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ @] sam)  %|^trace
-    ::    %&^(some (gte sam))
-    ::  ::
-    ::      %gth
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ @] sam)  %|^trace
-    ::    %&^(some (gth sam))
-    ::  ::
-    ::      %lte
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ @] sam)  %|^trace
-    ::    %&^(some (lte sam))
-    ::  ::
-    ::      %lth
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ @] sam)  %|^trace
-    ::    %&^(some (lth sam))
-    ::  ::
-    ::      %max
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ @] sam)  %|^trace
-    ::    %&^(some (max sam))
-    ::  ::
-    ::      %min
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ @] sam)  %|^trace
-    ::    %&^(some (min sam))
-    ::  ::
-    ::      %mod
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ @] sam)  %|^trace
-    ::    ?.  =(+.sam 0)     %|^trace
-    ::    %&^(some (mod sam))
-    ::  ::
-    ::      %mul
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ @] sam)  %|^trace
-    ::    %&^(some (mul sam))
-    ::  ::                                                                       ::
-    ::  ::  bits                                                                 ::
-    ::  ::                                                                       ::
-    ::    ::    %cat
-    ::    ::  ?:  (lth bud 1)  %&^~
-    ::    ::  =.  bud  (sub bud 1)
-    ::    ::  ::  need to assert bloq-ness to first arg too...
-    ::    ::  ?.  ?=([@ @ @] sam)  %|^trace
-    ::    ::  %&^(some (cat sam))
-    ::  ::                                                                       ::
-    ::  ::  lists                                                                ::
-    ::  ::                                                                       ::
-    ::    %lent
-    ::    ::  TODO this suuuuuuuuckkkkkkkkkks
-    ::    ::  need to validate sam as list without crashing
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ~&  sam
-    ::    =/  lis  ;;((list) sam)
-    ::    %&^(some (lent lis))
-    ::  ::
-    ::    ::    %welp
-    ::    ::  ?:  (lth bud 1)  %&^~
-    ::    ::  =.  bud  (sub bud 1)
-    ::    ::  ?.  ?=([* *] sam)  %|^trace
-    ::    ::  %&^(some (welp sam))
-    ::  ::                                                                       ::
-    ::  ::  etc                                                                  ::
-    ::  ::                                                                       ::
-    ::  ::
-    ::      %phash
-    ::    ?:  (lth bud 1)  %&^~
-    ::    =.  bud  (sub bud 1)
-    ::    ?.  ?=([@ @] sam)  %|^trace
-    ::    %&^(some (hash:pedersen sam))
-    ::  ==
   ::
   ++  frag
     |=  [axis=@ noun=* bud=@ud]

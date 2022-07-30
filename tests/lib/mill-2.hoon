@@ -159,11 +159,11 @@
   ^-  granary
   %+  gas:big  *(merk:merk id:smart grain:smart)
   :~  :: [id.p:scry-wheat scry-wheat]
-      :: [id.p:wheat:zigs wheat:zigs]
-      [id.p:temp-wheat temp-wheat]
-      [id.p:temp-grain temp-grain]
+      [id.p:wheat:zigs wheat:zigs]
+      ::  [id.p:temp-wheat temp-wheat]
+      ::  [id.p:temp-grain temp-grain]
       [id.p:beef-account:zigs beef-account:zigs]
-      :: [id.p:dead-account:zigs dead-account:zigs]
+      [id.p:dead-account:zigs dead-account:zigs]
       :: [id.p:miller-account:zigs miller-account:zigs]
   ==
 ++  fake-populace
@@ -176,34 +176,37 @@
 ::
 ::  begin tests
 ::
-++  test-mill-tester
-  =/  =yolk:smart  [%look 0x1111.2222.3333]
+::  ++  test-mill-tester
+::    =/  =yolk:smart  [%look 0x1111.2222.3333]
+::    =/  shel=shell:smart
+::      [caller-1 ~ id.p:temp-wheat 1 1.000.000 town-id 0]
+::    =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
+::      %+  ~(mill mil miller town-id 1)
+::      fake-land  `egg:smart`[fake-sig shel yolk]
+::    ~&  >>  "output: {<crow.res>}"
+::    ~&  >>  "fee: {<fee.res>}"
+::    ~&  >>  "diff:"
+::    ~&  p.land.res
+::    ::  assert that our call went through
+::    %+  expect-eq
+::      !>(%0)
+::    !>(errorcode.res)
+::
+++  test-mill-zigs-give
+  =/  =yolk:smart  [%give 0xdead 69 0x1.beef `0x1.dead]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:temp-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:zigs 1 1.000.000 town-id 0]
   =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel yolk]
-  ~&  >>  "output: {<crow.res>}"
-  ~&  >>  "fee: {<fee.res>}"
+  ~&  >  "output: {<crow.res>}"
+  ~&  >  "fee: {<fee.res>}"
   ~&  >>  "diff:"
   ~&  p.land.res
   ::  assert that our call went through
   %+  expect-eq
     !>(%0)
   !>(errorcode.res)
-::  ++  test-mill-zigs-give
-::    =/  =yolk:smart  [%give holder-2:zigs 69 0x1.beef `0x1.dead]
-::    =/  shel=shell:smart
-::      [caller-1 ~ id.p:wheat:zigs 1 1.000.000 town-id 0]
-::    =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
-::      %+  ~(mill mil miller town-id 1)
-::      fake-land  `egg:smart`[fake-sig shel yolk]
-::    ~&  >  "output: {<crow.res>}"
-::    ~&  >  "fee: {<fee.res>}"
-::    ::  assert that our call went through
-::    %+  expect-eq
-::      !>(%0)
-::    !>(errorcode.res)
 ::
 ::  ++  test-mill-trivial-scry
 ::    =/  =yolk:smart  [%find 0x1.dead]

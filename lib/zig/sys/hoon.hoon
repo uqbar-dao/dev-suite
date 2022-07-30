@@ -30,9 +30,9 @@
   $(a (dec a), b +(b))
 ::
 ++  dec
-  ~/  %dec
   ::  unsigned decrement by one.
   |=  a=@
+  ~>  %dec.+<
   ~_  leaf+"decrement-underflow"
   ?<  =(0 a)
   =+  b=0
@@ -42,12 +42,12 @@
   $(b +(b))
 ::
 ++  div
-  ~/  %div
   ::  unsigned divide
   ::
   ::  a: dividend
   ::  b: divisor
   |:  [a=`@`1 b=`@`1]
+  ~>  %div.+<
   ::  quotient
   ^-  @
   ~_  leaf+"divide-by-zero"
@@ -58,19 +58,18 @@
   $(a (sub a b), c +(c))
 ::
 ++  dvr
-  ~/  %dvr
   ::  unsigned divide with remainder
   ::
   ::  a: dividend
   ::  b: divisor
   |=  [a=@ b=@]
+  ~>  %dvr.+<
   ::  p: quotient
   ::  q: remainder
   ^-  [p=@ q=@]
   [(div a b) (mod a b)]
 ::
 ++  gte
-  ~/  %gte
   ::    unsigned greater than or equals
   ::
   ::  returns whether {a >= b}.
@@ -78,12 +77,12 @@
   ::  a: left hand operand (todo: name)
   ::  b: right hand operand
   |=  [a=@ b=@]
+  ~>  %gte.+<
   ::  greater than or equal to?
   ^-  ?
   !(lth a b)
 ::
 ++  gth
-  ~/  %gth
   ::    unsigned greater than
   ::
   ::  returns whether {a > b}
@@ -91,12 +90,12 @@
   ::  a: left hand operand (todo: name)
   ::  b: right hand operand
   |=  [a=@ b=@]
+  ~>  %gth.+<
   ::  greater than?
   ^-  ?
   !(lte a b)
 ::
 ++  lte
-  ~/  %lte
   ::    unsigned less than or equals
   ::
   ::  returns whether {a >= b}.
@@ -104,16 +103,17 @@
   ::  a: left hand operand (todo: name)
   ::  b: right hand operand
   |=  [a=@ b=@]
+  ~>  %lte.+<
   ::  less than or equal to?
   |(=(a b) (lth a b))
 ::
 ++  lth
-  ~/  %lth
   ::    unsigned less than
   ::
   ::  a: left hand operand (todo: name)
   ::  b: right hand operand
   |=  [a=@ b=@]
+  ~>  %lth.+<
   ::  less than?
   ^-  ?
   ?&  !=(a b)
@@ -124,42 +124,42 @@
   ==  ==  ==
 ::
 ++  max
-  ~/  %max
   ::  unsigned maximum
   |=  [a=@ b=@]
+  ~>  %max.+<
   ::  the maximum
   ^-  @
   ?:  (gth a b)  a
   b
 ::
 ++  min
-  ~/  %min
   ::  unsigned minimum
   |=  [a=@ b=@]
+  ~>  %min.+<
   ::  the minimum
   ^-  @
   ?:  (lth a b)  a
   b
 ::
 ++  mod
-  ~/  %mod
   ::  unsigned modulus
   ::
   ::  a: dividend
   ::  b: divisor
   |:  [a=`@`1 b=`@`1]
+  ~>  %mod.+<
   ::  the remainder
   ^-  @
   ?<  =(0 b)
   (sub a (mul b (div a b)))
 ::
 ++  mul
-  ~/  %mul
   ::  unsigned multiplication
   ::
   ::  a: multiplicand
   ::  b: multiplier
   |:  [a=`@`1 b=`@`1]
+  ~>  %mul.+<
   ::  product
   ^-  @
   =+  c=0
@@ -168,12 +168,12 @@
   $(a (dec a), c (add b c))
 ::
 ++  sub
-  ~/  %sub
   ::  unsigned subtraction
   ::
   ::  a: minuend
   ::  b: subtrahend
   |=  [a=@ b=@]
+  ~>  %sub.+<
   ~_  leaf+"subtract-underflow"
   ::  difference
   ^-  @

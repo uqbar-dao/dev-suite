@@ -49,7 +49,11 @@
   ::  TODO: determine *real* costs
   %-  ~(gas by *jetmap)
   :~  ::  math
-      [%add 1]
+      [%add 1]  [%dec 1]  [%div 1]
+      [%dvr 1]  [%gte 1]  [%gth 1]
+      [%lte 1]  [%lth 1]  [%max 1]
+      [%min 1]  [%mod 1]  [%mul 1]
+      [%sub 1]
       ::  bits
 
       ::  list
