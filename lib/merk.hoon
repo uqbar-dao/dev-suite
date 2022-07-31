@@ -257,5 +257,12 @@
       $(a r.a, p.q.n.b (mer b [p q.q]:n.b))
     =.  r.b  $(b r.b, l.a ~, p.q.n.a (mer a(l ~) [p q.q]:n.a))
     $(a l.a, p.q.n.b (mer b [p q.q]:n.b))
+  ++  kee
+    |=  [a=mert]
+    ^-  (set key)
+    =|  b=(set key)
+    |-  ^+  b
+    ?~  a  b
+    $(a r.a, b $(a l.a, b (~(put in b) p.n.a)))
   --
 --
