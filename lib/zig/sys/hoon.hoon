@@ -30,9 +30,9 @@
   $(a (dec a), b +(b))
 ::
 ++  dec
-  ~/  %dec
   ::  unsigned decrement by one.
   |=  a=@
+  ~>  %dec.+<
   ~_  leaf+"decrement-underflow"
   ?<  =(0 a)
   =+  b=0
@@ -42,12 +42,12 @@
   $(b +(b))
 ::
 ++  div
-  ~/  %div
   ::  unsigned divide
   ::
   ::  a: dividend
   ::  b: divisor
   |:  [a=`@`1 b=`@`1]
+  ~>  %div.+<
   ::  quotient
   ^-  @
   ~_  leaf+"divide-by-zero"
@@ -58,19 +58,18 @@
   $(a (sub a b), c +(c))
 ::
 ++  dvr
-  ~/  %dvr
   ::  unsigned divide with remainder
   ::
   ::  a: dividend
   ::  b: divisor
   |=  [a=@ b=@]
+  ~>  %dvr.+<
   ::  p: quotient
   ::  q: remainder
   ^-  [p=@ q=@]
   [(div a b) (mod a b)]
 ::
 ++  gte
-  ~/  %gte
   ::    unsigned greater than or equals
   ::
   ::  returns whether {a >= b}.
@@ -78,12 +77,12 @@
   ::  a: left hand operand (todo: name)
   ::  b: right hand operand
   |=  [a=@ b=@]
+  ~>  %gte.+<
   ::  greater than or equal to?
   ^-  ?
   !(lth a b)
 ::
 ++  gth
-  ~/  %gth
   ::    unsigned greater than
   ::
   ::  returns whether {a > b}
@@ -91,12 +90,12 @@
   ::  a: left hand operand (todo: name)
   ::  b: right hand operand
   |=  [a=@ b=@]
+  ~>  %gth.+<
   ::  greater than?
   ^-  ?
   !(lte a b)
 ::
 ++  lte
-  ~/  %lte
   ::    unsigned less than or equals
   ::
   ::  returns whether {a >= b}.
@@ -104,16 +103,17 @@
   ::  a: left hand operand (todo: name)
   ::  b: right hand operand
   |=  [a=@ b=@]
+  ~>  %lte.+<
   ::  less than or equal to?
   |(=(a b) (lth a b))
 ::
 ++  lth
-  ~/  %lth
   ::    unsigned less than
   ::
   ::  a: left hand operand (todo: name)
   ::  b: right hand operand
   |=  [a=@ b=@]
+  ~>  %lth.+<
   ::  less than?
   ^-  ?
   ?&  !=(a b)
@@ -124,42 +124,42 @@
   ==  ==  ==
 ::
 ++  max
-  ~/  %max
   ::  unsigned maximum
   |=  [a=@ b=@]
+  ~>  %max.+<
   ::  the maximum
   ^-  @
   ?:  (gth a b)  a
   b
 ::
 ++  min
-  ~/  %min
   ::  unsigned minimum
   |=  [a=@ b=@]
+  ~>  %min.+<
   ::  the minimum
   ^-  @
   ?:  (lth a b)  a
   b
 ::
 ++  mod
-  ~/  %mod
   ::  unsigned modulus
   ::
   ::  a: dividend
   ::  b: divisor
   |:  [a=`@`1 b=`@`1]
+  ~>  %mod.+<
   ::  the remainder
   ^-  @
   ?<  =(0 b)
   (sub a (mul b (div a b)))
 ::
 ++  mul
-  ~/  %mul
   ::  unsigned multiplication
   ::
   ::  a: multiplicand
   ::  b: multiplier
   |:  [a=`@`1 b=`@`1]
+  ~>  %mul.+<
   ::  product
   ^-  @
   =+  c=0
@@ -168,12 +168,12 @@
   $(a (dec a), c (add b c))
 ::
 ++  sub
-  ~/  %sub
   ::  unsigned subtraction
   ::
   ::  a: minuend
   ::  b: subtrahend
   |=  [a=@ b=@]
+  ~>  %sub.+<
   ~_  leaf+"subtract-underflow"
   ::  difference
   ^-  @
@@ -511,8 +511,8 @@
   ?.(=(u.a u.b) ~>(%mean.'mate' !!) a)
 ::
 ++  need                                                ::  demand
-  ~/  %need
   |*  a=(unit)
+  ~>  %need.+<
   ?~  a  ~>(%mean.'need' !!)
   u.a
 ::
@@ -780,8 +780,8 @@
 ::  +turn: transform each value of list :a using the function :b
 ::
 ++  turn
-  ~/  %turn
   |*  [a=(list) b=gate]
+  ~>  %turn.+<
   =>  .(a (homo a))
   ^-  (list _?>(?=(^ a) (b i.a)))
   |-
@@ -832,38 +832,38 @@
   ::                                                    ::
   ::
 ++  bex                                                 ::  binary exponent
-  ~/  %bex
   |=  a=bloq
+  ~>  %bex.+<
   ^-  @
   ?:  =(0 a)  1
   (mul 2 $(a (dec a)))
 ::
 ++  can                                                 ::  assemble
-  ~/  %can
   |=  [a=bloq b=(list [p=step q=@])]
+  ~>  %can.+<
   ^-  @
   ?~  b  0
   (add (end [a p.i.b] q.i.b) (lsh [a p.i.b] $(b t.b)))
 ::
 ++  cat                                                 ::  concatenate
-  ~/  %cat
   |=  [a=bloq b=@ c=@]
+  ~>  %cat.+<
   (add (lsh [a (met a b)] c) b)
 ::
 ++  cut                                                 ::  slice
-  ~/  %cut
   |=  [a=bloq [b=step c=step] d=@]
+  ~>  %cut.+<
   (end [a c] (rsh [a b] d))
 ::
 ++  end                                                 ::  tail
-  ~/  %end
   |=  [a=bite b=@]
+  ~>  %end.+<
   =/  [=bloq =step]  ?^(a a [a *step])
   (mod b (bex (mul (bex bloq) step)))
 ::
 ++  fil                                                 ::  fill bloqstream
-  ~/  %fil
   |=  [a=bloq b=step c=@]
+  ~>  %fil.+<
   =|  n=@ud
   =.  c  (end a c)
   =/  d  c
@@ -873,14 +873,14 @@
   $(d (add c (lsh a d)), n +(n))
 ::
 ++  lsh                                                 ::  left-shift
-  ~/  %lsh
   |=  [a=bite b=@]
+  ~>  %lsh.+<
   =/  [=bloq =step]  ?^(a a [a *step])
   (mul b (bex (mul (bex bloq) step)))
 ::
 ++  met                                                 ::  measure
-  ~/  %met
   |=  [a=bloq b=@]
+  ~>  %met.+<
   ^-  @
   =+  c=0
   |-
@@ -888,15 +888,15 @@
   $(b (rsh a b), c +(c))
 ::
 ++  rap                                                 ::  assemble variable
-  ~/  %rap
   |=  [a=bloq b=(list @)]
+  ~>  %rap.+<
   ^-  @
   ?~  b  0
   (cat a i.b $(b t.b))
 ::
 ++  rep                                                 ::  assemble fixed
-  ~/  %rep
   |=  [a=bite b=(list @)]
+  ~>  %rep.+<
   =/  [=bloq =step]  ?^(a a [a *step])
   =|  i=@ud
   |-  ^-  @
@@ -910,8 +910,8 @@
   ::  boz: block size
   ::  len: size of dat, in boz
   ::  dat: data to flip
-  ~/  %rev
   |=  [boz=bloq len=@ud dat=@]
+  ~>  %rev.+<
   ^-  @
   =.  dat  (end [boz len] dat)
   %+  lsh
@@ -919,31 +919,31 @@
   (swp boz dat)
 ::
 ++  rip                                                 ::  disassemble
-  ~/  %rip
   |=  [a=bite b=@]
+  ~>  %rip.+<
   ^-  (list @)
   ?:  =(0 b)  ~
   [(end a b) $(b (rsh a b))]
 ::
 ++  rsh                                                 ::  right-shift
-  ~/  %rsh
   |=  [a=bite b=@]
+  ~>  %rsh.+<
   =/  [=bloq =step]  ?^(a a [a *step])
   (div b (bex (mul (bex bloq) step)))
 ::
 ++  run                                                 ::  +turn into atom
-  ~/  %run
   |=  [a=bite b=@ c=$-(@ @)]
+  ~>  %run.+<
   (rep a (turn (rip a b) c))
 ::
 ++  rut                                                 ::  +turn into list
-  ~/  %rut
   |*  [a=bite b=@ c=$-(@ *)]
+  ~>  %rut.+<
   (turn (rip a b) c)
 ::
 ++  sew                                                 ::  stitch into
-  ~/  %sew
   |=  [a=bloq [b=step c=step d=@] e=@]
+  ~>  %sew.+<
   ^-  @
   %+  add
     (can a b^e c^d ~)
@@ -951,13 +951,13 @@
   (lsh f (rsh f e))
 ::
 ++  swp                                                 ::  naive rev bloq order
-  ~/  %swp
   |=  [a=bloq b=@]
+  ~>  %swp.+<
   (rep a (flop (rip a b)))
 ::
 ++  xeb                                                 ::  binary logarithm
-  ~/  %xeb
   |=  a=@
+  ~>  %xeb.+<
   ^-  @
   (met 0 a)
 ::
@@ -3289,7 +3289,9 @@
   (mix (end 7 haz) (rsh 7 haz))
 ::
 ++  sham                                                ::  128bit noun hash
-  |=  yux=*  ^-  @uvH  ^-  @
+  |=  yux=*
+  ~>  %sham.+<
+  ^-  @uvH  ^-  @
   ?@  yux
     (shaf %mash yux)
   (shaf %sham (jam yux))
@@ -3300,13 +3302,15 @@
   (shax (mix sal (shax ruz)))
 ::
 ++  shax                                                ::  sha-256
-  ~/  %shax
-  |=  ruz=@  ^-  @
+  |=  ruz=@
+  ~>  %shax.+<
+  ^-  @
   (shay [(met 3 ruz) ruz])
 ::
 ++  shay                                                ::  sha-256 with length
-  ~/  %shay
-  |=  [len=@u ruz=@]  ^-  @
+  |=  [len=@u ruz=@]
+  ~>  %shay.+<
+  ^-  @
   =>  .(ruz (cut 3 [0 len] ruz))
   =+  [few==>(fe .(a 5)) wac=|=([a=@ b=@] (cut 5 [a 1] b))]
   =+  [sum=sum.few ror=ror.few net=net.few inv=inv.few]

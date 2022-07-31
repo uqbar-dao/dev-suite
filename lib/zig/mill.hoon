@@ -370,15 +370,11 @@
         ^-  (unit [path=(list phash) product=*])
         ?.  ?=([%0 %granary @ ~] +.pat)   ~
         ?~  id=(slaw %ux -.+.+.+.pat)     ~
-        ?~  grain=(get:big granary u.id)  ~
+        ~&  >>  "looking for grain: {<`@ux`u.id>}"
+        ?~  grain=(get:big granary u.id)
+          ~&  >>>  "didn't find it"  ~
         ::  TODO populate path using +mek in merk
         `[(mek:big granary u.id) u.grain]
-      ::
-      ++  test-search
-        |=  pax=^
-        ^-  (unit (unit))
-        ?~  sear=(search pax)  ~^~
-        ``product.u.sear
       --
     ::
     ::  +harvest: take a completed execution and validate all changes

@@ -31,21 +31,21 @@
             budget=@ud
             to=address
             amount=@ud
-            from-account=[%grain =id]
-            to-account=(unit [%grain =id])
+            from-account=id
+            to-account=(unit id)
         ==
     ::
         $:  %take
             to=address
             amount=@ud
-            from-account=[%grain =id]
-            to-account=(unit [%grain =id])
+            from-account=id
+            to-account=(unit id)
         ==
     ::
         $:  %set-allowance
             who=address
             amount=@ud  ::  (to revoke, call with amount=0)
-            account=[%grain =id]
+            account=id
         ==
     ==
   --
