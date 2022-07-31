@@ -832,38 +832,38 @@
   ::                                                    ::
   ::
 ++  bex                                                 ::  binary exponent
-  ~/  %bex
   |=  a=bloq
+  ~>  %bex.+<
   ^-  @
   ?:  =(0 a)  1
   (mul 2 $(a (dec a)))
 ::
 ++  can                                                 ::  assemble
-  ~/  %can
   |=  [a=bloq b=(list [p=step q=@])]
+  ~>  %can.+<
   ^-  @
   ?~  b  0
   (add (end [a p.i.b] q.i.b) (lsh [a p.i.b] $(b t.b)))
 ::
 ++  cat                                                 ::  concatenate
-  ~/  %cat
   |=  [a=bloq b=@ c=@]
+  ~>  %cat.+<
   (add (lsh [a (met a b)] c) b)
 ::
 ++  cut                                                 ::  slice
-  ~/  %cut
   |=  [a=bloq [b=step c=step] d=@]
+  ~>  %cut.+<
   (end [a c] (rsh [a b] d))
 ::
 ++  end                                                 ::  tail
-  ~/  %end
   |=  [a=bite b=@]
+  ~>  %end.+<
   =/  [=bloq =step]  ?^(a a [a *step])
   (mod b (bex (mul (bex bloq) step)))
 ::
 ++  fil                                                 ::  fill bloqstream
-  ~/  %fil
   |=  [a=bloq b=step c=@]
+  ~>  %fil.+<
   =|  n=@ud
   =.  c  (end a c)
   =/  d  c
@@ -873,14 +873,14 @@
   $(d (add c (lsh a d)), n +(n))
 ::
 ++  lsh                                                 ::  left-shift
-  ~/  %lsh
   |=  [a=bite b=@]
+  ~>  %lsh.+<
   =/  [=bloq =step]  ?^(a a [a *step])
   (mul b (bex (mul (bex bloq) step)))
 ::
 ++  met                                                 ::  measure
-  ~/  %met
   |=  [a=bloq b=@]
+  ~>  %met.+<
   ^-  @
   =+  c=0
   |-
@@ -888,15 +888,15 @@
   $(b (rsh a b), c +(c))
 ::
 ++  rap                                                 ::  assemble variable
-  ~/  %rap
   |=  [a=bloq b=(list @)]
+  ~>  %rap.+<
   ^-  @
   ?~  b  0
   (cat a i.b $(b t.b))
 ::
 ++  rep                                                 ::  assemble fixed
-  ~/  %rep
   |=  [a=bite b=(list @)]
+  ~>  %rep.+<
   =/  [=bloq =step]  ?^(a a [a *step])
   =|  i=@ud
   |-  ^-  @
@@ -910,8 +910,8 @@
   ::  boz: block size
   ::  len: size of dat, in boz
   ::  dat: data to flip
-  ~/  %rev
   |=  [boz=bloq len=@ud dat=@]
+  ~>  %rev.+<
   ^-  @
   =.  dat  (end [boz len] dat)
   %+  lsh
@@ -919,31 +919,31 @@
   (swp boz dat)
 ::
 ++  rip                                                 ::  disassemble
-  ~/  %rip
   |=  [a=bite b=@]
+  ~>  %rip.+<
   ^-  (list @)
   ?:  =(0 b)  ~
   [(end a b) $(b (rsh a b))]
 ::
 ++  rsh                                                 ::  right-shift
-  ~/  %rsh
   |=  [a=bite b=@]
+  ~>  %rsh.+<
   =/  [=bloq =step]  ?^(a a [a *step])
   (div b (bex (mul (bex bloq) step)))
 ::
 ++  run                                                 ::  +turn into atom
-  ~/  %run
   |=  [a=bite b=@ c=$-(@ @)]
+  ~>  %run.+<
   (rep a (turn (rip a b) c))
 ::
 ++  rut                                                 ::  +turn into list
-  ~/  %rut
   |*  [a=bite b=@ c=$-(@ *)]
+  ~>  %rut.+<
   (turn (rip a b) c)
 ::
 ++  sew                                                 ::  stitch into
-  ~/  %sew
   |=  [a=bloq [b=step c=step d=@] e=@]
+  ~>  %sew.+<
   ^-  @
   %+  add
     (can a b^e c^d ~)
@@ -951,13 +951,13 @@
   (lsh f (rsh f e))
 ::
 ++  swp                                                 ::  naive rev bloq order
-  ~/  %swp
   |=  [a=bloq b=@]
+  ~>  %swp.+<
   (rep a (flop (rip a b)))
 ::
 ++  xeb                                                 ::  binary logarithm
-  ~/  %xeb
   |=  a=@
+  ~>  %xeb.+<
   ^-  @
   (met 0 a)
 ::
@@ -3289,7 +3289,9 @@
   (mix (end 7 haz) (rsh 7 haz))
 ::
 ++  sham                                                ::  128bit noun hash
-  |=  yux=*  ^-  @uvH  ^-  @
+  |=  yux=*
+  ~>  %sham.+<
+  ^-  @uvH  ^-  @
   ?@  yux
     (shaf %mash yux)
   (shaf %sham (jam yux))
@@ -3300,13 +3302,15 @@
   (shax (mix sal (shax ruz)))
 ::
 ++  shax                                                ::  sha-256
-  ~/  %shax
-  |=  ruz=@  ^-  @
+  |=  ruz=@
+  ~>  %shax.+<
+  ^-  @
   (shay [(met 3 ruz) ruz])
 ::
 ++  shay                                                ::  sha-256 with length
-  ~/  %shay
-  |=  [len=@u ruz=@]  ^-  @
+  |=  [len=@u ruz=@]
+  ~>  %shay.+<
+  ^-  @
   =>  .(ruz (cut 3 [0 len] ruz))
   =+  [few==>(fe .(a 5)) wac=|=([a=@ b=@] (cut 5 [a 1] b))]
   =+  [sum=sum.few ror=ror.few net=net.few inv=inv.few]

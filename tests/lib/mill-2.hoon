@@ -193,7 +193,7 @@
 ::    !>(errorcode.res)
 ::
 ++  test-mill-zigs-give
-  =/  =yolk:smart  [%give 0xdead 69 0x1.beef `0x1.dead]
+  =/  =yolk:smart  [%give 0xface 69 0x1.beef ~]
   =/  shel=shell:smart
     [caller-1 ~ id.p:wheat:zigs 1 1.000.000 town-id 0]
   =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]

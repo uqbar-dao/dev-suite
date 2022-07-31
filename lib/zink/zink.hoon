@@ -391,7 +391,78 @@
     ::                                                                       ::
     ::  bits                                                                 ::
     ::                                                                       ::
-
+        %bex
+      ?.  ?=(bloq sam)  %|^trace
+      %&^(some (bex sam))
+    ::
+        %can
+      ::  TODO validate
+      %&^(some (slum can sam))
+    ::
+        %cat
+      ?.  ?=([bloq @ @] sam)  %|^trace
+      %&^(some (cat sam))
+    ::
+        %cut
+      ?.  ?=([bloq [step step] @] sam)  %|^trace
+      %&^(some (cut sam))
+    ::
+        %end
+      ?.  ?=([bite @] sam)  %|^trace
+      %&^(some (end sam))
+    ::
+        %fil
+      ?.  ?=([bloq step @] sam)  %|^trace
+      %&^(some (fil sam))
+    ::
+        %lsh
+      ?.  ?=([bloq @] sam)  %|^trace
+      %&^(some (lsh sam))
+    ::
+        %met
+      ?.  ?=([bloq @] sam)  %|^trace
+      %&^(some (met sam))
+    ::
+        %rap
+      ::  TODO validate
+      %&^(some (slum rap sam))
+    ::
+        %rep
+      ::  TODO validate
+      %&^(some (slum rep sam))
+    ::
+        %rev
+      ?.  ?=([bloq @ud @] sam)  %|^trace
+      %&^(some (rev sam))
+    ::
+        %rip
+      ?.  ?=([bite @] sam)  %|^trace
+      %&^(some (rip sam))
+    ::
+        %rsh
+      ?.  ?=([bite @] sam)  %|^trace
+      %&^(some (rsh sam))
+    ::
+        %run
+      ::  TODO validate
+      %&^(some (slum run sam))
+    ::
+        %rut
+      ::  TODO validate
+      %&^(some (slum rut sam))
+    ::
+        %sew
+      ?.  ?=([bloq [step step @] @] sam)  %|^trace
+      %&^(some (sew sam))
+    ::
+        %swp
+      ?.  ?=([bloq @] sam)  %|^trace
+      %&^(some (swp sam))
+    ::
+        %xeb
+      ?.  ?=(@ sam)  %|^trace
+      %&^(some (xeb sam))
+    ::
     ::                                                                       ::
     ::  list                                                                 ::
     ::                                                                       ::
@@ -399,6 +470,19 @@
       ::  TODO: determine how best to validate complex jet inputs
       ::  this will crash if the input is bad.
       %&^(some (slum turn sam))
+    ::                                                                       ::
+    ::  sha                                                                  ::
+    ::                                                                       ::
+        %sham
+      %&^(some (sham sam))
+    ::
+        %shax
+      ?.  ?=(@ sam)  %|^trace
+      %&^(some (shax sam))
+    ::
+        %shay
+      ?.  ?=([@u @] sam)  %|^trace
+      %&^(some (shay sam))
     ::                                                                       ::
     ::  etc                                                                  ::
     ::                                                                       ::

@@ -17,7 +17,9 @@
   ?-    -.act
       %give
     =+  `grain`(need (scry from-account.act))
-    =/  giver  (husk account:sur - `me.cart `id.from.cart)
+    =/  giver  (husk account:sur - `me.cart ~)
+    ::  contract can initiate a %give, or holder of grain can.
+    ?>  |(=(id.from.cart me.cart) =(id.from.cart holder.giver))
     ::  unlike other assertions, this is non-optional: we must confirm
     ::  that the giver's zigs balance is enough to cover the maximum
     ::  cost in the original transaction, which is provided in budget
@@ -28,7 +30,7 @@
       =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
       =/  =rice
         [salt.giver %account [0 ~ metadata.data.giver] id me.cart to.act town-id.cart]
-      =/  next  [%give to.act amount.act [%grain id.giver] `[%grain id.rice]]
+      =/  next  [%give to.act amount.act id.giver `id.rice]
       (continuation [me.cart town-id.cart next]^~ (result ~ [%& rice]^~ ~ ~))
     ::  have a specified receiver account, grab it and add to balance
     =+  `grain`(need (scry u.to-account.act))
@@ -48,7 +50,7 @@
       =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
       =/  =rice
         [salt.giver %account [0 ~ metadata.data.giver] id me.cart to.act town-id.cart]
-      =/  next  [%take to.act amount.act [%grain id.giver] `[%grain id.rice]]
+      =/  next  [%take to.act amount.act id.giver `id.rice]
       (continuation [me.cart town-id.cart next]^~ (result ~ [%& rice]^~ ~ ~))
     ::  have a specified receiver account, grab it and add to balance
     =+  (need (scry u.to-account.act))
