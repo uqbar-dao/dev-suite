@@ -57,8 +57,9 @@
       ::  bits
 
       ::  list
-
+      [%turn 5]
       ::  etc
+      [%need 1]
       [%scot 5]
       [%pedersen-hash 10]
     ==

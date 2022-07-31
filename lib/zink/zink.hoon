@@ -395,10 +395,17 @@
     ::                                                                       ::
     ::  list                                                                 ::
     ::                                                                       ::
-
+        %turn
+      ::  TODO: determine how best to validate complex jet inputs
+      ::  this will crash if the input is bad.
+      %&^(some (slum turn sam))
     ::                                                                       ::
     ::  etc                                                                  ::
     ::                                                                       ::
+        %need
+      ?.  ?=((unit) sam)  %|^trace
+      %&^(some (need sam))
+    ::
         %scot
       ?.  ?=([@ta @] sam)  %|^trace
       %&^(some (scot sam))

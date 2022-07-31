@@ -511,8 +511,8 @@
   ?.(=(u.a u.b) ~>(%mean.'mate' !!) a)
 ::
 ++  need                                                ::  demand
-  ~/  %need
   |*  a=(unit)
+  ~>  %need.+<
   ?~  a  ~>(%mean.'need' !!)
   u.a
 ::
@@ -780,8 +780,8 @@
 ::  +turn: transform each value of list :a using the function :b
 ::
 ++  turn
-  ~/  %turn
   |*  [a=(list) b=gate]
+  ~>  %turn.+<
   =>  .(a (homo a))
   ^-  (list _?>(?=(^ a) (b i.a)))
   |-
