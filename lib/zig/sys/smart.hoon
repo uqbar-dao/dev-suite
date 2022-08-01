@@ -323,13 +323,13 @@
 ::  merkle tree engine
 ::
 ++  bi                                                  ::  merk engine
-  |*  [key=mold val=mold]
+  |*  [kee=mold val=mold]
   =>  |%
-      +$  mert  (tree (pair key (pair hash val)))
+      +$  mert  (tree (pair kee (pair hash val)))
       --
   |%
   ++  bif                                               ::  splits a by b
-    |=  [a=mert b=key c=val]
+    |=  [a=mert b=kee c=val]
     ^+  [l=a r=a]
     =<  +
     |-  ^+  a
@@ -348,7 +348,7 @@
     d(l a(r l.d, p.q.n (mer a(r l.d) [p q.q]:n.a)))
   ::
   ++  del                                               ::  delete at key b
-    |=  [a=mert b=key]
+    |=  [a=mert b=kee]
     |-  ^+  a
     ?~  a
       ~
@@ -400,13 +400,13 @@
     ==
   ::
   ++  gas                                               ::  concatenate
-    |=  [a=mert b=(list [p=key q=val])]
+    |=  [a=mert b=(list [p=kee q=val])]
     ^+  a
     ?~  b  a
     $(b t.b, a (put a i.b))
   ::
   ++  get                                               ::  grab value by key
-    |=  [a=mert b=key]
+    |=  [a=mert b=kee]
     ^-  (unit val)
     ?~  a
       ~
@@ -417,17 +417,17 @@
     $(a r.a)
   ::
   ++  got                                               ::  need value by key
-    |=  [a=mert b=key]
+    |=  [a=mert b=kee]
     ^-  val
     (need (get a b))
   ::
   ++  gut                                               ::  fall value by key
-    |=  [a=mert b=key c=val]
+    |=  [a=mert b=kee c=val]
     ^-  val
     (fall (get a b) c)
   ::
   ++  has                                               ::  key existence check
-    |=  [a=mert b=key]
+    |=  [a=mert b=kee]
     !=(~ (get a b))
   ::
   ++  int                                               ::  intersection
@@ -464,7 +464,7 @@
     $(a l.a)
   ::
   ++  mek                                               ::  merkle hashes for key
-    |=  [a=mert b=key]
+    |=  [a=mert b=kee]
     ^-  (list hash)
     =|  =(list hash)
     |-
@@ -477,7 +477,7 @@
     $(a r.a, list [p.q.n.a list])
   ::
   ++  mer                                               ::  generate merkle hash
-    |=  [a=mert b=(pair key val)]
+    |=  [a=mert b=(pair kee val)]
     ^-  hash
     ?~  a  (shag [b ~ ~])
     %-  shag
@@ -486,7 +486,7 @@
     ?~(r.a ~ p.q.n.r.a)
   ::
   ++  put                                               ::  adds key-value pair
-    |=  [a=mert b=key c=val]
+    |=  [a=mert b=kee c=val]
     ^+  a
     ?~  a
       [[b (mer a b c) c] ~ ~]
@@ -534,6 +534,14 @@
       $(a r.a, p.q.n.b (mer b [p q.q]:n.b))
     =.  r.b  $(b r.b, l.a ~, p.q.n.a (mer a(l ~) [p q.q]:n.a))
     $(a l.a, p.q.n.b (mer b [p q.q]:n.b))
+  ::
+  ++  key
+    |=  [a=mert]
+    ^-  (set kee)
+    =|  b=(set kee)
+    |-  ^+  b
+    ?~  a  b
+    $(a r.a, b $(a l.a, b (~(put in b) p.n.a)))
   --
 --
 ::  ::
