@@ -110,7 +110,6 @@
   ++  shell
     |=  =shell:smart
     ^-  json
-    ?>  ?=(account:smart from.shell)
     %-  pairs
     :~  [%from (account from.shell)]
         [%eth-hash (eth-hash eth-hash.shell)]
@@ -130,7 +129,7 @@
     ==
   ::
   ++  account
-    |=  =account:smart
+    |=  =caller:smart
     ^-  json
     %-  pairs
     :~  [%id %s (scot %ux id.account)]

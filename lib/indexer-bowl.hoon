@@ -1,6 +1,6 @@
 /-  ui=indexer,
     seq=sequencer
-/+  smart=zig-sys-smart
+/+  smart=zig-sys-smart, mill=zig-mill
 ::
 |_  =bowl:gall
 ++  enjs
@@ -110,9 +110,8 @@
   ++  shell
     |=  =shell:smart
     ^-  json
-    ?>  ?=(account:smart from.shell)
     %-  pairs
-    :~  [%from (account from.shell)]
+    :~  [%from (caller from.shell)]
         [%eth-hash (eth-hash eth-hash.shell)]
         [%to %s (scot %ux to.shell)]
         [%rate (numb rate.shell)]
@@ -122,21 +121,21 @@
     ==
   ::
   ++  yolk
-    |=  [=yolk:smart]
+    |=  =yolk:smart
     ^-  json
     %-  pairs
     :~  [%action %s `@t`p.yolk]
         ::  TODO get lump format from contract interface and convert
     ==
   ::
-  ++  account
-    |=  =account:smart
+  ++  caller
+    |=  =caller:smart
     ^-  json
     %-  pairs
-    :~  [%id %s (scot %ux id.account)]
-        [%nonce (numb nonce.account)]
-        [%zigs %s (scot %ux zigs.account)]
-    ==
+    :^    [%id %s (scot %ux id.caller)]
+        [%nonce (numb nonce.caller)]
+      [%zigs %s (scot %ux zigs.caller)]
+    ~
   ::
   :: ++  signature
   ::   |=  =signature:zig
@@ -223,7 +222,7 @@
     ^-  json
     %-  pairs
     %+  turn  ~(tap by granary)
-    |=  [=id:smart g=grain:smart]
+    |=  [=id:smart @ g=grain:smart]
     [(scot %ux id) (grain g)]
   ::
   ++  populace
@@ -231,7 +230,7 @@
     ^-  json
     %-  pairs
     %+  turn  ~(tap by populace)
-    |=  [=id:smart nonce=@ud]
+    |=  [=id:smart @ nonce=@ud]
     [(scot %ux id) (numb nonce)]
   ::
   ++  hall

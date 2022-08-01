@@ -184,7 +184,6 @@
       =:  sig.egg.p  sig.act
           eth-hash.shell.egg.p  `eth-hash.act
       ==
-      ?>  ?=(account:smart from.shell.egg.p)
       =*  from   id.from.shell.egg.p
       =*  nonce  nonce.from.shell.egg.p
       =+  egg-hash=(hash-egg egg.p)
@@ -267,15 +266,40 @@
       ::  'from' address, contract 'to' address, town select,
       ::  gas (rate & budget), transaction type (acquired from ABI..?)
       ::
-      =/  our-nonces     (~(gut by nonces.state) from.act ~)
-      =/  nonce=@ud      (~(gut by our-nonces) town.act 0)
-      ~|  "wallet: can't find tokens for that address!"
-      =/  =book          (~(got by tokens.state) from.act)
-      =/  =caller:smart  :+  from.act  +(nonce)
-                        (fry-rice:smart `@ux`'zigs-contract' from.act town.act `@`'zigs')
-      ::  need to check transaction type and collect rice based on it
-      ::  only supporting small subset of contract calls, for tokens and NFTs
       !!
+      ::  =/  our-nonces     (~(gut by nonces.state) from.act ~)
+      ::  =/  nonce=@ud      (~(gut by our-nonces) town.act 0)
+      ::  ~|  "wallet: can't find tokens for that address!"
+      ::  =/  =book          (~(got by tokens.state) from.act)
+      ::  =/  =caller:smart  :+  from.act  +(nonce)
+      ::                    (fry-rice:smart `@ux`'zigs-contract' from.act town.act `@`'zigs')
+      ::  ::  need to check transaction type and collect rice based on it
+      ::  ::  only supporting small subset of contract calls, for tokens and NFTs
+      ::  =/  formatted=[args=(unit *) my-grains=(set @ux) cont-grains=(set @ux)]
+      ::  ::  if sending NFT, save item-id
+      ::    =/  amount-or-id
+      ::      ?:  ?=(%give-nft -.args.act)  item-id.args.act
+      ::      ::  else, save amount to send
+      ::      ?:  ?=(%give -.args.act)  amount.args.act
+      ::      ~|  "in order to submit with %custom, use %submit-custom instead"
+      ::      !!
+      ::    ::  add data to subj.
+      ::    ~|  "wallet can't find metadata for that token!"
+      ::    =/  metadata  (~(got by metadata-store.state) salt.args.act)
+      ::    ~|  "wallet can't find our zigs account for that town!"
+      ::    =/  our-account=grain:smart  +:(~(got by book) [town.act to.act salt.metadata])
+      ::    =/  their-account-id  (fry-rice:smart to.act to.args.act town.act salt.metadata)
+      ::    ?~  exists=(scry:uqbar %grain their-account-id [our now]:bowl)
+      ::      ::  they don't have an account for this token
+      ::      ?:  =(to.act `@ux`'zigs-contract')  ::  zigs special case
+      ::        [`[%give to.args.act ~ amount.args.act bud.gas.act] (silt ~[id.our-account]) ~]
+      ::      [`[%give to.args.act ~ amount-or-id] (silt ~[id.our-account]) ~]
+      ::    ::  they have an account for this token, include it in transaction
+      ::    :+  ?:  =(to.act `@ux`'zigs-contract')  ::  zigs special case
+      ::          `[%give to.args.act `their-account-id amount.args.act bud.gas.act]
+      ::        `[%give to.args.act `their-account-id amount-or-id]
+      ::      (silt ~[id.our-account])
+      ::    (silt ~[their-account-id])
       ::  =/  keypair       (~(got by keys.state) from.act)
       ::  =/  =yolk:smart   [args.formatted our-grains.formatted cont-grains.formatted]
       ::  =/  sig           ?~  priv.keypair
@@ -440,7 +464,7 @@
     =/  town-id  (slav %ux i.t.t.t.path)
     =/  nonce  (~(gut by (~(gut by nonces.state) pub ~)) town-id 0)
     =+  (fry-rice:smart `@ux`'zigs-contract' pub town-id `@`'zigs')
-    ``noun+!>(`account:smart`[pub nonce -])
+    ``noun+!>(`caller:smart`[pub nonce -])
   ::
       [%book ~]
     ::  return entire book map for wallet frontend

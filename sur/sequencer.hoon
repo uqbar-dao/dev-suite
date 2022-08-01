@@ -1,7 +1,6 @@
+/-  *mill
 /+  smart=zig-sys-smart, zink=zink-zink
 |%
-+$  basket     (set [hash=@ux =egg:smart])  ::  transaction "mempool"
-+$  carton     (list [@ux =egg:smart])      ::  basket that's been prioritized
 +$  sequencer  (pair address:smart ship)
 ::
 +$  availability-method
@@ -9,35 +8,22 @@
       [%committee members=(map address:smart [ship (unit sig:smart)])]
   ==
 ::
-::  TODO: granary MUST be map-type with deterministic sorting
-::
-+$  granary   (map id:smart grain:smart)
-+$  populace  (map id:smart @ud)
-+$  land      (pair granary populace)
-+$  town      [=land =hall]
++$  town  [=land =hall]
 ::
 +$  hall
   $:  town-id=id:smart
+      batch-num=@ud
       =sequencer
       mode=availability-method
       latest-diff-hash=@ux
       roots=(list @ux)
   ==
 ::  capitol: tracks sequencer and state roots / diffs for all towns
-+$  capitol  (map id:smart hall:sequencer)
-::
-+$  diff   granary  ::  state transitions for one batch
-+$  state-transition
-  $:  =land
-      processed=(list [id:smart egg:smart])
-      hits=(list (list hints:zink))
-      =diff
-      crows=(list crow:smart)
-      burns=granary
-  ==
++$  capitol  (map id:smart hall)
 ::
 +$  batch  ::  state transition
   $:  town-id=id:smart
+      num=@ud
       mode=availability-method
       state-diffs=(list diff)
       diff-hash=@ux
@@ -59,7 +45,7 @@
       ==
       [%clear-state ~]
       ::  transactions
-      [%receive-assets assets=(map id:smart grain:smart)]
+      [%receive-assets assets=granary]
       [%receive eggs=(set egg:smart)]
       ::  batching
       [%trigger-batch ~]

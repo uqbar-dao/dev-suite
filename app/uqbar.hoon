@@ -195,7 +195,7 @@
     =/  path  ~[/track/[i.t.wire]]
     :_  this
     ?~  p.sign  ~
-    [%give %fact path %write-result !>([%rejected src.bowl])]~
+    [%give %fact path %write-result !>(`write-result`[%rejected src.bowl])]~
   ==
   ::
   ++  pass-through

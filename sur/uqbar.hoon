@@ -19,7 +19,7 @@
 +$  write-result
   $%  [%sent ~]
       [%receipt egg-hash=@ux ship-sig=[p=@ux q=ship r=life] uqbar-sig=sig:smart]
-      [%rejected ~]
+      [%rejected =ship]
       [%executed result=errorcode:smart]
       [%nonce value=@ud]
   ==

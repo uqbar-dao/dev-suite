@@ -3,7 +3,7 @@
 ::  Agent for managing a single UQ| town. Publishes diffs to rollup.hoon
 ::  Accepts transactions and batches them periodically as moves to town.
 ::
-/+  *sequencer, *rollup, zink=zink-zink, sig=zig-sig, default-agent, dbug, verb
+/+  *sequencer, *rollup, uqbar, zink=zink-zink, sig=zig-sig, default-agent, dbug, verb
 ::  Choose which library smart contracts are executed against here
 ::
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
@@ -17,7 +17,7 @@
       town=(unit town)    ::  state
       =basket             ::  mempool
       peer-roots=(map id:smart root=@ux)  ::  track updates from rollup
-      proposed-batch=(unit [=basket =land diff-hash=@ux root=@ux])
+      proposed-batch=(unit [num=@ud =basket =land diff-hash=@ux root=@ux])
       status=?(%available %off)
   ==
 +$  inflated-state-0  [state-0 =mil smart-lib-vase=vase]
@@ -99,6 +99,7 @@
       =/  =^town
         :-  land
         :*  town-id.act
+            batch-num=0
             [address.act our.bowl]
             mode.act
             0x0
@@ -111,7 +112,7 @@
             private-key  `private-key.act
             town         `town
             status        %available
-            proposed-batch  `[~ land.town 0x0 new-root]
+            proposed-batch  `[0 ~ land.town 0x0 new-root]
           ==
       :~  [%pass /sub-rollup %agent [rollup-host.act %rollup] %watch /peer-root-updates]
           =+  [%rollup-action !>([%launch-town address.act sig town])]
@@ -132,7 +133,7 @@
         ~|("%sequencer: error: got asset while not active" !!)
       ?~  town.state  !!
       ~&  >>  "%sequencer: received assets from rollup: {<assets.act>}"
-      `state(town `u.town(p.land (~(uni by p.land.u.town.state) assets.act)))
+      `state(town `u.town(p.land (uni:big:mill p.land.u.town.state assets.act)))
     ::
     ::  transactions
     ::
@@ -150,7 +151,7 @@
       |=  [hash=@ux =egg:smart]
       ^-  card
       =/  usig  (ecdsa-raw-sign:secp256k1:secp:crypto `@uvI`hash (need private-key.state))
-      =+  [%uqbar-write !>([%receipt hash (sign:sig our.bowl now.bowl hash) usig])]
+      =+  [%uqbar-write !>(`write:uqbar`[%receipt hash (sign:sig our.bowl now.bowl hash) usig])]
       [%pass /submit-transaction/(scot %ux hash) %agent [src.bowl %uqbar] %poke -]
     ::
     ::  batching
@@ -173,17 +174,18 @@
       ::  publish full diff data
       ::
       ::  1. produce diff and new state with mill
-      =/  batch-num  1  ::  TODO
+      =/  batch-num  batch-num.hall.town
       =/  addr  p.sequencer.hall.town
       =+  /(scot %p our.bowl)/wallet/(scot %da now.bowl)/account/(scot %ux addr)/(scot %ux town-id.hall.town)/noun
-      =+  .^(account:smart %gx -)
+      =+  .^(caller:smart %gx -)
       =/  [new=state-transition rejected=carton]
         %^    ~(mill-all mil - town-id.hall.town batch-num)
             land.town
           basket.state
         256  ::  number of parallel "passes"
-      =/  new-root      `@ux`(sham land.new)
-      =/  diff-hash     `@ux`(sham ~[diff.new])
+      =/  new-root       `@ux`(sham land.new)
+      =/  diff-hash      `@ux`(sham ~[diff.new])
+      =/  new-batch-num  +(batch-num.hall.town)
       ::  2. generate our signature
       ::  (address sig, that is)
       ?~  private-key.state
@@ -192,13 +194,17 @@
         (ecdsa-raw-sign:secp256k1:secp:crypto `@uvI`new-root u.private-key.state)
       ::  3. poke rollup
       ::  return rejected (not enough passes to cover them) to our basket
-      :_  state(proposed-batch `[basket.state land.new diff-hash new-root], basket (silt rejected))
+      :_  %=  state
+            basket  (silt rejected)
+            proposed-batch  `[new-batch-num basket.state land.new diff-hash new-root]
+          ==
       =-  [%pass /batch-submit/(scot %ux new-root) %agent [u.rollup.state %rollup] %poke -]~
       :-  %rollup-action
       !>  :-  %receive-batch
           :-  addr
           ^-  batch
           :*  town-id.hall.town
+              new-batch-num
               mode.hall.town
               ~[diff.new]
               diff-hash
@@ -291,7 +297,7 @@
     =/  id   (slav %ux i.t.t.path)
     =/  act  (slav %tas i.t.t.t.path)
     ?~  town  [~ ~]
-    ?~  g=(~(get by p.land.u.town) id)
+    ?~  g=(get:big p.land.u.town id)
       ::  contract not found in state
       ``noun+!>(~)
     ?.  ?=(%| -.u.g)
@@ -307,7 +313,7 @@
     =/  id     (slav %ux i.t.t.path)
     =/  label  (slav %tas i.t.t.t.path)
     ?~  town  [~ ~]
-    ?~  g=(~(get by p.land.u.town) id)
+    ?~  g=(get:big p.land.u.town id)
       ::  contract not found in state
       ``noun+!>(~)
     ?.  ?=(%| -.u.g)

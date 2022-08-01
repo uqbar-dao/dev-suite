@@ -2,17 +2,72 @@
 ::  ::  smart.hoon: contract standard library  ::  ::    ::  ::  ::  ::  ::  ::
 ::  ::                                         ::  ::    ::::    ::::::  ::::
 ::  ::                                         ::  ::    ::  ::  ::  ::  ::  ::
-::  ::  one: data structures                   ::  ::    ::  ::  ::  ::  ::  ::
+::  ::  five: contract functions               ::  ::    ::  ::  ::  ::  ::  ::
 ::::::                                         ::::  ::  ::::::  ::  ::  ::  ::
-=>
+=<
 |%
+++  big  (bi id grain)  ::  merkle engine for granary
 ::
-::  TODO insert merk
+::  +husk: check provenance and fit data to mold
 ::
-+$  merk  *
---  =>
+::  this arm takes in a grain, a mold, and optional lord and holder
+::  metadata. if lord or holder given, the rice is asserted to have
+::  that property. the grain is also asserted to *be* rice, and we
+::  return the rice with the data inside asserted into the mold given.
+::
+++  husk
+  |*  [typ=mold =grain lord=(unit address) holder=(unit address)]
+  ?>  ?&  ?~(lord %.y =(lord.p.grain u.lord))
+          ?~(holder %.y =(holder.p.grain u.holder))
+          ?=(%& -.grain)
+      ==
+  p.grain(data ;;(typ data.p.grain))
+::
+::  +scry: scry wrapper
+::
+++  scry
+  |=  =id
+  ^-  (unit grain)
+  =-  ;;((unit grain) -)
+  .*(0 [%12 [%0 1] [%1 /granary/(scot %ux id)]])
+::
+::  +fry: standard hashing functions for rice and wheat grains
+::
+++  fry-wheat
+  |=  [lord=id town=id cont=(unit [bat=* pay=*])]
+  ^-  id
+  ^-  @ux
+  %-  shax
+  :((cury cat 3) lord town (sham cont))
+::
+++  fry-rice
+  |=  [lord=id holder=id town=id salt=@]
+  ^-  id
+  ^-  @ux
+  %-  shax
+  :((cury cat 3) town lord holder salt)
+::
+::  +result: generate a chick containing a final result
+::
+++  result
+  |=  [changed=(list grain) issued=(list grain) burned=(list grain) =crow]
+  ^-  chick
+  :-  %&
+  :^    (gas:big *(merk id grain) (turn changed |=(=grain [id.p.grain grain])))
+      (gas:big *(merk id grain) (turn issued |=(=grain [id.p.grain grain])))
+    (gas:big *(merk id grain) (turn burned |=(=grain [id.p.grain grain])))
+  crow
+::
+::  +continuation: generate a chick containing an intermediate result and a list of next calls
+::
+++  continuation
+  |=  [next=(list [to=id town-id=id =yolk]) rooster=chick]
+  ^-  chick
+  ?>  ?=(%& -.rooster)
+  [%| next p.rooster]
+--  =<
 ::  ::
-::  ::  two: contract types
+::  ::  four: contract types
 ::::::
 |%
 +$  id       @ux            ::  pubkey
@@ -21,8 +76,7 @@
 ::
 ++  zigs-wheat-id  `@ux`'zigs-contract'   ::  hardcoded "native" token contract
 ::
-+$  account  [=id nonce=@ud zigs=id]
-+$  caller   $@(id account)
++$  caller  [=id nonce=@ud zigs=id]
 ::
 +$  typed-message  [domain=id message=@]  ::  message should be typed according to some mold specified by the wheat
 ::
@@ -97,14 +151,13 @@
       from=[=id nonce=@ud]
       batch=@ud
       town-id=id
-      grains=(map id grain)
   ==
 ::
 ::  contract result types
 ::
 +$  chick    (each rooster hen)
 ::
-+$  rooster  [changed=(map id grain) issued=(map id grain) burned=(map id grain) =crow]
++$  rooster  [changed=(merk id grain) issued=(merk id grain) burned=(merk id grain) =crow]
 +$  hen      [next=(list [to=id town-id=id =yolk]) =rooster]
 ::
 +$  crow     (list [@tas json])
@@ -159,71 +212,9 @@
       %8  ::  8: ran out of gas while executing
       %9  ::  9: was not parallel / superceded by another egg in batch
   ==
---  =>
+--  =<
 ::  ::
-::  ::  three: contract functions
-::::::
-|%
-::
-::  +assert-rice: check provenance and fit data to mold
-::
-::  this arm takes in a grain, a mold, and optional lord and holder
-::  metadata. if lord or holder given, the rice is asserted to have
-::  that property. the grain is also asserted to *be* rice, and we
-::  return the rice with the data inside asserted into the mold given.
-::
-++  assert-rice
-  |*  [typ=mold =grain lord=(unit address) holder=(unit address)]
-  ?>  ?&  ?~(lord %.y =(lord.p.grain u.lord))
-          ?~(holder %.y =(holder.p.grain u.holder))
-          ?=(%& -.grain)
-      ==
-  p.grain(data ;;(typ data.p.grain))
-::
-::  +fry: standard hashing functions for rice and wheat grains
-::
-++  fry-wheat
-  |=  [lord=id town=id cont=(unit [bat=* pay=*])]
-  ^-  id
-  ^-  @ux
-  %-  shax
-  :((cury cat 3) lord town (sham cont))
-::
-++  fry-rice
-  |=  [lord=id holder=id town=id salt=@]
-  ^-  id
-  ^-  @ux
-  %-  shax
-  :((cury cat 3) town lord holder salt)
-::
-::  +pin: get ID from caller
-::
-++  pin
-  |=  =caller
-  ^-  id
-  ?:(?=(@ux caller) caller id.caller)
-::
-::  +result: generate a chick containing a final result
-::
-++  result
-  |=  [changed=(list grain) issued=(list grain) burned=(list grain) =crow]
-  ^-  chick
-  :-  %&
-  :^    (~(gas by *(map id grain)) (turn changed |=(=grain [id.p.grain grain])))
-      (~(gas by *(map id grain)) (turn issued |=(=grain [id.p.grain grain])))
-    (~(gas by *(map id grain)) (turn burned |=(=grain [id.p.grain grain])))
-  crow
-::
-::  +continuation: generate a chick containing an intermediate result and a list of next calls
-::
-++  continuation
-  |=  [next=(list [to=id town-id=id args=yolk]) rooster=chick]
-  ^-  chick
-  ?>  ?=(%& -.rooster)
-  [%| next p.rooster]
---  =>
-::  ::
-::  ::  four: formatting (json from zuse/lull)
+::  ::  three: formatting (json from zuse/lull)
 ::::::
 |%
 ::
@@ -285,11 +276,388 @@
       [%a (turn (wash [0 80] a) tape)]
     --
   --
---
+--  =<
 ::  ::
-::  ::  five: crypto (from zuse)
+::  ::  two: data structures
 ::::::
 |%
++$  hash  @ux
+::
+::  +merk: merkle tree
+::
+++  merk
+  |$  [key value]                                       ::  table
+  $|  (tree (pair key (pair hash value)))
+  |=  a=(tree (pair key (pair hash value)))
+  ?:(=(~ a) & (apt:(bi key value) a))
+::
+++  shag                                                ::  256bit noun hash
+  |=  yux=*  ^-  hash
+  ::  TODO: make LRU-cache-optimized version for granary retrivial & modification
+  ?@  yux
+    (hash:pedersen yux 0)
+  (hash:pedersen $(yux -.yux) $(yux +.yux))
+::
+::  +sore: single sha-256 hash in ascending order, uses +dor as
+::  fallback
+::
+++  sore
+  |=  [a=* b=*]
+  ^-  ?
+  =+  [c=(shag a) d=(shag b)]
+  ?:  =(c d)
+    (dor a b)
+  (lth c d)
+::
+::  +sure: double sha-256 hash in ascending order, uses +dor as
+::  fallback
+::
+++  sure
+  |=  [a=* b=*]
+  ^-  ?
+  =+  [c=(shag (shag a)) d=(shag (shag b))]
+  ?:  =(c d)
+    (dor a b)
+  (lth c d)
+::
+::  merkle tree engine
+::
+++  bi                                                  ::  merk engine
+  |*  [key=mold val=mold]
+  =>  |%
+      +$  mert  (tree (pair key (pair hash val)))
+      --
+  |%
+  ++  bif                                               ::  splits a by b
+    |=  [a=mert b=key c=val]
+    ^+  [l=a r=a]
+    =<  +
+    |-  ^+  a
+    ?~  a
+      [[b (mer a b c) c] ~ ~]
+    ?:  =(b p.n.a)
+      ?:  =(c q.q.n.a)
+        a
+      a(n [b (mer a b c) c])
+    ?:  (sore b p.n.a)
+      =/  d  $(a l.a)
+      ?>  ?=(^ d)
+      d(r a(l r.d, p.q.n (mer a(l r.d) [p q.q]:n.a)))
+    =/  d  $(a r.a)
+    ?>  ?=(^ d)
+    d(l a(r l.d, p.q.n (mer a(r l.d) [p q.q]:n.a)))
+  ::
+  ++  del                                               ::  delete at key b
+    |=  [a=mert b=key]
+    |-  ^+  a
+    ?~  a
+      ~
+    ?.  =(b p.n.a)
+      ?:  (sore b p.n.a)
+        =.  l.a  $(a l.a)
+        a(n [p.n.a (mer a [p q.q]:n.a) q.q.n.a])
+      =.  r.a  $(a r.a)
+      a(n [p.n.a (mer a [p q.q]:n.a) q.q.n.a])
+    |-  ^-  [$?(~ _a)]
+    ?~  l.a  r.a
+    ?~  r.a  l.a
+    ?:  (sure p.n.l.a p.n.r.a)
+      =.  r.l.a  $(l.a r.l.a)
+      l.a(n [p.n.l.a (mer l.a [p q.q]:n.l.a) q.q.n.l.a])
+    =.  l.r.a  $(r.a l.r.a)
+    r.a(n [p.n.r.a (mer r.a [p q.q]:n.r.a) q.q.n.r.a])
+  ::
+  ++  dif                                               ::  difference
+    |=  [a=mert b=mert]
+    |-  ^+  a
+    ?~  b
+      a
+    =/  c  (bif a p.n.b q.q.n.b)
+    ?>  ?=(^ c)
+    =/  d  $(a l.c, b l.b)
+    =/  e  $(a r.c, b r.b)
+    |-  ^-  [$?(~ _a)]
+    ?~  d  e
+    ?~  e  d
+    ?:  (sure p.n.d p.n.e)
+      =/  dr  $(d r.d)
+      d(r dr, p.q.n (mer d(r dr) [p q.q]:n.d))
+    =/  el  $(e l.e)
+    e(l el, p.q.n (mer e(l el) [p q.q]:n.e))
+  ::
+  ++  apt                                               ::  check correctness
+    |=  a=mert
+    =|  [l=(unit) r=(unit)]
+    |-  ^-  ?
+    ?~  a   &
+    ?&  ?~(l & &((sore p.n.a u.l) !=(p.n.a u.l)))
+        ?~(r & &((sore u.r p.n.a) !=(u.r p.n.a)))
+        ?~  l.a   &
+        &((sure p.n.a p.n.l.a) !=(p.n.a p.n.l.a) $(a l.a, l `p.n.a))
+        ?~  r.a   &
+        &((sure p.n.a p.n.r.a) !=(p.n.a p.n.r.a) $(a r.a, r `p.n.a))
+        =(p.q.n.a (mer a [p q.q]:n.a))
+    ==
+  ::
+  ++  gas                                               ::  concatenate
+    |=  [a=mert b=(list [p=key q=val])]
+    ^+  a
+    ?~  b  a
+    $(b t.b, a (put a i.b))
+  ::
+  ++  get                                               ::  grab value by key
+    |=  [a=mert b=key]
+    ^-  (unit val)
+    ?~  a
+      ~
+    ?:  =(b p.n.a)
+      (some q.q.n.a)
+    ?:  (sore b p.n.a)
+      $(a l.a)
+    $(a r.a)
+  ::
+  ++  got                                               ::  need value by key
+    |=  [a=mert b=key]
+    ^-  val
+    (need (get a b))
+  ::
+  ++  gut                                               ::  fall value by key
+    |=  [a=mert b=key c=val]
+    ^-  val
+    (fall (get a b) c)
+  ::
+  ++  has                                               ::  key existence check
+    |=  [a=mert b=key]
+    !=(~ (get a b))
+  ::
+  ++  int                                               ::  intersection
+    |=  [a=mert b=mert]
+    ^+  a
+    ?~  b
+      ~
+    ?~  a
+      ~
+    ?:  (sure p.n.a p.n.b)
+      ?:  =(p.n.b p.n.a)
+        =:  l.b  $(a l.a, b l.b)
+            r.b  $(a r.a, b r.b)
+          ==
+        b(p.q.n (mer b [p q.q]:n.b))
+      ?:  (sore p.n.b p.n.a)
+        %+  uni
+          $(a l.a, r.b ~, p.q.n.b (mer b(r ~) [p q.q]:n.b))
+        $(b r.b)
+      %+  uni
+        $(a r.a, l.b ~, p.q.n.b (mer b(l ~) [p q.q]:n.b))
+      $(b l.b)
+    ?:  =(p.n.a p.n.b)
+      =:  l.b  $(a l.a, b l.b)
+          r.b  $(a r.a, b r.b)
+        ==
+      b(p.q.n (mer b [p q.q]:n.b))
+    ?:  (sore p.n.a p.n.b)
+      %+  uni
+        $(b l.b, r.a ~, p.q.n.a (mer a(r ~) [p q.q]:n.a))
+      $(a r.a)
+    %+  uni
+      $(b r.b, l.a ~, p.q.n.a (mer a(l ~) [p q.q]:n.a))
+    $(a l.a)
+  ::
+  ++  mek                                               ::  merkle hashes for key
+    |=  [a=mert b=key]
+    ^-  (list hash)
+    =|  =(list hash)
+    |-
+    ?~  a
+      ~
+    ?:  =(b p.n.a)
+      (flop [p.q.n.a list])
+    ?:  (sore b p.n.a)
+      $(a l.a, list [p.q.n.a list])
+    $(a r.a, list [p.q.n.a list])
+  ::
+  ++  mer                                               ::  generate merkle hash
+    |=  [a=mert b=(pair key val)]
+    ^-  hash
+    ?~  a  (shag [b ~ ~])
+    %-  shag
+    :+  b
+      ?~(l.a ~ p.q.n.l.a)
+    ?~(r.a ~ p.q.n.r.a)
+  ::
+  ++  put                                               ::  adds key-value pair
+    |=  [a=mert b=key c=val]
+    ^+  a
+    ?~  a
+      [[b (mer a b c) c] ~ ~]
+    ?:  =(b p.n.a)
+      ?:  =(c q.q.n.a)
+        a
+      a(n [b (mer a b c) c])
+    ?:  (sore b p.n.a)
+      =/  d  $(a l.a)
+      ?>  ?=(^ d)
+      =.  a
+        ?:  (sure p.n.a p.n.d)
+          a(l d)
+        d(r a(l r.d, p.q.n (mer a(l r.d) [p q.q]:n.a)))
+      a(p.q.n (mer a [p q.q]:n.a))
+    =/  d  $(a r.a)
+    ?>  ?=(^ d)
+    =.  a
+      ?:  (sure p.n.a p.n.d)
+        a(r d)
+      d(l a(r l.d, p.q.n (mer a(r l.d) [p q.q]:n.a)))
+    a(p.q.n (mer a [p q.q]:n.a))
+  ::
+  ++  uni
+    |=  [a=mert b=mert]
+    ?:  =(a b)  a
+    |-  ^+  a
+    ?~  b
+      a
+    ?~  a
+      b
+    ?:  =(p.n.b p.n.a)
+      =:  l.b  $(a l.a, b l.b)
+          r.b  $(a r.a, b r.b)
+        ==
+      b(p.q.n (mer b [p q.q]:n.b))
+    ?:  (sure p.n.a p.n.b)
+      ?:  (sore p.n.b p.n.a)
+        =.  l.a  $(a l.a, r.b ~, p.q.n.b (mer b(r ~) [p q.q]:n.b))
+        $(b r.b, p.q.n.a (mer a [p q.q]:n.a))
+      =.  r.a  $(a r.a, l.b ~, p.q.n.b (mer b(l ~) [p q.q]:n.b))
+      $(b l.b, p.q.n.a (mer a [p q.q]:n.a))
+    ?:  (sore p.n.a p.n.b)
+      =.  l.b  $(b l.b, r.a ~, p.q.n.a (mer a(r ~) [p q.q]:n.a))
+      $(a r.a, p.q.n.b (mer b [p q.q]:n.b))
+    =.  r.b  $(b r.b, l.a ~, p.q.n.a (mer a(l ~) [p q.q]:n.a))
+    $(a l.a, p.q.n.b (mer b [p q.q]:n.b))
+  --
+--
+::  ::
+::  ::  one: crypto (from zuse + pedersen hash)
+::::::
+|%
+++  pedersen
+  |%
+  ++  t
+    ^-  domain:secp:crypto
+    :*  :(add (bex 251) (mul 17 (bex 192)) 1)
+        1
+        3.141.592.653.589.793.238.462.643.383.279.
+          502.884.197.169.399.375.105.820.974.944.
+          592.307.816.406.665
+        :-  874.739.451.078.007.766.457.464.989.
+              774.322.083.649.278.607.533.249.481.
+              151.382.481.072.868.806.602
+            152.666.792.071.518.830.868.575.557.
+              812.948.353.041.420.400.780.739.481.
+              342.941.381.225.525.861.407
+        3.618.502.788.666.131.213.697.322.783.095.
+          070.105.526.743.751.716.087.489.154.079.
+          457.884.512.865.583
+    ==
+  ::
+  ++  curve             ~(. secp:secp:crypto 32 t)
+  ++  add-points        add-points:curve
+  ++  mul-point-scalar  mul-point-scalar:curve
+  ++  p0
+    :-  2.089.986.280.348.253.421.170.679.821.480.
+          865.132.823.066.470.938.446.095.505.822.
+          317.253.594.081.284
+        1.713.931.329.540.660.377.023.406.109.199.
+          410.414.810.705.867.260.802.078.187.082.
+          345.529.207.694.986
+  ++  p1
+    :-  996.781.205.833.008.774.514.500.082.376.
+          783.249.102.396.023.663.454.813.447.423.
+          147.977.397.232.763
+        1.668.503.676.786.377.725.805.489.344.771.
+          023.921.079.126.552.019.160.156.920.634.
+          619.255.970.485.781
+  ++  p2
+    :-  2.251.563.274.489.750.535.117.886.426.533.
+          222.435.294.046.428.347.329.203.627.021.
+          249.169.616.184.184
+        1.798.716.007.562.728.905.295.480.679.789.
+          526.322.175.868.328.062.420.237.419.143.
+          593.021.674.992.973
+  ++  p3
+    :-  2.138.414.695.194.151.160.943.305.727.036.
+          575.959.195.309.218.611.738.193.261.179.
+          310.511.854.807.447
+        113.410.276.730.064.486.255.102.093.846.
+          540.133.784.865.286.929.052.426.931.474.
+          106.396.135.072.156
+  ++  p4
+    :-  2.379.962.749.567.351.885.752.724.891.227.
+          938.183.011.949.129.833.673.362.440.656.
+          643.086.021.394.946
+        776.496.453.633.298.175.483.985.398.648.
+          758.586.525.933.812.536.653.089.401.905.
+          292.063.708.816.422
+  ++  hash
+    |=  [a=@ b=@]
+    ~>  %pedersen-hash.+<
+    ^-  @
+    |^
+    =/  x  (has a)
+    =/  y  (has b)
+    +:(do-hash y x)
+    ::
+    ++  has
+      |=  n=@
+      ^-  @
+      ?:  (lte (met 2 n) 63)  n
+      =/  rips
+        %^  spin  (tear [3 32] n)  0
+        |=  [x=@ ext=@]
+        ?:  (lth (met 3 x) 32)
+           [x ext]
+        :-  (zero-nib x)
+        (cat 3 ext (first-nib x))
+      =/  r
+        ?:  =(q:rips 0)  p.rips
+        (into p.rips (lent p.rips) q.rips)
+      ?~  r  n
+      =/  hed  (snag 0 `(list @)`r)
+      =/  tal  (slag 1 `(list @)`r)
+      q:(spin tal hed do-hash)
+    ::
+    ++  first-nib
+      |=  n=@
+      (end 2 (rev 2 (met 2 n) n))
+    ::
+    ++  zero-nib
+      |=  n=@
+      (rev 2 (dec (met 2 n)) (rsh [2 1] (rev 2 (met 2 n) n)))
+    ::
+    ++  tear
+      |=  [s=[@ @] n=@]
+      ^-  (list @)
+      ?:  =(n 0)  ~[0]
+      (rip s n)
+    ::
+    ++  do-hash
+      |=  [b=@ a=@]
+      ^-  [@ @]
+      =+  alow=(mod a (bex 248))
+      =+  ahig=(rsh [0 248] a)
+      =+  blow=(mod b (bex 248))
+      =+  bhig=(rsh [0 248] b)
+      :-  0
+      =-  x
+      ;:  add-points
+        p0
+        (mul-point-scalar p1 alow)
+        (mul-point-scalar p2 ahig)
+        (mul-point-scalar p3 blow)
+        (mul-point-scalar p4 bhig)
+      ==
+    --
+  --
 ::
 ::  from ethereum.hoon
 ::
