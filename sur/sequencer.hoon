@@ -19,7 +19,7 @@
       roots=(list @ux)
   ==
 ::  capitol: tracks sequencer and state roots / diffs for all towns
-+$  capitol  (map id:smart hall:sequencer)
++$  capitol  (map id:smart hall)
 ::
 +$  batch  ::  state transition
   $:  town-id=id:smart
