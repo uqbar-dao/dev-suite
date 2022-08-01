@@ -1,5 +1,5 @@
 /-  *sequencer
-/+  smart=zig-sys-smart, ethereum
+/+  smart=zig-sys-smart, ethereum, merk
 /*  zigs-contract     %noun  /lib/zig/compiled/zigs/noun
 /*  nft-contract      %noun  /lib/zig/compiled/nft/noun
 /*  publish-contract  %noun  /lib/zig/compiled/publish/noun
@@ -144,23 +144,23 @@
 ::   ==
 ::
 =/  fake-granary
-  ^-  granary
-  =/  grains=(list:smart (pair:smart id:smart grain:smart))
-    :~  [id.zigs-wheat [%| zigs-wheat]]
-        [id.zigs-metadata [%& zigs-metadata]]
-        :: [id.nft-wheat-grain nft-wheat-grain]
-        :: [id.nft-metadata-grain nft-metadata-grain]
-        :: [id.publish-grain publish-grain]
-        :: [id.trivial-grain trivial-grain]
-        [zigs-1 beef-zigs-grain]
-        [zigs-2 dead-zigs-grain]
-        [zigs-3 cafe-zigs-grain]
-        :: [nft-acc-id nft-acc-grain]
-    ==
-  (gas:big:smart *(merk:smart id:smart grain:smart) grains)
+  ^-  granary  
+  %+  gas:(bi:merk id:smart grain:smart)
+    *(merk:merk id:smart grain:smart)
+  :~  [id.zigs-wheat [%| zigs-wheat]]
+      [id.zigs-metadata [%& zigs-metadata]]
+      :: [id.nft-wheat-grain nft-wheat-grain]
+      :: [id.nft-metadata-grain nft-metadata-grain]
+      :: [id.publish-grain publish-grain]
+      :: [id.trivial-grain trivial-grain]
+      [zigs-1 beef-zigs-grain]
+      [zigs-2 dead-zigs-grain]
+      [zigs-3 cafe-zigs-grain]
+      :: [nft-acc-id nft-acc-grain]
+  ==
 =/  fake-populace
   ^-  populace
-  %+  gas:(bi:smart id:smart @ud)  *(merk:smart id:smart @ud)
+  %+  gas:(bi:merk id:smart @ud)  *(merk:merk id:smart @ud)
   ~[[pubkey-1 0] [pubkey-2 0] [pubkey-3 0]]
 ::
 =/  =address:smart  (address-from-prv:key:ethereum private-key)
