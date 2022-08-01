@@ -1,19 +1,23 @@
-/-  *sequencer
-/+  *zink-zink, *zig-sys-smart, ethereum
+/-  *mill
+/+  *zink-zink, smart=zig-sys-smart, ethereum, merk
 |_  [library=vase zink-cax=(map * @) test-mode=?]
 ::
+++  big  (bi:merk id:smart grain:smart)  ::  merkle engine for granary
+++  pig  (bi:merk id:smart @ud)          ::                for populace
+::
 ++  verify-sig
-  |=  =egg
+  |=  =egg:smart
   ^-  ?
-  ?>  ?=(account from.p.egg)
   =/  hash=@
-    ?~(eth-hash.p.egg (sham q.egg) u.eth-hash.p.egg)
-  =?  v.sig.p.egg  (gte v.sig.p.egg 27)  (sub v.sig.p.egg 27)
-  .=  id.from.p.egg
+    ?~  eth-hash.shell.egg
+      (sham [shell yolk]:egg)
+    u.eth-hash.shell.egg
+  =?  v.sig.egg  (gte v.sig.egg 27)  (sub v.sig.egg 27)
+  .=  id.from.shell.egg
   %-  address-from-pub:key:ethereum
   %-  serialize-point:secp256k1:secp:crypto
   %+  ecdsa-raw-recover:secp256k1:secp:crypto
-  hash  sig.p.egg
+  hash  sig.egg
 ::
 ++  shut                                               ::  slam a door
   |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase]
@@ -49,14 +53,14 @@
   !<(typ [-:!>(*typ) val])
 ::
 ++  mill
-  |_  [miller=account town-id=id now=@da]
+  |_  [miller=caller:smart town-id=id:smart batch=@ud]
   ::
   ::  +mill-all
   ::
-  ::  All eggs must be run through mill in parallel -- they should all operate against
+  ::  All calls must be run through mill in parallel -- they should all operate against
   ::  the same starting state passed through `land` at the beginning. Each run of mill
   ::  should create a (validated) diff set, which can then be compared with an
-  ::  accumulated set of diffs. If there is overlap, that egg should be discarded or
+  ::  accumulated set of diffs. If there is overlap, that call should be discarded or
   ::  pushed into the next parallel "pass", depending on sequencer parameters.
   ::
   ++  mill-all
@@ -68,8 +72,8 @@
       ::  sort in REVERSE since each pass will reconstruct by appending
       ::  rejected to front, so need to +flop before each pass
       %+  sort  ~(tap in basket)
-      |=  [a=[@ux =egg] b=[@ux =egg]]
-      (lth rate.p.egg.a rate.p.egg.b)
+      |=  [a=[@ux =egg:smart] b=[@ux =egg:smart]]
+      (lth rate.shell.egg.a rate.shell.egg.b)
     ::
     =|  final=state-transition
     =|  reward=@ud
@@ -81,8 +85,8 @@
       ::  mark any remaining eggs as rejected
       :-  final(land land)
       %+  turn  pending
-      |=  [h=@ux =egg]
-      [h egg(status.p %9)]
+      |=  [h=@ux =egg:smart]
+      [h egg(status.shell %9)]
     ::  otherwise, perform a pass
     =/  [passed=state-transition rejected=carton]
       (pass land (flop pending))
@@ -91,26 +95,26 @@
       pending          rejected
       processed.final  (weld processed.passed processed.final)
       hits.final       (weld hits.passed hits.final)
-      diff.final       (~(uni by diff.final) diff.passed)
+      diff.final       (uni:big diff.final diff.passed)
       crows.final      (weld crows.passed crows.final)
-      burns.final      (~(uni by burns.final) burns.passed)
+      burns.final      (uni:big burns.final burns.passed)
     ==
     ::
     ++  pass
       |=  [=^land pending=carton]
       ^-  [state-transition rejected=carton]
-      =|  callers=(set id)  ::  so that we immediately send repeat callers to next pass
+      =|  callers=(set id:smart)  ::  so that we immediately send repeat callers to next pass
       =|  processed=carton
       =|  rejected=carton
       =|  all-diffs=granary
       =|  lis-hits=(list (list hints))
-      =|  crows=(list crow)
+      =|  crows=(list crow:smart)
       =|  all-burns=granary
       =|  reward=@ud
-      |-
+      |-  ::  TODO: make this a +turn
       ?~  pending
         :_  rejected
-        :*  [(~(pay tax (~(uni by p.land) all-diffs)) reward) q.land]
+        :*  [(~(pay tax (uni:big p.land all-diffs)) reward) q.land]
             processed
             (flop lis-hits)
             all-diffs
@@ -118,25 +122,25 @@
             all-burns
         ==
       ::
-      =/  caller-id  (pin from.p.egg.i.pending)
+      =/  caller-id  id.from.shell.egg.i.pending
       ?:  (~(has in callers) caller-id)
         %=  $
           pending   t.pending
           rejected  [i.pending rejected]
         ==
       ::
-      =/  [fee=@ud [diff=granary nonces=populace] burned=granary =errorcode hits=(list hints) =crow]
+      =/  [fee=@ud [diff=granary nonces=populace] burned=granary =errorcode:smart hits=(list hints) =crow:smart]
         (mill land egg.i.pending)
-      =/  diff-and-burned  (~(uni by diff) burned)
-      ?.  ?&  ?=(~ (~(int by all-diffs) diff-and-burned))
-              ?=(~ (~(int by all-burns) diff-and-burned))
+      =/  diff-and-burned  (uni:big diff burned)
+      ?.  ?&  ?=(~ (int:big all-diffs diff-and-burned))
+              ?=(~ (int:big all-burns diff-and-burned))
           ==
         ?.  =(%0 errorcode)
           ::  invalid egg -- do not send to next pass,
           ::  but do increment nonce
           %=  $
             pending    t.pending
-            processed  [i.pending(status.p.egg errorcode) processed]
+            processed  [i.pending(status.shell.egg errorcode) processed]
             q.land     nonces
             callers    (~(put in callers) caller-id)
             reward     (add reward fee)
@@ -153,31 +157,30 @@
       ::
       %=  $
         pending    t.pending
-        processed  [i.pending(status.p.egg errorcode) processed]
+        processed  [i.pending(status.shell.egg errorcode) processed]
         q.land     nonces
         reward     (add reward fee)
         lis-hits   [hits lis-hits]
         crows      [crow crows]
         callers    (~(put in callers) caller-id)
-        all-diffs  (~(uni by all-diffs) diff)
-        all-burns  (~(uni by all-burns) burned)
+        all-diffs  (uni:big all-diffs diff)
+        all-burns  (uni:big all-burns burned)
       ==
     --
   ::
   ::  +mill: processes a single egg and returns map of modified grains + updated nonce
   ::
   ++  mill
-    |=  [=land =egg]
-    ^-  [fee=@ud ^land burned=granary =errorcode hits=(list hints) =crow]
-    ?.  ?=(account from.p.egg)  [0 [~ q.land] ~ %1 ~ ~]
+    |=  [=land =egg:smart]
+    ^-  [fee=@ud ^land burned=granary =errorcode:smart hits=(list hints) =crow:smart]
     ::  validate transaction signature
     ?.  ?:(!test-mode (verify-sig egg) %.y)
       ~&  >>>  "mill: signature mismatch"
       [0 [~ q.land] ~ %2 ~ ~]  ::  signed tx doesn't match account
     ::
-    =/  expected-nonce  +((~(gut by q.land) id.from.p.egg 0))
-    ?.  =(nonce.from.p.egg expected-nonce)
-      ~&  >>>  "mill: expected nonce={<expected-nonce>}, got {<nonce.from.p.egg>}"
+    =/  expected-nonce  +((gut:pig q.land id.from.shell.egg 0))
+    ?.  =(nonce.from.shell.egg expected-nonce)
+      ~&  >>>  "mill: expected nonce={<expected-nonce>}, got {<nonce.from.shell.egg>}"
       [0 [~ q.land] ~ %3 ~ ~]  ::  bad nonce
     ::
     ?.  (~(audit tax p.land) egg)
@@ -185,13 +188,13 @@
       [0 [~ q.land] ~ %4 ~ ~]  ::  can't afford gas
     ::
     =/  res      (~(work farm p.land) egg)
-    =/  fee=@ud  (sub budget.p.egg rem.res)
+    =/  fee=@ud  (sub budget.shell.egg rem.res)
     :+  fee
-      :_  (~(put by q.land) id.from.p.egg nonce.from.p.egg)
+      :_  (put:pig q.land id.from.shell.egg nonce.from.shell.egg)
       ::  charge gas fee by including their designated zigs grain inside the diff
       ?:  =(0 fee)  ~
-      %-  ~(put by (fall diff.res ~))
-      (~(charge tax p.land) (fall diff.res ~) from.p.egg fee)
+      %+  put:big  (fall diff.res ~)
+      (~(charge tax p.land) (fall diff.res ~) from.shell.egg fee)
     [burned errorcode hits crow]:res
   ::
   ::  +tax: manage payment for egg in zigs
@@ -200,54 +203,53 @@
     |_  =granary
     +$  token-account
       $:  balance=@ud
-          allowances=(map sender=id @ud)
-          metadata=id
+          allowances=(map sender=id:smart @ud)
+          metadata=id:smart
       ==
     ::  +audit: evaluate whether a caller can afford gas,
     ::  and appropriately set budget for any zigs transactions
     ::  maximum possible charge is full budget * rate
     ++  audit
-      |=  =egg
+      |=  =egg:smart
       ^-  ?
-      ?.  ?=(account from.p.egg)                    %.n
-      ?~  zigs=(~(get by granary) zigs.from.p.egg)  %.n
-      ?.  =(id.from.p.egg holder.u.zigs)            %.n
-      ?.  =(zigs-wheat-id lord.u.zigs)              %.n
-      ?.  ?=(%& -.germ.u.zigs)                      %.n
-      =/  acc  (hole token-account data.p.germ.u.zigs)
-      (gte balance.acc (mul budget.p.egg rate.p.egg))
+      ?~  zigs=(get:big granary zigs.from.shell.egg)  %.n
+      ?.  =(id.from.shell.egg holder.p.u.zigs)        %.n
+      ?.  =(zigs-wheat-id:smart lord.p.u.zigs)        %.n
+      ?.  ?=(%& -.u.zigs)                           %.n
+      =/  acc  (hole token-account data.p.u.zigs)
+      (gte balance.acc (mul budget.shell.egg rate.shell.egg))
     ::  +charge: extract gas fee from caller's zigs balance
     ::  returns a single modified grain to be inserted into a diff
     ::  cannot crash after audit, as long as zigs contract adequately
     ::  validates balance >= budget+amount.
     ++  charge
-      |=  [diff=^granary payee=account fee=@ud]
-      ^-  [id grain]
-      =/  zigs=grain
+      |=  [diff=^granary payee=caller:smart fee=@ud]
+      ^-  [id:smart grain:smart]
+      =/  zigs=grain:smart
         ::  find grain in diff, or fall back to full state
         ::  got will never crash since +audit proved existence
-        %+  ~(gut by diff)  zigs.payee
-        (~(got by granary) zigs.payee)
-      ?>  ?=(%& -.germ.zigs)
-      =/  acc  (hole token-account data.p.germ.zigs)
+        %^  gut:big  diff  zigs.payee
+        (got:big granary zigs.payee)
+      ?>  ?=(%& -.zigs)
+      =/  acc  (hole token-account data.p.zigs)
       =.  balance.acc  (sub balance.acc fee)
-      [zigs.payee zigs(data.p.germ acc)]
+      [zigs.payee zigs(data.p acc)]
     ::  +pay: give fees from eggs to miller
     ++  pay
       |=  total=@ud
       ^-  ^granary
-      =/  acc=grain
-        %+  ~(gut by granary)  zigs.miller
+      =/  acc=grain:smart
+        %^  gut:big  granary  zigs.miller
         ::  create a new account rice for the sequencer if needed
         =/  =token-account  [total ~ `@ux`'zigs-metadata']
-        =/  =id  (fry-rice zigs-wheat-id id.miller town-id `@`'zigs')
-        [id zigs-wheat-id id.miller town-id [%& 'zigs' %account token-account]]
-      ?.  ?=(%& -.germ.acc)  granary
-      =/  account  (hole token-account data.p.germ.acc)
+        =/  =id:smart  (fry-rice:smart zigs-wheat-id:smart id.miller town-id `@`'zigs')
+        [%& 'zigs' %account token-account id zigs-wheat-id:smart id.miller town-id]
+      ?.  ?=(%& -.acc)  granary
+      =/  account  (hole token-account data.p.acc)
       ?.  =(`@ux`'zigs-metadata' metadata.account)  granary
       =.  balance.account  (add balance.account total)
-      =.  data.p.germ.acc  account
-      (~(put by granary) id.acc acc)
+      =.  data.p.acc  account
+      (put:big granary id.p.acc acc)
     --
   ::
   ::  +farm: execute a call to a contract
@@ -258,99 +260,71 @@
       $:  hits=(list hints)
           diff=(unit ^granary)
           burned=^granary
-          =crow
+          =crow:smart
           rem=@ud
-          =errorcode
-      ==     
+          =errorcode:smart
+      ==
     ::  +work: take egg and return diff granary, remaining budget,
     ::  and errorcode (0=success)
     ++  work
-      |=  =egg
+      |=  =egg:smart
       ^-  hatchling
       =/  res  (incubate egg ~ ~)
       res(hits (flop hits.res))
     ::  +incubate: fertilize and germinate, then grow
     ++  incubate
-      |=  [=egg hits=(list hints) burned=^granary]
+      |=  [=egg:smart hits=(list hints) burned=^granary]
       ^-  hatchling
-      |^
-      =/  from=[=id nonce=@ud]
-        ?:  ?=(@ux from.p.egg)  [from.p.egg 0]
-        [id.from.p.egg nonce.from.p.egg]
-      =/  =embryo  (fertilize id.from q.egg)
-      ?~  stalk=(germinate to.p.egg cont-grains.q.egg)
-        ~&  >>>  "mill: failed to germinate"
-        [~ ~ ~ ~ budget.p.egg %5]
-      (grow from u.stalk embryo egg hits burned)
-      ::  +fertilize: take yolk (contract arguments) and populate with granary data,
-      ::  and iff the action is to the zigs contract, insert budget.
-      ++  fertilize
-        |=  [from=id =yolk]
-        ^-  embryo
-        :-  ?~  action.yolk  ~
-            ?:  =(zigs-wheat-id to.p.egg)
-              ?@  u.action.yolk  ~
-              [-.u.action.yolk (mul budget.p.egg rate.p.egg) +.u.action.yolk]
-            u.action.yolk
-        %-  ~(gas by *(map id grain))
-        %+  murn  ~(tap in my-grains.yolk)
-        |=  =id
-        ?~  res=(~(get by granary) id)  ~
-        ?.  =(holder.u.res from)        ~
-        ?.  =(town-id.u.res town-id)    ~
-        `[id u.res]
-      ::  +germinate: take contract-owned grains in egg
-      ::  and populate with granary data
-      ++  germinate
-        |=  [find=id grains=(set id)]
-        ^-  (unit crop)
-        ?~  gra=(~(get by granary) find)  ~
-        ?.  ?=(%| -.germ.u.gra)           ~
-        ?~  cont.p.germ.u.gra             ~
-        :+  ~
-          u.cont.p.germ.u.gra
-        %-  ~(gas by *(map id grain))
-        %+  murn  ~(tap in grains)
-        |=  =id
-        ?~  res=(~(get by granary) id)  ~
-        ?.  =(lord.u.res find)          ~
-        ?.  =(town-id.u.res town-id)    ~
-        `[id u.res]
-      --
+      =/  from  [id.from.shell.egg nonce.from.shell.egg]
+      ::  insert budget argument if egg is %give-ing zigs
+      =?  q.yolk.egg  &(=(to.shell.egg zigs-wheat-id:smart) =(p.yolk.egg %give))
+        [budget.shell.egg q.yolk.egg]
+      ?~  gra=(get:big granary to.shell.egg)
+        ::  can't find contract to call
+        [~ ~ ~ ~ budget.shell.egg %5]
+      ?.  ?=(%| -.u.gra)
+        ::  contract id found a rice
+        [~ ~ ~ ~ budget.shell.egg %5]
+      (grow from p.u.gra egg hits burned)
     ::  +grow: recursively apply any calls stemming from egg,
     ::  return on rooster or failure
     ++  grow
-      |=  [from=[=id nonce=@ud] =crop =embryo =egg hits=(list hints) burned=^granary]
+      |=  [from=[=id:smart nonce=@ud] =wheat:smart =egg:smart hits=(list hints) burned=^granary]
       ^-  hatchling
       |^
-      =+  [hit chick rem err]=(weed to.p.egg budget.p.egg)
+      =+  [hit chick rem err]=(weed to.shell.egg budget.shell.egg)
       ?~  chick  [hit^hits ~ ~ ~ rem err]
       ?:  ?=(%& -.u.chick)
         ::  rooster result, finished growing
-        ?~  diff=(harvest p.u.chick to.p.egg from.p.egg)
+        ?~  diff=(harvest p.u.chick to.shell.egg from.shell.egg)
           ::  failed validation
           [hit^hits ~ ~ ~ rem %7]
         ::  harvest passed
         [hit^hits diff burned.p.u.chick crow.p.u.chick rem err]
       ::  hen result, continuation
-      =|  crows=crow
+      =|  crows=crow:smart
       =|  all-diffs=^granary
       =/  all-burns  burned.rooster.p.u.chick
       =*  next  next.p.u.chick
       =.  hits  hit^hits
-      =/  last-diff  (harvest rooster.p.u.chick to.p.egg from.p.egg)
+      =/  last-diff  (harvest rooster.p.u.chick to.shell.egg from.shell.egg)
       |-
       ?~  last-diff
         ::  diff from last call failed validation
         [hits ~ ~ ~ rem %7]
-      =.  all-diffs  (~(uni by all-diffs) u.last-diff)
+      =.  all-diffs  (uni:big all-diffs u.last-diff)
       ?~  next
         ::  all continuations complete
         [hits `all-diffs all-burns (weld crows crow.rooster.p.u.chick) rem %0]
       ::  continue continuing
       =/  inter
-        %+  ~(incubate farm (~(dif by (~(uni by granary) all-diffs)) all-burns))
-          egg(from.p to.p.egg, to.p to.i.next, budget.p rem, q yolk.i.next)
+        %+  ~(incubate farm (dif:big (uni:big granary all-diffs) all-burns))
+          %=  egg
+            id.from.shell  to.shell.egg
+            to.shell       to.i.next
+            budget.shell   rem
+            yolk           yolk.i.next
+          ==
         [hits all-burns]
       ?.  =(%0 errorcode.inter)
         [(weld hits.inter hits) ~ ~ ~ rem.inter errorcode.inter]
@@ -358,7 +332,7 @@
         next       t.next
         rem        rem.inter
         last-diff  diff.inter
-        all-burns  (~(uni by all-burns) burned.inter)
+        all-burns  (uni:big all-burns burned.inter)
         hits       (weld hits.inter hits)
         crows      (weld crows crow.inter)
       ==
@@ -366,84 +340,86 @@
       ::  +weed: run contract formula with arguments and memory, bounded by bud
       ::
       ++  weed
-        |=  [to=id budget=@ud]
-        ^-  [hints (unit chick) rem=@ud =errorcode]
+        |=  [to=id:smart budget=@ud]
+        ^-  [hints (unit chick:smart) rem=@ud =errorcode:smart]
         ~>  %bout
-        =/  =cart  [to from now town-id owns.crop]
-        =/  payload   .*(q.library pay.cont.crop)
-        =/  battery   .*([q.library payload] bat.cont.crop)
-        =/  dor=vase  [-:!>(*contract) battery]
-        ?:  test-mode
-          ::  run without zebra
-          =/  res
-            :-  (mule |.(;;(chick q:(shut dor %write !>(cart) !>(embryo)))))
-            (sub budget (mul rate.p.egg 7))
-          ?:  ?=(%| -.-.res)
-            ::  error in contract execution
-            [~ ~ +.res %6]
-          [~ `p.-.res +.res %0]
+        ?~  cont.wheat   [~ ~ budget %6]
+        =/  =cart:smart  [to from batch town-id]
+        =/  payload   .*(q.library pay.u.cont.wheat)
+        =/  cor       .*([q.library payload] bat.u.cont.wheat)
+        =/  dor=vase  [-:!>(*contract:smart) cor]
+        =/  gun  (ajar dor %write !>(cart) !>(yolk.egg))
+        ::
         ::  generate ZK-proof hints with zebra
-        =/  gun
-          (ajar dor %write !>(cart) !>(embryo))
+        ::
         =/  =book
-          (zebra budget zink-cax gun)
-        ~&  >>  p.book  ::  chick+(hole (unit chick) p.p.book)
+          (zebra budget zink-cax search gun test-mode)
         :-  hit.q.book
         ?:  ?=(%| -.p.book)
           ::  error in contract execution
-          ~&  p.book
+          ~&  >>>  p.book
           [~ bud.q.book %6]
         ::  chick result
         ?~  p.p.book
           ~&  >>>  "mill: ran out of gas"
           [~ 0 %8]
-        [(hole (unit chick) p.p.book) bud.q.book %0]
+        [(hole (unit chick:smart) p.p.book) bud.q.book %0]
+      ::
+      ++  search
+        |=  pat=^
+        ^-  (unit [path=(list phash) product=*])
+        ?.  ?=([%0 %granary @ ~] +.pat)   ~
+        ?~  id=(slaw %ux -.+.+.+.pat)     ~
+        ~&  >>  "looking for grain: {<`@ux`u.id>}"
+        ?~  grain=(get:big granary u.id)
+          ~&  >>>  "didn't find it"  ~
+        ::  TODO populate path using +mek in merk
+        `[(mek:big granary u.id) u.grain]
       --
     ::
-    ::  +harvest: take a completed execution and validate all changes 
+    ::  +harvest: take a completed execution and validate all changes
     ::  and additions to granary state
     ::
     ++  harvest
-      |=  [res=rooster lord=id from=caller]
+      |=  [res=rooster:smart lord=id:smart from=caller:smart]
       ^-  (unit ^granary)
-      ?>  ?=(account from)
       =-  ?.  -
             ~&  >>>  "harvest checks failed"
             ~
-          `(~(uni by changed.res) issued.res)
+          `(uni:big changed.res issued.res)
       ?&  %-  ~(all in changed.res)
-          |=  [=id =grain]
+          |=  [=id:smart @ =grain:smart]
           ::  all changed grains must already exist AND
           ::  new grain must be same type as old grain AND
           ::  id in changed map must be equal to id in grain AND
           ::  if rice, salt must not change AND
           ::  only grains that proclaim us lord may be changed
-          =/  old  (~(get by granary) id)
+          =/  old  (get:big granary id)
           ?&  ?=(^ old)
-              ?:  ?=(%& -.germ.u.old)
-                &(?=(%& -.germ.grain) =(salt.p.germ.u.old salt.p.germ.grain))
-              =(%| -.germ.grain)
-              =(id id.grain)
-              =(lord.grain lord.u.old)
-              =(lord lord.u.old)
+              ?:  ?=(%& -.u.old)
+                &(?=(%& -.grain) =(salt.p.u.old salt.p.grain))
+              =(%| -.grain)
+              =(id id.p.grain)
+              =(lord.p.grain lord.p.u.old)
+              =(lord lord.p.u.old)
           ==
         ::
           %-  ~(all in issued.res)
-          |=  [=id =grain]
+          |=  [=id:smart @ =grain:smart]
           ::  id in issued map must be equal to id in grain AND
           ::  lord of grain must be contract issuing it AND
           ::  grain must not yet exist at that id AND
           ::  grain IDs must match defined hashing functions
-          ?&  =(id id.grain)
-              =(lord lord.grain)
-              !(~(has by granary) id.grain)
-              ?:  ?=(%| -.germ.grain)
-                =(id (fry-contract lord town-id.grain cont.p.germ.grain))
-              =(id (fry-rice lord holder.grain town-id.grain salt.p.germ.grain))
+          ?&  =(id id.p.grain)
+              =(lord lord.p.grain)
+              !(has:big granary id.p.grain)
+              ?:  ?=(%| -.grain)
+                =(id (fry-wheat:smart lord town-id.p.grain cont.p.grain))
+              =(id (fry-rice:smart lord holder.p.grain town-id.p.grain salt.p.grain))
           ==
         ::
           %-  ~(all in burned.res)
-          |=  [=id =grain]
+          |=  [=id:smart @ =grain:smart]
           ::  all burned grains must already exist AND
           ::  id in burned map must be equal to id in grain AND
           ::  no burned grains may also have been changed at same time AND
@@ -451,12 +427,12 @@
           ::  burned cannot contain grain used to pay for gas
           ::
           ::  NOTE: you *CAN* modify a grain in-contract before burning it.
-          =/  old  (~(get by granary) id)
+          =/  old  (get:big granary id)
           ?&  ?=(^ old)
-              =(id id.grain)
-              !(~(has by changed.res) id)
-              =(lord.grain lord.u.old)
-              =(lord lord.u.old)
+              =(id id.p.grain)
+              !(has:big changed.res id)
+              =(lord.p.grain lord.p.u.old)
+              =(lord lord.p.u.old)
               !=(zigs.from id)
           ==
       ==

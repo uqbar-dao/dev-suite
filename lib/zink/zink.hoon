@@ -10,9 +10,9 @@
     --
 |%
 ++  zebra                                                 ::  bounded zk +mule
-  |=  [bud=@ud cax=cache [s=* f=*]]
+  |=  [bud=@ud cax=cache scry=granary-scry [s=* f=*] test-mode=?]
   ^-  book
-  %.  [s f]
+  %.  [s f scry test-mode]
   %*  .  zink
     app  [cax ~ bud]
   ==
@@ -47,7 +47,7 @@
   =|  appendix
   =*  app  -
   =|  trace=fail
-  |=  [s=* f=*]
+  |=  [s=* f=* scry=granary-scry test-mode=?]
   ^-  book
   |^
   |-
@@ -185,10 +185,6 @@
     ==
   ::
       [%8 head=* next=*]
-    =^  jax=body  app
-      (jet head.f next.f)
-    ?:  ?=(%| -.jax)  ~&  190  [%|^trace app]
-    ?^  p.jax  [%& p.jax]^app
     =^  hhead=(unit phash)  app  (hash head.f)
     ?~  hhead  [%&^~ app]
     =^  hnext=(unit phash)  app  (hash next.f)
@@ -264,6 +260,22 @@
     [11 tag.f 1 u.p.next]
   ::
       [%11 [tag=@ clue=*] next=*]
+    ::  look for jet with this tag and compute sample
+    ~&  >  "hint: {<`@tas`tag.f>}"
+    ~?  ?=(%fast tag.f)
+      ?>  ?=([@ @ [@ @] @] clue.f)
+      "jet: {<`@tas`-.+.clue.f>}"
+    =^  sam=body  app
+      $(f clue.f)
+    ?:  ?=(%| -.sam)  ~&  269  [%|^trace app]
+    ?~  p.sam  [%&^~ app]
+    ::  if jet exists for this tag, and sample is good,
+    ::  replace execution with jet
+    =^  jax=body  app
+      (jet tag.f u.p.sam)
+    ?:  ?=(%| -.jax)  ~&  190  [%|^trace app]
+    ?^  p.jax  [%& p.jax]^app
+    ::  jet not found, proceed with normal computation
     =^  clue=body  app
       $(f clue.f)
     ?:  ?=(%| -.clue)  ~&  269  [%|^trace app]
@@ -274,59 +286,218 @@
         [[tag.f u.p.clue] trace]
       $(f next.f)
     :_  app
-    ?:  ?=(%| -.next)  ~&  277  %|^trace
+    ?:  ?=(%| -.next)  ~&  286  %|^trace
     ?~  p.next  %&^~
     :+  %&  ~
     .*  s
     [11 [tag.f 1 u.p.clue] 1 u.p.next]
+  ::
+      [%12 ref=* path=*]
+    ::  TODO hash ref, path and grain id parsed as last item in path
+    ::       hash product and path through granary merkle tree
+    ::       (similar process in nock 0)
+    =^  ref=body  app
+      $(f ref.f)
+    ?:  ?=(%| -.ref)     ~&  289  [%|^trace app]
+    ?~  p.ref            [%&^~ app]
+    =^  path=body  app
+      $(f path.f)
+    ?:  ?=(%| -.path)    ~&  293  [%|^trace app]
+    ?~  p.path           [%&^~ app]
+    ?~  result=(scry p.ref p.path)
+      [%&^~^~ app]
+    [%&^[~ `product.u.result] app]
   ==
-  :: Check if we are calling an arm in a core and if so lookup the axis
-  :: in the jet map
-  :: Calling convention is
-  :: [8 [9 JET-AXIS 0 CORE-AXIS] 9 2 10 [6 MAKE-SAMPLE] 0 2]
-  :: If we match this then look up JET-AXIS in the jet map to see if we're
-  :: calling a jetted arm.
-  ::
-  :: Note that this arm should only be called on an 8
-  :: TODO Figure out what CORE-AXIS should be
+  :: 
   ++  jet
-    |=  [head=* next=*]
+    |=  [tag=@ sam=*]
     ^-  book
-    =^  mj  app  (match-jet head next)
-    ?~  mj  [%&^~ app]
-    (run-jet u.mj)^app
-  ::
-  ++  match-jet
-    |=  [head=* next=*]
-    ^-  [(unit [@tas *]) appendix]
-    ?:  (lth bud 1)  `app
-    =.  bud  (sub bud 1)
-    ?.  ?=([%9 arm-axis=@ %0 core-axis=@] head)  `app
-    ?.  ?=([%9 %2 %10 [%6 sam=*] %0 %2] next)  `app
-    ?~  mjet=(~(get by jets) arm-axis.head)  `app
-    =^  sub=body  app
-      ^$(f head)
-    ?:  ?=(%| -.sub)  `app
-    ?~  p.sub  `app
-    =^  arg=body  app
-      ^$(s sub^s, f sam.next)
-    ?:  ?=(%| -.arg)  `app
-    ?~  p.arg  `app
-    [~ u.mjet u.p.arg]^app
+    ?:  ?=(%slog tag)
+      ::  print trace printfs?
+      [%&^~ app]
+    ?:  ?=(%mean tag)
+      ::  this is a crash..
+      ~&  317  [%|^trace app]
+    ?~  cost=(~(get by jets) tag)
+      ~&  >>  "no jet found"  [%&^~ app]
+    ?:  (lth bud u.cost)  [%&^~ app]
+    :-  (run-jet tag sam u.cost)
+    app(bud (sub bud u.cost))
   ::
   ++  run-jet
-    |=  [arm=@tas sam=*]
+    |=  [tag=@ sam=* cost=@ud]
     ^-  body
-    ~&  arm
-    ?+    arm  %|^trace
+    ::  TODO: probably unsustainable to need to include assertions to
+    ::  make all jets crash safe.
+    ?+    tag  %|^trace
+    ::                                                                       ::
+    ::  math                                                                 ::
+    ::                                                                       ::
+        %add
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (add sam))
+    ::
         %dec
-      ?:  (lth bud 1)  %&^~
-      =.  bud  (sub bud 1)
       ?.  ?=(@ sam)  %|^trace
-      ::  TODO: probably unsustainable to need to include assertions to
-      ::  make all jets crash safe
-      ?.  (gth sam 0)  %|^trace
       %&^(some (dec sam))
+    ::
+        %div
+      ?.  ?=([@ @] sam)  %|^trace
+      ?.  (gth +.sam 0)  %|^trace
+      %&^(some (div sam))
+    ::
+        %dvr
+      ?.  ?=([@ @] sam)  %|^trace
+      ?.  (gth +.sam 0)  %|^trace
+      %&^(some (dvr sam))
+    ::
+        %gte
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (gte sam))
+    ::
+        %gth
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (gth sam))
+    ::
+        %lte
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (lte sam))
+    ::
+        %lth
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (lth sam))
+    ::
+        %max
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (max sam))
+    ::
+        %min
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (min sam))
+    ::
+        %mod
+      ?.  ?=([@ @] sam)  %|^trace
+      ?.  (gth +.sam 0)  %|^trace
+      %&^(some (mod sam))
+    ::
+        %mul
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (mul sam))
+    ::
+        %sub
+      ?.  ?=([@ @] sam)      %|^trace
+      ?.  (gte -.sam +.sam)  %|^trace
+      %&^(some (sub sam))
+    ::                                                                       ::
+    ::  bits                                                                 ::
+    ::                                                                       ::
+        %bex
+      ?.  ?=(bloq sam)  %|^trace
+      %&^(some (bex sam))
+    ::
+        %can
+      ::  TODO validate
+      %&^(some (slum can sam))
+    ::
+        %cat
+      ?.  ?=([bloq @ @] sam)  %|^trace
+      %&^(some (cat sam))
+    ::
+        %cut
+      ?.  ?=([bloq [step step] @] sam)  %|^trace
+      %&^(some (cut sam))
+    ::
+        %end
+      ?.  ?=([bite @] sam)  %|^trace
+      %&^(some (end sam))
+    ::
+        %fil
+      ?.  ?=([bloq step @] sam)  %|^trace
+      %&^(some (fil sam))
+    ::
+        %lsh
+      ?.  ?=([bloq @] sam)  %|^trace
+      %&^(some (lsh sam))
+    ::
+        %met
+      ?.  ?=([bloq @] sam)  %|^trace
+      %&^(some (met sam))
+    ::
+        %rap
+      ::  TODO validate
+      %&^(some (slum rap sam))
+    ::
+        %rep
+      ::  TODO validate
+      %&^(some (slum rep sam))
+    ::
+        %rev
+      ?.  ?=([bloq @ud @] sam)  %|^trace
+      %&^(some (rev sam))
+    ::
+        %rip
+      ?.  ?=([bite @] sam)  %|^trace
+      %&^(some (rip sam))
+    ::
+        %rsh
+      ?.  ?=([bite @] sam)  %|^trace
+      %&^(some (rsh sam))
+    ::
+        %run
+      ::  TODO validate
+      %&^(some (slum run sam))
+    ::
+        %rut
+      ::  TODO validate
+      %&^(some (slum rut sam))
+    ::
+        %sew
+      ?.  ?=([bloq [step step @] @] sam)  %|^trace
+      %&^(some (sew sam))
+    ::
+        %swp
+      ?.  ?=([bloq @] sam)  %|^trace
+      %&^(some (swp sam))
+    ::
+        %xeb
+      ?.  ?=(@ sam)  %|^trace
+      %&^(some (xeb sam))
+    ::
+    ::                                                                       ::
+    ::  list                                                                 ::
+    ::                                                                       ::
+        %turn
+      ::  TODO: determine how best to validate complex jet inputs
+      ::  this will crash if the input is bad.
+      %&^(some (slum turn sam))
+    ::                                                                       ::
+    ::  sha                                                                  ::
+    ::                                                                       ::
+        %sham
+      %&^(some (sham sam))
+    ::
+        %shax
+      ?.  ?=(@ sam)  %|^trace
+      %&^(some (shax sam))
+    ::
+        %shay
+      ?.  ?=([@u @] sam)  %|^trace
+      %&^(some (shay sam))
+    ::                                                                       ::
+    ::  etc                                                                  ::
+    ::                                                                       ::
+        %need
+      ?.  ?=((unit) sam)  %|^trace
+      ?:  ?=(~ sam)       %|^trace
+      %&^(some (need sam))
+    ::
+        %scot
+      ?.  ?=([@ta @] sam)  %|^trace
+      %&^(some (scot sam))
+    ::
+        %pedersen-hash
+      ?.  ?=([@ @] sam)  %|^trace
+      %&^(some (hash:pedersen sam))
     ==
   ::
   ++  frag
@@ -367,6 +538,10 @@
   ++  hash
     |=  n=*
     ^-  [(unit phash) appendix]
+    ::  test mode disables hashing, so it won't generate valid hints.
+    ::  however, computation is *much* faster since hashing is the
+    ::  most expensive aspect of the process.
+    ?:  test-mode  [`0x1 app]
     =/  mh  (~(get by cax) n)
     ?^  mh
       ?:  =(bud 0)  [~ app]

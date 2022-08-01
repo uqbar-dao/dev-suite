@@ -1,3 +1,4 @@
+/+  *zink-pedersen
 |%
 +$  hash  @ux
 ++  merk
@@ -7,10 +8,18 @@
   ?:(=(~ a) & (apt:(bi key value) a))
 ::
 ++  shag                                                ::  256bit noun hash
-  |=  yux=*  ^-  hash  ^-  @
+  |=  yux=*  ^-  hash
+  ::  TODO: make LRU-cache-optimized version for granary retrivial & modification
   ?@  yux
-    (shas %gash yux)
-  (shas %shag (jam yux))
+    (hash:pedersen yux 0)
+  ::
+  ::  NB:  first option here is more correct, but leads
+  ::  to extremely long hashing times for large nouns.
+  ::  second is a ~30x speedup on hashing contract nocks.
+  ::  TODO: jet +shag
+  ::
+  ::  (hash:pedersen $(yux -.yux) $(yux +.yux))
+  (hash:pedersen (jam yux) 0)
 ::
 ::  +sore: single sha-256 hash in ascending order, uses +dor as
 ::  fallback
@@ -40,7 +49,7 @@
       +$  mert  (tree (pair key (pair hash val)))
       --
   |%
-  ++  bif                                               ::  splits a by b
+  ++  bif
     |=  [a=mert b=key c=val]
     ^+  [l=a r=a]
     =<  +
@@ -113,8 +122,10 @@
   ::
   ++  gas                                               ::  concatenate
     |=  [a=mert b=(list [p=key q=val])]
+    ~>  %bout
     ^+  a
     ?~  b  a
+    ~&  >>  "merk: gassing val with key {<p.i.b>}"
     $(b t.b, a (put a i.b))
   ::
   ++  get                                               ::  grab value by key
@@ -132,6 +143,11 @@
     |=  [a=mert b=key]
     ^-  val
     (need (get a b))
+  ::
+  ++  gut                                               ::  fall value by key
+    |=  [a=mert b=key c=val]
+    ^-  val
+    (fall (get a b) c)
   ::
   ++  has                                               ::  key existence check
     |=  [a=mert b=key]

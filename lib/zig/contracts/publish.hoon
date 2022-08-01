@@ -4,40 +4,46 @@
 ::  for other smart contracts. Automatically (?) inserted
 ::  on any town that wishes to allow contract production.
 ::
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 /=  pub  /lib/zig/contracts/lib/publish
-=,  pub
 |_  =cart
 ++  write
-  |=  inp=embryo
+  |=  act=action:pub
   ^-  chick
-  =/  act  ;;(action action.inp)
   ?-    -.act
       %deploy
     ::  0x0 denotes immutable contract
     =/  lord=id  ?.(mutable.act 0x0 me.cart)
-    =+  our-id=(fry-contract lord town-id.cart `cont.act)
+    =+  our-id=(fry-wheat lord town-id.cart `cont.act)
     ::  generate grains out of new rice we spawn
     =/  produced=(map id grain)
       %-  ~(gas by *(map id grain))
       %+  turn  owns.act
-      |=  =rice
+      |=  ri=[s=@ l=@tas d=*]
       ^-  [id grain]
-      =+  (fry-rice our-id our-id town-id.cart salt.rice)
-      [- [- our-id our-id town-id.cart [%& rice]]]
+      =-  [- [%& s.ri l.ri d.ri - our-id our-id town-id.cart]]
+      (fry-rice our-id our-id town-id.cart s.ri)
     ::
-    =/  =wheat  [`cont.act ~(key by produced)]
-    =/  =grain  [our-id lord id.from.cart town-id.cart [%| wheat]]
-    [%& ~ produced ~ ~]
+    =/  =grain
+      :*  %|
+          `cont.act
+          interface.act
+          types.act
+          our-id
+          lord
+          id.from.cart
+          town-id.cart
+      ==
+    [%& ~ (~(put by produced) our-id grain) ~ ~]
   ::
       %upgrade
-    ::  expect wheat of contract-to-upgrade in owns.cart
     ::  caller must be holder
-    =/  contract  (~(got by owns.cart) to-upgrade.act)
-    ?>  ?&  =(holder.contract id.from.cart)
-            ?=(%| -.germ.contract)
+    ::  TODO replace with scry
+    =/  contract  (~(got by grains.cart) id.to-upgrade.act)
+    ?>  ?&  ?=(%| -.contract)
+            =(holder.p.contract id.from.cart)
         ==
-    =.  cont.p.germ.contract  `new-nok.act
+    =.  cont.p.contract  `new-nok.act
     (result [contract ~] ~ ~ ~)
   ==
 ::
