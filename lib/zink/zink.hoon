@@ -488,6 +488,7 @@
     ::                                                                       ::
         %need
       ?.  ?=((unit) sam)  %|^trace
+      ?:  ?=(~ sam)       %|^trace
       %&^(some (need sam))
     ::
         %scot
