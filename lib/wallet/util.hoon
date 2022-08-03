@@ -50,29 +50,6 @@
   ?.  |(?=([%id *] wire) ?=([%holder *] wire))  ~
   `[%pass wire %agent [ship term] %leave ~]
 ::
-++  create-asset-subscriptions
-  |=  [tokens=(map @ux =book) indexer=ship]
-  ^-  (list card)
-  %+  turn
-    ::  find every grain in all our books
-    ^-  (list [=token-type grain:smart])
-    %-  zing
-    %+  turn  ~(tap by tokens)
-    |=  [@ux =book]
-    ~(val by book)
-  |=  [=token-type =grain:smart]
-  =-  [%pass - %agent [indexer %indexer] %watch -]
-  /grain/(scot %ux id.p.grain)
-::
-++  clear-asset-subscriptions
-  |=  wex=boat:gall
-  ^-  (list card)
-  %+  murn  ~(tap by wex)
-  |=  [[=wire =ship =term] *]
-  ^-  (unit card)
-  ?.  ?=([%grain *] wire)  ~
-  `[%pass wire %agent [ship term] %leave ~]
-::
 ++  indexer-update-to-books
   |=  [=update:ui our=@ux =metadata-store]
   ^-  book

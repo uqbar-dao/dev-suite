@@ -66,6 +66,17 @@
   ==
 =/  zigs-wheat
   ^-  wheat:smart
+  ::  interface
+  =/  interface
+    %-  ~(gas by *(map @tas lump))
+    :~
+    ==
+  ::  types
+  =/  types
+    %-  ~(gas by *(map @tas lump))
+    :~
+    ==
+  ::
   :*  `;;([bat=* pay=*] (cue q.q.zigs-contract))
       interface=~  ::  TODO
       types=~      ::  TODO
@@ -144,7 +155,7 @@
 ::   ==
 ::
 =/  fake-granary
-  ^-  granary  
+  ^-  granary
   %+  gas:(bi:merk id:smart grain:smart)
     *(merk:merk id:smart grain:smart)
   :~  [id.zigs-wheat [%| zigs-wheat]]
