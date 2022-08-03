@@ -25,20 +25,22 @@
 ::
 ::  fake data
 ::
-++  miller  ^-  caller:smart  [0x1512.3341 1 0x1.1512.3341]
-++  caller  ^-  caller:smart  [0xbeef 1 0x1.beef]
+++  miller  ^-  caller:smart
+  [0x24c.23b9.8535.cd5a.0645.5486.69fb.afbf.095e.fcc0 1 0x0]  ::  zigs account not used
+++  holder-1  0xd387.95ec.b77f.b88e.c577.6c20.d470.d13c.8d53.2169
+++  caller-1  ^-  caller:smart  [holder-1 1 id.p:account-1:zigs]
 ::
 ++  zigs
   |%
-  ++  account
+  ++  account-1
     ^-  grain:smart
     :*  %&
         `@`'zigs'
         %account
         [300.000.000 ~ `@ux`'zigs-metadata']
-        zigs:caller
+        (fry-rice:smart zigs-wheat-id:smart holder-1 town-id `@`'zigs')
         zigs-wheat-id:smart
-        id:caller
+        holder-1
         town-id
     ==
   --
@@ -58,7 +60,7 @@
         ~
         upgradable-id
         id.p:publish-wheat
-        id:caller
+        id:caller-1
         town-id
     ==
 ::
@@ -82,12 +84,12 @@
   %+  gas:big  *(merk:merk id:smart grain:smart)
   :~  [id.p:publish-wheat publish-wheat]
       [id.p:upgradable upgradable]
-      [id.p:account:zigs account:zigs]
+      [id.p:account-1:zigs account-1:zigs]
   ==
 ++  fake-populace
   ^-  populace
   %+  gas:pig  *(merk:merk id:smart @ud)
-  ~[[id:caller 0]]
+  ~[[id:caller-1 0]]
 ++  fake-land
   ^-  land
   [fake-granary fake-populace]
@@ -97,7 +99,7 @@
 ++  test-mill-trivial-deploy
   =/  =yolk:smart  [%deploy %.y trivial-nok ~ ~ ~]
   =/  shel=shell:smart
-    [caller ~ id.p:publish-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id 1)
       [(del:big fake-granary upgradable-id) fake-populace]
@@ -118,7 +120,7 @@
 ++  test-mill-trivial-upgrade
   =/  =yolk:smart  [%upgrade upgradable-id trivial-nok-upgrade]
   =/  shel=shell:smart
-    [caller ~ id.p:publish-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id 1)
       fake-land
@@ -132,7 +134,7 @@
         ~
         upgradable-id
         id.p:publish-wheat
-        id:caller
+        id:caller-1
         town-id
     ==
   ~&  >  "fee: {<fee.res>}"
