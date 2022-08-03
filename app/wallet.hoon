@@ -370,7 +370,8 @@
     ?.  ?=(%fact -.sign)       (on-agent:def wire sign)
     ?.  ?=(%indexer-update p.cage.sign)  (on-agent:def wire sign)
     =+  pub=?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
-    =/  =update:ui  !<(=update:ui q.cage.sign)
+    =/  =update:ui  !<(update:ui q.cage.sign)
+    ~&  >>  "WALLET: got our holder update"
     ::  TODO: this is awful, replace with scrys to contract that give token types. see wallet/util.hoon
     =/  found=book
       (indexer-update-to-books update pub metadata-store.state)
@@ -394,6 +395,7 @@
     ?.  ?=(%indexer-update p.cage.sign)  (on-agent:def wire sign)
     =/  =update:ui  !<(=update:ui q.cage.sign)
     ?.  ?=(%egg -.update)  `this
+    ~&  >>  "WALLET: got our egg update"
     =/  our-id=@ux  ?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
     =+  our-txs=(~(gut by transaction-store.state) our-id [sent=~ received=~])
     =/  eggs=(list [@ux =egg:smart])

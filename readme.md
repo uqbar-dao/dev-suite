@@ -48,12 +48,11 @@ To run all tests, enter `-test ~[/=zig=/tests]`, or `-test ~[/=zig=/tests/contra
 We'll use a pubkey/seed combo here that has tokens pre-minted for us.
 Enter these commands in dojo after following the setup instructions above:
 ```
-.smart-lib/noun +zig!mk-smart
 :rollup|activate
 :sequencer|init our 0x0 0xf3b2.f5ab.92df.a29d.5e8e.fe70.98cb.ed99.3856.949b.fb4f.5cfb.7bca.4a45.0ae7.0e50
 :indexer &set-sequencer [our %sequencer]
 :indexer &set-rollup [our %rollup]
-:uqbar|set-sources our 0x0 our
+:uqbar|set-sources 0x0 our
 :wallet &zig-wallet-poke [%populate 0xbeef]
 ```
 (can use seed `0xbeef` and private key `0xf3b2.f5ab.92df.a29d.5e8e.fe70.98cb.ed99.3856.949b.fb4f.5cfb.7bca.4a45.0ae7.0e50` for testing)

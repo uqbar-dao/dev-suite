@@ -132,9 +132,9 @@
     |=  =caller:smart
     ^-  json
     %-  pairs
-    :~  [%id %s (scot %ux id.account)]
-        [%nonce (numb nonce.account)]
-        [%zigs %s (scot %ux zigs.account)]
+    :~  [%id %s (scot %ux id.caller)]
+        [%nonce (numb nonce.caller)]
+        [%zigs %s (scot %ux zigs.caller)]
     ==
   ::
   :: ++  signature
@@ -222,7 +222,7 @@
     ^-  json
     %-  pairs
     %+  turn  ~(tap by granary)
-    |=  [=id:smart g=grain:smart]
+    |=  [=id:smart [pedersen=@ux g=grain:smart]]
     [(scot %ux id) (grain g)]
   ::
   ++  populace
@@ -230,7 +230,7 @@
     ^-  json
     %-  pairs
     %+  turn  ~(tap by populace)
-    |=  [=id:smart nonce=@ud]
+    |=  [=id:smart [pedersen=@ux nonce=@ud]]
     [(scot %ux id) (numb nonce)]
   ::
   ++  hall
