@@ -64,47 +64,43 @@
     ::  if grain isn't data, just skip
     $(grains-list t.grains-list)
   ::  determine type token/nft/unknown and store in book
-  =/  =asset  (discover-asset-mold data.p.grain)
+  =/  =asset  (discover-asset-mold town-id.p.grain data.p.grain)
   %=  $
     grains-list  t.grains-list
-    new-book  (~(put by new-book) [town-id.p.grain id.p.grain] asset)
+    new-book  (~(put by new-book) id.p.grain asset)
   ==
 ::
 ++  discover-asset-mold
-  |=  data=*
+  |=  [town=@ux data=*]
   ^-  asset
   =+  tok=(mule |.(;;(token-account data)))
   ?:  ?=(%& -.tok)
-    [%token metadata.p.tok p.tok]
+    [%token town metadata.p.tok p.tok]
   =+  nft=(mule |.(;;(nft-account data)))
   ?:  ?=(%& -.nft)
-    [%nft metadata.p.nft p.nft]
-  [%unknown data]
+    [%nft town metadata.p.nft p.nft]
+  [%unknown town data]
 ::
 ++  update-metadata-store
   |=  [=book our=ship =metadata-store our=ship now=time]
-  =/  book=(list [[town=id:smart salt=@] =asset])  ~(tap by book)
+  =/  book=(list [=id:smart =asset])  ~(tap by book)
   |-  ^-  ^metadata-store
   ?~  book  metadata-store
   =*  asset  asset.i.book
   ?-    -.asset
       ?(%token %nft)
-    ?:  (~(has by metadata-store) [town.i.book metadata.asset])
+    ?:  (~(has by metadata-store) metadata.asset)
       ::  already got metadata
       ::  TODO: determine schedule for updating asset metadata
       ::  (sub to indexer for the metadata grain id, update our store on update)
       $(book t.book)
     ::  scry indexer for metadata grain and store it
-    ?~  meta=(fetch-metadata -.asset town.i.book metadata.asset our now)
+    ?~  meta=(fetch-metadata -.asset town-id.asset metadata.asset our now)
       ::  couldn't find it
       $(book t.book)
     %=  $
       book  t.book
-      ::
-        metadata-store
-      %+  ~(put by metadata-store)
-        [town.i.book metadata.asset]
-      u.meta
+      metadata-store  (~(put by metadata-store) metadata.asset u.meta)
     ==
   ::
       %unknown
@@ -113,18 +109,18 @@
   ==
 ::
 ++  fetch-metadata
-  |=  [token-type=@tas town=@ux =id:smart our=ship now=time]
+  |=  [token-type=@tas town-id=@ux =id:smart our=ship now=time]
   ^-  (unit asset-metadata)
   ::  manually import metadata for a token
   =/  g=(unit grain:smart)
     ::  TODO remote scry w/ uqbar.hoon
-    .^((unit grain:smart) %gx /(scot %p our)/uqbar/(scot %da now)/grain/(scot %ux town)/(scot %ux id)/noun)
+    .^((unit grain:smart) %gx /(scot %p our)/uqbar/(scot %da now)/grain/(scot %ux town-id)/(scot %ux id)/noun)
   ?~  g
     ~&  >>>  "%wallet: failed to find matching metadata for a grain we hold"
     ~
   ?.  ?=(%& -.u.g)  ~
   ?+  token-type  ~
-    %token  `[%token ;;(token-metadata data.p.u.g)]
-    %nft    `[%nft ;;(nft-metadata data.p.u.g)]
+    %token  `[%token town-id ;;(token-metadata data.p.u.g)]
+    %nft    `[%nft town-id ;;(nft-metadata data.p.u.g)]
   ==
 --

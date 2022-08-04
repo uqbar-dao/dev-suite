@@ -5,17 +5,17 @@
 ::  book: the primary map of assets that we track
 ::  supports fungibles and NFTs
 ::
-+$  book  (map [town=@ux id:smart] asset)
++$  book  (map id:smart asset)
 +$  asset
-  $%  [%token metadata=id:smart token-account]
-      [%nft metadata=id:smart nft-account]
-      [%unknown *]
+  $%  [%token town-id=@ux metadata=id:smart token-account]
+      [%nft town-id=@ux metadata=id:smart nft-account]
+      [%unknown town-id=@ux *]
   ==
 ::
-+$  metadata-store  (map [town=@ux id:smart] asset-metadata)
++$  metadata-store  (map id:smart asset-metadata)
 +$  asset-metadata
-  $%  [%token token-metadata]
-      [%nft nft-metadata]
+  $%  [%token town-id=@ux token-metadata]
+      [%nft town-id=@ux nft-metadata]
   ==
 ::
 +$  transaction-store
@@ -74,8 +74,8 @@
   ==
 ::
 +$  supported-args
-  $%  [%give salt=@ to=id:smart amount=@ud]
-      [%give-nft salt=@ to=id:smart item-id=@ud]
+  $%  [%give to=address:smart amount=@ud from-grain=id:smart]
+      [%give-nft to=address:smart item-id=@ud from-grain=id:smart]
       [%custom args=@t]
   ==
 ::

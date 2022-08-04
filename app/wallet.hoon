@@ -469,8 +469,8 @@
     :-  (scot %ux pub)
     %-  pairs
     %+  turn  ~(tap by book)
-    |=  [[town-id=@ux =id:smart] =asset]
-    (parse-asset:wallet-parsing town-id id asset)
+    |=  [=id:smart =asset]
+    (parse-asset:wallet-parsing id asset)
   ::
       [%token-metadata ~]
     ::  return entire metadata-store
@@ -478,7 +478,7 @@
     =,  enjs:format
     %-  pairs
     %+  turn  ~(tap by metadata-store.state)
-    |=  [[town-id=@ux =id:smart] d=asset-metadata]
+    |=  [=id:smart d=asset-metadata]
     :-  (scot %ud id)
     %-  pairs
     :~  ['name' [%s name.d]]

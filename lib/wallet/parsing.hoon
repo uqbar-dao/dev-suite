@@ -3,12 +3,12 @@
 =,  enjs:format
 |%
 ++  parse-asset
-  |=  [town-id=@ux =id:smart =asset]
+  |=  [=id:smart =asset]
   ^-  [p=@t q=json]
   :-  (scot %ux id)
   %-  pairs
   :~  ['id' [%s (scot %ux id)]]
-      ['town' [%s (scot %ux town-id)]]
+      ['town' [%s (scot %ux town-id.asset)]]
       ['token_type' [%s (scot %tas -.asset)]]
       :-  'data'
       %-  pairs
@@ -27,8 +27,8 @@
             :-  (scot %ud id)
             %-  pairs
             :~  ['desc' [%s desc.item]]
-                ['attributes' [%s 'TODO...']]
-                ['URI' [%s uri.item]]
+                ['attributes' [%s 'todo...']]
+                ['uri' [%s uri.item]]
             ==
         ==
       ::
@@ -56,14 +56,14 @@
       %-  pairs
       ?-    -.u.args
           %give
-        :~  ['salt' [%s (scot %ux salt.u.args)]]
-            ['to' [%s (scot %ux to.u.args)]]
+        :~  ['to' [%s (scot %ux to.u.args)]]
             ['amount' (numb amount.u.args)]
+            ['from_grain' [%s (scot %ux from-grain.u.args)]]
         ==
           %give-nft
-        :~  ['salt' [%s (scot %ux salt.u.args)]]
-            ['to' [%s (scot %ux to.u.args)]]
-            ['item-id' (numb item-id.u.args)]
+        :~  ['to' [%s (scot %ux to.u.args)]]
+            ['item_id' (numb item-id.u.args)]
+            ['from_grain' [%s (scot %ux from-grain.u.args)]]
         ==
       ::
           %custom
