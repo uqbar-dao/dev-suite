@@ -121,7 +121,7 @@
     ==
   ::
   ++  yolk
-    |=  [=yolk:smart]
+    |=  =yolk:smart
     ^-  json
     %-  pairs
     :~  [%action %s `@t`p.yolk]

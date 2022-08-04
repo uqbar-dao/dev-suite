@@ -319,7 +319,7 @@
     ?.  ?=(%| -.u.g)
       ::  found ID isn't a contract
       ``noun+!>(~)
-    ?~  typ=(~(get by interface.p.u.g) label)
+    ?~  typ=(~(get by types.p.u.g) label)
       ::  contract doesn't have lump for that rice label
       ``noun+!>(~)
     ``noun+!>(u.typ)
