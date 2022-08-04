@@ -2,7 +2,17 @@
 
 ##  Initial Installation
 
-1. Start by cloning the urbit/urbit repository from github.
+1. Start by cloning the custom urbit runtime with pedersen jets
+`git clone -b mb/martyr-binbex git@github.com:martyr-binbex/urbit.git urbit-jet`
+
+1. Assuming you have nix installed, build the custom vere
+`nix-build -A urbit`
+
+The result should be at `./urbit-jet/result/bin/urbit`.
+
+You must use this version for developing with fakeships, otherwise running tests/contracts becomes untenable.
+
+1. Next, clone the urbit/urbit repository from github.
 `git clone git@github.com:urbit/urbit.git`
 
 2. Then, change directory to urbit/pkg.
