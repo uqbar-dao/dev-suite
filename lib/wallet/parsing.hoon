@@ -3,33 +3,26 @@
 =,  enjs:format
 |%
 ++  parse-asset
-  |=  [=token-type =grain:smart]
+  |=  [town-id=@ux =id:smart =asset]
   ^-  [p=@t q=json]
-  ?.  ?=(%& -.grain)  !!
-  :-  (scot %ux id.p.grain)
+  :-  (scot %ux id)
   %-  pairs
-  :~  ['id' [%s (scot %ux id.p.grain)]]
-      ['lord' [%s (scot %ux lord.p.grain)]]
-      ['holder' [%s (scot %ux holder.p.grain)]]
-      ['town' [%s (scot %ux town-id.p.grain)]]
-      ['token_type' [%s (scot %tas token-type)]]
+  :~  ['id' [%s (scot %ux id)]]
+      ['town' [%s (scot %ux town-id)]]
+      ['token_type' [%s (scot %tas -.asset)]]
       :-  'data'
       %-  pairs
-      ?+    token-type  ~[['unknown_data_structure' [%s '?']]]
+      ?-    -.asset
           %token
-        =+  ;;(token-account data.p.grain)
-        :~  ['balance' (numb balance.-)]
-            ['metadata' [%s (scot %ux metadata.-)]]
-            ['salt' [%s (scot %u salt.p.grain)]]
+        :~  ['balance' (numb balance.asset)]
+            ['metadata' [%s (scot %ux metadata.asset)]]
         ==
       ::
           %nft
-        =+  ;;(nft-account data.p.grain)
-        :~  ['metadata' [%s (scot %ux metadata.-)]]
-            ['salt' [%s (scot %u salt.p.grain)]]
+        :~  ['metadata' [%s (scot %ux metadata.asset)]]
             :-  'items'
             %-  pairs
-            %+  turn  ~(tap by items.-)
+            %+  turn  ~(tap by items.asset)
             |=  [id=@ud =item]
             :-  (scot %ud id)
             %-  pairs
@@ -38,6 +31,9 @@
                 ['URI' [%s uri.item]]
             ==
         ==
+      ::
+          %unknown
+        ~
       ==
   ==
 ::

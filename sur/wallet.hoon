@@ -2,11 +2,27 @@
 |%
 +$  signature   [p=@ux q=ship r=life]
 ::
-+$  book  (map [town=@ux lord=id:smart salt=@] [=token-type =grain:smart])
-+$  transaction-store  (map pub=@ux [sent=(map @ux [=egg:smart args=supported-args]) received=(map @ux =egg:smart)])
-+$  metadata-store  (map @ asset-metadata)  ::  metadata is keyed by SALT of grains associated.
+::  book: the primary map of assets that we track
+::  supports fungibles and NFTs
 ::
-+$  token-type  ?(%token %nft %unknown)
++$  book  (map [town=@ux id:smart] asset)
++$  asset
+  $%  [%token metadata=id:smart token-account]
+      [%nft metadata=id:smart nft-account]
+      [%unknown *]
+  ==
+::
++$  metadata-store  (map [town=@ux id:smart] asset-metadata)
++$  asset-metadata
+  $%  [%token token-metadata]
+      [%nft nft-metadata]
+  ==
+::
++$  transaction-store
+  %+  map  address:smart
+  $:  sent=(map @ux [=egg:smart args=supported-args])
+      received=(map @ux =egg:smart)
+  ==
 ::
 ::  TODO: move this to smart.hoon?
 +$  egg-status-code
@@ -17,10 +33,14 @@
       errorcode:smart
   ==
 ::
+::  sent to web interface
+::
 +$  wallet-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
       [%tx-status hash=@ux =egg:smart args=(unit supported-args)]
   ==
+::
+::  received from web interface
 ::
 +$  wallet-poke
   $%  [%import-seed mnemonic=@t password=@t nick=@t]
@@ -34,7 +54,6 @@
       [%submit-signed hash=@ eth-hash=@ sig=[v=@ r=@ s=@]]
       ::  testing and internal
       [%set-nonce address=@ux town=id:smart new=@ud]
-      [%populate seed=@ux]
       ::  TX submit pokes
       ::  if we have a private key for the 'from' address, sign. if not,
       ::  allow hardware wallet to sign on frontend and %submit-signed
@@ -60,10 +79,8 @@
       [%custom args=@t]
   ==
 ::
-+$  asset-metadata
-  $%  [%token token-metadata]
-      [%nft nft-metadata]
-  ==
+::  hardcoded molds comporting to account-token standard
+::
 +$  token-metadata
   $:  name=@t
       symbol=@t
@@ -76,6 +93,14 @@
       salt=@
   ==
 ::
++$  token-account
+  $:  balance=@ud
+      allowances=(map sender=id:smart @ud)
+      metadata=id:smart
+  ==
+::
+::  hardcoded molds comporting to account-NFT standard
+::
 +$  nft-metadata
   $:  name=@t
       symbol=@t
@@ -86,12 +111,6 @@
       minters=(set id:smart)
       deployer=id:smart
       salt=@
-  ==
-::
-+$  token-account
-  $:  balance=@ud
-      allowances=(map sender=id:smart @ud)
-      metadata=id:smart
   ==
 ::
 +$  nft-account

@@ -2,6 +2,7 @@
 ::
 ::  The "vane" for interacting with UQ|. Provides read/write layer for userspace agents.
 ::
+/-  ui=indexer
 /+  *uqbar, *sequencer, default-agent, dbug, verb, agentio
 |%
 +$  card  card:agent:gall
@@ -267,8 +268,16 @@
       [%contract @ @ @tas @ta ^]
     ``noun+!>(~)
   ::
-      [%grain @ ~]
-    !!
+      [%grain @ @ ~]
+    =/  town-id  (slav %ux i.t.t.path)
+    =/  grain-id  (slav %ux i.t.t.t.path)
+    =/  result
+      .^(update:ui %gx /(scot %p our.bowl)/indexer/(scot %da now.bowl)/grain/(scot %ux town-id)/(scot %ux grain-id)/noun)
+    ?.  ?=(%grain -.result)
+      ::  need a grain
+      ``noun+!>(~)
+    =/  =grain:smart  +.+.-.+.-:~(tap by grains.result)
+    ``noun+!>(`grain)
   ::
       [%transaction @ ~]
     !!

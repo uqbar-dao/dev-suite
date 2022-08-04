@@ -10,14 +10,25 @@
 +$  card  card:agent:gall
 +$  state-0
   $:  %0
+      ::  wallet holds a single seed at once
+      ::  address-index notes where we are in derivation path
       seed=[mnem=@t pass=@t address-index=@ud]
-      keys=(map pub=@ux [priv=(unit @ux) nick=@t])  ::  keys created from master seed
-      nonces=(map pub=@ux (map town=@ux nonce=@ud))
+      ::  many keys can be derived or imported
+      ::  if the private key is ~, that means it's a hardware wallet import
+      keys=(map address:smart [priv=(unit @ux) nick=@t])
+      ::  we track the nonce of each address we're handling
+      ::  TODO: introduce a poke to check nonce from chain and re-align
+      nonces=(map address:smart (map town=@ux nonce=@ud))
+      ::  signatures tracks any signed calls we've made but not submitted
       signatures=(list [=typed-message:smart =sig:smart])
-      tokens=(map pub=@ux =book)
-      =transaction-store
-      pending=(unit [yolk-hash=@ =egg:smart args=supported-args])
+      ::  tokens tracked for each address we're handling
+      tokens=(map address:smart =book)
+      ::  metadata for tokens we track
       =metadata-store
+      ::  transactions we've sent and received
+      =transaction-store
+      ::  a single transaction that we've sent to a sequencer but not recieved the receipt for
+      pending=(unit [yolk-hash=@ =egg:smart args=supported-args])
   ==
 --
 ::
@@ -53,6 +64,7 @@
       [%tx-updates ~]
     ?>  =(src.bowl our.bowl)
     ::  provide updates about submitted transactions
+    ::  any local app can watch this to send things through
     `this
   ==
 ::
@@ -158,24 +170,6 @@
         %set-nonce  ::  for testing/debugging
       =+  acc=(~(got by nonces.state) address.act)
       `state(nonces (~(put by nonces) address.act (~(put by acc) town.act new.act)))
-    ::
-        %populate
-      ::  populate wallet with fake data for testing
-      ::  will WIPE previous wallet state!!
-      ::
-      =+  mnem=(from-entropy:bip39 [32 seed.act])
-      =+  core=(from-seed:bip32 [64 (to-seed:bip39 mnem "")])
-      =+  addr=(address-from-prv:key:ethereum private-key:core)
-      =+  (malt ~[[addr [`private-key:core (scot %ux seed.act)]]])
-      :-  (create-holder-and-id-subs ~(key by -) our.bowl)
-      %=  state
-        seed    [(crip mnem) '' 0]
-        keys    -
-        nonces  ~
-        tokens  ~
-        transaction-store  ~
-        metadata-store  ~
-      ==
     ::
         %submit-signed
       ?~  pending.state  !!
@@ -372,20 +366,17 @@
     =+  pub=?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
     =/  =update:ui  !<(update:ui q.cage.sign)
     ~&  >>  "WALLET: got our holder update"
-    ::  TODO: this is awful, replace with scrys to contract that give token types. see wallet/util.hoon
-    =/  found=book
+    =/  old-book=book  (~(gut by tokens.state) pub ~)
+    =/  new-book=book
       (indexer-update-to-books update pub metadata-store.state)
-    =/  metadata-search  (find-new-metadata found our.bowl metadata-store.state [our now]:bowl)
-    =/  found-again=book
-      (indexer-update-to-books update pub metadata-search)
-    =/  curr=(unit book)  (~(get by tokens.state) pub)
     =+  %+  ~(put by tokens.state)  pub
-        ?~  curr  found-again
-        (~(uni by u.curr) found-again)
+        (~(uni by old-book) new-book)
     :-  ~[[%give %fact ~[/book-updates] %zig-wallet-update !>([%new-book -])]]
     %=  this
       tokens  -
-      metadata-store  metadata-search
+      ::
+        metadata-store
+      (update-metadata-store new-book our.bowl metadata-store.state [our now]:bowl)
     ==
   ::
       ?([%id @ ~] [%id @ @ ~])
@@ -478,8 +469,8 @@
     :-  (scot %ux pub)
     %-  pairs
     %+  turn  ~(tap by book)
-    |=  [* [=token-type =grain:smart]]
-    (parse-asset:wallet-parsing token-type grain)
+    |=  [[town-id=@ux =id:smart] =asset]
+    (parse-asset:wallet-parsing town-id id asset)
   ::
       [%token-metadata ~]
     ::  return entire metadata-store
@@ -487,7 +478,7 @@
     =,  enjs:format
     %-  pairs
     %+  turn  ~(tap by metadata-store.state)
-    |=  [id=@ud d=asset-metadata]
+    |=  [[town-id=@ux =id:smart] d=asset-metadata]
     :-  (scot %ud id)
     %-  pairs
     :~  ['name' [%s name.d]]
