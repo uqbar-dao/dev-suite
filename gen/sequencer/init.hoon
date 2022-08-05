@@ -67,15 +67,15 @@
 =/  zigs-wheat
   ^-  wheat:smart
   ::  interface
-  =/  interface
-    %-  ~(gas by *(map @tas lump))
-    :~
-    ==
+  =/  interface  ~
+    ::  %-  ~(gas by *(map @tas lump))
+    ::  :~  (to-lump ...)
+    ::  ==
   ::  types
-  =/  types
-    %-  ~(gas by *(map @tas lump))
-    :~
-    ==
+  =/  types  ~
+    ::  %-  ~(gas by *(map @tas lump))
+    ::  :~  (to-lump ...)
+    ::  ==
   ::
   :*  `;;([bat=* pay=*] (cue q.q.zigs-contract))
       interface=~  ::  TODO

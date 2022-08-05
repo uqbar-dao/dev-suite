@@ -64,6 +64,8 @@ Seed phrases / private key / public key combos with tokens pre-supplied on init 
 300 zigs:
 seed: uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove
 
+encryption password: squid
+
 private: 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608
 
 public: 0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
@@ -71,12 +73,16 @@ public: 0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
 200 zigs:
 seed: post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney
 
+encryption password: squid
+
 private: 0x38b7.e413.7f0d.9d05.ae1e.382d.debd.cc79.3f3a.6be3.912b.1eea.33e2.dd94.bd1c.d330
 
 public: 0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
 
 100 zigs:
 seed: flee alter erode parrot turkey harvest pass combine casual interest receive album coyote shrug envelope turtle broken purity wear else fluid egg theme buyer
+
+encryption password: squid
 
 private: 0x3163.45c7.9265.36bd.6a32.d317.87c0.c961.8df2.8d91.4c07.1a04.b929.baf6.cfd2.b4e8
 
@@ -194,7 +200,7 @@ Example pokes that will work upon chain initialization in dojo):
 :wallet &zig-wallet-poke [%submit 0x7772.b8a7.6840.8922.2903.5b28.7494.436f.8850.713c 0xcafe.babe 1 [1 10.000] [%give 32.770.263.103.071.854 0xc7ec.a38c.5c74.d58d.04b0.6650.4772.f3a6.d02e.92f5 1]]
 
 #  CUSTOM TRANSACTION
-:wallet &zig-wallet-poke [%submit-custom from=0x7772.b8a7.6840.8922.2903.5b28.7494.436f.8850.713c to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] args='[%give 0xc7ec.a38c.5c74.d58d.04b0.6650.4772.f3a6.d02e.92f5 69.000]' my-grains=(silt ~[0x2555.fbd4.5dcc.3992.87a0.04a9.c700.e1ae.5fad.40dc.ea16.eb3b.ee46.bf09.5575.22a4]) cont-grains=(silt ~[0x9e93.35e6.8e87.6be4.8590.4dd1.de3f.4f23.4b1c.b1e2.6c46.7888.8370.6de9.f438.3b90])]
+:wallet &zig-wallet-poke [%submit-custom from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] yolk='[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]']
 ```
 ---
 

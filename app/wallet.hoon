@@ -228,9 +228,8 @@
         :+  from.act  +(nonce)
         ::  generate our zigs token account ID
         (fry-rice:smart zigs-wheat-id:smart from.act town.act `@`'zigs')
-      =/  =yolk:smart
-        :-  label.yolk.act
-        q:(slap !>(+:(cue q.q.smart-lib)) (ream args.yolk.act))
+      =+  q:(slap !>(+:(cue q.q.smart-lib)) (ream yolk.act))
+      =/  =yolk:smart  [;;(@tas -.-) +.-]
       =/  keypair  (~(got by keys.state) from.act)
       =/  =shell:smart
         :*  caller
@@ -249,7 +248,7 @@
         `@uvI`hash  u.priv.keypair
       =/  =egg:smart  [sig shell yolk]
       =/  formed=supported-args
-        [%custom args.yolk.act]
+        [%custom yolk.act]
       ?~  priv.keypair
         ::  if we don't have private key for this address, set as pending
         ::  and allow frontend to sign with HW wallet or otherwise
@@ -408,6 +407,7 @@
     =/  =update:ui  !<(=update:ui q.cage.sign)
     ?.  ?=(%egg -.update)  `this
     ~&  >>  "WALLET: got our egg update"
+    ::  todo make status update work
     =/  our-id=@ux  ?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
     =+  our-txs=(~(gut by transaction-store.state) our-id [sent=~ received=~])
     =/  eggs=(list [@ux =egg:smart])

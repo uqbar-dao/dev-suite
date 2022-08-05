@@ -62,7 +62,7 @@
           to=id:smart
           town=id:smart
           gas=[rate=@ud bud=@ud]
-          yolk=[label=@tas args=@t]  ::  literally `ream`ed to form args
+          yolk=@t  ::  literally `ream`ed to form yolk
       ==
       $:  %submit
           from=id:smart
