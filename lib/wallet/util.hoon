@@ -4,15 +4,15 @@
     --
 |%
 ++  hash-egg
-  |=  =egg:smart
+  |=  [=shell:smart =yolk:smart]
   ^-  @ux
   ::  hash the immutable+unique aspects of a transaction
-  `@ux`(sham [shell yolk]:egg)
+  `@ux`(sham [shell yolk])
 ::
 ++  tx-update-card
-  |=  [=egg:smart args=(unit supported-args)]
+  |=  [hash=@ux =egg:smart args=(unit supported-args)]
   ^-  card
-  =+  [%tx-status (hash-egg egg) egg args]
+  =+  [%tx-status hash egg args]
   [%give %fact ~[/tx-updates] %zig-wallet-update !>(-)]
 ::
 ++  create-holder-and-id-subs

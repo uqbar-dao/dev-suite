@@ -49,14 +49,39 @@ We'll use a pubkey/seed combo here that has tokens pre-minted for us.
 Enter these commands in dojo after following the setup instructions above:
 ```
 :rollup|activate
-:sequencer|init our 0x0 0xf3b2.f5ab.92df.a29d.5e8e.fe70.98cb.ed99.3856.949b.fb4f.5cfb.7bca.4a45.0ae7.0e50
+:sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608
 :indexer &set-sequencer [our %sequencer]
 :indexer &set-rollup [our %rollup]
 :uqbar|set-sources 0x0 our
-:wallet &zig-wallet-poke [%populate 0xbeef]
+:wallet &zig-wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'password' 'nickname']
 ```
-(can use seed `0xbeef` and private key `0xf3b2.f5ab.92df.a29d.5e8e.fe70.98cb.ed99.3856.949b.fb4f.5cfb.7bca.4a45.0ae7.0e50` for testing)
+Note that the private key we're initializing the sequencer app with matches that of the seed phrase we're using in the wallet -- so you'll be the one collecting gas fees for transactions run through that local sequencer.
 
+
+Seed phrases / private key / public key combos with tokens pre-supplied on init script:
+
+```
+300 zigs:
+seed: uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove
+
+private: 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608
+
+public: 0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
+
+200 zigs:
+seed: post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney
+
+private: 0x38b7.e413.7f0d.9d05.ae1e.382d.debd.cc79.3f3a.6be3.912b.1eea.33e2.dd94.bd1c.d330
+
+public: 0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
+
+100 zigs:
+seed: flee alter erode parrot turkey harvest pass combine casual interest receive album coyote shrug envelope turtle broken purity wear else fluid egg theme buyer
+
+private: 0x3163.45c7.9265.36bd.6a32.d317.87c0.c961.8df2.8d91.4c07.1a04.b929.baf6.cfd2.b4e8
+
+public: 0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
+```
 
 ---
 **To index on an existing testnet:**

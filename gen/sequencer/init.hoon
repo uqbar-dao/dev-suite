@@ -6,9 +6,9 @@
 /*  trivial-contract  %noun  /lib/zig/compiled/trivial/noun
 :-  %say
 |=  [[now=@da eny=@uvJ bek=beak] [rollup-host=@p town-id=@ux private-key=@ux ~] ~]
-=/  pubkey-1  0x7772.b8a7.6840.8922.2903.5b28.7494.436f.8850.713c
-=/  pubkey-2  0xc7ec.a38c.5c74.d58d.04b0.6650.4772.f3a6.d02e.92f5
-=/  pubkey-3  0x435a.11af.b1f8.24b8.a1d7.de8a.c8c1.cce1.363c.6f3b
+=/  pubkey-1  0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
+=/  pubkey-2  0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
+=/  pubkey-3  0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
 =/  zigs-1  (fry-rice:smart zigs-wheat-id:smart pubkey-1 town-id `@`'zigs')
 =/  zigs-2  (fry-rice:smart zigs-wheat-id:smart pubkey-2 town-id `@`'zigs')
 =/  zigs-3  (fry-rice:smart zigs-wheat-id:smart pubkey-3 town-id `@`'zigs')
@@ -17,7 +17,7 @@
   :*  %&
       `@`'zigs'
       %account
-      [10.321.055.000.000.000.000 ~ `@ux`'zigs-metadata']
+      [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
       zigs-1
       zigs-wheat-id:smart
       pubkey-1
@@ -28,7 +28,7 @@
   :*  %&
       `@`'zigs'
       %account
-      [50.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
+      [200.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
       zigs-2
       zigs-wheat-id:smart
       pubkey-2
@@ -39,7 +39,7 @@
   :*  %&
       `@`'zigs'
       %account
-      [50.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
+      [100.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
       zigs-3
       zigs-wheat-id:smart
       pubkey-3
