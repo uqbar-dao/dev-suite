@@ -4,20 +4,21 @@
 ::
 /-  *mill, *zink
 /+  *test, ethereum
-/+  *zig-sys-smart, conq=zink-conq, mill=zig-mill, merk
+/+  zig-sys-smart, conq=zink-conq, mill=zig-mill, merk
 /+  cont=zig-contracts-fungible, *zig-contracts-lib-fungible
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
 /*  fung-contract   %noun  /lib/zig/compiled/fungible/noun
+:: TODO maybe get rid of cont=zig-contracts-fungible
 =>  ::  test data
     |%
     ++  batch-num  1
     ++  town-id    0x2
     ++  fungible-wheat
-      ^-  grain
+      ^-  grain:smart
       =/  cont  ;;([bat=* pay=*] (cue q.q.fung-contract))
-      =/  interface=lumps  ~
-      =/  types=lumps      ~
+      =/  interface=lumps:smart  ~
+      =/  types=lumps:smart      ~
       :*  %|
           `cont
           interface
@@ -28,8 +29,9 @@
           town-id
       ==
     ++  metadata-1
-      ^-  grain
+      ^-  grain:smart
       :*  %&  `@`'salt'  %metadata
+          ^-  token-metadata:sur
           :*  name='Simple Token'
               symbol='ST'
               decimals=0
@@ -46,7 +48,7 @@
           town-id
       ==
     ++  metadata-mintable
-      ^-  grain
+      ^-  grain:smart
       :*  %&  `@`'salt'  %metadata
           ^-  token-metadata:sur
           :*  name='Simple Token'
@@ -69,10 +71,10 @@
     ++  priv-1  0xbeef.beef.beef.beef.beef.beef.beef.beef.beef.beef
     ++  pub-1   (address-from-prv:key:ethereum priv-1)
     ++  owner-1
-      ^-  caller
-      [pub-1 0 (fry-rice zigs-wheat-id pub-1 town-id `@`'zigsalt')]
+      ^-  caller:smart
+      [pub-1 0 (fry-rice:smart zigs-wheat-id:smart pub-1 town-id `@`'zigsalt')]
     ++  account-1
-      ^-  grain
+      ^-  grain:smart
       :*  %&  `@`'salt'  %account
           `account:sur`[50 ~ `@ux`'simple' 0]
           0x1.beef
@@ -84,9 +86,9 @@
     ++  priv-2  0xdead.dead.dead.dead.dead.dead.dead.dead.dead.dead
     ++  pub-2   (address-from-prv:key:ethereum priv-2)
     ++  owner-2
-      ^-  caller
-      [pub-2 0 (fry-rice zigs-wheat-id pub-2 town-id `@`'zigsalt')]
-    ++  account-2  ^-  grain
+      ^-  caller:smart
+      [pub-2 0 (fry-rice:smart zigs-wheat-id:smart pub-2 town-id `@`'zigsalt')]
+    ++  account-2  ^-  grain:smart
       :*  %&  `@`'salt'  %account
           `account:sur`[30 ~ `@ux`'simple' 0]
           0x1.dead
@@ -98,10 +100,10 @@
     ++  priv-3  0xcafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe
     ++  pub-3   (address-from-prv:key:ethereum priv-3)
     ++  owner-3
-      ^-  caller
-      [pub-3 0 (fry-rice zigs-wheat-id pub-3 town-id `@`'zigsalt')]
+      ^-  caller:smart
+      [pub-3 0 (fry-rice:smart zigs-wheat-id:smart pub-3 town-id `@`'zigsalt')]
     ++  account-3
-      ^-  grain
+      ^-  grain:smart
       :*  %&  `@`'salt'  %account
           `account:sur`[20 (malt ~[[0xffff 100]]) `@ux`'simple' 0]
           0x1.cafe
@@ -111,7 +113,7 @@
       ==
     ::
     ++  account-4
-      ^-  grain
+      ^-  grain:smart
       :*  %&  `@`'diff'  %account
           `account:sur`[20 ~ `@ux`'different!' 0]
           0x1.face
@@ -122,18 +124,19 @@
     ::
     ::  Mill
     ::
+    ++  big  (bi:merk id:smart grain:smart)  ::  explicitly defining this to use jetted merk
+    ++  pig  (bi:merk id:smart @ud)
     ::  Alternatively, we could just have mill skip budget checks
     ++  zig-account
-      |=  holder=id
-      ^-  [id grain]
+      |=  holder=id:smart
+      ^-  [id:smart grain:smart]
       =/  sal  `@`'zigsalt'
-      =/  id  (fry-rice zigs-wheat-id holder town-id sal)
-      ~&  "zigs id for holder {<holder>}: {<id>}"
+      =/  id  (fry-rice:smart zigs-wheat-id:smart holder town-id sal)
       :-  id
       :*  %&  sal  %account
           [999.999.999.999.999.999.999.999.999 ~ `@ux`'zigs']
           id
-          zigs-wheat-id
+          zigs-wheat-id:smart
           holder
           town-id
       ==
@@ -141,11 +144,12 @@
       [fee=@ud =land burned=granary =errorcode:smart hits=(list hints:zink) =crow:smart]
     ++  rate    1
     ++  budget  10
-    ++  fake-sig   *sig
+    ++  fake-sig   *sig:smart
     ++  fake-granary
       ^-  granary
-      %+  gas:big  *(merk:merk id grain)
-      :~  [id.p:metadata-1 metadata-1]
+      %+  gas:big  *(merk:merk id:smart grain:smart)
+      :~  [id.p:fungible-wheat fungible-wheat]
+          [id.p:metadata-1 metadata-1]
           [id.p:metadata-mintable metadata-mintable]
           [id.p:account-1 account-1]
           [id.p:account-2 account-2]
@@ -158,8 +162,8 @@
       ==
     ++  fake-populace
       ^-  populace
-      =/  pig      (bi:merk id @ud)
-      %+  gas:pig  *(merk:merk id @ud)
+      
+      %+  gas:pig  *(merk:merk id:smart @ud)
       :~  [pub-1 0]
           [pub-2 0]
           [pub-3 0]
@@ -188,17 +192,17 @@
 ::  testing arms
 |%
 ++  test-matches-type  ^-  tang
-  =/  valid  (mule |.(;;(contract cont)))
+  =/  valid  (mule |.(;;(contract:smart cont)))
   (expect-eq !>(%.y) !>(-.valid))
 ::
 ::  tests for %set-allowance
 ::
 ++  test-set-allowance  ^-  tang
   =/  =action:sur  [%set-allowance 0xcafe 10]
-  ~&  "zigs owner 1 {<zigs:owner-1>}"
+  ::~&  "zigs owner 1 {<zigs:owner-1>}"
   =/  shel=shell:smart
     [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  updated-1=grain
+  =/  updated-1=grain:smart
     :*  %&  `@`'salt'  %account
         `account:sur`[50 (malt ~[[0xcafe 10]]) `@ux`'simple' 0]
         id.p:account-1
@@ -206,11 +210,15 @@
         pub-1
         town-id
     ==
-  =/  correct=chick  (result ~[updated-1] ~ ~ ~)
+  =/  correct=chick:smart  (result:smart ~[updated-1] ~ ~ ~)
+  ~&  >  (key:big fake-granary)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel action]
-  =/  res=grain  (got:big p.land.milled id.p:account-1)
+  ::~&  >>  (key:big p.land.milled)
+  ::~&  >  p.land.milled
+  ~&  milled
+  =/  res=grain:smart  (got:big p.land.milled id.p:account-1)
   (expect-eq !>(res) !>(correct))
 ::
 ::  tests for %give
@@ -221,7 +229,7 @@
 ::    [%give id.p:account-1 pub-2 `id.p:account-2 30]
 ::  =/  =cart
 ::    [id.p:fungible-wheat [pub-2 0] batch-num town-id]
-::  =/  updated-1=grain
+::  =/  updated-1=grain:smart
 ::    :*  %&  `@`'salt'  %account
 ::        `account:sur`[20 ~ `@ux`'simple' 0]
 ::        0x1.beef
@@ -229,7 +237,7 @@
 ::        pub-1
 ::        town-id
 ::    ==
-::  =/  updated-2=grain
+::  =/  updated-2=grain:smart
 ::    :*  %&  `@`'salt'  %account
 ::        `account:sur`[60 ~ `@ux`'simple' 0]
 ::        0x1.dead
@@ -237,8 +245,8 @@
 ::        pub-2
 ::        town-id
 ::    ==
-::  =/  res=chick      (~(write cont cart) action)
-::  =/  correct=chick  (result ~[updated-1 updated-2] ~ ~ ~)
+::  =/  res=chick:smart      (~(write cont cart) action)
+::  =/  correct=chick:smart  (result:smart ~[updated-1 updated-2] ~ ~ ~)
 ::  (expect-eq !>(res) !>(correct))
 ::::
 ::++  test-give-unknown-receiver
@@ -246,8 +254,8 @@
 ::  =/  =action:sur  [%give id.p:account-1 0xffff ~ 30]
 ::  =/  =cart
 ::    [id.p:fungible-wheat [pub-1 0] batch-num town-id]
-::  =/  new-id  (fry-rice id.p:fungible-wheat 0xffff town-id `@`'salt')
-::  =/  new=grain
+::  =/  new-id  (fry-rice:smart id.p:fungible-wheat 0xffff town-id `@`'salt')
+::  =/  new=grain:smart
 ::    :*  %&  `@`'salt'  %account
 ::        `account:sur`[0 ~ `@ux`'simple' 0]
 ::        new-id
@@ -255,13 +263,13 @@
 ::        0xffff
 ::        town-id
 ::    ==
-::  =/  res=chick  (~(write cont cart) action)
+::  =/  res=chick:smart  (~(write cont cart) action)
 ::  =/  correct-act=action:sur
 ::    [%give id.p:account-1 0xffff `new-id 30]
-::  =/  correct=chick
+::  =/  correct=chick:smart
 ::    %+  continuation
 ::      [me.cart town-id.cart correct-act]~
-::    (result ~[new] ~ ~ ~)
+::    (result:smart ~[new] ~ ~ ~)
 ::  (expect-eq !>(res) !>(correct))
 ::::
 ::++  test-give-not-enough
@@ -286,8 +294,8 @@
 ::  =/  =action:sur  [%take 0xffff ~ 0x1.cafe 10]
 ::  =/  =cart
 ::    [id.p:fungible-wheat [0xffff 0] batch-num town-id]
-::  =/  new-id=id  (fry-rice id.p:fungible-wheat 0xffff town-id `@ux`'salt')
-::  =/  new=grain
+::  =/  new-id=id:smart  (fry-rice:smart id.p:fungible-wheat 0xffff town-id `@ux`'salt')
+::  =/  new=grain:smart
 ::    :*  %&  `@`'salt'  %account 
 ::        `account:sur`[0 ~ `@ux`'simple' 0]
 ::        new-id
@@ -297,11 +305,11 @@
 ::    ==
 ::  =/  correct-act=action:sur
 ::    [%take 0xffff `new-id 0x1.cafe 10]
-::  =/  correct=chick
+::  =/  correct=chick:smart
 ::    %+  continuation
 ::      [me.cart town-id.cart correct-act]~
-::    (result ~[new] ~ ~ ~)
-::  =/  res=chick  (~(write cont cart) action)
+::    (result:smart ~[new] ~ ~ ~)
+::  =/  res=chick:smart  (~(write cont cart) action)
 ::  (expect-eq !>(res) !>(correct))
 ::::
 ::::  tests for %take-with-sig
@@ -315,7 +323,7 @@
 ::  =/  amount        30
 ::  =/  nonce         0
 ::  =/  deadline      (add batch-num 1)
-::  =/  =typed-message  :-  (fry-rice id.p:fungible-wheat pub-1 town-id `@`'salt')
+::  =/  =typed-message  :-  (fry-rice:smart id.p:fungible-wheat pub-1 town-id `@`'salt')
 ::                        (sham [pub-1 to amount nonce deadline])
 ::  =/  sig  %+  ecdsa-raw-sign:secp256k1:secp:crypto
 ::             (sham typed-message)
@@ -324,7 +332,7 @@
 ::    [%take-with-sig to `account from-account amount nonce deadline sig]
 ::  =/  =cart
 ::    [id.p:fungible-wheat [pub-2 0] batch-num town-id]
-::  =/  updated-1=grain
+::  =/  updated-1=grain:smart
 ::    :*  %&  `@`'salt'  %account
 ::        `account:sur`[20 ~ `@ux`'simple' 1]
 ::        0x1.beef
@@ -332,7 +340,7 @@
 ::        pub-1
 ::        town-id
 ::    ==
-::  =/  updated-2=grain
+::  =/  updated-2=grain:smart
 ::    :*  %&  `@`'salt'  %account
 ::        `account:sur`[60 ~ `@ux`'simple' 0]
 ::        0x1.dead
@@ -340,10 +348,10 @@
 ::        pub-2
 ::        town-id
 ::    ==
-::  =/  res=chick
+::  =/  res=chick:smart
 ::    (~(write cont cart) action)
-::  =/  correct=chick
-::    (result ~[updated-1 updated-2] ~ ~ ~)
+::  =/  correct=chick:smart
+::    (result:smart ~[updated-1 updated-2] ~ ~ ~)
 ::  (expect-eq !>(res) !>(correct))
 
 ::++  test-take-with-sig-unknown-reciever  ^-  tang
@@ -354,7 +362,7 @@
 ::  =/  amount  30
 ::  =/  nonce  0
 ::  =/  deadline  (add batch-num 1)
-::  =/  =typed-message  :-  (fry-rice id.p:fungible-wheat pub-1 town-id `@`'salt')
+::  =/  =typed-message  :-  (fry-rice:smart id.p:fungible-wheat pub-1 town-id `@`'salt')
 ::                      (sham [pub-1 to amount nonce deadline])
 ::  =/  sig  %+  ecdsa-raw-sign:secp256k1:secp:crypto
 ::             (sham typed-message)
@@ -363,7 +371,7 @@
 ::    [%take-with-sig to account from-account amount nonce deadline sig]
 ::  =/  =cart
 ::    [id.p:fungible-wheat [pub-2 0] batch-num town-id] :: cart no longer knows account-2' rice
-::  =/  updated-1=grain
+::  =/  updated-1=grain:smart
 ::    :*  %&  `@`'salt'  %account
 ::        `account:sur`[20 ~ `@ux`'simple' 1]
 ::        0x1.beef
@@ -371,8 +379,8 @@
 ::        pub-1
 ::        town-id
 ::    ==
-::  =/  new-id  (fry-rice pub-2 id.p:fungible-wheat 0x1 `@`'salt')
-::  =/  new=grain
+::  =/  new-id  (fry-rice:smart pub-2 id.p:fungible-wheat 0x1 `@`'salt')
+::  =/  new=grain:smart
 ::    :*  %&  `@`'salt'  %account
 ::        `account:sur`[30 ~ `@ux`'simple' 0]
 ::        new-id
@@ -380,14 +388,14 @@
 ::        pub-2
 ::        town-id
 ::    ==
-::  =/  res=chick
+::  =/  res=chick:smart
 ::    (~(write cont cart) action)
 ::  =/  correct-act=action:sur
 ::    [%take-with-sig pub-2 `new-id 0x1.beef amount nonce deadline sig]
-::  =/  correct=chick
+::  =/  correct=chick:smart
 ::    %+  continuation
 ::      [me.cart town-id.cart correct-act]~
-::    (result ~ ~[new] ~ ~)
+::    (result:smart ~ ~[new] ~ ~)
 ::  (expect-eq !>(res) !>(correct))
 ::::
 ::::  tests for %mint
@@ -402,7 +410,7 @@
 ::        batch-num
 ::        town-id
 ::    ==
-::  =/  updated-1=grain
+::  =/  updated-1=grain:smart
         
 ::    :*  %&  `@`'salt'  %metadata
 ::        ^-  token-metadata:sur
@@ -421,7 +429,7 @@
 ::        `@ux`'holder'
 ::        town-id
 ::    ==
-::  =/  updated-2=grain
+::  =/  updated-2=grain:smart
 ::    :*  %&  `@`'salt'  %account
 ::        `account:sur`[80 ~ `@ux`'simple' 0]
 ::        0x1.dead
@@ -429,7 +437,7 @@
 ::        pub-2
 ::        town-id
 ::    ==
-::  =/  updated-3=grain
+::  =/  updated-3=grain:smart
 ::    :*  %&  `@`'salt'  %account
 ::        `account:sur`[30 (malt ~[[0xffff 100]]) `@ux`'simple' 0]
 ::        0x1.cafe
@@ -437,10 +445,10 @@
 ::        pub-3
 ::        town-id
 ::    ==
-::  =/  res=chick
+::  =/  res=chick:smart
 ::    (~(write cont cart) action)
-::  =/  correct=chick
-::    (result ~[updated-1 updated-2 updated-3] ~ ~ ~)
+::  =/  correct=chick:smart
+::    (result:smart ~[updated-1 updated-2 updated-3] ~ ~ ~)
 ::  (expect-eq !>(res) !>(correct))
 ::::
 ::++  test-mint-unknown-receiver
@@ -449,8 +457,8 @@
 ::    [%mint `@ux`'simple' (silt ~[[pub-1 ~ 50]])]
 ::  =/  =cart
 ::    [id.p:fungible-wheat [pub-1 0] batch-num town-id]
-::  =/  new-id  (fry-rice id.p:fungible-wheat pub-1 town-id `@`'salt')
-::  =/  new=grain
+::  =/  new-id  (fry-rice:smart id.p:fungible-wheat pub-1 town-id `@`'salt')
+::  =/  new=grain:smart
 ::    :*  %&  `@`'salt'  %account
 ::      `account:sur`[0 ~ `@ux`'simple' 0]
 ::      new-id
@@ -460,14 +468,14 @@
 ::    ==
 ::  =/  next-mints=(set mint:sur)
 ::    (silt ~[[pub-1 `new-id 50]])
-::  =/  res=chick
+::  =/  res=chick:smart
 ::    (~(write cont cart) action)
 ::  =/  correct-act=action:sur  
 ::    [%mint `@ux`'simple' next-mints]
-::  =/  correct=chick
+::  =/  correct=chick:smart
 ::    %+  continuation
 ::      [me.cart town-id.cart correct-act]~
-::    (result ~ ~[new] ~ ~)
+::    (result:smart ~ ~[new] ~ ~)
 ::  (expect-eq !>(res) !>(correct))
 ::::
 ::::  tests for %deploy
@@ -475,7 +483,7 @@
 ::++  test-deploy  ^-  tang
 ::  =/  token-salt
 ::    (sham (cat 3 pub-1 'TC'))
-::  =/  new-token-metadata=grain
+::  =/  new-token-metadata=grain:smart
 ::    :*  %&  token-salt  %metadata
 ::        ^-  token-metadata:sur
 ::        :*  'Test Coin'
@@ -488,7 +496,7 @@
 ::            pub-1
 ::            token-salt
 ::        ==
-::        (fry-rice id.p:fungible-wheat id.p:fungible-wheat town-id token-salt)
+::        (fry-rice:smart id.p:fungible-wheat id.p:fungible-wheat town-id token-salt)
 ::        id.p:fungible-wheat
 ::        id.p:fungible-wheat
 ::        town-id
@@ -501,7 +509,7 @@
 ::            id.p.new-token-metadata
 ::            0
 ::        ==
-::        (fry-rice id.p:fungible-wheat pub-1 town-id token-salt)
+::        (fry-rice:smart id.p:fungible-wheat pub-1 town-id token-salt)
 ::        id.p:fungible-wheat
 ::        pub-1
 ::        town-id
@@ -510,9 +518,9 @@
 ::    [%deploy (silt ~[[pub-1 900]]) (silt ~[pub-1]) 'Test Coin' 'TC' 0 1.000 %.y]
 ::  =/  cart
 ::    [id.p:fungible-wheat [pub-1 0] batch-num town-id]
-::  =/  res=chick
+::  =/  res=chick:smart
 ::    (~(write cont cart) action)
-::  =/  correct=chick
-::    (result ~ ~[updated-account new-token-metadata] ~ ~)
+::  =/  correct=chick:smart
+::    (result:smart ~ ~[updated-account new-token-metadata] ~ ~)
 ::  (expect-eq !>(res) !>(correct))
 --
