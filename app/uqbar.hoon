@@ -7,8 +7,8 @@
 +$  card  card:agent:gall
 +$  state-0
   $:  %0
-      sources=(jar town-id=id:smart dock)
-      sequencers=(map id:smart sequencer)
+      sources=(jar id:smart ship)  ::  priority-ordered list of indexers for each town
+      sequencers=(map id:smart sequencer)  ::  single sequencer for each town
   ==
 --
 ::
@@ -43,12 +43,11 @@
     ~[u.card]
   ::
       %scry
-    ?.  ?=(?(%id %grain %holder %lord) -.+.path)  ~
     ?.  ?=([@ @ @ @ ~] path)                      ~
+    ?.  ?=(?(%id %grain %holder %lord) i.t.path)  ~
     =/  town=id:smart  (slav %ux i.t.t.path)
-    =/  card=(unit card)
-      (watch-indexer town /[i.path] path)
-    ?~(card ~ ~[u.card])
+    ?~  card=(watch-indexer town /[i.path] path)  ~
+    ~[u.card]
   ::
       %track
     ~
@@ -60,7 +59,7 @@
     ?~  town-source=(~(get ja sources) town)  ~
     :-  ~
     %+  ~(watch pass:io (weld wire-prefix sub-path))
-    i.town-source  sub-path
+    [i.town-source %indexer]  sub-path
   --
 ::
 ++  on-poke
@@ -82,22 +81,23 @@
     ^-  (quip card _state)
     ?-    -.act
         %set-sources
-      ::  TODO: extract indexer to watch in less hacky way
-      ?>  ?=(^ indexers.act)
-      ?>  ?=(^ +.i.indexers.act)
-      =+  /capitol-updates
-      :-  ~[(~(watch pass:io -) i.+.i.indexers.act -)]
-      state(sources (~(gas by *(map id:smart (list dock))) indexers.act))
+      =/  pa  /capitol-updates
+      :_  state(sources (~(gas by *(map id:smart (list ship))) towns.act))
+      %+  murn  towns.act
+      |=  [town=id:smart indexers=(list ship)]
+      ^-  (unit card)
+      ?~  indexers  ~
+      `(~(watch pass:io pa) [i.indexers %indexer] pa)
     ::
         %add-source
       :-  ~
       %=  state
           sources
         ?~  town-source=(~(get ja sources) town-id.act)
-          (~(add ja sources) town-id.act dock.act)
-        ?>  ?=(^ (find [dock.act]~ town-source))
-        %+  ~(put by sources)  town-id.act
-        (snoc town-source dock.act)
+          (~(add ja sources) town-id.act ship.act)
+        ?^  index=(find [ship.act]~ town-source)
+          sources
+        (~(put by sources) town-id.act [ship.act]~)
       ==
     ::
         %remove-source
@@ -105,9 +105,9 @@
       %=  state
           sources
         ?~  town-source=(~(get ja sources) town-id.act)  !!
-        ?~  index=(find [dock.act]~ town-source)         !!
+        ?~  index=(find [ship.act]~ town-source)         !!
         %+  ~(put by sources)  town-id.act
-        (oust [u.index 1] `(list dock)`town-source)
+        (oust [u.index 1] `(list ship)`town-source)
       ==
     ==
   ::
@@ -152,7 +152,7 @@
   |^  ^-  (quip card _this)
   ?+    -.wire  (on-agent:def wire sign)
       %capitol-updates
-    ::  set sequencers based on rollup state
+    ::  set sequencers based on rollup state, given by indexer
     ?:  ?=(%kick -.sign)
       :_  this  ::  attempt to re-sub
       [%pass wire %agent [src.bowl %rollup] %watch (snip `path`wire)]~

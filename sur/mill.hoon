@@ -1,5 +1,8 @@
 /+  smart=zig-sys-smart, zink=zink-zink, merk
 |%
+++  big  (bi:merk id:smart grain:smart)  ::  merkle engine for granary
+++  pig  (bi:merk id:smart @ud)          ::                for populace
+::
 +$  granary   (merk:merk id:smart grain:smart)
 +$  populace  (merk:merk id:smart @ud)
 +$  land      (pair granary populace)

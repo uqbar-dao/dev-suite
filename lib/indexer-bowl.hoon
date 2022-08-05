@@ -3,22 +3,6 @@
 /+  smart=zig-sys-smart, mill=zig-mill
 ::
 |_  =bowl:gall
-++  scry-contract-read-arm
-  |=  $:  scry-host=@p
-          to=id:smart
-          query-type=?(%egg-args %rice-data)  ::  TODO: generalize to @tas?
-          query-arg=@ta
-          rice-id=@ta
-      ==
-  .^  json
-      %gx
-      %-  zing
-      :^    /(scot %p scry-host)/sequencer
-          /(scot %da now.bowl)/read/(scot %ux to)/json
-        /[query-type]/[query-arg]/[rice-id]/noun
-      ~
-  ==
-::
 ++  enjs
   =,  enjs:format
   |%
@@ -118,10 +102,10 @@
     |=  =egg:smart
     ^-  json
     %-  pairs
-    :^    [%sig (sig sig.egg)]
+    :~  [%sig (sig sig.egg)]
         [%shell (shell shell.egg)]
-      [%yolk (yolk yolk.egg)]
-    ~
+        [%yolk (yolk yolk.egg)]
+    ==
   ::
   ++  shell
     |=  =shell:smart
@@ -141,7 +125,7 @@
     ^-  json
     %-  pairs
     :~  [%action %s `@t`p.yolk]
-        [%arguments ~]  ::  TODO get lump format from contract interface
+        ::  TODO get lump format from contract interface and convert
     ==
   ::
   ++  caller
@@ -163,10 +147,10 @@
   ::   ~
   ::
   ++  eth-hash
-    |=  eth-hash=(unit @ud)
+    |=  eth-hash=(unit @ux)
     ^-  json
     ?~  eth-hash  ~
-    (numb u.eth-hash)
+    [%s (scot %ux u.eth-hash)]
   ::
   ++  ids
     |=  ids=(set id:smart)
@@ -196,36 +180,26 @@
     |=  =grain:smart
     ^-  json
     %-  pairs
+    %+  welp
+      ?:  ?=(%& -.grain)
+        ::  rice
+        :~  [%is-rice %b %&]
+            [%salt (numb salt.p.grain)]
+            [%label %s `@ta`label.p.grain]
+            ::  TODO get lump format from contract types and convert
+            [%data ~]
+        ==
+      ::  wheat
+      :~  [%is-rice %b %|]
+          [%cont (numb (jam cont.p.grain))]
+          [%interface ~]  ::  TODO
+          [%types ~]  ::  TODO
+      ==
     :~  [%id %s (scot %ux id.p.grain)]
         [%lord %s (scot %ux lord.p.grain)]
         [%holder %s (scot %ux holder.p.grain)]
         [%town-id %s (scot %ux town-id.p.grain)]
-        [%germ (germ grain)]
     ==
-  ::
-  ++  germ
-    |=  =grain:smart
-    ^-  json
-    ?:  ?=(%& -.grain)
-      =/  data=json
-        %:  scry-contract-read-arm
-            our.bowl
-            lord.p.grain
-            %rice-data
-            (scot %ud (jam data.p.grain))
-            (scot %ux id.p.grain)
-        ==
-      %-  pairs
-      :^    [%is-rice %b %&]
-          [%salt (numb salt.p.grain)]
-        [%data data]
-      ~
-    %-  pairs
-    :^    [%is-rice %b %|]
-        [%cont ~]  ::  TODO
-        :: [%cont .^(json %gx /=sequencer=/wheat/[wheat-id]/json/[read-arg]/[rice-list])]
-      [%owns ~]
-    ~
   ::
   ++  town
     |=  =town:seq
