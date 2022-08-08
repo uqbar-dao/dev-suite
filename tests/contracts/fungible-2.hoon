@@ -87,7 +87,7 @@
 ++  account-1
   ^-  grain:smart
   :*  %&  `@`'salt'  %account
-      `account:sur`[50 ~ `@ux`'simple' 0]
+      `account:sur:fun`[50 ~ `@ux`'simple' 0]
       0x1.beef
       id.p:fungible-wheat  ::  lord
       pub-1              ::  holder
@@ -101,7 +101,7 @@
   [pub-2 0 (fry-rice:smart zigs-wheat-id:smart pub-2 town-id `@`'zigsalt')]
 ++  account-2  ^-  grain:smart
   :*  %&  `@`'salt'  %account
-      `account:sur`[30 ~ `@ux`'simple' 0]
+      `account:sur:fun`[30 ~ `@ux`'simple' 0]
       0x1.dead
       id.p:fungible-wheat
       pub-2
@@ -116,7 +116,7 @@
 ++  account-3
   ^-  grain:smart
   :*  %&  `@`'salt'  %account
-      `account:sur`[20 (malt ~[[0xffff 100]]) `@ux`'simple' 0]
+      `account:sur:fun`[20 (malt ~[[0xffff 100]]) `@ux`'simple' 0]
       0x1.cafe
       id.p:fungible-wheat
       pub-3
@@ -187,7 +187,6 @@
       [id.p:account-1 account-1]
       [id.p:account-2 account-2]
       [id.p:account-3 account-3]
-      [id.p:account-4 account-4]
       (zig-account:zigs holder.p:account-1 999.999)
       (zig-account:zigs holder.p:account-2 999.999)
       (zig-account:zigs holder.p:account-3 999.999)
@@ -204,19 +203,28 @@
 ++  fake-land
   ^-  land
   [fake-granary fake-populace]
-++  test-mill-zigs-give
-  =/  =yolk:smart  [%give 0xface 69 0x1.beef ~]
+++  test-set-allowance
+  ^-  tang
+  =/  =action:sur:fun  [%set-allowance 0xcafe 10]
+  ::~&  "zigs owner 1 {<zigs:owner-1>}"
   =/  shel=shell:smart
-    [caller-1 ~ id.p:wheat:zigs 1 1.000.000 town-id 0]
-  =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
+    [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
+  =/  updated-1=grain:smart
+    :*  %&  `@`'salt'  %account
+        `account:sur:fun`[50 (malt ~[[0xcafe 10]]) `@ux`'simple' 0]
+        id.p:account-1
+        id.p:fungible-wheat
+        pub-1
+        town-id
+    ==
+  =/  correct=chick:smart  (result:smart ~[updated-1] ~ ~ ~)
+  ~&  >  (key:big fake-granary)
+  =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
-    fake-land  `egg:smart`[fake-sig shel yolk]
-  ~&  >  "output: {<crow.res>}"
-  ~&  >  "fee: {<fee.res>}"
-  ~&  >>  "diff:"
-  ~&  p.land.res
-  ::  assert that our call went through
-  %+  expect-eq
-    !>(%0)
-  !>(errorcode.res)
+    fake-land  `egg:smart`[fake-sig shel action]
+  ::~&  >>  (key:big p.land.milled)
+  ::~&  >  p.land.milled
+  ~&  milled
+  =/  res=grain:smart  (got:big p.land.milled id.p:account-1)
+  (expect-eq !>(res) !>(correct))
 --
