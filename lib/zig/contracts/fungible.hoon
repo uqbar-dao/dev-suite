@@ -45,14 +45,14 @@
     ?>  (gte balance.giver amount.act)
     ?:  ?=(~ to-account.act)
       ::  if receiver doesn't have an account, try to produce one for them
+      ~>  %aaaaaaaaaaaaaaaa
       =/  =id          (fry-rice me.cart to.act town-id.cart salt.p.giv)
       =/  new=grain    [%& salt.p.giv %account [0 ~ metadata.giver 0] id me.cart to.act town-id.cart]
-      ~!  giv
       =/  =action:sur  [%give from-account=id.p.giv to.act to-account=`id.p.new amount.act]
       ::  continuation call: %give to rice we issued
       %+  continuation
         [me.cart town-id.cart action]~
-      (result ~ issued=[new ~] ~ ~)
+      (result ~ [new ~] ~ ~)
     ::  otherwise, add to the existing account for that pubkey
     ::  giving account in embryo, and receiving one in owns.cart
     =/  rec=grain  (need (scry u.to-account.act))

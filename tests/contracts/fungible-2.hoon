@@ -80,34 +80,33 @@
 ::
 ::
 ::  N.B. owner zigs ids must match the ones generated in `+zig-account`
+++  fun-account
+  |=  [holder=id:smart amt=@ud]
+  ^-  grain:smart
+  =/  sal  `@`'funsalt'
+  =/  id  (fry-rice:smart zigs-wheat-id:smart holder town-id sal)
+  :*  %&  sal  %account
+      `account:sur:fun`[amt ~ `@ux`'simple' 0]
+      id
+      id.p:fungible-wheat
+      holder
+      town-id
+  ==
 ++  priv-1  0xbeef.beef.beef.beef.beef.beef.beef.beef.beef.beef
 ++  pub-1   (address-from-prv:key:ethereum priv-1)
 ++  owner-1
   ^-  caller:smart
   [pub-1 0 (fry-rice:smart zigs-wheat-id:smart pub-1 town-id `@`'zigsalt')]
 ++  account-1
-  ^-  grain:smart
-  :*  %&  `@`'salt'  %account
-      `account:sur:fun`[50 ~ `@ux`'simple' 0]
-      (fry-rice:smart id.p:fungible-wheat pub-1 town-id `@`'zigsalt')
-      id.p:fungible-wheat  ::  lord
-      pub-1              ::  holder
-      town-id
-  ==
+  (fun-account pub-1 50)
 ::
 ++  priv-2  0xdead.dead.dead.dead.dead.dead.dead.dead.dead.dead
 ++  pub-2   (address-from-prv:key:ethereum priv-2)
 ++  owner-2
   ^-  caller:smart
   [pub-2 0 (fry-rice:smart zigs-wheat-id:smart pub-2 town-id `@`'zigsalt')]
-++  account-2  ^-  grain:smart
-  :*  %&  `@`'salt'  %account
-      `account:sur:fun`[30 ~ `@ux`'simple' 0]
-      (fry-rice:smart id.p:fungible-wheat pub-2 town-id `@`'zigsalt')
-      id.p:fungible-wheat
-      pub-2
-      town-id
-  ==
+++  account-2 
+  (fun-account pub-2 30)
 ::
 ++  priv-3  0xcafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe
 ++  pub-3   (address-from-prv:key:ethereum priv-3)
@@ -115,14 +114,7 @@
   ^-  caller:smart
   [pub-3 0 (fry-rice:smart zigs-wheat-id:smart pub-3 town-id `@`'zigsalt')]
 ++  account-3
-  ^-  grain:smart
-  :*  %&  `@`'salt'  %account
-      `account:sur:fun`[20 (malt ~[[0xffff 100]]) `@ux`'simple' 0]
-      (fry-rice:smart id.p:fungible-wheat pub-3 town-id `@`'zigsalt')
-      id.p:fungible-wheat
-      pub-3
-      town-id
-  ==
+  (fun-account pub-3 20)
 ::
 ++  fungible-wheat
   ^-  grain:smart
@@ -210,7 +202,7 @@
   =/  shel=shell:smart
     [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  updated-1=grain:smart
-    :*  %&  `@`'salt'  %account
+    :*  %&  `@`'funsalt'  %account
         `account:sur:fun`[50 (malt ~[[id:owner-3 10]]) `@ux`'simple' 0]
         id.p:account-1
         id.p:fungible-wheat
@@ -228,30 +220,33 @@
   ^-  tang
   =/  =action:sur:fun
     [%give id.p:account-1 pub-2 `id.p:account-2 30]
-  =/  =cart:smart
-    [id.p:fungible-wheat [pub-2 1] batch-num town-id]
   =/  shel=shell:smart
     [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  updated-1=grain:smart
-    :*  %&  `@`'salt'  %account
-        `account:sur:fun`[20 ~ `@ux`'simple' 0]
-        id.p:account-1
-        id.p:fungible-wheat
-        pub-1
-        town-id
-    ==
-  =/  updated-2=grain:smart
-    :*  %&  `@`'salt'  %account
-        `account:sur:fun`[60 ~ `@ux`'simple' 0]
-        id.p:account-2
-        id.p:fungible-wheat
-        pub-2
-        town-id
-    ==
+  =/  updated-1=grain:smart  (fun-account pub-1 20)
+  =/  updated-2=grain:smart  (fun-account pub-2 60)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel action]
   =/  expected=granary  (gas:big *granary ~[[id.p:updated-1 updated-1] [id.p:updated-2 updated-2]])
+  ::  filter out any grains whose keys are not in expected
   =/  res=granary       (int:big expected p.land.milled)
   (expect-eq !>(expected) !>(res))
+++  test-give-unknown-receiver
+  ::  TODO investigate contract crash
+  ^-  tang
+  =/  =action:sur:fun  [%give id.p:account-1 0xffff ~ 30]
+  =/  shel=shell:smart
+    [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
+  =/  new-id  (fry-rice:smart id.p:fungible-wheat 0xffff town-id `@`'funsalt')
+  =/  new=grain:smart  (fun-account 0xffff 0)
+  =/  milled=mill-result
+    %+  ~(mill mil miller town-id 1)
+    fake-land  `egg:smart`[fake-sig shel action]
+  ~&  p.land.milled
+  ~&  errorcode.milled
+  ::=/  res=grain:smart  (got:big p.land.milled new-id)
+  ::=*  correct  new
+  ::(expect-eq !>(correct) !>(res))
+  ~
+
 --
