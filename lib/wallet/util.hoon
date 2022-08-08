@@ -73,12 +73,12 @@
 ++  discover-asset-mold
   |=  [town=@ux data=*]
   ^-  asset
-  =+  tok=(mule |.(;;(token-account data)))
-  ?:  ?=(%& -.tok)
-    [%token town metadata.p.tok p.tok]
-  =+  nft=(mule |.(;;(nft-account data)))
-  ?:  ?=(%& -.nft)
-    [%nft town metadata.p.nft p.nft]
+  =+  tok=((soft token-account) data)
+  ?^  tok
+    [%token town metadata.u.tok u.tok]
+  =+  nft=((soft nft-account) data)
+  ?^  nft
+    [%nft town metadata.u.nft u.nft]
   [%unknown town data]
 ::
 ++  update-metadata-store
