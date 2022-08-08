@@ -156,7 +156,7 @@
     ::  note that you can arbitrarily allow as much spend as you want,
     ::  but spends will still be constrained by token balance
     ::  single rice expected, account
-    =/  acc=grain          (need (scry id.from.cart))
+    =/  acc=grain          (need (scry from-account.act))
     ?>  ?=(%& -.acc)
     =/  =account:sur  data:(husk account:sur acc `me.cart `id.from.cart)
     ?>  !=(who.act holder.p.acc)
