@@ -3,7 +3,7 @@
 ##  Initial Installation
 
 1. Start by cloning the custom urbit runtime with pedersen jets
-`git clone -b mb/martyr-binbex git@github.com:martyr-binbex/urbit.git urbit-jet`
+`git clone -b mb/local-jet git@github.com:martyr-binbex/urbit.git`
 
 1. Assuming you have nix installed, build the custom vere
 `nix-build -A urbit`
