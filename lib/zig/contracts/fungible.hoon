@@ -28,7 +28,6 @@
 /=  fungible  /lib/zig/contracts/lib/fungible
 =,  fungible
 |_  =cart
-::  TODO beware: hoon.hoon's `result` type appears to shadow `result:smart` (when compiling from dojo)
 ++  write
   |=  act=action:sur
   ^-  chick

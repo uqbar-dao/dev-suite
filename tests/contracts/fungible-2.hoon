@@ -23,6 +23,7 @@
     ;;((map * @) (cue q.q.zink-cax-noun))
   %.y
 ::
++$  granary   (merk:merk id:smart grain:smart)
 +$  mill-result
   [fee=@ud =land burned=granary =errorcode:smart hits=(list hints:zink) =crow:smart]
 ::
@@ -180,7 +181,7 @@
 ::
 ++  fake-granary
   ^-  granary
-  %+  gas:big  *(merk:merk id:smart grain:smart)
+  %+  gas:big  *granary
   :~  [id.p:fungible-wheat fungible-wheat]
       [id.p:metadata-1 metadata-1]
       [id.p:metadata-mintable metadata-mintable]
@@ -222,4 +223,35 @@
   =/  res=grain:smart  (got:big p.land.milled id.p:account-1)
   =*  correct  updated-1
   (expect-eq !>(correct) !>(res))
+::
+++  test-give-known-receiver
+  ^-  tang
+  =/  =action:sur:fun
+    [%give id.p:account-1 pub-2 `id.p:account-2 30]
+  =/  =cart:smart
+    [id.p:fungible-wheat [pub-2 1] batch-num town-id]
+  =/  shel=shell:smart
+    [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
+  =/  updated-1=grain:smart
+    :*  %&  `@`'salt'  %account
+        `account:sur:fun`[20 ~ `@ux`'simple' 0]
+        id.p:account-1
+        id.p:fungible-wheat
+        pub-1
+        town-id
+    ==
+  =/  updated-2=grain:smart
+    :*  %&  `@`'salt'  %account
+        `account:sur:fun`[60 ~ `@ux`'simple' 0]
+        id.p:account-2
+        id.p:fungible-wheat
+        pub-2
+        town-id
+    ==
+  =/  milled=mill-result
+    %+  ~(mill mil miller town-id 1)
+    fake-land  `egg:smart`[fake-sig shel action]
+  =/  expected=granary  (gas:big *granary ~[[id.p:updated-1 updated-1] [id.p:updated-2 updated-2]])
+  =/  res=granary       (int:big expected p.land.milled)
+  (expect-eq !>(expected) !>(res))
 --
