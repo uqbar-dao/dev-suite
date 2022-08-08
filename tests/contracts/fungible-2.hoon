@@ -88,7 +88,7 @@
   ^-  grain:smart
   :*  %&  `@`'salt'  %account
       `account:sur:fun`[50 ~ `@ux`'simple' 0]
-      (fry-rice:smart zigs-wheat-id:smart pub-1 town-id `@`'zigsalt')
+      (fry-rice:smart id.p:fungible-wheat pub-1 town-id `@`'zigsalt')
       id.p:fungible-wheat  ::  lord
       pub-1              ::  holder
       town-id
@@ -102,7 +102,7 @@
 ++  account-2  ^-  grain:smart
   :*  %&  `@`'salt'  %account
       `account:sur:fun`[30 ~ `@ux`'simple' 0]
-      (fry-rice:smart zigs-wheat-id:smart pub-2 town-id `@`'zigsalt')
+      (fry-rice:smart id.p:fungible-wheat pub-2 town-id `@`'zigsalt')
       id.p:fungible-wheat
       pub-2
       town-id
@@ -117,7 +117,7 @@
   ^-  grain:smart
   :*  %&  `@`'salt'  %account
       `account:sur:fun`[20 (malt ~[[0xffff 100]]) `@ux`'simple' 0]
-      (fry-rice:smart zigs-wheat-id:smart pub-3 town-id `@`'zigsalt')
+      (fry-rice:smart id.p:fungible-wheat pub-3 town-id `@`'zigsalt')
       id.p:fungible-wheat
       pub-3
       town-id
@@ -205,26 +205,21 @@
   [fake-granary fake-populace]
 ++  test-set-allowance
   ^-  tang
-  =/  =action:sur:fun  [%set-allowance 0xcafe 10]
-  ::~&  "zigs owner 1 {<zigs:owner-1>}"
+  =/  =action:sur:fun  [%set-allowance id.p:account-1 id:owner-3 10]
   =/  shel=shell:smart
     [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  updated-1=grain:smart
     :*  %&  `@`'salt'  %account
-        `account:sur:fun`[50 (malt ~[[0xcafe 10]]) `@ux`'simple' 0]
+        `account:sur:fun`[50 (malt ~[[id:owner-3 10]]) `@ux`'simple' 0]
         id.p:account-1
         id.p:fungible-wheat
         pub-1
         town-id
     ==
-  =/  correct=chick:smart  (result:smart ~[updated-1] ~ ~ ~)
-  ~&  >  (key:big fake-granary)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel action]
-  ::~&  >>  (key:big p.land.milled)
-  ::~&  >  p.land.milled
-  ~&  milled
   =/  res=grain:smart  (got:big p.land.milled id.p:account-1)
-  (expect-eq !>(res) !>(correct))
+  =*  correct  updated-1
+  (expect-eq !>(correct) !>(res))
 --
