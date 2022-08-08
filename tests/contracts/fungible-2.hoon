@@ -15,7 +15,7 @@
 ++  batch-num  1
 ++  town-id    0x2
 ++  rate    1
-++  budget  10
+++  budget  100.000
 ++  fake-sig   [0 0 0]
 ++  mil
   %~  mill  mill
@@ -88,7 +88,7 @@
   ^-  grain:smart
   :*  %&  `@`'salt'  %account
       `account:sur:fun`[50 ~ `@ux`'simple' 0]
-      0x1.beef
+      (fry-rice:smart zigs-wheat-id:smart pub-1 town-id `@`'zigsalt')
       id.p:fungible-wheat  ::  lord
       pub-1              ::  holder
       town-id
@@ -102,7 +102,7 @@
 ++  account-2  ^-  grain:smart
   :*  %&  `@`'salt'  %account
       `account:sur:fun`[30 ~ `@ux`'simple' 0]
-      0x1.dead
+      (fry-rice:smart zigs-wheat-id:smart pub-2 town-id `@`'zigsalt')
       id.p:fungible-wheat
       pub-2
       town-id
@@ -117,7 +117,7 @@
   ^-  grain:smart
   :*  %&  `@`'salt'  %account
       `account:sur:fun`[20 (malt ~[[0xffff 100]]) `@ux`'simple' 0]
-      0x1.cafe
+      (fry-rice:smart zigs-wheat-id:smart pub-3 town-id `@`'zigsalt')
       id.p:fungible-wheat
       pub-3
       town-id
