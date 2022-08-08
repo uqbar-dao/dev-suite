@@ -1,6 +1,7 @@
 ::  fungible.hoon tests
 /-  zink
-/+  *test, smart=zig-sys-smart, *sequencer, merk
+/+  *test, smart=zig-sys-smart, *sequencer, merk, ethereum
+/+  fun=zig-contracts-lib-fungible
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
 /*  zigs-contract   %noun  /lib/zig/compiled/zigs/noun
