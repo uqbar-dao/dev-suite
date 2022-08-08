@@ -197,8 +197,7 @@
 ::    !>(errorcode.res)
 ::
 ++  test-mill-zigs-give
-  =+  0x1ff8.41d1.2f40.b83b.2d5d.5b4b.831a.e290.1e8e.ab14
-  =/  =yolk:smart  [%give - 69 id.p:account-1:zigs ~]
+  =/  =yolk:smart  [%give holder-2:zigs 1.000 id.p:account-1:zigs `id.p:account-2:zigs]
   =/  shel=shell:smart
     [caller-1 ~ id.p:wheat:zigs 1 1.000.000 town-id 0]
   =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]

@@ -53,7 +53,7 @@ Enter these commands in dojo after following the setup instructions above:
 :indexer &set-sequencer [our %sequencer]
 :indexer &set-rollup [our %rollup]
 :uqbar|set-sources 0x0 our
-:wallet &zig-wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'password' 'nickname']
+:wallet &zig-wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
 ```
 Note that the private key we're initializing the sequencer app with matches that of the seed phrase we're using in the wallet -- so you'll be the one collecting gas fees for transactions run through that local sequencer.
 
