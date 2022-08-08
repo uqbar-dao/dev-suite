@@ -35,9 +35,19 @@
 ::
 ++  zigs
   |%
-  ++  holder-1  0xbeef
-  ++  holder-2  0xdead
-  ++  holder-3  0xcafe
+  ++  zig-account
+    |=  [holder=id:smart amt=@ud]
+    ^-  [id:smart grain:smart]
+    =/  sal  `@`'zigsalt'
+    =/  id  (fry-rice:smart zigs-wheat-id:smart holder town-id sal)
+    :-  id
+    :*  %&  sal  %account
+        [amt ~ `@ux`'zigs']
+        id
+        zigs-wheat-id:smart
+        holder
+        town-id
+    ==
   ++  miller-account
     ^-  grain:smart
     :*  %&
@@ -47,39 +57,6 @@
         0x1.1512.3341
         zigs-wheat-id:smart
         0x1512.3341
-        town-id
-    ==
-  ++  beef-account
-    ^-  grain:smart
-    :*  %&
-        `@`'zigs'
-        %account
-        [300.000.000 ~ `@ux`'zigs-metadata']
-        0x1.beef
-        zigs-wheat-id:smart
-        holder-1
-        town-id
-    ==
-  ++  dead-account
-    ^-  grain:smart
-    :*  %&
-        `@`'zigs'
-        %account
-        [200.000 ~ `@ux`'zigs-metadata']
-        0x1.dead
-        zigs-wheat-id:smart
-        holder-2
-        town-id
-    ==
-  ++  cafe-account
-    ^-  grain:smart
-    :*  %&
-        `@`'zigs'
-        %account
-        [100.000 ~ `@ux`'zigs-metadata']
-        0x1.cafe
-        zigs-wheat-id:smart
-        holder-3
         town-id
     ==
   ++  wheat
@@ -99,81 +76,134 @@
     ==
   --
 ::
-::++  scry-wheat
-::  ^-  grain:smart
-::  =/  cont  ;;([bat=* pay=*] (cue q.q.scry-contract))
-::  =/  interface=lumps:smart  ~
-::  =/  types=lumps:smart  ~
-::  :*  %|
-::      `cont
-::      interface
-::      types
-::      0xdada.dada  ::  id
-::      0xdada.dada  ::  lord
-::      0xdada.dada  ::  holder
-::      town-id
-::  ==
 ::
-::++  temp-wheat
-::  ^-  grain:smart
-::  =/  cont  ;;([bat=* pay=*] (cue q.q.temp-contract))
-::  =/  interface=lumps:smart  ~
-::  =/  types=lumps:smart      ~
-::  :*  %|
-::      `cont
-::      interface
-::      types
-::      0xcafe.cafe  ::  id
-::      0xcafe.cafe  ::  lord
-::      0xcafe.cafe  ::  holder
-::      town-id
-::  ==
-::++  temp-grain
-::  ^-  grain:smart
-::  :*  %&
-::      `@`'loach'
-::      %account
-::      [300.000.000 ~ `@ux`'custom-token']
-::      0x1111.2222.3333
-::      0xcafe.cafe
-::      `@ux`123.456.789
-::      town-id
-::  ==
+::
+::  N.B. owner zigs ids must match the ones generated in `+zig-account`
+++  priv-1  0xbeef.beef.beef.beef.beef.beef.beef.beef.beef.beef
+++  pub-1   (address-from-prv:key:ethereum priv-1)
+++  owner-1
+  ^-  caller:smart
+  [pub-1 0 (fry-rice:smart zigs-wheat-id:smart pub-1 town-id `@`'zigsalt')]
+++  account-1
+  ^-  grain:smart
+  :*  %&  `@`'salt'  %account
+      `account:sur`[50 ~ `@ux`'simple' 0]
+      0x1.beef
+      id.p:fungible-wheat  ::  lord
+      pub-1              ::  holder
+      town-id
+  ==
+::
+++  priv-2  0xdead.dead.dead.dead.dead.dead.dead.dead.dead.dead
+++  pub-2   (address-from-prv:key:ethereum priv-2)
+++  owner-2
+  ^-  caller:smart
+  [pub-2 0 (fry-rice:smart zigs-wheat-id:smart pub-2 town-id `@`'zigsalt')]
+++  account-2  ^-  grain:smart
+  :*  %&  `@`'salt'  %account
+      `account:sur`[30 ~ `@ux`'simple' 0]
+      0x1.dead
+      id.p:fungible-wheat
+      pub-2
+      town-id
+  ==
+::
+++  priv-3  0xcafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe
+++  pub-3   (address-from-prv:key:ethereum priv-3)
+++  owner-3
+  ^-  caller:smart
+  [pub-3 0 (fry-rice:smart zigs-wheat-id:smart pub-3 town-id `@`'zigsalt')]
+++  account-3
+  ^-  grain:smart
+  :*  %&  `@`'salt'  %account
+      `account:sur`[20 (malt ~[[0xffff 100]]) `@ux`'simple' 0]
+      0x1.cafe
+      id.p:fungible-wheat
+      pub-3
+      town-id
+  ==
+::
+++  fungible-wheat
+  ^-  grain:smart
+  =/  cont  ;;([bat=* pay=*] (cue q.q.fung-contract))
+  =/  interface=lumps:smart  ~
+  =/  types=lumps:smart      ~
+  :*  %|
+      `cont
+      interface
+      types
+      id=`@ux`'fungible'
+      lord=`@ux`'fungible'
+      holder=`@ux`'fungible'
+      town-id
+  ==
+++  metadata-1
+  ^-  grain:smart
+  :*  %&  `@`'salt'  %metadata
+      ^-  token-metadata:sur:fun
+      :*  name='Simple Token'
+          symbol='ST'
+          decimals=0
+          supply=100
+          cap=~
+          mintable=%.n
+          minters=~
+          deployer=0x0
+          salt=`@`'salt'
+      ==
+      `@ux`'simple-metadata-1'
+      id.p:fungible-wheat
+      `@ux`'holder'
+      town-id
+  ==
+++  metadata-mintable
+  ^-  grain:smart
+  :*  %&  `@`'salt'  %metadata
+      ^-  token-metadata:sur:fun
+      :*  name='Simple Token'
+          symbol='ST'
+          decimals=0
+          supply=100
+          cap=`1.000
+          mintable=%.y
+          minters=(silt ~[pub-1])
+          deployer=0x0
+          salt=`@`'salt'
+      ==
+      `@ux`'simple-mintable'
+      id.p:fungible-wheat
+      `@ux`'holder'
+      town-id
+  ==
+::
+::
 ::
 ++  fake-granary
   ^-  granary
   %+  gas:big  *(merk:merk id:smart grain:smart)
-  :~  [id.p:wheat:zigs wheat:zigs]
-      [id.p:beef-account:zigs beef-account:zigs]
-      [id.p:dead-account:zigs dead-account:zigs]
-      :: [id.p:miller-account:zigs miller-account:zigs]
+  :~  [id.p:fungible-wheat fungible-wheat]
+      [id.p:metadata-1 metadata-1]
+      [id.p:metadata-mintable metadata-mintable]
+      [id.p:account-1 account-1]
+      [id.p:account-2 account-2]
+      [id.p:account-3 account-3]
+      [id.p:account-4 account-4]
+      (zig-account:zigs holder.p:account-1 999.999)
+      (zig-account:zigs holder.p:account-2 999.999)
+      (zig-account:zigs holder.p:account-3 999.999)
+      ::[id.p:miller-account:zigs miller-account:zigs]
+      ::[id.p:wheat:zigs wheat:zigs]
   ==
 ++  fake-populace
   ^-  populace
   %+  gas:pig  *(merk:merk id:smart @ud)
-  ~[[holder-1:zigs 0]] :: [holder-2:zigs 0] [holder-3:zigs 0]]
+  :~  [pub-1 0]
+      [pub-2 0]
+      [pub-3 0]
+  ==
 ++  fake-land
   ^-  land
   [fake-granary fake-populace]
-::
-::  begin tests
-::
-::  ++  test-mill-tester
-::    =/  =yolk:smart  [%look 0x1111.2222.3333]
-::    =/  shel=shell:smart
-::      [caller-1 ~ id.p:temp-wheat 1 1.000.000 town-id 0]
-::    =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
-::      %+  ~(mill mil miller town-id 1)
-::      fake-land  `egg:smart`[fake-sig shel yolk]
-::    ~&  >>  "output: {<crow.res>}"
-::    ~&  >>  "fee: {<fee.res>}"
-::    ~&  >>  "diff:"
-::    ~&  p.land.res
-::    ::  assert that our call went through
-::    %+  expect-eq
-::      !>(%0)
-::    !>(errorcode.res)
-::
 ++  test-mill-zigs-give
   =/  =yolk:smart  [%give 0xface 69 0x1.beef ~]
   =/  shel=shell:smart
@@ -189,18 +219,4 @@
   %+  expect-eq
     !>(%0)
   !>(errorcode.res)
-::
-::  ++  test-mill-trivial-scry
-::    =/  =yolk:smart  [%find 0x1.dead]
-::    =/  shel=shell:smart
-::      [caller-1 ~ id.p:scry-wheat 1 1.000.000 town-id 0]
-::    =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
-::      %+  ~(mill mil miller town-id 1)
-::      fake-land  `egg:smart`[fake-sig shel yolk]
-::    ~&  >  "output: {<crow.res>}"
-::    ~&  >  "fee: {<fee.res>}"
-::    ::  assert that our call went through
-::    %+  expect-eq
-::      !>(%0)
-::    !>(errorcode.res)
 --
