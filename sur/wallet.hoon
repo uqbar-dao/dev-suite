@@ -74,8 +74,8 @@
   ==
 ::
 +$  supported-args
-  $%  [%give to=address:smart amount=@ud from-grain=id:smart]
-      [%give-nft to=address:smart item-id=@ud from-grain=id:smart]
+  $%  [%give to=address:smart amount=@ud account=id:smart]
+      [%give-nft to=address:smart item-id=@ud account=id:smart]
       [%custom args=@t]
   ==
 ::

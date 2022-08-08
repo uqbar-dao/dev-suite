@@ -271,6 +271,7 @@
       [%grain @ @ ~]
     =/  town-id  (slav %ux i.t.t.path)
     =/  grain-id  (slav %ux i.t.t.t.path)
+    ::  need REMOTE SCRY!!
     =/  result
       .^(update:ui %gx /(scot %p our.bowl)/indexer/(scot %da now.bowl)/grain/(scot %ux town-id)/(scot %ux grain-id)/noun)
     ?.  ?=(%grain -.result)

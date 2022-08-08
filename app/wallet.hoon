@@ -276,73 +276,78 @@
       ::  submit a transaction
       ::  create an egg and sign it, then poke a sequencer
       ::
-      ::  things to expose on frontend:
-      ::  'from' address, contract 'to' address, town select,
-      ::  gas (rate & budget), transaction type (acquired from ABI..?)
+      ?:  ?=(%custom -.args.act)
+        ~|("%wallet: error: %submit must use known argument pattern" !!)
+      =/  our-nonces     (~(gut by nonces.state) from.act ~)
+      =/  nonce=@ud      (~(gut by our-nonces) town.act 0)
+      =/  =caller:smart
+        :+  from.act  +(nonce)
+        ::  generate our zigs token account ID
+        (fry-rice:smart zigs-wheat-id:smart from.act town.act `@`'zigs')
+      ::  generate yolk based on supported-args
       ::
-      !!
-      ::  =/  our-nonces     (~(gut by nonces.state) from.act ~)
-      ::  =/  nonce=@ud      (~(gut by our-nonces) town.act 0)
-      ::  ~|  "wallet: can't find tokens for that address!"
-      ::  =/  =book          (~(got by tokens.state) from.act)
-      ::  =/  =caller:smart  :+  from.act  +(nonce)
-      ::                    (fry-rice:smart `@ux`'zigs-contract' from.act town.act `@`'zigs')
-      ::  ::  need to check transaction type and collect rice based on it
-      ::  ::  only supporting small subset of contract calls, for tokens and NFTs
-      ::  =/  formatted=[args=(unit *) my-grains=(set @ux) cont-grains=(set @ux)]
-      ::  ::  if sending NFT, save item-id
-      ::    =/  amount-or-id
-      ::      ?:  ?=(%give-nft -.args.act)  item-id.args.act
-      ::      ::  else, save amount to send
-      ::      ?:  ?=(%give -.args.act)  amount.args.act
-      ::      ~|  "in order to submit with %custom, use %submit-custom instead"
-      ::      !!
-      ::    ::  add data to subj.
-      ::    ~|  "wallet can't find metadata for that token!"
-      ::    =/  metadata  (~(got by metadata-store.state) salt.args.act)
-      ::    ~|  "wallet can't find our zigs account for that town!"
-      ::    =/  our-account=grain:smart  +:(~(got by book) [town.act to.act salt.metadata])
-      ::    =/  their-account-id  (fry-rice:smart to.act to.args.act town.act salt.metadata)
-      ::    ?~  exists=(scry:uqbar %grain their-account-id [our now]:bowl)
-      ::      ::  they don't have an account for this token
-      ::      ?:  =(to.act `@ux`'zigs-contract')  ::  zigs special case
-      ::        [`[%give to.args.act ~ amount.args.act bud.gas.act] (silt ~[id.our-account]) ~]
-      ::      [`[%give to.args.act ~ amount-or-id] (silt ~[id.our-account]) ~]
-      ::    ::  they have an account for this token, include it in transaction
-      ::    :+  ?:  =(to.act `@ux`'zigs-contract')  ::  zigs special case
-      ::          `[%give to.args.act `their-account-id amount.args.act bud.gas.act]
-      ::        `[%give to.args.act `their-account-id amount-or-id]
-      ::      (silt ~[id.our-account])
-      ::    (silt ~[their-account-id])
-      ::  =/  keypair       (~(got by keys.state) from.act)
-      ::  =/  =yolk:smart   [args.formatted our-grains.formatted cont-grains.formatted]
-      ::  =/  sig           ?~  priv.keypair
-      ::                      [0 0 0]
-      ::                    (ecdsa-raw-sign:secp256k1:secp:crypto (sham yolk) u.priv.keypair)
-      ::  =/  =egg:smart    [[caller sig ~ to.act rate.gas.act bud.gas.act town.act status=%100] yolk]
-      ::  ?~  priv.keypair
-      ::    ::  if we don't have private key for this address, set as pending
-      ::    ::  and allow frontend to sign with HW wallet or otherwise
-      ::    ~&  >>  "%wallet: storing unsigned tx"
-      ::    `state(pending `[(sham yolk) egg args.act])
-      ::  ::  if we have key, use signature and submit
-      ::  =+  egg-hash=(hash-egg egg)
-      ::  =/  our-txs
-      ::    ?~  o=(~(get by transaction-store) from.act)
-      ::      [(malt ~[[egg-hash [egg args.act]]]) ~]
-      ::    u.o(sent (~(put by sent.u.o) egg-hash [egg args.act]))
-      ::  ~&  >>  "wallet: submitting tx"
-      ::  :_  %=  state
-      ::        transaction-store  (~(put by transaction-store) from.act our-txs)
-      ::        nonces  (~(put by nonces) from.act (~(put by our-nonces) town.act +(nonce)))
-      ::      ==
-      ::  :~  (tx-update-card egg `args.act)
-      ::      :*  %pass  /submit-tx/(scot %ux from.act)/(scot %ux egg-hash)
-      ::          %agent  [our.bowl %uqbar]
-      ::          %poke  %uqbar-write
-      ::          !>(`write:uqbar`[%submit egg])
-      ::      ==
-      ::  ==
+      =/  =yolk:smart
+        =/  from=asset
+          %.  account.args.act
+          ~(got by `book`(~(got by tokens.state) from.act))
+        ::
+        ?<  ?=(%unknown -.from)
+        =/  =asset-metadata
+          (~(got by metadata-store.state) metadata.from)
+        =/  to-id
+          (fry-rice:smart zigs-wheat-id:smart to.args.act town.act salt.asset-metadata)
+        =/  exists
+          =-  ?~(- ~ `to-id)
+          .^((unit grain:smart) %gx /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/grain/(scot %ux town.act)/(scot %ux to-id)/noun)
+        ::  this switch statement written verbosely in order to
+        ::  easily support new formats of arguments in future.
+        ?-    -.args.act
+            %give
+          [%give to.args.act amount.args.act account.args.act -]
+        ::
+            %give-nft
+          [%give to.args.act item-id.args.act account.args.act -]
+        ==
+      ::
+      =/  keypair  (~(got by keys.state) from.act)
+      =/  =shell:smart
+        :*  caller
+            ~
+            to.act
+            rate.gas.act
+            bud.gas.act
+            town.act
+            status=%100
+        ==
+      =/  hash  (hash-egg shell yolk)
+      =/  =sig:smart
+        ?~  priv.keypair
+          [0 0 0]
+        %+  ecdsa-raw-sign:secp256k1:secp:crypto
+        `@uvI`hash  u.priv.keypair
+      =/  =egg:smart  [sig shell yolk]
+      ?~  priv.keypair
+        ::  if we don't have private key for this address, set as pending
+        ::  and allow frontend to sign with HW wallet or otherwise
+        ~&  >>  "%wallet: storing unsigned tx"
+        `state(pending `[hash egg args.act])
+      ::  if we have key, use signature and submit
+      =/  our-txs
+        ?~  o=(~(get by transaction-store) from.act)
+          [(malt ~[[hash [egg args.act]]]) ~]
+        u.o(sent (~(put by sent.u.o) hash [egg args.act]))
+      ~&  >>  "%wallet: submitting tx"
+      :_  %=  state
+            transaction-store  (~(put by transaction-store) from.act our-txs)
+            nonces  (~(put by nonces) from.act (~(put by our-nonces) town.act +(nonce)))
+          ==
+      :~  (tx-update-card hash egg `args.act)
+          :*  %pass  /submit-tx/(scot %ux from.act)/(scot %ux hash)
+              %agent  [our.bowl %uqbar]
+              %poke  %uqbar-write
+              !>(`write:uqbar`[%submit egg])
+          ==
+      ==
     ==
   --
 ::

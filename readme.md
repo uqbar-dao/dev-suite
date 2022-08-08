@@ -194,10 +194,10 @@ Example pokes that will work upon chain initialization in dojo):
 *NEED INDEXER INFO TO WORK NON-CUSTOM*
 ```
 #  ZIGS
-:wallet &zig-wallet-poke [%submit 0x7772.b8a7.6840.8922.2903.5b28.7494.436f.8850.713c 0x74.6361.7274.6e6f.632d.7367.697a 0 [1 10.000] [%give 1.936.157.050 0xc7ec.a38c.5c74.d58d.04b0.6650.4772.f3a6.d02e.92f5 777]]
+:wallet &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
 
 #  NFT
-:wallet &zig-wallet-poke [%submit 0x7772.b8a7.6840.8922.2903.5b28.7494.436f.8850.713c 0xcafe.babe 1 [1 10.000] [%give 32.770.263.103.071.854 0xc7ec.a38c.5c74.d58d.04b0.6650.4772.f3a6.d02e.92f5 1]]
+*pending*
 
 #  CUSTOM TRANSACTION
 :wallet &zig-wallet-poke [%submit-custom from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] yolk='[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]']

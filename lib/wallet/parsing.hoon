@@ -58,12 +58,12 @@
           %give
         :~  ['to' [%s (scot %ux to.u.args)]]
             ['amount' (numb amount.u.args)]
-            ['from_grain' [%s (scot %ux from-grain.u.args)]]
+            ['from_grain' [%s (scot %ux account.u.args)]]
         ==
           %give-nft
         :~  ['to' [%s (scot %ux to.u.args)]]
             ['item_id' (numb item-id.u.args)]
-            ['from_grain' [%s (scot %ux from-grain.u.args)]]
+            ['from_grain' [%s (scot %ux account.u.args)]]
         ==
       ::
           %custom

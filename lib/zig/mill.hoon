@@ -346,6 +346,7 @@
         =/  cor       .*([q.library payload] bat.u.cont.wheat)
         =/  dor=vase  [-:!>(*contract:smart) cor]
         =/  gun  (ajar dor %write !>(cart) !>(yolk.egg))
+        ~&  >>>  egg
         ::
         ::  generate ZK-proof hints with zebra
         ::
