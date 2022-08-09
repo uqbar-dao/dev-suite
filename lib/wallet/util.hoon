@@ -10,9 +10,9 @@
   `@ux`(sham [shell yolk])
 ::
 ++  tx-update-card
-  |=  [hash=@ux =egg:smart args=(unit supported-args)]
+  |=  [hash=@ux =egg:smart =supported-args]
   ^-  card
-  =+  [%tx-status hash egg args]
+  =+  [%tx-status hash egg supported-args]
   [%give %fact ~[/tx-updates] %zig-wallet-update !>(-)]
 ::
 ++  create-holder-and-id-subs

@@ -13,7 +13,7 @@
 +$  diff  granary  ::  state transitions for one batch
 +$  state-transition
   $:  =land
-      processed=(list [id:smart egg:smart])
+      processed=carton
       hits=(list (list hints:zink))
       =diff
       crows=(list crow:smart)

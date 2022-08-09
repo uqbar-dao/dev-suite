@@ -2,7 +2,7 @@
 /+  mill=zig-mill
 |%
 ++  transition-state
-  |=  [old=(unit town) proposed=[num=@ud =basket =land diff-hash=@ux root=@ux]]
+  |=  [old=(unit town) proposed=[num=@ud =carton =land diff-hash=@ux root=@ux]]
   ^-  (unit town)
   ?~  old  old
   :-  ~

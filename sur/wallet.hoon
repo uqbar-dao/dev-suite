@@ -24,20 +24,30 @@
       received=(map @ux =egg:smart)
   ==
 ::
-::  TODO: move this to smart.hoon?
-+$  egg-status-code
-  ::  TX status codes:
++$  transaction-status-code
   $%  %100  ::  100: transaction submitted from wallet to sequencer
       %101  ::  101: transaction received by sequencer
       %103  ::  103: failure: transaction rejected by sequencer
-      errorcode:smart
+      ::
+      ::  200-class refers to codes that come from a completed, processed transaction
+      ::  informed by egg status codes in smart.hoon
+      %200  ::  0: successfully performed
+      %201  ::  1: submitted with raw id / no account info
+      %202  ::  2: bad signature
+      %203  ::  3: incorrect nonce
+      %204  ::  4: lack zigs to fulfill budget
+      %205  ::  5: couldn't find contract
+      %206  ::  6: crash in contract execution
+      %207  ::  7: validation of changed/issued/burned rice failed
+      %208  ::  8: ran out of gas while executing
+      %209  ::  9: was not parallel / superceded by another egg in batch
   ==
 ::
 ::  sent to web interface
 ::
 +$  wallet-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
-      [%tx-status hash=@ux =egg:smart args=(unit supported-args)]
+      [%tx-status hash=@ux =egg:smart args=supported-args]
   ==
 ::
 ::  received from web interface

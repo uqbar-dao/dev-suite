@@ -212,7 +212,7 @@
             pending  ~
             transaction-store  (~(put by transaction-store) from our-txs)
           ==
-      :~  (tx-update-card hash egg.p `args.p)
+      :~  (tx-update-card hash egg.p args.p)
           :*  %pass  /submit-tx/(scot %ux hash)
               %agent  [our.bowl %uqbar]
               %poke  %uqbar-write
@@ -264,7 +264,7 @@
             transaction-store  (~(put by transaction-store) from.act our-txs)
             nonces  (~(put by nonces) from.act (~(put by our-nonces) town.act +(nonce)))
           ==
-      :~  (tx-update-card hash egg `formed)
+      :~  (tx-update-card hash egg formed)
           :*  %pass  /submit-tx/(scot %ux from.act)/(scot %ux hash)
               %agent  [our.bowl %uqbar]
               %poke  %uqbar-write
@@ -336,7 +336,7 @@
             transaction-store  (~(put by transaction-store) from.act our-txs)
             nonces  (~(put by nonces) from.act (~(put by our-nonces) town.act +(nonce)))
           ==
-      :~  (tx-update-card hash egg `args.act)
+      :~  (tx-update-card hash egg args.act)
           :*  %pass  /submit-tx/(scot %ux from.act)/(scot %ux hash)
               %agent  [our.bowl %uqbar]
               %poke  %uqbar-write
@@ -365,7 +365,7 @@
         ::  failed
         ~&  >>>  "wallet: tx was rejected by sequencer"
         this-tx(status.shell.egg %103)
-      :-  ~[(tx-update-card hash egg.this-tx `args.this-tx)]
+      :-  ~[(tx-update-card hash egg.this-tx args.this-tx)]
       %=    this
           transaction-store
         %-  ~(put by transaction-store)
@@ -375,7 +375,10 @@
         ?:  =(status.shell.egg.this-tx %101)
           nonces
         ::  dec nonce on this town, tx was rejected
-        (~(put by nonces) from (~(jab by (~(got by nonces) from)) town-id.shell.egg.this-tx |=(n=@ud (dec n))))
+        %+  ~(put by nonces)  from
+        %+  ~(jab by (~(got by nonces) from))
+          town-id.shell.egg.this-tx
+        |=(n=@ud (dec n))
       ==
     `this
   ::
@@ -406,28 +409,25 @@
     ?.  ?=(%indexer-update p.cage.sign)  (on-agent:def wire sign)
     =/  =update:ui  !<(=update:ui q.cage.sign)
     ?.  ?=(%egg -.update)  `this
-    ~&  >>  "WALLET: got our egg update"
-    ::  todo make status update work
     =/  our-id=@ux  ?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
     =+  our-txs=(~(gut by transaction-store.state) our-id [sent=~ received=~])
-    =/  eggs=(list [@ux =egg:smart])
-      %+  turn  ~(val by eggs.update)
-      |=  [@da =egg-location:ui =egg:smart]
-      [(hash-egg [shell yolk]:egg) egg]
     =^  tx-status-cards=(list card)  our-txs
-      %^  spin  eggs  our-txs
-      |=  [[hash=@ux =egg:smart] _our-txs]
+      %^  spin  ~(tap by eggs.update)  our-txs
+      |=  [[hash=@ux [@da =egg-location:ui =egg:smart]] txs=_our-txs]
       ::  update status code and send to frontend
-      ::  following error code spec in smart.hoon
+      ::  following error code spec in sur/wallet
       ^-  [card _our-txs]
-      :-  ?~  this-tx=(~(get by sent.our-txs) hash)
-            (tx-update-card hash egg ~)
-          (tx-update-card hash egg `args.u.this-tx)
-      %=    our-txs
+      :-  ?~  this-tx=(~(get by sent.txs) hash)
+            (tx-update-card hash egg [%custom (crip (text !>(yolk.egg)))])
+          (tx-update-card hash egg args.u.this-tx)
+      %=    txs
           sent
-        ?.  (~(has by sent.our-txs) hash)  sent
-        %+  ~(jab by sent.our-txs)  hash
-        |=([p=egg:smart q=supported-args] [p(status.shell status.shell.egg) q])
+        ?.  (~(has by sent.txs) hash)  sent.txs
+        %+  ~(jab by sent.txs)  hash
+        |=  [p=egg:smart q=supported-args]
+        =/  status  (add 200 `@`status.shell.egg)
+        ?>  ?=(transaction-status-code status)
+        [p(status.shell status) q]
       ::
           ::  TODO update nonce for town if tx was rejected for bad nonce (code 3)
           ::  or for lack of budget (code 4)
@@ -511,10 +511,10 @@
     %+  weld
       %+  turn  ~(tap by sent.our-txs)
       |=  [hash=@ux [t=egg:smart args=supported-args]]
-      (parse-transaction:wallet-parsing hash t `args)
+      (parse-transaction:wallet-parsing hash t args)
     %+  turn  ~(tap by received.our-txs)
     |=  [hash=@ux t=egg:smart]
-    (parse-transaction:wallet-parsing hash t ~)
+    (parse-transaction:wallet-parsing hash t [%custom (crip (text !>(yolk.t)))])
   ::
       [%signatures ~]
     ``noun+!>(signatures.state)
@@ -525,7 +525,7 @@
     =;  =json  ``json+!>(json)
     %-  pairs:enjs
     :~  ['hash' [%s (scot %ux yolk-hash.p)]]
-        ['egg' +:(parse-transaction:wallet-parsing 0x0 egg.p `args.p)]
+        ['egg' +:(parse-transaction:wallet-parsing 0x0 egg.p args.p)]
     ==
   ==
 ::
