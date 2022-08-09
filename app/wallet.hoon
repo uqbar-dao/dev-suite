@@ -388,7 +388,6 @@
     ?.  ?=(%indexer-update p.cage.sign)  (on-agent:def wire sign)
     =+  pub=?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
     =/  =update:ui  !<(update:ui q.cage.sign)
-    ~&  >>  "WALLET: got our holder update"
     =/  old-book=book  (~(gut by tokens.state) pub ~)
     =/  new-book=book
       (indexer-update-to-books update pub metadata-store.state)

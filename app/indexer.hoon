@@ -436,7 +436,6 @@
         sequencer-path
       ::
           %fact
-        ~&  >>>  "indexer: handling new state"
         =^  cards  state
           %+  consume-sequencer-update
             sup.bowl
@@ -1063,7 +1062,6 @@
     ++  make-sub-cards
       |=  [=query-type:ui path-type=@tas]
       ^-  (list card)
-      ~&  >>>  "indexer: making sub cards for {<path-type>}"
       %+  murn  ~(tap in (~(get ju sub-paths) path-type))
       |=  sub-path=path
       ::  TODO: can improve performance here by:
@@ -1088,7 +1086,6 @@
         ::          ==
         ::      |=  [timestamp=@da *]
         ::      =(now.bowl timestamp)
-        ::    ~&  >  "nothing current, no card"
         ::    ~
         :-  ~
         %+  fact:io
