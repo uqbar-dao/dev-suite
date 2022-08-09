@@ -47,7 +47,6 @@
   +$  action
     $%  ::  token holder actions
         ::
-        ::  TODO could just infer to from holder.to-account
         [%give from-account=id to=address to-account=(unit id) amount=@ud]
         ::  TODO rename to=id -> taker or something. or isn't to the caller?????
         [%take to=address account=(unit id) from-account=id amount=@ud]

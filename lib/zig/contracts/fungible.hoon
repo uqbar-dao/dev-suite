@@ -41,11 +41,11 @@
       %give
     =/  giv=grain          (need (scry from-account.act))
     ?>  ?=(%& -.giv)
-    =/  giver=account:sur  data:(husk account:sur giv `me.cart `id.from.cart)
+    =/  giver=account:sur  data:(husk account:sur giv `me.cart ~)
+    ?>  ?|(=(id.from.cart holder.p.giv) =(id.from.cart me.cart))  :: needed to allow reentrancy
     ?>  (gte balance.giver amount.act)
     ?:  ?=(~ to-account.act)
       ::  if receiver doesn't have an account, try to produce one for them
-      ~>  %aaaaaaaaaaaaaaaa
       =/  =id          (fry-rice me.cart to.act town-id.cart salt.p.giv)
       =/  new=grain    [%& salt.p.giv %account [0 ~ metadata.giver 0] id me.cart to.act town-id.cart]
       =/  =action:sur  [%give from-account=id.p.giv to.act to-account=`id.p.new amount.act]
