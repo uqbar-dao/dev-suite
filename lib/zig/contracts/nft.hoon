@@ -3,7 +3,7 @@
 ::  NFT standard. Provides abilities similar to ERC-721 tokens, also ability
 ::  to deploy and mint new sets of tokens.
 ::
-/+  *zig-sys-smart
+::  /+  *zig-sys-smart
 /=  nft  /lib/zig/contracts/lib/nft
 =,  nft
 |_  =cart
@@ -81,7 +81,7 @@
     ::  create new grain for NFT
     ::  unique salt for each item in collection
     =*  m  i.mints.act
-    =/  salt    (cat 3 salt.meta next-item-id)
+    =/  salt    (cat 3 salt.meta (scot %ud next-item-id))
     =/  new-id  (fry-rice me.cart to.m town-id.cart salt)
     ::  properties must match those in metadata spec!
     ?>  =(properties.data.meta ~(key by properties.m))

@@ -295,15 +295,8 @@
           ?>  ?=(%token -.from)
           =/  =asset-metadata  (~(got by metadata-store.state) metadata.from)
           =/  to-id  (fry-rice:smart zigs-wheat-id:smart to.args.act town.act salt.asset-metadata)
-          =+  .^  (unit grain:smart)
-                  %gx
-                  (scot %p our.bowl)
-                  %uqbar
-                  (scot %da now.bowl)
-                  %grain
-                  (scot %ux town.act)
-                  (scot %ux to-id)
-                  noun
+          =+  .^  (unit grain:smart)  %gx
+                  /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/grain/(scot %ux town.act)/(scot %ux to-id)/noun
               ==
           [%give to.args.act amount.args.act grain.args.act ?~(- ~ `to-id)]
         ::
