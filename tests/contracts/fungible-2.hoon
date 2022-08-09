@@ -84,7 +84,7 @@
   |=  [holder=id:smart amt=@ud]
   ^-  grain:smart
   =/  sal  `@`'funsalt'
-  =/  id  (fry-rice:smart zigs-wheat-id:smart holder town-id sal)
+  =/  id  (fry-rice:smart id.p:fungible-wheat holder town-id sal)
   :*  %&  sal  %account
       `account:sur:fun`[amt ~ `@ux`'simple' 0]
       id
@@ -232,21 +232,16 @@
   =/  res=granary       (int:big expected p.land.milled)
   (expect-eq !>(expected) !>(res))
 ++  test-give-unknown-receiver
-  ::  TODO investigate contract crash
   ^-  tang
   =/  =action:sur:fun  [%give id.p:account-1 0xffff ~ 30]
   =/  shel=shell:smart
     [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  new-id  (fry-rice:smart id.p:fungible-wheat 0xffff town-id `@`'funsalt')
-  =/  new=grain:smart  (fun-account 0xffff 0)
+  =/  new=grain:smart  (fun-account 0xffff 30)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel action]
-  ~&  p.land.milled
-  ~&  errorcode.milled
-  ::=/  res=grain:smart  (got:big p.land.milled new-id)
-  ::=*  correct  new
-  ::(expect-eq !>(correct) !>(res))
-  ~
-
+  =/  res=grain:smart  (got:big p.land.milled new-id)
+  =*  correct  new
+  (expect-eq !>(correct) !>(res))
 --
