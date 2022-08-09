@@ -287,26 +287,28 @@
       ::  generate yolk based on supported-args
       ::
       =/  =yolk:smart
-        =/  from=asset
-          %.  account.args.act
-          ~(got by `book`(~(got by tokens.state) from.act))
-        ::
-        ?<  ?=(%unknown -.from)
-        =/  =asset-metadata
-          (~(got by metadata-store.state) metadata.from)
-        =/  to-id
-          (fry-rice:smart zigs-wheat-id:smart to.args.act town.act salt.asset-metadata)
-        =/  exists
-          =-  ?~(- ~ `to-id)
-          .^((unit grain:smart) %gx /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/grain/(scot %ux town.act)/(scot %ux to-id)/noun)
         ::  this switch statement written verbosely in order to
         ::  easily support new formats of arguments in future.
         ?-    -.args.act
             %give
-          [%give to.args.act amount.args.act account.args.act -]
+          =/  from=asset  (~(got by `book`(~(got by tokens.state) from.act)) grain.args.act)
+          ?>  ?=(%token -.from)
+          =/  =asset-metadata  (~(got by metadata-store.state) metadata.from)
+          =/  to-id  (fry-rice:smart zigs-wheat-id:smart to.args.act town.act salt.asset-metadata)
+          =+  .^  (unit grain:smart)
+                  %gx
+                  (scot %p our.bowl)
+                  %uqbar
+                  (scot %da now.bowl)
+                  %grain
+                  (scot %ux town.act)
+                  (scot %ux to-id)
+                  noun
+              ==
+          [%give to.args.act amount.args.act grain.args.act ?~(- ~ `to-id)]
         ::
             %give-nft
-          [%give to.args.act item-id.args.act account.args.act -]
+          [%give to.args.act grain.args.act]
         ==
       ::
       =/  keypair  (~(got by keys.state) from.act)
@@ -447,32 +449,32 @@
   |=  =path
   ^-  (unit (unit cage))
   ?.  =(%x -.path)  ~
+  =,  format
   ?+    +.path  (on-peek:def path)
       [%seed ~]
     =;  =json  ``json+!>(json)
-    =,  enjs:format
-    %-  pairs
+    %-  pairs:enjs
     :~  ['mnemonic' [%s mnem.seed.state]]
         ['password' [%s pass.seed.state]]
     ==
   ::
       [%accounts ~]
     =;  =json  ``json+!>(json)
-    =,  enjs:format
-    %-  pairs
+    %-  pairs:enjs
     %+  turn  ~(tap by keys.state)
     |=  [pub=@ux [priv=(unit @ux) nick=@t]]
     :-  (scot %ux pub)
-    %-  pairs
+    %-  pairs:enjs
     :~  ['pubkey' [%s (scot %ux pub)]]
         ['privkey' ?~(priv [%s ''] [%s (scot %ux u.priv)])]
         ['nick' [%s nick]]
         :-  'nonces'
-        %-  pairs
+        %-  pairs:enjs
         %+  turn  ~(tap by (~(gut by nonces.state) pub ~))
         |=  [town=@ux nonce=@ud]
-        [(scot %ux town) (numb nonce)]
+        [(scot %ux town) (numb:enjs nonce)]
     ==
+  ::
       [%keys ~]
     ``noun+!>(~(key by keys.state))
   ::
@@ -486,48 +488,33 @@
     ``noun+!>(`caller:smart`[pub nonce -])
   ::
       [%book ~]
-    ::  return entire book map for wallet frontend
     =;  =json  ``json+!>(json)
-    =,  enjs:format
-    %-  pairs
+    ::  return entire book map for wallet frontend
+    %-  pairs:enjs
     %+  turn  ~(tap by tokens.state)
     |=  [pub=@ux =book]
     :-  (scot %ux pub)
-    %-  pairs
+    %-  pairs:enjs
     %+  turn  ~(tap by book)
     |=  [=id:smart =asset]
     (parse-asset:wallet-parsing id asset)
   ::
       [%token-metadata ~]
-    ::  return entire metadata-store
     =;  =json  ``json+!>(json)
-    =,  enjs:format
-    %-  pairs
+    ::  return entire metadata-store
+    %-  pairs:enjs
     %+  turn  ~(tap by metadata-store.state)
     |=  [=id:smart d=asset-metadata]
-    :-  (scot %ud id)
-    %-  pairs
-    :~  ['name' [%s name.d]]
-        ['symbol' [%s symbol.d]]
-        ?-  -.d
-          %token  ['decimals' (numb decimals.d)]
-          %nft  ['attributes' [%s 'TODO...']]
-        ==
-        ['supply' (numb supply.d)]
-        ['cap' (numb (fall cap.d 0))]
-        ['mintable' [%b mintable.d]]
-        ['deployer' [%s (scot %ux deployer.d)]]
-        ['salt' [%s (scot %ux salt.d)]]
-    ==
+    (parse-metadata:wallet-parsing id d)
   ::
       [%transactions @ ~]
     ::  return transaction store for given pubkey
     =/  pub  (slav %ux i.t.t.path)
     =/  our-txs=[sent=(map @ux [=egg:smart args=supported-args]) received=(map @ux =egg:smart)]
       (~(gut by transaction-store.state) pub [~ ~])
+    ::
     =;  =json  ``json+!>(json)
-    =,  enjs:format
-    %-  pairs
+    %-  pairs:enjs
     %+  weld
       %+  turn  ~(tap by sent.our-txs)
       |=  [hash=@ux [t=egg:smart args=supported-args]]
@@ -543,8 +530,7 @@
     ?~  pending.state  [~ ~]
     =*  p  u.pending.state
     =;  =json  ``json+!>(json)
-    =,  enjs:format
-    %-  pairs
+    %-  pairs:enjs
     :~  ['hash' [%s (scot %ux yolk-hash.p)]]
         ['egg' +:(parse-transaction:wallet-parsing 0x0 egg.p `args.p)]
     ==

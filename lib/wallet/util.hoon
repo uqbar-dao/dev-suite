@@ -76,7 +76,7 @@
   =+  tok=((soft token-account) data)
   ?^  tok
     [%token town metadata.u.tok u.tok]
-  =+  nft=((soft nft-account) data)
+  =+  nft=((soft nft) data)
   ?^  nft
     [%nft town metadata.u.nft u.nft]
   [%unknown town data]

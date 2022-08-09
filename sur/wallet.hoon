@@ -8,7 +8,7 @@
 +$  book  (map id:smart asset)
 +$  asset
   $%  [%token town-id=@ux metadata=id:smart token-account]
-      [%nft town-id=@ux metadata=id:smart nft-account]
+      [%nft town-id=@ux metadata=id:smart nft]
       [%unknown town-id=@ux *]
   ==
 ::
@@ -74,8 +74,8 @@
   ==
 ::
 +$  supported-args
-  $%  [%give to=address:smart amount=@ud account=id:smart]
-      [%give-nft to=address:smart item-id=@ud account=id:smart]
+  $%  [%give to=address:smart amount=@ud grain=id:smart]
+      [%give-nft to=address:smart grain=id:smart]
       [%custom args=@t]
   ==
 ::
@@ -104,26 +104,21 @@
 +$  nft-metadata
   $:  name=@t
       symbol=@t
-      attributes=(set @t)
+      properties=(set @tas)
       supply=@ud
-      cap=(unit @ud)
-      mintable=?
-      minters=(set id:smart)
+      cap=(unit @ud)  ::  (~ if mintable is false)
+      mintable=?      ::  automatically set to %.n if supply == cap
+      minters=(set address:smart)
       deployer=id:smart
       salt=@
   ==
 ::
-+$  nft-account
-  $:  metadata=id:smart
-      items=(map @ud item)
-      allowances=(set [id:smart @ud])
-      full-allowances=(set id:smart)
-  ==
-+$  item
++$  nft  ::  a non-fungible token
   $:  id=@ud
-      data=(set [@t @t])
-      desc=@t
       uri=@t
+      metadata=id:smart
+      allowances=(set address:smart)
+      properties=(map @tas @t)
       transferrable=?
   ==
 --

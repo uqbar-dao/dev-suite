@@ -19,23 +19,66 @@
         ==
       ::
           %nft
-        :~  ['metadata' [%s (scot %ux metadata.asset)]]
-            :-  'items'
-            %-  pairs
-            %+  turn  ~(tap by items.asset)
-            |=  [id=@ud =item]
-            :-  (scot %ud id)
-            %-  pairs
-            :~  ['desc' [%s desc.item]]
-                ['attributes' [%s 'todo...']]
-                ['uri' [%s uri.item]]
-            ==
+        :~  ['id' (numb id.asset)]
+            ['uri' [%s uri.asset]]
+            ['metadata' [%s (scot %ux metadata.asset)]]
+            ['allowances' (address-set allowances.asset)]
+            ['properties' (properties properties.asset)]
+            ['transferrable' [%b transferrable.asset]]
         ==
       ::
           %unknown
         ~
       ==
   ==
+::
+++  parse-metadata
+  |=  [=id:smart m=asset-metadata]
+  ^-  [p=@t q=json]
+  :-  (scot %ux id)
+  %-  pairs
+  :~  ['id' [%s (scot %ux id)]]
+      ['town' [%s (scot %ux town-id.m)]]
+      ['token_type' [%s (scot %tas -.m)]]
+      :-  'data'
+      %-  pairs
+      %+  snoc
+        ^-  (list [@t json])
+        :~  ['name' [%s name.m]]
+            ['symbol' [%s symbol.m]]
+            ['supply' (numb supply.m)]
+            ['cap' ?~(cap.m ~ (numb u.cap.m))]
+            ['mintable' [%b mintable.m]]
+            ['minters' (address-set minters.m)]
+            ['deployer' [%s (scot %ux deployer.m)]]
+            ['salt' (numb salt.m)]
+        ==
+      ?-  -.m
+        %token  ['decimals' (numb decimals.m)]
+        %nft  ['properties' (properties-set properties.m)]
+      ==
+  ==
+::
+++  address-set
+  |=  a=(set address:smart)
+  ^-  json
+  :-  %a
+  %+  turn  ~(tap in a)
+  |=(a=address:smart [%s (scot %ux a)])
+::
+++  properties-set
+  |=  p=(set @tas)
+  ^-  json
+  :-  %a
+  %+  turn  ~(tap in p)
+  |=(prop=@tas [%s (scot %tas prop)])
+::
+++  properties
+  |=  p=(map @tas @t)
+  ^-  json
+  %-  pairs
+  %+  turn  ~(tap by p)
+  |=([prop=@tas val=@t] [prop [%s val]])
 ::
 ++  parse-transaction
   |=  [hash=@ux t=egg:smart args=(unit supported-args)]
@@ -57,13 +100,11 @@
       ?-    -.u.args
           %give
         :~  ['to' [%s (scot %ux to.u.args)]]
-            ['amount' (numb amount.u.args)]
-            ['from_grain' [%s (scot %ux account.u.args)]]
+            ['grain' [%s (scot %ux grain.u.args)]]
         ==
           %give-nft
         :~  ['to' [%s (scot %ux to.u.args)]]
-            ['item_id' (numb item-id.u.args)]
-            ['from_grain' [%s (scot %ux account.u.args)]]
+            ['grain' [%s (scot %ux grain.u.args)]]
         ==
       ::
           %custom
