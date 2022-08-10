@@ -10,14 +10,25 @@
 +$  card  card:agent:gall
 +$  state-0
   $:  %0
+      ::  wallet holds a single seed at once
+      ::  address-index notes where we are in derivation path
       seed=[mnem=@t pass=@t address-index=@ud]
-      keys=(map pub=@ux [priv=(unit @ux) nick=@t])  ::  keys created from master seed
-      nonces=(map pub=@ux (map town=@ux nonce=@ud))
+      ::  many keys can be derived or imported
+      ::  if the private key is ~, that means it's a hardware wallet import
+      keys=(map address:smart [priv=(unit @ux) nick=@t])
+      ::  we track the nonce of each address we're handling
+      ::  TODO: introduce a poke to check nonce from chain and re-align
+      nonces=(map address:smart (map town=@ux nonce=@ud))
+      ::  signatures tracks any signed calls we've made but not submitted
       signatures=(list [=typed-message:smart =sig:smart])
-      tokens=(map pub=@ux =book)
-      =transaction-store
-      pending=(unit [yolk-hash=@ =egg:smart args=supported-args])
+      ::  tokens tracked for each address we're handling
+      tokens=(map address:smart =book)
+      ::  metadata for tokens we track
       =metadata-store
+      ::  transactions we've sent and received
+      =transaction-store
+      ::  a single transaction that we've sent to a sequencer but not recieved the receipt for
+      pending=(unit [yolk-hash=@ =egg:smart args=supported-args])
   ==
 --
 ::
@@ -53,6 +64,7 @@
       [%tx-updates ~]
     ?>  =(src.bowl our.bowl)
     ::  provide updates about submitted transactions
+    ::  any local app can watch this to send things through
     `this
   ==
 ::
@@ -86,8 +98,17 @@
           ?^  priv  ~
           `[pub [~ nick]]
       :-  %+  weld  (clear-all-holder-and-id-subs wex.bowl)
-          (create-holder-and-id-subs ~(key by -) our.bowl)
+          %+  create-holder-and-id-subs
+            ~(key by (~(put by -) addr [`private-key:core nick.act]))
+          our.bowl
+      ::  clear all existing state, except for public keys imported from HW wallets
+      ::  TODO save nonces/tokens from HW wallets too
+      ::  for now treat %import-seed as a nuke of the wallet
       %=  state
+        nonces             ~
+        signatures         ~
+        tokens             ~
+        metadata-store     ~
         transaction-store  ~
         seed  [mnemonic.act password.act 0]
         keys  (~(put by -) addr [`private-key:core nick.act])
@@ -106,8 +127,17 @@
           ?^  priv  ~
           `[pub [~ nick]]
       :-  %+  weld  (clear-all-holder-and-id-subs wex.bowl)
-          (create-holder-and-id-subs ~(key by (~(put by -) addr [`private-key:core nick.act])) our.bowl)
+          %+  create-holder-and-id-subs
+            ~(key by (~(put by -) addr [`private-key:core nick.act]))
+          our.bowl
+      ::  clear all existing state, except for public keys imported from HW wallets
+      ::  TODO save nonces/tokens from HW wallets too
+      ::  for now treat %import-seed as a nuke of the wallet
       %=  state
+        nonces             ~
+        signatures         ~
+        tokens             ~
+        metadata-store     ~
         transaction-store  ~
         seed  [(crip mnem) password.act 0]
         keys  (~(put by -) addr [`private-key:core nick.act])
@@ -138,6 +168,7 @@
         keys    (~(del by keys) address.act)
         nonces  (~(del by nonces) address.act)
         tokens  (~(del by tokens) address.act)
+        transaction-store  (~(del by transaction-store) address.act)
       ==
     ::
         %edit-nickname
@@ -159,25 +190,8 @@
       =+  acc=(~(got by nonces.state) address.act)
       `state(nonces (~(put by nonces) address.act (~(put by acc) town.act new.act)))
     ::
-        %populate
-      ::  populate wallet with fake data for testing
-      ::  will WIPE previous wallet state!!
-      ::
-      =+  mnem=(from-entropy:bip39 [32 seed.act])
-      =+  core=(from-seed:bip32 [64 (to-seed:bip39 mnem "")])
-      =+  addr=(address-from-prv:key:ethereum private-key:core)
-      =+  (malt ~[[addr [`private-key:core (scot %ux seed.act)]]])
-      :-  (create-holder-and-id-subs ~(key by -) our.bowl)
-      %=  state
-        seed    [(crip mnem) '' 0]
-        keys    -
-        nonces  ~
-        tokens  ~
-        transaction-store  ~
-        metadata-store  ~
-      ==
-    ::
         %submit-signed
+      ::  TODO refactor
       ?~  pending.state  !!
       =*  p  u.pending.state
       ?>  =(hash.act yolk-hash.p)
@@ -186,11 +200,11 @@
       ==
       =*  from   id.from.shell.egg.p
       =*  nonce  nonce.from.shell.egg.p
-      =+  egg-hash=(hash-egg egg.p)
+      =+  hash=(hash-egg [shell yolk]:egg.p)
       =/  our-txs
         ?~  o=(~(get by transaction-store) from)
-          [(malt ~[[egg-hash [egg.p args.p]]]) ~]
-        u.o(sent (~(put by sent.u.o) egg-hash [egg.p args.p]))
+          [(malt ~[[hash [egg.p args.p]]]) ~]
+        u.o(sent (~(put by sent.u.o) hash [egg.p args.p]))
       ~&  >>  "%wallet: submitting self-signed tx"
       ~&  >>  "with eth-hash {<eth-hash.act>}"
       ~&  >>  "with signature {<v.sig.act^r.sig.act^s.sig.act>}"
@@ -198,8 +212,8 @@
             pending  ~
             transaction-store  (~(put by transaction-store) from our-txs)
           ==
-      :~  (tx-update-card egg.p `args.p)
-          :*  %pass  /submit-tx/(scot %ux egg-hash)
+      :~  (tx-update-card hash egg.p args.p)
+          :*  %pass  /submit-tx/(scot %ux hash)
               %agent  [our.bowl %uqbar]
               %poke  %uqbar-write
               !>(`write:uqbar`[%submit egg.p])
@@ -212,46 +226,46 @@
       =/  nonce=@ud      (~(gut by our-nonces) town.act 0)
       =/  =caller:smart
         :+  from.act  +(nonce)
-        (fry-rice:smart `@ux`'zigs-contract' from.act town.act `@`'zigs')
-      =/  =yolk:smart
-        :-  label.yolk.act
-        q:(slap !>(+:(cue q.q.smart-lib)) (ream args.yolk.act))
+        ::  generate our zigs token account ID
+        (fry-rice:smart zigs-wheat-id:smart from.act town.act `@`'zigs')
+      =+  q:(slap !>(+:(cue q.q.smart-lib)) (ream yolk.act))
+      =/  =yolk:smart  [;;(@tas -.-) +.-]
+      =/  keypair  (~(got by keys.state) from.act)
+      =/  =shell:smart
+        :*  caller
+            ~
+            to.act
+            rate.gas.act
+            bud.gas.act
+            town.act
+            status=%100
+        ==
+      =/  hash  (hash-egg shell yolk)
+      =/  =sig:smart
+        ?~  priv.keypair
+          [0 0 0]
+        %+  ecdsa-raw-sign:secp256k1:secp:crypto
+        `@uvI`hash  u.priv.keypair
+      =/  =egg:smart  [sig shell yolk]
       =/  formed=supported-args
-        [%custom args.yolk.act]
-      =/  keypair        (~(got by keys.state) from.act)
-      =/  =egg:smart
-        :+  ?~  priv.keypair
-              [0 0 0]
-            %+  ecdsa-raw-sign:secp256k1:secp:crypto
-              (sham yolk)
-            u.priv.keypair
-          :*  caller
-              ~
-              to.act
-              rate.gas.act
-              bud.gas.act
-              town.act
-              status=%100
-          ==
-        yolk
+        [%custom yolk.act]
       ?~  priv.keypair
         ::  if we don't have private key for this address, set as pending
         ::  and allow frontend to sign with HW wallet or otherwise
         ~&  >>  "%wallet: storing unsigned tx"
-        `state(pending `[(sham yolk) egg formed])
+        `state(pending `[hash egg formed])
       ::  if we have key, use signature and submit
-      =+  egg-hash=(hash-egg egg)
       =/  our-txs
         ?~  o=(~(get by transaction-store) from.act)
-          [(malt ~[[egg-hash [egg formed]]]) ~]
-        u.o(sent (~(put by sent.u.o) egg-hash [egg formed]))
+          [(malt ~[[hash [egg formed]]]) ~]
+        u.o(sent (~(put by sent.u.o) hash [egg formed]))
       ~&  >>  "%wallet: submitting tx"
       :_  %=  state
             transaction-store  (~(put by transaction-store) from.act our-txs)
             nonces  (~(put by nonces) from.act (~(put by our-nonces) town.act +(nonce)))
           ==
-      :~  (tx-update-card egg `formed)
-          :*  %pass  /submit-tx/(scot %ux from.act)/(scot %ux egg-hash)
+      :~  (tx-update-card hash egg formed)
+          :*  %pass  /submit-tx/(scot %ux from.act)/(scot %ux hash)
               %agent  [our.bowl %uqbar]
               %poke  %uqbar-write
               !>(`write:uqbar`[%submit egg])
@@ -262,73 +276,73 @@
       ::  submit a transaction
       ::  create an egg and sign it, then poke a sequencer
       ::
-      ::  things to expose on frontend:
-      ::  'from' address, contract 'to' address, town select,
-      ::  gas (rate & budget), transaction type (acquired from ABI..?)
+      ?:  ?=(%custom -.args.act)
+        ~|("%wallet: error: %submit must use known argument pattern" !!)
+      =/  our-nonces     (~(gut by nonces.state) from.act ~)
+      =/  nonce=@ud      (~(gut by our-nonces) town.act 0)
+      =/  =caller:smart
+        :+  from.act  +(nonce)
+        ::  generate our zigs token account ID
+        (fry-rice:smart zigs-wheat-id:smart from.act town.act `@`'zigs')
+      ::  generate yolk based on supported-args
       ::
-      !!
-      ::  =/  our-nonces     (~(gut by nonces.state) from.act ~)
-      ::  =/  nonce=@ud      (~(gut by our-nonces) town.act 0)
-      ::  ~|  "wallet: can't find tokens for that address!"
-      ::  =/  =book          (~(got by tokens.state) from.act)
-      ::  =/  =caller:smart  :+  from.act  +(nonce)
-      ::                    (fry-rice:smart `@ux`'zigs-contract' from.act town.act `@`'zigs')
-      ::  ::  need to check transaction type and collect rice based on it
-      ::  ::  only supporting small subset of contract calls, for tokens and NFTs
-      ::  =/  formatted=[args=(unit *) my-grains=(set @ux) cont-grains=(set @ux)]
-      ::  ::  if sending NFT, save item-id
-      ::    =/  amount-or-id
-      ::      ?:  ?=(%give-nft -.args.act)  item-id.args.act
-      ::      ::  else, save amount to send
-      ::      ?:  ?=(%give -.args.act)  amount.args.act
-      ::      ~|  "in order to submit with %custom, use %submit-custom instead"
-      ::      !!
-      ::    ::  add data to subj.
-      ::    ~|  "wallet can't find metadata for that token!"
-      ::    =/  metadata  (~(got by metadata-store.state) salt.args.act)
-      ::    ~|  "wallet can't find our zigs account for that town!"
-      ::    =/  our-account=grain:smart  +:(~(got by book) [town.act to.act salt.metadata])
-      ::    =/  their-account-id  (fry-rice:smart to.act to.args.act town.act salt.metadata)
-      ::    ?~  exists=(scry:uqbar %grain their-account-id [our now]:bowl)
-      ::      ::  they don't have an account for this token
-      ::      ?:  =(to.act `@ux`'zigs-contract')  ::  zigs special case
-      ::        [`[%give to.args.act ~ amount.args.act bud.gas.act] (silt ~[id.our-account]) ~]
-      ::      [`[%give to.args.act ~ amount-or-id] (silt ~[id.our-account]) ~]
-      ::    ::  they have an account for this token, include it in transaction
-      ::    :+  ?:  =(to.act `@ux`'zigs-contract')  ::  zigs special case
-      ::          `[%give to.args.act `their-account-id amount.args.act bud.gas.act]
-      ::        `[%give to.args.act `their-account-id amount-or-id]
-      ::      (silt ~[id.our-account])
-      ::    (silt ~[their-account-id])
-      ::  =/  keypair       (~(got by keys.state) from.act)
-      ::  =/  =yolk:smart   [args.formatted our-grains.formatted cont-grains.formatted]
-      ::  =/  sig           ?~  priv.keypair
-      ::                      [0 0 0]
-      ::                    (ecdsa-raw-sign:secp256k1:secp:crypto (sham yolk) u.priv.keypair)
-      ::  =/  =egg:smart    [[caller sig ~ to.act rate.gas.act bud.gas.act town.act status=%100] yolk]
-      ::  ?~  priv.keypair
-      ::    ::  if we don't have private key for this address, set as pending
-      ::    ::  and allow frontend to sign with HW wallet or otherwise
-      ::    ~&  >>  "%wallet: storing unsigned tx"
-      ::    `state(pending `[(sham yolk) egg args.act])
-      ::  ::  if we have key, use signature and submit
-      ::  =+  egg-hash=(hash-egg egg)
-      ::  =/  our-txs
-      ::    ?~  o=(~(get by transaction-store) from.act)
-      ::      [(malt ~[[egg-hash [egg args.act]]]) ~]
-      ::    u.o(sent (~(put by sent.u.o) egg-hash [egg args.act]))
-      ::  ~&  >>  "wallet: submitting tx"
-      ::  :_  %=  state
-      ::        transaction-store  (~(put by transaction-store) from.act our-txs)
-      ::        nonces  (~(put by nonces) from.act (~(put by our-nonces) town.act +(nonce)))
-      ::      ==
-      ::  :~  (tx-update-card egg `args.act)
-      ::      :*  %pass  /submit-tx/(scot %ux from.act)/(scot %ux egg-hash)
-      ::          %agent  [our.bowl %uqbar]
-      ::          %poke  %uqbar-write
-      ::          !>(`write:uqbar`[%submit egg])
-      ::      ==
-      ::  ==
+      =/  =yolk:smart
+        ::  this switch statement written verbosely in order to
+        ::  easily support new formats of arguments in future.
+        ?-    -.args.act
+            %give
+          =/  from=asset  (~(got by `book`(~(got by tokens.state) from.act)) grain.args.act)
+          ?>  ?=(%token -.from)
+          =/  =asset-metadata  (~(got by metadata-store.state) metadata.from)
+          =/  to-id  (fry-rice:smart zigs-wheat-id:smart to.args.act town.act salt.asset-metadata)
+          =+  .^  (unit grain:smart)  %gx
+                  /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/grain/(scot %ux town.act)/(scot %ux to-id)/noun
+              ==
+          [%give to.args.act amount.args.act grain.args.act ?~(- ~ `to-id)]
+        ::
+            %give-nft
+          [%give to.args.act grain.args.act]
+        ==
+      ::
+      =/  keypair  (~(got by keys.state) from.act)
+      =/  =shell:smart
+        :*  caller
+            ~
+            to.act
+            rate.gas.act
+            bud.gas.act
+            town.act
+            status=%100
+        ==
+      =/  hash  (hash-egg shell yolk)
+      =/  =sig:smart
+        ?~  priv.keypair
+          [0 0 0]
+        %+  ecdsa-raw-sign:secp256k1:secp:crypto
+        `@uvI`hash  u.priv.keypair
+      =/  =egg:smart  [sig shell yolk]
+      ?~  priv.keypair
+        ::  if we don't have private key for this address, set as pending
+        ::  and allow frontend to sign with HW wallet or otherwise
+        ~&  >>  "%wallet: storing unsigned tx"
+        `state(pending `[hash egg args.act])
+      ::  if we have key, use signature and submit
+      =/  our-txs
+        ?~  o=(~(get by transaction-store) from.act)
+          [(malt ~[[hash [egg args.act]]]) ~]
+        u.o(sent (~(put by sent.u.o) hash [egg args.act]))
+      ~&  >>  "%wallet: submitting tx"
+      :_  %=  state
+            transaction-store  (~(put by transaction-store) from.act our-txs)
+            nonces  (~(put by nonces) from.act (~(put by our-nonces) town.act +(nonce)))
+          ==
+      :~  (tx-update-card hash egg args.act)
+          :*  %pass  /submit-tx/(scot %ux from.act)/(scot %ux hash)
+              %agent  [our.bowl %uqbar]
+              %poke  %uqbar-write
+              !>(`write:uqbar`[%submit egg])
+          ==
+      ==
     ==
   --
 ::
@@ -351,7 +365,7 @@
         ::  failed
         ~&  >>>  "wallet: tx was rejected by sequencer"
         this-tx(status.shell.egg %103)
-      :-  ~[(tx-update-card egg.this-tx `args.this-tx)]
+      :-  ~[(tx-update-card hash egg.this-tx args.this-tx)]
       %=    this
           transaction-store
         %-  ~(put by transaction-store)
@@ -361,7 +375,10 @@
         ?:  =(status.shell.egg.this-tx %101)
           nonces
         ::  dec nonce on this town, tx was rejected
-        (~(put by nonces) from (~(jab by (~(got by nonces) from)) town-id.shell.egg.this-tx |=(n=@ud (dec n))))
+        %+  ~(put by nonces)  from
+        %+  ~(jab by (~(got by nonces) from))
+          town-id.shell.egg.this-tx
+        |=(n=@ud (dec n))
       ==
     `this
   ::
@@ -370,21 +387,18 @@
     ?.  ?=(%fact -.sign)       (on-agent:def wire sign)
     ?.  ?=(%indexer-update p.cage.sign)  (on-agent:def wire sign)
     =+  pub=?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
-    =/  =update:ui  !<(=update:ui q.cage.sign)
-    ::  TODO: this is awful, replace with scrys to contract that give token types. see wallet/util.hoon
-    =/  found=book
+    =/  =update:ui  !<(update:ui q.cage.sign)
+    =/  old-book=book  (~(gut by tokens.state) pub ~)
+    =/  new-book=book
       (indexer-update-to-books update pub metadata-store.state)
-    =/  metadata-search  (find-new-metadata found our.bowl metadata-store.state [our now]:bowl)
-    =/  found-again=book
-      (indexer-update-to-books update pub metadata-search)
-    =/  curr=(unit book)  (~(get by tokens.state) pub)
     =+  %+  ~(put by tokens.state)  pub
-        ?~  curr  found-again
-        (~(uni by u.curr) found-again)
+        (~(uni by old-book) new-book)
     :-  ~[[%give %fact ~[/book-updates] %zig-wallet-update !>([%new-book -])]]
     %=  this
       tokens  -
-      metadata-store  metadata-search
+      ::
+        metadata-store
+      (update-metadata-store new-book our.bowl metadata-store.state [our now]:bowl)
     ==
   ::
       ?([%id @ ~] [%id @ @ ~])
@@ -396,24 +410,23 @@
     ?.  ?=(%egg -.update)  `this
     =/  our-id=@ux  ?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
     =+  our-txs=(~(gut by transaction-store.state) our-id [sent=~ received=~])
-    =/  eggs=(list [@ux =egg:smart])
-      %+  turn  ~(val by eggs.update)
-      |=  [@da =egg-location:ui =egg:smart]
-      [(hash-egg egg) egg]
     =^  tx-status-cards=(list card)  our-txs
-      %^  spin  eggs  our-txs
-      |=  [[hash=@ux =egg:smart] _our-txs]
+      %^  spin  ~(tap by eggs.update)  our-txs
+      |=  [[hash=@ux [@da =egg-location:ui =egg:smart]] txs=_our-txs]
       ::  update status code and send to frontend
-      ::  following error code spec in smart.hoon
+      ::  following error code spec in sur/wallet
       ^-  [card _our-txs]
-      :-  ?~  this-tx=(~(get by sent.our-txs) hash)
-            (tx-update-card egg ~)
-          (tx-update-card egg `args.u.this-tx)
-      %=    our-txs
+      :-  ?~  this-tx=(~(get by sent.txs) hash)
+            (tx-update-card hash egg [%custom (crip (text !>(yolk.egg)))])
+          (tx-update-card hash egg args.u.this-tx)
+      %=    txs
           sent
-        ?.  (~(has by sent.our-txs) hash)  sent
-        %+  ~(jab by sent.our-txs)  hash
-        |=([p=egg:smart q=supported-args] [p(status.shell status.shell.egg) q])
+        ?.  (~(has by sent.txs) hash)  sent.txs
+        %+  ~(jab by sent.txs)  hash
+        |=  [p=egg:smart q=supported-args]
+        =/  status  (add 200 `@`status.shell.egg)
+        ?>  ?=(transaction-status-code status)
+        [p(status.shell status) q]
       ::
           ::  TODO update nonce for town if tx was rejected for bad nonce (code 3)
           ::  or for lack of budget (code 4)
@@ -428,32 +441,32 @@
   |=  =path
   ^-  (unit (unit cage))
   ?.  =(%x -.path)  ~
+  =,  format
   ?+    +.path  (on-peek:def path)
       [%seed ~]
     =;  =json  ``json+!>(json)
-    =,  enjs:format
-    %-  pairs
+    %-  pairs:enjs
     :~  ['mnemonic' [%s mnem.seed.state]]
         ['password' [%s pass.seed.state]]
     ==
   ::
       [%accounts ~]
     =;  =json  ``json+!>(json)
-    =,  enjs:format
-    %-  pairs
+    %-  pairs:enjs
     %+  turn  ~(tap by keys.state)
     |=  [pub=@ux [priv=(unit @ux) nick=@t]]
     :-  (scot %ux pub)
-    %-  pairs
+    %-  pairs:enjs
     :~  ['pubkey' [%s (scot %ux pub)]]
         ['privkey' ?~(priv [%s ''] [%s (scot %ux u.priv)])]
         ['nick' [%s nick]]
         :-  'nonces'
-        %-  pairs
+        %-  pairs:enjs
         %+  turn  ~(tap by (~(gut by nonces.state) pub ~))
         |=  [town=@ux nonce=@ud]
-        [(scot %ux town) (numb nonce)]
+        [(scot %ux town) (numb:enjs nonce)]
     ==
+  ::
       [%keys ~]
     ``noun+!>(~(key by keys.state))
   ::
@@ -467,55 +480,40 @@
     ``noun+!>(`caller:smart`[pub nonce -])
   ::
       [%book ~]
-    ::  return entire book map for wallet frontend
     =;  =json  ``json+!>(json)
-    =,  enjs:format
-    %-  pairs
+    ::  return entire book map for wallet frontend
+    %-  pairs:enjs
     %+  turn  ~(tap by tokens.state)
     |=  [pub=@ux =book]
     :-  (scot %ux pub)
-    %-  pairs
+    %-  pairs:enjs
     %+  turn  ~(tap by book)
-    |=  [* [=token-type =grain:smart]]
-    (parse-asset:wallet-parsing token-type grain)
+    |=  [=id:smart =asset]
+    (parse-asset:wallet-parsing id asset)
   ::
       [%token-metadata ~]
-    ::  return entire metadata-store
     =;  =json  ``json+!>(json)
-    =,  enjs:format
-    %-  pairs
+    ::  return entire metadata-store
+    %-  pairs:enjs
     %+  turn  ~(tap by metadata-store.state)
-    |=  [id=@ud d=asset-metadata]
-    :-  (scot %ud id)
-    %-  pairs
-    :~  ['name' [%s name.d]]
-        ['symbol' [%s symbol.d]]
-        ?-  -.d
-          %token  ['decimals' (numb decimals.d)]
-          %nft  ['attributes' [%s 'TODO...']]
-        ==
-        ['supply' (numb supply.d)]
-        ['cap' (numb (fall cap.d 0))]
-        ['mintable' [%b mintable.d]]
-        ['deployer' [%s (scot %ux deployer.d)]]
-        ['salt' [%s (scot %ux salt.d)]]
-    ==
+    |=  [=id:smart d=asset-metadata]
+    (parse-metadata:wallet-parsing id d)
   ::
       [%transactions @ ~]
     ::  return transaction store for given pubkey
     =/  pub  (slav %ux i.t.t.path)
     =/  our-txs=[sent=(map @ux [=egg:smart args=supported-args]) received=(map @ux =egg:smart)]
       (~(gut by transaction-store.state) pub [~ ~])
+    ::
     =;  =json  ``json+!>(json)
-    =,  enjs:format
-    %-  pairs
+    %-  pairs:enjs
     %+  weld
       %+  turn  ~(tap by sent.our-txs)
       |=  [hash=@ux [t=egg:smart args=supported-args]]
-      (parse-transaction:wallet-parsing hash t `args)
+      (parse-transaction:wallet-parsing hash t args)
     %+  turn  ~(tap by received.our-txs)
     |=  [hash=@ux t=egg:smart]
-    (parse-transaction:wallet-parsing hash t ~)
+    (parse-transaction:wallet-parsing hash t [%custom (crip (text !>(yolk.t)))])
   ::
       [%signatures ~]
     ``noun+!>(signatures.state)
@@ -524,10 +522,9 @@
     ?~  pending.state  [~ ~]
     =*  p  u.pending.state
     =;  =json  ``json+!>(json)
-    =,  enjs:format
-    %-  pairs
+    %-  pairs:enjs
     :~  ['hash' [%s (scot %ux yolk-hash.p)]]
-        ['egg' +:(parse-transaction:wallet-parsing 0x0 egg.p `args.p)]
+        ['egg' +:(parse-transaction:wallet-parsing 0x0 egg.p args.p)]
     ==
   ==
 ::

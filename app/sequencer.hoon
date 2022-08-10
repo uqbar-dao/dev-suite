@@ -17,7 +17,7 @@
       town=(unit town)    ::  state
       =basket             ::  mempool
       peer-roots=(map id:smart root=@ux)  ::  track updates from rollup
-      proposed-batch=(unit [num=@ud =basket =land diff-hash=@ux root=@ux])
+      proposed-batch=(unit [num=@ud =carton =land diff-hash=@ux root=@ux])
       status=?(%available %off)
   ==
 +$  inflated-state-0  [state-0 =mil smart-lib-vase=vase]
@@ -196,7 +196,7 @@
       ::  return rejected (not enough passes to cover them) to our basket
       :_  %=  state
             basket  (silt rejected)
-            proposed-batch  `[new-batch-num basket.state land.new diff-hash new-root]
+            proposed-batch  `[new-batch-num processed.new land.new diff-hash new-root]
           ==
       =-  [%pass /batch-submit/(scot %ux new-root) %agent [u.rollup.state %rollup] %poke -]~
       :-  %rollup-action
@@ -231,7 +231,7 @@
           (transition-state town u.proposed-batch)
         :_  this(town new-town, proposed-batch ~, basket ~)
         =-  [%give %fact ~[/indexer/updates] %sequencer-indexer-update -]~
-        !>(`indexer-update`[%update ~(tap in basket.u.proposed-batch) (need new-town) root.u.proposed-batch])
+        !>(`indexer-update`[%update carton.u.proposed-batch (need new-town) root.u.proposed-batch])
       ::  TODO manage rejected moves here
       ~&  >>>  "%sequencer: our move was rejected by rollup!"
       ~&  u.p.sign

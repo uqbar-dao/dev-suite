@@ -3,46 +3,85 @@
 =,  enjs:format
 |%
 ++  parse-asset
-  |=  [=token-type =grain:smart]
+  |=  [=id:smart =asset]
   ^-  [p=@t q=json]
-  ?.  ?=(%& -.grain)  !!
-  :-  (scot %ux id.p.grain)
+  :-  (scot %ux id)
   %-  pairs
-  :~  ['id' [%s (scot %ux id.p.grain)]]
-      ['lord' [%s (scot %ux lord.p.grain)]]
-      ['holder' [%s (scot %ux holder.p.grain)]]
-      ['town' [%s (scot %ux town-id.p.grain)]]
-      ['token_type' [%s (scot %tas token-type)]]
+  :~  ['id' [%s (scot %ux id)]]
+      ['town' [%s (scot %ux town-id.asset)]]
+      ['token_type' [%s (scot %tas -.asset)]]
       :-  'data'
       %-  pairs
-      ?+    token-type  ~[['unknown_data_structure' [%s '?']]]
+      ?-    -.asset
           %token
-        =+  ;;(token-account data.p.grain)
-        :~  ['balance' (numb balance.-)]
-            ['metadata' [%s (scot %ux metadata.-)]]
-            ['salt' [%s (scot %u salt.p.grain)]]
+        :~  ['balance' (numb balance.asset)]
+            ['metadata' [%s (scot %ux metadata.asset)]]
         ==
       ::
           %nft
-        =+  ;;(nft-account data.p.grain)
-        :~  ['metadata' [%s (scot %ux metadata.-)]]
-            ['salt' [%s (scot %u salt.p.grain)]]
-            :-  'items'
-            %-  pairs
-            %+  turn  ~(tap by items.-)
-            |=  [id=@ud =item]
-            :-  (scot %ud id)
-            %-  pairs
-            :~  ['desc' [%s desc.item]]
-                ['attributes' [%s 'TODO...']]
-                ['URI' [%s uri.item]]
-            ==
+        :~  ['id' (numb id.asset)]
+            ['uri' [%s uri.asset]]
+            ['metadata' [%s (scot %ux metadata.asset)]]
+            ['allowances' (address-set allowances.asset)]
+            ['properties' (properties properties.asset)]
+            ['transferrable' [%b transferrable.asset]]
         ==
+      ::
+          %unknown
+        ~
       ==
   ==
 ::
+++  parse-metadata
+  |=  [=id:smart m=asset-metadata]
+  ^-  [p=@t q=json]
+  :-  (scot %ux id)
+  %-  pairs
+  :~  ['id' [%s (scot %ux id)]]
+      ['town' [%s (scot %ux town-id.m)]]
+      ['token_type' [%s (scot %tas -.m)]]
+      :-  'data'
+      %-  pairs
+      %+  snoc
+        ^-  (list [@t json])
+        :~  ['name' [%s name.m]]
+            ['symbol' [%s symbol.m]]
+            ['supply' (numb supply.m)]
+            ['cap' ?~(cap.m ~ (numb u.cap.m))]
+            ['mintable' [%b mintable.m]]
+            ['minters' (address-set minters.m)]
+            ['deployer' [%s (scot %ux deployer.m)]]
+            ['salt' (numb salt.m)]
+        ==
+      ?-  -.m
+        %token  ['decimals' (numb decimals.m)]
+        %nft  ['properties' (properties-set properties.m)]
+      ==
+  ==
+::
+++  address-set
+  |=  a=(set address:smart)
+  ^-  json
+  :-  %a
+  %+  turn  ~(tap in a)
+  |=(a=address:smart [%s (scot %ux a)])
+::
+++  properties-set
+  |=  p=(set @tas)
+  ^-  json
+  :-  %a
+  %+  turn  ~(tap in p)
+  |=(prop=@tas [%s (scot %tas prop)])
+::
+++  properties
+  |=  p=(map @tas @t)
+  ^-  json
+  %-  pairs
+  %+  turn  ~(tap by p)
+  |=([prop=@tas val=@t] [prop [%s val]])
+::
 ++  parse-transaction
-  |=  [hash=@ux t=egg:smart args=(unit supported-args)]
+  |=  [hash=@ux t=egg:smart args=supported-args]
   ^-  [p=@t q=json]
   :-  (scot %ux hash)
   %-  pairs
@@ -53,25 +92,22 @@
       ['budget' (numb budget.shell.t)]
       ['town' [%s (scot %ux town-id.shell.t)]]
       ['status' (numb status.shell.t)]
-      ?~  args  ['args' [%s 'received']]
       :-  'args'
       %-  frond
       :-  (scot %tas -.args)
       %-  pairs
-      ?-    -.u.args
+      ?-    -.args
           %give
-        :~  ['salt' [%s (scot %ux salt.u.args)]]
-            ['to' [%s (scot %ux to.u.args)]]
-            ['amount' (numb amount.u.args)]
+        :~  ['to' [%s (scot %ux to.args)]]
+            ['grain' [%s (scot %ux grain.args)]]
         ==
           %give-nft
-        :~  ['salt' [%s (scot %ux salt.u.args)]]
-            ['to' [%s (scot %ux to.u.args)]]
-            ['item-id' (numb item-id.u.args)]
+        :~  ['to' [%s (scot %ux to.args)]]
+            ['grain' [%s (scot %ux grain.args)]]
         ==
       ::
           %custom
-        ~[['args' [%s args.u.args]]]
+        ~[['args' [%s args.args]]]
       ==
   ==
 --

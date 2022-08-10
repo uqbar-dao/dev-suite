@@ -4,15 +4,15 @@
     --
 |%
 ++  hash-egg
-  |=  =egg:smart
+  |=  [=shell:smart =yolk:smart]
   ^-  @ux
   ::  hash the immutable+unique aspects of a transaction
-  `@ux`(sham [shell yolk]:egg)
+  `@ux`(sham [shell yolk])
 ::
 ++  tx-update-card
-  |=  [=egg:smart args=(unit supported-args)]
+  |=  [hash=@ux =egg:smart =supported-args]
   ^-  card
-  =+  [%tx-status (hash-egg egg) egg args]
+  =+  [%tx-status hash egg supported-args]
   [%give %fact ~[/tx-updates] %zig-wallet-update !>(-)]
 ::
 ++  create-holder-and-id-subs
@@ -50,95 +50,77 @@
   ?.  |(?=([%id *] wire) ?=([%holder *] wire))  ~
   `[%pass wire %agent [ship term] %leave ~]
 ::
-++  create-asset-subscriptions
-  |=  [tokens=(map @ux =book) indexer=ship]
-  ^-  (list card)
-  %+  turn
-    ::  find every grain in all our books
-    ^-  (list [=token-type grain:smart])
-    %-  zing
-    %+  turn  ~(tap by tokens)
-    |=  [@ux =book]
-    ~(val by book)
-  |=  [=token-type =grain:smart]
-  =-  [%pass - %agent [indexer %indexer] %watch -]
-  /grain/(scot %ux id.p.grain)
-::
-++  clear-asset-subscriptions
-  |=  wex=boat:gall
-  ^-  (list card)
-  %+  murn  ~(tap by wex)
-  |=  [[=wire =ship =term] *]
-  ^-  (unit card)
-  ?.  ?=([%grain *] wire)  ~
-  `[%pass wire %agent [ship term] %leave ~]
-::
 ++  indexer-update-to-books
   |=  [=update:ui our=@ux =metadata-store]
   ^-  book
-  =/  =book  *book
-  ?.  ?=(%grain -.update)  book
-  =/  grains-list  `(list [@da =batch-location:ui =grain:smart])`(zing ~(val by grains.update))
-  |-  ^-  ^book
-  ?~  grains-list  book
-  =/  =grain:smart  grain.i.grains-list
-  ::  currently only storing owned *rice*
-  ?.  ?=(%& -.grain)  $(grains-list t.grains-list)
-  ::  determine type token/nft/unknown
-  =/  =token-type
-    ?~  stored=(~(get by metadata-store) salt.p.grain)
-      %unknown
-    -.u.stored
-  %=    $
-      book
-    %+  ~(put by book)
-      [town-id.p.grain lord.p.grain salt.p.grain]
-    [token-type grain]
-    ::
+  =|  new-book=book
+  ?.  ?=(%grain -.update)  ~
+  =/  grains-list=(list [@da =batch-location:ui =grain:smart])
+    (zing ~(val by grains.update))
+  |-  ^-  book
+  ?~  grains-list  new-book
+  =*  grain  grain.i.grains-list
+  ?.  ?=(%& -.grain)
+    ::  if grain isn't data, just skip
+    $(grains-list t.grains-list)
+  ::  determine type token/nft/unknown and store in book
+  =/  =asset  (discover-asset-mold town-id.p.grain data.p.grain)
+  %=  $
     grains-list  t.grains-list
+    new-book  (~(put by new-book) id.p.grain asset)
   ==
 ::
-::  TODO: replace this whole janky system with a contract read that returns the type of the its rice
+++  discover-asset-mold
+  |=  [town=@ux data=*]
+  ^-  asset
+  =+  tok=((soft token-account) data)
+  ?^  tok
+    [%token town metadata.u.tok u.tok]
+  =+  nft=((soft nft) data)
+  ?^  nft
+    [%nft town metadata.u.nft u.nft]
+  [%unknown town data]
 ::
-++  find-new-metadata
-  |=  [=book our=ship =metadata-store [our=ship now=time]]
-  =/  book=(list [[town=id:smart lord=id:smart salt=@] [=token-type =grain:smart]])  ~(tap by book)
+++  update-metadata-store
+  |=  [=book our=ship =metadata-store our=ship now=time]
+  =/  book=(list [=id:smart =asset])  ~(tap by book)
   |-  ^-  ^metadata-store
   ?~  book  metadata-store
-  ?:  (~(has by metadata-store) salt.i.book)  $(book t.book)
-  ::  if we don't know the type of an asset, we need to try and fit it to
-  ::  a mold we know of. this is not great and should be eventually provided
-  ::  from some central authority
-  ?.  ?=(%& -.grain.i.book)  $(book t.book)
-  =*  rice  p.grain.i.book
-  ::  put %token / %nft label inside chain standard?
-  =/  found=(unit asset-metadata)
-    =+  tok=(mule |.(;;(token-account data.rice)))
-    ?:  ?=(%& -.tok)
-      (fetch-metadata %token metadata.p.tok [our now])
-    =+  nft=(mule |.(;;(nft-account data.rice)))
-    ?:  ?=(%& -.nft)
-      (fetch-metadata %nft metadata.p.nft [our now])
-    ~
-  ?~  found  $(book t.book)
-  $(book t.book, metadata-store (~(put by metadata-store) salt.rice u.found))
+  =*  asset  asset.i.book
+  ?-    -.asset
+      ?(%token %nft)
+    ?:  (~(has by metadata-store) metadata.asset)
+      ::  already got metadata
+      ::  TODO: determine schedule for updating asset metadata
+      ::  (sub to indexer for the metadata grain id, update our store on update)
+      $(book t.book)
+    ::  scry indexer for metadata grain and store it
+    ?~  meta=(fetch-metadata -.asset town-id.asset metadata.asset our now)
+      ::  couldn't find it
+      $(book t.book)
+    %=  $
+      book  t.book
+      metadata-store  (~(put by metadata-store) metadata.asset u.meta)
+    ==
+  ::
+      %unknown
+    ::  can't find metadata if asset type is unknown
+    $(book t.book)
+  ==
+::
 ++  fetch-metadata
-  |=  [=token-type =id:smart [our=ship now=time]]
+  |=  [token-type=@tas town-id=@ux =id:smart our=ship now=time]
   ^-  (unit asset-metadata)
   ::  manually import metadata for a token
-  =/  update  .^(update:ui %gx /(scot %p our)/indexer/(scot %da now)/grain/(scot %ux id)/noun)
-  ?~  update
+  =/  g=(unit grain:smart)
+    ::  TODO remote scry w/ uqbar.hoon
+    .^((unit grain:smart) %gx /(scot %p our)/uqbar/(scot %da now)/grain/(scot %ux town-id)/(scot %ux id)/noun)
+  ?~  g
     ~&  >>>  "%wallet: failed to find matching metadata for a grain we hold"
     ~
-  ?>  ?=(%grain -.update)
-  =/  meta-grain=grain:smart  +.+.-.+.-:~(tap by grains.update)
-  ?>  ?=(%& -.meta-grain)
-  =/  found=(unit asset-metadata)
-    ?+  token-type  ~
-      %token  `[%token ;;(token-metadata data.p.meta-grain)]
-      %nft    `[%nft ;;(nft-metadata data.p.meta-grain)]
-    ==
-  ?~  found  ~
-  ?>  =(salt.p.meta-grain salt.u.found)
-  found
+  ?.  ?=(%& -.u.g)  ~
+  ?+  token-type  ~
+    %token  `[%token town-id ;;(token-metadata data.p.u.g)]
+    %nft    `[%nft town-id ;;(nft-metadata data.p.u.g)]
+  ==
 --
