@@ -3,6 +3,9 @@
 /*  zigs-contract     %noun  /lib/zig/compiled/zigs/noun
 /*  nft-contract      %noun  /lib/zig/compiled/nft/noun
 /*  publish-contract  %noun  /lib/zig/compiled/publish/noun
+::  TODO
+::  /*  multisig-contract      %noun  /lib/zig/compiled/multisig/noun
+::  /*  fungible-contract      %noun  /lib/zig/compiled/fungible/noun
 :-  %say
 |=  [[now=@da eny=@uvJ bek=beak] [rollup-host=@p town-id=@ux private-key=@ux ~] ~]
 =/  pubkey-1  0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
