@@ -37,6 +37,11 @@
   ::  note that many of these lines will crash with bad input. this is good,
   ::  because we don't want failing transactions to waste more gas than required
   ::
+  ::
+  ::  N.B: arms which re-enter themselves (i.e. continuation calls to me.cart)
+  ::  cannot depend on id.from.cart being the caller, since in a continuation call
+  ::  id.from.cart == me.cart. this is why we simply accept what we'd otherwise use caller for
+  ::  explicitly as part of the arguments
   ?-    -.act
       %give
     =/  giv=grain          (need (scry from-account.act))
@@ -68,11 +73,10 @@
     (result [giv rec ~] ~ ~ ~)
   ::
       %take
-    ::  TODO possibly ?>  =(id.from.cart to.act)? or just removing it?
     =/  giv=grain  (need (scry from-account.act))
     ?>  ?=(%& -.giv)
     =/  giver=account:sur  data:(husk account:sur giv `me.cart ~)
-    =/  allowance=@ud  (~(got by allowances.giver) id.from.cart)
+    =/  allowance=@ud  (~(got by allowances.giver) to.act)
     ::  assert caller is permitted to spend this amount of token
     ?>  (gte balance.giver amount.act)
     ?>  (gte allowance amount.act)
@@ -84,10 +88,10 @@
       ::  continuation call: %take to rice found in book
       %+  continuation
         [me.cart town-id.cart action]~
-      (result ~ issued=[new ~] ~ ~)
+      (result ~ [new ~] ~ ~)
     ::  direct send
     =/  rec=grain  (need (scry u.account.act))
-    =/  receiver   data:(husk account:sur giv `me.cart `to.act)
+    =/  receiver   data:(husk account:sur rec `me.cart `to.act)
     ?>  ?=(%& -.rec)
     ?>  =(metadata.receiver metadata.giver)
     ::  update the allowance of taker
@@ -98,7 +102,7 @@
       %=  giver
         balance     (sub balance.giver amount.act)
         allowances  %+  ~(jab by allowances.giver)
-                      id.from.cart
+                      to.act
                     |=(old=@ud (sub old amount.act))
       ==
     ==
@@ -110,7 +114,7 @@
     ::  and the taker will pass in the signature to take the tokens
     =/  giv=grain          (need (scry from-account.act))
     ?>  ?=(%& -.giv)
-    =/  giver=account:sur  data:(husk account:sur giv `me.cart `id.from.cart)
+    =/  giver=account:sur  data:(husk account:sur giv `me.cart `to.act)
     ::  reconstruct the typed message and hash
     =/  =typed-message
       :-  (fry-rice me.cart holder.p.giv town-id.cart salt.p.giv)
@@ -158,7 +162,7 @@
     =/  acc=grain          (need (scry from-account.act))
     ?>  ?=(%& -.acc)
     =/  =account:sur  data:(husk account:sur acc `me.cart `id.from.cart)
-    ?>  !=(who.act holder.p.acc)
+    ?>  !=(who.act holder.p.acc)  :: no allowances for yourself
     =.  data.p.acc
       %=    account
           allowances
@@ -172,9 +176,13 @@
     ?>  ?=(%& -.tok)
     =/  meta   data:(husk token-metadata:sur tok `me.cart `me.cart)
     ::  first, check if token is mintable
-    ?>  &(mintable.meta ?=(^ cap.meta) ?=(^ minters.meta))
+    ?>  &(mintable.meta ?=(^ cap.meta) !=(~ minters.meta))
     ::  check if caller is permitted to mint
-    ?>  (~(has in `(set id)`minters.meta) id.from.cart)
+    ?>  ?|  =(id.from.cart me.cart)         ::  caller is the contract itself
+            ?&  =(id.from.cart minter.act)  ::  caller is who they claim to be in minter
+                (~(has in minters.meta) minter.act)
+            ==                              ::  and is in approved minters set
+        ==
     ::  for accounts which we know rice of, find in owns.cart
     ::  and alter. for others, generate id and add to c-call
     =/  mints  ~(tap in mints.act)
@@ -195,7 +203,7 @@
         ::  no new accounts to issue
         (result [tok changed] ~ ~ ~)
       ::  finished but need to mint to newly-issued rices
-      =/  =action:sur  [%mint token.act next-mints]
+      =/  =action:sur  [%mint minter.act token.act next-mints]
       %+  continuation
         [me.cart town-id.cart action]~
       (result changed to-issue ~ ~)

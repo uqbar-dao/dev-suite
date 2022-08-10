@@ -48,13 +48,12 @@
     $%  ::  token holder actions
         ::
         [%give from-account=id to=address to-account=(unit id) amount=@ud]
-        ::  TODO rename to=id -> taker or something. or isn't to the caller?????
         [%take to=address account=(unit id) from-account=id amount=@ud]
         [%take-with-sig to=address account=(unit id) from-account=id amount=@ud nonce=@ud deadline=@da =sig]
         [%set-allowance from-account=id who=address amount=@ud]  ::  (to revoke, call with amount=0)
         ::  token management actions
         ::
-        [%mint token=id mints=(set mint)]  ::  can only be called by minters, can't mint above cap
+        [%mint minter=address token=id mints=(set mint)]  ::  can only be called by minters, can't mint above cap
         $:  %deploy
             distribution=(set [address bal=@ud])  ::  sums to <= cap if mintable, == cap otherwise
             minters=(set address)                 ::  ignored if !mintable, otherwise need at least one
