@@ -104,7 +104,6 @@ public: 0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
 
 First make sure you're on the whitelist for the ship hosting the rollup simulator. Then, if `~zod` was that host:
 ```
-.smart-lib/noun +zig!mk-smart
 :indexer &set-sequencer [~zod %sequencer]
 :indexer &set-rollup [~zod %rollup]
 :uqbar|set-sources 0x0 ~[our ~zod]
