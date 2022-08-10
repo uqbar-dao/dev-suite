@@ -107,11 +107,11 @@
       label=%metadata
       :*  name='Ziggurat Girls'
           symbol='GOODART'
-          properties=(silt `(list @tas)`~[%hat %eyes %mouth])
+          properties=(~(gas pn:smart *(pset:smart @tas)) `(list @tas)`~[%hat %eyes %mouth])
           supply=1
           cap=`5
           mintable=%.y
-          minters=(silt ~[pubkey-1])
+          minters=(~(gas pn:smart *(pset:smart address:smart)) ~[pubkey-1])
           deployer=pubkey-1
           salt=`@`'nftsalt'
       ==
@@ -122,13 +122,15 @@
   ==
 =/  nft-1  (fry-rice:smart 0xcafe.babe pubkey-1 town-id `@`'nftsalt1')
 =/  nft-rice
+  ^-  rice:smart
   :*  salt=`@`'nftsalt1'
       label=%nft
       :*  1
           'ipfs://QmUbFVTm113tJEuJ4hZY2Hush4Urzx7PBVmQGjv1dXdSV9'
           id:nft-metadata-rice
           ~
-          (malt `(list [@tas @t])`~[[%hat 'pyramid'] [%eyes 'big'] [%mouth 'smile']])
+          %-  ~(gas py:smart *(pmap:smart @tas @t))
+          `(list [@tas @t])`~[[%hat 'pyramid'] [%eyes 'big'] [%mouth 'smile']]
           %.y
       ==
       nft-1
