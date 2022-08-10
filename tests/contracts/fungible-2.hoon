@@ -81,12 +81,13 @@
 ::
 ::  N.B. owner zigs ids must match the ones generated in `+zig-account`
 ++  fun-account
-  |=  [holder=id:smart amt=@ud]
+  |=  [holder=id:smart amt=@ud meta=(unit @ux) allowances=(map address:smart @ud)]
+  ::  meta - metadata of the fungible account. defaults to `@ux`'simple' unless provided
   ^-  grain:smart
   =/  sal  `@`'funsalt'
   =/  id  (fry-rice:smart id.p:fungible-wheat holder town-id sal)
   :*  %&  sal  %account
-      `account:sur:fun`[amt ~ `@ux`'simple' 0]
+      `account:sur:fun`[amt allowances ?~(meta `@ux`'simple' u.meta) 0]
       id
       id.p:fungible-wheat
       holder
@@ -94,27 +95,30 @@
   ==
 ++  priv-1  0xbeef.beef.beef.beef.beef.beef.beef.beef.beef.beef
 ++  pub-1   (address-from-prv:key:ethereum priv-1)
-++  owner-1
+++  owner-1  ::  previously 0x1.beef
   ^-  caller:smart
   [pub-1 0 (fry-rice:smart zigs-wheat-id:smart pub-1 town-id `@`'zigsalt')]
 ++  account-1
-  (fun-account pub-1 50)
+  (fun-account pub-1 50 ~ ~)
 ::
 ++  priv-2  0xdead.dead.dead.dead.dead.dead.dead.dead.dead.dead
 ++  pub-2   (address-from-prv:key:ethereum priv-2)
 ++  owner-2
   ^-  caller:smart
   [pub-2 0 (fry-rice:smart zigs-wheat-id:smart pub-2 town-id `@`'zigsalt')]
-++  account-2 
-  (fun-account pub-2 30)
+++  account-2  ::  previously 0x1.dead
+  (fun-account pub-2 30 ~ ~)
 ::
 ++  priv-3  0xcafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe
 ++  pub-3   (address-from-prv:key:ethereum priv-3)
 ++  owner-3
   ^-  caller:smart
   [pub-3 0 (fry-rice:smart zigs-wheat-id:smart pub-3 town-id `@`'zigsalt')]
-++  account-3
-  (fun-account pub-3 20)
+++  account-3  :: previously 0x1.cafe
+  (fun-account pub-3 20 ~ (malt ~[[0xffff 100]]))
+++  account-4
+  (fun-account 0xface 20 ``@ux`'different meta' ~)
+
 ::
 ++  fungible-wheat
   ^-  grain:smart
@@ -183,6 +187,7 @@
       (zig-account:zigs holder.p:account-1 999.999)
       (zig-account:zigs holder.p:account-2 999.999)
       (zig-account:zigs holder.p:account-3 999.999)
+      (zig-account:zigs 0xffff 999.999)
       ::[id.p:miller-account:zigs miller-account:zigs]
       ::[id.p:wheat:zigs wheat:zigs]
   ==
@@ -196,6 +201,7 @@
 ++  fake-land
   ^-  land
   [fake-granary fake-populace]
+::
 ++  test-set-allowance
   ^-  tang
   =/  =action:sur:fun  [%set-allowance id.p:account-1 id:owner-3 10]
@@ -216,14 +222,16 @@
   =*  correct  updated-1
   (expect-eq !>(correct) !>(res))
 ::
+::  %give
+::
 ++  test-give-known-receiver
   ^-  tang
   =/  =action:sur:fun
     [%give id.p:account-1 pub-2 `id.p:account-2 30]
   =/  shel=shell:smart
     [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  updated-1=grain:smart  (fun-account pub-1 20)
-  =/  updated-2=grain:smart  (fun-account pub-2 60)
+  =/  updated-1=grain:smart  (fun-account pub-1 20 ~ ~)
+  =/  updated-2=grain:smart  (fun-account pub-2 60 ~ ~)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel action]
@@ -237,7 +245,43 @@
   =/  shel=shell:smart
     [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  new-id  (fry-rice:smart id.p:fungible-wheat 0xffff town-id `@`'funsalt')
-  =/  new=grain:smart  (fun-account 0xffff 30)
+  =/  new=grain:smart  (fun-account 0xffff 30 ~ ~)
+  =/  milled=mill-result
+    %+  ~(mill mil miller town-id 1)
+    fake-land  `egg:smart`[fake-sig shel action]
+  =/  res=grain:smart  (got:big p.land.milled new-id)
+  =*  correct  new
+  (expect-eq !>(correct) !>(res))
+++  test-give-not-enough
+  ^-  tang
+  =/  =action:sur:fun  [%give id.p:account-1 0xdead `id.p:account-2 51]
+  =/  shel=shell:smart
+    [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
+  =/  milled=mill-result
+    %+  ~(mill mil miller town-id 1)
+    fake-land  `egg:smart`[fake-sig shel action]
+  (expect-eq !>(%6) !>(errorcode.milled))
+++  test-give-metadata-mismatch
+  ^-  tang
+  =/  =action:sur:fun  [%give id.p:account-1 0xface `id.p:account-4 10]
+  =/  shel=shell:smart
+    [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
+  =/  milled=mill-result
+    %+  ~(mill mil miller town-id 1)
+    fake-land  `egg:smart`[fake-sig shel action]
+  (expect-eq !>(%6) !>(errorcode.milled))
+::
+:: %take
+::
+++  test-take-send-new-account
+  ::  TODO doesn't crash anymore but still fails
+  ^-  tang
+  =/  =action:sur:fun  [%take 0xffff ~ id.p:account-3 10]
+  =/  shel=shell:smart
+    =+  zigs=(fry-rice:smart zigs-wheat-id:smart 0xffff town-id `@`'zigsalt')
+    [[0xffff 1 zigs] ~ id.p:fungible-wheat rate budget town-id 0]
+  =/  new-id=id:smart  (fry-rice:smart id.p:fungible-wheat 0xffff town-id `@ux`'funsalt')
+  =/  new=grain:smart  (fun-account 0xffff 10 ~ ~)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel action]
