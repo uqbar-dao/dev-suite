@@ -471,7 +471,7 @@
             root.update  timestamp.update
           ==
         =^  cards  state
-          %:  consume-batch
+          %:  consume-batch:ic
               root.update
               eggs.u.indexer-update
               town.u.indexer-update
@@ -511,7 +511,7 @@
             [eggs.update town.update]
           ==
         =^  cards  state
-          %:  consume-batch
+          %:  consume-batch:ic
               root.update
               eggs.update
               town.update
@@ -1140,11 +1140,12 @@
   ++  make-sub-paths
     ^-  (jug @tas path)
     %-  ~(gas ju *(jug @tas path))
-    %+  turn  ~(val by sup.bowl)
+    %+  murn  ~(val by sup.bowl)
     |=  [ship sub-path=path]
-    ^-  [@tas path]
-    ?>  ?=(^ sub-path)
-    [`@tas`i.sub-path t.sub-path]
+    ^-  (unit [@tas path])
+    ?@  sub-path                                          ~
+    ?.  ?=(?(%id %grain %holder %lord %town) i.sub-path)  ~
+    `[`@tas`i.sub-path t.sub-path]
   ::
   ++  make-all-sub-cards
     ^-  (list card)
@@ -1173,23 +1174,17 @@
       =/  =update:ui
         (get-newest-update-from-index query-type payload)
       ?~  update  ~
-      ?:  ?=(?(%batch %egg) -.update)
-        :-  ~
-        %+  fact:io  [%indexer-update !>(`update:ui`update)]
-        ~[[path-type sub-path]]
-      ?.  ?=(%grain -.update)  ~
-      =.  grains.update
-        %-  ~(gas by *(jar id:smart [@da batch-location:ui grain:smart]))
-        %+  murn  ~(tap by grains.update)
-        |=  [=id:smart gs=(list [@da batch-location:ui grain:smart])]
-        ?~(gs ~ `[id ~[i.gs]])
       :-  ~
       %+  fact:io  [%indexer-update !>(`update:ui`update)]
       ~[[path-type sub-path]]
     --
   ::
   ++  parse-batch
-    |=  [root=@ux town-id=@ux eggs=(list [@ux egg:smart]) =land:seq]
+    |=  $:  root=@ux
+            town-id=@ux
+            eggs=(list [@ux egg:smart])
+            =land:seq
+        ==
     ^-  $:  (list [@ux egg-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux batch-location:ui])
