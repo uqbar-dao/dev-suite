@@ -102,16 +102,16 @@
     |=  =egg:smart
     ^-  json
     %-  pairs
-    :~  [%sig (sig sig.egg)]
+    :^    [%sig (sig sig.egg)]
         [%shell (shell shell.egg)]
-        [%yolk (yolk yolk.egg)]
-    ==
+      [%yolk (yolk yolk.egg)]
+    ~
   ::
   ++  shell
     |=  =shell:smart
     ^-  json
     %-  pairs
-    :~  [%from (account from.shell)]
+    :~  [%from (caller from.shell)]
         [%eth-hash (eth-hash eth-hash.shell)]
         [%to %s (scot %ux to.shell)]
         [%rate (numb rate.shell)]
@@ -124,18 +124,18 @@
     |=  =yolk:smart
     ^-  json
     %-  pairs
-    :~  [%action %s `@t`p.yolk]
-        ::  TODO get lump format from contract interface and convert
-    ==
+    ::  TODO get lump format from contract interface and convert
+    :-  [%action %s `@t`p.yolk]
+    ~
   ::
-  ++  account
+  ++  caller
     |=  =caller:smart
     ^-  json
     %-  pairs
-    :~  [%id %s (scot %ux id.caller)]
+    :^    [%id %s (scot %ux id.caller)]
         [%nonce (numb nonce.caller)]
-        [%zigs %s (scot %ux zigs.caller)]
-    ==
+      [%zigs %s (scot %ux zigs.caller)]
+    ~
   ::
   :: ++  signature
   ::   |=  =signature:zig
@@ -222,7 +222,8 @@
     ^-  json
     %-  pairs
     %+  turn  ~(tap by granary)
-    |=  [=id:smart [pedersen=@ux g=grain:smart]]
+    ::  TODO: either print Pedersen hash or don't store it
+    |=  [=id:smart pedersen=@ux g=grain:smart]
     [(scot %ux id) (grain g)]
   ::
   ++  populace
@@ -230,7 +231,8 @@
     ^-  json
     %-  pairs
     %+  turn  ~(tap by populace)
-    |=  [=id:smart [pedersen=@ux nonce=@ud]]
+    ::  TODO: either print Pedersen hash or don't store it
+    |=  [=id:smart pedersen=@ux nonce=@ud]
     [(scot %ux id) (numb nonce)]
   ::
   ++  hall

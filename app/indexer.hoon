@@ -114,7 +114,6 @@
     dbug,
     default-agent,
     verb,
-    indexer-lib=indexer-bowl,
     smart=zig-sys-smart
 ::
 |%
@@ -156,7 +155,6 @@
   +*  this          .
       def           ~(. (default-agent this %|) bowl)
       io            ~(. agentio bowl)
-      ui-lib        ~(. indexer-lib bowl)
       indexer-core  +>
       ic            ~(. indexer-core bowl)
   ::
@@ -297,40 +295,39 @@
   ++  on-peek
     |=  =path
     ^-  (unit (unit cage))
-    =/  is-json=?  &(?=([@ @ *] path) =(%json i.t.path))
     |^
     ?+    path  (on-peek:def path)
-        ?([%x %hash @ ~] [%x %json %hash @ ~])
+        [%x %hash @ ~]
       =/  hash=@ux  read-hash-from-path
       =/  =update:ui  (get-hashes hash)
       (make-peek-update update)
     ::
-        ?([%x %hash @ @ ~] [%x %json %hash @ @ ~])
+        [%x %hash @ @ ~]
       =/  query-payload=[@ux @ux]  read-two-hashes-from-path
       =/  =update:ui  (get-hashes query-payload)
       (make-peek-update update)
     ::
-        ?([%x %id @ ~] [%x %json %id @ ~])
+        [%x %id @ ~]
       =/  hash=@ux  read-hash-from-path
       =/  =update:ui  (get-ids hash)
       (make-peek-update update)
     ::
-        ?([%x %id @ @ ~] [%x %json %id @ @ ~])
+        [%x %id @ @ ~]
       =/  query-payload=[@ux @ux]  read-two-hashes-from-path
       =/  =update:ui  (get-ids query-payload)
       (make-peek-update update)
     ::
-        $?  [%x %batch @ ~]       [%x %json %batch @ ~]
-            [%x %egg @ ~]         [%x %json %egg @ ~]
-            [%x %from @ ~]        [%x %json %from @ ~]
-            [%x %grain @ ~]       [%x %json %grain @ ~]
-            [%x %grain-eggs @ ~]  [%x %json %grain-eggs @ ~]
-            [%x %holder @ ~]      [%x %json %holder @ ~]
-            [%x %lord @ ~]        [%x %json %lord @ ~]
-            [%x %to @ ~]          [%x %json %to @ ~]
-            [%x %town @ ~]        [%x %json %town @ ~]
+        $?  [%x %batch @ ~]
+            [%x %egg @ ~]
+            [%x %from @ ~]
+            [%x %grain @ ~]
+            [%x %grain-eggs @ ~]
+            [%x %holder @ ~]
+            [%x %lord @ ~]
+            [%x %to @ ~]
+            [%x %town @ ~]
         ==
-      =/  args=^path  ?.(is-json t.path t.t.path)
+      =/  args=^path  t.path
       ?.  ?=([@ @ ~] args)  (on-peek:def path)
       =/  =query-type:ui  ;;(query-type:ui i.args)
       =/  hash=@ux  (slav %ux i.t.args)
@@ -345,7 +342,7 @@
             [%x %newest-lord @ ~]
             [%x %newest-to @ ~]
         ==
-      =/  args=^path  ?.(is-json t.path t.t.path)
+      =/  args=^path  t.path
       ?.  ?=([@ @ ~] args)  (on-peek:def path)
       =/  =query-type:ui
         ;;(query-type:ui (crip (slag 7 (trip i.args))))
@@ -354,37 +351,33 @@
         (get-newest-update-from-index query-type hash)
       (make-peek-update update)
     ::
-        $?  [%x %batch @ @ ~]       [%x %json %batch @ @ ~]
-            [%x %egg @ @ ~]         [%x %json %egg @ @ ~]
-            [%x %from @ @ ~]        [%x %json %from @ @ ~]
-            [%x %grain @ @ ~]       [%x %json %grain @ @ ~]
-            [%x %grain-eggs @ @ ~]  [%x %json %grain-eggs @ @ ~]
-            [%x %holder @ @ ~]      [%x %json %holder @ @ ~]
-            [%x %lord @ @ ~]        [%x %json %lord @ @ ~]
-            [%x %to @ @ ~]          [%x %json %to @ @ ~]
-            [%x %town @ @ ~]        [%x %json %town @ @ ~]
+        $?  [%x %batch @ @ ~]
+            [%x %egg @ @ ~]
+            [%x %from @ @ ~]
+            [%x %grain @ @ ~]
+            [%x %grain-eggs @ @ ~]
+            [%x %holder @ @ ~]
+            [%x %lord @ @ ~]
+            [%x %to @ @ ~]
+            [%x %town @ @ ~]
         ==
-      =/  args=^path  ?.(is-json t.path t.t.path)
+      =/  args=^path  t.path
       ?.  ?=([@ @ @ ~] args)  (on-peek:def path)
       =/  =query-type:ui  ;;(query-type:ui i.args)
       =/  query-payload=[@ux @ux]  read-two-hashes-from-path
       =/  =update:ui  (serve-update query-type query-payload)
       (make-peek-update update)
     ::
-        ?([%x %batch-order @ ~] [%x %json %batch-order @ ~])
+        [%x %batch-order @ ~]
       =/  town-id=@ux  read-hash-from-path
       :^  ~  ~  %indexer-batch-order
       ?~  bs=(~(get by batches-by-town) town-id)  !>(~)
       !>(`batch-order:ui`batch-order.u.bs)
     ::
-        ?([%x %batch-order @ @ @ ~] [%x %json %batch-order @ @ @ ~])
+        [%x %batch-order @ @ @ ~]
       =/  [town-id=@ux nth-most-recent=@ud how-many=@ud]
-        ?.  is-json
-          :+  (slav %ux i.t.t.path)  (slav %ud i.t.t.t.path)
-          (slav %ud i.t.t.t.t.path)
-        ?.  ?=([@ @ @ @ @ @ ~] path)  (on-peek:def path)
-        :+  (slav %ux i.t.t.t.path)  (slav %ud i.t.t.t.t.path)
-        (slav %ud i.t.t.t.t.t.path)
+        :+  (slav %ux i.t.t.path)  (slav %ud i.t.t.t.path)
+        (slav %ud i.t.t.t.t.path)
       :^  ~  ~  %indexer-batch-order
       ?~  bs=(~(get by batches-by-town) town-id)  !>(~)
       !>  ^-  batch-order:ui
@@ -393,25 +386,17 @@
     ::
     ++  make-peek-update
       |=  =update:ui
-      ?.  is-json
-        [~ ~ %indexer-update !>(`update:ui`update)]
-      [~ ~ %json !>(`json`(update:enjs:ui-lib update))]
+      [~ ~ %indexer-update !>(`update:ui`update)]
     ::
     ++  read-hash-from-path
       ^-  @ux
-      ?.  is-json
-        ?>  ?=([@ @ @ ~] path)
-        (slav %ux i.t.t.path)
-      ?>  ?=([@ @ @ @ ~] path)
-      (slav %ux i.t.t.t.path)
+      ?>  ?=([@ @ @ ~] path)
+      (slav %ux i.t.t.path)
     ::
     ++  read-two-hashes-from-path
       ^-  [@ux @ux]
-      ?.  is-json
-        ?>  ?=([@ @ @ @ ~] path)
-        [(slav %ux i.t.t.path) (slav %ux i.t.t.t.path)]
-      ?>  ?=([@ @ @ @ @ ~] path)
-      [(slav %ux i.t.t.t.path) (slav %ux i.t.t.t.t.path)]
+      ?>  ?=([@ @ @ @ ~] path)
+      [(slav %ux i.t.t.path) (slav %ux i.t.t.t.path)]
     --
   ::
   ++  on-agent
