@@ -33,6 +33,15 @@
 +$  egg-location
   [town-id=id:smart batch-root=id:smart egg-num=@ud]
 ::
++$  location-index
+  (map @ux (jar @ux location))
++$  batch-index
+  (map @ux (jar @ux batch-location))
++$  egg-index
+  (map @ux (jar @ux egg-location))
++$  second-order-index
+  (map @ux (jar @ux second-order-location))
+::
 +$  batches-by-town
   (map town-id=id:smart [=batches =batch-order])
 +$  batches
@@ -41,6 +50,9 @@
   (list id:smart)  ::  0-index -> most recent batch
 +$  batch
   [transactions=(list [@ux egg:smart]) town:seq]
++$  newest-batch-by-town
+  %+  map  town-id=id:smart
+  [batch-id=id:smart timestamp=@da =batch]
 ::
 +$  town-update-queue
   (map town-id=@ux (map batch-id=@ux timestamp=@da))
