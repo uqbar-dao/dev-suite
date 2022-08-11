@@ -29,7 +29,7 @@
     ::  this contract must be lord
     =/  gift  (husk nft:sur - `me.cart ~)
     ::  caller must be in allowances set
-    ?>  (~(has in allowances.data.gift) id.from.cart)
+    ?>  (~(has pn allowances.data.gift) id.from.cart)
     ::  NFT must be transferrable
     ?>  transferrable.data.gift
     ::  change holder to reflect new ownership
@@ -46,14 +46,14 @@
     ?~  items.act
       ::  finished
       (result changed ~ ~ ~)
-    ::  can optimize repeats here by storing these all in map at start
+    ::  can optimize repeats here by storing these all in pmap at start
     =+  (need (scry grain.i.items.act))
     ::  must hold any NFT we set allowance for
     =/  nft  (husk nft:sur - `me.cart `id.from.cart)
     =.  allowances.data.nft
       ?:  allowed.i.items.act
-        (~(put in allowances.data.nft) who.i.items.act)
-      (~(del in allowances.data.nft) who.i.items.act)
+        (~(put pn allowances.data.nft) who.i.items.act)
+      (~(del pn allowances.data.nft) who.i.items.act)
     %=  $
       items.act  t.items.act
       changed    [[%& nft] changed]
@@ -65,7 +65,7 @@
     ::  ensure NFT is mintable
     ?>  &(mintable.data.meta ?=(^ cap.data.meta))
     ::  ensure caller is in minter-set
-    ?>  (~(has in minters.data.meta) id.from.cart)
+    ?>  (~(has pn minters.data.meta) id.from.cart)
     ::  set id of next possible item in collection
     =/  next-item-id  +(supply.data.meta)
     ::  check if mint will surpass supply cap
@@ -84,7 +84,7 @@
     =/  salt    (cat 3 salt.meta (scot %ud next-item-id))
     =/  new-id  (fry-rice me.cart to.m town-id.cart salt)
     ::  properties must match those in metadata spec!
-    ?>  =(properties.data.meta ~(key by properties.m))
+    ?>  =(properties.data.meta ~(key py properties.m))
     =/  data    [next-item-id uri.m id.meta ~ properties.m transferrable.m]
     =/  =rice   [salt %nft data new-id me.cart to.m town-id.cart]
     %=  $

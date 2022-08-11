@@ -1,157 +1,130 @@
-::  Tests for nft.hoon (non-fungible token contract)
-::  to test, make sure to add library import at top of contract
-::  (remove again before compiling for deployment)
 ::
-/+  *test, cont=zig-contracts-nft, *zig-sys-smart
-=>  ::  test data
-    |%
-    ++  init-now  *@da
-    ++  metadata-1  ^-  grain
-      :*  `@ux`'simple'
-          `@ux`'nft'
-          `@ux`'holder'
-          town-id=0x1
-          :+  %&  `@`'salt'
-          :*  name='Simple NFT'
-              symbol='SNFT'
-              attributes=(silt ~['hair' 'eyes' 'mouth'])
-              supply=3
-              cap=~
-              mintable=%.n
-              minters=~
-              deployer=0x0
-              salt=`@`'salt'
-      ==  ==
-    ::
-    +$  item  [id=@ud item-contents]  
-    +$  item-contents
-      $:  data=(set [@t @t])
-          desc=@t
-          uri=@t
-          transferrable=?
-      ==
-    ::
-    ++  item-1  ^-  item
-      [1 (silt ~[['hair' 'red'] ['eyes' 'blue'] ['mouth' 'smile']]) 'a smiling face' 'ipfs://fake1' %.y]
-    ++  item-2  ^-  item
-      [2 (silt ~[['hair' 'brown'] ['eyes' 'green'] ['mouth' 'frown']]) 'a frowny face' 'ipfs://fake2' %.y]
-    ++  item-3  ^-  item
-      [3 (silt ~[['hair' 'grey'] ['eyes' 'black'] ['mouth' 'squiggle']]) 'a weird face' 'ipfs://fake3' %.n]
-    ::
-    ++  account-1  ^-  grain
-      :*  0x1.beef
-          `@ux`'nft'
-          0xbeef
-          0x1
-          [%& `@`'salt' [`@ux`'nft' (malt ~[[1 item-1]]) ~ ~]]
-      ==
-    ++  owner-1  ^-  account
-      [0xbeef 0 0x1234.5678]
-    ::
-    ++  account-2  ^-  grain
-      :*  0x1.dead
-          `@ux`'nft'
-          0xdead
-          0x1
-          [%& `@`'salt' [`@ux`'nft' (malt ~[[2 item-2] [3 item-3]]) ~ ~]]
-      ==
-    ++  owner-2  ^-  account
-      [0xdead 0 0x1234.5678]
-    ::
-    ++  account-3  ^-  grain
-      :*  0x1.cafe
-          `@ux`'nft'
-          0xcafe
-          0x1
-          [%& `@`'salt' [`@ux`'nft' ~ ~ ~]]
-      ==
-    ++  owner-3  ^-  account
-      [0xcafe 0 0x1234.5678]
-    ::
-    ::  bad items, bad owners, another nft, etc..
-    --
-::  testing arms
+::  Tests for nft.hoon
+::
+/-  zink
+/+  *test, smart=zig-sys-smart, *sequencer, merk
+/*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
+/*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
+/*  nft-contract    %noun  /lib/zig/compiled/nft/noun
 |%
-++  test-matches-type  ^-  tang
-  =/  valid  (mule |.(;;(contract cont)))
-  (expect-eq !>(%.y) !>(-.valid))
 ::
-::  tests for %give
+::  constants / dummy info for mill
 ::
-++  test-give-known-receiver  ^-  tang
-  =/  =embryo
-    :+  owner-1
-      `[%give 0xdead `0x1.dead 1]
-    (malt ~[[id:`grain`account-1 account-1]])
-  =/  =cart
-    [`@ux`'nft' init-now 0x1 (malt ~[[id:`grain`account-2 account-2]])]
-  =/  updated-1  ^-  grain
-    :*  0x1.beef
-          `@ux`'nft'
-          0xbeef
-          0x1
-          [%& `@`'salt' [`@ux`'nft' ~ ~ ~]]
-      ==
-  =/  updated-2  ^-  grain
-    :*  0x1.dead
-          `@ux`'nft'
-          0xdead
-          0x1
-          [%& `@`'salt' [`@ux`'nft' (malt ~[[1 item-1] [2 item-2] [3 item-3]]) ~ ~]]
-      ==
-  =/  res=chick
-    (~(write cont cart) embryo)
-  =/  correct=chick
-    [%& (malt ~[[id.updated-1 updated-1] [id.updated-2 updated-2]]) ~ ~]
-  (expect-eq !>(correct) !>(res))
+++  big  (bi:merk id:smart grain:smart)  ::  merkle engine for granary
+++  pig  (bi:merk id:smart @ud)          ::                for populace
+++  town-id   0x0
+++  fake-sig  [0 0 0]
+++  mil
+  %~  mill  mill
+  :+    ;;(vase (cue q.q.smart-lib-noun))
+    ;;((map * @) (cue q.q.zink-cax-noun))
+  %.y
 ::
-++  test-give-unknown-receiver  ^-  tang
-  =/  =embryo
-    :+  owner-1
-      `[%give 0xffff ~ 1]
-    (malt ~[[id:`grain`account-1 account-1]])
-  =/  =cart
-    [`@ux`'nft' init-now 0x1 ~]
-  =/  new-id  (fry-rice `@ux`'nft' 0xffff 0x1 `@`'salt')
-  =/  new
-    :*  new-id
-        `@ux`'nft'
-        0xffff
-        0x1
-        [%& `@`'salt' [`@ux`'nft' ~ ~ ~]]
++$  mill-result
+  [fee=@ud =land burned=granary =errorcode:smart hits=(list hints:zink) =crow:smart]
+::
+::  fake data
+::
+++  miller  ^-  caller:smart
+  [0x24c.23b9.8535.cd5a.0645.5486.69fb.afbf.095e.fcc0 1 0x0]  ::  zigs account not used
+++  pubkey-1  0xd387.95ec.b77f.b88e.c577.6c20.d470.d13c.8d53.2169
+++  caller-1  ^-  caller:smart  [pubkey-1 1 id.p:account-1:zigs]
+::
+++  zigs
+  |%
+  ++  account-1
+    ^-  grain:smart
+    :*  %&
+        `@`'zigs'
+        %account
+        [300.000.000 ~ `@ux`'zigs-metadata']
+        (fry-rice:smart zigs-wheat-id:smart pubkey-1 town-id `@`'zigs')
+        zigs-wheat-id:smart
+        pubkey-1
+        town-id
     ==
-  =/  res=chick
-    (~(write cont cart) embryo)
-  =/  correct=chick
-    :+  %|
-      :+  me.cart  town-id.cart
-      [owner-1 `[%give 0xffff `new-id 1] (silt ~[0x1.beef]) (silt ~[new-id])]
-    [~ (malt ~[[new-id new]]) ~]
-  (expect-eq !>(correct) !>(res))
+  --
 ::
-++  test-give-doesnt-have  ^-  tang
-  =/  =embryo
-    :+  owner-1
-      `[%give 0xdead `0x1.dead 2]
-    (malt ~[[id:`grain`account-1 account-1]])
-  =/  =cart
-    [`@ux`'nft' init-now 0x1 (malt ~[[id:`grain`account-2 account-2]])]
-  =/  res=(each * (list tank))
-    (mule |.((~(write cont cart) embryo)))
-  (expect-eq !>(%.n) !>(-.res))
+++  nft-metadata-rice
+  ^-  rice:smart
+  :*  salt=`@`'nftsalt'
+      label=%metadata
+      :*  name='Ziggurat Girls'
+          symbol='GOODART'
+          properties=(~(gas pn:smart *(pset:smart @tas)) `(list @tas)`~[%hat %eyes %mouth])
+          supply=1
+          cap=`5
+          mintable=%.y
+          minters=(~(gas pn:smart *(pset:smart address:smart)) ~[pubkey-1])
+          deployer=pubkey-1
+          salt=`@`'nftsalt'
+      ==
+      id=`@ux`'nft-metadata'
+      lord=0xcafe.babe
+      holder=0xcafe.babe
+      town-id
+  ==
+++  nft-1  (fry-rice:smart 0xcafe.babe pubkey-1 town-id `@`'nftsalt1')
+++  nft-rice
+  ^-  rice:smart
+  :*  salt=`@`'nftsalt1'
+      label=%nft
+      :*  1
+          'ipfs://QmUbFVTm113tJEuJ4hZY2Hush4Urzx7PBVmQGjv1dXdSV9'
+          id:nft-metadata-rice
+          ~
+          %-  ~(gas py:smart *(pmap:smart @tas @t))
+          `(list [@tas @t])`~[[%hat 'pyramid'] [%eyes 'big'] [%mouth 'smile']]
+          %.y
+      ==
+      nft-1
+      0xcafe.babe
+      pubkey-1
+      town-id
+  ==
+++  nft-wheat
+  ^-  wheat:smart
+  :*  `;;([bat=* pay=*] (cue q.q.nft-contract))
+      interface=~  ::  TODO
+      types=~      ::  TODO
+      0xcafe.babe  ::  id
+      0xcafe.babe  ::  lord
+      0xcafe.babe  ::  holder
+      town-id      ::  town-id
+  ==
 ::
-::  tests for %take
+++  fake-granary
+  ^-  granary
+  %+  gas:big  *(merk:merk id:smart grain:smart)
+  :~  [id:nft-wheat [%| nft-wheat]]
+      [id:nft-metadata-rice [%& nft-metadata-rice]]
+      [id:nft-rice [%& nft-rice]]
+      [id.p:account-1:zigs account-1:zigs]
+  ==
+++  fake-populace
+  ^-  populace
+  %+  gas:pig  *(merk:merk id:smart @ud)
+  ~[[id:caller-1 0]]
+++  fake-land
+  ^-  land
+  [fake-granary fake-populace]
 ::
-
+::  begin tests
 ::
-::  tests for %set-allowance
-::
-
-::
-::  tests for %mint
-::
-
-::
-::  tests for %deploy
-::
+++  test-mill-nft-give
+  =/  =yolk:smart  [%give 0xffff.ffff.ffff.ffff id:nft-rice]
+  =/  shel=shell:smart
+    [caller-1 ~ id:nft-wheat 1 1.000.000 town-id 0]
+  =/  res=mill-result
+    %+  ~(mill mil miller town-id 1)
+      fake-land
+    `egg:smart`[fake-sig shel yolk]
+  ::
+  ~&  >  "fee: {<fee.res>}"
+  ~&  p.land.res
+  ;:  weld
+  ::  assert that our call went through
+    %+  expect-eq
+    !>(%0)  !>(errorcode.res)
+  ==
 --
