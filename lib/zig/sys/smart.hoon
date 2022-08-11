@@ -298,7 +298,7 @@
     (hash:pedersen yux 0)
   (hash:pedersen $(yux -.yux) $(yux +.yux))
 ::
-::  +sore: single sha-256 hash in ascending order, uses +dor as
+::  +sore: single Pedersen hash in ascending order, uses +dor as
 ::  fallback
 ::
 ++  sore
@@ -309,7 +309,7 @@
     (dor a b)
   (lth c d)
 ::
-::  +sure: double sha-256 hash in ascending order, uses +dor as
+::  +sure: double Pedersen hash in ascending order, uses +dor as
 ::  fallback
 ::
 ++  sure
@@ -544,7 +544,7 @@
     $(a r.a, b $(a l.a, b (~(put in b) p.n.a)))
   --
 ::                                                      ::
-::  set, but using perdersen hash                       ::
+::  set, but using pedersen hash                        ::
 ::  TODO jet                                            ::
 ::
 ++  pset
@@ -2645,7 +2645,7 @@
       =>  .(p (end [3 pl] p), s (end [3 sl] s))
       =+  u=(mul (mul 128 r) z)
       ::
-      ::  n is power of 2; max 1GB mesurey
+      ::  n is power of 2; max 1GB memory
       ::
       ?>  ?&  =(n (bex (dec (xeb n))))
               !=(r 0)  !=(z 0)

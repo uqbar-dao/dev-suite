@@ -1,5 +1,5 @@
 ::
-::  Tests for publish.hoon
+::  Tests for nft.hoon
 ::
 /-  zink
 /+  *test, smart=zig-sys-smart, *sequencer, merk
