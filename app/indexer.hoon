@@ -224,7 +224,8 @@
         [%indexer-catchup ~]
       :_  this
       %-  fact-init-kick:io
-      [%indexer-catchup !>(`batches-by-town:ui`batches-by-town)]
+      :-  %indexer-catchup
+      !>(`batches-by-town:ui`batches-by-town)
     ::
         [%capitol-updates ~]
       :_  this
@@ -234,41 +235,31 @@
       :-  %sequencer-capitol-update
       !>(`capitol-update:seq`[%new-capitol capitol])
     ::
-        [%id @ ~]
+        ?([%id @ ~] [%id @ @ ~])
       :_  this
-      =/  hash=@ux  (slav %ux i.t.path)
-      ?~  update=(get-ids hash)  ~
-      :_  ~
-      %-  fact:io
-      :_  ~
-      [%indexer-update !>(`update:ui`update)]
-    ::
-        [%id @ @ ~]
-      :_  this
-      =/  payload=[@ux @ux]
+      =/  =query-payload:ui
+        ?:  ?=([@ @ ~] path)  (slav %ux i.t.path)
+        ?>  ?=([@ @ @ ~] path)
         [(slav %ux i.t.path) (slav %ux i.t.t.path)]
-      ?~  update=(get-ids payload)  ~
+      ?~  update=(get-ids query-payload)  ~
       :_  ~
       %-  fact:io
       :_  ~
       [%indexer-update !>(`update:ui`update)]
     ::
-        ?([%grain @ ~] [%grain-eggs @ ~] [%holder @ ~] [%lord @ ~] [%town @ ~])
+        $?  [%grain @ ~]       [%grain @ @ ~]
+            [%grain-eggs @ ~]  [%grain-eggs @ @ ~]
+            [%holder @ ~]      [%holder @ @ ~]
+            [%lord @ ~]        [%lord @ @ ~]
+            [%town @ ~]        [%town @ @ ~]
+        ==
       :_  this
       =/  =query-type:ui  i.path
-      =/  hash=@ux  (slav %ux i.t.path)
-      ?~  update=(serve-update query-type hash)  ~
-      :_  ~
-      %-  fact:io
-      :_  ~
-      [%indexer-update !>(`update:ui`update)]
-    ::
-        ?([%grain @ @ ~] [%grain-eggs @ @ ~] [%holder @ @ ~] [%lord @ @ ~] [%town @ @ ~])
-      :_  this
-      =/  =query-type:ui  i.path
-      =/  payload=[@ux @ux]
+      =/  =query-payload:ui
+        ?:  ?=([@ @ ~] path)  (slav %ux i.t.path)
+        ?>  ?=([@ @ @ ~] path)
         [(slav %ux i.t.path) (slav %ux i.t.t.path)]
-      ?~  update=(serve-update query-type payload)  ~
+      ?~  update=(serve-update query-type query-payload)  ~
       :_  ~
       %-  fact:io
       :_  ~
@@ -297,42 +288,36 @@
     ^-  (unit (unit cage))
     |^
     ?+    path  (on-peek:def path)
-        [%x %hash @ ~]
-      =/  hash=@ux  read-hash-from-path
-      =/  =update:ui  (get-hashes hash)
-      (make-peek-update update)
+        ?([%x %hash @ ~] [%x %hash @ @ ~])
+      =/  =query-payload:ui
+        ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
+        read-two-hashes-from-path
+      :^  ~  ~  %indexer-update
+      !>(`update:ui`(get-hashes query-payload))
     ::
-        [%x %hash @ @ ~]
-      =/  query-payload=[@ux @ux]  read-two-hashes-from-path
-      =/  =update:ui  (get-hashes query-payload)
-      (make-peek-update update)
+        ?([%x %id @ ~] [%x %id @ @ ~])
+      =/  =query-payload:ui
+        ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
+        read-two-hashes-from-path
+      :^  ~  ~  %indexer-update
+      !>(`update:ui`(get-ids query-payload))
     ::
-        [%x %id @ ~]
-      =/  hash=@ux  read-hash-from-path
-      =/  =update:ui  (get-ids hash)
-      (make-peek-update update)
-    ::
-        [%x %id @ @ ~]
-      =/  query-payload=[@ux @ux]  read-two-hashes-from-path
-      =/  =update:ui  (get-ids query-payload)
-      (make-peek-update update)
-    ::
-        $?  [%x %batch @ ~]
-            [%x %egg @ ~]
-            [%x %from @ ~]
-            [%x %grain @ ~]
-            [%x %grain-eggs @ ~]
-            [%x %holder @ ~]
-            [%x %lord @ ~]
-            [%x %to @ ~]
-            [%x %town @ ~]
+        $?  [%x %batch @ ~]       [%x %batch @ @ ~]
+            [%x %egg @ ~]         [%x %egg @ @ ~]
+            [%x %from @ ~]        [%x %from @ @ ~]
+            [%x %grain @ ~]       [%x %grain @ @ ~]
+            [%x %grain-eggs @ ~]  [%x %grain-eggs @ @ ~]
+            [%x %holder @ ~]      [%x %holder @ @ ~]
+            [%x %lord @ ~]        [%x %lord @ @ ~]
+            [%x %to @ ~]          [%x %to @ @ ~]
+            [%x %town @ ~]        [%x %town @ @ ~]
         ==
-      =/  args=^path  t.path
-      ?.  ?=([@ @ ~] args)  (on-peek:def path)
-      =/  =query-type:ui  ;;(query-type:ui i.args)
-      =/  hash=@ux  (slav %ux i.t.args)
-      =/  =update:ui  (serve-update query-type hash)
-      (make-peek-update update)
+      =/  =query-type:ui  ;;(query-type:ui i.t.path)
+      =/  =query-payload:ui
+        ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
+        read-two-hashes-from-path
+      :^  ~  ~  %indexer-update
+      !>(`update:ui`(serve-update query-type query-payload))
     ::
         $?  [%x %newest-egg @ ~]
             [%x %newest-from @ ~]
@@ -341,35 +326,25 @@
             [%x %newest-holder @ ~]
             [%x %newest-lord @ ~]
             [%x %newest-to @ ~]
+            [%x %newest-egg @ @ ~]
+            [%x %newest-from @ @ ~]
+            [%x %newest-grain @ @ ~]
+            [%x %newest-grain-eggs @ @ ~]
+            [%x %newest-holder @ @ ~]
+            [%x %newest-lord @ @ ~]
+            [%x %newest-to @ @ ~]
         ==
-      =/  args=^path  t.path
-      ?.  ?=([@ @ ~] args)  (on-peek:def path)
       =/  =query-type:ui
-        ;;(query-type:ui (crip (slag 7 (trip i.args))))
-      =/  hash=@ux  (slav %ux i.t.args)
-      =/  =update:ui
-        (get-newest-update-from-index query-type hash)
-      (make-peek-update update)
-    ::
-        $?  [%x %batch @ @ ~]
-            [%x %egg @ @ ~]
-            [%x %from @ @ ~]
-            [%x %grain @ @ ~]
-            [%x %grain-eggs @ @ ~]
-            [%x %holder @ @ ~]
-            [%x %lord @ @ ~]
-            [%x %to @ @ ~]
-            [%x %town @ @ ~]
-        ==
-      =/  args=^path  t.path
-      ?.  ?=([@ @ @ ~] args)  (on-peek:def path)
-      =/  =query-type:ui  ;;(query-type:ui i.args)
-      =/  query-payload=[@ux @ux]  read-two-hashes-from-path
-      =/  =update:ui  (serve-update query-type query-payload)
-      (make-peek-update update)
+        ;;(query-type:ui (crip (slag 7 (trip i.t.path))))
+      =/  =query-payload:ui
+        ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
+        read-two-hashes-from-path
+      :^  ~  ~  %indexer-update
+      !>  ^-  update:ui
+      (get-newest-update-from-index query-type query-payload)
     ::
         [%x %batch-order @ ~]
-      =/  town-id=@ux  read-hash-from-path
+      =/  town-id=@ux  (slav %ux i.t.t.path)
       :^  ~  ~  %indexer-batch-order
       ?~  bs=(~(get by batches-by-town) town-id)  !>(~)
       !>(`batch-order:ui`batch-order.u.bs)
@@ -383,15 +358,6 @@
       !>  ^-  batch-order:ui
       (swag [nth-most-recent how-many] batch-order.u.bs)
     ==
-    ::
-    ++  make-peek-update
-      |=  =update:ui
-      [~ ~ %indexer-update !>(`update:ui`update)]
-    ::
-    ++  read-hash-from-path
-      ^-  @ux
-      ?>  ?=([@ @ @ ~] path)
-      (slav %ux i.t.t.path)
     ::
     ++  read-two-hashes-from-path
       ^-  [@ux @ux]
@@ -440,8 +406,7 @@
       ::
           %fact
         =^  cards  state
-          %+  consume-sequencer-update
-            sup.bowl
+          %-  consume-sequencer-update
           !<(indexer-update:seq q.cage.sign)
         [cards this]
       ==
@@ -512,7 +477,6 @@
               town.u.indexer-update
               timestamp.update
               %.y
-              sup.bowl
           ==
         :-  cards
         %=  state
@@ -524,7 +488,7 @@
       ==
     ::
     ++  consume-sequencer-update
-      |=  [sup=bitt:gall update=indexer-update:seq]
+      |=  update=indexer-update:seq
       ^-  (quip card _state)
       ?-    -.update
           %update
@@ -553,7 +517,6 @@
               town.update
               u.timestamp
               %.y
-              sup
           ==
         :-  cards
         %=  state
@@ -771,7 +734,6 @@
           +.batch.i.batches-list
           timestamp.i.batches-list
           %.n
-          sup.bowl
       ==
     $(batches-list t.batches-list)
   --
@@ -1100,7 +1062,6 @@
           =town:seq
           timestamp=@da
           should-update-subs=?
-          sup=bitt:gall
       ==
   |^  ^-  (quip card _state)
   =*  town-id  town-id.hall.town
@@ -1126,7 +1087,7 @@
     (~(put by batches.u.b) root [timestamp eggs town])
   ==
   :_  state
-  ?.(should-update-subs ~ (make-all-sub-cards sup))
+  ?.(should-update-subs ~ make-all-sub-cards)
   ::
   ++  gas-ja-egg
     |=  $:  index=egg-index:ui
@@ -1177,20 +1138,18 @@
     ==
   ::
   ++  make-sub-paths
-    |=  sup=(list [ship sub-path=path])
     ^-  (jug @tas path)
     %-  ~(gas ju *(jug @tas path))
-    %+  turn  sup
+    %+  turn  ~(val by sup.bowl)
     |=  [ship sub-path=path]
     ^-  [@tas path]
     ?>  ?=(^ sub-path)
     [`@tas`i.sub-path t.sub-path]
   ::
   ++  make-all-sub-cards
-    |=  sup=bitt:gall
     ^-  (list card)
     =/  sub-paths=(jug @tas path)
-      (make-sub-paths ~(val by sup))
+      make-sub-paths
     |^
     %-  zing
     :~  :: (make-sub-cards %batch %batch)
@@ -1207,11 +1166,6 @@
       ^-  (list card)
       %+  murn  ~(tap in (~(get ju sub-paths) path-type))
       |=  sub-path=path
-      ::  TODO: can improve performance here by:
-      ::  * call get-locations
-      ::  * handle second-order-locations
-      ::  * compare batch-root with first element of batch-order
-      ::  * same -> got diff; different -> pass
       =/  payload=?(@ux [@ux @ux])
         ?:  ?=([@ ~] sub-path)  (slav %ux i.sub-path)
         ?>  ?=([@ @ ~] sub-path)
@@ -1219,17 +1173,7 @@
       =/  =update:ui
         (get-newest-update-from-index query-type payload)
       ?~  update  ~
-      ::  is update timestamped now?
       ?:  ?=(?(%batch %egg) -.update)
-        ::  TODO: what purpose did this serve? how do we get good timestamps?
-        ::  ?.  %-  %~  any  by
-        ::          ?-  -.update
-        ::            %batch  batches.update
-        ::            %egg    eggs.update
-        ::          ==
-        ::      |=  [timestamp=@da *]
-        ::      =(now.bowl timestamp)
-        ::    ~
         :-  ~
         %+  fact:io  [%indexer-update !>(`update:ui`update)]
         ~[[path-type sub-path]]
@@ -1239,14 +1183,6 @@
         %+  murn  ~(tap by grains.update)
         |=  [=id:smart gs=(list [@da batch-location:ui grain:smart])]
         ?~(gs ~ `[id ~[i.gs]])
-      ::  =/  timestamp-index=(unit @ud)
-      ::    %+  find  [now.bowl]~
-      ::    %+  turn
-      ::      ^-  (list [@da batch-location:ui grain:smart])
-      ::      (zing ~(val by grains.update))
-      ::    |=  [timestamp=@da *]
-      ::    timestamp
-      ::  ?~  timestamp-index  ~
       :-  ~
       %+  fact:io  [%indexer-update !>(`update:ui`update)]
       ~[[path-type sub-path]]
