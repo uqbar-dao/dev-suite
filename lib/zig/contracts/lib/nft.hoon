@@ -5,11 +5,11 @@
   +$  metadata
     $:  name=@t
         symbol=@t
-        properties=(set @tas)
+        properties=(pset @tas)
         supply=@ud
         cap=(unit @ud)  ::  (~ if mintable is false)
         mintable=?      ::  automatically set to %.n if supply == cap
-        minters=(set address)
+        minters=(pset address)
         deployer=id
         salt=@
     ==
@@ -18,13 +18,13 @@
     $:  id=@ud
         uri=@t
         metadata=id
-        allowances=(set address)
-        properties=(map @tas @t)
+        allowances=(pset address)
+        properties=(pmap @tas @t)
         transferrable=?
     ==
   ::
   +$  nft-contents
-    [uri=@t properties=(map @tas @t) transferrable=?]
+    [uri=@t properties=(pmap @tas @t) transferrable=?]
   ::
   +$  action
     $%  $:  %give
@@ -51,9 +51,9 @@
             name=@t
             symbol=@t
             salt=@
-            properties=(set @tas)
+            properties=(pset @tas)
             cap=(unit @ud)         ::  if ~, no cap (fr fr)
-            minters=(set address)  ::  if ~, mintable becomes %.n, otherwise %.y
+            minters=(pset address)  ::  if ~, mintable becomes %.n, otherwise %.y
             initial-distribution=(list [to=address nft-contents])
     ==  ==
   --
@@ -94,21 +94,21 @@
       |=  a=(set address)
       ^-  json
       :-  %a
-      %+  turn  ~(tap in a)
+      %+  turn  ~(tap pn a)
       |=(a=address [%s (scot %ux a)])
     ::
     ++  properties-set
       |=  p=(set @tas)
       ^-  json
       :-  %a
-      %+  turn  ~(tap in p)
+      %+  turn  ~(tap pn p)
       |=(prop=@tas [%s (scot %tas prop)])
     ::
     ++  properties
       |=  p=(map @tas @t)
       ^-  json
       %-  pairs
-      %+  turn  ~(tap by p)
+      %+  turn  ~(tap py p)
       |=([prop=@tas val=@t] [prop [%s val]])
     --
   --
