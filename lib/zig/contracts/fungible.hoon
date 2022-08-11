@@ -268,7 +268,7 @@
     ::  generate accounts
     =/  accounts
       %+  gas:big  *(merk id grain)
-      %+  turn  ~(tap in distribution.act)
+      %+  turn  ~(tap in distribution.act)  :: XX tap:in seems to be pathological here (causes infinite loop)
       |=  [=id bal=@ud]
       =+  (fry-rice me.cart id town-id.cart salt)
       :-  -
