@@ -1,21 +1,31 @@
 ::  indexer [UQ| DAO]:
 ::
-::  Index blocks
+::  Index batches
 ::
-::    Receive new blocks, index them,
-::    and update subscribers with full blocks
-::    or with hashes of interest
+::    Receive new batches, index them,
+::    and update subscribers with full batches
+::    or with hashes of interest.
+::    Additionally, accept scries: one-time queries.
 ::
 ::
 ::    ## Scry paths
 ::
-::    Most scry paths accepts one or two @ux arguments.
+::    Most scry paths accepts one or two `@ux` arguments.
 ::    A single argument is interpreted as the hash of the
-::    queried item (e.g., for a /grain query, the grain-id).
+::    queried item (e.g., for a `/grain query, the `grain-id`).
 ::    For two arguments, the first is interpreted as the
-::    town-id in which to query for the second, the item hash.
+::    `town-id` in which to query for the second, the item hash.
 ::    In other words, two arguments restricts the query to
 ::    a town, while one argument queries all indexed towns.
+::
+::    Scry paths may be prepended with a `/newest`, which
+::    will return results only in the most recent batch.
+::    For example, the history of all grains held by
+::    `0xdead.beef` would be queried using the path
+::    `/x/holder/0xdead.beef`
+::    while only the most recent state of all grains held
+::    by `0xdead.beef` would be queried using
+::    `/x/newest/holder/0xdead.beef`.
 ::
 ::
 ::    /x/batch/[batch-id=@ux]
@@ -286,77 +296,51 @@
   ++  on-peek
     |=  =path
     ^-  (unit (unit cage))
+    ?>  ?=(?([@ @ @ ~] [@ @ @ @ ~] [@ @ @ @ @ ~]) path)
+    =/  only-newest=?  ?=(%newest i.t.path)
+    =/  args=^path  ?.(only-newest t.path t.t.path)
     |^
     ?+    path  (on-peek:def path)
-        ?([%x %hash @ ~] [%x %hash @ @ ~])
-      =/  =query-payload:ui
-        ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
-        read-two-hashes-from-path
-      :^  ~  ~  %indexer-update
-      !>(`update:ui`(get-hashes query-payload %.n))
-    ::
-        ?([%x %newest-hash @ ~] [%x %newest-hash @ @ ~])
-      =/  =query-payload:ui
-        ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
-        read-two-hashes-from-path
-      :^  ~  ~  %indexer-update
-      !>(`update:ui`(get-hashes query-payload %.y))
-    ::
-        ?([%x %id @ ~] [%x %id @ @ ~])
-      =/  =query-payload:ui
-        ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
-        read-two-hashes-from-path
-      :^  ~  ~  %indexer-update
-      !>(`update:ui`(get-ids query-payload %.n))
-    ::
-        ?([%x %newest-id @ ~] [%x %newest-id @ @ ~])
-      =/  =query-payload:ui
-        ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
-        read-two-hashes-from-path
-      :^  ~  ~  %indexer-update
-      !>(`update:ui`(get-ids query-payload %.y))
-    ::
-        $?  [%x %batch @ ~]       [%x %batch @ @ ~]
-            [%x %egg @ ~]         [%x %egg @ @ ~]
-            [%x %from @ ~]        [%x %from @ @ ~]
-            [%x %grain @ ~]       [%x %grain @ @ ~]
-            [%x %grain-eggs @ ~]  [%x %grain-eggs @ @ ~]
-            [%x %holder @ ~]      [%x %holder @ @ ~]
-            [%x %lord @ ~]        [%x %lord @ @ ~]
-            [%x %to @ ~]          [%x %to @ @ ~]
-            [%x %town @ ~]        [%x %town @ @ ~]
+        $?  [%x %hash @ ~]    [%x %newest %hash @ ~]
+            [%x %hash @ @ ~]  [%x %newest %hash @ @ ~]
         ==
-      =/  =query-type:ui  ;;(query-type:ui i.t.path)
-      =/  =query-payload:ui
-        ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
-        read-two-hashes-from-path
+      =/  =query-payload:ui  read-query-payload-from-args
       :^  ~  ~  %indexer-update
-      !>  ^-  update:ui
-      (serve-update query-type query-payload %.n)
+      !>(`update:ui`(get-hashes query-payload only-newest))
     ::
-        $?  [%x %newest-egg @ ~]
-            [%x %newest-from @ ~]
-            [%x %newest-grain @ ~]
-            [%x %newest-grain-eggs @ ~]
-            [%x %newest-holder @ ~]
-            [%x %newest-lord @ ~]
-            [%x %newest-to @ ~]
-            [%x %newest-egg @ @ ~]
-            [%x %newest-from @ @ ~]
-            [%x %newest-grain @ @ ~]
-            [%x %newest-grain-eggs @ @ ~]
-            [%x %newest-holder @ @ ~]
-            [%x %newest-lord @ @ ~]
-            [%x %newest-to @ @ ~]
+        $?  [%x %id @ ~]    [%x %newest %id @ ~]
+            [%x %id @ @ ~]  [%x %newest %id @ @ ~]
+        ==
+      =/  =query-payload:ui  read-query-payload-from-args
+      :^  ~  ~  %indexer-update
+      !>(`update:ui`(get-ids query-payload only-newest))
+    ::
+        $?  [%x %batch @ ~]         [%x %newest %batch @ ~]
+            [%x %batch @ @ ~]       [%x %newest %batch @ @ ~]
+            [%x %egg @ ~]           [%x %newest %egg @ ~]
+            [%x %egg @ @ ~]         [%x %newest %egg @ @ ~]
+            [%x %from @ ~]          [%x %newest %from @ ~]
+            [%x %from @ @ ~]        [%x %newest %from @ @ ~]
+            [%x %grain @ ~]         [%x %newest %grain @ ~]
+            [%x %grain @ @ ~]       [%x %newest %grain @ @ ~]
+            [%x %grain-eggs @ ~]    [%x %newest %grain-eggs @ ~]
+            [%x %grain-eggs @ @ ~]  [%x %newest %grain-eggs @ @ ~]
+            [%x %holder @ ~]        [%x %newest %holder @ ~]
+            [%x %holder @ @ ~]      [%x %newest %holder @ @ ~]
+            [%x %lord @ ~]          [%x %newest %lord @ ~]
+            [%x %lord @ @ ~]        [%x %newest %lord @ @ ~]
+            [%x %to @ ~]            [%x %newest %to @ ~]
+            [%x %to @ @ ~]          [%x %newest %to @ @ ~]
+            [%x %town @ ~]          [%x %newest %town @ ~]
+            [%x %town @ @ ~]        [%x %newest %town @ @ ~]
         ==
       =/  =query-type:ui
-        ;;(query-type:ui (crip (slag 7 (trip i.t.path))))
-      =/  =query-payload:ui
-        ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
-        read-two-hashes-from-path
+        ?>  ?=(?([@ @ ~] [@ @ @ ~]) args)
+        ;;(query-type:ui i.args)
+      =/  =query-payload:ui  read-query-payload-from-args
       :^  ~  ~  %indexer-update
       !>  ^-  update:ui
-      (serve-update query-type query-payload %.y)
+      (serve-update query-type query-payload only-newest)
     ::
         [%x %batch-order @ ~]
       =/  town-id=@ux  (slav %ux i.t.t.path)
@@ -374,10 +358,11 @@
       (swag [nth-most-recent how-many] batch-order.u.bs)
     ==
     ::
-    ++  read-two-hashes-from-path
-      ^-  [@ux @ux]
-      ?>  ?=([@ @ @ @ ~] path)
-      [(slav %ux i.t.t.path) (slav %ux i.t.t.t.path)]
+    ++  read-query-payload-from-args
+      ^-  query-payload:ui  ::  TODO: change to unit?
+      ?:  ?=([@ @ ~] args)  (slav %ux i.t.args)
+      ?>  ?=([@ @ @ ~] args)
+      [(slav %ux i.t.args) (slav %ux i.t.t.args)]
     --
   ::
   ++  on-agent
