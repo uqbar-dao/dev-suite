@@ -42,6 +42,9 @@
   ::  cannot depend on id.from.cart being the caller, since in a continuation call
   ::  id.from.cart == me.cart. this is why we simply accept what we'd otherwise use caller for
   ::  explicitly as part of the arguments
+  ::
+  ::  N.B: in the current implementation, `account`s have the same salts as their collections
+  ::  This could maybe cause problems if one is not careful.
   ?-    -.act
       %give
     =/  giv=grain          (need (scry from-account.act))
@@ -171,7 +174,6 @@
     (result [acc ~] ~ ~ ~)
   ::
       %mint
-    ::  expects token metadata in owns.cart
     =/  tok=grain  (need (scry token.act))
     ?>  ?=(%& -.tok)
     =/  meta   data:(husk token-metadata:sur tok `me.cart `me.cart)
@@ -210,8 +212,8 @@
     ::
     ?~  account.i.mints
       ::  need to issue
-      =/  =id     (fry-rice me.cart to.i.mints town-id.cart salt.meta)
-      =/  =grain  [%& salt.meta %account [0 ~ token.act 0] id me.cart to.i.mints town-id.cart]
+      =/  =id     (fry-rice me.cart to.i.mints town-id.cart salt.p.tok)
+      =/  =grain  [%& salt.p.tok %account [0 ~ token.act 0] id me.cart to.i.mints town-id.cart]
       %=  $
         mints        t.mints
         to-issue     [grain to-issue]
@@ -258,7 +260,6 @@
               mintable.act
               minters.act
               deployer=id.from.cart
-              salt
           ==
           (fry-rice me.cart me.cart town-id.cart salt)
           me.cart

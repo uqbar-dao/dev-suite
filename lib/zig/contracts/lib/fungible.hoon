@@ -22,7 +22,6 @@
         mintable=?             ::  whether or not more can be minted
         minters=(set address)  ::  pubkeys permitted to mint, if any
         deployer=address       ::  pubkey which first deployed token
-        salt=@                 ::  salt value for rice holding accounts of this token
     ==
   ::
   +$  account
@@ -114,7 +113,6 @@
           [%mintable %b mintable.md]
           [%minters (minters minters.md)]
           [%deployer %s (scot %ux deployer.md)]
-          [%salt (numb salt.md)]
       ==
     ::
     ++  action
