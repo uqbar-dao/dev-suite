@@ -241,7 +241,7 @@
         ?:  ?=([@ @ ~] path)  (slav %ux i.t.path)
         ?>  ?=([@ @ @ ~] path)
         [(slav %ux i.t.path) (slav %ux i.t.t.path)]
-      ?~  update=(get-ids query-payload)  ~
+      ?~  update=(get-ids query-payload %.n)  ~
       :_  ~
       %-  fact:io
       :_  ~
@@ -259,7 +259,7 @@
         ?:  ?=([@ @ ~] path)  (slav %ux i.t.path)
         ?>  ?=([@ @ @ ~] path)
         [(slav %ux i.t.path) (slav %ux i.t.t.path)]
-      ?~  update=(serve-update query-type query-payload)  ~
+      ?~  update=(serve-update query-type query-payload %.n)  ~
       :_  ~
       %-  fact:io
       :_  ~
@@ -293,14 +293,28 @@
         ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
         read-two-hashes-from-path
       :^  ~  ~  %indexer-update
-      !>(`update:ui`(get-hashes query-payload))
+      !>(`update:ui`(get-hashes query-payload %.n))
+    ::
+        ?([%x %newest-hash @ ~] [%x %newest-hash @ @ ~])
+      =/  =query-payload:ui
+        ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
+        read-two-hashes-from-path
+      :^  ~  ~  %indexer-update
+      !>(`update:ui`(get-hashes query-payload %.y))
     ::
         ?([%x %id @ ~] [%x %id @ @ ~])
       =/  =query-payload:ui
         ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
         read-two-hashes-from-path
       :^  ~  ~  %indexer-update
-      !>(`update:ui`(get-ids query-payload))
+      !>(`update:ui`(get-ids query-payload %.n))
+    ::
+        ?([%x %newest-id @ ~] [%x %newest-id @ @ ~])
+      =/  =query-payload:ui
+        ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
+        read-two-hashes-from-path
+      :^  ~  ~  %indexer-update
+      !>(`update:ui`(get-ids query-payload %.y))
     ::
         $?  [%x %batch @ ~]       [%x %batch @ @ ~]
             [%x %egg @ ~]         [%x %egg @ @ ~]
@@ -317,7 +331,8 @@
         ?:  ?=([@ @ @ ~] path)  (slav %ux i.t.t.path)
         read-two-hashes-from-path
       :^  ~  ~  %indexer-update
-      !>(`update:ui`(serve-update query-type query-payload))
+      !>  ^-  update:ui
+      (serve-update query-type query-payload %.n)
     ::
         $?  [%x %newest-egg @ ~]
             [%x %newest-from @ ~]
@@ -341,7 +356,7 @@
         read-two-hashes-from-path
       :^  ~  ~  %indexer-update
       !>  ^-  update:ui
-      (get-newest-update-from-index query-type query-payload)
+      (serve-update query-type query-payload %.y)
     ::
         [%x %batch-order @ ~]
       =/  town-id=@ux  (slav %ux i.t.t.path)
@@ -607,10 +622,10 @@
 ::
 ++  get-batch
   |=  [town-id=id:smart batch-root=id:smart]
-  ^-  (unit [@da batch:ui])
+  ^-  (unit [batch-id=id:smart timestamp=@da =batch:ui])
   ?~  bs=(~(get by batches-by-town) town-id)  ~
   ?~  b=(~(get by batches.u.bs) batch-root)   ~
-  `u.b
+  `[batch-root u.b]
 ::
 ++  get-newest-batch
   |=  town-id=id:smart
@@ -625,24 +640,25 @@
   [%egg update]
 ::
 ++  get-ids
-  |=  =query-payload:ui
+  |=  [qp=query-payload:ui only-newest=?]
   ^-  update:ui
-  =/  from=update:ui  (serve-update %from query-payload)
-  =/  to=update:ui    (serve-update %to query-payload)
+  =/  from=update:ui  (serve-update %from qp only-newest)
+  =/  to=update:ui    (serve-update %to qp only-newest)
   (combine-egg-updates ~[from to])
 ::
 ++  get-hashes
-  |=  =query-payload:ui
+  |=  [qp=query-payload:ui only-newest=?]
   ^-  update:ui
-  =/  batch=update:ui       (serve-update %batch query-payload)
-  =/  egg=update:ui         (serve-update %egg query-payload)
-  =/  from=update:ui        (serve-update %from query-payload)
-  =/  grain=update:ui       (serve-update %grain query-payload)
-  =/  grain-eggs=update:ui  (serve-update %grain-eggs query-payload)
-  =/  holder=update:ui      (serve-update %holder query-payload)
-  =/  lord=update:ui        (serve-update %lord query-payload)
-  =/  to=update:ui          (serve-update %to query-payload)
-  =/  town=update:ui        (serve-update %town query-payload)
+  =/  batch=update:ui   (serve-update %batch qp only-newest)
+  =/  egg=update:ui     (serve-update %egg qp only-newest)
+  =/  from=update:ui    (serve-update %from qp only-newest)
+  =/  grain=update:ui   (serve-update %grain qp only-newest)
+  =/  holder=update:ui  (serve-update %holder qp only-newest)
+  =/  lord=update:ui    (serve-update %lord qp only-newest)
+  =/  to=update:ui      (serve-update %to qp only-newest)
+  =/  town=update:ui    (serve-update %town qp only-newest)
+  =/  grain-eggs=update:ui
+    (serve-update %grain-eggs qp only-newest)
   %^  combine-updates  ~[batch town]  ~[egg from to]
   ~[grain holder lord]
 ::
@@ -738,152 +754,13 @@
     $(batches-list t.batches-list)
   --
 ::
-++  get-newest-update-from-index
-  ::  TODO: combine with `+serve-update`?
-  |=  [=query-type:ui =query-payload:ui]
-  ^-  update:ui
-  ?.  ?=(?(@ [@ @]) query-payload)  ~
-  |^
-  ?+    query-type  !!
-      %grain
-    get-grain
-  ::
-      %egg
-    get-egg
-  ::
-      ?(%from %grain-eggs %holder %lord %to)
-    get-second-order
-  ==
-  ::
-  ++  get-grain
-    =/  locations=(list location:ui)  get-newest-locations
-    =|  grains=(jar grain-id=id:smart [@da batch-location:ui grain:smart])
-    =/  grain-id=id:smart
-      ?:  ?=([@ @] query-payload)  +.query-payload
-      ?>  ?=(@ query-payload)
-      query-payload
-    |-
-    ?~  locations  ?~(grains ~ [%grain grains])
-    =*  location  i.locations
-    ?.  ?=(batch-location:ui location)
-      $(locations t.locations)
-    =*  town-id     town-id.location
-    =*  batch-root  batch-root.location
-    ?~  b=(get-newest-batch town-id)
-      $(locations t.locations)
-    ?.  =(batch-root batch-id.u.b)
-      $(locations t.locations)
-    =*  timestamp  timestamp.u.b
-    =*  granary    p.land.batch.u.b
-    ?~  grain=(get:big:mill granary grain-id)
-      $(locations t.locations)
-    %=  $
-        locations  t.locations
-        grains
-      %+  ~(add ja grains)  grain-id
-      [timestamp location u.grain]
-    ==
-  ::
-  ++  get-egg
-    =/  locations=(list location:ui)  get-newest-locations
-    =|  eggs=(map id:smart [@da egg-location:ui egg:smart])
-    |-
-    ?~  locations  ?~(eggs ~ [%egg eggs])
-    =*  location  i.locations
-    ?.  ?=(egg-location:ui location)
-      $(locations t.locations)
-    =*  town-id     town-id.location
-    =*  batch-root  batch-root.location
-    =*  egg-num     egg-num.location
-    ?~  b=(get-newest-batch town-id)
-      $(locations t.locations)
-    ?.  =(batch-root batch-id.u.b)
-      $(locations t.locations)
-    =*  timestamp  timestamp.u.b
-    =*  txs        transactions.batch.u.b
-    ?.  (lth egg-num (lent txs))  $(locations t.locations)
-    =+  [hash=@ux =egg:smart]=(snag egg-num txs)
-    %=  $
-        locations  t.locations
-        eggs
-      (~(put by eggs) hash [timestamp location egg])
-    ==
-  ::
-  ++  get-second-order
-    =/  locations=(list location:ui)  get-newest-locations
-    %+  roll  locations
-    |=  $:  second-order-id=location:ui
-            out=update:ui
-        ==
-    =/  next-update=update:ui
-      %+  get-newest-update-from-index
-        ?:  |(?=(%holder query-type) ?=(%lord query-type))
-          %grain
-        %egg
-      second-order-id
-    ?~  next-update  out
-    ?~  out          next-update
-    ?+  -.out  ~|("indexer: get-second-order unexpected update type {<-.out>}" !!)
-        %egg
-      ?.  ?=(%egg -.next-update)  out
-      %=  out
-          eggs
-        (~(uni by eggs.out) eggs.next-update)
-      ==
-    ::
-        %grain
-      ?.  ?=(%grain -.next-update)  out
-      %=  out
-          grains
-        (~(uni by grains.out) grains.next-update)  ::  TODO: can this clobber?
-      ==
-    ==
-  ::
-  ++  get-newest-locations
-    |^  ^-  (list location:ui)
-    ?+  query-type  ~|("indexer: get-newest-locations unexpected query-type {<query-type>}" !!)
-      %egg         (get-by-get-ja-first-order egg-index)
-      %from        (get-by-get-ja from-index)
-      %grain       (get-by-get-ja-first-order grain-index)
-      %grain-eggs  (get-by-get-ja grain-eggs-index)
-      %holder      (get-by-get-ja holder-index)
-      %lord        (get-by-get-ja lord-index)
-      %to          (get-by-get-ja to-index)
-    ==
-    ::
-    ++  get-by-get-ja-first-order
-      |=  [index=(map @ux (jar @ux location:ui))]
-      ^-  (list location:ui)
-      ?:  ?=([@ @] query-payload)
-        =*  town-id    -.query-payload
-        =*  item-hash  +.query-payload
-        ?~  town-index=(~(get by index) town-id)      ~
-        ?~  items=(~(get ja u.town-index) item-hash)  ~
-        ~[i.items]  ::  only return newest
-      =*  item-hash  query-payload
-      %+  roll  ~(val by index)
-      |=  [town-index=(jar @ux location:ui) out=(list location:ui)]
-      ?~  items=(~(get ja town-index) item-hash)  out
-      [i.items out]  ::  only return newest
-    ::
-    ++  get-by-get-ja
-      |=  [index=(map @ux (jar @ux location:ui))]
-      ^-  (list location:ui)
-      ?:  ?=([@ @] query-payload)
-        =*  town-id    -.query-payload
-        =*  item-hash  +.query-payload
-        ?~  town-index=(~(get by index) town-id)      ~
-        (~(get ja u.town-index) item-hash)
-      =*  item-hash  query-payload
-      %+  roll  ~(val by index)
-      |=  [town-index=(jar @ux location:ui) out=(list location:ui)]
-      (weld out (~(get ja town-index) item-hash))
-    --
-  --
-::
 ++  serve-update
-  |=  [=query-type:ui =query-payload:ui]
-  |^  ^-  update:ui
+  |=  [=query-type:ui =query-payload:ui only-newest=?]
+  ^-  update:ui
+  =/  get-appropriate-batch
+    ?.  only-newest  get-batch
+    |=([town-id=id:smart @] (get-newest-batch town-id))
+  |^
   ?+    query-type  !!
       %batch
     get-batch-update
@@ -902,6 +779,11 @@
     :-  %batch
     %-  %~  gas  by
         *(map id:smart [@da town-location:ui batch:ui])
+    ?:  only-newest
+      ?~  batch-order.u.bs  ~
+      =*  batch-id  i.batch-order.u.bs
+      ?~  b=(~(get by batches.u.bs) batch-id)  ~
+      [batch-id [timestamp.u.b town-id batch.u.b]]~
     %+  turn  ~(tap by batches.u.bs)
     |=  [batch-id=id:smart timestamp=@da =batch:ui]
     [batch-id [timestamp town-id batch]]
@@ -910,9 +792,9 @@
     ?:  ?=([@ @] query-payload)
       =*  town-id   -.query-payload
       =*  batch-id  +.query-payload
-      ?~  b=(get-batch town-id batch-id)  ~
-      =*  timestamp  -.u.b
-      =*  batch      +.u.b
+      ?~  b=(get-appropriate-batch town-id batch-id)  ~
+      =*  timestamp  timestamp.u.b
+      =*  batch      batch.u.b
       :-  %batch
       %+  %~  put  by
           *(map id:smart [@da town-location:ui batch:ui])
@@ -925,8 +807,8 @@
               out=[%batch (map id:smart [@da town-location:ui batch:ui])]
           ==
       ?~  b=(~(get by batches) batch-id)  out
-      =*  timestamp  -.u.b
-      =*  batch      +.u.b
+      =*  timestamp  timestamp.u.b
+      =*  batch      batch.u.b
       :-  %batch
       (~(put by +.out) batch-id [timestamp town-id batch])
     ?~(+.out ~ out)
@@ -953,7 +835,8 @@
         ?:  ?=([@ @] query-payload)  +.query-payload
         ?>  ?=(@ query-payload)
         query-payload
-      =.  locations  (flop locations)
+      =.  locations
+        ?:(only-newest locations (flop locations))
       |-
       ?~  locations  ?~(grains ~ [%grain grains])
       =*  location  i.locations
@@ -961,10 +844,14 @@
         $(locations t.locations)
       =*  town-id     town-id.location
       =*  batch-root  batch-root.location
-      ?~  b=(get-batch town-id batch-root)
+      ?~  b=(get-appropriate-batch town-id batch-root)
         $(locations t.locations)
-      =*  timestamp  -.u.b
-      =*  granary    p.land.+.u.b
+      ?.  |(!only-newest =(batch-root batch-id.u.b))
+        ::  TODO: remove this check if we never see this log
+        ~&  >>>  "%indexer: unexpected batch root (grain)"
+        $(locations t.locations)
+      =*  timestamp  timestamp.u.b
+      =*  granary    p.land.batch.u.b
       ?~  grain=(get:big:mill granary grain-id)
         $(locations t.locations)
       %=  $
@@ -984,10 +871,14 @@
       =*  town-id     town-id.location
       =*  batch-root  batch-root.location
       =*  egg-num     egg-num.location
-      ?~  b=(get-batch town-id batch-root)
+      ?~  b=(get-appropriate-batch town-id batch-root)
         $(locations t.locations)
-      =*  timestamp  -.u.b
-      =*  txs        transactions.+.u.b
+      ?.  |(!only-newest =(batch-root batch-id.u.b))
+        ::  TODO: remove this check if we never see this log
+        ~&  >>>  "%indexer: unexpected batch root (egg)"
+        $(locations t.locations)
+      =*  timestamp  timestamp.u.b
+      =*  txs        transactions.batch.u.b
       ?.  (lth egg-num (lent txs))  $(locations t.locations)
       =+  [hash=@ux =egg:smart]=(snag egg-num txs)
       %=  $
@@ -1031,27 +922,38 @@
   ++  get-locations
     |^  ^-  (list location:ui)
     ?+  query-type  ~|("indexer: get-locations unexpected query-type {<query-type>}" !!)
-      %egg         (get-by-get-ja egg-index)
-      %from        (get-by-get-ja from-index)
-      %grain       (get-by-get-ja grain-index)
-      %grain-eggs  (get-by-get-ja grain-eggs-index)
-      %holder      (get-by-get-ja holder-index)
-      %lord        (get-by-get-ja lord-index)
-      %to          (get-by-get-ja to-index)
+      %egg         (get-by-get-ja egg-index only-newest)
+      %from        (get-by-get-ja from-index %.n)
+      %grain       (get-by-get-ja grain-index only-newest)
+      %grain-eggs  (get-by-get-ja grain-eggs-index %.n)
+      %holder      (get-by-get-ja holder-index %.n)
+      %lord        (get-by-get-ja lord-index %.n)
+      %to          (get-by-get-ja to-index %.n)
     ==
+    ::  always set `only-newest` false for
+    ::   second-order indices or will
+    ::   throw away unique eggs/grains.
+    ::   Concretely, egg/grain indices hold historical
+    ::   state for a given hash, while second-order
+    ::   indices hold different eggs/grains that hash
+    ::   has appeared in (e.g. different grains with a
+    ::   given holder).
     ::
     ++  get-by-get-ja
-      |=  index=(map @ux (jar @ux location:ui))
+      |=  [index=(map @ux (jar @ux location:ui)) only-newest=?]
       ^-  (list location:ui)
       ?:  ?=([@ @] query-payload)
         =*  town-id    -.query-payload
         =*  item-hash  +.query-payload
-        ?~  town-index=(~(get by index) town-id)  ~
-        (~(get ja u.town-index) item-hash)
+        ?~  town-index=(~(get by index) town-id)      ~
+        ?~  items=(~(get ja u.town-index) item-hash)  ~
+        ?:(only-newest ~[i.items] items)
       ?.  ?=(@ query-payload)  ~
       =*  item-hash  query-payload
       %+  roll  ~(val by index)
       |=  [town-index=(jar @ux location:ui) out=(list location:ui)]
+      ?~  items=(~(get ja town-index) item-hash)  out
+      ?:  only-newest  [i.items out]
       (weld out (~(get ja town-index) item-hash))
     --
   --
@@ -1172,7 +1074,7 @@
         ?>  ?=([@ @ ~] sub-path)
         [(slav %ux i.sub-path) (slav %ux i.t.sub-path)]
       =/  =update:ui
-        (get-newest-update-from-index query-type payload)
+        (serve-update query-type payload %.y)
       ?~  update  ~
       :-  ~
       %+  fact:io  [%indexer-update !>(`update:ui`update)]
