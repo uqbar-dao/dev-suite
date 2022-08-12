@@ -84,14 +84,13 @@
 ::
 ::  N.B. owner zigs ids must match the ones generated in `+zig-account`
 ++  fun-account
-  |=  [holder=id:smart amt=@ud meta=(unit @ux) allowances=(map address:smart @ud)]
+  |=  [holder=id:smart amt=@ud meta=grain:smart allowances=(map address:smart @ud)]
   ::  meta - metadata of the fungible account. defaults to `@ux`'simple' unless provided
   ^-  grain:smart
-  =/  meta-id  ?~(meta `@ux`'simple-metadata-1' u.meta)
-  =*  sal      meta-id
-  =/  id  (fry-rice:smart id.p:fungible-wheat holder town-id sal)
-  :*  %&  sal  %account
-      `account:sur:fun`[amt allowances meta-id 0]
+  ?>  ?=(%& -.meta)
+  =/  id  (fry-rice:smart id.p:fungible-wheat holder town-id salt.p.meta)
+  :*  %&  salt.p.meta  %account
+      `account:sur:fun`[amt allowances id.p:meta 0]
       id
       id.p:fungible-wheat
       holder
@@ -103,7 +102,7 @@
   ^-  caller:smart
   [pub-1 0 (fry-rice:smart zigs-wheat-id:smart pub-1 town-id `@`'zigsalt')]
 ++  account-1
-  (fun-account pub-1 50 ~ ~)
+  (fun-account pub-1 50 token-1 ~)
 ::
 ++  priv-2  0xdead.dead.dead.dead.dead.dead.dead.dead.dead.dead
 ++  pub-2   (address-from-prv:key:ethereum priv-2)
@@ -111,7 +110,7 @@
   ^-  caller:smart
   [pub-2 0 (fry-rice:smart zigs-wheat-id:smart pub-2 town-id `@`'zigsalt')]
 ++  account-2  ::  previously 0x1.dead
-  (fun-account pub-2 30 ~ ~)
+  (fun-account pub-2 30 token-1 ~)
 ::
 ++  priv-3  0xcafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe.cafe
 ++  pub-3   (address-from-prv:key:ethereum priv-3)
@@ -119,13 +118,13 @@
   ^-  caller:smart
   [pub-3 0 (fry-rice:smart zigs-wheat-id:smart pub-3 town-id `@`'zigsalt')]
 ++  account-3  :: previously 0x1.cafe
-  (fun-account pub-3 20 ~ (malt ~[[0xffff 100]]))
+  (fun-account pub-3 20 token-1 (malt ~[[0xffff 100]]))
 ++  account-4
-  (fun-account 0xface 20 ``@ux`'different meta' ~)
+  (fun-account 0xface 20 token-different ~)
 ++  account-1-mintable
-  (fun-account pub-1 50 ``@ux`'simple-mintable' ~)
+  (fun-account pub-1 50 token-mintable ~)
 ++  account-2-mintable
-  (fun-account pub-2 50 ``@ux`'simple-mintable' ~)
+  (fun-account pub-2 50 token-mintable ~)
 ::
 ++  fungible-wheat
   ^-  grain:smart
@@ -141,44 +140,72 @@
       holder=`@ux`'fungible'
       town-id
   ==
-++  metadata-1
+::  N.B: symbols MUST be unique otherwise there WILL be id collisions
+::  and you're gonna have a bad time.
+++  token-1
   ^-  grain:smart
-  :*  %&  `@`'salt'  %metadata
+  =+  deployer=0x0
+  =+  sym='ST'
+  :*  %&  `@`(sham (cat 3 deployer sym))  %metadata
       ^-  token-metadata:sur:fun
       :*  name='Simple Token'
-          symbol='ST'
+          sym
           decimals=0
           supply=100
           cap=~
           mintable=%.n
           minters=~
-          deployer=0x0
-          salt=`@`'salt'
+          deployer
       ==
       `@ux`'simple-metadata-1'
       id.p:fungible-wheat
       id.p:fungible-wheat
       town-id
   ==
-++  metadata-mintable
+++  token-mintable
   ^-  grain:smart
-  :*  %&  `@`'salt'  %metadata
+  =+  deployer=0x0
+  =+  sym='STM'
+  :*  %&  `@`(sham (cat 3 deployer sym))  %metadata
       ^-  token-metadata:sur:fun
       :*  name='Simple Token Mintable'
-          symbol='STM'
+          sym
           decimals=0
           supply=100
           cap=`1.000
           mintable=%.y
           minters=(silt ~[pub-1])
-          deployer=0x0
-          salt=`@`'salt'
+          deployer
       ==
       `@ux`'simple-mintable'
       id.p:fungible-wheat
       id.p:fungible-wheat
       town-id
   ==
+++  token-different
+  ^-  grain:smart
+  =+  deployer=0x0
+  =+  sym='DIF'
+  :*  %&  `@`(sham (cat 3 deployer sym))  %metadata
+      ^-  token-metadata:sur:fun
+      :*  name='Different'
+          sym
+          decimals=0
+          supply=0
+          cap=`12
+          mintable=%.y
+          minters=(silt ~[pub-1])
+          deployer
+      ==
+      `@ux`'diffrent-token'
+      id.p:fungible-wheat
+      id.p:fungible-wheat
+      town-id
+  ==
+++  salt-of
+  |=  tok=grain:smart
+  ?>  ?=(%& -.tok)
+  salt.p.tok
 ::
 ::
 ::
@@ -186,8 +213,9 @@
   ^-  granary
   %-  gilt
   :~  fungible-wheat
-      metadata-1
-      metadata-mintable
+      token-1
+      token-mintable
+      token-different
       account-1
       account-2
       account-3
@@ -218,7 +246,7 @@
   =/  shel=shell:smart
     [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  updated-1=grain:smart
-    (fun-account pub-1 50 ~ (malt ~[[id:owner-3 10]]))
+    (fun-account pub-1 50 token-1 (malt ~[[id:owner-3 10]]))
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel action]
@@ -234,13 +262,14 @@
     [%give id.p:account-1 pub-2 `id.p:account-2 30]
   =/  shel=shell:smart
     [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  updated-1=grain:smart  (fun-account pub-1 20 ~ ~)
-  =/  updated-2=grain:smart  (fun-account pub-2 60 ~ ~)
+  =/  updated-1=grain:smart  (fun-account pub-1 20 token-1 ~)
+  =/  updated-2=grain:smart  (fun-account pub-2 60 token-1 ~)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel action]
   =/  expected=granary  (gas:big *granary ~[[id.p:updated-1 updated-1] [id.p:updated-2 updated-2]])
-  ::  filter out any grains whose keys are not in expected
+  ::  N.B. we use int to filter out any grains whose keys are not in expected,
+  ::  but preserve the values of those keys from p.land.milled. this is a recurring pattern
   =/  res=granary       (int:big expected p.land.milled)
   (expect-eq !>(expected) !>(res))
 ++  test-give-unknown-receiver
@@ -248,8 +277,8 @@
   =/  =action:sur:fun  [%give id.p:account-1 0xffff ~ 30]
   =/  shel=shell:smart
     [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  new-id  (fry-rice:smart id.p:fungible-wheat 0xffff town-id `@`'simple-metadata-1')
-  =/  new=grain:smart  (fun-account 0xffff 30 ~ ~)
+  =/  new-id  (fry-rice:smart id.p:fungible-wheat 0xffff town-id (salt-of token-1))
+  =/  new=grain:smart  (fun-account 0xffff 30 token-1 ~)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel action]
@@ -278,62 +307,64 @@
 :: %take
 ::
 ++  test-take-send-new-account
-  ::  TODO doesn't crash anymore but still fails
   ^-  tang
   =/  =action:sur:fun  [%take 0xffff ~ id.p:account-3 10]
   =/  shel=shell:smart
     =+  zigs=(fry-rice:smart zigs-wheat-id:smart 0xffff town-id `@`'zigsalt')
     [[0xffff 1 zigs] ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  new-id=id:smart  (fry-rice:smart id.p:fungible-wheat 0xffff town-id `@ux`'simple-metadata-1')
-  =/  new=grain:smart  (fun-account 0xffff 10 ~ ~)
+  =/  new-id=id:smart  (fry-rice:smart id.p:fungible-wheat 0xffff town-id (salt-of token-1))
+  =/  new=grain:smart  (fun-account 0xffff 10 token-1 ~)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel action]
   =/  res=grain:smart  (got:big p.land.milled new-id)
   =*  correct  new
   (expect-eq !>(correct) !>(res))
+::
+::  %mint
+::
 ++  test-mint-known-receivers
   ^-  tang
-
   =/  =action:sur:fun
-    [%mint pub-1 `@ux`'simple-mintable' (silt ~[[pub-1 `id.p:account-1-mintable 50] [pub-2 `id.p:account-2-mintable 10]])]
+    :*  %mint
+        pub-1
+        id.p:token-mintable
+        (silt ~[[pub-1 `id.p:account-1-mintable 50] [pub-2 `id.p:account-2-mintable 10]])
+    ==
   =/  shel=shell:smart
     [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  new-simp-meta=grain:smart
-    :*  %&  `@`'salt'  %metadata
-        ^-  token-metadata:sur:fun
-        :*  name='Simple Token Mintable'
-            symbol='STM'
-            decimals=0
-            supply=160
-            cap=`1.000
-            mintable=%.n
-            minters=(silt ~[pub-1])
-            deployer=0x0
-            salt=`@`'salt'
-        ==
-        `@ux`'simple-mintable'
-        id.p:fungible-wheat
-        id.p:fungible-wheat
-        town-id
-    ==
+    =-  [%& tok(supply.data 160)]
+    tok=(husk:smart token-metadata:sur:fun token-mintable ~ ~)
   =/  updated-1=grain:smart
-    (fun-account pub-1 100 ``@ux`'simple-mintable' ~)
-
+    (fun-account pub-1 100 token-mintable ~)
   =/  updated-2=grain:smart
-    (fun-account pub-2 60 ``@ux`'simple-mintable' ~)
+    (fun-account pub-2 60 token-mintable ~)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `egg:smart`[fake-sig shel action]
   =/  expected=granary  (gilt ~[new-simp-meta updated-1 updated-2])
   =/  res=granary       (int:big expected p.land.milled)
   (expect-eq !>(expected) !>(res))
+++  test-mint-unknown-receiver
+  ^-  tang
+  =/  =action:sur:fun
+    [%mint pub-1 id.p:token-mintable (silt ~[[pub-3 ~ 50]])]
+  =/  shel=shell:smart
+    [[id +(nonce) zigs]:owner-1 ~ id.p:fungible-wheat rate budget town-id 0]
+  =/  expected=grain:smart
+    (fun-account pub-3 50 token-mintable ~)
+  =/  milled=mill-result
+    %+  ~(mill mil miller town-id 1)
+    fake-land  `egg:smart`[fake-sig shel action]
+  =/  res=grain:smart  (got:big p.land.milled id.p:expected)
+  (expect-eq !>(expected) !>(res))
 ::::
 ::::
 ::::  %deploy
 ::::
 ::++  test-deploy
-::  ::  XX this test will never run to completion until tap:in is jetted
+::  ::  XX this test infinite loops because of a problematic tap:in callsite in handling `%deploy`
 ::  ^-  tang
 ::  =/  token-salt  (sham (cat 3 pub-1 'TC'))
 ::  =/  new-token-metadata=grain:smart
@@ -347,7 +378,6 @@
 ::            %.y
 ::            (silt ~[pub-1])
 ::            pub-1
-::            token-salt
 ::        ==
 ::        (fry-rice:smart id.p:fungible-wheat id.p:fungible-wheat town-id token-salt)
 ::        id.p:fungible-wheat
@@ -355,18 +385,7 @@
 ::        town-id
 ::    ==
 ::  =/  new-account=grain:smart
-::    :*  %&  token-salt  %account
-::        ^-  account:sur:fun
-::        :*  900
-::            ~
-::            id.p.new-token-metadata
-::            0
-::        ==
-::        (fry-rice:smart id.p:fungible-wheat pub-1 town-id token-salt)
-::        id.p:fungible-wheat
-::        pub-1
-::        town-id
-::    ==
+::    (fun-account pub-1 900 new-token-metadata ~)
 ::  =/  =action:sur:fun
 ::    [%deploy (silt ~[[pub-1 900]]) (silt ~[pub-1]) 'Test Coin' 'TC' 0 1.000 %.y]
 ::  =/  shel=shell:smart
