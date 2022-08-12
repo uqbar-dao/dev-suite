@@ -300,39 +300,26 @@
     =/  only-newest=?  ?=(%newest i.t.path)
     =/  args=^path  ?.(only-newest t.path t.t.path)
     |^
-    ?+    path  (on-peek:def path)
-        $?  [%x %hash @ ~]    [%x %newest %hash @ ~]
-            [%x %hash @ @ ~]  [%x %newest %hash @ @ ~]
-        ==
+    ?+    args  (on-peek:def path)
+        ?([%hash @ ~] [%hash @ @ ~])
       =/  =query-payload:ui  read-query-payload-from-args
       :^  ~  ~  %indexer-update
       !>(`update:ui`(get-hashes query-payload only-newest))
     ::
-        $?  [%x %id @ ~]    [%x %newest %id @ ~]
-            [%x %id @ @ ~]  [%x %newest %id @ @ ~]
-        ==
+        ?([%id @ ~] [%id @ @ ~])
       =/  =query-payload:ui  read-query-payload-from-args
       :^  ~  ~  %indexer-update
       !>(`update:ui`(get-ids query-payload only-newest))
     ::
-        $?  [%x %batch @ ~]         [%x %newest %batch @ ~]
-            [%x %batch @ @ ~]       [%x %newest %batch @ @ ~]
-            [%x %egg @ ~]           [%x %newest %egg @ ~]
-            [%x %egg @ @ ~]         [%x %newest %egg @ @ ~]
-            [%x %from @ ~]          [%x %newest %from @ ~]
-            [%x %from @ @ ~]        [%x %newest %from @ @ ~]
-            [%x %grain @ ~]         [%x %newest %grain @ ~]
-            [%x %grain @ @ ~]       [%x %newest %grain @ @ ~]
-            [%x %grain-eggs @ ~]    [%x %newest %grain-eggs @ ~]
-            [%x %grain-eggs @ @ ~]  [%x %newest %grain-eggs @ @ ~]
-            [%x %holder @ ~]        [%x %newest %holder @ ~]
-            [%x %holder @ @ ~]      [%x %newest %holder @ @ ~]
-            [%x %lord @ ~]          [%x %newest %lord @ ~]
-            [%x %lord @ @ ~]        [%x %newest %lord @ @ ~]
-            [%x %to @ ~]            [%x %newest %to @ ~]
-            [%x %to @ @ ~]          [%x %newest %to @ @ ~]
-            [%x %town @ ~]          [%x %newest %town @ ~]
-            [%x %town @ @ ~]        [%x %newest %town @ @ ~]
+        $?  [%batch @ ~]       [%batch @ @ ~]
+            [%egg @ ~]         [%egg @ @ ~]
+            [%from @ ~]        [%from @ @ ~]
+            [%grain @ ~]       [%grain @ @ ~]
+            [%grain-eggs @ ~]  [%grain-eggs @ @ ~]
+            [%holder @ ~]      [%holder @ @ ~]
+            [%lord @ ~]        [%lord @ @ ~]
+            [%to @ ~]          [%to @ @ ~]
+            [%town @ ~]        [%town @ @ ~]
         ==
       =/  =query-type:ui
         ?>  ?=(?([@ @ ~] [@ @ @ ~]) args)
@@ -342,16 +329,16 @@
       !>  ^-  update:ui
       (serve-update query-type query-payload only-newest)
     ::
-        [%x %batch-order @ ~]
-      =/  town-id=@ux  (slav %ux i.t.t.path)
+        [%batch-order @ ~]
+      =/  town-id=@ux  (slav %ux i.t.args)
       :^  ~  ~  %indexer-batch-order
       ?~  bs=(~(get by batches-by-town) town-id)  !>(~)
       !>(`batch-order:ui`batch-order.u.bs)
     ::
-        [%x %batch-order @ @ @ ~]
+        [%batch-order @ @ @ ~]
       =/  [town-id=@ux nth-most-recent=@ud how-many=@ud]
-        :+  (slav %ux i.t.t.path)  (slav %ud i.t.t.t.path)
-        (slav %ud i.t.t.t.t.path)
+        :+  (slav %ux i.t.args)  (slav %ud i.t.t.args)
+        (slav %ud i.t.t.t.args)
       :^  ~  ~  %indexer-batch-order
       ?~  bs=(~(get by batches-by-town) town-id)  !>(~)
       !>  ^-  batch-order:ui
