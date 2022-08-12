@@ -199,7 +199,7 @@
       =.  data.p.tok
         %=  meta
           supply    new-supply
-          mintable  ?:(=(u.cap.meta new-supply) %.y %.n)
+          mintable  (mintable:lib meta)
         ==
       ?~  to-issue
         ::  no new accounts to issue
