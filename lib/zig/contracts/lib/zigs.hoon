@@ -1,7 +1,7 @@
 ::  [UQ| DAO]
 ::  zigs.hoon v0.9
 ::
-  ::/+  *zig-sys-smart
+::  /+  *zig-sys-smart
 |%
 ++  sur
   |%
@@ -13,7 +13,7 @@
         symbol=@t
         decimals=@ud
         supply=@ud
-        cap=~
+        cap=~  ::  no pre-set supply cap
         mintable=%.n
         minters=~
         deployer=address  ::  will be 0x0
@@ -22,7 +22,7 @@
   ::
   +$  account
     $:  balance=@ud
-        allowances=(map address @ud)
+        allowances=(pmap address @ud)
         metadata=id
     ==
   ::

@@ -7,7 +7,7 @@
         symbol=@t
         properties=(pset @tas)
         supply=@ud
-        cap=(unit @ud)  ::  (~ if mintable is false)
+        cap=(unit @ud)  ::  (~ if no cap)
         mintable=?      ::  automatically set to %.n if supply == cap
         minters=(pset address)
         deployer=id

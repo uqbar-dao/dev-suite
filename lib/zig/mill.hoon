@@ -212,7 +212,7 @@
       ?~  zigs=(get:big granary zigs.from.shell.egg)  %.n
       ?.  =(id.from.shell.egg holder.p.u.zigs)        %.n
       ?.  =(zigs-wheat-id:smart lord.p.u.zigs)        %.n
-      ?.  ?=(%& -.u.zigs)                           %.n
+      ?.  ?=(%& -.u.zigs)                             %.n
       =/  acc  (hole token-account data.p.u.zigs)
       (gte balance.acc (mul budget.shell.egg rate.shell.egg))
     ::  +charge: extract gas fee from caller's zigs balance
