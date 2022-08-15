@@ -117,7 +117,7 @@
     ::  and the taker will pass in the signature to take the tokens
     =/  giv=grain          (need (scry from-account.act))
     ?>  ?=(%& -.giv)
-    =/  giver=account:sur  data:(husk account:sur giv `me.cart `to.act)
+    =/  giver=account:sur  data:(husk account:sur giv `me.cart ~)
     ::  reconstruct the typed message and hash
     =/  =typed-message
       :-  (fry-rice me.cart holder.p.giv town-id.cart salt.p.giv)
