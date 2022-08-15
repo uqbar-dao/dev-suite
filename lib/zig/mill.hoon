@@ -266,7 +266,7 @@
       ^-  hatchling
       =/  from  [id.from.shell.egg nonce.from.shell.egg]
       ::  check for grain burn transaction
-      ?:  &(=(to.shell.egg 0x0) =(p.yolk.egg %burn))
+      ?:  &(=(0x0 to.shell.egg) =(%burn p.yolk.egg))
         (cook egg)
       ::  insert budget argument if egg is %give-ing zigs
       =?  q.yolk.egg  &(=(to.shell.egg zigs-wheat-id:smart) =(p.yolk.egg %give))
