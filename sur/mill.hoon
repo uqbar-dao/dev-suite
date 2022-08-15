@@ -1,5 +1,8 @@
 /+  smart=zig-sys-smart, zink=zink-zink, merk
 |%
+++  big  (bi:merk id:smart grain:smart)  ::  merkle engine for granary
+++  pig  (bi:merk id:smart @ud)          ::                for populace
+::
 +$  granary   (merk:merk id:smart grain:smart)
 +$  populace  (merk:merk id:smart @ud)
 +$  land      (pair granary populace)
@@ -10,7 +13,7 @@
 +$  diff  granary  ::  state transitions for one batch
 +$  state-transition
   $:  =land
-      processed=(list [id:smart egg:smart])
+      processed=carton
       hits=(list (list hints:zink))
       =diff
       crows=(list crow:smart)

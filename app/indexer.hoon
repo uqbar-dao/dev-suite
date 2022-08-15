@@ -108,14 +108,14 @@
 ::
 ::
 /-  ui=indexer,
-    seq=sequencer
+    seq=sequencer,
+    mill
 /+  agentio,
     dbug,
     default-agent,
     verb,
     indexer-lib=indexer-bowl,
-    smart=zig-sys-smart,
-    merk
+    smart=zig-sys-smart
 ::
 |%
 +$  card  card:agent:gall
@@ -437,7 +437,8 @@
       ::
           %fact
         =^  cards  state
-          %-  consume-sequencer-update
+          %+  consume-sequencer-update
+            sup.bowl
           !<(indexer-update:seq q.cage.sign)
         [cards this]
       ==
@@ -508,6 +509,7 @@
               town.u.indexer-update
               timestamp.update
               %.y
+              sup.bowl
           ==
         :-  cards
         %=  state
@@ -519,7 +521,7 @@
       ==
     ::
     ++  consume-sequencer-update
-      |=  update=indexer-update:seq
+      |=  [sup=bitt:gall update=indexer-update:seq]
       ^-  (quip card _state)
       ?-    -.update
           %update
@@ -548,6 +550,7 @@
               town.update
               u.timestamp
               %.y
+              sup
           ==
         :-  cards
         %=  state
@@ -759,6 +762,7 @@
           +.batch.i.batches-list
           timestamp.i.batches-list
           %.n
+          sup.bowl
       ==
     $(batches-list t.batches-list)
   --
@@ -847,7 +851,7 @@
         $(locations t.locations)
       =*  timestamp  -.u.b
       =*  granary    p.land.+.u.b
-      ?~  grain=(get:(bi:merk id:smart grain:smart) granary grain-id)
+      ?~  grain=(get:big:mill granary grain-id)
         $(locations t.locations)
       %=  $
           locations  t.locations
@@ -957,6 +961,7 @@
           =town:seq
           timestamp=@da
           should-update-subs=?
+          sup=bitt:gall
       ==
   |^  ^-  (quip card _state)
   =*  town-id  town-id.hall.town
@@ -978,7 +983,7 @@
     (~(put by batches.u.b) root [timestamp eggs town])
   ==
   :_  state
-  ?.(should-update-subs ~ make-all-sub-cards)
+  ?.(should-update-subs ~ (make-all-sub-cards sup))
   ::
   ++  gas-ja-egg
     |=  $:  index=(map town-id=@ux (jar @ux egg-location:ui))
@@ -1029,17 +1034,20 @@
     ==
   ::
   ++  make-sub-paths
+    |=  sup=(list [ship sub-path=path])
     ^-  (jug @tas path)
     %-  ~(gas ju *(jug @tas path))
-    %+  turn  ~(val by sup.bowl)
+    %+  turn  sup
     |=  [ship sub-path=path]
     ^-  [@tas path]
     ?>  ?=(^ sub-path)
     [`@tas`i.sub-path t.sub-path]
   ::
   ++  make-all-sub-cards
+    |=  sup=bitt:gall
     ^-  (list card)
-    =/  sub-paths=(jug @tas path)  make-sub-paths
+    =/  sub-paths=(jug @tas path)
+      (make-sub-paths ~(val by sup))
     |^
     %-  zing
     :~  :: (make-sub-cards %batch %batch)
@@ -1070,14 +1078,15 @@
       ?~  update  ~
       ::  is update timestamped now?
       ?:  ?=(?(%batch %egg) -.update)
-        ?.  %-  %~  any  by
-                ?-  -.update
-                  %batch  batches.update
-                  %egg    eggs.update
-                ==
-            |=  [timestamp=@da *]
-            =(now.bowl timestamp)
-          ~
+        ::  TODO: what purpose did this serve? how do we get good timestamps?
+        ::  ?.  %-  %~  any  by
+        ::          ?-  -.update
+        ::            %batch  batches.update
+        ::            %egg    eggs.update
+        ::          ==
+        ::      |=  [timestamp=@da *]
+        ::      =(now.bowl timestamp)
+        ::    ~
         :-  ~
         %+  fact:io
           [%indexer-update !>(`update:ui`update)]
@@ -1088,14 +1097,14 @@
         %+  murn  ~(tap by grains.update)
         |=  [=id:smart gs=(list [@da batch-location:ui grain:smart])]
         ?~(gs ~ `[id ~[i.gs]])
-      =/  timestamp-index=(unit @ud)
-        %+  find  [now.bowl]~
-        %+  turn
-          ^-  (list [@da batch-location:ui grain:smart])
-          (zing ~(val by grains.update))
-        |=  [timestamp=@da *]
-        timestamp
-      ?~  timestamp-index  ~
+      ::  =/  timestamp-index=(unit @ud)
+      ::    %+  find  [now.bowl]~
+      ::    %+  turn
+      ::      ^-  (list [@da batch-location:ui grain:smart])
+      ::      (zing ~(val by grains.update))
+      ::    |=  [timestamp=@da *]
+      ::    timestamp
+      ::  ?~  timestamp-index  ~
       :-  ~
       %+  fact:io
         [%indexer-update !>(`update:ui`update)]

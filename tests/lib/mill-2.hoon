@@ -44,56 +44,60 @@
 ::
 ::  fake data
 ::
-++  miller    ^-  caller:smart  [0x1512.3341 1 0x1.1512.3341]
-++  caller-1  ^-  caller:smart  [0xbeef 1 0x1.beef]
-++  caller-2  ^-  caller:smart  [0xdead 1 0x1.dead]
-++  caller-3  ^-  caller:smart  [0xcafe 1 0x1.cafe]
+++  miller
+  ^-  caller:smart
+  :+  0x24c.23b9.8535.cd5a.0645.5486.69fb.afbf.095e.fcc0
+    1
+  id.p:miller-account:zigs
+++  caller-1  ^-  caller:smart  [holder-1:zigs 1 id.p:account-1:zigs]
+++  caller-2  ^-  caller:smart  [holder-2:zigs 1 id.p:account-2:zigs]
+++  caller-3  ^-  caller:smart  [holder-3:zigs 1 id.p:account-3:zigs]
 ::
 ++  zigs
   |%
-  ++  holder-1  0xbeef
-  ++  holder-2  0xdead
-  ++  holder-3  0xcafe
+  ++  holder-1  0xd387.95ec.b77f.b88e.c577.6c20.d470.d13c.8d53.2169
+  ++  holder-2  0x75f.da09.d4aa.19f2.2cad.929c.aa3c.aa7c.dca9.5902
+  ++  holder-3  0xa2f8.28f2.75a3.28e1.3ba1.25b6.0066.c4ea.399d.88c7
   ++  miller-account
     ^-  grain:smart
     :*  %&
         `@`'zigs'
         %account
         [1.000.000 ~ `@ux`'zigs-metadata']
-        0x1.1512.3341
+        (fry-rice:smart zigs-wheat-id:smart 0x24c.23b9.8535.cd5a.0645.5486.69fb.afbf.095e.fcc0 town-id `@`'zigs')
         zigs-wheat-id:smart
-        0x1512.3341
+        0x24c.23b9.8535.cd5a.0645.5486.69fb.afbf.095e.fcc0
         town-id
     ==
-  ++  beef-account
+  ++  account-1
     ^-  grain:smart
     :*  %&
         `@`'zigs'
         %account
         [300.000.000 ~ `@ux`'zigs-metadata']
-        0x1.beef
+        (fry-rice:smart zigs-wheat-id:smart holder-1 town-id `@`'zigs')
         zigs-wheat-id:smart
         holder-1
         town-id
     ==
-  ++  dead-account
+  ++  account-2
     ^-  grain:smart
     :*  %&
         `@`'zigs'
         %account
         [200.000 ~ `@ux`'zigs-metadata']
-        0x1.dead
+        (fry-rice:smart zigs-wheat-id:smart holder-2 town-id `@`'zigs')
         zigs-wheat-id:smart
         holder-2
         town-id
     ==
-  ++  cafe-account
+  ++  account-3
     ^-  grain:smart
     :*  %&
         `@`'zigs'
         %account
         [100.000 ~ `@ux`'zigs-metadata']
-        0x1.cafe
+        (fry-rice:smart zigs-wheat-id:smart holder-3 town-id `@`'zigs')
         zigs-wheat-id:smart
         holder-3
         town-id
@@ -162,8 +166,8 @@
       [id.p:wheat:zigs wheat:zigs]
       ::  [id.p:temp-wheat temp-wheat]
       ::  [id.p:temp-grain temp-grain]
-      [id.p:beef-account:zigs beef-account:zigs]
-      [id.p:dead-account:zigs dead-account:zigs]
+      [id.p:account-1:zigs account-1:zigs]
+      [id.p:account-2:zigs account-2:zigs]
       :: [id.p:miller-account:zigs miller-account:zigs]
   ==
 ++  fake-populace
@@ -193,7 +197,7 @@
 ::    !>(errorcode.res)
 ::
 ++  test-mill-zigs-give
-  =/  =yolk:smart  [%give 0xface 69 0x1.beef ~]
+  =/  =yolk:smart  [%give holder-2:zigs 1.000 id.p:account-1:zigs `id.p:account-2:zigs]
   =/  shel=shell:smart
     [caller-1 ~ id.p:wheat:zigs 1 1.000.000 town-id 0]
   =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]

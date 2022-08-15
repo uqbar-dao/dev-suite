@@ -308,7 +308,7 @@
       [%&^~^~ app]
     [%&^[~ `product.u.result] app]
   ==
-  :: 
+  ::
   ++  jet
     |=  [tag=@ sam=*]
     ^-  book

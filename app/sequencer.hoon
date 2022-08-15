@@ -17,7 +17,7 @@
       town=(unit town)    ::  state
       =basket             ::  mempool
       peer-roots=(map id:smart root=@ux)  ::  track updates from rollup
-      proposed-batch=(unit [num=@ud =basket =land diff-hash=@ux root=@ux])
+      proposed-batch=(unit [num=@ud =carton =land diff-hash=@ux root=@ux])
       status=?(%available %off)
   ==
 +$  inflated-state-0  [state-0 =mil smart-lib-vase=vase]
@@ -196,7 +196,7 @@
       ::  return rejected (not enough passes to cover them) to our basket
       :_  %=  state
             basket  (silt rejected)
-            proposed-batch  `[new-batch-num basket.state land.new diff-hash new-root]
+            proposed-batch  `[new-batch-num processed.new land.new diff-hash new-root]
           ==
       =-  [%pass /batch-submit/(scot %ux new-root) %agent [u.rollup.state %rollup] %poke -]~
       :-  %rollup-action
@@ -231,7 +231,7 @@
           (transition-state town u.proposed-batch)
         :_  this(town new-town, proposed-batch ~, basket ~)
         =-  [%give %fact ~[/indexer/updates] %sequencer-indexer-update -]~
-        !>(`indexer-update`[%update ~(tap in basket.u.proposed-batch) (need new-town) root.u.proposed-batch])
+        !>(`indexer-update`[%update carton.u.proposed-batch (need new-town) root.u.proposed-batch])
       ::  TODO manage rejected moves here
       ~&  >>>  "%sequencer: our move was rejected by rollup!"
       ~&  u.p.sign
@@ -275,8 +275,6 @@
 ++  on-peek
   |=  =path
   ^-  (unit (unit cage))
-  ::  all scrys return a unit
-  ::
   ?.  =(%x -.path)  ~
   ?+    +.path  (on-peek:def path)
       [%status ~]
@@ -288,10 +286,43 @@
   ::
   ::  state reads fail if sequencer not active
   ::
-      [%has @ ~]  ::  see if grain exists in state
+      [%has @ ~]
+    ::  see if grain exists in state
     =/  id  (slav %ux i.t.t.path)
     ?~  town  [~ ~]
     ``noun+!>((~(has by p.land.u.town) id))
+  ::
+      [%get-action @ @ ~]
+    ::  return lump interface from contract on-chain
+    =/  id   (slav %ux i.t.t.path)
+    =/  act  (slav %tas i.t.t.t.path)
+    ?~  town  [~ ~]
+    ?~  g=(get:big p.land.u.town id)
+      ::  contract not found in state
+      ``noun+!>(~)
+    ?.  ?=(%| -.u.g)
+      ::  found ID isn't a contract
+      ``noun+!>(~)
+    ?~  action=(~(get by interface.p.u.g) act)
+      ::  contract doesn't have lump for that action
+      ``noun+!>(~)
+    ``noun+!>(u.action)
+  ::
+      [%get-type @ @ ~]
+    ::  return lump rice type from contract on-chain
+    =/  id     (slav %ux i.t.t.path)
+    =/  label  (slav %tas i.t.t.t.path)
+    ?~  town  [~ ~]
+    ?~  g=(get:big p.land.u.town id)
+      ::  contract not found in state
+      ``noun+!>(~)
+    ?.  ?=(%| -.u.g)
+      ::  found ID isn't a contract
+      ``noun+!>(~)
+    ?~  typ=(~(get by types.p.u.g) label)
+      ::  contract doesn't have lump for that rice label
+      ``noun+!>(~)
+    ``noun+!>(u.typ)
   ::
       [%grain @ ~]
     ?~  town  [~ ~]
@@ -299,7 +330,6 @@
   ::
       [%read @ @tas @ta @ ^]  :: grain id, %noun/%json, argument @ta, other +jam'd data, like tx args, then any associated rice IDs
     ?~  town  [~ ~]
-    ::  TODO pre-;; library
     (read-wheat t.path now.bowl town-id.hall.u.town p.land.u.town smart-lib-vase)
   ==
 ::

@@ -2,25 +2,55 @@
 |%
 +$  signature   [p=@ux q=ship r=life]
 ::
-+$  book  (map [town=@ux lord=id:smart salt=@] [=token-type =grain:smart])
-+$  transaction-store  (map pub=@ux [sent=(map @ux [=egg:smart args=supported-args]) received=(map @ux =egg:smart)])
-+$  metadata-store  (map @ asset-metadata)  ::  metadata is keyed by SALT of grains associated.
+::  book: the primary map of assets that we track
+::  supports fungibles and NFTs
 ::
-+$  token-type  ?(%token %nft %unknown)
++$  book  (map id:smart asset)
++$  asset
+  $%  [%token town-id=@ux metadata=id:smart token-account]
+      [%nft town-id=@ux metadata=id:smart nft]
+      [%unknown town-id=@ux *]
+  ==
 ::
-::  TODO: move this to smart.hoon?
-+$  egg-status-code
-  ::  TX status codes:
++$  metadata-store  (map id:smart asset-metadata)
++$  asset-metadata
+  $%  [%token town-id=@ux token-metadata]
+      [%nft town-id=@ux nft-metadata]
+  ==
+::
++$  transaction-store
+  %+  map  address:smart
+  $:  sent=(map @ux [=egg:smart args=supported-args])
+      received=(map @ux =egg:smart)
+  ==
+::
++$  transaction-status-code
   $%  %100  ::  100: transaction submitted from wallet to sequencer
       %101  ::  101: transaction received by sequencer
       %103  ::  103: failure: transaction rejected by sequencer
-      errorcode:smart
+      ::
+      ::  200-class refers to codes that come from a completed, processed transaction
+      ::  informed by egg status codes in smart.hoon
+      %200  ::  0: successfully performed
+      %201  ::  1: submitted with raw id / no account info
+      %202  ::  2: bad signature
+      %203  ::  3: incorrect nonce
+      %204  ::  4: lack zigs to fulfill budget
+      %205  ::  5: couldn't find contract
+      %206  ::  6: crash in contract execution
+      %207  ::  7: validation of changed/issued/burned rice failed
+      %208  ::  8: ran out of gas while executing
+      %209  ::  9: was not parallel / superceded by another egg in batch
   ==
+::
+::  sent to web interface
 ::
 +$  wallet-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
-      [%tx-status hash=@ux =egg:smart args=(unit supported-args)]
+      [%tx-status hash=@ux =egg:smart args=supported-args]
   ==
+::
+::  received from web interface
 ::
 +$  wallet-poke
   $%  [%import-seed mnemonic=@t password=@t nick=@t]
@@ -34,7 +64,6 @@
       [%submit-signed hash=@ eth-hash=@ sig=[v=@ r=@ s=@]]
       ::  testing and internal
       [%set-nonce address=@ux town=id:smart new=@ud]
-      [%populate seed=@ux]
       ::  TX submit pokes
       ::  if we have a private key for the 'from' address, sign. if not,
       ::  allow hardware wallet to sign on frontend and %submit-signed
@@ -43,7 +72,7 @@
           to=id:smart
           town=id:smart
           gas=[rate=@ud bud=@ud]
-          yolk=[label=@tas args=@t]  ::  literally `ream`ed to form args
+          yolk=@t  ::  literally `ream`ed to form yolk
       ==
       $:  %submit
           from=id:smart
@@ -55,31 +84,17 @@
   ==
 ::
 +$  supported-args
-  $%  [%give salt=@ to=id:smart amount=@ud]
-      [%give-nft salt=@ to=id:smart item-id=@ud]
+  $%  [%give to=address:smart amount=@ud grain=id:smart]
+      [%give-nft to=address:smart grain=id:smart]
       [%custom args=@t]
   ==
 ::
-+$  asset-metadata
-  $%  [%token token-metadata]
-      [%nft nft-metadata]
-  ==
+::  hardcoded molds comporting to account-token standard
+::
 +$  token-metadata
   $:  name=@t
       symbol=@t
       decimals=@ud
-      supply=@ud
-      cap=(unit @ud)
-      mintable=?
-      minters=(set id:smart)
-      deployer=id:smart
-      salt=@
-  ==
-::
-+$  nft-metadata
-  $:  name=@t
-      symbol=@t
-      attributes=(set @t)
       supply=@ud
       cap=(unit @ud)
       mintable=?
@@ -94,17 +109,26 @@
       metadata=id:smart
   ==
 ::
-+$  nft-account
-  $:  metadata=id:smart
-      items=(map @ud item)
-      allowances=(set [id:smart @ud])
-      full-allowances=(set id:smart)
+::  hardcoded molds comporting to account-NFT standard
+::
++$  nft-metadata
+  $:  name=@t
+      symbol=@t
+      properties=(set @tas)
+      supply=@ud
+      cap=(unit @ud)  ::  (~ if mintable is false)
+      mintable=?      ::  automatically set to %.n if supply == cap
+      minters=(set address:smart)
+      deployer=id:smart
+      salt=@
   ==
-+$  item
+::
++$  nft  ::  a non-fungible token
   $:  id=@ud
-      data=(set [@t @t])
-      desc=@t
       uri=@t
+      metadata=id:smart
+      allowances=(set address:smart)
+      properties=(map @tas @t)
       transferrable=?
   ==
 --

@@ -3,4 +3,4 @@
 :-  %say
 |=  [[now=@da eny=@uvJ bek=beak] [pax=path ~] ~]
 :-  %noun
-(compile-contract:conq pax)
+(compile-path:conq pax)

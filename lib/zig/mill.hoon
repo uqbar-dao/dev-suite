@@ -2,9 +2,6 @@
 /+  *zink-zink, smart=zig-sys-smart, ethereum, merk
 |_  [library=vase zink-cax=(map * @) test-mode=?]
 ::
-++  big  (bi:merk id:smart grain:smart)  ::  merkle engine for granary
-++  pig  (bi:merk id:smart @ud)          ::                for populace
-::
 ++  verify-sig
   |=  =egg:smart
   ^-  ?
