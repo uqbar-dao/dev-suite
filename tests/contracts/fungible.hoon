@@ -222,9 +222,9 @@
       account-4
       account-1-mintable
       account-2-mintable
-      (zig-account:zigs holder.p:account-1 999.999)
-      (zig-account:zigs holder.p:account-2 999.999)
-      (zig-account:zigs holder.p:account-3 999.999)
+      (zig-account:zigs holder.p:account-1 999.999.999)
+      (zig-account:zigs holder.p:account-2 999.999.999)
+      (zig-account:zigs holder.p:account-3 999.999.999)
       (zig-account:zigs 0xffff 999.999)
       ::miller-account:zigs
       ::wheat:zigs
@@ -359,48 +359,41 @@
     fake-land  `egg:smart`[fake-sig shel action]
   =/  res=grain:smart  (got:big p.land.milled id.p:expected)
   (expect-eq !>(expected) !>(res))
-::::
-::::  %take-with-sig
-::::
-::++  test-take-with-sig-known-reciever
-::  ^-  tang
-::  ::  owner-1 is giving owner-2 the ability to take 30
-::  =/  to            pub-2
-::  =/  account       id.p:account-2  :: a rice of account-2  :: TODO: something is really fishy here. the account rice should have to be signed but this is fucked
-::  =/  from-account  id.p:account-1
-::  =/  amount        30
-::  =/  nonce         0
-::  =/  deadline      (add batch-num 1)
-::  =/  =typed-message  :-  (fry-rice:smart id.p:fungible-wheat pub-1 town-id `@`'salt')
-::                        (sham [pub-1 to amount nonce deadline])
-::  =/  sig  %+  ecdsa-raw-sign:secp256k1:secp:crypto
-::             (sham typed-message)
-::           priv-1
-::  =/  =action:sur
-::    [%take-with-sig to `account from-account amount nonce deadline sig]
-::  =/  =cart
-::    [id.p:fungible-wheat [pub-2 0] batch-num town-id]
-::  =/  updated-1=grain:smart
-::    :*  %&  `@`'salt'  %account
-::        `account:sur`[20 ~ `@ux`'simple' 1]
-::        0x1.beef
-::        id.p:fungible-wheat
-::        pub-1
-::        town-id
-::    ==
-::  =/  updated-2=grain:smart
-::    :*  %&  `@`'salt'  %account
-::        `account:sur`[60 ~ `@ux`'simple' 0]
-::        0x1.dead
-::        id.p:fungible-wheat
-::        pub-2
-::        town-id
-::    ==
-::  =/  res=chick:smart
-::    (~(write cont cart) action)
-::  =/  correct=chick:smart
-::    (result:smart ~[updated-1 updated-2] ~ ~ ~)
-::  (expect-eq !>(res) !>(correct))
+::
+::  %take-with-sig
+::
+++  test-take-with-sig-known-reciever
+  ^-  tang
+  ::  owner-1 is giving owner-2 the ability to take 30
+  =/  to            pub-2
+  =/  account       id.p:account-2  :: a rice of account-2  :: TODO: something is really fishy here. the account rice should have to be signed but this is fucked
+  =/  from-account  id.p:account-1
+  =/  amount        30
+  =/  nonce         0
+  =/  deadline      (add batch-num 1)
+  =/  =typed-message:smart
+    :-  (fry-rice:smart id.p:fungible-wheat pub-1 town-id (salt-of account-1))
+    (sham [pub-1 to amount nonce deadline])
+  =/  sig  
+    %+  ecdsa-raw-sign:secp256k1:secp:crypto
+      (sham typed-message)
+    priv-1
+  =/  =action:sur:fun
+    [%take-with-sig to `account from-account amount nonce deadline sig]
+  ::  this bad boi guzzles gas like crazy
+  =/  shel=shell:smart
+    [[id +(nonce) zigs]:owner-2 ~ id.p:fungible-wheat rate 999.999.999 town-id 0]
+  =/  updated-1=grain:smart
+    =-  [%& g(nonce.data 1)]
+    g=(husk:smart account:sur:fun (fun-account pub-1 20 token-1 ~) ~ ~)
+  =/  updated-2=grain:smart
+    (fun-account pub-2 60 token-1 ~)
+  =/  milled=mill-result
+    %+  ~(mill mil miller town-id 1)
+    fake-land  `egg:smart`[fake-sig shel action]
+  =/  expected=granary  (gilt ~[updated-1 updated-2])
+  =/  res=granary       (int:big expected p.land.milled)
+  (expect-eq !>(expected) !>(res))
 ::++  test-take-with-sig-unknown-reciever  ^-  tang
 ::  ::  owner-1 is giving owner-2 the ability to take 30
 ::  =/  to  pub-2
