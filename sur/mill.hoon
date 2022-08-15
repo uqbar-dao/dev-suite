@@ -10,13 +10,28 @@
 +$  basket     (set [hash=@ux =egg:smart])   ::  transaction "mempool"
 +$  carton     (list [hash=@ux =egg:smart])  ::  basket that's been prioritized
 ::
-+$  diff  granary  ::  state transitions for one batch
++$  diff   granary  ::  state transitions for one batch
++$  burns  granary  ::  destroyed state with destination town set in-grain
+::
+::  final result of +mill-all
+::
 +$  state-transition
   $:  =land
       processed=carton
       hits=(list (list hints:zink))
       =diff
       crows=(list crow:smart)
-      burns=granary
+      =burns
+  ==
+::
+::  intermediate result in +farm
+::
++$  hatchling
+  $:  hits=(list hints:zink)
+      diff=(unit granary)
+      burned=granary
+      =crow:smart
+      rem=@ud
+      =errorcode:smart
   ==
 --

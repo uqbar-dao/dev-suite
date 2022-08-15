@@ -162,7 +162,7 @@
 ++  fake-granary
   ^-  granary
   %+  gas:big  *(merk:merk id:smart grain:smart)
-  :~  :: [id.p:scry-wheat scry-wheat]
+  :~  [id.p:scry-wheat scry-wheat]
       [id.p:wheat:zigs wheat:zigs]
       ::  [id.p:temp-wheat temp-wheat]
       ::  [id.p:temp-grain temp-grain]
@@ -180,22 +180,6 @@
 ::
 ::  begin tests
 ::
-::  ++  test-mill-tester
-::    =/  =yolk:smart  [%look 0x1111.2222.3333]
-::    =/  shel=shell:smart
-::      [caller-1 ~ id.p:temp-wheat 1 1.000.000 town-id 0]
-::    =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
-::      %+  ~(mill mil miller town-id 1)
-::      fake-land  `egg:smart`[fake-sig shel yolk]
-::    ~&  >>  "output: {<crow.res>}"
-::    ~&  >>  "fee: {<fee.res>}"
-::    ~&  >>  "diff:"
-::    ~&  p.land.res
-::    ::  assert that our call went through
-::    %+  expect-eq
-::      !>(%0)
-::    !>(errorcode.res)
-::
 ++  test-mill-zigs-give
   =/  =yolk:smart  [%give holder-2:zigs 1.000 id.p:account-1:zigs `id.p:account-2:zigs]
   =/  shel=shell:smart
@@ -212,17 +196,36 @@
     !>(%0)
   !>(errorcode.res)
 ::
-::  ++  test-mill-trivial-scry
-::    =/  =yolk:smart  [%find 0x1.dead]
-::    =/  shel=shell:smart
-::      [caller-1 ~ id.p:scry-wheat 1 1.000.000 town-id 0]
-::    =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
-::      %+  ~(mill mil miller town-id 1)
-::      fake-land  `egg:smart`[fake-sig shel yolk]
-::    ~&  >  "output: {<crow.res>}"
-::    ~&  >  "fee: {<fee.res>}"
-::    ::  assert that our call went through
-::    %+  expect-eq
-::      !>(%0)
-::    !>(errorcode.res)
+++  test-mill-trivial-scry
+  =/  =yolk:smart  [%find id.p:account-1:zigs]
+  =/  shel=shell:smart
+    [caller-1 ~ id.p:scry-wheat 1 1.000.000 town-id 0]
+  =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
+    %+  ~(mill mil miller town-id 1)
+    fake-land  `egg:smart`[fake-sig shel yolk]
+  ~&  >  "output: {<crow.res>}"
+  ~&  >  "fee: {<fee.res>}"
+  ::  assert that our call went through
+  %+  expect-eq
+    !>(%0)
+  !>(errorcode.res)
+::
+++  test-mill-simple-burn
+  ::               id of grain to burn, destination town id
+  =/  =yolk:smart  [%burn id.p:account-1:zigs 0x2]
+  =/  shel=shell:smart
+    [caller-1 ~ 0x0 1 1.000.000 town-id 0]
+  =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
+    %+  ~(mill mil miller town-id 1)
+    fake-land  `egg:smart`[fake-sig shel yolk]
+  ~&  >  "output: {<crow.res>}"
+  ~&  >  "fee: {<fee.res>}"
+  ::  assert that our call went through
+  ;:  weld
+    (expect-eq !>(%0) !>(errorcode.res))
+  ::
+    (expect-eq !>(1.000) !>(fee.res))
+  ::
+    (expect-eq !>(%.y) !>((has:big burned.res id.p:account-1:zigs)))
+  ==
 --
