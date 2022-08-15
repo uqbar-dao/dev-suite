@@ -61,6 +61,29 @@
   %+  map  batch-id=@ux
   [eggs=(list [@ux egg:smart]) =town:seq]
 ::
++$  versioned-state
+  $%  base-state-0
+  ==
+::
++$  base-state-0
+  $:  %0
+      =batches-by-town
+      =capitol:seq
+      =sequencer-update-queue
+      =town-update-queue
+  ==
++$  indices-0
+  $:  =egg-index
+      from-index=second-order-index
+      grain-index=batch-index
+      grain-eggs-index=second-order-index
+      holder-index=second-order-index
+      lord-index=second-order-index
+      to-index=second-order-index
+      =newest-batch-by-town
+  ==
++$  inflated-state-0  [base-state-0 indices-0]
+::
 +$  update
   $@  ~
   $%  [%batch batches=(map batch-id=id:smart [timestamp=@da location=town-location =batch])]

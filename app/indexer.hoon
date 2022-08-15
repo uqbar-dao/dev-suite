@@ -101,7 +101,7 @@
 ::    ##  Pokes
 ::
 ::    %indexer-catchup:
-::      Get historical state from target indexer.
+::      Copy state from target indexer.
 ::      WARNING: Overwrites current state, so should
 ::      only be used when bootstrapping a new indexer.
 ::
@@ -128,33 +128,9 @@
 ::
 |%
 +$  card  card:agent:gall
-::
-+$  versioned-state
-  $%  base-state-0
-  ==
-::
-+$  base-state-0
-  $:  %0
-      =batches-by-town:ui
-      =capitol:seq
-      =sequencer-update-queue:ui
-      =town-update-queue:ui
-  ==
-+$  indices-0
-  $:  =egg-index:ui
-      from-index=second-order-index:ui
-      grain-index=batch-index:ui
-      grain-eggs-index=second-order-index:ui
-      holder-index=second-order-index:ui
-      lord-index=second-order-index:ui
-      to-index=second-order-index:ui
-      =newest-batch-by-town:ui
-  ==
-+$  inflated-state-0  [base-state-0 indices-0]
-::
 --
 ::
-=|  inflated-state-0
+=|  inflated-state-0:ui
 =*  state  -
 ::
 %-  agent:dbug
@@ -171,17 +147,8 @@
   ++  on-init  `this
   ++  on-save  !>(-.state)
   ++  on-load
-    |=  =old=vase
-    =/  old  !<(versioned-state old-vase)
-    ?-    -.old
-        %0
-      :-  ~
-      %=  this
-          state
-        :-  old
-        (inflate-state ~(tap by batches-by-town.old))
-      ==
-    ==
+    |=  old-vase=vase
+    `this(state (set-state-from-vase old-vase))
   ::
   ++  on-poke
     |=  [=mark =vase]
@@ -213,9 +180,6 @@
           indexer-catchup-wire
         !<(dock vase)
       indexer-catchup-path
-    ::
-    ::  TODO: add %consume-update and %serve-update pokes
-    ::  https://github.com/uqbar-dao/ziggurat/blob/da1d37adf538ee908945557a68387d3c87e1c32e/app/uqbar-indexer.hoon#L138
     ==
   ::
   ++  on-watch
@@ -235,7 +199,7 @@
       :_  this
       %-  fact-init-kick:io
       :-  %indexer-catchup
-      !>(`batches-by-town:ui`batches-by-town)
+      !>(`versioned-state:ui`-.state)
     ::
         [%capitol-updates ~]
       :_  this
@@ -401,28 +365,17 @@
         [%indexer-catchup-update ~]
       ?+    -.sign  (on-agent:def wire sign)
           %fact
-        =.  town-update-queue
-          %-  ~(gas by town-update-queue)
-          %+  turn  ~(tap by capitol)
-          |=  [town-id=id:smart =hall:seq]
-          :-  town-id
-          %-  %~  gas  by
-              (~(gut by town-update-queue) town-id *(map @ux @da))
-          %+  turn  roots.hall
-          |=  root=@ux
-          [root now.bowl]  ::  TODO: improve initial timestamping
-        =.  batches-by-town
-          !<(batches-by-town:ui q.cage.sign)
-        :-  ~
-        %=  this
-            +.state
-          (inflate-state ~(tap by batches-by-town))
-        ==
+        `this(state (set-state-from-vase q.cage.sign))
       ==
     ==
     ::
-    :: +consume-indexer-update:
-    :: https://github.com/uqbar-dao/ziggurat/blob/da1d37adf538ee908945557a68387d3c87e1c32e/app/uqbar-indexer.hoon#L697
+    ++  has-root-already
+      |=  [town-id=id:smart root=id:smart]
+      ^-  ?
+      =/  [=batches:ui *]
+        %+  %~  gut  by  batches-by-town
+        town-id  [*batches:ui *batches-by-town:ui]
+      (~(has by batches) root)
     ::
     ++  consume-rollup-update
       |=  update=rollup-update:seq
@@ -441,13 +394,15 @@
       ::
           %new-peer-root
         =*  town-id  town-id.update
-        =/  indexer-update
+        =*  root     root.update
+        ?:  (has-root-already town-id root)  `state
+        =/  sequencer-update
           ^-  (unit [eggs=(list [@ux egg:smart]) =town:seq])
-          %.  root.update
+          %.  root
           %~  get  by
           %+  ~(gut by sequencer-update-queue)  town-id
           *(map @ux [(list [@ux egg:smart]) town:seq])
-        ?~  indexer-update
+        ?~  sequencer-update
           :-  ~
           %=  state
               town-update-queue
@@ -455,13 +410,13 @@
             %+  %~  put  by
                 %+  ~(gut by town-update-queue)  town-id
                 *(map batch-id=@ux timestamp=@da)
-            root.update  timestamp.update
+            root  timestamp.update
           ==
         =^  cards  state
           %:  consume-batch:ic
-              root.update
-              eggs.u.indexer-update
-              town.u.indexer-update
+              root
+              eggs.u.sequencer-update
+              town.u.sequencer-update
               timestamp.update
               %.y
           ==
@@ -470,7 +425,7 @@
             sequencer-update-queue
           %+  ~(jab by sequencer-update-queue)  town-id
           |=  town-queue=(map @ux [(list [@ux egg:smart]) town:seq])
-          (~(del by town-queue) root.update)
+          (~(del by town-queue) root)
         ==
       ==
     ::
@@ -479,10 +434,12 @@
       ^-  (quip card _state)
       ?-    -.update
           %update
-        ?>  =(root.update (sham land.town.update))
         =*  town-id  town-id.hall.town.update
+        =*  root     root.update
+        ?:  (has-root-already town-id root)  `state
+        ?.  =(root (sham land.town.update))  `state
         =/  timestamp=(unit @da)
-          %.  root.update
+          %.  root
           %~  get  by
           %+  ~(gut by town-update-queue)  town-id
           *(map @ux @da)
@@ -494,12 +451,12 @@
             %+  %~  put  by
                 %+  ~(gut by sequencer-update-queue)  town-id
                 *(map @ux [(list [@ux egg:smart]) town:seq])
-              root.update
+              root
             [eggs.update town.update]
           ==
         =^  cards  state
           %:  consume-batch:ic
-              root.update
+              root
               eggs.update
               town.update
               u.timestamp
@@ -509,7 +466,7 @@
         %=  state
             town-update-queue
           %+  ~(put by town-update-queue)  town-id
-          %.  root.update
+          %.  root
           ~(del by (~(got by town-update-queue) town-id))
         ==
       ==
@@ -697,9 +654,20 @@
     ~
   [%hash combined-batch combined-egg combined-grain]
 ::
+++  set-state-from-vase
+  |=  state-vase=vase
+  ^-  _state
+  =/  new-base-state  !<(versioned-state:ui state-vase)
+  ?-    -.new-base-state
+      %0
+    :-  new-base-state
+    %-  inflate-state
+    ~(tap by batches-by-town.new-base-state)
+  ==
+::
 ++  inflate-state
   |=  batches-by-town-list=(list [@ux =batches:ui batch-order:ui])
-  ^-  indices-0
+  ^-  indices-0:ui
   =|  temporary-state=_state
   |^
   ?~  batches-by-town-list  +.temporary-state
@@ -821,6 +789,7 @@
       ?.  |(!only-newest =(batch-root batch-id.u.b))
         ::  TODO: remove this check if we never see this log
         ~&  >>>  "%indexer: unexpected batch root (grain)"
+        ~&  >>>  "br, bid: {<batch-root>} {<batch-id.u.b>}"
         $(locations t.locations)
       =*  timestamp  timestamp.u.b
       =*  granary    p.land.batch.u.b
@@ -848,6 +817,7 @@
       ?.  |(!only-newest =(batch-root batch-id.u.b))
         ::  TODO: remove this check if we never see this log
         ~&  >>>  "%indexer: unexpected batch root (egg)"
+        ~&  >>>  "br, bid: {<batch-root>} {<batch-id.u.b>}"
         $(locations t.locations)
       =*  timestamp  timestamp.u.b
       =*  txs        transactions.batch.u.b
@@ -948,6 +918,13 @@
       holder-index      (gas-ja-second-order holder-index holder town-id)
       lord-index        (gas-ja-second-order lord-index lord town-id)
       to-index          (gas-ja-second-order to-index to town-id)
+      newest-batch-by-town
+    ::  only update newest-batch-by-town with newer batches
+    ?:  %+  gth
+          ?~  current=(~(get by newest-batch-by-town) town-id)
+            *@da
+          timestamp.u.current
+        timestamp
       newest-batch-by-town
     %+  ~(put by newest-batch-by-town)  town-id
     [root timestamp eggs town]
