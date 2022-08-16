@@ -79,8 +79,8 @@
       ~
       ~
       immutable-id
+      id.p:publish-wheat
       0x0
-      id:caller-1
       town-id
   ==
 ::
@@ -134,6 +134,22 @@
     (expect-eq !>(%0) !>(errorcode.res))
   ::  assert new contract grain was created properly
     (expect-eq !>(upgradable) !>((got:big p.land.res upgradable-id)))
+  ==
+::
+++  test-deploy-immutable
+  =/  =yolk:smart  [%deploy %.n immutable-nok ~ ~]
+  =/  shel=shell:smart
+    [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
+  =/  res=mill-result
+    %+  ~(mill mil miller town-id 1)
+      [(del:big fake-granary immutable-id) fake-populace]
+    `egg:smart`[fake-sig shel yolk]
+  ::
+  ;:  weld
+  ::  assert that our call went through
+    (expect-eq !>(%0) !>(errorcode.res))
+  ::  assert new contract grain was created properly
+    (expect-eq !>(immutable) !>((got:big p.land.res immutable-id)))
   ==
 ::
 ++  test-upgrade

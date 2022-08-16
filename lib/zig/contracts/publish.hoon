@@ -12,28 +12,25 @@
   ^-  chick
   ?-    -.act
       %deploy
-    ::  0x0 denotes immutable contract
-    =/  lord=id  ?.(mutable.act 0x0 me.cart)
-    =+  our-id=(fry-wheat lord town-id.cart `cont.act)
+    =+  our-id=(fry-wheat me.cart town-id.cart `cont.act)
+    =/  holder  ?:(mutable.act id.from.cart 0x0)
     =/  contract=grain
       :*  %|
           `cont.act
           interface.act
           types.act
           our-id
-          lord
-          id.from.cart
+          me.cart
+          holder
           town-id.cart
       ==
-    (result [contract ~] ~ ~ ~)
+    (result ~ [contract ~] ~ ~)
   ::
       %upgrade
     ::  caller must be holder
-    ::  we must be lord
     =/  contract  (need (scry to-upgrade.act))
     ?>  ?&  ?=(%| -.contract)
             =(holder.p.contract id.from.cart)
-            =(lord.p.contract me.cart)
         ==
     =.  cont.p.contract  `new-nok.act
     (result [contract ~] ~ ~ ~)
