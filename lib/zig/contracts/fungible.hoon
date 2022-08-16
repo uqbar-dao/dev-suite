@@ -29,251 +29,159 @@
 =,  fungible
 |_  =cart
 ++  write
-  |=  inp=embryo
+  |=  act=action:sur
   ^-  chick
-  =/  act  ;;(action:sur action.inp)
-  ::
-  ::  the execution arm. branches on argument type and returns final result.
-  ::  note that many of these lines will crash with bad input. this is good,
-  ::  because we don't want failing transactions to waste more gas than required
-  ::
   ?-    -.act
       %give
-    ::  grab giver's rice from the input. it should be only rice in the map
-    =/  giv=grain  +.-:grains.inp
-    ?>  &(=(lord.giv me.cart) ?=(%& -.germ.giv))
-    =/  giver=account:sur  ;;(account:sur data.p.germ.giv)
-    ?>  (gte balance.giver amount.act)
-    ?:  ?=(~ owns.cart)
+    =+  (need (scry from-account.act))
+    =/  giver  (husk account:sur - `me.cart `id.from.cart)
+    ::  this will fail if amount > balance, as desired
+    =.  balance.data.giver  (sub balance.data.giver amount.act)
+    ?:  ?=(~ to-account.act)
       ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (fry-rice me.cart to.act town-id.cart salt.p.germ.giv)
-      =/  rice         [%& salt.p.germ.giv %account [0 ~ metadata.giver 0]]
-      =/  new=grain    [id me.cart to.act town-id.cart rice]
-      =/  =action:sur  [%give to.act amount.act]
-      ::  continuation call: %give to rice we issued
-      %+  continuation
-        (call me.cart town-id.cart action ~[id.giv] ~[id.new])^~
-      (result ~ issued=[new ~] ~ ~)
-    ::  otherwise, add to the existing account for that pubkey
-    ::  giving account in embryo, and receiving one in owns.cart
-    =/  rec=grain  +.-:owns.cart
-    ?>  &(=(holder.rec to.act) ?=(%& -.germ.rec))
-    =/  receiver=account:sur  ;;(account:sur data.p.germ.rec)
-    ::  assert that tokens match
-    ?>  =(metadata.receiver metadata.giver)
-    ::  alter the two balances inside the grains
-    =:  data.p.germ.giv  giver(balance (sub balance.giver amount.act))
-        data.p.germ.rec  receiver(balance (add balance.receiver amount.act))
-    ==
+      =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
+      =+  [amount.act ~ metadata.data.giver 0]
+      =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
+      (result [%&^giver ~] [%&^receiver ~] ~ ~)
+    ::  otherwise, add amount given to the existing account for that address
+    =+  (need (scry u.to-account.act))
+    ::  assert that account is held by the address we're sending to
+    =/  receiver  (husk account:sur - `me.cart `to.act)
+    ::  assert that token accounts are of the same token
+    ::  (since this contract can deploy and thus manage multiple tokens)
+    ?>  =(metadata.data.receiver metadata.data.giver)
+    =.  balance.data.receiver  (add balance.data.receiver amount.act)
     ::  return the result: two changed grains
-    (result [giv rec ~] ~ ~ ~)
+    (result [%&^giver %&^receiver ~] ~ ~ ~)
   ::
       %take
-    ::  %take expects the account that will be taken from in owns.cart
-    ::  if the receiving account is known, it will also be in owns.cart, otherwise
-    ::  the address book should be there to find it, like in %give.
-    =/  giv=grain  (~(got by owns.cart) from-account.act)
-    ?>  ?=(%& -.germ.giv)
-    =/  giver=account:sur  ;;(account:sur data.p.germ.giv)
-    =/  allowance=@ud  (~(got by allowances.giver) id.from.cart)
-    ::  assert caller is permitted to spend this amount of token
-    ?>  (gte balance.giver amount.act)
-    ?>  (gte allowance amount.act)
-    ?~  account.act
-      ::  create new rice for reciever and add it to state
-      =/  =id  (fry-rice me.cart to.act town-id.cart salt.p.germ.giv)
-      =/  rice         [%& salt.p.germ.giv %account [0 ~ metadata.giver 0]]
-      =/  new=grain    [id me.cart to.act town-id.cart rice]
-      =/  =action:sur  [%take to.act `id.new id.giv amount.act]
-      ::  continuation call: %take to rice found in book
-      %+  continuation
-        (call me.cart town-id.cart action ~ ~[id.giv id.new])^~
-      (result ~ issued=[new ~] ~ ~)
-    ::  direct send
-    =/  rec=grain  (~(got by owns.cart) u.account.act)
-    ?>  &(=(holder.rec to.act) ?=(%& -.germ.rec))
-    =/  receiver=account:sur  ;;(account:sur data.p.germ.rec)
-    ?>  =(metadata.receiver metadata.giver)
-    ::  update the allowance of taker
-    =:  data.p.germ.rec
-      receiver(balance (add balance.receiver amount.act))
+    =+  (need (scry from-account.act))
+    =/  giver  (husk account:sur - `me.cart ~)
+    ::  this will fail if amount > balance or allowance is exceeded, as desired
+    =:  balance.data.giver  (sub balance.data.giver amount.act)
     ::
-        data.p.germ.giv
-      %=  giver
-        balance     (sub balance.giver amount.act)
-        allowances  %+  ~(jab by allowances.giver)
-                      id.from.cart
-                    |=(old=@ud (sub old amount.act))
-      ==
+          allowances.data.giver
+        %+  ~(jab py allowances.data.giver)
+          id.from.cart
+        |=(old=@ud (sub old amount.act))
     ==
-    (result [giv rec ~] ~ ~ ~)
+    ?~  to-account.act
+      ::  if receiver doesn't have an account, try to produce one for them
+      =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
+      =+  [amount.act ~ metadata.data.giver 0]
+      =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
+      (result [%&^giver ~] [%&^receiver ~] ~ ~)
+    ::  otherwise, add amount given to the existing account for that address
+    =+  (need (scry u.to-account.act))
+    ::  assert that account is held by the address we're sending to
+    =/  receiver  (husk account:sur - `me.cart `to.act)
+    ::  assert that token accounts are of the same token
+    ::  (since this contract can deploy and thus manage multiple tokens)
+    ?>  =(metadata.data.receiver metadata.data.giver)
+    =.  balance.data.receiver  (add balance.data.receiver amount.act)
+    ::  return the result: two changed grains
+    (result [%&^giver %&^receiver ~] ~ ~ ~)
   ::
       %take-with-sig
     ::  %take-with-sig allows for gasless approvals for transferring tokens
     ::  the giver must sign the from-account id and the typed +$approve struct above
     ::  and the taker will pass in the signature to take the tokens
-    =/  giv=grain  (~(got by owns.cart) from-account.act)
-    ?>  ?=(%& -.germ.giv)
-    =/  giver=account:sur  ;;(account:sur data.p.germ.giv)
+    =/  giv=grain          (need (scry from-account.act))
+    ?>  ?=(%& -.giv)
+    =/  giver=account:sur  data:(husk account:sur giv `me.cart ~)
     ::  reconstruct the typed message and hash
     =/  =typed-message
-      :-  (fry-rice me.cart holder.giv town-id.cart salt.p.germ.giv)
-      (sham [holder.giv to.act amount.act nonce.act deadline.act])
+      :-  (fry-rice me.cart holder.p.giv town-id.cart salt.p.giv)
+      (sham [holder.p.giv to.act amount.act nonce.act deadline.act])
     =/  signed-hash  (sham typed-message)
-
-    ::  recoer the address from the message and signature
+    ::  recover the address from the message and signature
     =/  recovered-address
       %-  address-from-pub
-      %-  serialize-point:secp256k1:secp:crypto-non-zuse
-      (ecdsa-raw-recover:secp256k1:secp:crypto-non-zuse signed-hash sig.act)
+      %-  serialize-point:secp256k1:secp:crypto
+      (ecdsa-raw-recover:secp256k1:secp:crypto signed-hash sig.act)
     ::  assert the signature is valid
-    ?>  =(recovered-address holder.giv)
-    ?>  (gte deadline.act now.cart)
+    ?>  =(recovered-address holder.p.giv)
+    :: TODO need to figure out how to implement the deadline since now.cart no longer exists
+    ?>  (lte batch.cart deadline.act)
     ?>  (gte balance.giver amount.act)
     ?~  account.act
     ::  create new rice for reciever and add it to state
-      =+  (fry-rice to.act me.cart town-id.cart salt.p.germ.giv)
+      =+  (fry-rice to.act me.cart town-id.cart salt.p.giv)
       =/  new=grain
-        [- me.cart to.act town-id.cart [%& salt.p.germ.giv %account [amount.act ~ metadata.giver 0]]]
+        [%& salt.p.giv %account [amount.act ~ metadata.giver 0] - me.cart to.act town-id.cart]
       ::  continuation call: %take to rice found in book
-      :+  %|
-        :~  :+  me.cart  
-              town-id.cart
-            [`[%take-with-sig to.act `id.new id.giv amount.act nonce.act deadline.act sig.act] ~ (silt ~[id.giv id.new])]
-        ==
-      [~ (malt ~[[id.new new]]) ~ ~]
+      =/  =action:sur  [%take-with-sig to.act `id.p.new id.p.giv amount.act nonce.act deadline.act sig.act]
+      %+  continuation
+        [me.cart town-id.cart action]~
+      (result [new ~] ~ ~ ~)
     ::  direct send
-    =/  rec=grain  (~(got by owns.cart) u.account.act)
-    ?>  ?=(%& -.germ.rec)
-    =/  receiver=account:sur  ;;(account:sur data.p.germ.rec)
+    =/  rec=grain  (need (scry u.account.act))
+    =/  receiver   data:(husk account:sur rec `me.cart `to.act)
+    ?>  ?=(%& -.rec)
     ?>  =(metadata.receiver metadata.giver)
-    =:  data.p.germ.rec  receiver(balance (add balance.receiver amount.act))
-        data.p.germ.giv
+    =:  data.p.rec  receiver(balance (add balance.receiver amount.act))
+        data.p.giv
       %=  giver
         balance  (sub balance.giver amount.act)
         nonce  .+(nonce.giver)
-      == 
+      ==
     ==
-    [%& (malt ~[[id.giv giv] [id.rec rec]]) ~ ~ ~]
+    (result [giv rec ~] ~ ~ ~)
     ::
       %set-allowance
     ::  let some pubkey spend tokens on your behalf
     ::  note that you can arbitrarily allow as much spend as you want,
     ::  but spends will still be constrained by token balance
-    ::  single rice expected, account
-    =/  acc=grain  +.-:grains.inp
-    ?>  !=(who.act holder.acc)
-    ?>  &(=(lord.acc me.cart) ?=(%& -.germ.acc))
-    =/  =account:sur  ;;(account:sur data.p.germ.acc)
-    =.  data.p.germ.acc
-      %=    account
-          allowances
-        (~(put by allowances.account) who.act amount.act)
-      ==
-    (result ~[acc] ~ ~ ~)
+    ::  note: cannot set an allowance to ourselves
+    ?>  !=(who.act id.from.cart)
+    =+  (need (scry account.act))
+    =/  account  (husk account:sur - `me.cart `id.from.cart)
+    =.  allowances.data.account
+      (~(put py allowances.data.account) who.act amount.act)
+    (result [%& account]^~ ~ ~ ~)
   ::
       %mint
-    ::  expects token metadata in owns.cart
-    =/  tok=grain  (~(got by owns.cart) token.act)
-    ?>  &(=(lord.tok me.cart) ?=(%& -.germ.tok))
-    =/  meta  ;;(token-metadata:sur data.p.germ.tok)
+    =+  (need (scry token.act))
+    =/  meta  (husk token-metadata:sur - `me.cart `me.cart)
     ::  first, check if token is mintable
-    ?>  &(mintable.meta ?=(^ cap.meta) ?=(^ minters.meta))
+    ?>  mintable.data.meta
     ::  check if caller is permitted to mint
-    ?>  (~(has in `(set id)`minters.meta) id.from.cart)
-    ::  for accounts which we know rice of, find in owns.cart
-    ::  and alter. for others, generate id and add to c-call
-    =/  mints  ~(tap in mints.act)
+    ?>  (~(has pn minters.data.meta) id.from.cart)
+    ::  loop through mints and either modify existing account or make new
+    ::  note: entire mint will fail if any accounts are not found, or
+    ::  if new accounts overlap with existing ones
+    =|  issued=(list grain)
     =|  changed=(list grain)
-    =|  to-issue=(list grain)
-    =|  minted-total=@ud
-    =|  next-mints=(set mint:sur)
     |-
-    ?~  mints
-      ::  finished minting, return chick
-      =/  new-supply  (add supply.meta minted-total)
-      =.  data.p.germ.tok
-        %=  meta
-          supply    new-supply
-          mintable  ?:(=(u.cap.meta new-supply) %.y %.n)
-        ==
-      ?~  to-issue
-        ::  no new accounts to issue
-        (result [tok changed] ~ ~ ~)
-      ::  finished but need to mint to newly-issued rices
-      =/  =action:sur  [%mint token.act next-mints]
-      %+  continuation
-        (call me.cart town-id.cart action ~ (turn to-issue |=(=grain id.grain)))^~
-      (result changed to-issue ~ ~)
-    ::
-    ?~  account.i.mints
-      ::  need to issue
-      =/  =id     (fry-rice me.cart to.i.mints town-id.cart salt.meta)
-      =/  rice    [%& salt.meta %account [0 ~ token.act 0]]
-      =/  =grain  [id me.cart to.i.mints town-id.cart rice]
+    ?~  mints.act
+      ::  finished minting
+      (result [[%&^meta changed] issued ~ ~])
+    =*  m  i.mints.act
+    =/  new-supply  (add supply.data.meta amount.m)
+    ?>  ?~  cap.data.meta  %.y
+        (gte u.cap.data.meta new-supply)
+    ?~  account.m
+      ::  create new account for receiver
+      =/  =id  (fry-rice me.cart to.m town-id.cart salt.data.meta)
+      =+  [amount.m ~ token.act 0]
+      =+  receiver=[salt.data.meta %account - id me.cart to.m town-id.cart]
       %=  $
-        mints        t.mints
-        to-issue     [grain to-issue]
-        next-mints   (~(put in next-mints) [to.i.mints `id amount.i.mints])
+        mints.act         t.mints.act
+        supply.data.meta  new-supply
+        issued            [%&^receiver issued]
       ==
-    ::  have rice, can modify
-    =/  =grain  (~(got by owns.cart) u.account.i.mints)
-    ?>  &(=(lord.grain me.cart) ?=(%& -.germ.grain))
-    =/  acc  ;;(account:sur data.p.germ.grain)
-    ?>  =(metadata.acc token.act)
-    =.  data.p.germ.grain  acc(balance (add balance.acc amount.i.mints))
+    ::  find and modify existing receiver account
+    =+  (need (scry u.account.m))
+    =/  receiver  (husk account:sur - `me.cart `to.m)
+    =.  balance.data.receiver  (add balance.data.receiver amount.m)
     %=  $
-      mints         t.mints
-      changed       [grain changed]
-      minted-total  (add minted-total amount.i.mints)
+      mints.act         t.mints.act
+      supply.data.meta  new-supply
+      changed           [%&^receiver changed]
     ==
   ::
       %deploy
-    ::  no rice expected as input, only arguments
-    ::  enforce 0 <= decimals <= 18
-    ?>  &((gte decimals.act 0) (lte decimals.act 18))
-    ::  if mintable, enforce minter set not empty
-    ?>  ?:(mintable.act ?=(^ minters.act) %.y)
-    ::  if !mintable, enforce distribution adds up to cap
-    ::  otherwise, enforce distribution < cap
-    =/  distribution-total  ^-  @ud
-      %.  add
-      %~  rep  in
-      ^-  (set @ud)
-      (~(run in distribution.act) |=([id bal=@ud] bal))
-    ?>  ?:  mintable.act
-          (gth cap.act distribution-total)
-        =(cap.act distribution-total)
-    ::  generate salt
-    =/  salt  (sham (cat 3 id.from.cart symbol.act))
-    ::  generate metadata
-    =/  metadata-grain  ^-  grain
-      :*  (fry-rice me.cart me.cart town-id.cart salt)
-          me.cart
-          me.cart
-          town-id.cart
-          :^  %&  salt  %metadata
-          ^-  token-metadata:sur
-          :*  name.act
-              symbol.act
-              decimals.act
-              supply=distribution-total
-              ?:(mintable.act `cap.act ~)
-              mintable.act
-              minters.act
-              deployer=id.from.cart
-              salt
-      ==  ==
-    ::  generate accounts
-    =/  accounts
-      %-  ~(gas by *(map id grain))
-      %+  turn  ~(tap in distribution.act)
-      |=  [=id bal=@ud]
-      =+  (fry-rice me.cart id town-id.cart salt)
-      :-  -
-      [- me.cart id town-id.cart [%& salt %account [bal ~ id.metadata-grain 0]]]
-    ::  big ol issued map
-    [%& ~ (~(put by accounts) id.metadata-grain metadata-grain) ~ ~]
+    !!
   ==
 ::
 ++  read
@@ -281,24 +189,11 @@
   ++  json
     ^-  ^json
     ?+    path  !!
-        [%rice-data ~]
-      ?>  =(1 ~(wyt by owns.cart))
-      =/  g=grain  -:~(val by owns.cart)
-      ?>  ?=(%& -.germ.g)
-      ?:  ?=(%account label.p.germ.g)
-        (account:enjs:lib ;;(account:sur data.p.germ.g))
-      (token-metadata:enjs:lib ;;(token-metadata:sur data.p.germ.g))
-    ::
-        [%rice-data @ ~]
-      =/  g  ;;(grain (cue (slav %ud i.t.path)))
-      ?>  ?=(%& -.germ.g)
-      ?:  ?=(%account label.p.germ.g)
-        (account:enjs:lib ;;(account:sur data.p.germ.g))
-      (token-metadata:enjs:lib ;;(token-metadata:sur data.p.germ.g))
-    ::
-        [%egg-act @ ~]
-      %-  action:enjs:lib
-      ;;(action:sur (cue (slav %ud i.t.path)))
+        [%mintable @ ~]
+      =/  g=grain  (need (scry (slav %ux i.t.path)))
+      ?>  =(lord.p.g me.cart)
+      =/  meta  ;;(token-metadata:sur g)
+      b+(mintable:lib meta)
     ==
   ::
   ++  noun

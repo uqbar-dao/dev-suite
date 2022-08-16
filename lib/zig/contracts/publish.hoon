@@ -18,11 +18,11 @@
     ::  generate grains out of new rice we spawn
     =/  produced=(merk id grain)
       %+  gas:big  *(merk id grain)
-      %+  turn  owns.act
+      %+  turn  `(list [@ @tas *])`owns.act
       |=  ri=[s=@ l=@tas d=*]
       ^-  [id grain]
       =+  (fry-rice our-id our-id town-id.cart s.ri)
-      [- [%& s.ri l.ri d.ri - our-id our-id town-id.cart]]
+      [- `grain`[%& s.ri l.ri d.ri - our-id our-id town-id.cart]]
     ::
     =/  =grain
       :*  %|
