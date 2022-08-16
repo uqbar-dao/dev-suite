@@ -136,6 +136,24 @@
     (expect-eq !>(upgradable) !>((got:big p.land.res upgradable-id)))
   ==
 ::
+++  test-deploy-with-grains
+  =/  =yolk:smart  [%deploy %.y trivial-nok ~ ~ ~[[123 %test [1 2 3]] [123 %test2 [1 2 3]]]]
+  =/  shel=shell:smart
+    [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
+  =/  res=mill-result
+    %+  ~(mill mil miller town-id 1)
+      [(del:big fake-granary upgradable-id) fake-populace]
+    `egg:smart`[fake-sig shel yolk]
+  ::
+  ~&  >  p.land.res
+  ;:  weld
+  ::  assert that our call went through
+    (expect-eq !>(%0) !>(errorcode.res))
+  ::  assert new contract grain was created properly
+    (expect-eq !>(upgradable) !>((got:big p.land.res upgradable-id)))
+  ::  assert grains were created
+  ==
+::
 ++  test-upgrade
   =/  =yolk:smart  [%upgrade upgradable-id trivial-nok-upgrade]
   =/  shel=shell:smart
