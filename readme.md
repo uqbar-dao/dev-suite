@@ -44,8 +44,7 @@ links to other desks, such as base-dev and garden-dev.
 `|install our %zig`
 
 
-To run all tests, enter `-test ~[/=zig=/tests]`, or `-test ~[/=zig=/tests/contracts]` for just the contracts. Make sure to uncomment ford imports such as `/+  zig-sys-smart`, otherwise the tests will fail spuriously.
-
+To run all tests, enter `-test ~[/=zig=/tests]`, or `-test ~[/=zig=/tests/contracts]` for just the contracts.
 
 
 ---
@@ -117,13 +116,6 @@ First make sure you're on the whitelist for the ship hosting the rollup simulato
 First make sure you're on the whitelist for the ship hosting the rollup simulator. Then, if `~zod` was that host:
 ```
 :sequencer|init ~zod <YOUR_TOWN_ID> <PRIVATE_KEY>
-:uqbar|set-sources ~zod <YOUR_TOWN_ID> our
-```
-Then, use the wallet app to generate a wallet appropriate for you. The default town generator (`/gen/sequencer/init.hoon`) spawns "zigs" for the following 3 seed/key pairs:
-```
-seed: 0xbeef  public key: 0x7772.b8a7.6840.8922.2903.5b28.7494.436f.8850.713c
-seed: 0xdead  public key: 0xc7ec.a38c.5c74.d58d.04b0.6650.4772.f3a6.d02e.92f5
-seed: 0xcafe  public key: 0x435a.11af.b1f8.24b8.a1d7.de8a.c8c1.cce1.363c.6f3b
 ```
 
 ---
