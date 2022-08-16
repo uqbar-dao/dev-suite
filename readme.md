@@ -44,8 +44,7 @@ links to other desks, such as base-dev and garden-dev.
 `|install our %zig`
 
 
-To run all tests, enter `-test ~[/=zig=/tests]`, or `-test ~[/=zig=/tests/contracts]` for just the contracts. Make sure to uncomment ford imports such as `/+  zig-sys-smart`, otherwise the tests will fail spuriously.
-
+To run all tests, enter `-test ~[/=zig=/tests]`, or `-test ~[/=zig=/tests/contracts]` for just the contracts.
 
 
 ---
