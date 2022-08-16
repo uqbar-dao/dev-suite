@@ -267,7 +267,7 @@
       =/  from  [id.from.shell.egg nonce.from.shell.egg]
       ::  check for grain burn transaction
       ?:  &(=(0x0 to.shell.egg) =(%burn p.yolk.egg))
-        (cook egg)
+        (poach egg)
       ::  insert budget argument if egg is %give-ing zigs
       =?  q.yolk.egg  &(=(to.shell.egg zigs-wheat-id:smart) =(p.yolk.egg %give))
         [budget.shell.egg q.yolk.egg]
@@ -431,10 +431,10 @@
           ==
       ==
     ::
-    ::  +cook: handle special burn-only transactions, used for manually
+    ::  +poach: handle special burn-only transactions, used for manually
     ::  escaping some grain from a town. must be EITHER holder or lord to burn.
     ::
-    ++  cook
+    ++  poach
       |=  =egg:smart
       ^-  hatchling
       ::  TODO provide new error codes for these things
