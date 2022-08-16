@@ -38,9 +38,11 @@
   ::
       %upgrade
     ::  caller must be holder
+    ::  we must be lord
     =/  contract  (need (scry to-upgrade.act))
     ?>  ?&  ?=(%| -.contract)
             =(holder.p.contract id.from.cart)
+            =(lord.p.contract me.cart)
         ==
     =.  cont.p.contract  `new-nok.act
     (result [contract ~] ~ ~ ~)
