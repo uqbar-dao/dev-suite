@@ -62,5 +62,6 @@
   ==
 ::
 ::  indexer must verify root is posted to rollup before verifying new state
-+$  indexer-update  [%update eggs=(list [@ux egg:smart]) =town root=@ux]
+::  pair of [transactions town] is batch from sur/indexer.hoon
++$  indexer-update  [%update root=@ux transactions=(list [@ux egg:smart]) town]
 --

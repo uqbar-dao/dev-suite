@@ -401,7 +401,7 @@
           %.  root
           %~  get  by
           %+  ~(gut by sequencer-update-queue)  town-id
-          *(map @ux [(list [@ux egg:smart]) town:seq])
+          *(map @ux batch:ui)
         ?~  sequencer-update
           :-  ~
           %=  state
@@ -424,8 +424,8 @@
         %=  state
             sequencer-update-queue
           %+  ~(jab by sequencer-update-queue)  town-id
-          |=  town-queue=(map @ux [(list [@ux egg:smart]) town:seq])
-          (~(del by town-queue) root)
+          |=  queue=(map @ux batch:ui)
+          (~(del by queue) root)
         ==
       ==
     ::
@@ -434,10 +434,10 @@
       ^-  (quip card _state)
       ?-    -.update
           %update
-        =*  town-id  town-id.hall.town.update
+        =*  town-id  town-id.hall.update
         =*  root     root.update
         ?:  (has-root-already town-id root)  `state
-        ?.  =(root (sham land.town.update))  `state
+        ?.  =(root (sham land.update))       `state
         =/  timestamp=(unit @da)
           %.  root
           %~  get  by
@@ -450,15 +450,15 @@
             %+  ~(put by sequencer-update-queue)  town-id
             %+  %~  put  by
                 %+  ~(gut by sequencer-update-queue)  town-id
-                *(map @ux [(list [@ux egg:smart]) town:seq])
+                *(map @ux batch:ui)
               root
-            [eggs.update town.update]
+            [transactions.update [land.update hall.update]]
           ==
         =^  cards  state
           %:  consume-batch:ic
               root
-              eggs.update
-              town.update
+              transactions.update
+              [land.update hall.update]
               u.timestamp
               %.y
           ==

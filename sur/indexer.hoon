@@ -57,9 +57,7 @@
 +$  town-update-queue
   (map town-id=@ux (map batch-id=@ux timestamp=@da))
 +$  sequencer-update-queue
-  %+  map  town-id=@ux
-  %+  map  batch-id=@ux
-  [eggs=(list [@ux egg:smart]) =town:seq]
+  (map town-id=@ux (map batch-id=@ux batch))
 ::
 +$  versioned-state
   $%  base-state-0
