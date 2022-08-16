@@ -6,7 +6,6 @@
           cont=[bat=* pay=*]
           interface=(map @tas lump)
           types=(map @tas lump)
-          owns=(list [salt=@ label=@tas data=*])
       ==
       ::
       $:  %upgrade

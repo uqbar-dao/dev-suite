@@ -15,16 +15,7 @@
     ::  0x0 denotes immutable contract
     =/  lord=id  ?.(mutable.act 0x0 me.cart)
     =+  our-id=(fry-wheat lord town-id.cart `cont.act)
-    ::  generate grains out of new rice we spawn
-    =/  produced=(merk id grain)
-      %+  gas:big  *(merk id grain)
-      %+  turn  `(list [@ @tas *])`owns.act
-      |=  ri=[s=@ l=@tas d=*]
-      ^-  [id grain]
-      =+  (fry-rice our-id our-id town-id.cart s.ri)
-      [- `grain`[%& s.ri l.ri d.ri - our-id our-id town-id.cart]]
-    ::
-    =/  =grain
+    =/  contract=grain
       :*  %|
           `cont.act
           interface.act
@@ -34,7 +25,7 @@
           id.from.cart
           town-id.cart
       ==
-    [%& ~ (put:big produced our-id grain) ~ ~]
+    (result [contract ~] ~ ~ ~)
   ::
       %upgrade
     ::  caller must be holder
