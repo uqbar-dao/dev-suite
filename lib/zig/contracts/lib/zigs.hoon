@@ -13,7 +13,7 @@
         symbol=@t
         decimals=@ud
         supply=@ud
-        cap=~
+        cap=~  ::  no pre-set supply cap
         mintable=%.n
         minters=~
         deployer=address  ::  will be 0x0
@@ -22,7 +22,7 @@
   ::
   +$  account
     $:  balance=@ud
-        allowances=(map address @ud)
+        allowances=(pmap address @ud)
         metadata=id
     ==
   ::

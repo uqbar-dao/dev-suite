@@ -59,7 +59,7 @@
         balance.data.receiver  (add balance.data.receiver amount.act)
     ::
           allowances.data.giver
-      %+  ~(jab by allowances.data.giver)
+      %+  ~(jab py allowances.data.giver)
         id.from.cart
       |=(old=@ud (sub old amount.act))
     ==
@@ -71,7 +71,7 @@
     =+  (need (scry account.act))
     =/  account  (husk account:sur - `me.cart `id.from.cart)
     =.  allowances.data.account
-      (~(put by allowances.data.account) who.act amount.act)
+      (~(put py allowances.data.account) who.act amount.act)
     (result [%& account]^~ ~ ~ ~)
   ==
 ::

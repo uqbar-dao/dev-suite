@@ -63,14 +63,15 @@
     =+  `grain`(need (scry token.act))
     =/  meta  (husk metadata:sur - `me.cart ~)
     ::  ensure NFT is mintable
-    ?>  &(mintable.data.meta ?=(^ cap.data.meta))
+    ?>  mintable.data.meta
     ::  ensure caller is in minter-set
     ?>  (~(has pn minters.data.meta) id.from.cart)
     ::  set id of next possible item in collection
     =/  next-item-id  +(supply.data.meta)
     ::  check if mint will surpass supply cap
     =/  new-supply  (add supply.data.meta (lent mints.act))
-    ?>  (gte u.cap.data.meta new-supply)
+    ?>  ?~  cap.data.meta  %.y
+        (gte u.cap.data.meta new-supply)
     =.  supply.data.meta  new-supply
     ::  iterate through mints
     =|  issued=(list grain)
