@@ -1,1 +1,0 @@
-../../landscape/lib/resource.hoon
