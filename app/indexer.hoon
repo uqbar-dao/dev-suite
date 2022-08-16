@@ -43,9 +43,9 @@
 ::    /x/grain/[grain-id=@ux]:
 ::    /x/grain/[town-id=@ux]/[grain-id=@ux]:
 ::      Historical states of grain with given hash.
-::    /x/grain-eggs/[grain-id=@ux]:
-::    /x/grain-eggs/[town-id=@ux]/[grain-id=@ux]:
-::      Eggs involving grain with given hash.
+::    :: /x/grain-eggs/[grain-id=@ux]:  ::  TODO: reenable
+::    :: /x/grain-eggs/[town-id=@ux]/[grain-id=@ux]:
+::    ::   Eggs involving grain with given hash.
 ::    /x/hash/[hash=@ux]:
 ::    /x/hash/[town-id=@ux]/[hash=@ux]:
 ::      Info about hash (queries all indexes for hash).
@@ -72,26 +72,21 @@
 ::    /grain/[town-id=@ux]/[grain-id=@ux]:
 ::      A stream of changes to given grain.
 ::      Reply on-watch is entire grain history.
-::
 ::    :: /hash/[@ux]:  ::  TODO: implement
 ::    ::   A stream of new activity of given id.
-::
 ::    /holder/[holder-id=@ux]
 ::    /holder/[town-id=@ux]/[holder-id=@ux]:
 ::      A stream of new activity of given holder.
 ::      Reply on-watch is entire history of held grains.
-::
 ::    /id/[id=@ux]
 ::    /id/[town-id=@ux]/[id=@ux]:
 ::      A stream of new transactions of given id.
 ::      Reply on-watch is all historical
 ::      transactions `from` or `to` id.
-::
 ::    /lord/[lord-id=@ux]
 ::    /lord/[town-id=@ux]/[lord-id=@ux]:
 ::      A stream of new activity of given lord.
 ::      Reply on-watch is entire history of ruled grains.
-::
 ::    /town/[town-id=@ux]
 ::    /town/[town-id=@ux]/[town-id=@ux]:
 ::      A stream of each new batch for town.
@@ -110,11 +105,6 @@
 ::
 ::    %set-rollup:
 ::      Subscribe to rollup for new batch roots.
-::
-::    :: %consume-indexer-update:  ::  TODO: implement
-::    ::   Add a block or chunk to the index.
-::
-::    :: %serve-update:
 ::
 ::
 /-  ui=indexer,
@@ -222,7 +212,7 @@
       [%indexer-update !>(`update:ui`update)]
     ::
         $?  [%grain @ ~]       [%grain @ @ ~]
-            [%grain-eggs @ ~]  [%grain-eggs @ @ ~]
+            :: [%grain-eggs @ ~]  [%grain-eggs @ @ ~]
             [%holder @ ~]      [%holder @ @ ~]
             [%lord @ ~]        [%lord @ @ ~]
             [%town @ ~]        [%town @ @ ~]
@@ -246,7 +236,7 @@
     ?+    path  (on-leave:def path)
         $?  [%grain *]
             :: [%hash @ ~]
-            [%grain-eggs *]
+            :: [%grain-eggs *]
             [%holder *]
             [%id *]
             [%lord *]
@@ -279,7 +269,7 @@
             [%egg @ ~]         [%egg @ @ ~]
             [%from @ ~]        [%from @ @ ~]
             [%grain @ ~]       [%grain @ @ ~]
-            [%grain-eggs @ ~]  [%grain-eggs @ @ ~]
+            :: [%grain-eggs @ ~]  [%grain-eggs @ @ ~]
             [%holder @ ~]      [%holder @ @ ~]
             [%lord @ ~]        [%lord @ @ ~]
             [%to @ ~]          [%to @ @ ~]
@@ -586,8 +576,8 @@
   =/  lord=update:ui    (serve-update %lord qp only-newest)
   =/  to=update:ui      (serve-update %to qp only-newest)
   =/  town=update:ui    (serve-update %town qp only-newest)
-  =/  grain-eggs=update:ui
-    (serve-update %grain-eggs qp only-newest)
+  :: =/  grain-eggs=update:ui
+  ::   (serve-update %grain-eggs qp only-newest)
   %^  combine-updates  ~[batch town]  ~[egg from to]
   ~[grain holder lord]
 ::
@@ -705,7 +695,8 @@
       %batch
     get-batch-update
   ::
-      ?(%egg %from %grain %grain-eggs %holder %lord %to)
+      :: ?(%egg %from %grain %grain-eggs %holder %lord %to)
+      ?(%egg %from %grain %holder %lord %to)
     get-from-index
   ::
       %town
@@ -765,7 +756,8 @@
         %egg
       get-egg
     ::
-        ?(%from %grain-eggs %holder %lord %to)
+        :: ?(%from %grain-eggs %holder %lord %to)
+        ?(%from %holder %lord %to)
       get-second-order
     ==
     ::
@@ -867,7 +859,7 @@
       %egg         (get-by-get-ja egg-index only-newest)
       %from        (get-by-get-ja from-index %.n)
       %grain       (get-by-get-ja grain-index only-newest)
-      %grain-eggs  (get-by-get-ja grain-eggs-index %.n)
+      :: %grain-eggs  (get-by-get-ja grain-eggs-index %.n)
       %holder      (get-by-get-ja holder-index %.n)
       %lord        (get-by-get-ja lord-index %.n)
       %to          (get-by-get-ja to-index %.n)
