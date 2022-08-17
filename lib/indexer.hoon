@@ -3,6 +3,20 @@
 /+  smart=zig-sys-smart
 ::
 |%
+::  use, e.g., to extract single grain from a
+::  `/newest/grain/...`  scry
+++  extract-single-grain
+  |=  =update:ui
+  ^-  (unit grain:smart)
+  ?.  ?=(%grain -.update)   ~
+  =/  values=(list (list [@da location:ui =grain:smart]))
+    ~(val by grains.update)
+  ?~  values                ~
+  ?.  =(1 (lent values))    ~
+  ?~  i.values              ~
+  ?.  =(1 (lent i.values))  ~
+  `grain.i.i.values
+::
 ++  enjs
   =,  enjs:format
   |%

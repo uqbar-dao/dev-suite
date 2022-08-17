@@ -4,7 +4,7 @@
 ::  transactions, holding nonce values, and keeping track of owned data.
 ::
 /-  ui=indexer
-/+  *wallet-util, wallet-parsing, uqbar, ethereum, default-agent, dbug, verb, bip32, bip39
+/+  *wallet-util, wallet-parsing, uqbar, ethereum, default-agent, dbug, verb, bip32, bip39, ui-lib=indexer
 /*  smart-lib  %noun  /lib/zig/compiled/smart-lib/noun
 |%
 +$  card  card:agent:gall
@@ -295,8 +295,9 @@
           ?>  ?=(%token -.from)
           =/  =asset-metadata  (~(got by metadata-store.state) metadata.from)
           =/  to-id  (fry-rice:smart zigs-wheat-id:smart to.args.act town.act salt.asset-metadata)
-          =+  .^  (unit grain:smart)  %gx
-                  /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/grain/(scot %ux town.act)/(scot %ux to-id)/noun
+          =+  %-  extract-single-grain:ui-lib
+              .^  update:ui  %gx
+                  /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/indexer/newest/grain/(scot %ux town.act)/(scot %ux to-id)/noun
               ==
           [%give to.args.act amount.args.act grain.args.act ?~(- ~ `to-id)]
         ::

@@ -1,4 +1,5 @@
 /-  *wallet, ui=indexer
+/+  ui-lib=indexer
 =>  |%
     +$  card  card:agent:gall
     --
@@ -114,7 +115,8 @@
   ::  manually import metadata for a token
   =/  g=(unit grain:smart)
     ::  TODO remote scry w/ uqbar.hoon
-    .^((unit grain:smart) %gx /(scot %p our)/uqbar/(scot %da now)/grain/(scot %ux town-id)/(scot %ux id)/noun)
+    %-  extract-single-grain:ui-lib
+    .^(update:ui %gx /(scot %p our)/uqbar/(scot %da now)/indexer/newest/grain/(scot %ux town-id)/(scot %ux id)/noun)
   ?~  g
     ~&  >>>  "%wallet: failed to find matching metadata for a grain we hold"
     ~

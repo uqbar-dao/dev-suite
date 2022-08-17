@@ -265,23 +265,12 @@
   ::
   ?.  =(%x -.path)  ~
   ?+    +.path  (on-peek:def path)
-      [%contract @ @ @tas @ta ^]
-    ``noun+!>(~)
-  ::
-      [%grain @ @ ~]
-    =/  town-id  (slav %ux i.t.t.path)
-    =/  grain-id  (slav %ux i.t.t.t.path)
-    ::  need REMOTE SCRY!!
-    =/  result
-      .^(update:ui %gx /(scot %p our.bowl)/indexer/(scot %da now.bowl)/grain/(scot %ux town-id)/(scot %ux grain-id)/noun)
-    ?.  ?=(%grain -.result)
-      ::  need a grain
-      ``noun+!>(~)
-    =/  =grain:smart  +.+.-.+.-:~(tap by grains.result)
-    ``noun+!>(`grain)
-  ::
-      [%transaction @ ~]
-    !!
+      ::  TODO: scry contract interface/data from sequencer?
+      ::  TODO: scry wallet?
+      [%indexer *]
+    :^  ~  ~  %noun
+    !>  ^-  update:ui
+    .^(update:ui %gx (scry:io %indexer (snoc t.t.path %noun)))
   ==
 ::
 ++  on-leave  on-leave:def
