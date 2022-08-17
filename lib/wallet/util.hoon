@@ -24,14 +24,14 @@
       ~(tap in pubkeys)
     |=  k=@ux
     =-  [%pass - %agent [our %uqbar] %watch -]
-    :: /id/(scot %ux k)
-    /id/0x0/(scot %ux k)
+    :: /indexer/id/(scot %ux k)
+    /indexer/id/0x0/(scot %ux k)  ::  TODO: remove hardcode
   %+  turn
     ~(tap in pubkeys)
   |=  k=@ux
   =-  [%pass - %agent [our %uqbar] %watch -]
-  :: /holder/(scot %ux k)
-  /holder/0x0/(scot %ux k)
+  :: /indexer/holder/(scot %ux k)
+  /indexer/holder/0x0/(scot %ux k)  ::  TODO: remove hardcode
 ::
 ++  clear-holder-and-id-sub
   |=  [id=@ux wex=boat:gall]
@@ -39,7 +39,7 @@
   %+  murn  ~(tap by wex)
   |=  [[=wire =ship =term] *]
   ^-  (unit card)
-  ?.  |(=([%id id] wire) =([%holder id] wire))  ~
+  ?.  |(=([%indexer %id @ id] wire) =([%indexer %holder @ id] wire))  ~
   `[%pass wire %agent [ship term] %leave ~]
 ::
 ++  clear-all-holder-and-id-subs
@@ -48,7 +48,7 @@
   %+  murn  ~(tap by wex)
   |=  [[=wire =ship =term] *]
   ^-  (unit card)
-  ?.  |(?=([%id *] wire) ?=([%holder *] wire))  ~
+  ?.  |(?=([%indexer %id *] wire) ?=([%indexer %holder *] wire))  ~
   `[%pass wire %agent [ship term] %leave ~]
 ::
 ++  indexer-update-to-books

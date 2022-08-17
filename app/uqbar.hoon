@@ -37,28 +37,22 @@
   ?>  =(src.bowl our.bowl)
   :_  this
   ?+    -.path  !!
-      ?(%id %grain %holder %lord)
-    ?.  ?=([@ @ @ ~] path)  ~
-    =/  town=id:smart  (slav %ux i.t.path)
-    ?~  card=(watch-indexer town ~ path)  ~
-    ~[u.card]
-  ::
-      %scry
-    ?.  ?=([@ @ @ @ ~] path)                      ~
-    ?.  ?=(?(%id %grain %holder %lord) i.t.path)  ~
-    =/  town=id:smart  (slav %ux i.t.t.path)
-    ?~  card=(watch-indexer town /[i.path] path)  ~
-    ~[u.card]
-  ::
       %track
     ~
+  ::
+      %indexer
+    ::  must be of the form, e.g.,
+    ::   /indexer/grain/[town-id]/[grain-id]
+    ?.  ?=([%indexer @ @ @ ~] path)  ~
+    =/  town-id=id:smart  (slav %ux i.t.t.path)
+    (watch-indexer town-id /[i.path] t.path)
   ==
   ::
   ++  watch-indexer  ::  TODO: ping indexers and find responsive one?
-    |=  [town=id:smart wire-prefix=wire sub-path=^path]
-    ^-  (unit card)
-    ?~  town-source=(~(get ja sources) town)  ~
-    :-  ~
+    |=  [town-id=id:smart wire-prefix=wire sub-path=^path]
+    ^-  (list card)
+    ?~  town-source=(~(get ja sources) town-id)  ~
+    :_  ~
     %+  ~(watch pass:io (weld wire-prefix sub-path))
     [i.town-source %indexer]  sub-path
   --
@@ -154,39 +148,23 @@
   ?+    -.wire  (on-agent:def wire sign)
       %capitol-updates
     ::  set sequencers based on rollup state, given by indexer
-    ?:  ?=(%kick -.sign)
-      :_  this  ::  attempt to re-sub
-      [%pass wire %agent [src.bowl %rollup] %watch (snip `path`wire)]~
-    ?.  ?=(%fact -.sign)  `this
-    =^  cards  state
-      (update-sequencers !<(capitol-update q.cage.sign))
-    [cards this]
-  ::
-      ?(%id %grain %holder %lord)
     ?+    -.sign  (on-agent:def wire sign)
         %kick
-      :_  this
-      =/  agent-card=(unit card)  rejoin
-      ?~(agent-card ~ ~[u.agent-card])
+      [rejoin this]
     ::
         %fact
-      :_  this
-      ~[(pass-through cage.sign)]
+      =^  cards  state
+        (update-sequencers !<(capitol-update q.cage.sign))
+      [cards this]
     ==
   ::
-      %scry
+      %indexer
     ?+    -.sign  (on-agent:def wire sign)
+        %kick
+      [rejoin this]
+    ::
         %fact
-      :_  this
-      =/  kick-card=(unit card)   kick
-      =/  leave-card=(unit card)  leave
-      ?~  kick-card
-        ~&  >>>  "uqbar: failed to kick {<wire>}"
-        ~[(pass-through cage.sign)]
-      ?~  leave-card
-        ~&  >>>  "uqbar: failed to leave {<wire>}"
-        ~[(pass-through cage.sign)]
-      ~[(pass-through cage.sign) u.kick-card u.leave-card]
+      [[(pass-through cage.sign)]~ this]
     ==
   ::
       %submit-transaction
@@ -204,41 +182,22 @@
     ^-  card
     (fact:io cage ~[wire])
   ::
-  ++  get-sup-ship-by-wire
-    ^-  (unit ship)
-    ?:  =(0 ~(wyt by sup.bowl))  ~
-    ?~  sup=(~(get by sup.bowl) ~[wire])  ~
-    `p.u.sup
-  ::
-  ++  leave
-    ^-  (unit card)
-    =/  old-source=(unit dock)  get-wex-dock-by-wire
-    ?~  old-source  ~
-    `(~(leave pass:io wire) u.old-source)
-  ::
-  ++  kick
-    ^-  (unit card)
-    =/  kick-ship=(unit ship)  get-sup-ship-by-wire
-    ?~  kick-ship  ~
-    `(kick-only:io u.kick-ship ~[wire])
-  ::
   ++  rejoin  ::  TODO: ping indexers and find responsive one?
-    ^-  (unit card)
-    =/  old-source=(unit dock)
-      get-wex-dock-by-wire
+    ^-  (list card)
+    =/  old-source=(unit [dock path])  get-wex-dock-by-wire
     ?~  old-source  ~
-    `(~(watch pass:io wire) u.old-source wire)
+    ~[(~(watch pass:io wire) u.old-source)]
   ::
   ++  get-wex-dock-by-wire
-    ^-  (unit dock)
+    ^-  (unit [dock path])
     ?:  =(0 ~(wyt by wex.bowl))  ~
-    =/  wexs=(list [w=^wire s=ship t=term])
-      ~(tap in ~(key by wex.bowl))
+    =/  wexs=(list [[w=^wire s=ship t=term] a=? p=path])
+      ~(tap by wex.bowl)
     |-
     ?~  wexs  ~
     =*  wex  i.wexs
     ?.  =(wire w.wex)  $(wexs t.wexs)
-    `[s.wex t.wex]
+    `[[s.wex t.wex] p.wex]
   ::
   ++  update-sequencers
     |=  upd=capitol-update

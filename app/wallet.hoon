@@ -383,11 +383,11 @@
       ==
     `this
   ::
-      ?([%holder @ ~] [%holder @ @ ~])
+      ?([%indexer %holder @ ~] [%indexer %holder @ @ ~])
     ?:  ?=(%watch-ack -.sign)  (on-agent:def wire sign)
     ?.  ?=(%fact -.sign)       (on-agent:def wire sign)
     ?.  ?=(%indexer-update p.cage.sign)  (on-agent:def wire sign)
-    =+  pub=?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
+    =+  pub=?:(?=([@ @ @ ~] wire) (slav %ux i.t.t.wire) (slav %ux i.t.t.t.wire))
     =/  =update:ui  !<(update:ui q.cage.sign)
     =/  old-book=book  (~(gut by tokens.state) pub ~)
     =/  new-book=book
@@ -402,14 +402,14 @@
       (update-metadata-store new-book our.bowl metadata-store.state [our now]:bowl)
     ==
   ::
-      ?([%id @ ~] [%id @ @ ~])
+      ?([%indexer %id @ ~] [%indexer %id @ @ ~])
     ::  update to a transaction from a tracked account
     ?:  ?=(%watch-ack -.sign)  (on-agent:def wire sign)
     ?.  ?=(%fact -.sign)       (on-agent:def wire sign)
     ?.  ?=(%indexer-update p.cage.sign)  (on-agent:def wire sign)
     =/  =update:ui  !<(=update:ui q.cage.sign)
     ?.  ?=(%egg -.update)  `this
-    =/  our-id=@ux  ?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
+    =/  our-id=@ux  ?:(?=([@ @ @ ~] wire) (slav %ux i.t.t.wire) (slav %ux i.t.t.t.wire))
     =+  our-txs=(~(gut by transaction-store.state) our-id [sent=~ received=~])
     =^  tx-status-cards=(list card)  our-txs
       %^  spin  ~(tap by eggs.update)  our-txs
