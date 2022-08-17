@@ -35,9 +35,9 @@
 ::
 +$  location-index
   (map @ux (jar @ux location))
-+$  batch-index
++$  batch-index  ::  used for grains
   (map @ux (jar @ux batch-location))
-+$  egg-index
++$  egg-index  ::  only ever one tx per id; -> (map (map))?
   (map @ux (jar @ux egg-location))
 +$  second-order-index
   (map @ux (jar @ux second-order-location))

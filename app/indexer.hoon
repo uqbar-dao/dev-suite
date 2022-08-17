@@ -807,9 +807,9 @@
       ?~  b=(get-appropriate-batch town-id batch-root)
         $(locations t.locations)
       ?.  |(!only-newest =(batch-root batch-id.u.b))
-        ::  TODO: remove this check if we never see this log
-        ~&  >>>  "%indexer: unexpected batch root (egg)"
-        ~&  >>>  "br, bid: {<batch-root>} {<batch-id.u.b>}"
+        ::  happens for second-order only-newest queries that
+        ::   resolve to eggs because get-locations does not
+        ::   guarantee they are in the newest batch
         $(locations t.locations)
       =*  timestamp  timestamp.u.b
       =*  txs        transactions.batch.u.b
