@@ -4,7 +4,7 @@
 ::  New multisigs can be generated through the %create
 ::  argument, and are stored in account-controlled rice.
 ::
-/+  *zig-sys-smart
+::  /+  *zig-sys-smart
 /=  lib  /lib/zig/contracts/lib/multisig
 =,  lib
 |_  =cart
@@ -15,6 +15,8 @@
     ::  issue a new grain for a new multisig wallet
     ::  threshold must be <= member count
     ?>  (lte threshold.act ~(wyt pn members.act))
+    ::  must have at least one member
+    ?>  ?=(^ members.act)
     ::  generate unique salt to differentiate grain IDs
     =/  salt  (shag (cat 3 id.from.cart batch.cart))
     =/  =id  (fry-rice me.cart me.cart town-id.cart salt)
@@ -45,6 +47,9 @@
     ==
     ?:  =(ayes.proposal threshold.data.multisig)
       ::  if this vote meets threshold, execute the proposal
+      ::  NOTE: with this design, final voter ends up paying gas
+      ::  for the proposal. can reimburse them automatically in
+      ::  the future for budget.
       =.  pending.data.multisig
         (~(del py pending.data.multisig) proposal-hash.act)
       %+  continuation  calls.proposal
