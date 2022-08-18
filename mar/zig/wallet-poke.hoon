@@ -36,9 +36,7 @@
           [%to (se %ux)]
           [%town ni]
           [%gas (ot ~[[%rate ni] [%bud ni]])]
-          [%args (se %t)]
-          [%my-grains (ar (se %ux))]
-          [%cont-grains (ar (se %ux))]
+          [%yolk (se %t)]
       ==
     ++  parse-submit
       %-  ot

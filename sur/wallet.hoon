@@ -7,9 +7,9 @@
 ::
 +$  book  (map id:smart asset)
 +$  asset
-  $%  [%token town-id=@ux metadata=id:smart token-account]
-      [%nft town-id=@ux metadata=id:smart nft]
-      [%unknown town-id=@ux *]
+  $%  [%token town-id=@ux contract=id:smart metadata=id:smart token-account]
+      [%nft town-id=@ux contract=id:smart metadata=id:smart nft]
+      [%unknown town-id=@ux contract=id:smart *]
   ==
 ::
 +$  metadata-store  (map id:smart asset-metadata)
