@@ -11,7 +11,7 @@
       min-ping-time=@dr
       max-ping-time=@dr
       next-ping-time=@da
-      sources=(jar id:smart ship)  ::  priority-ordered list of indexers for each town
+      sources=(jug id:smart dock)  ::  set of indexers for each town
       sequencers=(map id:smart sequencer)  ::  single sequencer for each town
   ==
 --
@@ -68,10 +68,10 @@
     ++  watch-indexer  ::  TODO: ping indexers and find responsive one?
       |=  [town-id=id:smart wire-prefix=wire sub-path=^path]
       ^-  (list card)
-      ?~  town-source=(~(get ja sources) town-id)  ~
+      ?~  town-source=(~(get ju sources) town-id)  ~
       :_  ~
       %+  ~(watch pass:io (weld wire-prefix sub-path))
-      [i.town-source %indexer]  sub-path
+      -.town-source  sub-path  ::  TODO: do better here
     --
   ::
   ++  on-poke
@@ -93,33 +93,26 @@
       ^-  (quip card _state)
       ?-    -.act
           %set-sources
-        =/  pa  /capitol-updates
-        :_  state(sources (~(gas by *(map id:smart (list ship))) towns.act))
+        =/  p=path  /capitol-updates
+        :_  state(sources (~(gas by *(map id:smart (set dock))) towns.act))
         %+  murn  towns.act
-        |=  [town=id:smart indexers=(list ship)]
+        |=  [town=id:smart indexers=(set dock)]
         ^-  (unit card)
         ?~  indexers  ~
-        `(~(watch pass:io pa) [i.indexers %indexer] pa)
+        `(~(watch pass:io p) -.indexers p)  ::  TODO: do better here
       ::
           %add-source
         :-  ~
         %=  state
             sources
-          ?~  town-source=(~(get ja sources) town-id.act)
-            (~(add ja sources) town-id.act ship.act)
-          ?^  index=(find [ship.act]~ town-source)
-            sources
-          (~(put by sources) town-id.act [ship.act]~)
+          (~(put ju sources) town-id.act source.act)
         ==
       ::
           %remove-source
         :-  ~
         %=  state
             sources
-          ?~  town-source=(~(get ja sources) town-id.act)  !!
-          ?~  index=(find [ship.act]~ town-source)         !!
-          %+  ~(put by sources)  town-id.act
-          (oust [u.index 1] `(list ship)`town-source)
+          (~(del ju sources) town-id.act source.act)
         ==
       ==
     ::
@@ -230,11 +223,11 @@
     ?+    wire  (on-arvo:def wire sign-arvo)
         [%indexer-ping @ ~]
       ?+    sign-arvo  (on-arvo:def wire sign-arvo)
-          [%behn %wake error=@]
+          [%behn %wake *]
         =/  until=@da  (slav %da i.t.wire)
         ?:  (gth until now.bowl)  `this
-        ?^  error
-          ~&  >>>  "%uqbar: error from ping timer: {<u.error>}"
+        ?^  error.sign-arvo
+          ~&  >>>  "%uqbar: error from ping timer: {<u.error.sign-arvo>}"
           `this
         ~&  >  "%uqbar: +on-arvo: got %behn %wake"
         ::  TODO: do stuff:
