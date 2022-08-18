@@ -98,14 +98,14 @@
       supply=@ud
       cap=(unit @ud)
       mintable=?
-      minters=(set id:smart)
+      minters=(pset:smart id:smart)
       deployer=id:smart
       salt=@
   ==
 ::
 +$  token-account
   $:  balance=@ud
-      allowances=(map sender=id:smart @ud)
+      allowances=(pmap:smart sender=id:smart @ud)
       metadata=id:smart
   ==
 ::
@@ -114,11 +114,11 @@
 +$  nft-metadata
   $:  name=@t
       symbol=@t
-      properties=(set @tas)
+      properties=(pset:smart @tas)
       supply=@ud
       cap=(unit @ud)  ::  (~ if mintable is false)
       mintable=?      ::  automatically set to %.n if supply == cap
-      minters=(set address:smart)
+      minters=(pset:smart address:smart)
       deployer=id:smart
       salt=@
   ==
@@ -127,8 +127,8 @@
   $:  id=@ud
       uri=@t
       metadata=id:smart
-      allowances=(set address:smart)
-      properties=(map @tas @t)
+      allowances=(pset:smart address:smart)
+      properties=(pmap:smart @tas @t)
       transferrable=?
   ==
 --

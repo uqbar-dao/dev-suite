@@ -12,14 +12,22 @@
   ++  json
     ?-    -.upd
         %new-book
+      ~&  >>  %-  pairs
+              %+  turn  ~(tap by tokens.upd)
+              |=  [=address:smart =book]
+              :-  (scot %ux address)
+              %-  pairs
+              %+  turn  ~(tap by book)
+              |=  [=id:smart =asset]
+              (parse-asset id asset)
       %-  pairs
       %+  turn  ~(tap by tokens.upd)
-      |=  [pub=@ux =book]
-      :-  (scot %ux pub)
+      |=  [=address:smart =book]
+      :-  (scot %ux address)
       %-  pairs
       %+  turn  ~(tap by book)
-      |=  [* [=token-type =grain:smart]]
-      (parse-asset token-type grain)
+      |=  [=id:smart =asset]
+      (parse-asset id asset)
     ::
         %tx-status
       %-  frond
