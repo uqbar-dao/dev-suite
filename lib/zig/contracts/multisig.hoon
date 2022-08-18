@@ -4,6 +4,12 @@
 ::  New multisigs can be generated through the %create
 ::  argument, and are stored in account-controlled rice.
 ::
+::  This is a simple example -- note that this functionality
+::  can be better served with an off-chain Urbit app to
+::  collect the signatures and generate a new transaction
+::  once a private threshold has been reached. Can save on
+::  gas, gain privacy, and get better UX that way.
+::
 ::  /+  *zig-sys-smart
 /=  lib  /lib/zig/contracts/lib/multisig
 =,  lib
@@ -30,7 +36,6 @@
       ==
     (result ~ grain^~ ~ ~)
   ::  all other calls require multisig ID in action
-  ?>  =(id.from.cart me.cart)
   =+  (need (scry multisig.act))
   =/  multisig  (husk multisig-state:sur - `me.cart ~)
   ?-    -.act
@@ -66,6 +71,15 @@
     =/  proposal-hash  (shag calls.act)
     ::  can't already be a registered proposal
     ?<  (~(has py pending.data.multisig) proposal-hash)
+    ::  for any proposed call which will be sent to
+    ::  this contract, assert that it only modifies
+    ::  this multisig -- this is so other multisigs
+    ::  can't change each others' properties
+    ?>  %+  levy  calls.act
+        |=  [to=id town=id =yolk]
+        ?.  =(to me.cart)  %.y
+        ?.  ?=(?(%add-member %remove-member %set-threshold) p.yolk)  %.y
+        =(-.q.yolk multisig.act)
     ::  add to pending, with an automatic vote from proposer
     =/  =proposal:sur
       :^     calls.act
@@ -77,16 +91,19 @@
     (result [%&^multisig]^~ ~ ~ ~)
   ::
       %add-member
+    ?>  =(id.from.cart me.cart)
     =.  members.data.multisig
       (~(put pn members.data.multisig) address.act)
     (result [%&^multisig]^~ ~ ~ ~)
   ::
       %remove-member
+    ?>  =(id.from.cart me.cart)
     =.  members.data.multisig
       (~(del pn members.data.multisig) address.act)
     (result [%&^multisig]^~ ~ ~ ~)
   ::
       %set-threshold
+    ?>  =(id.from.cart me.cart)
     ::  threshold must be <= member count
     ?>  (lte new.act ~(wyt pn members.data.multisig))
     =.  threshold.data.multisig  new.act
