@@ -47,6 +47,7 @@
 ::
 +$  wallet-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
+      [%new-metadata metadata=metadata-store]
       [%tx-status hash=@ux =egg:smart args=supported-args]
   ==
 ::

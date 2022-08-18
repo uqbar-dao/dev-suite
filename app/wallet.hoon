@@ -61,6 +61,12 @@
     :_  this
     ~[[%give %fact ~ %zig-wallet-update !>([%new-book tokens.state])]]
   ::
+      [%metadata-updates ~]
+    ?>  =(src.bowl our.bowl)
+    ::  send frontend updates along this path
+    :_  this
+    ~[[%give %fact ~ %zig-wallet-update !>([%new-metadata metadata-store.state])]]
+  ::
       [%tx-updates ~]
     ?>  =(src.bowl our.bowl)
     ::  provide updates about submitted transactions
@@ -392,15 +398,14 @@
     =/  old-book=book  (~(gut by tokens.state) pub ~)
     =/  new-book=book
       (indexer-update-to-books update pub metadata-store.state)
+    =/  new-metadata=^metadata-store
+      (update-metadata-store new-book our.bowl metadata-store.state [our now]:bowl)
     =+  %+  ~(put by tokens.state)  pub
         (~(uni by old-book) new-book)
-    :-  ~[[%give %fact ~[/book-updates] %zig-wallet-update !>([%new-book -])]]
-    %=  this
-      tokens  -
-      ::
-        metadata-store
-      (update-metadata-store new-book our.bowl metadata-store.state [our now]:bowl)
-    ==
+    :-  :~  [%give %fact ~[/book-updates] %zig-wallet-update !>([%new-book -])]
+            [%give %fact ~[/metadata-updates] %zig-wallet-update !>([%new-metadata new-metadata])]
+        ==
+    this(tokens -, metadata-store new-metadata)
   ::
       ?([%indexer %id @ ~] [%indexer %id @ @ ~])
     ::  update to a transaction from a tracked account
