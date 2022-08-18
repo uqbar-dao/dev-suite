@@ -50,8 +50,10 @@
     %+  turn  ~(tap by capitol)
     |=  [=id:smart =hall:sequencer]
     ^-  card
+    ::  send bunted @da here as placeholder/null time.
+    ::  may in future have canonical batch times
     =-  [%give %fact ~ -]
-    [%sequencer-rollup-update !>(`town-update`[%new-peer-root id (rear roots.hall) now.bowl])]
+    [%sequencer-rollup-update !>(`town-update`[%new-peer-root id (rear roots.hall) *@da])]
   ==
 ::
 ++  on-poke
