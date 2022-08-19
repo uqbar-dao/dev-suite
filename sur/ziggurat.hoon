@@ -1,21 +1,27 @@
 /-  mill
 /+  smart=zig-sys-smart
 |%
-+$  projects  (map @t project)
-+$  project   (pair @t (each contract gall-app))
-+$  file      [name=@t text=@t]
++$  card  card:agent:gall
 ::
-+$  gall-app
++$  projects  (map @t project)
++$  project   (each contract-project app-project)
++$  file      [name=@t text=@t]  ::  always .hoon files
+::
++$  app-project
   ~  ::  TODO later
 ::
-+$  contract
++$  contract-project
   $:  main=file
       libs=(list file)
+      compiled=(unit [bat=* pay=*])
       imported=(list file)  ::  any other files to view but not compile
-      error=(unit (list tank))
+      error=(unit compile-error)  ::  ~ means successfully compiled
       state=land:mill
       =tests
   ==
+::
++$  build-result   (each [bat=* pay=*] compile-error)
++$  compile-error  (list tank)
 ::
 +$  tests  (map @ud test)
 +$  test
@@ -33,7 +39,7 @@
 ::  available actions. TODO actions for gall side
 ::
 +$  action
-  $%  [%new-project =template name=@t]  ::  creates a contract project, TODO add gall option
+  $%  [%new-contract-project =template name=@t]  ::  creates a contract project, TODO add gall option
       [%delete-project name=@t]
       [%save-file project=@t name=@t text=@t]  ::  generates new file or overwrites existing
       [%delete-file project=@t name=@t]
@@ -49,4 +55,19 @@
       ::
       [%deploy-contract =deploy-location]
   ==
+::
+::  subscription update types
+::
++$  contract-update
+  $:  compiled=?
+      error=(unit compile-error)
+      state=land:mill
+      =tests
+  ==
+::
++$  app-update
+  ~  ::  TODO app project update
+::
++$  test-update
+  [id=@ud result=mill-result:mill]
 --

@@ -2,17 +2,15 @@
 ::
 ::  Contract Playground
 ::
-/-  *ziggurat
-/+  smart=zig-sys-smart, templates=zig-templates, sequencer,
+/+  *ziggurat, smart=zig-sys-smart, sequencer,
     default-agent, dbug, verb
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
 ::
 |%
-+$  card  card:agent:gall
 +$  state-0
   $:  %0
-      xx=@t
+      =projects
   ==
 +$  inflated-state-0  [state-0 =mil smart-lib-vase=vase]
 +$  mil  $_  ~(mill mill:sequencer !>(0) *(map * @) %.y)
@@ -36,7 +34,7 @@
   :-  ~
   %_    this
       state
-    [[%0 'XX'] mil smart-lib]
+    [[%0 ~] mil smart-lib]
   ==
 ++  on-save  !>(-.state)
 ++  on-load
@@ -52,10 +50,26 @@
   |=  =path
   ^-  (quip card _this)
   ?+    path  !!
-      [%path-name ~]
-    :_  this
-    [%give %fact ~ [%update !>('XX')]]~
+      [%contract-project @ ~]
+    ::  serve updates about state of a given contract project
+    =/  name=@t  (slav %t i.t.path)
+    ?~  proj=(~(get by projects) name)
+      `this
+    ?>  ?=(%& -.u.proj)
+    [(make-contract-update path p.u.proj)^~ this]
   ::
+      [%app-project @ ~]
+    ::  TODO
+    =/  name=@t  (slav %t i.t.path)
+    ?~  proj=(~(get by projects) name)
+      `this
+    ?>  ?=(%| -.u.proj)
+    [(make-app-update path p.u.proj)^~ this]
+  ::
+      [%test-updates @ ~]
+    ::  serve updates for all tests executed
+    ::  within a given contract project
+    `this
   ==
 ::
 ++  on-poke
@@ -69,10 +83,82 @@
   ++  handle-poke
     |=  act=action
     ^-  (quip card _state)
-    ?+    -.act  !!
-        %new-project
+    ?-    -.act
+    ::
+    ::  project creation/deletion
+    ::
+        %new-contract-project
+      ?:  (~(has by projects) name.act)
+        ~|("%ziggurat: project name already taken" !!)
+      =/  [main=file libs=(list file)]
+        ?-    template.act
+            %blank
+          [[name.act blank:templates] ~]
+        ::
+            %nft
+          [[name.act main:nft:templates] ['lib' lib:nft:templates]^~]
+        ::
+            %fungible
+          [[name.act main:fungible:templates] ['lib' lib:fungible:templates]^~]
+        ==
+      =/  proj=contract-project
+        :*  main  libs
+            compiled=~
+            imported=~
+            error=~
+            state=*land:mill
+            tests=~
+        ==
+      ::  attempt to compile the contract
+      =/  =build-result  (build-contract-project smart-lib-vase proj)
+      =?  compiled.proj  ?=(%& -.build-result)
+        `p.build-result
+      =?  error.proj  ?=(%| -.build-result)
+        `p.build-result
+      :_  state(projects (~(put by projects) name.act %&^proj))
+      (make-contract-update /contract-project/(scot %t name.act) proj)^~
+    ::
+        %delete-project
+      ::  should show a warning on frontend before performing this one ;)
+      `state(projects (~(del by projects) name.act))
+    ::
+    ::  file management
+    ::
+        %save-file
       !!
     ::
+        %delete-file
+      !!
+    ::
+    ::  local chain state management
+    ::
+        %add-to-state
+      !!
+    ::
+        %delete-from-state
+      !!
+    ::
+    ::  test management
+    ::
+        %add-test
+      !!
+    ::
+        %delete-test
+      !!
+    ::
+        %edit-test
+      !!
+    ::
+        %run-test
+      !!
+    ::
+        %run-tests
+      !!
+    ::
+    ::  contract deployment to local/remote testnet
+    ::
+        %deploy-contract
+      !!
     ==
   --
 ::

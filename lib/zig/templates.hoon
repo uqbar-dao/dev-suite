@@ -3,18 +3,18 @@
 ::
 |%
 ++  blank  ^-  @t
-  '|_  =cart\
-   /++  write\
-   /  |=  *\
-   /  ^-  chick\
-   /  (result ~ ~ ~ ~)\
-   /++  read\
-   /  |_  =path\
-   /  ++  json\
-   /    ~\
-   /  ++  noun\
-   /    ~\
-   /  --\
+  '|_  =cart  \
+   /++  write  \
+   /  |=  *  \
+   /  ^-  chick  \
+   /  (result ~ ~ ~ ~)  \
+   /++  read  \
+   /  |_  =path  \
+   /  ++  json  \
+   /    ~  \
+   /  ++  noun  \
+   /    ~  \
+   /  --  \
    /--'
 ::
 ++  fungible
