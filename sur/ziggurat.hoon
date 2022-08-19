@@ -11,6 +11,7 @@
 +$  contract
   $:  main=file
       libs=(list file)
+      imported=(list file)  ::  any other files to view but not compile
       error=(unit (list tank))
       state=land:mill
       =tests
@@ -31,7 +32,7 @@
 ::
 ::  available actions. TODO actions for gall side
 ::
-+$  poke
++$  action
   $%  [%new-project =template name=@t]  ::  creates a contract project, TODO add gall option
       [%delete-project name=@t]
       [%save-file project=@t name=@t text=@t]  ::  generates new file or overwrites existing
