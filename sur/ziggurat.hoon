@@ -16,16 +16,17 @@
       imported=(map name=@t text=@t)  ::  any other files to view but not compile
       error=(unit @t)  ::  ~ means successfully compiled
       state=land:mill
+      caller-nonce=@ud
+      mill-batch-num=@ud
       =tests
   ==
 ::
 +$  build-result   (each [bat=* pay=*] compile-error)
 +$  compile-error  (list tank)
 ::
-+$  tests  (map @ud test)
++$  tests  (map @ux test)
 +$  test
-  $:  id=@ud
-      name=(unit @t)  ::  optional
+  $:  name=(unit @t)  ::  optional
       action=yolk:smart
       last-result=(unit mill-result:mill)
   ==
@@ -37,22 +38,24 @@
 ::
 ::  available actions. TODO actions for gall side
 ::
-+$  action
-  $%  [%new-contract-project =template project=@t]  ::  creates a contract project, TODO add gall option
-      [%delete-project project=@t]
-      [%save-file project=@t name=@t text=@t]  ::  generates new file or overwrites existing
-      [%delete-file project=@t name=@t]
-      ::
-      [%add-to-state project=@t =rice:smart]
-      [%delete-from-state project=@t =id:smart]
-      ::
-      [%add-test name=(unit @t) action=yolk:smart]  ::  name optional
-      [%delete-test id=@ud]
-      [%edit-test id=@ud name=(unit @t) action=yolk:smart]
-      [%run-test id=@ud]
-      [%run-tests ids=(list @ud)]
-      ::
-      [%deploy-contract =deploy-location]
++$  contract-action
+  $:  project=@t
+      $%  [%new-contract-project =template]  ::  creates a contract project, TODO add gall option
+          [%delete-project ~]
+          [%save-file name=@t text=@t]  ::  generates new file or overwrites existing
+          [%delete-file name=@t]
+          ::
+          [%add-to-state =rice:smart]
+          [%delete-from-state =id:smart]
+          ::
+          [%add-test name=(unit @t) action=yolk:smart]  ::  name optional
+          [%delete-test id=@ux]
+          [%edit-test id=@ux name=(unit @t) action=yolk:smart]
+          [%run-test gas=[rate=@ud bud=@ud] id=@ux]
+          [%run-tests tests=(list [id=@ux gas=[rate=@ud bud=@ud]])]  :: each one run with same gas
+          ::
+          [%deploy-contract =deploy-location]
+      ==
   ==
 ::
 ::  subscription update types
@@ -68,5 +71,7 @@
   ~  ::  TODO app project update
 ::
 +$  test-update
-  [id=@ud result=mill-result:mill]
+  $%  [%single id=@ud result=mill-result:mill]
+      [%multi result=state-transition:mill]
+  ==
 --

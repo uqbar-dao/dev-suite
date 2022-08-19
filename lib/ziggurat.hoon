@@ -7,8 +7,9 @@
 ++  designated-address  0xdead.beef
 ++  designated-contract-id  0xfafa.fafa
 ++  designated-caller
+  |=  nonce=@ud
   ^-  caller:smart
-  [designated-address 0 id.p:designated-zigs-grain]
+  [designated-address nonce id.p:designated-zigs-grain]
 ++  designated-town-id  0x0
 ::  we set the designated caller to have 300 zigs
 ++  designated-zigs-grain
@@ -48,20 +49,35 @@
 ::  utilities
 ::
 ++  make-contract-update
-  |=  [=path proj=contract-project]
+  |=  [project=@t =contract-project]
   ^-  card
   =/  =contract-update
-    :^    compiled=?~(compiled.proj %.n %.y)
-        error.proj
-      state.proj
-    tests.proj
+    :^    compiled=?~(compiled.contract-project %.n %.y)
+        error.contract-project
+      state.contract-project
+    tests.contract-project
+  =/  =path  /contract-updates/(scot %t project)
   [%give %fact ~[path] %contract-update !>(contract-update)]
 ::
 ++  make-app-update
-  |=  [=path =app-project]
+  |=  [project=@t =app-project]
   ^-  card
   ::  TODO
   !!
+::
+++  make-single-test-update
+  |=  [project=@t test-id=@ =test]
+  ^-  card
+  =/  =test-update  [%single test-id (need last-result.test)]
+  =/  =path         /test-updates/(scot %t project)
+  [%give %fact ~[path] %test-update !>(test-update)]
+::
+++  make-multi-test-update
+  |=  [project=@t result=state-transition:mill]
+  ^-  card
+  =/  =test-update  [%multi result]
+  =/  =path         /test-updates/(scot %t project)
+  [%give %fact ~[path] %test-update !>(test-update)]
 ::
 ++  build-contract-project
   |=  [smart-lib=vase proj=contract-project]

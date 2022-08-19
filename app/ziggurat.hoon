@@ -56,7 +56,7 @@
     ?~  proj=(~(get by projects) name)
       `this
     ?>  ?=(%& -.u.proj)
-    [(make-contract-update path p.u.proj)^~ this]
+    [(make-contract-update name p.u.proj)^~ this]
   ::
       [%app-project @ ~]
     ::  TODO
@@ -64,7 +64,7 @@
     ?~  proj=(~(get by projects) name)
       `this
     ?>  ?=(%| -.u.proj)
-    [(make-app-update path p.u.proj)^~ this]
+    [(make-app-update name p.u.proj)^~ this]
   ::
       [%test-updates @ ~]
     ::  serve updates for all tests executed
@@ -76,18 +76,15 @@
   |=  [=mark =vase]
   ^-  (quip card _this)
   |^
+  ::  TODO handle app project pokes in their own arm
   =^  cards  state
-    (handle-poke !<(action vase))
+    (handle-contract-poke !<(contract-action vase))
   [cards this]
   ::
-  ++  handle-poke
-    |=  act=action
+  ++  handle-contract-poke
+    |=  act=contract-action
     ^-  (quip card _state)
-    ?-    -.act
-    ::
-    ::  project creation/deletion
-    ::
-        %new-contract-project
+    ?:  ?=(%new-contract-project -.+.act)
       ?:  (~(has by projects) project.act)
         ~|("%ziggurat: project name already taken" !!)
       =/  [main=@t libs=(map @t @t)]
@@ -109,6 +106,8 @@
             imported=~
             error=~
             state=starting-state
+            caller-nonce=0
+            mill-batch-num=0
             tests=~
         ==
       ::  attempt to build the project
@@ -121,8 +120,16 @@
       =?  error.proj  ?=(%| -.build-result)
         `(get-formatted-error p.build-result)
       :_  state(projects (~(put by projects) project.act %&^proj))
-      (make-contract-update /contract-project/(scot %t project.act) proj)^~
+      (make-contract-update project.act proj)^~
     ::
+    ::  all other pokes require existing project
+    ::
+    ?~  proj=(~(get by projects) project.act)
+      ~|("%ziggurat: project does not exist" !!)
+    ::  only handling contract pokes here
+    ?>  ?=(%& -.u.proj)
+    =*  project  p.u.proj
+    ?-    -.+.act
         %delete-project
       ::  should show a warning on frontend before performing this one ;)
       `state(projects (~(del by projects) project.act))
@@ -133,10 +140,6 @@
       ::  NOTE: make sure to enforce on frontend that 'main' file name
       ::  always matches the name of the project, and that no other files
       ::  in the project can use that name.
-      ?~  proj=(~(get by projects) project.act)
-        ~|("%ziggurat: project does not exist" !!)
-      ?>  ?=(%& -.u.proj)
-      =*  project  p.u.proj
       =?  main.project  =(name.act project.act)
         ::  this is the main file
         text.act
@@ -154,14 +157,10 @@
       =.  error.project
         ?.  ?=(%| -.build-result)  ~
         `(get-formatted-error p.build-result)
-      :_  state(projects (~(put by projects) project.act %&^project))
-      (make-contract-update /contract-project/(scot %t project.act) project)^~
+      :-  (make-contract-update project.act project)^~
+      state(projects (~(put by projects) project.act %&^project))
     ::
         %delete-file
-      ?~  proj=(~(get by projects) project.act)
-        ~|("%ziggurat: project does not exist" !!)
-      ?>  ?=(%& -.u.proj)
-      =*  project  p.u.proj
       ?:  =(name.act project.act)
         ::  can't delete the main file
         ~|("%ziggurat: tried to delete the main file!" !!)
@@ -178,50 +177,100 @@
       =.  error.project
         ?.  ?=(%| -.build-result)  ~
         `(get-formatted-error p.build-result)
-      :_  state(projects (~(put by projects) project.act %&^project))
-      (make-contract-update /contract-project/(scot %t project.act) project)^~
+      :-  (make-contract-update project.act project)^~
+      state(projects (~(put by projects) project.act %&^project))
     ::
     ::  local chain state management
     ::
         %add-to-state
       ::  put a new grain in the granary
-      ?~  proj=(~(get by projects) project.act)
-        ~|("%ziggurat: project does not exist" !!)
-      ?>  ?=(%& -.u.proj)
-      =*  project  p.u.proj
       =.  p.state.project
         %+  put:big:mill  p.state.project
         [id.rice.act %&^rice.act]
-      :_  state(projects (~(put by projects) project.act %&^project))
-      (make-contract-update /contract-project/(scot %t project.act) project)^~
+      :-  (make-contract-update project.act project)^~
+      state(projects (~(put by projects) project.act %&^project))
     ::
         %delete-from-state
       ::  remove a grain from the granary
-      ?~  proj=(~(get by projects) project.act)
-        ~|("%ziggurat: project does not exist" !!)
-      ?>  ?=(%& -.u.proj)
-      =*  project  p.u.proj
       =.  p.state.project
         (del:big:mill p.state.project id.act)
-      :_  state(projects (~(put by projects) project.act %&^project))
-      (make-contract-update /contract-project/(scot %t project.act) project)^~
+      :-  (make-contract-update project.act project)^~
+      state(projects (~(put by projects) project.act %&^project))
     ::
     ::  test management
     ::
         %add-test
-      !!
+      ::  generate an id for the test
+      =/  test-id  `@ux`(mug now.bowl)
+      ::  put it in the project
+      =.  tests.project
+        (~(put by tests.project) test-id [name.act action.act ~])
+      :-  (make-contract-update project.act project)^~
+      state(projects (~(put by projects) project.act %&^project))
     ::
         %delete-test
-      !!
+      =.  tests.project  (~(del by tests.project) id.act)
+      :-  (make-contract-update project.act project)^~
+      state(projects (~(put by projects) project.act %&^project))
     ::
         %edit-test
-      !!
+      ::  put it in the project
+      =.  tests.project
+        (~(put by tests.project) id.act [name.act action.act ~])
+      :-  (make-contract-update project.act project)^~
+      state(projects (~(put by projects) project.act %&^project))
     ::
         %run-test
-      !!
+      =/  =test  (~(got by tests.project) id.act)
+      =/  caller
+        (designated-caller +(caller-nonce.project))
+      =/  =shell:smart
+        :*  caller
+            ~
+            designated-contract-id
+            rate.gas.act  bud.gas.act
+            designated-town-id
+            status=0
+        ==
+      =.  last-result.test
+        :-  ~
+        %+  %~  mill  mil
+            [caller designated-town-id mill-batch-num.project]
+          state.project
+        [[0 0 0] shell action.test]
+      ::  save result in test, send update
+      =.  tests.project  (~(put by tests.project) id.act test)
+      :_  state(projects (~(put by projects) project.act %&^project))
+      :~  (make-contract-update project.act project)
+          (make-single-test-update project.act id.act test)
+      ==
     ::
         %run-tests
-      !!
+      ::  run tests IN SUCCESSION against SAME STATE
+      =/  [eggs=(list [@ux egg:smart]) new-nonce=@ud]
+        %^  spin  tests.act  caller-nonce.project
+        |=  [[id=@ux gas=[rate=@ud bud=@ud]] nonce=@ud]
+        =/  =test  (~(got by tests.project) id)
+        =/  caller  (designated-caller +(nonce))
+        =/  =shell:smart
+          :*  caller
+              ~
+              designated-contract-id
+              rate.gas  bud.gas
+              designated-town-id
+              status=0
+          ==
+        :_  +(nonce)
+        :-  `@ux`(sham shell action.test)
+        [[0 0 0] shell action.test]
+      =/  [res=state-transition:mill *]
+        %^    %~  mill-all  mil
+              [(designated-caller 0) designated-town-id mill-batch-num.project]
+            state.project
+          (silt eggs)
+        256
+      :-  (make-multi-test-update project.act res)^~
+      state(projects (~(put by projects) project.act %&^project))
     ::
     ::  contract deployment to local/remote testnet
     ::
