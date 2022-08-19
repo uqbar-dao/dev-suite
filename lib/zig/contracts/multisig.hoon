@@ -19,8 +19,10 @@
   ^-  chick
   ?:  ?=(%create -.act)
     ::  issue a new grain for a new multisig wallet
-    ::  threshold must be <= member count
-    ?>  (lte threshold.act ~(wyt pn members.act))
+    ::  threshold must be <= member count, > 0
+    ?>  ?&  (gth threshold.act 0)
+            (lte threshold.act ~(wyt pn members.act))
+        ==
     ::  must have at least one member
     ?>  ?=(^ members.act)
     ::  generate unique salt to differentiate grain IDs
@@ -100,12 +102,20 @@
     ?>  =(id.from.cart me.cart)
     =.  members.data.multisig
       (~(del pn members.data.multisig) address.act)
+    ::  if member count has been reduced below threshold, decrement it.
+    ::  will also force a crash if we are removing the only member of
+    ::  a 1-address multisig.
+    =?    threshold.data.multisig
+        (gth threshold.data.multisig ~(wyt pn members.data.multisig))
+      (dec threshold.data.multisig)
     (result [%&^multisig]^~ ~ ~ ~)
   ::
       %set-threshold
     ?>  =(id.from.cart me.cart)
-    ::  threshold must be <= member count
-    ?>  (lte new.act ~(wyt pn members.data.multisig))
+    ::  threshold must be <= member count, > 0
+    ?>  ?&  (gth new.act 0)
+            (lte new.act ~(wyt pn members.data.multisig))
+        ==
     =.  threshold.data.multisig  new.act
     (result [%&^multisig]^~ ~ ~ ~)
   ==

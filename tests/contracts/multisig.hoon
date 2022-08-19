@@ -1,7 +1,7 @@
 ::
 ::  Tests for multisig.hoon
 ::
-/-  zink
+/-  zink, mill
 /+  *test, smart=zig-sys-smart, *sequencer, merk
 /*  smart-lib-noun     %noun  /lib/zig/compiled/smart-lib/noun
 /*  zink-cax-noun      %noun  /lib/zig/compiled/hash-cache/noun
@@ -165,13 +165,66 @@
   ==
 ::
 ++  test-create-no-members
-  !!
+  =/  =yolk:smart  [%create 0 ~]
+  =/  shel=shell:smart
+    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+  =/  res=mill-result
+    %+  ~(mill mil miller town-id batch-num)
+      fake-land
+    `egg:smart`[fake-sig shel yolk]
+  ::
+  %+  expect-eq
+  !>(%6)  !>(errorcode.res)
 ::
 ++  test-create-high-threshold
-  !!
+  =/  member-set  (~(gas pn:smart *(pset:smart address:smart)) ~[id:caller-1])
+  =/  =yolk:smart  [%create 2 ~]
+  =/  shel=shell:smart
+    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+  =/  res=mill-result
+    %+  ~(mill mil miller town-id batch-num)
+      fake-land
+    `egg:smart`[fake-sig shel yolk]
+  ::
+  %+  expect-eq
+  !>(%6)  !>(errorcode.res)
 ::
 ++  test-create-many-members
-  !!
+  =/  member-set
+    %-  ~(gas pn:smart *(pset:smart address:smart))
+    ~[id:caller-1 id:caller-2 id:caller-3 0xdead 0xbeef 0xcafe 0xbabe]
+  =/  =yolk:smart  [%create 4 member-set]
+  =/  shel=shell:smart
+    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+  =/  res=mill-result
+    %+  ~(mill mil miller town-id batch-num)
+      fake-land
+    `egg:smart`[fake-sig shel yolk]
+  ::
+  =/  correct-salt  (shag:smart (cat 3 id:caller-1 batch-num))
+  =/  correct-id
+    (fry-rice:smart id.p:multisig-wheat id.p:multisig-wheat town-id correct-salt)
+  =/  correct
+    ^-  grain:smart
+    :*  %&
+        correct-salt
+        %multisig
+        [member-set 4 ~]
+        correct-id
+        id.p:multisig-wheat
+        id.p:multisig-wheat
+        town-id
+    ==
+  ::
+  ;:  weld
+  ::  assert that our call went through
+    %+  expect-eq
+    !>(%0)  !>(errorcode.res)
+  ::  assert new contract grain was created properly
+    %+  expect-eq
+      !>(correct)
+    !>((got:big p.land.res correct-id))
+  ==
 ::
 ::  tests for %vote
 ::
@@ -253,20 +306,50 @@
   =/  =yolk:smart  [%vote id.p:two-man-sig 0x1234 %.y]
   =/  shel-1=shell:smart
     [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
-  =/  res-1=mill-result
-    %+  ~(mill mil miller town-id batch-num)
-      fake-land
-    `egg:smart`[fake-sig shel-1 yolk]
   =/  shel-2=shell:smart
     [caller-2 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
-  =/  res-2=mill-result
+  =/  =basket:mill
+    %-  silt
+    :~  [(shag:smart [shel-1 yolk]) [fake-sig shel-1 yolk]]
+        [(shag:smart [shel-2 yolk]) [fake-sig shel-2 yolk]]
+    ==
+  =/  res=[state-transition:mill rejected=carton:mill]
+    %-  ~(mill-all mil miller town-id batch-num)
+    [fake-land basket 256]
+  ::
+  =/  correct
+    ^-  grain:smart
+    :*  %&
+        `@`(shag:smart (cat 3 id:caller-1 0))
+        %multisig
+        [(~(gas pn:smart *(pset:smart address:smart)) ~[id:caller-1 id:caller-2 id:caller-3]) 2 ~]
+        id.p:two-man-sig
+        id.p:multisig-wheat
+        id.p:multisig-wheat
+        town-id
+    ==
+  ::
+  %+  expect-eq
+    !>(correct)
+  !>((got:big p.land.res id.p:two-man-sig))
+::
+::  tests for %propose
+::
+++  test-propose
+  =/  my-proposal
+    [id.p:multisig-wheat town-id [%add-member id.p:two-man-sig 0xdead.beef]]^~
+  =/  proposal-hash
+    (shag:smart my-proposal)
+  =/  =yolk:smart
+    [%propose id.p:two-man-sig my-proposal]
+  =/  shel=shell:smart
+    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+  =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
-      land.res-1
-    `egg:smart`[fake-sig shel-2 yolk]
-
-
-  =/  correct-multisig
-    :^  [id.p:multisig-wheat town-id [%add-member id.p:two-man-sig holder-3]]^~
+      fake-land
+    `egg:smart`[fake-sig shel yolk]
+  =/  correct-proposal
+    :^  my-proposal
       %-  ~(gas py:smart *(pmap:smart address:smart ?))
       [id:caller-1 %.y]^~
     1  0
@@ -279,16 +362,22 @@
       !>(correct-proposal)
     !>  =+  (got:big p.land.res id.p:two-man-sig)
         =+  data:(husk:smart multisig-state - ~ ~)
-        (~(got py:smart pending.-) 0x1234)
+        (~(got py:smart pending.-) proposal-hash)
   ==
 ::
-::  tests for %propose
-::
-++  test-propose
-  !!
-::
 ++  test-propose-not-member
-  !!
+  =/  my-proposal
+    [id.p:multisig-wheat town-id [%add-member id.p:two-man-sig 0xdead.beef]]^~
+  =/  =yolk:smart  [%propose id.p:two-man-sig my-proposal]
+  =/  shel=shell:smart
+    [caller-3 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+  =/  res=mill-result
+    %+  ~(mill mil miller town-id batch-num)
+      fake-land
+    `egg:smart`[fake-sig shel yolk]
+  ::
+  %+  expect-eq
+  !>(%6)  !>(errorcode.res)
 ::
 ::  tests for %add-member, %remove-member, %set-threshold
 ::
@@ -298,9 +387,15 @@
 ++  test-remove-member
   !!
 ::
+++  test-remove-last-member
+  !!
+::
+++  test-remove-member-lower-threshold
+  !!
+::
 ++  test-set-threshold
   !!
 ::
-++  test-set-threshold-too-low
+++  test-set-threshold-too-high
   !!
 --
