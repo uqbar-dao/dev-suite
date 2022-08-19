@@ -19,4 +19,15 @@
       crows=(list crow:smart)
       burns=granary
   ==
+::
+::  intermediate result from +mill
+::
++$  mill-result
+  $:  fee=@ud
+      =land
+      burned=granary
+      =errorcode:smart
+      hits=(list hints:zink)
+      =crow:smart
+  ==
 --
