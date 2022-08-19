@@ -1,4 +1,4 @@
-/-  *ziggurat
+/-  *sequencer
 |%
 ::
 ::  ship signatures

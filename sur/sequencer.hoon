@@ -1,6 +1,7 @@
 /-  *mill
 /+  smart=zig-sys-smart, zink=zink-zink
 |%
++$  signature   [p=@ux q=ship r=life]
 +$  sequencer  (pair address:smart ship)
 ::
 +$  availability-method
