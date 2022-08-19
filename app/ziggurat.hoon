@@ -88,7 +88,7 @@
     ::  project creation/deletion
     ::
         %new-contract-project
-      ?:  (~(has by projects) name.act)
+      ?:  (~(has by projects) project.act)
         ~|("%ziggurat: project name already taken" !!)
       =/  [main=@t libs=(map @t @t)]
         ?-    template.act
@@ -120,12 +120,12 @@
         [designated-contract-id (make-contract-grain p.build-result)]
       =?  error.proj  ?=(%| -.build-result)
         `(get-formatted-error p.build-result)
-      :_  state(projects (~(put by projects) name.act %&^proj))
-      (make-contract-update /contract-project/(scot %t name.act) proj)^~
+      :_  state(projects (~(put by projects) project.act %&^proj))
+      (make-contract-update /contract-project/(scot %t project.act) proj)^~
     ::
         %delete-project
       ::  should show a warning on frontend before performing this one ;)
-      `state(projects (~(del by projects) name.act))
+      `state(projects (~(del by projects) project.act))
     ::
     ::  file management
     ::
@@ -155,7 +155,7 @@
         ?.  ?=(%| -.build-result)  ~
         `(get-formatted-error p.build-result)
       :_  state(projects (~(put by projects) project.act %&^project))
-      (make-contract-update /contract-project/(scot %t name.act) project)^~
+      (make-contract-update /contract-project/(scot %t project.act) project)^~
     ::
         %delete-file
       ?~  proj=(~(get by projects) project.act)
@@ -179,15 +179,32 @@
         ?.  ?=(%| -.build-result)  ~
         `(get-formatted-error p.build-result)
       :_  state(projects (~(put by projects) project.act %&^project))
-      (make-contract-update /contract-project/(scot %t name.act) project)^~
+      (make-contract-update /contract-project/(scot %t project.act) project)^~
     ::
     ::  local chain state management
     ::
         %add-to-state
-      !!
+      ::  put a new grain in the granary
+      ?~  proj=(~(get by projects) project.act)
+        ~|("%ziggurat: project does not exist" !!)
+      ?>  ?=(%& -.u.proj)
+      =*  project  p.u.proj
+      =.  p.state.project
+        %+  put:big:mill  p.state.project
+        [id.rice.act %&^rice.act]
+      :_  state(projects (~(put by projects) project.act %&^project))
+      (make-contract-update /contract-project/(scot %t project.act) project)^~
     ::
         %delete-from-state
-      !!
+      ::  remove a grain from the granary
+      ?~  proj=(~(get by projects) project.act)
+        ~|("%ziggurat: project does not exist" !!)
+      ?>  ?=(%& -.u.proj)
+      =*  project  p.u.proj
+      =.  p.state.project
+        (del:big:mill p.state.project id.act)
+      :_  state(projects (~(put by projects) project.act %&^project))
+      (make-contract-update /contract-project/(scot %t project.act) project)^~
     ::
     ::  test management
     ::

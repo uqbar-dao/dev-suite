@@ -38,8 +38,8 @@
 ::  available actions. TODO actions for gall side
 ::
 +$  action
-  $%  [%new-contract-project =template name=@t]  ::  creates a contract project, TODO add gall option
-      [%delete-project name=@t]
+  $%  [%new-contract-project =template project=@t]  ::  creates a contract project, TODO add gall option
+      [%delete-project project=@t]
       [%save-file project=@t name=@t text=@t]  ::  generates new file or overwrites existing
       [%delete-file project=@t name=@t]
       ::
