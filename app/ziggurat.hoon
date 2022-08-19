@@ -90,31 +90,36 @@
         %new-contract-project
       ?:  (~(has by projects) name.act)
         ~|("%ziggurat: project name already taken" !!)
-      =/  [main=file libs=(list file)]
+      =/  [main=@t libs=(map @t @t)]
         ?-    template.act
             %blank
-          [[name.act blank:templates] ~]
+          [blank:templates ~]
         ::
             %nft
-          [[name.act main:nft:templates] ['lib' lib:nft:templates]^~]
+          :-  main:nft:templates
+          (malt ['lib' lib:nft:templates]~)
         ::
             %fungible
-          [[name.act main:fungible:templates] ['lib' lib:fungible:templates]^~]
+          :-  main:fungible:templates
+          (malt ['lib' lib:fungible:templates]~)
         ==
       =/  proj=contract-project
         :*  main  libs
             compiled=~
             imported=~
             error=~
-            state=*land:mill
+            state=starting-state
             tests=~
         ==
-      ::  attempt to compile the contract
+      ::  attempt to build the project
       =/  =build-result  (build-contract-project smart-lib-vase proj)
       =?  compiled.proj  ?=(%& -.build-result)
         `p.build-result
+      =?  p.state.proj  ?=(%& -.build-result)
+        %+  put:big:mill  p.state.proj
+        [designated-contract-id (make-contract-grain p.build-result)]
       =?  error.proj  ?=(%| -.build-result)
-        `p.build-result
+        `(get-formatted-error p.build-result)
       :_  state(projects (~(put by projects) name.act %&^proj))
       (make-contract-update /contract-project/(scot %t name.act) proj)^~
     ::
@@ -125,10 +130,56 @@
     ::  file management
     ::
         %save-file
-      !!
+      ::  NOTE: make sure to enforce on frontend that 'main' file name
+      ::  always matches the name of the project, and that no other files
+      ::  in the project can use that name.
+      ?~  proj=(~(get by projects) project.act)
+        ~|("%ziggurat: project does not exist" !!)
+      ?>  ?=(%& -.u.proj)
+      =*  project  p.u.proj
+      =?  main.project  =(name.act project.act)
+        ::  this is the main file
+        text.act
+      =?  libs.project  !=(name.act project.act)
+        (~(put by libs.project) name.act text.act)
+      ::  attempt to rebuild project
+      =/  =build-result  (build-contract-project smart-lib-vase project)
+      ::  only update compiled nock if successful build
+      =?  compiled.project  ?=(%& -.build-result)
+        `p.build-result
+      =?  p.state.project  ?=(%& -.build-result)
+        %+  put:big:mill  p.state.project
+        [designated-contract-id (make-contract-grain p.build-result)]
+      ::  set error to ~ if successful build
+      =.  error.project
+        ?.  ?=(%| -.build-result)  ~
+        `(get-formatted-error p.build-result)
+      :_  state(projects (~(put by projects) project.act %&^project))
+      (make-contract-update /contract-project/(scot %t name.act) project)^~
     ::
         %delete-file
-      !!
+      ?~  proj=(~(get by projects) project.act)
+        ~|("%ziggurat: project does not exist" !!)
+      ?>  ?=(%& -.u.proj)
+      =*  project  p.u.proj
+      ?:  =(name.act project.act)
+        ::  can't delete the main file
+        ~|("%ziggurat: tried to delete the main file!" !!)
+      =.  libs.project  (~(del by libs.project) name.act)
+      ::  attempt to rebuild project
+      =/  =build-result  (build-contract-project smart-lib-vase project)
+      ::  only update compiled nock if successful build
+      =?  compiled.project  ?=(%& -.build-result)
+        `p.build-result
+      =?  p.state.project  ?=(%& -.build-result)
+        %+  put:big:mill  p.state.project
+        [designated-contract-id (make-contract-grain p.build-result)]
+      ::  set error to ~ if successful build
+      =.  error.project
+        ?.  ?=(%| -.build-result)  ~
+        `(get-formatted-error p.build-result)
+      :_  state(projects (~(put by projects) project.act %&^project))
+      (make-contract-update /contract-project/(scot %t name.act) project)^~
     ::
     ::  local chain state management
     ::
@@ -158,6 +209,9 @@
     ::  contract deployment to local/remote testnet
     ::
         %deploy-contract
+      ::  this will call %wallet agent with a custom constructed %publish call
+      ::  will fail if chosen testnet+town combo doesn't exist or doesn't have
+      ::  the publish.hoon contract deployed.
       !!
     ==
   --

@@ -5,17 +5,16 @@
 ::
 +$  projects  (map @t project)
 +$  project   (each contract-project app-project)
-+$  file      [name=@t text=@t]  ::  always .hoon files
 ::
 +$  app-project
   ~  ::  TODO later
 ::
 +$  contract-project
-  $:  main=file
-      libs=(list file)
+  $:  main=@t
+      libs=(map name=@t text=@t)
       compiled=(unit [bat=* pay=*])
-      imported=(list file)  ::  any other files to view but not compile
-      error=(unit compile-error)  ::  ~ means successfully compiled
+      imported=(map name=@t text=@t)  ::  any other files to view but not compile
+      error=(unit @t)  ::  ~ means successfully compiled
       state=land:mill
       =tests
   ==
@@ -33,7 +32,7 @@
 ::
 +$  template  ?(%fungible %nft %blank)
 ::
-+$  deploy-location  ?(%local testnet)
++$  deploy-location  [?(%local testnet) town-id=@ux]
 +$  testnet  ship
 ::
 ::  available actions. TODO actions for gall side
@@ -60,7 +59,7 @@
 ::
 +$  contract-update
   $:  compiled=?
-      error=(unit compile-error)
+      error=(unit @t)
       state=land:mill
       =tests
   ==
