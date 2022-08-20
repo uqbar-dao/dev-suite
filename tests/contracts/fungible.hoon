@@ -325,7 +325,7 @@
   =/  action
     :*  %mint
         id.p:token-mintable
-        ~[[id:caller-1 50 `id.p:account-1-mintable] [id:caller-2 10 `id.p:account-2-mintable]]
+        ~[[id:caller-1 `id.p:account-1-mintable 50] [id:caller-2 `id.p:account-2-mintable 10]]
     ==
   =/  shel=shell:smart
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
@@ -345,7 +345,7 @@
 ++  test-mint-unknown-receiver
   ^-  tang
   =/  action
-    [%mint id.p:token-mintable ~[[id:caller-3 50 ~]]]
+    [%mint id.p:token-mintable ~[[id:caller-3 ~ 50]]]
   =/  shel=shell:smart
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  expected=grain:smart
