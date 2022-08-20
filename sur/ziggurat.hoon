@@ -33,7 +33,7 @@
 ::
 +$  template  ?(%fungible %nft %blank)
 ::
-+$  deploy-location  [?(%local testnet) town-id=@ux]
++$  deploy-location  ?(%local testnet)
 +$  testnet  ship
 ::
 ::  available actions. TODO actions for gall side
@@ -48,13 +48,13 @@
           [%add-to-state =rice:smart]
           [%delete-from-state =id:smart]
           ::
-          [%add-test name=(unit @t) action=yolk:smart]  ::  name optional
+          [%add-test name=(unit @t) action=@t]  ::  name optional
           [%delete-test id=@ux]
-          [%edit-test id=@ux name=(unit @t) action=yolk:smart]
-          [%run-test gas=[rate=@ud bud=@ud] id=@ux]
-          [%run-tests tests=(list [id=@ux gas=[rate=@ud bud=@ud]])]  :: each one run with same gas
+          [%edit-test id=@ux name=(unit @t) action=@t]
+          [%run-test id=@ux rate=@ud bud=@ud]
+          [%run-tests tests=(list [id=@ux rate=@ud bud=@ud])]  :: each one run with same gas
           ::
-          [%deploy-contract =deploy-location]
+          [%deploy-contract =deploy-location town-id=@ux]
       ==
   ==
 ::

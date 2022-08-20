@@ -117,4 +117,50 @@
   %-  crip
   %+  weld  "syntax error on \{line col}: "
   (of-wall:format (wash [0 80] (snag 1 e)))
+::
+::  JSON parsing utils
+::
+++  tests-to-json
+  |=  =tests
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  %+  turn  ~(tap by tests)
+  |=  [id=@ux =test]
+  [(scot %ux id) (test-to-json)]
+::
+++  test-to-json
+  |=  =test
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :~  ['name' [%s ?~(name.test '' u.name.test)]]
+      ['action' [%s `@t`-.action.test]]
+      ['last_result' ?~(last-result.test ~ (granary-to-json p.land.u.last-result.test))]
+  ==
+::
+++  granary-to-json
+  |=  =granary:mill
+  ::
+  ::  ignoring/not printing nonces for now.
+  ::
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  %+  turn  ~(tap py:smart granary)
+  |=  [=id:smart merk=@ux =grain:smart]
+  ::  ignore contract nock -- just print metadata
+  :-  (scot %ux id)
+  %-  pairs
+  %+  welp
+    :~  ['lord' [%s (scot %ux lord.p.grain)]]
+        ['holder' [%s (scot %ux holder.p.grain)]]
+        ['town_id' [%s (scot %ux town-id.p.grain)]]
+    ==
+  ?.  ?=(%& -.grain)
+    ['contract' [%b %.y]]~
+  :~  ['salt' (numb salt.p.grain)]
+      ['label' [%s (scot %tas label.p.grain)]]
+      ['data' [%s (crip (noah !>(data.p.grain)))]]
+  ==
 --

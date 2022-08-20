@@ -183,6 +183,9 @@
     ::  local chain state management
     ::
         %add-to-state
+      ::  take text data input and ream to form data noun
+      =.  data.rice.act
+        q:(slap smart-lib-vase (ream ;;(@t data.rice.act)))
       ::  put a new grain in the granary
       =.  p.state.project
         %+  put:big:mill  p.state.project
@@ -202,9 +205,12 @@
         %add-test
       ::  generate an id for the test
       =/  test-id  `@ux`(mug now.bowl)
+      ::  ream action to form yolk
+      =+  q:(slap smart-lib-vase (ream action.act))
+      =/  =yolk:smart  [;;(@tas -.-) +.-]
       ::  put it in the project
       =.  tests.project
-        (~(put by tests.project) test-id [name.act action.act ~])
+        (~(put by tests.project) test-id [name.act yolk ~])
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -214,9 +220,12 @@
       state(projects (~(put by projects) project.act %&^project))
     ::
         %edit-test
+      ::  ream action to form yolk
+      =+  q:(slap smart-lib-vase (ream action.act))
+      =/  =yolk:smart  [;;(@tas -.-) +.-]
       ::  put it in the project
       =.  tests.project
-        (~(put by tests.project) id.act [name.act action.act ~])
+        (~(put by tests.project) id.act [name.act yolk ~])
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -228,7 +237,7 @@
         :*  caller
             ~
             designated-contract-id
-            rate.gas.act  bud.gas.act
+            rate.act  bud.act
             designated-town-id
             status=0
         ==
@@ -249,14 +258,14 @@
       ::  run tests IN SUCCESSION against SAME STATE
       =/  [eggs=(list [@ux egg:smart]) new-nonce=@ud]
         %^  spin  tests.act  caller-nonce.project
-        |=  [[id=@ux gas=[rate=@ud bud=@ud]] nonce=@ud]
+        |=  [[id=@ux rate=@ud bud=@ud] nonce=@ud]
         =/  =test  (~(got by tests.project) id)
         =/  caller  (designated-caller +(nonce))
         =/  =shell:smart
           :*  caller
               ~
               designated-contract-id
-              rate.gas  bud.gas
+              rate  bud
               designated-town-id
               status=0
           ==
