@@ -188,7 +188,7 @@
         [%ping ~]
       :_  this
       %-  fact-init-kick:io
-      :-  %atom
+      :-  %loob
       !>(`?`%.y)
     ::
         [%indexer-catchup ~]

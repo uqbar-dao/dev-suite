@@ -61,7 +61,7 @@ Enter these commands in dojo after following the setup instructions above:
 :sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608
 :indexer &set-sequencer [our %sequencer]
 :indexer &set-rollup [our %rollup]
-:uqbar|set-sources 0x0 our
+:uqbar|set-sources 0x0 ~[our]
 :wallet &zig-wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
 ```
 Note that the private key we're initializing the sequencer app with matches that of the seed phrase we're using in the wallet -- so you'll be the one collecting gas fees for transactions run through that local sequencer.
@@ -107,7 +107,7 @@ First make sure you're on the whitelist for the ship hosting the rollup simulato
 .smart-lib/noun +zig!mk-smart
 :indexer &set-sequencer [~zod %sequencer]
 :indexer &set-rollup [~zod %rollup]
-:uqbar|set-sources our 0x0 our
+:uqbar|set-sources 0x0 ~[our ~zod]
 ```
 ---
 

@@ -26,9 +26,9 @@
 ::
 +$  sources-ping-results
   %+  map  id:smart
-  $:  newest-up=(set dock)
-      newest-down=(set dock)
-      previous-up=(set dock)
+  $:  previous-up=(set dock)
       previous-down=(set dock)
+      newest-up=(set dock)
+      newest-down=(set dock)
   ==
 --
