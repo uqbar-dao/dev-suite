@@ -305,9 +305,29 @@
   |=  =path
   ^-  (unit (unit cage))
   ?.  =(%x -.path)  ~
+  =,  format
   ?+    +.path  (on-peek:def path)
-      [%path ~]
-    ``noun+!>(~)
+      [%project-nock @ ~]
+    ?~  project=(~(get by projects) (slav %t i.t.t.path))
+      ``noun+!>(~)
+    ?>  ?=(%& -.u.project)
+    ?~  compiled.p.u.project
+      ``noun+!>(~)
+    ``noun+!>(compiled.p.u.project)
+  ::
+      [%project-state @ ~]
+    ?~  project=(~(get by projects) (slav %t i.t.t.path))
+      ``noun+!>(~)
+    ?>  ?=(%& -.u.project)
+    =/  =json  (granary-to-json p.state.p.u.project)
+    ``json+!>(json)
+  ::
+      [%project-tests @ ~]
+    ?~  project=(~(get by projects) (slav %t i.t.t.path))
+      ``noun+!>(~)
+    ?>  ?=(%& -.u.project)
+    =/  =json  (tests-to-json tests.p.u.project)
+    ``json+!>(json)
   ==
 ::
 ++  on-leave  on-leave:def

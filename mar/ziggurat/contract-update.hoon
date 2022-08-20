@@ -1,4 +1,4 @@
-/-  *ziggurat
+/+  *ziggurat
 =,  enjs:format
 |_  upd=contract-update
 ++  grab

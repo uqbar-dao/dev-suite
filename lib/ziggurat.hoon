@@ -127,7 +127,7 @@
   %-  pairs
   %+  turn  ~(tap by tests)
   |=  [id=@ux =test]
-  [(scot %ux id) (test-to-json)]
+  [(scot %ux id) (test-to-json test)]
 ::
 ++  test-to-json
   |=  =test
@@ -135,7 +135,7 @@
   ^-  json
   %-  pairs
   :~  ['name' [%s ?~(name.test '' u.name.test)]]
-      ['action' [%s `@t`-.action.test]]
+      ['action' [%s (crip (noah !>(action.test)))]]
       ['last_result' ?~(last-result.test ~ (granary-to-json p.land.u.last-result.test))]
   ==
 ::
