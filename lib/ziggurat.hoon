@@ -48,6 +48,12 @@
 ::
 ::  utilities
 ::
+++  get-template
+  |=  [pat=path our=ship now=time]
+  ^-  @t
+  =/  pre=path  /(scot %p our)/zig/(scot %da now)/lib/zig/contracts
+  .^(@t %cx (weld pre pat))
+::
 ++  make-contract-update
   |=  [project=@t =contract-project]
   ^-  card
@@ -98,9 +104,10 @@
     ::  initial subject containing uHoon already generated
     ::  compose libraries flatly against uHoon subject
     =/  braw=(list hoon)
-      %+  turn  ~(tap by libs)
-      |=  [name=@t text=@t]
-      (ream text)
+      %+  turn  raw
+      |=  [face=term =path]
+      ~&  >>  (~(got by libs) `@t`face)
+      `hoon`[%ktts face (rain path (~(got by libs) `@t`face))]
     =/  libraries=hoon  [%clsg braw]
     =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun libraries)
     =/  payload=vase  (slap smart-lib libraries)

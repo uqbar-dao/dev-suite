@@ -90,15 +90,15 @@
       =/  [main=@t libs=(map @t @t)]
         ?-    template.act
             %blank
-          [blank:templates ~]
+          [(get-template /trivial/hoon [our now]:bowl) ~]
         ::
             %nft
-          :-  main:nft:templates
-          (malt ['lib' lib:nft:templates]~)
+          :-  (get-template /nft/hoon [our now]:bowl)
+          (malt ['nft' (get-template /lib/nft/hoon [our now]:bowl)]~)
         ::
             %fungible
-          :-  main:fungible:templates
-          (malt ['lib' lib:fungible:templates]~)
+          :-  (get-template /fungible/hoon [our now]:bowl)
+          (malt ['fungible' (get-template /lib/fungible/hoon [our now]:bowl)]~)
         ==
       =/  proj=contract-project
         :*  main  libs
