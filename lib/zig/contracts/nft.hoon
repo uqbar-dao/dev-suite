@@ -23,15 +23,14 @@
   ++  json
     ^-  ^json
     ?+    path  !!
-        [%nft @ ~]
-      =+  (need (scry (slav %ux i.t.path)))
-      =+  (husk nft:sur - ~ ~)
-      (nft:enjs:lib data.-)
-    ::
-        [%metadata @ ~]
-      =+  (need (scry (slav %ux i.t.path)))
-      =+  (husk metadata:sur - ~ ~)
-      (metadata:enjs:lib data.-)
+        [%inspect @ ~]
+      ?~  g=(scry (slav %ux i.t.path))  ~
+      ?.  ?=(%& -.u.g)  ~
+      ?^  item=((soft nft:sur:nft) data.p.u.g)
+        (nft:enjs:lib:nft u.item)
+      ?^  meta=((soft metadata:sur:nft) data.p.u.g)
+        (metadata:enjs:lib:nft u.meta)
+      ~
     ==
   ::
   ++  noun
