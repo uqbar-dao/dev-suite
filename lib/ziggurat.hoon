@@ -90,40 +90,56 @@
   ^-  build-result
   ::
   ::  adapted from compile-contract:conq
+  ::  this wacky design is to get a somewhat more helpful error print
   ::
   |^
-  (mule |.((compile main.proj libs.proj)))
+  =/  first  (mule |.((parse-main main.proj)))
+  ?:  ?=(%| -.first)
+    %|^(get-formatted-error (snoc p.first 'error parsing main:'))
+  =/  second  (mule |.((parse-libs -.p.first)))
+  ?:  ?=(%| -.second)
+    %|^(get-formatted-error (snoc p.second 'error parsing libraries:'))
+  =/  third  (mule |.((build-libs p.second)))
+  ?:  ?=(%| -.third)
+    %|^(get-formatted-error (snoc p.third 'error building libraries:'))
+  =/  fourth  (mule |.((build-main +.p.third +.p.first)))
+  ?:  ?=(%| -.fourth)
+    %|^(get-formatted-error (snoc p.fourth 'error building libraries:'))
+  %&^[bat=p.fourth pay=-.p.third]
   ::
-  ++  compile
-    |=  [main=@t libs=(map @t @t)]
-    ^-  [bat=* pay=*]
-    ::  parse contract code
-    ::  ignore raw libs
-    =/  [raw=(list [face=term =path]) contract-hoon=hoon]
-      (parse-pile:conq (trip main))
-    ::  initial subject containing uHoon already generated
-    ::  compose libraries flatly against uHoon subject
-    =/  braw=(list hoon)
-      %+  turn  raw
-      |=  [face=term =path]
-      ~&  >>  (~(got by libs) `@t`face)
-      `hoon`[%ktts face (rain path (~(got by libs) `@t`face))]
+  ++  parse-main  ::  first
+    |=  main=@t
+    ^-  [raw=(list [face=term =path]) contract-hoon=hoon]
+    (parse-pile:conq (trip main))
+  ::
+  ++  parse-libs  ::  second
+    |=  raw=(list [face=term =path])
+    ^-  (list hoon)
+    %+  turn  raw
+    |=  [face=term =path]
+    `hoon`[%ktts face (rain path (~(got by libs.proj) `@t`face))]
+  ::
+  ++  build-libs  ::  third
+    |=  braw=(list hoon)
+    ^-  [nok=* =vase]
     =/  libraries=hoon  [%clsg braw]
-    =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun libraries)
-    =/  payload=vase  (slap smart-lib libraries)
-    =/  cont  (~(mint ut p:(slop smart-lib payload)) %noun contract-hoon)
-    [bat=q.cont pay=full-nock]
+    :-  q:(~(mint ut p.smart-lib) %noun libraries)
+    (slap smart-lib libraries)
+  ::
+  ++  build-main  ::  fourth
+    |=  [payload=vase contract=hoon]
+    ^-  *
+    q:(~(mint ut p:(slop smart-lib payload)) %noun contract)
   --
 ::
 ++  get-formatted-error
   |=  e=(list tank)
-  ::
-  ::  TODO: get MORE error information!!!
-  ::
   ^-  @t
   %-  crip
-  %+  weld  "syntax error on \{line col}: "
-  (of-wall:format (wash [0 80] (snag 1 e)))
+  %-  zing
+  %+  turn  (flop e)
+  |=  =tank
+  (of-wall:format (wash [0 80] tank))
 ::
 ::  JSON parsing utils
 ::

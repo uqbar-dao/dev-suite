@@ -118,7 +118,7 @@
         %+  put:big:mill  p.state.proj
         [designated-contract-id (make-contract-grain p.build-result)]
       =?  error.proj  ?=(%| -.build-result)
-        `(get-formatted-error p.build-result)
+        `p.build-result
       :_  state(projects (~(put by projects) project.act %&^proj))
       (make-contract-update project.act proj)^~
     ::
@@ -156,7 +156,7 @@
       ::  set error to ~ if successful build
       =.  error.project
         ?.  ?=(%| -.build-result)  ~
-        `(get-formatted-error p.build-result)
+        `p.build-result
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -176,7 +176,7 @@
       ::  set error to ~ if successful build
       =.  error.project
         ?.  ?=(%| -.build-result)  ~
-        `(get-formatted-error p.build-result)
+        `p.build-result
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::

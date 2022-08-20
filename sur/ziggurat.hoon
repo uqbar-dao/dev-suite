@@ -21,8 +21,7 @@
       =tests
   ==
 ::
-+$  build-result   (each [bat=* pay=*] compile-error)
-+$  compile-error  (list tank)
++$  build-result   (each [bat=* pay=*] @t)
 ::
 +$  tests  (map @ux test)
 +$  test
