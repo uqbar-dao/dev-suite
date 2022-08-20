@@ -65,22 +65,22 @@
     ::  if grain isn't data, just skip
     $(grains-list t.grains-list)
   ::  determine type token/nft/unknown and store in book
-  =/  =asset  (discover-asset-mold town-id.p.grain data.p.grain)
+  =/  =asset  (discover-asset-mold town-id.p.grain lord.p.grain data.p.grain)
   %=  $
     grains-list  t.grains-list
     new-book  (~(put by new-book) id.p.grain asset)
   ==
 ::
 ++  discover-asset-mold
-  |=  [town=@ux data=*]
+  |=  [town=@ux contract=@ux data=*]
   ^-  asset
   =+  tok=((soft token-account) data)
   ?^  tok
-    [%token town metadata.u.tok u.tok]
+    [%token town metadata.u.tok contract u.tok]
   =+  nft=((soft nft) data)
   ?^  nft
-    [%nft town metadata.u.nft u.nft]
-  [%unknown town data]
+    [%nft town metadata.u.nft contract u.nft]
+  [%unknown town contract data]
 ::
 ++  update-metadata-store
   |=  [=book our=ship =metadata-store our=ship now=time]

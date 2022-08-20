@@ -61,6 +61,12 @@
     :_  this
     ~[[%give %fact ~ %zig-wallet-update !>([%new-book tokens.state])]]
   ::
+      [%metadata-updates ~]
+    ?>  =(src.bowl our.bowl)
+    ::  send frontend updates along this path
+    :_  this
+    ~[[%give %fact ~ %zig-wallet-update !>([%new-metadata metadata-store.state])]]
+  ::
       [%tx-updates ~]
     ?>  =(src.bowl our.bowl)
     ::  provide updates about submitted transactions
@@ -392,15 +398,14 @@
     =/  old-book=book  (~(gut by tokens.state) pub ~)
     =/  new-book=book
       (indexer-update-to-books update pub metadata-store.state)
+    =/  new-metadata=^metadata-store
+      (update-metadata-store new-book our.bowl metadata-store.state [our now]:bowl)
     =+  %+  ~(put by tokens.state)  pub
         (~(uni by old-book) new-book)
-    :-  ~[[%give %fact ~[/book-updates] %zig-wallet-update !>([%new-book -])]]
-    %=  this
-      tokens  -
-      ::
-        metadata-store
-      (update-metadata-store new-book our.bowl metadata-store.state [our now]:bowl)
-    ==
+    :-  :~  [%give %fact ~[/book-updates] %zig-wallet-update !>([%new-book -])]
+            [%give %fact ~[/metadata-updates] %zig-wallet-update !>([%new-metadata new-metadata])]
+        ==
+    this(tokens -, metadata-store new-metadata)
   ::
       ?([%indexer %id @ ~] [%indexer %id @ @ ~])
     ::  update to a transaction from a tracked account
@@ -416,17 +421,17 @@
       |=  [[hash=@ux [@da =egg-location:ui =egg:smart]] txs=_our-txs]
       ::  update status code and send to frontend
       ::  following error code spec in sur/wallet
+      =/  status  (add 200 `@`status.shell.egg)
+      ?>  ?=(transaction-status-code status)
       ^-  [card _our-txs]
       :-  ?~  this-tx=(~(get by sent.txs) hash)
             (tx-update-card hash egg [%custom (crip (text !>(yolk.egg)))])
-          (tx-update-card hash egg args.u.this-tx)
+          (tx-update-card hash egg(status.shell status) args.u.this-tx)
       %=    txs
           sent
         ?.  (~(has by sent.txs) hash)  sent.txs
         %+  ~(jab by sent.txs)  hash
         |=  [p=egg:smart q=supported-args]
-        =/  status  (add 200 `@`status.shell.egg)
-        ?>  ?=(transaction-status-code status)
         [p(status.shell status) q]
       ::
           ::  TODO update nonce for town if tx was rejected for bad nonce (code 3)
