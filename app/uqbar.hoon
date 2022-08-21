@@ -12,6 +12,7 @@
       max-ping-time=@dr
       next-ping-time=@da
       ping-tids=(map @ta (pair id:smart dock))
+      ping-time-fast-delay=@dr
       ping-timeout=@dr
       pings-timedout=(unit @da)
       sources=(jug id:smart dock)  ::  set of indexers for each town
@@ -36,12 +37,10 @@
   ::
   ++  on-init
     ^-  (quip card _this)
-    =.  min-ping-time   ~m15  ::  TODO: allow user to set?
-    =.  max-ping-time   ~h2   ::   Spam risk?
-    ::  TODO: remove (for testing)
-    =.  min-ping-time   ~s31    ::  TODO: allow user to set?
-    =.  max-ping-time   ~s45    ::   Spam risk?
-    =.  ping-timeout    ~s30
+    =.  min-ping-time         ~m15  ::  TODO: allow user to set?
+    =.  max-ping-time         ~h2   ::   Spam risk?
+    =.  ping-time-fast-delay  ~s5
+    =.  ping-timeout          ~s30
     `this
   ::
   ++  on-save  !>(state)
@@ -100,13 +99,23 @@
       ==
     [cards this]
     ::
+    ++  make-ping-rest-card
+      |=  old-next-ping-time=@da
+      ^-  card
+      %^  %~  arvo  pass:io
+          /start-indexer-ping/(scot %da old-next-ping-time)
+      %b  %rest  old-next-ping-time
+      :: %.  old-next-ping-time
+      :: %~  rest  pass:io
+      :: /start-indexer-ping/(scot %da old-next-ping-time)
+    ::
     ++  handle-action
       |=  act=action
       ^-  (quip card _state)
       ?-    -.act
           %add-source
         =/  faster-next-ping-time=@da
-          %+  add  ~s5  ::  TODO: unhardcode
+          %+  add  ping-time-fast-delay
           ?~(pings-timedout now.bowl u.pings-timedout)
         :-  :+  (make-ping-rest-card:uc next-ping-time)
               (make-ping-wait-card:uc faster-next-ping-time)
@@ -120,7 +129,7 @@
       ::
           %remove-source
         =/  faster-next-ping-time=@da
-          %+  add  ~s5  ::  TODO: unhardcode
+          %+  add  ping-time-fast-delay
           ?~(pings-timedout now.bowl u.pings-timedout)
         :-  :+  (make-ping-rest-card:uc next-ping-time)
               (make-ping-wait-card:uc faster-next-ping-time)
@@ -138,7 +147,7 @@
           %set-sources
         =/  p=path  /capitol-updates
         =/  faster-next-ping-time=@da
-          %+  add  ~s5  ::  TODO: unhardcode
+          %+  add  ping-time-fast-delay
           ?~(pings-timedout now.bowl u.pings-timedout)
         :-  :+  (make-ping-rest-card:uc next-ping-time)
               (make-ping-wait-card:uc faster-next-ping-time)
@@ -448,16 +457,6 @@
   %.  next-ping-time
   %~  wait  pass:io
   /start-indexer-ping/(scot %da next-ping-time)
-::
-++  make-ping-rest-card
-  |=  old-next-ping-time=@da
-  ^-  card
-  %^  %~  arvo  pass:io
-      /start-indexer-ping/(scot %da old-next-ping-time)
-  %b  %rest  old-next-ping-time
-  :: %.  old-next-ping-time
-  :: %~  rest  pass:io
-  :: /start-indexer-ping/(scot %da old-next-ping-time)
 ::
 ++  make-next-ping-time
   |=  [min-time=@dr max-time=@dr]
