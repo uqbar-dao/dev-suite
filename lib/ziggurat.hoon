@@ -143,6 +143,24 @@
 ::
 ::  JSON parsing utils
 ::
+++  contract-project-to-json
+  |=  p=contract-project
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :~  ['main' %s main.p]
+      :-  'libs'
+      %-  pairs
+      %+  turn  ~(tap by libs.p)
+      |=  [name=@t text=@t]
+      [name %s text]
+      ::  not sharing nock, can add later if desired
+      ::  not sharing imported either
+      ['error' %s ?~(error.p '' u.error.p)]
+      ['state' (granary-to-json p.state.p)]
+      ['tests' (tests-to-json tests.p)]
+  ==
+::
 ++  tests-to-json
   |=  =tests
   =,  enjs:format
@@ -157,9 +175,11 @@
   =,  enjs:format
   ^-  json
   %-  pairs
-  :~  ['name' [%s ?~(name.test '' u.name.test)]]
-      ['action' [%s (crip (noah !>(action.test)))]]
+  :~  ['name' %s ?~(name.test '' u.name.test)]
+      ['action' %s (crip (noah !>(action.test)))]
+      ['expected' ?~(expected.test ~ (rice-set-to-json u.expected.test))]
       ['last_result' ?~(last-result.test ~ (granary-to-json p.land.u.last-result.test))]
+      ['success' ?~(success.test ~ [%b u.success.test])]
   ==
 ::
 ++  granary-to-json
@@ -176,14 +196,31 @@
   :-  (scot %ux id)
   %-  pairs
   %+  welp
-    :~  ['lord' [%s (scot %ux lord.p.grain)]]
-        ['holder' [%s (scot %ux holder.p.grain)]]
-        ['town_id' [%s (scot %ux town-id.p.grain)]]
+    :~  ['lord' %s (scot %ux lord.p.grain)]
+        ['holder' %s (scot %ux holder.p.grain)]
+        ['town_id' %s (scot %ux town-id.p.grain)]
     ==
   ?.  ?=(%& -.grain)
-    ['contract' [%b %.y]]~
+    ['contract' %b %.y]~
   :~  ['salt' (numb salt.p.grain)]
-      ['label' [%s (scot %tas label.p.grain)]]
-      ['data' [%s (crip (noah !>(data.p.grain)))]]
+      ['label' %s (scot %tas label.p.grain)]
+      ['data' %s (crip (noah !>(data.p.grain)))]
+  ==
+::
+++  rice-set-to-json
+  |=  s=(set rice:smart)
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  %+  turn  ~(tap in s)
+  |=  =rice:smart
+  :-  (scot %ux id.rice)
+  %-  pairs
+  :~  ['lord' %s (scot %ux lord.rice)]
+      ['holder' %s (scot %ux holder.rice)]
+      ['town_id' %s (scot %ux town-id.rice)]
+      ['salt' (numb salt.rice)]
+      ['label' %s (scot %tas label.rice)]
+      ['data' %s (crip (noah !>(data.rice)))]
   ==
 --

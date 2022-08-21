@@ -12,13 +12,15 @@
     (process jon)
     ++  process
       %-  of
-      :~  [%new-contract-project (ot ~[[%template (se %tas)]])]
-          [%delete-project ~]
+      :~  [%project so]
+          [%new-contract-project (ot ~[[%template (se %tas)]])]
+          [%delete-project ul]
           [%save-file (ot ~[[%name so] [%text so]])]
           [%delete-file (ot ~[[%name so]])]
           [%add-to-state parse-rice]
           [%delete-from-state (ot ~[[%id (se %ux)]])]
           [%add-test (ot ~[[%name so:dejs-soft:format] [%action so]])]
+          [%add-test-expectations (ot ~[[%id (se %ux)] [%expected (as parse-rice)]])]
           [%delete-test (ot ~[[%id (se %ux)]])]
           [%edit-test (ot ~[[%id (se %ux)] [%name so:dejs-soft:format] [%action so]])]
           [%run-test parse-test]

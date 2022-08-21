@@ -210,7 +210,17 @@
       =/  =yolk:smart  [;;(@tas -.-) +.-]
       ::  put it in the project
       =.  tests.project
-        (~(put by tests.project) test-id [name.act yolk ~])
+        (~(put by tests.project) test-id [name.act yolk ~ ~ ~])
+      :-  (make-contract-update project.act project)^~
+      state(projects (~(put by projects) project.act %&^project))
+    ::
+        %add-test-expectations
+      ::  add/replace expected rice outputs
+      ?~  current=(~(get by tests.project) id.act)
+        ~|("%ziggurat: test does not exist" !!)
+      =.  tests.project
+        %+  ~(put by tests.project)  id.act
+        u.current(expected `expected.act, success ~)
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -223,9 +233,12 @@
       ::  ream action to form yolk
       =+  q:(slap smart-lib-vase (ream action.act))
       =/  =yolk:smart  [;;(@tas -.-) +.-]
-      ::  put it in the project
+      ::  get existing
       =.  tests.project
-        (~(put by tests.project) id.act [name.act yolk ~])
+        ?~  current=(~(get by tests.project) id.act)
+          (~(put by tests.project) id.act [name.act yolk ~ ~ ~])
+        %+  ~(put by tests.project)  id.act
+        [name.act yolk expected.u.current ~ ~]
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -247,6 +260,17 @@
             [caller designated-town-id mill-batch-num.project]
           state.project
         [[0 0 0] shell action.test]
+      ::  if test has expected results, go through list and check
+      ::  if grains match those in this output
+      =.  success.test
+        ?~  expected.test  ~
+        :-  ~
+        %+  levy  ~(tap in u.expected.test)
+        |=  =rice:smart
+        ?~  last-result.test  %.n
+        ?~  comp=(get:big:mill p.land.u.last-result.test id.rice)  %.n
+        ?.  ?=(%& -.u.comp)  %.n
+        =(p.u.comp rice)
       ::  save result in test, send update
       =.  tests.project  (~(put by tests.project) id.act test)
       :_  state(projects (~(put by projects) project.act %&^project))
@@ -256,6 +280,8 @@
     ::
         %run-tests
       ::  run tests IN SUCCESSION against SAME STATE
+      ::  note that this doesn't save last-result for each test,
+      ::  as results here will not reflect *just this test*
       =/  [eggs=(list [@ux egg:smart]) new-nonce=@ud]
         %^  spin  tests.act  caller-nonce.project
         |=  [[id=@ux rate=@ud bud=@ud] nonce=@ud]
@@ -307,6 +333,9 @@
   ?.  =(%x -.path)  ~
   =,  format
   ?+    +.path  (on-peek:def path)
+  ::
+  ::  NOUNS
+  ::
       [%project-nock @ ~]
     ?~  project=(~(get by projects) (slav %t i.t.t.path))
       ``noun+!>(~)
@@ -315,16 +344,28 @@
       ``noun+!>(~)
     ``noun+!>(compiled.p.u.project)
   ::
+  ::  JSONS
+  ::
+      [%all-projects ~]
+    =,  enjs
+    =;  =json  ``json+!>(json)
+    %-  pairs
+    %+  murn  ~(tap by projects)
+    |=  [name=@t =project]
+    ?:  ?=(%| -.project)  ~
+    :-  ~  :-  name
+    (contract-project-to-json p.project)
+  ::
       [%project-state @ ~]
     ?~  project=(~(get by projects) (slav %t i.t.t.path))
-      ``noun+!>(~)
+      ``json+!>(~)
     ?>  ?=(%& -.u.project)
     =/  =json  (granary-to-json p.state.p.u.project)
     ``json+!>(json)
   ::
       [%project-tests @ ~]
     ?~  project=(~(get by projects) (slav %t i.t.t.path))
-      ``noun+!>(~)
+      ``json+!>(~)
     ?>  ?=(%& -.u.project)
     =/  =json  (tests-to-json tests.p.u.project)
     ``json+!>(json)
