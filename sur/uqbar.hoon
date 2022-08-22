@@ -7,6 +7,7 @@
   $%  [%set-sources towns=(list [town-id=id:smart (set dock)])]
       [%add-source town-id=id:smart source=dock]
       [%remove-source town-id=id:smart source=dock]
+      [%set-wallet-source app-name=@tas]  ::  to plug in a third-party wallet app
   ==
 ::
 +$  write

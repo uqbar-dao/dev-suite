@@ -3,7 +3,8 @@
 ::  The "vane" for interacting with UQ|. Provides read/write layer for userspace agents.
 ::
 /-  spider,
-    ui=indexer
+    ui=indexer,
+    w=wallet
 /+  agentio,
     default-agent,
     dbug,
@@ -25,6 +26,7 @@
       indexer-sources=(jug id:smart dock)  ::  set of indexers for each town
       =indexer-sources-ping-results:u
       sequencers=(map id:smart sequencer:s)  ::  single sequencer for each town
+      wallet-source=@tas
   ==
 --
 ::
@@ -44,11 +46,14 @@
   ::
   ++  on-init
     ^-  (quip card _this)
-    =.  min-ping-time         ~m15  ::  TODO: allow user to set?
-    =.  max-ping-time         ~h2   ::   Spam risk?
-    =.  ping-time-fast-delay  ~s5
-    =.  ping-timeout          ~s30
-    `this
+    :-  ~
+    %=  this
+        min-ping-time         ~m15  ::  TODO: allow user to set?
+        max-ping-time         ~h2   ::   Spam risk?
+        ping-time-fast-delay  ~s5
+        ping-timeout          ~s30
+        wallet-source         %wallet
+    ==
   ::
   ++  on-save  !>(state)
   ++  on-load
@@ -97,12 +102,12 @@
     ^-  (quip card _this)
     |^
     ?>  =(src.bowl our.bowl)
-    ?.  ?=(?(%uqbar-action %uqbar-write) mark)
-      ~|("%uqbar: rejecting erroneous poke" !!)
     =^  cards  state
-      ?-  mark
-        %uqbar-action  (handle-action !<(action:u vase))
-        %uqbar-write   (handle-write !<(write:u vase))
+      ?+    mark  ~|("%uqbar: rejecting erroneous poke" !!)
+          %uqbar-action  (handle-action !<(action:u vase))
+          %uqbar-write   (handle-write !<(write:u vase))
+          %zig-wallet-poke
+        (handle-wallet-poke !<(wallet-poke:w vase))
       ==
     [cards this]
     ::
@@ -116,10 +121,21 @@
       :: %~  rest  pass:io
       :: /start-indexer-ping/(scot %da old-next-ping-time)
     ::
+    ++  handle-wallet-poke
+      |=  poke=wallet-poke:w
+      ^-  (quip card _state)
+      :_  state
+      :_  ~
+      %+  ~(poke-our pass:io /todo-wire)  wallet-source
+      [%zig-wallet-poke !>(`wallet-poke:w`poke)]
+    ::
     ++  handle-action
       |=  act=action:u
       ^-  (quip card _state)
       ?-    -.act
+          %set-wallet-source
+        `state(wallet-source app-name.act)
+      ::
           %add-source
         =/  faster-next-ping-time=@da
           %+  add  ping-time-fast-delay
@@ -129,7 +145,6 @@
             ~
         %=  state
             next-ping-time  faster-next-ping-time
-        ::
             indexer-sources
           (~(put ju indexer-sources) town-id.act source.act)
         ==
@@ -143,7 +158,6 @@
             ~
         %=  state
             next-ping-time  faster-next-ping-time
-        ::
             indexer-sources-ping-results
           ?^(pings-timedout ~ indexer-sources-ping-results)  :: TODO: can do better?
         ::
@@ -165,7 +179,6 @@
             `(~(watch pass:io p) -.indexers p)  ::  TODO: do better here
         %=  state
             next-ping-time  faster-next-ping-time
-        ::
             indexer-sources-ping-results
           ?^(pings-timedout ~ indexer-sources-ping-results)  :: TODO: can do better?
         ::
