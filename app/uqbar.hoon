@@ -75,7 +75,7 @@
     ++  watch-indexer  ::  TODO: use fallback better?
       |=  [town-id=id:smart wire-prefix=wire sub-path=^path]
       ^-  (list card)
-      ?~  source=(get-best-source town-id ~ %nu)
+      ?~  source=(get-best-source:uc town-id ~ %nu)
         ~&  >>>  "%uqbar: subscription failed:"
         ~&  >>>  " do not have indexer source for town {<town-id>}."
         ~&  >>>  " Add indexer source for town and try again."
