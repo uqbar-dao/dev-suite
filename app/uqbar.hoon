@@ -2,7 +2,8 @@
 ::
 ::  The "vane" for interacting with UQ|. Provides read/write layer for userspace agents.
 ::
-/-  ui=indexer
+/-  spider,
+    ui=indexer
 /+  agentio,
     default-agent,
     dbug,
@@ -197,15 +198,15 @@
           ~|("%uqbar: no known sequencer for that town" !!)
         =/  egg-hash  (scot %ux `@ux`(sham [shell yolk]:egg.write))
         :_  state
-        =+  [%sequencer-town-action !>([%receive (silt ~[egg.write])])]
+        =+  [%sequencer-town-action !>(`town-action:s`[%receive (silt ~[egg.write])])]
         :~  [%pass /submit-transaction/egg-hash %agent [q.u.seq %sequencer] %poke -]
-            [%give %fact ~[/track/egg-hash] %write-result !>([%sent ~])]
+            [%give %fact ~[/track/egg-hash] %write-result !>(`write-result:u`[%sent ~])]
         ==
       ::
           %receipt
         ::  forward to local watchers
         :_  state
-        ~[[%give %fact ~[/track/(scot %ux egg-hash.write)] %write-result !>(write)]]
+        ~[[%give %fact ~[/track/(scot %ux egg-hash.write)] %write-result !>(`write-result:u`write)]]
       ==
     --
   ::
@@ -368,7 +369,8 @@
             %+  turn  ~(tap by ping-tids)
             |=  [tid=@ta id:smart dock]
             :+    %+  ~(poke-our pass:io /pinger/[tid])
-                  %spider  [%spider-stop !>([tid %.y])]
+                    %spider
+                  [%spider-stop !>(`[@ta ?]`[tid %.y])]
               (~(leave-our pass:io /pinger/[tid]) %spider)
             ~
         %=  this
@@ -416,7 +418,7 @@
             '-'
             (scot %p p.d)
         ==
-      =/  start-args
+      =/  =start-args:spider
         :-  ~
         :^  `tid  byk.bowl(r da+now.bowl)
         %uqbar-pinger  !>(`dock`d)
@@ -427,8 +429,8 @@
           cards
         :+  %+  ~(watch-our pass:io /pinger/[tid])
             %spider  /thread-result/[tid]
-          %+  ~(poke-our pass:io /pinger/[tid])
-          %spider  [%spider-start !>(start-args)]
+          %+  ~(poke-our pass:io /pinger/[tid])  %spider
+          [%spider-start !>(`start-args:spider`start-args)]
         cards
       ==
     --
