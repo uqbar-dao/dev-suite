@@ -15,8 +15,8 @@
       ping-time-fast-delay=@dr
       ping-timeout=@dr
       pings-timedout=(unit @da)
-      sources=(jug id:smart dock)  ::  set of indexers for each town
-      =sources-ping-results
+      indexer-sources=(jug id:smart dock)  ::  set of indexers for each town
+      =indexer-sources-ping-results
       sequencers=(map id:smart sequencer)  ::  single sequencer for each town
   ==
 --
@@ -123,8 +123,8 @@
         %=  state
             next-ping-time  faster-next-ping-time
         ::
-            sources
-          (~(put ju sources) town-id.act source.act)
+            indexer-sources
+          (~(put ju indexer-sources) town-id.act source.act)
         ==
       ::
           %remove-source
@@ -137,11 +137,11 @@
         %=  state
             next-ping-time  faster-next-ping-time
         ::
-            sources-ping-results
-          ?^(pings-timedout ~ sources-ping-results)  :: TODO: can do better?
+            indexer-sources-ping-results
+          ?^(pings-timedout ~ indexer-sources-ping-results)  :: TODO: can do better?
         ::
-            sources
-          (~(del ju sources) town-id.act source.act)
+            indexer-sources
+          (~(del ju indexer-sources) town-id.act source.act)
         ==
       ::
           %set-sources
@@ -159,10 +159,10 @@
         %=  state
             next-ping-time  faster-next-ping-time
         ::
-            sources-ping-results
-          ?^(pings-timedout ~ sources-ping-results)  :: TODO: can do better?
+            indexer-sources-ping-results
+          ?^(pings-timedout ~ indexer-sources-ping-results)  :: TODO: can do better?
         ::
-            sources
+            indexer-sources
           (~(gas by *(map id:smart (set dock))) towns.act)
         ==
       ==
@@ -265,10 +265,10 @@
           ?:  =(*vase q.cage.sign)  `this  ::  thread canceled
           =*  town-id  p.u.source
           =*  d        q.u.source
-          =.  sources-ping-results
-            %+  ~(put by sources-ping-results)  town-id
+          =.  indexer-sources-ping-results
+            %+  ~(put by indexer-sources-ping-results)  town-id
             =/  [pu=(set dock) pd=(set dock) nu=(set dock) nd=(set dock)]
-              %+  ~(gut by sources-ping-results)  town-id
+              %+  ~(gut by indexer-sources-ping-results)  town-id
               [~ ~ ~ ~]
             :+  pu  pd
             ?:  !<(? q.cage.sign)  [(~(put in nu) d) nd]
@@ -338,8 +338,8 @@
         =.  next-ping-time
           %+  make-next-ping-time:uc  min-ping-time
           max-ping-time
-        =.  sources-ping-results
-          %-  ~(urn by sources-ping-results)
+        =.  indexer-sources-ping-results
+          %-  ~(urn by indexer-sources-ping-results)
           |=  $:  town-id=id:smart
                   previous-up=(set dock)
                   previous-down=(set dock)
@@ -368,12 +368,12 @@
         %=  this
             ping-tids       ~
             pings-timedout  ~
-            sources-ping-results
-          %-  ~(gas by sources-ping-results)
+            indexer-sources-ping-results
+          %-  ~(gas by indexer-sources-ping-results)
           %+  turn  ~(tap by ping-tids)
           |=  [@ta town-id=id:smart d=dock]
           =/  [pu=(set dock) pd=(set dock) nu=(set dock) nd=(set dock)]
-            %+  ~(gut by sources-ping-results)  town-id
+            %+  ~(gut by indexer-sources-ping-results)  town-id
             [~ ~ ~ ~]
           [town-id pu pd nu (~(put in nd) d)]
         ==
@@ -384,14 +384,14 @@
       ^-  (quip card _state)
       =|  cards=(list card)
       =|  tids=(list [@ta (pair id:smart dock)])
-      =/  all-sources=(list (pair id:smart dock))
+      =/  all-indexer-sources=(list (pair id:smart dock))
         %-  zing
-        %+  turn  ~(tap by sources)
+        %+  turn  ~(tap by indexer-sources)
         |=  [town-id=id:smart docks=(set dock)]
         %+  turn  ~(tap in docks)
         |=(d=dock [town-id d])
       |-
-      ?~  all-sources
+      ?~  all-indexer-sources
         =.  pings-timedout  `(add now.bowl ping-timeout)
         :_  state(ping-tids (~(gas by *_ping-tids) tids))
         ?>  ?=(^ pings-timedout)
@@ -399,8 +399,8 @@
             %~  wait  pass:io
             /ping-timeout/(scot %da u.pings-timedout)
         cards
-      =*  town-id  p.i.all-sources
-      =*  d        q.i.all-sources
+      =*  town-id  p.i.all-indexer-sources
+      =*  d        q.i.all-indexer-sources
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
@@ -415,8 +415,8 @@
         :^  `tid  byk.bowl(r da+now.bowl)
         %uqbar-pinger  !>(`dock`d)
       %=  $
-          all-sources  t.all-sources
-          tids         [[tid i.all-sources] tids]
+          all-indexer-sources  t.all-indexer-sources
+          tids  [[tid i.all-indexer-sources] tids]
       ::
           cards
         :+  %+  ~(watch-our pass:io /pinger/[tid])
@@ -481,8 +481,8 @@
 ++  get-best-source
   |=  [town-id=id:smart seen=(list @ud) level=?(%nu %nd %pu %pd %~)]
   ^-  (unit [p=dock q=(list @ud) r=?(%nu %nd %pu %pd %~)])
-  =+  town-spr=(~(get by sources-ping-results) town-id)
-  =+  town-s=(~(get ju sources) town-id)
+  =+  town-spr=(~(get by indexer-sources-ping-results) town-id)
+  =+  town-s=(~(get ju indexer-sources) town-id)
   ?~  town-spr
     =/  size-town-s=@ud  ~(wyt in town-s)
     ?:  =(0 size-town-s)  ~

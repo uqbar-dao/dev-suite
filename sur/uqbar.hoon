@@ -24,7 +24,7 @@
       [%nonce value=@ud]
   ==
 ::
-+$  sources-ping-results
++$  indexer-sources-ping-results
   %+  map  id:smart
   $:  previous-up=(set dock)
       previous-down=(set dock)
