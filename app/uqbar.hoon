@@ -198,15 +198,22 @@
           ~|("%uqbar: no known sequencer for that town" !!)
         =/  egg-hash  (scot %ux `@ux`(sham [shell yolk]:egg.write))
         :_  state
-        =+  [%sequencer-town-action !>(`town-action:s`[%receive (silt ~[egg.write])])]
-        :~  [%pass /submit-transaction/egg-hash %agent [q.u.seq %sequencer] %poke -]
-            [%give %fact ~[/track/egg-hash] %write-result !>(`write-result:u`[%sent ~])]
-        ==
+        :+  %+  ~(poke pass:io /submit-transaction/egg-hash)
+              [q.u.seq %sequencer]
+            :-  %sequencer-town-action
+            !>(`town-action:s`[%receive (silt ~[egg.write])])
+          %+  fact:io
+            [%write-result !>(`write-result:u`[%sent ~])]
+          ~[/track/egg-hash]
+        ~
       ::
           %receipt
         ::  forward to local watchers
         :_  state
-        ~[[%give %fact ~[/track/(scot %ux egg-hash.write)] %write-result !>(`write-result:u`write)]]
+        :_  ~
+        %+  fact:io
+          [%write-result !>(`write-result:u`write)]
+        ~[/track/(scot %ux egg-hash.write)]
       ==
     --
   ::
@@ -239,7 +246,11 @@
       =/  path  ~[/track/[i.t.wire]]
       :_  this
       ?~  p.sign  ~
-      [%give %fact path %write-result !>(`write-result:u`[%rejected src.bowl])]~
+      :_  ~
+      %+  fact:io
+        :-  %write-result
+        !>(`write-result:u`[%rejected src.bowl])
+      path
     ::
         %pinger
       ?.  ?=([@ ~] t.wire)
