@@ -3,7 +3,13 @@
 ::  The "vane" for interacting with UQ|. Provides read/write layer for userspace agents.
 ::
 /-  ui=indexer
-/+  *uqbar, *sequencer, default-agent, dbug, verb, agentio
+/+  agentio,
+    default-agent,
+    dbug,
+    verb,
+    s=sequencer,
+    smart=zig-sys-smart,
+    u=uqbar
 |%
 +$  card  card:agent:gall
 +$  state-0
@@ -16,8 +22,8 @@
       ping-timeout=@dr
       pings-timedout=(unit @da)
       indexer-sources=(jug id:smart dock)  ::  set of indexers for each town
-      =indexer-sources-ping-results
-      sequencers=(map id:smart sequencer)  ::  single sequencer for each town
+      =indexer-sources-ping-results:u
+      sequencers=(map id:smart sequencer:s)  ::  single sequencer for each town
   ==
 --
 ::
@@ -94,8 +100,8 @@
       ~|("%uqbar: rejecting erroneous poke" !!)
     =^  cards  state
       ?-  mark
-        %uqbar-action  (handle-action !<(action vase))
-        %uqbar-write   (handle-write !<(write vase))
+        %uqbar-action  (handle-action !<(action:u vase))
+        %uqbar-write   (handle-write !<(write:u vase))
       ==
     [cards this]
     ::
@@ -110,7 +116,7 @@
       :: /start-indexer-ping/(scot %da old-next-ping-time)
     ::
     ++  handle-action
-      |=  act=action
+      |=  act=action:u
       ^-  (quip card _state)
       ?-    -.act
           %add-source
@@ -168,7 +174,7 @@
       ==
     ::
     ++  handle-write
-      |=  =write
+      |=  =write:u
       ^-  (quip card _state)
       ?-    -.write
       ::
@@ -215,7 +221,7 @@
       ::
           %fact
         =^  cards  state
-          (update-sequencers !<(capitol-update q.cage.sign))
+          (update-sequencers !<(capitol-update:s q.cage.sign))
         [cards this]
       ==
     ::
@@ -232,7 +238,7 @@
       =/  path  ~[/track/[i.t.wire]]
       :_  this
       ?~  p.sign  ~
-      [%give %fact path %write-result !>(`write-result`[%rejected src.bowl])]~
+      [%give %fact path %write-result !>(`write-result:u`[%rejected src.bowl])]~
     ::
         %pinger
       ?.  ?=([@ ~] t.wire)
@@ -311,13 +317,13 @@
       `[[s.wex t.wex] p.wex]
     ::
     ++  update-sequencers
-      |=  upd=capitol-update
+      |=  upd=capitol-update:s
       ^-  (quip card _state)
       :-  ~
       %=    state
           sequencers
         %-  ~(run by capitol.upd)
-        |=(=hall sequencer.hall)
+        |=(=hall:s sequencer.hall)
       ==
     --
   ::
