@@ -76,10 +76,10 @@
   ^-  asset
   =+  tok=((soft token-account) data)
   ?^  tok
-    [%token town metadata.u.tok contract u.tok]
+    [%token town contract metadata.u.tok u.tok]
   =+  nft=((soft nft) data)
   ?^  nft
-    [%nft town metadata.u.nft contract u.nft]
+    [%nft town contract metadata.u.nft u.nft]
   [%unknown town contract data]
 ::
 ++  update-metadata-store
