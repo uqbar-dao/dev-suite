@@ -68,6 +68,9 @@
 ::
 ::    ## Subscription paths
 ::
+::    /batch-order/[town-id=@ux]:
+::      A stream of batch ids.
+::      Reply on-watch in historical batch-order.
 ::    /grain/[grain-id=@ux]
 ::    /grain/[town-id=@ux]/[grain-id=@ux]:
 ::      A stream of changes to given grain.
@@ -176,18 +179,6 @@
     |=  =path
     ^-  (quip card _this)
     ?+    path  (on-watch:def path)
-        ?([%hash @ ~] [%hash @ @ ~])
-      :_  this
-      =/  =query-payload:ui
-        ?:  ?=([@ @ ~] path)  (slav %ux i.t.path)
-        ?>  ?=([@ @ @ ~] path)
-        [(slav %ux i.t.path) (slav %ux i.t.t.path)]
-      ?~  update=(get-hashes query-payload %.n)  ~
-      :_  ~
-      %-  fact:io
-      :_  ~
-      [%indexer-update !>(`update:ui`update)]
-    ::
         [%ping ~]
       :_  this
       %-  fact-init-kick:io
@@ -207,6 +198,18 @@
       :_  ~
       :-  %sequencer-capitol-update
       !>(`capitol-update:seq`[%new-capitol capitol])
+    ::
+        ?([%hash @ ~] [%hash @ @ ~])
+      :_  this
+      =/  =query-payload:ui
+        ?:  ?=([@ @ ~] path)  (slav %ux i.t.path)
+        ?>  ?=([@ @ @ ~] path)
+        [(slav %ux i.t.path) (slav %ux i.t.t.path)]
+      ?~  update=(get-hashes query-payload %.n)  ~
+      :_  ~
+      %-  fact:io
+      :_  ~
+      [%indexer-update !>(`update:ui`update)]
     ::
         ?([%id @ ~] [%id @ @ ~])
       :_  this
