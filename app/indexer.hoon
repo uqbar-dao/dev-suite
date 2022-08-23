@@ -191,6 +191,16 @@
       :-  %indexer-catchup
       !>(`versioned-state:ui`-.state)
     ::
+        [%batch-order @ ~]
+      :_  this
+      =/  town-id=@ux  (slav %ux i.t.path)
+      :_  ~
+      %-  fact:io
+      :_  ~
+      :-  %indexer-update
+      ?~  bs=(~(get by batches-by-town) town-id)  !>(~)
+      !>(`update:ui`[%batch-order batch-order.u.bs])
+    ::
         [%capitol-updates ~]
       :_  this
       :_  ~
@@ -246,7 +256,8 @@
     |=  =path
     ^-  (quip card _this)
     ?+    path  (on-leave:def path)
-        $?  [%grain *]
+        $?  [%batch-order @ ~]
+            [%grain *]
             [%hash *]
             :: [%grain-eggs *]
             [%holder *]
@@ -912,8 +923,8 @@
           timestamp=@da
           should-update-subs=?
       ==
-  |^  ^-  (quip card _state)
   =*  town-id  town-id.hall.town
+  |^  ^-  (quip card _state)
   =+  ^=  [egg from grain holder lord to]
       (parse-batch root town-id eggs land.town)
   =:  egg-index         (gas-ja-egg egg-index egg town-id)
@@ -1008,6 +1019,10 @@
     =/  sub-paths=(jug @tas path)
       make-sub-paths
     |^
+    :-  %-  fact:io
+        :_  ~[/batch-order/(scot %ux town-id)]
+        :-  %indexer-update
+        !>(`update:ui`[%batch-order ~[root]])
     %-  zing
     :~  (make-sub-cards %from %id)
         (make-sub-cards %to %id)
