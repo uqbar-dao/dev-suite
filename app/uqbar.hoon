@@ -217,7 +217,7 @@
             !>(`town-action:s`[%receive (silt ~[egg.write])])
           %+  fact:io
             [%write-result !>(`write-result:u`[%sent ~])]
-          ~[/track/egg-hash]
+          ~[/track/[egg-hash]]
         ~
       ::
           %receipt
