@@ -28,6 +28,9 @@
         %batch
       (frond %batch (batches batches.update))
     ::
+        %batch-order
+      (frond %batch-order (batch-order batch-order.update))
+    ::
         %egg
       (frond %egg (eggs eggs.update))
     ::
@@ -316,9 +319,6 @@
   ++  batch-order
     |=  =batch-order:ui
     ^-  json
-    %-  pairs
-    :_  ~
-    :-  %batch-order
     :-  %a
     %+  turn  batch-order
     |=  batch-root=id:smart

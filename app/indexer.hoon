@@ -294,17 +294,18 @@
     ::
         [%batch-order @ ~]
       =/  town-id=@ux  (slav %ux i.t.args)
-      :^  ~  ~  %indexer-batch-order
+      :^  ~  ~  %indexer-update
       ?~  bs=(~(get by batches-by-town) town-id)  !>(~)
-      !>(`batch-order:ui`batch-order.u.bs)
+      !>(`update:ui`[%batch-order batch-order.u.bs])
     ::
         [%batch-order @ @ @ ~]
       =/  [town-id=@ux nth-most-recent=@ud how-many=@ud]
         :+  (slav %ux i.t.args)  (slav %ud i.t.t.args)
         (slav %ud i.t.t.t.args)
-      :^  ~  ~  %indexer-batch-order
+      :^  ~  ~  %indexer-update
       ?~  bs=(~(get by batches-by-town) town-id)  !>(~)
-      !>  ^-  batch-order:ui
+      !>  ^-  update:ui
+      :-  %batch-order
       (swag [nth-most-recent how-many] batch-order.u.bs)
     ==
     ::

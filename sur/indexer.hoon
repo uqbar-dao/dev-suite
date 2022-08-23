@@ -85,6 +85,7 @@
 +$  update
   $@  ~
   $%  [%batch batches=(map batch-id=id:smart [timestamp=@da location=town-location =batch])]
+      [%batch-order =batch-order]
       [%egg eggs=(map egg-id=id:smart [timestamp=@da location=egg-location =egg:smart])]
       [%grain grains=(jar grain-id=id:smart [timestamp=@da location=batch-location =grain:smart])]
       $:  %hash
