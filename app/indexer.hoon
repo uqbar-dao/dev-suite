@@ -72,8 +72,8 @@
 ::    /grain/[town-id=@ux]/[grain-id=@ux]:
 ::      A stream of changes to given grain.
 ::      Reply on-watch is entire grain history.
-::    :: /hash/[@ux]:  ::  TODO: implement
-::    ::   A stream of new activity of given id.
+::    /hash/[@ux]:
+::      A stream of new activity of given id.
 ::    /holder/[holder-id=@ux]
 ::    /holder/[town-id=@ux]/[holder-id=@ux]:
 ::      A stream of new activity of given holder.
@@ -176,14 +176,17 @@
     |=  =path
     ^-  (quip card _this)
     ?+    path  (on-watch:def path)
-      ::   [%hash @ ~]
-      :: :_  this
-      :: =/  hash=@ux  (slav %ux i.t.path)
-      :: ?~  update=(get-hashes hash)  ~
-      :: :_  ~
-      :: %-  fact:io
-      :: :_  ~
-      :: [%indexer-update !>(`update:ui`update)]
+        ?([%hash @ ~] [%hash @ @ ~])
+      :_  this
+      =/  =query-payload:ui
+        ?:  ?=([@ @ ~] path)  (slav %ux i.t.path)
+        ?>  ?=([@ @ @ ~] path)
+        [(slav %ux i.t.path) (slav %ux i.t.t.path)]
+      ?~  update=(get-hashes query-payload %.n)  ~
+      :_  ~
+      %-  fact:io
+      :_  ~
+      [%indexer-update !>(`update:ui`update)]
     ::
         [%ping ~]
       :_  this
@@ -241,7 +244,7 @@
     ^-  (quip card _this)
     ?+    path  (on-leave:def path)
         $?  [%grain *]
-            :: [%hash @ ~]
+            [%hash *]
             :: [%grain-eggs *]
             [%holder *]
             [%id *]
@@ -1002,8 +1005,7 @@
       make-sub-paths
     |^
     %-  zing
-    :~  :: (make-sub-cards %batch %batch)
-        (make-sub-cards %from %id)
+    :~  (make-sub-cards %from %id)
         (make-sub-cards %to %id)
         (make-sub-cards %grain %grain)
         (make-sub-cards %holder %holder)
@@ -1025,7 +1027,7 @@
       ?~  update  ~
       :-  ~
       %+  fact:io  [%indexer-update !>(`update:ui`update)]
-      ~[[path-type sub-path]]
+      ~[[path-type sub-path] [%hash sub-path]]
     --
   ::
   ++  parse-batch
@@ -1097,8 +1099,7 @@
     =|  parsed-to=(list [@ux second-order-location:ui])
     =/  egg-num=@ud  0
     |-
-    ?~  txs
-      [parsed-egg parsed-from parsed-to]
+    ?~  txs  [parsed-egg parsed-from parsed-to]
     =*  egg-hash     -.i.txs
     =*  egg          +.i.txs
     =*  to           to.shell.egg
