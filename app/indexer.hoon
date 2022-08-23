@@ -10,9 +10,9 @@
 ::
 ::    ## Scry paths
 ::
-::    Most scry paths accepts one or two `@ux` arguments.
+::    Most scry paths accept one or two `@ux` arguments.
 ::    A single argument is interpreted as the hash of the
-::    queried item (e.g., for a `/grain query, the `grain-id`).
+::    queried item (e.g., for a `/grain` query, the `grain-id`).
 ::    For two arguments, the first is interpreted as the
 ::    `town-id` in which to query for the second, the item hash.
 ::    In other words, two arguments restricts the query to
