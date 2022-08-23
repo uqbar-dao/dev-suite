@@ -73,8 +73,12 @@
     ?>  =(src.bowl our.bowl)
     :_  this
     ?+    -.path  !!
-        %track
-      ~
+        %track  ~
+        %wallet
+      ::  must be of the form, e.g.,
+      ::   /wallet/*-updates
+      ?.  ?=([%wallet @ ~] path)  ~
+      (watch-wallet /[i.path] t.path)
     ::
         %indexer
       ::  must be of the form, e.g.,
@@ -83,6 +87,13 @@
       =/  town-id=id:smart  (slav %ux i.t.t.path)
       (watch-indexer town-id /[i.path] t.path)
     ==
+    ::
+    ++  watch-wallet
+      |=  [wire-prefix=wire sub-path=^path]
+      ^-  (list card)
+      :_  ~
+      %+  ~(watch-our pass:io (weld wire-prefix sub-path))
+      wallet-source  sub-path
     ::
     ++  watch-indexer  ::  TODO: use fallback better?
       |=  [town-id=id:smart wire-prefix=wire sub-path=^path]
@@ -122,12 +133,12 @@
       :: /start-indexer-ping/(scot %da old-next-ping-time)
     ::
     ++  handle-wallet-poke
-      |=  poke=wallet-poke:w
+      |=  =wallet-poke:w
       ^-  (quip card _state)
       :_  state
       :_  ~
       %+  ~(poke-our pass:io /todo-wire)  wallet-source
-      [%zig-wallet-poke !>(`wallet-poke:w`poke)]
+      [%zig-wallet-poke !>(`wallet-poke:w`wallet-poke)]
     ::
     ++  handle-action
       |=  act=action:u
@@ -469,11 +480,17 @@
     ?.  =(%x -.path)  ~
     ?+    +.path  (on-peek:def path)
         ::  TODO: scry contract interface/data from sequencer?
-        ::  TODO: scry wallet?
         [%indexer *]
-      :^  ~  ~  %noun
+      :^  ~  ~  %noun  ::  TODO: %noun -> %indexer-update?
       !>  ^-  update:ui
       .^(update:ui %gx (scry:io %indexer (snoc t.t.path %noun)))
+    ::
+    ::  TODO: scry wallet?
+    ::   first need unified type to cast with scry
+    ::     [%wallet *]
+    ::   :^  ~  ~  %noun
+    ::   !>  ^-  update:ui
+    ::   .^(update:ui %gx (scry:io %indexer (snoc t.t.path %noun)))
     ==
   ::
   ++  on-leave  on-leave:def
