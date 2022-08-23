@@ -75,7 +75,7 @@
     |=  [=id:smart timestamp=@da location=town-location:ui b=batch:ui]
     :-  (scot %ux id)
     %-  pairs
-    :^    [%timestamp (time timestamp)]
+    :^    [%timestamp (sect timestamp)]
         [%location (town-location location)]
       [%batch (batch b)]
     ~
@@ -107,7 +107,7 @@
     |=  [=id:smart timestamp=@da location=egg-location:ui e=egg:smart]
     :-  (scot %ux id)
     %-  pairs
-    :^    [%timestamp (time timestamp)]
+    :^    [%timestamp (sect timestamp)]
         [%location (egg-location location)]
       [%egg (egg e)]
     ~
@@ -185,7 +185,7 @@
     %+  turn  gs
     |=  [timestamp=@da location=batch-location:ui g=grain:smart]
     %-  pairs
-    :^    [%timestamp (time timestamp)]
+    :^    [%timestamp (sect timestamp)]
         [%location (batch-location location)]
       [%grain (grain g)]
     ~
