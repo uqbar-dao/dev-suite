@@ -273,20 +273,31 @@
   ++  on-peek
     |=  =path
     ^-  (unit (unit cage))
-    ?>  ?=(?([@ @ @ ~] [@ @ @ @ ~] [@ @ @ @ @ ~]) path)
+    ?.  ?=(?([@ @ @ ~] [@ @ @ @ ~] [@ @ @ @ @ ~]) path)
+      :^  ~  ~  %indexer-update
+      !>(`update:ui`[%path-does-not-exist ~])
     =/  only-newest=?  ?=(%newest i.t.path)
     =/  args=^path  ?.(only-newest t.path t.t.path)
     |^
-    ?+    args  (on-peek:def path)
+    ?+    args  :^  ~  ~  %indexer-update
+                !>(`update:ui`[%path-does-not-exist ~])
         ?([%hash @ ~] [%hash @ @ ~])
-      =/  =query-payload:ui  read-query-payload-from-args
+      =/  query-payload=(unit query-payload:ui)
+        read-query-payload-from-args
+      ?~  query-payload
+        :^  ~  ~  %indexer-update
+        !>(`update:ui`[%path-does-not-exist ~])
       :^  ~  ~  %indexer-update
-      !>(`update:ui`(get-hashes query-payload only-newest))
+      !>(`update:ui`(get-hashes u.query-payload only-newest))
     ::
         ?([%id @ ~] [%id @ @ ~])
-      =/  =query-payload:ui  read-query-payload-from-args
+      =/  query-payload=(unit query-payload:ui)
+        read-query-payload-from-args
+      ?~  query-payload
+        :^  ~  ~  %indexer-update
+        !>(`update:ui`[%path-does-not-exist ~])
       :^  ~  ~  %indexer-update
-      !>(`update:ui`(get-ids query-payload only-newest))
+      !>(`update:ui`(get-ids u.query-payload only-newest))
     ::
         $?  [%batch @ ~]       [%batch @ @ ~]
             [%egg @ ~]         [%egg @ @ ~]
@@ -298,13 +309,15 @@
             [%to @ ~]          [%to @ @ ~]
             [%town @ ~]        [%town @ @ ~]
         ==
-      =/  =query-type:ui
-        ?>  ?=(?([@ @ ~] [@ @ @ ~]) args)
-        ;;(query-type:ui i.args)
-      =/  =query-payload:ui  read-query-payload-from-args
+      =/  =query-type:ui  ;;(query-type:ui i.args)
+      =/  query-payload=(unit query-payload:ui)
+        read-query-payload-from-args
+      ?~  query-payload
+        :^  ~  ~  %indexer-update
+        !>(`update:ui`[%path-does-not-exist ~])
       :^  ~  ~  %indexer-update
       !>  ^-  update:ui
-      (serve-update query-type query-payload only-newest)
+      (serve-update query-type u.query-payload only-newest)
     ::
         [%batch-order @ ~]
       =/  town-id=@ux  (slav %ux i.t.args)
@@ -324,10 +337,10 @@
     ==
     ::
     ++  read-query-payload-from-args
-      ^-  query-payload:ui  ::  TODO: change to unit?
-      ?:  ?=([@ @ ~] args)  (slav %ux i.t.args)
-      ?>  ?=([@ @ @ ~] args)
-      [(slav %ux i.t.args) (slav %ux i.t.t.args)]
+      ^-  (unit query-payload:ui)
+      ?:  ?=([@ @ ~] args)  `(slav %ux i.t.args)
+      ?.  ?=([@ @ @ ~] args)  ~
+      `[(slav %ux i.t.args) (slav %ux i.t.t.args)]
     --
   ::
   ++  on-agent
@@ -715,7 +728,7 @@
     ?.  only-newest  get-batch
     |=([town-id=id:smart @] (get-newest-batch town-id))
   |^
-  ?+    query-type  !!
+  ?+    query-type  ~
       %batch
     get-batch-update
   ::
@@ -773,7 +786,7 @@
     ?.  ?=(?(@ [@ @]) query-payload)  ~
     =/  locations=(list location:ui)  get-locations
     |^
-    ?+    query-type  !!
+    ?+    query-type  ~
         %grain
       get-grain
     ::
@@ -789,7 +802,6 @@
       =|  grains=(jar grain-id=id:smart [@da batch-location:ui grain:smart])
       =/  grain-id=id:smart
         ?:  ?=([@ @] query-payload)  +.query-payload
-        ?>  ?=(@ query-payload)
         query-payload
       =.  locations
         ?:(only-newest locations (flop locations))

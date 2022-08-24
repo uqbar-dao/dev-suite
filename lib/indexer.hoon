@@ -25,6 +25,9 @@
     ^-  json
     ?~  update  ~
     ?-    -.update
+        %path-does-not-exist
+      (frond %path-does-not-exist ~)
+    ::
         %batch
       (frond %batch (batches batches.update))
     ::

@@ -481,7 +481,7 @@
     ?+    +.path  (on-peek:def path)
         ::  TODO: scry contract interface/data from sequencer?
         [%indexer *]
-      :^  ~  ~  %noun  ::  TODO: %noun -> %indexer-update?
+      :^  ~  ~  %indexer-update
       !>  ^-  update:ui
       .^(update:ui %gx (scry:io %indexer (snoc t.t.path %noun)))
     ::
