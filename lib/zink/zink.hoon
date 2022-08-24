@@ -466,10 +466,11 @@
     ::                                                                       ::
     ::  list                                                                 ::
     ::                                                                       ::
-        %turn
-      ::  TODO: determine how best to validate complex jet inputs
-      ::  this will crash if the input is bad.
-      %&^(some (slum turn sam))
+      ::  this one actually fails, so really need to find a better way.
+      ::    %turn
+      ::  ::  TODO: determine how best to validate complex jet inputs
+      ::  ::  this will crash if the input is bad.
+      ::  %&^(some (slum turn sam))
     ::                                                                       ::
     ::  sha                                                                  ::
     ::                                                                       ::
