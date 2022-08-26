@@ -34,7 +34,7 @@
       %-  ot
       :~  [%from (se %ux)]
           [%to (se %ux)]
-          [%town ni]
+          [%town (se %ux)]
           [%gas (ot ~[[%rate ni] [%bud ni]])]
           [%yolk (se %t)]
       ==
@@ -42,7 +42,7 @@
       %-  ot
       :~  [%from (se %ux)]
           [%to (se %ux)]
-          [%town ni]
+          [%town (se %ux)]
           [%gas (ot ~[[%rate ni] [%bud ni]])]
           [%args parse-args]
       ==
