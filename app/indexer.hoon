@@ -185,6 +185,16 @@
       :-  %loob
       !>(`?`%.y)
     ::
+        $?  [%batch-order @ %no-init ~]
+            [%hash @ %no-init ~]    [%hash @ @ %no-init ~]
+            [%id @ %no-init ~]      [%id @ @ %no-init ~]
+            [%grain @ %no-init ~]   [%grain @ @ %no-init ~]
+            [%holder @ %no-init ~]  [%holder @ @ %no-init ~]
+            [%lord @ %no-init ~]    [%lord @ @ %no-init ~]
+            [%town @ %no-init ~]    [%town @ @ %no-init ~]
+        ==
+      `this
+    ::
         [%indexer-catchup ~]
       :_  this
       %-  fact-init-kick:io
@@ -256,7 +266,7 @@
     |=  =path
     ^-  (quip card _this)
     ?+    path  (on-leave:def path)
-        $?  [%batch-order @ ~]
+        $?  [%batch-order *]
             [%grain *]
             [%hash *]
             :: [%grain-eggs *]
@@ -1022,8 +1032,9 @@
     %+  murn  ~(val by sup.bowl)
     |=  [ship sub-path=path]
     ^-  (unit [@tas path])
-    ?@  sub-path                                          ~
-    ?.  ?=(?(%id %grain %holder %lord %town) i.sub-path)  ~
+    ?~  sub-path  ~
+    ?.  ?=(?(%hash %id %grain %holder %lord %town) i.sub-path)
+      ~
     `[`@tas`i.sub-path t.sub-path]
   ::
   ++  make-all-sub-cards
@@ -1031,34 +1042,59 @@
     =/  sub-paths=(jug @tas path)
       make-sub-paths
     |^
-    :-  %-  fact:io
-        :_  ~[/batch-order/(scot %ux town-id)]
+    :-  %+  fact:io
         :-  %indexer-update
         !>(`update:ui`[%batch-order ~[root]])
+        %+  expand-paths  %no-init
+        ~[/batch-order/(scot %ux town-id)]
+    ?:  ?&  =(1 ~(wyt by sub-paths))
+            (~(has by sub-paths) %hash)
+        ==
+      (make-sub-cards %hash)
     %-  zing
-    :~  (make-sub-cards %from %id)
-        (make-sub-cards %to %id)
-        (make-sub-cards %grain %grain)
-        (make-sub-cards %holder %holder)
-        (make-sub-cards %lord %lord)
-        (make-sub-cards %town %town)
+    :~  (make-sub-cards %id)
+        (make-sub-cards %grain)
+        (make-sub-cards %holder)
+        (make-sub-cards %lord)
+        (make-sub-cards %town)
     ==
     ::
     ++  make-sub-cards
-      |=  [=query-type:ui path-type=@tas]
+      |=  query-type=?(%id query-type:ui)
       ^-  (list card)
-      %+  murn  ~(tap in (~(get ju sub-paths) path-type))
+      %+  murn  ~(tap in (~(get ju sub-paths) query-type))
       |=  sub-path=path
+      ~&  sub-path
       =/  payload=?(@ux [@ux @ux])
-        ?:  ?=([@ ~] sub-path)  (slav %ux i.sub-path)
-        ?>  ?=([@ @ ~] sub-path)
+        ?:  ?=(?([@ ~] [@ %no-init ~]) sub-path)
+          (slav %ux i.sub-path)
+        ?>  ?=(?([@ @ ~] [@ @ %no-init ~]) sub-path)
         [(slav %ux i.sub-path) (slav %ux i.t.sub-path)]
       =/  =update:ui
-        (serve-update query-type payload %.y)
+        ?+    query-type  !!
+            %hash  (get-hashes payload %.y)
+            %id    (get-ids payload %.y)
+            ?(%grain %holder %lord %town)
+          (serve-update query-type payload %.y)
+        ==
       ?~  update  ~
+      ~&  %+  expand-paths  %no-init
+          ~[[query-type sub-path] [%hash sub-path]]
       :-  ~
       %+  fact:io  [%indexer-update !>(`update:ui`update)]
-      ~[[path-type sub-path] [%hash sub-path]]
+      %+  expand-paths  %no-init
+      ?:  ?=(%hash query-type)  ~[[query-type sub-path]]
+      ~[[query-type sub-path] [%hash sub-path]]
+    ::
+    ++  expand-paths
+      |=  [appendend=@tas paths=(list path)]
+      ^-  (list path)
+      %+  roll  paths
+      |=  [p=path out=(list path)]
+      ?:  =(appendend (rear p))
+        ?~  snipped=(snip p)  [p out]
+        [snipped [p out]]
+      [p [(snoc p appendend) out]]
     --
   ::
   ++  parse-batch

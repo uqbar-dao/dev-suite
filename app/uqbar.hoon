@@ -137,7 +137,7 @@
       ^-  (quip card _state)
       :_  state
       :_  ~
-      %+  ~(poke-our pass:io /todo-wire)  wallet-source
+      %+  ~(poke-our pass:io /wallet-poke)  wallet-source
       [%zig-wallet-poke !>(`wallet-poke:w`wallet-poke)]
     ::
     ++  handle-action
