@@ -1,5 +1,5 @@
 /-  *ziggurat
-/+  templates=zig-templates, conq=zink-conq
+/+  conq=zink-conq
 |%
 ::
 ::  set parameters for our local test environment
@@ -71,17 +71,10 @@
   ::  TODO
   !!
 ::
-++  make-single-test-update
-  |=  [project=@t test-id=@ =test]
-  ^-  card
-  =/  =test-update  [%single test-id (need last-result.test)]
-  =/  =path         /test-updates/(scot %t project)
-  [%give %fact ~[path] %test-update !>(test-update)]
-::
 ++  make-multi-test-update
   |=  [project=@t result=state-transition:mill]
   ^-  card
-  =/  =test-update  [%multi result]
+  =/  =test-update  [%result result]
   =/  =path         /test-updates/(scot %t project)
   [%give %fact ~[path] %test-update !>(test-update)]
 ::
@@ -179,6 +172,7 @@
       ['action' %s (crip (noah !>(action.test)))]
       ['expected' ?~(expected.test ~ (rice-set-to-json u.expected.test))]
       ['last_result' ?~(last-result.test ~ (granary-to-json p.land.u.last-result.test))]
+      ['errorcode' ?~(last-result.test ~ (numb errorcode.u.last-result.test))]
       ['success' ?~(success.test ~ [%b u.success.test])]
   ==
 ::

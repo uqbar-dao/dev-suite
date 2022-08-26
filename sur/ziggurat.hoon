@@ -73,7 +73,6 @@
   ~  ::  TODO app project update
 ::
 +$  test-update
-  $%  [%single id=@ud result=mill-result:mill]
-      [%multi result=state-transition:mill]
+  $%  [%result state-transition:mill]
   ==
 --

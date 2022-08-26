@@ -9,11 +9,15 @@
     ^-  contract-action
     %-  contract-action
     |^
-    (process jon)
+    (guh jon)
+    ++  guh
+      %-  ot
+      :~  [%project so]
+          [%action process]
+      ==
     ++  process
       %-  of
-      :~  [%project so]
-          [%new-contract-project (ot ~[[%template (se %tas)]])]
+      :~  [%new-contract-project (ot ~[[%template (se %tas)]])]
           [%delete-project ul]
           [%save-file (ot ~[[%name so] [%text so]])]
           [%delete-file (ot ~[[%name so]])]

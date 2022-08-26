@@ -67,7 +67,7 @@
     [(make-app-update name p.u.proj)^~ this]
   ::
       [%test-updates @ ~]
-    ::  serve updates for all tests executed
+    ::  serve updates for all %run-tests executed
     ::  within a given contract project
     `this
   ==
@@ -273,10 +273,8 @@
         =(p.u.comp rice)
       ::  save result in test, send update
       =.  tests.project  (~(put by tests.project) id.act test)
-      :_  state(projects (~(put by projects) project.act %&^project))
-      :~  (make-contract-update project.act project)
-          (make-single-test-update project.act id.act test)
-      ==
+      :-  (make-contract-update project.act project)^~
+      state(projects (~(put by projects) project.act %&^project))
     ::
         %run-tests
       ::  run tests IN SUCCESSION against SAME STATE
