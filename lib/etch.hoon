@@ -30,69 +30,36 @@
   ::
       [%face *]
     ~&  >  typ
+    ::  use face as key in json dict
     [%o `(map @t json)`[[;;(@t p.typ) $(typ q.typ)] ~ ~]]
   ::
       [%fork *]
     ~&  >  typ
-    =/  tyz=(list type)  (turn ~(tap in p.typ) peel)
-    =.  tyz
-      %-  zing
-      %+  turn  tyz
-      |=  tep=type
-      ^-  (list type)
-      ?:(?=(%fork -.tep) ~(tap in p.tep) ~[tep])
-    ::
-    ?:  =(1 (lent tyz))
-      $(typ (head tyz))
-    ::  $?
-    ::
-    ?:  (levy tyz |=([t=type] ?=(%atom -.t)))
-      =/  aura
-      ::
-        =/  hid  (head tyz)
-        ?>(?=([%atom @ *] hid) p.hid)
-      ?>  (levy tyz |=([t=type] ?>(?=([%atom * *] t) =(aura p.t))))
-      (en-dime aura ;;(@ arg))
-    ::  $%
-    ::
-    ?:  (levy tyz |=([t=type] ?=([%cell [%atom * ^] *] t)))
-      =/  aura
-        =/  hid  (head tyz)
-        ?>(?=([%cell [%atom @ ^] *] hid) p.p.hid)
-      ::
-      =/  hid  (head tyz)
-      =/  val  ;;(@ -.arg)
-      ?>  ((sane aura) val)
-      ::
-      =/  tag  ?:(?=(?(%t %ta %tas) aura) val (scot aura val))
-      =/  tin=type
-        |-
-        ^-  type
-        ?~  tyz  !!
-        =/  ty=type  i.tyz
-        ?>  ?=([%cell [%atom @ ^] *] ty)
-        ?:  =(val u.q.p.ty)  q.ty
-        $(tyz t.tyz)
-      %+  frond:enjs:format  tag  $(typ tin, arg +.arg)
-    ::  non-$% fork of cells
-    ::
-    ?:  (levy tyz |=([t=type] ?=([%cell *] t)))
-      ~|  cell-fork/tyz
-      ~!  tyz  !!
-    ::  $@
-    ::
-    =/  [atoms=(list type) cells=(list type)]
-      (skid tyz |=([t=type] ?=(%atom -.t)))
-    ?@  arg
-      $(p.typ (sy atoms))
-    $(p.typ (sy cells))
+    ::  determine unit, list, set, map, here
+    =/  lis  (mule |.((levi -:!>(*(list)) typ)))
+    ?:  ?=(%& -.lis)
+      =/  se  (mule |.((levi -:!>(*(tree)) typ)))
+      ?:  ?=(%& -.se)
+        ::  it's a tree of some kind
+        =/  stri  ~(ram re (skol typ))
+        [%o `(map @t json)`[['tree' [%s (crip (swag [5 (sub (lent stri) 6)] stri))]] ~ ~]]
+      :: it's a list
+      =/  stri  ~(ram re (skol typ))
+      [%o `(map @t json)`[['list' [%s (crip (swag [5 (sub (lent stri) 6)] stri))]] ~ ~]]
+    =/  un  (mule |.((levi -:!>(*(unit)) typ)))
+    ?:  ?=(%& -.un)
+      ::  it's a unit
+      =/  stri  ~(ram re (skol typ))
+      [%o `(map @t json)`[['unit' [%s (crip (swag [2 (sub (lent stri) 3)] stri))]] ~ ~]]
+    ::  it's an unknown
+    [%o `(map @t json)`[['unknown' [%s (crip ~(ram re (skol typ)))]] ~ ~]]
   ::
       [%hint *]
-    ~&  >  typ
+    ::  ignore hints
     $(typ q.typ)
   ::
       [%hold *]
-    ~&  >  typ
+    ::  step into lazy eval
     $(typ (~(play ut p.typ) q.typ))
   ==
 ::  +peel: recursively unwrap type
