@@ -60,6 +60,12 @@
       ==
   ==
 ::
++$  app-action
+  $:  project=@t
+      $%  [%new-app-project ~]
+      ==
+  ==
+::
 ::  subscription update types
 ::
 +$  contract-update

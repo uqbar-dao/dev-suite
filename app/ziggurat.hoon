@@ -78,7 +78,12 @@
   |^
   ::  TODO handle app project pokes in their own arm
   =^  cards  state
-    (handle-contract-poke !<(contract-action vase))
+    ?+    mark  !!
+        %ziggurat-app-action
+      (handle-app-poke !<(app-action vase))
+        %ziggurat-contract-action
+      (handle-contract-poke !<(contract-action vase))
+    ==
   [cards this]
   ::
   ++  handle-contract-poke
@@ -313,6 +318,17 @@
       ::  the publish.hoon contract deployed.
       !!
     ==
+  ::
+  ++  handle-app-poke
+    |=  act=app-action
+    ^-  (quip card _state)
+    ?-    -.+.act
+        %new-app-project
+      ::  merge new desk, mount desk
+      =/  merge-task  [%merg `@tas`project.act our.bowl %base da+now.bowl %init]
+      :_  state
+      [%pass /merge-wire %arvo %c merge-task]~
+    ==
   --
 ::
 ++  on-agent
@@ -323,7 +339,11 @@
 ++  on-arvo
   |=  [=wire =sign-arvo:agent:gall]
   ^-  (quip card _this)
-  (on-arvo:def wire sign-arvo)
+  ?+    wire  (on-arvo:def wire sign-arvo)
+      [%merge-wire ~]
+    ~&  >  sign-arvo
+    `this
+  ==
 ::
 ++  on-peek
   |=  =path
