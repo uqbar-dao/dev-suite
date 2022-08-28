@@ -301,10 +301,13 @@
           ?>  ?=(%token -.from)
           =/  =asset-metadata  (~(got by metadata-store.state) metadata.from)
           =/  to-id  (fry-rice:smart zigs-wheat-id:smart to.args.act town.act salt.asset-metadata)
-          =+  %-  extract-single-grain:ui-lib
-              .^  update:ui  %gx
-                  /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/indexer/newest/grain/(scot %ux town.act)/(scot %ux to-id)/noun
-              ==
+          =/  scry-res
+            .^  update:ui  %gx
+                /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/indexer/newest/grain/(scot %ux town.act)/(scot %ux to-id)/noun
+            ==
+          =+  ?~  scry-res  ~
+              ?.  ?=(%newest-grain -.scry-res)  ~
+              `grain.scry-res
           [%give to.args.act amount.args.act grain.args.act ?~(- ~ `to-id)]
         ::
             %give-nft

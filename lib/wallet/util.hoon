@@ -113,10 +113,13 @@
   |=  [token-type=@tas town-id=@ux =id:smart our=ship now=time]
   ^-  (unit asset-metadata)
   ::  manually import metadata for a token
+  =/  scry-res
+    .^(update:ui %gx /(scot %p our)/uqbar/(scot %da now)/indexer/newest/grain/(scot %ux town-id)/(scot %ux id)/noun)
   =/  g=(unit grain:smart)
     ::  TODO remote scry w/ uqbar.hoon
-    %-  extract-single-grain:ui-lib
-    .^(update:ui %gx /(scot %p our)/uqbar/(scot %da now)/indexer/newest/grain/(scot %ux town-id)/(scot %ux id)/noun)
+    ?~  scry-res  ~
+    ?.  ?=(%newest-grain -.scry-res)  ~
+    `grain.scry-res
   ?~  g
     ~&  >>>  "%wallet: failed to find matching metadata for a grain we hold"
     ~

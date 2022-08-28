@@ -637,8 +637,10 @@
   %-  zing
   %+  turn  updates
   |=  =update:ui
-  ?~  update               ~
-  ?.  ?=(%batch -.update)  ~
+  ?~  update  ~
+  ?.  ?=(%batch -.update)
+    ?.  ?=(%newest-batch -.update)  ~
+    [+.update]~
   ~(tap by batches.update)
 ::
 ++  combine-egg-updates-to-map
@@ -650,8 +652,10 @@
   %-  zing
   %+  turn  updates
   |=  =update:ui
-  ?~  update             ~
-  ?.  ?=(%egg -.update)  ~
+  ?~  update  ~
+  ?.  ?=(%egg -.update)
+    ?.  ?=(%newest-egg -.update)  ~
+    [+.update]~
   ~(tap by eggs.update)
 ::
 ++  combine-grain-updates-to-jar  ::  TODO: can this clobber?
@@ -663,8 +667,12 @@
   %-  zing
   %+  turn  updates
   |=  =update:ui
-  ?~  update               ~
-  ?.  ?=(%grain -.update)  ~
+  ?~  update  ~
+  ?.  ?=(%grain -.update)
+    ?.  ?=(%newest-grain -.update)  ~
+    :_  ~
+    :-  grain-id.update
+    [timestamp.update location.update grain.update]~
   ~(tap by grains.update)
 ::
 ++  combine-updates
@@ -754,14 +762,15 @@
     ?.  ?=(@ query-payload)  ~
     =*  town-id  query-payload
     ?~  bs=(~(get by batches-by-town) town-id)  ~
-    :-  %batch
-    %-  %~  gas  by
-        *(map id:smart [@da town-location:ui batch:ui])
     ?:  only-newest
       ?~  batch-order.u.bs  ~
       =*  batch-id  i.batch-order.u.bs
       ?~  b=(~(get by batches.u.bs) batch-id)  ~
-      [batch-id [timestamp.u.b town-id batch.u.b]]~
+      :-  %newest-batch
+      [batch-id timestamp.u.b town-id batch.u.b]
+    :-  %batch
+    %-  %~  gas  by
+        *(map id:smart [@da town-location:ui batch:ui])
     %+  turn  ~(tap by batches.u.bs)
     |=  [batch-id=id:smart timestamp=@da =batch:ui]
     [batch-id [timestamp town-id batch]]
@@ -809,12 +818,27 @@
     ==
     ::
     ++  get-grain
-      =|  grains=(jar grain-id=id:smart [@da batch-location:ui grain:smart])
       =/  grain-id=id:smart
         ?:  ?=([@ @] query-payload)  +.query-payload
         query-payload
-      =.  locations
-        ?:(only-newest locations (flop locations))
+      ?:  only-newest  ::  TODO: DRY
+        ?~  locations  ~
+        =*  location  i.locations
+        ?.  ?=(batch-location:ui location)  ~
+        =*  town-id     town-id.location
+        =*  batch-root  batch-root.location
+        ?~  b=(get-appropriate-batch town-id batch-root)  ~
+        ?.  |(!only-newest =(batch-root batch-id.u.b))
+          ::  TODO: remove this check if we never see this log
+          ~&  >>>  "%indexer: unexpected batch root (grain)"
+          ~&  >>>  "br, bid: {<batch-root>} {<batch-id.u.b>}"
+          ~
+        =*  timestamp  timestamp.u.b
+        =*  granary    p.land.batch.u.b
+        ?~  grain=(get:big:mill granary grain-id)  ~
+        [%newest-grain grain-id timestamp location u.grain]
+      =|  grains=(jar grain-id=id:smart [@da batch-location:ui grain:smart])
+      =.  locations  (flop locations)
       |-
       ?~  locations  ?~(grains ~ [%grain grains])
       =*  location  i.locations
@@ -841,6 +865,24 @@
       ==
     ::
     ++  get-egg
+      ?:  only-newest  ::  TODO: DRY
+        ?~  locations  ~
+        =*  location  i.locations
+        ?.  ?=(egg-location:ui location)  ~
+        =*  town-id     town-id.location
+        =*  batch-root  batch-root.location
+        =*  egg-num     egg-num.location
+        ?~  b=(get-appropriate-batch town-id batch-root)  ~
+        ?.  |(!only-newest =(batch-root batch-id.u.b))
+          ::  happens for second-order only-newest queries that
+          ::   resolve to eggs because get-locations does not
+          ::   guarantee they are in the newest batch
+          ~
+        =*  timestamp  timestamp.u.b
+        =*  txs        transactions.batch.u.b
+        ?.  (lth egg-num (lent txs))  ~
+        =+  [hash=@ux =egg:smart]=(snag egg-num txs)
+        [%newest-egg hash timestamp location egg]
       =|  eggs=(map id:smart [@da egg-location:ui egg:smart])
       |-
       ?~  locations  ?~(eggs ~ [%egg eggs])
@@ -882,19 +924,58 @@
         ==
       ?~  next-update  out
       ?~  out          next-update
-      ?+  -.out  ~|("indexer: get-second-order unexpected update type {<-.out>}" !!)
+      ?+    -.out  ~|("indexer: get-second-order unexpected update type {<-.out>}" !!)
           %egg
-        ?.  ?=(%egg -.next-update)  out
+        ?.  ?=(?(%egg %newest-egg) -.next-update)  out
         %=  out
             eggs
-          (~(uni by eggs.out) eggs.next-update)
+          ?:  ?=(%egg -.next-update)
+            (~(uni by eggs.out) eggs.next-update)
+          ?>  ?=(%newest-egg -.next-update)
+          (~(put by eggs.out) +.next-update)
         ==
       ::
           %grain
-        ?.  ?=(%grain -.next-update)  out
+        ?.  ?=(?(%grain %newest-grain) -.next-update)  out
         %=  out
             grains
-          (~(uni by grains.out) grains.next-update)  ::  TODO: can this clobber?
+          ?:  ?=(%grain -.next-update)
+            (~(uni by grains.out) grains.next-update)  ::  TODO: can this clobber?
+          ?>  ?=(%newest-grain -.next-update)
+          (~(add ja grains.out) +.next-update)
+        ==
+      ::
+          %newest-egg
+        ?+    -.next-update  out
+            %egg
+          %=  next-update
+              eggs
+            (~(put by eggs.next-update) +.out)
+          ==
+        ::
+            %newest-egg
+          :-  %egg
+          %.  ~[+.out +.next-update]
+          %~  gas  by
+          *(map id:smart [@da egg-location:ui egg:smart])
+        ==
+      ::
+          %newest-grain
+        ?+    -.next-update  out
+            %grain
+          %=  next-update
+              grains
+            (~(add ja grains.next-update) +.out)  ::  TODO: ordering?
+          ==
+        ::
+            %newest-grain
+          :-  %grain
+          %.  +.next-update
+          %~  add  ja
+          %.  +.out
+          %~  add  ja
+          ^*  %+  jar  id:smart
+          [@da batch-location:ui grain:smart]
         ==
       ==
     --
