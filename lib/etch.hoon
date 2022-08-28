@@ -89,9 +89,9 @@
       =/  =note  q.p.typ
       ?+    -.note  loop(typ q.typ)
           %made
-            ?^  q.note  loop(typ q.typ)
-            ::  disable for now, too slow
-            loop(typ q.typ, cos ~)
+        ?^  q.note  loop(typ q.typ)
+        ::  disable for now, too slow
+        loop(typ q.typ, cos ~)
       ==
     ::
     [%hold *]  loop(typ (~(play ut p.typ) q.typ))

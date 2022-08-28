@@ -52,7 +52,7 @@
   ?+    path  !!
       [%contract-project @ ~]
     ::  serve updates about state of a given contract project
-    =/  name=@t  (slav %t i.t.path)
+    =/  name=@t  `@t`i.t.path
     ?~  proj=(~(get by projects) name)
       `this
     ?>  ?=(%& -.u.proj)
@@ -60,7 +60,7 @@
   ::
       [%app-project @ ~]
     ::  TODO
-    =/  name=@t  (slav %t i.t.path)
+    =/  name=@t  `@t`i.t.path
     ?~  proj=(~(get by projects) name)
       `this
     ?>  ?=(%| -.u.proj)
