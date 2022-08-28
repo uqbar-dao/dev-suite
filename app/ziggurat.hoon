@@ -325,9 +325,16 @@
     ?-    -.+.act
         %new-app-project
       ::  merge new desk, mount desk
-      =/  merge-task  [%merg `@tas`project.act our.bowl %base da+now.bowl %init]
+      ::  currently using ziggurat desk as template -- should refine this
+      ~&  >>  -.+.byk.bowl
+      =/  merge-task  [%merg `@tas`project.act our.bowl -.+.byk.bowl da+now.bowl %init]
+      =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
+      =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
       :_  state
-      [%pass /merge-wire %arvo %c merge-task]~
+      :~  [%pass /merge-wire %arvo %c merge-task]
+          [%pass /mount-wire %arvo %c mount-task]
+          [%pass /bill-wire %arvo %c bill-task]
+      ==
     ==
   --
 ::
@@ -343,6 +350,11 @@
       [%merge-wire ~]
     ~&  >  sign-arvo
     `this
+  ::
+      [%mount-wire ~]
+    ~&  >  sign-arvo
+    `this
+  ::
   ==
 ::
 ++  on-peek
