@@ -6,6 +6,7 @@
 ::
 ++  designated-address  0xdead.beef
 ++  designated-contract-id  0xfafa.fafa
+++  designated-metadata-id  0xdada.dada
 ++  designated-caller
   |=  nonce=@ud
   ^-  caller:smart
@@ -211,7 +212,12 @@
     (malt ~[[0x1234.5678 test1]])
   ::
       data-texts
-    (~(put by data-texts.current) id.meta-rice ;;(@t data.meta-rice))
+    %-  ~(uni by data-texts.current)
+    %-  ~(gas by *(map id:smart @t))
+    :~  [id.meta-rice ;;(@t data.meta-rice)]
+        [dead-beef-account-id '[balance=200 allowances=~ metadata=0xdada.dada]']
+        [cafe-babe-account-id '[balance=100 allowances=~ metadata=0xdada.dada]']
+    ==
   ::
       p.state
     =-  (uni:big:mill p.state.current -)
