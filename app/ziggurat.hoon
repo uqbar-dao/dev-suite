@@ -52,10 +52,13 @@
   ?+    path  !!
       [%contract-project @ ~]
     ::  serve updates about state of a given contract project
+    ~&  >  "got sub"
     =/  name=@t  `@t`i.t.path
     ?~  proj=(~(get by projects) name)
       `this
     ?>  ?=(%& -.u.proj)
+    ~&  >  "making upd"
+    ~&  >>  (make-contract-update name p.u.proj)
     [(make-contract-update name p.u.proj)^~ this]
   ::
       [%app-project @ ~]
@@ -425,7 +428,7 @@
   ::
       [%read-file @ ^]
     =/  des  (slav %tas i.t.t.path)
-    =/  pat=^path  t.t.t.path
+    =/  pat=^path  `^path`t.t.t.path
     =/  pre  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
     =/  res  .^(@t %cx (weld pre pat))
     ``json+!>([%s res])

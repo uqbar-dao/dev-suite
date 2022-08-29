@@ -62,7 +62,7 @@
         error.contract-project
       state.contract-project
     tests.contract-project
-  =/  =path  /contract-updates/(scot %t project)
+  =/  =path  /contract-project/[project]
   [%give %fact ~[path] %ziggurat-contract-update !>(contract-update)]
 ::
 ++  make-app-update
@@ -75,7 +75,7 @@
   |=  [project=@t result=state-transition:mill]
   ^-  card
   =/  =test-update  [%result result]
-  =/  =path         /test-updates/(scot %t project)
+  =/  =path         /test-updates/[project]
   [%give %fact ~[path] %ziggurat-test-update !>(test-update)]
 ::
 ++  build-contract-project

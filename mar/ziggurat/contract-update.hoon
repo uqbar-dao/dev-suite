@@ -9,6 +9,7 @@
   |%
   ++  noun  upd
   ++  json
+    ^-  ^json
     %-  pairs
     :~  ['compiled' [%b compiled.upd]]
         ['error' [%s ?~(error.upd '' u.error.upd)]]
