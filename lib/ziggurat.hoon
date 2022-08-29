@@ -63,7 +63,7 @@
       state.contract-project
     tests.contract-project
   =/  =path  /contract-updates/(scot %t project)
-  [%give %fact ~[path] %contract-update !>(contract-update)]
+  [%give %fact ~[path] %ziggurat-contract-update !>(contract-update)]
 ::
 ++  make-app-update
   |=  [project=@t =app-project]
@@ -76,7 +76,7 @@
   ^-  card
   =/  =test-update  [%result result]
   =/  =path         /test-updates/(scot %t project)
-  [%give %fact ~[path] %test-update !>(test-update)]
+  [%give %fact ~[path] %ziggurat-test-update !>(test-update)]
 ::
 ++  build-contract-project
   |=  [smart-lib=vase proj=contract-project]
