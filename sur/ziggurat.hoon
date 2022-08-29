@@ -87,6 +87,7 @@
   $:  compiled=?
       error=(unit @t)
       state=land:mill
+      data-texts=(map id:smart @t)
       =tests
   ==
 ::

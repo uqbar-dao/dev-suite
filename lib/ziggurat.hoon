@@ -59,10 +59,12 @@
   |=  [project=@t =contract-project]
   ^-  card
   =/  =contract-update
-    :^    compiled=?~(compiled.contract-project %.n %.y)
+    :*  compiled=?~(compiled.contract-project %.n %.y)
         error.contract-project
-      state.contract-project
-    tests.contract-project
+        state.contract-project
+        data-texts.contract-project
+        tests.contract-project
+    ==
   =/  =path  /contract-project/[project]
   [%give %fact ~[path] %ziggurat-contract-update !>(contract-update)]
 ::
@@ -297,7 +299,7 @@
     ['contract' %b %.y]~
   :~  ['salt' (numb salt.p.grain)]
       ['label' %s (scot %tas label.p.grain)]
-      ['data_text' %s (~(got by data-texts) id)]
+      ['data_text' %s ?~(t=(~(get by data-texts) id) '' u.t)]
       ['data' %s (crip (noah !>(data.p.grain)))]
   ==
 ::
