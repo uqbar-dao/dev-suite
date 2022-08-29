@@ -151,7 +151,7 @@
             deployer=address:smart
             salt=@
         ==
-    data.meta-rice
+    q:(slap smart-lib-vase (ream ;;(@t data.meta-rice)))
   =/  dead-beef-account-id
     %:  fry-rice:smart
         lord.meta-rice
@@ -210,10 +210,14 @@
       tests
     (malt ~[[0x1234.5678 test1]])
   ::
+      data-texts
+    (~(put by data-texts.current) id.meta-rice ;;(@t data.meta-rice))
+  ::
       p.state
     =-  (uni:big:mill p.state.current -)
     %+  gas:big:mill  *granary:mill
-    :~  [dead-beef-account-id dead-beef-account]
+    :~  [id.meta-rice %&^meta-rice(data metadata)]
+        [dead-beef-account-id dead-beef-account]
         [cafe-babe-account-id cafe-babe-account]
     ==
   ==
