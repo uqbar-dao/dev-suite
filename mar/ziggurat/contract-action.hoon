@@ -18,6 +18,7 @@
     ++  process
       %-  of
       :~  [%new-contract-project (ot ~[[%template (se %tas)]])]
+          [%populate-template (ot ~[[%template (se %tas)] [%metadata parse-rice]])]
           [%delete-project ul]
           [%save-file (ot ~[[%name so] [%text so]])]
           [%delete-file (ot ~[[%name so]])]

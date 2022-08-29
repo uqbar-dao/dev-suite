@@ -150,34 +150,35 @@
       ::  not sharing nock, can add later if desired
       ::  not sharing imported either
       ['error' %s ?~(error.p '' u.error.p)]
-      ['state' (granary-to-json p.state.p)]
-      ['tests' (tests-to-json tests.p)]
+      ['state' (granary-to-json p.state.p data-texts.p)]
+      ['tests' (tests-to-json tests.p data-texts.p)]
   ==
 ::
 ++  tests-to-json
-  |=  =tests
+  |=  [=tests data-texts=(map id:smart @t)]
   =,  enjs:format
   ^-  json
   %-  pairs
   %+  turn  ~(tap by tests)
   |=  [id=@ux =test]
-  [(scot %ux id) (test-to-json test)]
+  [(scot %ux id) (test-to-json test data-texts)]
 ::
 ++  test-to-json
-  |=  =test
+  |=  [=test data-texts=(map id:smart @t)]
   =,  enjs:format
   ^-  json
   %-  pairs
   :~  ['name' %s ?~(name.test '' u.name.test)]
+      ['action_text' %s action-text.test]
       ['action' %s (crip (noah !>(action.test)))]
       ['expected' ?~(expected.test ~ (rice-set-to-json u.expected.test))]
-      ['last_result' ?~(last-result.test ~ (granary-to-json p.land.u.last-result.test))]
+      ['last_result' ?~(last-result.test ~ (granary-to-json p.land.u.last-result.test data-texts))]
       ['errorcode' ?~(last-result.test ~ (numb errorcode.u.last-result.test))]
       ['success' ?~(success.test ~ [%b u.success.test])]
   ==
 ::
 ++  granary-to-json
-  |=  =granary:mill
+  |=  [=granary:mill data-texts=(map id:smart @t)]
   ::
   ::  ignoring/not printing nonces for now.
   ::
@@ -198,6 +199,7 @@
     ['contract' %b %.y]~
   :~  ['salt' (numb salt.p.grain)]
       ['label' %s (scot %tas label.p.grain)]
+      ['data_text' %s (~(got by data-texts) id)]
       ['data' %s (crip (noah !>(data.p.grain)))]
   ==
 ::

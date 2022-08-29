@@ -52,13 +52,10 @@
   ?+    path  !!
       [%contract-project @ ~]
     ::  serve updates about state of a given contract project
-    ~&  >  "got sub"
     =/  name=@t  `@t`i.t.path
     ?~  proj=(~(get by projects) name)
       `this
     ?>  ?=(%& -.u.proj)
-    ~&  >  "making upd"
-    ~&  >>  (make-contract-update name p.u.proj)
     [(make-contract-update name p.u.proj)^~ this]
   ::
       [%app-project @ ~]
@@ -114,6 +111,7 @@
             imported=~
             error=~
             state=starting-state
+            data-texts=~
             caller-nonce=0
             mill-batch-num=0
             tests=~
@@ -138,6 +136,10 @@
     ?>  ?=(%& -.u.proj)
     =*  project  p.u.proj
     ?-    -.+.act
+        %populate-template
+      ::  spawn some hardcoded example tests and grains for %fungible and %nft templates
+      !!
+    ::
         %delete-project
       ::  should show a warning on frontend before performing this one ;)
       `state(projects (~(del by projects) project.act))
@@ -192,12 +194,17 @@
     ::
         %add-to-state
       ::  take text data input and ream to form data noun
+      =/  data-text  ;;(@t data.rice.act)
       =.  data.rice.act
-        q:(slap smart-lib-vase (ream ;;(@t data.rice.act)))
+        q:(slap smart-lib-vase (ream data-text))
       ::  put a new grain in the granary
-      =.  p.state.project
+      =:  p.state.project
         %+  put:big:mill  p.state.project
         [id.rice.act %&^rice.act]
+      ::
+          data-texts.project
+        (~(put by data-texts.project) id.rice.act data-text)
+      ==
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -218,7 +225,7 @@
       =/  =yolk:smart  [;;(@tas -.-) +.-]
       ::  put it in the project
       =.  tests.project
-        (~(put by tests.project) test-id [name.act yolk ~ ~ ~])
+        (~(put by tests.project) test-id [name.act action.act yolk ~ ~ ~])
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -244,9 +251,9 @@
       ::  get existing
       =.  tests.project
         ?~  current=(~(get by tests.project) id.act)
-          (~(put by tests.project) id.act [name.act yolk ~ ~ ~])
+          (~(put by tests.project) id.act [name.act action.act yolk ~ ~ ~])
         %+  ~(put by tests.project)  id.act
-        [name.act yolk expected.u.current ~ ~]
+        [name.act action.act yolk expected.u.current ~ ~]
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -343,7 +350,9 @@
       :_  state(projects (~(put by projects) project.act project))
       :~  [%pass /merge-wire %arvo %c merge-task]
           [%pass /mount-wire %arvo %c mount-task]
-          [%pass /bill-wire %arvo %c bill-task]
+          [%pass /save-wire %arvo %c bill-task]
+          =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
+          [%ziggurat-contract-action !>(`app-action`project.act^[%read-desk ~])]
       ==
     ::
         %delete-project
@@ -351,14 +360,33 @@
       `state(projects (~(del by projects) project.act))
     ::
         %save-file
-      !!
+      :_  state
+      =-  [%pass /save-wire %arvo %c -]~
+      [%info `@tas`project.act %& [file.act %ins %hoon !>(text.act)]~]
     ::
         %delete-file
-      !!
+      ::  should show warning
+      :_  state
+      =-  [%pass /del-wire %arvo %c -]~
+      [%info `@tas`project.act %& [file.act %del ~]~]
     ::
         %publish-app
+      ::  should assert that desk.bill contains only our agent name,
+      ::  and that clause has been filled out at least partially,
+      ::  then poke treaty agent with publish
       !!
     ::
+        %read-desk
+      ::  for internal use -- app calls itself to scry clay
+      =/  =app-project
+        =+  (~(got by projects) project.act)
+        ?>  ?=(%| -.-)
+        p.-
+      =.  dir.app-project
+        =-  .^((list path) %ct -)
+        /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)
+      :-  (make-app-update project.act app-project)^~
+      state(projects (~(put by projects) project.act %|^app-project))
     ==
   --
 ::
@@ -372,11 +400,12 @@
   ^-  (quip card _this)
   ?+    wire  (on-arvo:def wire sign-arvo)
       [%merge-wire ~]
-    ~&  >  sign-arvo
-    `this
-  ::
-      [%mount-wire ~]
-    ~&  >  sign-arvo
+    ?.  ?=(%clay -.sign-arvo)  !!
+    ?.  ?=(%mere -.+.sign-arvo)  !!
+    ?:  -.p.+.sign-arvo
+      ~&  >  "new desk successful"
+      `this
+    ~&  >>>  "failed to make new desk"
     `this
   ::
   ==
@@ -414,14 +443,14 @@
     ?~  project=(~(get by projects) (slav %t i.t.t.path))
       ``json+!>(~)
     ?>  ?=(%& -.u.project)
-    =/  =json  (granary-to-json p.state.p.u.project)
+    =/  =json  (granary-to-json p.state.p.u.project data-texts.p.u.project)
     ``json+!>(json)
   ::
       [%project-tests @ ~]
     ?~  project=(~(get by projects) (slav %t i.t.t.path))
       ``json+!>(~)
     ?>  ?=(%& -.u.project)
-    =/  =json  (tests-to-json tests.p.u.project)
+    =/  =json  (tests-to-json tests.p.u.project data-texts.p.u.project)
     ``json+!>(json)
   ::
   ::  APP-PROJECT JSON

@@ -20,6 +20,7 @@
       imported=(map name=@t text=@t)  ::  any other files to view but not compile
       error=(unit @t)  ::  ~ means successfully compiled
       state=land:mill
+      data-texts=(map id:smart @t)  ::  holds rice data that got ream'd
       caller-nonce=@ud
       mill-batch-num=@ud
       =tests
@@ -30,6 +31,7 @@
 +$  tests  (map @ux test)
 +$  test
   $:  name=(unit @t)  ::  optional
+      action-text=@t
       action=yolk:smart
       expected=(unit (set rice:smart))
       last-result=(unit mill-result:mill)
@@ -46,6 +48,7 @@
 +$  contract-action
   $:  project=@t
       $%  [%new-contract-project =template]  ::  creates a contract project, TODO add gall option
+          [%populate-template =template metadata=rice:smart]
           [%delete-project ~]
           [%save-file name=@t text=@t]  ::  generates new file or overwrites existing
           [%delete-file name=@t]
@@ -71,6 +74,8 @@
           ::
           [%save-file file=path text=@t]
           [%delete-file file=path]
+          ::
+          [%read-desk ~]
           ::
           [%publish-app clause:docket]
       ==
