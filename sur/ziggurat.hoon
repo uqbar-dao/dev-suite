@@ -7,7 +7,11 @@
 +$  project   (each contract-project app-project)
 ::
 +$  app-project
-  ~  ::  TODO later
+  $:  dir=(list path)
+      error=(unit @t)
+      compiled=?
+      =clause:docket
+  ==
 ::
 +$  contract-project
   $:  main=@t
@@ -64,10 +68,7 @@
   $:  project=@t
       $%  [%new-app-project ~]
           [%delete-project ~]
-          ::  this works differently than for contract projects, since desk
-          ::  is real and not virtual/contained within the app state
-          [%open-file file=path]
-          [%close-file file=path]
+          ::
           [%save-file file=path text=@t]
           [%delete-file file=path]
           ::
@@ -87,9 +88,9 @@
 +$  app-update
   ::  should scry clay with %t to get dir here
   ::  TODO: how to retrieve compilation result for gall app?
-  $:  compiled=?
+  $:  dir=(list path)
       error=(unit @t)
-      dir=(list path)
+      compiled=?
   ==
 ::
 +$  test-update

@@ -330,11 +330,32 @@
       =/  merge-task  [%merg `@tas`project.act our.bowl -.+.byk.bowl da+now.bowl %init]
       =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
       =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
-      :_  state
+      =/  =project
+        :*  %|
+            ~
+            ~
+            %.n
+            *clause:docket
+        ==
+      :_  state(projects (~(put by projects) project.act project))
       :~  [%pass /merge-wire %arvo %c merge-task]
           [%pass /mount-wire %arvo %c mount-task]
           [%pass /bill-wire %arvo %c bill-task]
       ==
+    ::
+        %delete-project
+      ::  should show a warning on frontend before performing this one ;)
+      `state(projects (~(del by projects) project.act))
+    ::
+        %save-file
+      !!
+    ::
+        %delete-file
+      !!
+    ::
+        %publish-app
+      !!
+    ::
     ==
   --
 ::
@@ -399,6 +420,15 @@
     ?>  ?=(%& -.u.project)
     =/  =json  (tests-to-json tests.p.u.project)
     ``json+!>(json)
+  ::
+  ::  APP-PROJECT JSON
+  ::
+      [%read-file @ ^]
+    =/  des  (slav %tas i.t.t.path)
+    =/  pat=^path  t.t.t.path
+    =/  pre  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
+    =/  res  .^(@t %cx (weld pre pat))
+    ``json+!>([%s res])
   ==
 ::
 ++  on-leave  on-leave:def
