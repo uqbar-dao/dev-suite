@@ -1,4 +1,4 @@
-/-  mill
+/-  mill, docket
 /+  smart=zig-sys-smart
 |%
 +$  card  card:agent:gall
@@ -63,6 +63,15 @@
 +$  app-action
   $:  project=@t
       $%  [%new-app-project ~]
+          [%delete-project ~]
+          ::  this works differently than for contract projects, since desk
+          ::  is real and not virtual/contained within the app state
+          [%open-file file=path]
+          [%close-file file=path]
+          [%save-file file=path text=@t]
+          [%delete-file file=path]
+          ::
+          [%publish-app clause:docket]
       ==
   ==
 ::
@@ -76,9 +85,13 @@
   ==
 ::
 +$  app-update
-  ~  ::  TODO app project update
+  ::  should scry clay with %t to get dir here
+  ::  TODO: how to retrieve compilation result for gall app?
+  $:  compiled=?
+      error=(unit @t)
+      dir=(list path)
+  ==
 ::
 +$  test-update
-  $%  [%result state-transition:mill]
-  ==
+  [%result state-transition:mill]
 --
