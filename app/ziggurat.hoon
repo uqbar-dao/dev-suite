@@ -111,7 +111,7 @@
             imported=~
             error=~
             state=starting-state
-            data-texts=~
+            data-texts=(malt ~[[id.p.designated-zigs-grain '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
             caller-nonce=0
             mill-batch-num=0
             tests=~
@@ -138,7 +138,17 @@
     ?-    -.+.act
         %populate-template
       ::  spawn some hardcoded example tests and grains for %fungible and %nft templates
+      ?<  ?=(%blank template.act)
       !!
+      ::  ?:  ?=(%fungible template.act)
+      ::    ::  make fungible accounts and tests
+      ::    =/  zigs-grain-id
+      ::    =/  test1=test
+      ::      :*  `'test-give'
+      ::          '[%give to=0x1234.5678 amount=30 from-account=0x7606.5857.3281.e401.e302.1994.b290.0c32.a17b.cc89.c5d9.d78a.4b5e.4938.ee05.af06 to-account=`0x1.dead'
+      ::
+      ::      ==
+      ::  make nfts and tests
     ::
         %delete-project
       ::  should show a warning on frontend before performing this one ;)
