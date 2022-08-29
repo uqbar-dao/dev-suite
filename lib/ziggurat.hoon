@@ -134,6 +134,94 @@
   |=  =tank
   (of-wall:format (wash [0 80] tank))
 ::
+::  project states for templates
+::
+++  fungible-template-project
+  |=  [current=contract-project meta-rice=rice:smart smart-lib-vase=vase]
+  ^-  contract-project
+  ::  make fungible accounts and tests
+  =/  metadata
+    ;;  $:  name=@t
+            symbol=@t
+            decimals=@ud
+            supply=@ud
+            cap=(unit @ud)
+            mintable=?
+            minters=(pset:smart address:smart)
+            deployer=address:smart
+            salt=@
+        ==
+    data.meta-rice
+  =/  dead-beef-account-id
+    %:  fry-rice:smart
+        lord.meta-rice
+        designated-address
+        designated-town-id
+        salt.metadata
+    ==
+  =/  dead-beef-account
+    ^-  grain:smart
+    :*  %&  salt.metadata
+        %account
+        [200 ~ id.meta-rice]
+        dead-beef-account-id
+        lord.meta-rice
+        designated-address
+        designated-town-id
+    ==
+  =/  cafe-babe-account-id
+    %:  fry-rice:smart
+        lord.meta-rice
+        0xcafe.babe
+        designated-town-id
+        salt.metadata
+    ==
+  =/  cafe-babe-account
+    ^-  grain:smart
+    :*  %&  salt.metadata
+        %account
+        [100 ~ id.meta-rice]
+        cafe-babe-account-id
+        lord.meta-rice
+        0xcafe.babe
+        designated-town-id
+    ==
+  =/  action-text=@t
+    %-  crip
+    %-  zing
+    :~  "[%give to=0xcafe.babe amount=30 from-account="
+        (trip (scot %ux dead-beef-account-id))
+        " to-account=`"
+        (trip (scot %ux cafe-babe-account-id))
+        "]"
+    ==
+  =/  =yolk:smart
+    =-  [;;(@tas -.-) +.-]
+    q:(slap smart-lib-vase (ream action-text))
+  =/  test1=test
+    :*  `'test-give'
+        action-text
+        yolk
+        ~  ::  TODO
+        ~
+        ~
+    ==
+  %=    current
+      tests
+    (malt ~[[0x1234.5678 test1]])
+  ::
+      p.state
+    =-  (uni:big:mill p.state.current -)
+    %+  gas:big:mill  *granary:mill
+    :~  [dead-beef-account-id dead-beef-account]
+        [cafe-babe-account-id cafe-babe-account]
+    ==
+  ==
+++  nft-template-project
+  |=  meta-rice=rice:smart
+  ^-  contract-project
+  !!
+::
 ::  JSON parsing utils
 ::
 ++  contract-project-to-json

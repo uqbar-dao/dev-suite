@@ -139,16 +139,12 @@
         %populate-template
       ::  spawn some hardcoded example tests and grains for %fungible and %nft templates
       ?<  ?=(%blank template.act)
-      !!
-      ::  ?:  ?=(%fungible template.act)
-      ::    ::  make fungible accounts and tests
-      ::    =/  zigs-grain-id
-      ::    =/  test1=test
-      ::      :*  `'test-give'
-      ::          '[%give to=0x1234.5678 amount=30 from-account=0x7606.5857.3281.e401.e302.1994.b290.0c32.a17b.cc89.c5d9.d78a.4b5e.4938.ee05.af06 to-account=`0x1.dead'
-      ::
-      ::      ==
-      ::  make nfts and tests
+      =.  project
+        ?:  ?=(%fungible template.act)
+          (fungible-template-project project metadata.act smart-lib-vase)
+        (nft-template-project metadata.act)
+      :-  (make-contract-update project.act project)^~
+      state(projects (~(put by projects) project.act %&^project))
     ::
         %delete-project
       ::  should show a warning on frontend before performing this one ;)
