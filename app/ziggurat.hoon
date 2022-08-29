@@ -111,7 +111,7 @@
             imported=~
             error=~
             state=starting-state
-            data-texts=(malt ~[[id.p.designated-zigs-grain '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
+            data-texts=(malt ~[[id.p:designated-zigs-grain '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
             caller-nonce=0
             mill-batch-num=0
             tests=~
