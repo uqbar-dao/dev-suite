@@ -125,12 +125,9 @@
     ++  make-ping-rest-card
       |=  old-next-ping-time=@da
       ^-  card
-      %^  %~  arvo  pass:io
-          /start-indexer-ping/(scot %da old-next-ping-time)
-      %b  %rest  old-next-ping-time
-      :: %.  old-next-ping-time
-      :: %~  rest  pass:io
-      :: /start-indexer-ping/(scot %da old-next-ping-time)
+      %.  old-next-ping-time
+      %~  rest  pass:io
+      /start-indexer-ping/(scot %da old-next-ping-time)
     ::
     ++  handle-wallet-poke
       |=  =wallet-poke:w
@@ -319,12 +316,9 @@
           :_  this(pings-timedout ~)
           ?~  pings-timedout  ~
           :_  ~
-          %^  %~  arvo  pass:io
-              /ping-timeout/(scot %da u.pings-timedout)
-          %b  %rest  u.pings-timedout
-          :: :-  %.  u.pings-timedout
-          ::     %~  rest  pass:io
-          ::     /ping-timeout/(scot %da u.pings-timedout)
+          %.  u.pings-timedout
+          %~  rest  pass:io
+          /ping-timeout/(scot %da u.pings-timedout)
           :: TODO: move current subscriptions if on non-replying indexer?
         ==
       ==
