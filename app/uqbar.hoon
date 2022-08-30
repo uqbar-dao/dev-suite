@@ -304,15 +304,18 @@
           ?:  =(*vase q.cage.sign)  `this  ::  thread canceled
           =*  town-id  p.u.source
           =*  d        q.u.source
+          =/  is-last-ping-tid=?  =(0 ~(wyt by ping-tids))
           =.  indexer-sources-ping-results
             %+  ~(put by indexer-sources-ping-results)  town-id
             =/  [pu=(set dock) pd=(set dock) nu=(set dock) nd=(set dock)]
               %+  ~(gut by indexer-sources-ping-results)  town-id
               [~ ~ ~ ~]
-            :+  pu  pd
-            ?:  !<(? q.cage.sign)  [(~(put in nu) d) nd]
-            [nu (~(put in nd) d)]
-          ?.  =(0 ~(wyt by ping-tids))  `this
+            =:  nu  ?:(!<(? q.cage.sign) (~(put in nu) d) nu)
+                nd  ?:(!<(? q.cage.sign) nd (~(put in nd) d))
+            ==
+            ?:  is-last-ping-tid  [nu nd ~ ~]
+            [pu pd nu nd]
+          ?.  is-last-ping-tid  `this
           :_  this(pings-timedout ~)
           ?~  pings-timedout  ~
           :_  ~
@@ -393,8 +396,38 @@
           [%behn %wake *]
         =/  until=@da  (slav %da i.t.wire)
         ?:  (gth until now.bowl)  `this
+        ~&  >  "---"
+        ~&  >  indexer-sources-ping-results
+        =.  indexer-sources-ping-results
+          =/  ping-tids-list=(list [@ta town-id=id:smart d=dock])
+            ~(tap by ping-tids)
+          |-
+          ?~  ping-tids-list
+            %-  ~(gas by *_indexer-sources-ping-results)
+            %+  turn  ~(tap by indexer-sources-ping-results)
+            |=  $:  town-id=id:smart
+                    (set dock)
+                    (set dock)
+                    newest-up=(set dock)
+                    newest-down=(set dock)
+                ==
+            [town-id newest-up newest-down ~ ~]
+          =*  town-id  town-id.i.ping-tids-list
+          =*  d        d.i.ping-tids-list
+          %=  $
+              ping-tids-list  t.ping-tids-list
+              indexer-sources-ping-results
+            =/  [pu=(set dock) pd=(set dock) nu=(set dock) nd=(set dock)]
+              %+  ~(gut by indexer-sources-ping-results)
+              town-id  [~ ~ ~ ~]
+            %+  ~(put by indexer-sources-ping-results)
+            town-id  [pu pd nu (~(put in nd) d)]
+          ==
+        ~&  >  indexer-sources-ping-results
+        ~&  >  "---"
         ~&  >  "%uqbar: %ping-timeout for remaining: {<ping-tids>}"
         :-  %-  zing
+            :-  move-downed-subscriptions
             %+  turn  ~(tap by ping-tids)
             |=  [tid=@ta id:smart dock]
             :+    %+  ~(poke-our pass:io /pinger/[tid])
@@ -405,17 +438,39 @@
         %=  this
             ping-tids       ~
             pings-timedout  ~
-            indexer-sources-ping-results
-          %-  ~(gas by indexer-sources-ping-results)
-          %+  turn  ~(tap by ping-tids)
-          |=  [@ta town-id=id:smart d=dock]
-          =/  [pu=(set dock) pd=(set dock) nu=(set dock) nd=(set dock)]
-            %+  ~(gut by indexer-sources-ping-results)  town-id
-            [~ ~ ~ ~]
-          [town-id pu pd nu (~(put in nd) d)]
         ==
       ==
     ==
+    ::
+    ++  move-downed-subscriptions
+      ^-  (list card)
+      =/  a=(list card)
+        %-  zing
+        %+  turn  ~(tap by indexer-sources-ping-results)
+        |=  $:  town-id=id:smart
+                previous-up=(set dock)
+                previous-down=(set dock)
+                newest-up=(set dock)
+                newest-down=(set dock)
+            ==
+        %+  roll  ~(tap by wex.bowl)
+        |=  [[[w=^wire s=ship t=term] a=? p=path] out=(list card)]
+        ?.  (~(has in previous-down) [s t])
+          ~&  >>  "mds: 1"
+          out
+        ?~  source=(get-best-source:uc town-id ~ %nu)
+          ~&  >>  "mds: 2"
+          out  ::  TODO: fallback better
+        :+  (~(leave pass:io w) [s t])
+          %+  ~(watch pass:io w)  p.u.source
+          ?:(?=(%no-init (rear p)) p (snoc p %no-init))
+        out
+      ~&  >  "mds: (wex, indexer-sources-ping-results, a):"
+      ~&  wex.bowl
+      ~&  indexer-sources-ping-results
+      ~&  a
+      ~&  >  "/mds"
+      a
     ::
     ++  make-ping-indexer-cards
       ^-  (quip card _state)
@@ -523,42 +578,60 @@
 ::
 ++  get-best-source
   |=  [town-id=id:smart seen=(list @ud) level=?(%nu %nd %pu %pd %~)]
-  ^-  (unit [p=dock q=(list @ud) r=?(%nu %nd %pu %pd %~)])
-  =+  town-spr=(~(get by indexer-sources-ping-results) town-id)
-  =+  town-s=(~(get ju indexer-sources) town-id)
-  ?~  town-spr
-    =/  size-town-s=@ud  ~(wyt in town-s)
-    ?:  =(0 size-town-s)  ~
+  |^  ^-  (unit [p=dock q=(list @ud) r=?(%nu %nd %pu %pd %~)])
+  ~&  >  "gbs args: {<town-id>} {<seen>} {<level>}"
+  ?:  ?=(%~ level)  ~
+  =/  best-source  get-best-source-inner
+  ~&  best-source
+  ?~  best-source  ~
+  ?^  p.u.best-source  `[u.p.u.best-source +.u.best-source]
+  %=  $
+      seen   q.u.best-source
+      level  r.u.best-source
+  ==
+  ::
+  ++  get-best-source-inner
+    ^-  (unit [p=(unit dock) q=(list @ud) r=?(%nu %nd %pu %pd %~)])
+    =+  town-spr=(~(get by indexer-sources-ping-results) town-id)
+    =+  town-s=(~(get ju indexer-sources) town-id)
+    ?~  town-spr
+      =/  size-town-s=@ud  ~(wyt in town-s)
+      ?:  =(0 size-town-s)  ~
+      =^  index  seen
+        (roll-without-replacement size-town-s seen)
+      `[`(snag index ~(tap in town-s)) seen %~]
+    ~&  level
+    ~&  u.town-spr
+    =/  [level-town-spr=(set dock) next-level=?(%nu %nd %pu %pd %~)]
+      =*  newest-up    newest-up.u.town-spr
+      =*  newest-down  newest-down.u.town-spr
+      =/  newest-seen-so-far=(set dock)
+        (~(uni in newest-up) newest-down)
+      ?+    level  !!  ::  TODO: handle better?
+          %nu
+        :-  newest-up
+        ?:  (gth ~(wyt in newest-up) (lent seen))  level
+        ?:(=(town-s newest-seen-so-far) %nd %pu)
+      ::
+          %pu
+        =*  previous-up  previous-up.u.town-spr
+        :-  (~(dif in previous-up) newest-seen-so-far)
+        ?:((gth ~(wyt in previous-up) (lent seen)) level %pd)
+      ::
+          %pd
+        =*  previous-down  previous-down.u.town-spr
+        :-  (~(dif in previous-down) newest-seen-so-far)
+        ?:((gth ~(wyt in previous-down) (lent seen)) level %nd)
+      ::
+          %nd
+        :-  newest-down
+        ?:((gth ~(wyt in newest-down) (lent seen)) level %~)
+      ==
+    =/  size-level-town-spr=@ud  ~(wyt in level-town-spr)
+    ?:  =(0 size-level-town-spr)  `[~ seen next-level]
     =^  index  seen
-      (roll-without-replacement size-town-s seen)
-    `[(snag index ~(tap in town-s)) seen %~]
-  =/  [level-town-spr=(set dock) next-level=?(%nu %nd %pu %pd %~)]
-    =*  newest-up    newest-up.u.town-spr
-    =*  newest-down  newest-down.u.town-spr
-    =/  newest-seen-so-far=(set dock)
-      (~(uni in newest-up) newest-down)
-    ?+    level  !!  ::  TODO: handle better?
-        %nu
-      :-  newest-up
-      ?.  =(~(wyt in newest-up) +((lent seen)))  level
-      ?:(=(town-s newest-seen-so-far) %nd %pu)
-    ::
-        %pu
-      =*  previous-up  previous-up.u.town-spr
-      :-  (~(dif in previous-up) newest-seen-so-far)
-      ?.(=(~(wyt in previous-up) +((lent seen))) level %pd)
-    ::
-        %pd
-      =*  previous-down  previous-down.u.town-spr
-      :-  (~(dif in previous-down) newest-seen-so-far)
-      ?.(=(~(wyt in previous-down) +((lent seen))) level %nd)
-    ::
-        %nd
-      :-  newest-down
-      ?.(=(~(wyt in newest-down) +((lent seen))) level %~)
-    ==
-  =^  index  seen
-    (roll-without-replacement ~(wyt in level-town-spr) seen)
-  :^  ~  (snag index ~(tap in level-town-spr))
-  ?.(=(level next-level) ~ seen)  next-level
+      (roll-without-replacement size-level-town-spr seen)
+    :^  ~  `(snag index ~(tap in level-town-spr))
+    ?.(=(level next-level) ~ seen)  next-level
+  --
 --

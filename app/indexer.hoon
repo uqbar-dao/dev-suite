@@ -186,6 +186,7 @@
       !>(`?`%.y)
     ::
         $?  [%batch-order @ %no-init ~]
+            [%capitol-updates %no-init ~]
             [%hash @ %no-init ~]    [%hash @ @ %no-init ~]
             [%id @ %no-init ~]      [%id @ @ %no-init ~]
             [%grain @ %no-init ~]   [%grain @ @ %no-init ~]
@@ -274,7 +275,7 @@
             [%id *]
             [%lord *]
             [%town *]
-            [%capitol-updates ~]
+            [%capitol-updates *]
             [%indexer-catchup ~]
         ==
       `this
@@ -427,7 +428,9 @@
         %+  fact:io
           :-  %sequencer-capitol-update
           !>(`capitol-update:seq`update)
-        ~[rollup-capitol-path]
+        :+  rollup-capitol-path
+          (snoc rollup-capitol-path %no-init)
+        ~
       ::
           %new-peer-root
         =*  town-id  town-id.update
