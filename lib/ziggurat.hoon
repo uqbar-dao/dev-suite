@@ -166,7 +166,7 @@
     ^-  grain:smart
     :*  %&  salt.metadata
         %account
-        [200 ~ id.meta-rice]
+        [200 ~ id.meta-rice 0]
         dead-beef-account-id
         lord.meta-rice
         designated-address
@@ -183,7 +183,7 @@
     ^-  grain:smart
     :*  %&  salt.metadata
         %account
-        [100 ~ id.meta-rice]
+        [100 ~ id.meta-rice 0]
         cafe-babe-account-id
         lord.meta-rice
         0xcafe.babe
@@ -217,8 +217,8 @@
     %-  ~(uni by data-texts.current)
     %-  ~(gas by *(map id:smart @t))
     :~  [id.meta-rice ;;(@t data.meta-rice)]
-        [dead-beef-account-id '[balance=200 allowances=~ metadata=0xdada.dada]']
-        [cafe-babe-account-id '[balance=100 allowances=~ metadata=0xdada.dada]']
+        [dead-beef-account-id '[balance=200 allowances=~ metadata=0xdada.dada nonce=0]']
+        [cafe-babe-account-id '[balance=100 allowances=~ metadata=0xdada.dada nonce=0]']
     ==
   ::
       p.state

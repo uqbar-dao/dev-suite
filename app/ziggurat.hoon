@@ -156,7 +156,8 @@
       ::  NOTE: make sure to enforce on frontend that 'main' file name
       ::  always matches the name of the project, and that no other files
       ::  in the project can use that name.
-      =?  main.project  =(name.act project.act)
+      ~&  name.act
+      =?  main.project  =(name.act 'main')
         ::  this is the main file
         text.act
       =?  libs.project  !=(name.act project.act)
@@ -165,6 +166,7 @@
       =/  =build-result  (build-contract-project smart-lib-vase project)
       ::  only update compiled nock if successful build
       =?  compiled.project  ?=(%& -.build-result)
+        ~&  >  "project successfully rebuilt"
         `p.build-result
       =?  p.state.project  ?=(%& -.build-result)
         %+  put:big:mill  p.state.project
@@ -172,6 +174,7 @@
       ::  set error to ~ if successful build
       =.  error.project
         ?.  ?=(%| -.build-result)  ~
+        ~&  >>>  "project build failed"
         `p.build-result
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
@@ -185,6 +188,7 @@
       =/  =build-result  (build-contract-project smart-lib-vase project)
       ::  only update compiled nock if successful build
       =?  compiled.project  ?=(%& -.build-result)
+        ~&  >  "project successfully rebuilt"
         `p.build-result
       =?  p.state.project  ?=(%& -.build-result)
         %+  put:big:mill  p.state.project
@@ -192,6 +196,7 @@
       ::  set error to ~ if successful build
       =.  error.project
         ?.  ?=(%| -.build-result)  ~
+        ~&  >>>  "project build failed"
         `p.build-result
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
@@ -275,12 +280,13 @@
             designated-town-id
             status=0
         ==
-      =.  last-result.test
-        :-  ~
+      =/  result
         %+  %~  mill  mil
             [caller designated-town-id mill-batch-num.project]
           state.project
         [[0 0 0] shell action.test]
+      ::  remove trace from test
+      =.  last-result.test  `result(hits ~)
       ::  if test has expected results, go through list and check
       ::  if grains match those in this output
       =.  success.test

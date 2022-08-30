@@ -10,7 +10,7 @@
   ++  noun  upd
   ++  json
     %-  pairs
-    :~  ['result' (granary-to-json p.land.upd)]
+    :~  ['result' (granary-to-json p.land.upd ~)]
     ==
   --
 ++  grad  %noun
