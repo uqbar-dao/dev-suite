@@ -71,8 +71,13 @@
 ++  make-app-update
   |=  [project=@t =app-project]
   ^-  card
-  ::  TODO
-  !!
+  =/  =app-update
+    :*  dir.app-project
+        error.app-project
+        compiled.app-project
+    ==
+  =/  =path  /app-project/[project]
+  [%give %fact ~[path] %ziggurat-app-update !>(app-update)]
 ::
 ++  make-multi-test-update
   |=  [project=@t result=state-transition:mill]
@@ -189,7 +194,24 @@
         0xcafe.babe
         designated-town-id
     ==
-  =/  action-text=@t
+  =/  cafe-d00d-account-id
+    %:  fry-rice:smart
+        lord.meta-rice
+        0xcafe.d00d
+        designated-town-id
+        salt.metadata
+    ==
+  =/  cafe-d00d-account
+    ^-  grain:smart
+    :*  %&  salt.metadata
+        %account
+        [100 (~(gas py:smart *(pmap:smart @ux @ud)) ~[[0xdead.beef 50]]) id.meta-rice 0]
+        cafe-babe-account-id
+        lord.meta-rice
+        0xcafe.d00d
+        designated-town-id
+    ==
+  =/  action-1=@t
     %-  crip
     %-  zing
     :~  "[%give to=0xcafe.babe amount=30 from-account="
@@ -198,20 +220,40 @@
         (trip (scot %ux cafe-babe-account-id))
         "]"
     ==
-  =/  =yolk:smart
+  =/  yolk-1=yolk:smart
     =-  [;;(@tas -.-) +.-]
-    q:(slap smart-lib-vase (ream action-text))
-  =/  test1=test
+    q:(slap smart-lib-vase (ream action-1))
+  =/  test-1=test
     :*  `'test-give'
-        action-text
-        yolk
+        action-1
+        yolk-1
+        ~  ::  TODO
+        ~
+        ~
+    ==
+  =/  action-2=@t
+    %-  crip
+    %-  zing
+    :~  "[%take to=0xcafe.babe amount=50 from-account="
+        (trip (scot %ux cafe-d00d-account-id))
+        " to-account=`"
+        (trip (scot %ux cafe-babe-account-id))
+        "]"
+    ==
+  =/  yolk-2=yolk:smart
+    =-  [;;(@tas -.-) +.-]
+    q:(slap smart-lib-vase (ream action-2))
+  =/  test-2=test
+    :*  `'test-give'
+        action-2
+        yolk-2
         ~  ::  TODO
         ~
         ~
     ==
   %=    current
       tests
-    (malt ~[[0x1234.5678 test1]])
+    (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2]])
   ::
       data-texts
     %-  ~(uni by data-texts.current)
@@ -219,6 +261,7 @@
     :~  [id.meta-rice ;;(@t data.meta-rice)]
         [dead-beef-account-id '[balance=200 allowances=~ metadata=0xdada.dada nonce=0]']
         [cafe-babe-account-id '[balance=100 allowances=~ metadata=0xdada.dada nonce=0]']
+        [cafe-babe-account-id '[balance=100 allowances=(~(gas py *(pmap @ux @ud)) ~[[0xdead.beef 50]]) metadata=0xdada.dada nonce=0]']
     ==
   ::
       p.state
@@ -227,6 +270,7 @@
     :~  [id.meta-rice %&^meta-rice(data metadata)]
         [dead-beef-account-id dead-beef-account]
         [cafe-babe-account-id cafe-babe-account]
+        [cafe-d00d-account-id cafe-d00d-account]
     ==
   ==
 ++  nft-template-project

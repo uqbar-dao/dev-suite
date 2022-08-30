@@ -157,7 +157,7 @@
       ::  always matches the name of the project, and that no other files
       ::  in the project can use that name.
       ~&  name.act
-      =?  main.project  =(name.act 'main')
+      =?  main.project  =(name.act project.act)
         ::  this is the main file
         text.act
       =?  libs.project  !=(name.act project.act)
@@ -364,7 +364,7 @@
           [%pass /mount-wire %arvo %c mount-task]
           [%pass /save-wire %arvo %c bill-task]
           =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
-          [%ziggurat-contract-action !>(`app-action`project.act^[%read-desk ~])]
+          [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
       ==
     ::
         %delete-project

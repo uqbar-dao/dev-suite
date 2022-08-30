@@ -77,7 +77,7 @@
           ::
           [%read-desk ~]
           ::
-          [%publish-app clause:docket]
+          [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
       ==
   ==
 ::
