@@ -1148,7 +1148,6 @@
       ^-  (list card)
       %+  murn  ~(tap in (~(get ju sub-paths) query-type))
       |=  sub-path=path
-      ~&  sub-path
       =/  payload=?(@ux [@ux @ux])
         ?:  ?=(?([@ ~] [@ %no-init ~]) sub-path)
           (slav %ux i.sub-path)
@@ -1162,8 +1161,6 @@
           (serve-update query-type payload %.y)
         ==
       ?~  update  ~
-      ~&  %+  expand-paths  %no-init
-          ~[[query-type sub-path] [%hash sub-path]]
       :-  ~
       %+  fact:io  [%indexer-update !>(`update:ui`update)]
       %+  expand-paths  %no-init
