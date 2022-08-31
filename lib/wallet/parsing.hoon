@@ -9,6 +9,7 @@
   %-  pairs
   :~  ['id' [%s (scot %ux id)]]
       ['town' [%s (scot %ux town-id.asset)]]
+      ['contract' [%s (scot %ux contract.asset)]]
       ['token_type' [%s (scot %tas -.asset)]]
       :-  'data'
       %-  pairs

@@ -4,7 +4,7 @@
 ::  transactions, holding nonce values, and keeping track of owned data.
 ::
 /-  ui=indexer
-/+  *wallet-util, wallet-parsing, uqbar, ethereum, default-agent, dbug, verb, bip32, bip39
+/+  *wallet-util, wallet-parsing, uqbar, ethereum, default-agent, dbug, verb, bip32, bip39, ui-lib=indexer
 /*  smart-lib  %noun  /lib/zig/compiled/smart-lib/noun
 |%
 +$  card  card:agent:gall
@@ -60,6 +60,12 @@
     ::  send frontend updates along this path
     :_  this
     ~[[%give %fact ~ %zig-wallet-update !>([%new-book tokens.state])]]
+  ::
+      [%metadata-updates ~]
+    ?>  =(src.bowl our.bowl)
+    ::  send frontend updates along this path
+    :_  this
+    ~[[%give %fact ~ %zig-wallet-update !>([%new-metadata metadata-store.state])]]
   ::
       [%tx-updates ~]
     ?>  =(src.bowl our.bowl)
@@ -295,8 +301,9 @@
           ?>  ?=(%token -.from)
           =/  =asset-metadata  (~(got by metadata-store.state) metadata.from)
           =/  to-id  (fry-rice:smart zigs-wheat-id:smart to.args.act town.act salt.asset-metadata)
-          =+  .^  (unit grain:smart)  %gx
-                  /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/grain/(scot %ux town.act)/(scot %ux to-id)/noun
+          =+  %-  extract-single-grain:ui-lib
+              .^  update:ui  %gx
+                  /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/indexer/newest/grain/(scot %ux town.act)/(scot %ux to-id)/noun
               ==
           [%give to.args.act amount.args.act grain.args.act ?~(- ~ `to-id)]
         ::
@@ -382,50 +389,49 @@
       ==
     `this
   ::
-      ?([%holder @ ~] [%holder @ @ ~])
+      ?([%indexer %holder @ ~] [%indexer %holder @ @ ~])
     ?:  ?=(%watch-ack -.sign)  (on-agent:def wire sign)
     ?.  ?=(%fact -.sign)       (on-agent:def wire sign)
     ?.  ?=(%indexer-update p.cage.sign)  (on-agent:def wire sign)
-    =+  pub=?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
+    =+  pub=?:(?=([@ @ @ ~] wire) (slav %ux i.t.t.wire) (slav %ux i.t.t.t.wire))
     =/  =update:ui  !<(update:ui q.cage.sign)
     =/  old-book=book  (~(gut by tokens.state) pub ~)
     =/  new-book=book
       (indexer-update-to-books update pub metadata-store.state)
+    =/  new-metadata=^metadata-store
+      (update-metadata-store new-book our.bowl metadata-store.state [our now]:bowl)
     =+  %+  ~(put by tokens.state)  pub
         (~(uni by old-book) new-book)
-    :-  ~[[%give %fact ~[/book-updates] %zig-wallet-update !>([%new-book -])]]
-    %=  this
-      tokens  -
-      ::
-        metadata-store
-      (update-metadata-store new-book our.bowl metadata-store.state [our now]:bowl)
-    ==
+    :-  :~  [%give %fact ~[/book-updates] %zig-wallet-update !>([%new-book -])]
+            [%give %fact ~[/metadata-updates] %zig-wallet-update !>([%new-metadata new-metadata])]
+        ==
+    this(tokens -, metadata-store new-metadata)
   ::
-      ?([%id @ ~] [%id @ @ ~])
+      ?([%indexer %id @ ~] [%indexer %id @ @ ~])
     ::  update to a transaction from a tracked account
     ?:  ?=(%watch-ack -.sign)  (on-agent:def wire sign)
     ?.  ?=(%fact -.sign)       (on-agent:def wire sign)
     ?.  ?=(%indexer-update p.cage.sign)  (on-agent:def wire sign)
     =/  =update:ui  !<(=update:ui q.cage.sign)
     ?.  ?=(%egg -.update)  `this
-    =/  our-id=@ux  ?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
+    =/  our-id=@ux  ?:(?=([@ @ @ ~] wire) (slav %ux i.t.t.wire) (slav %ux i.t.t.t.wire))
     =+  our-txs=(~(gut by transaction-store.state) our-id [sent=~ received=~])
     =^  tx-status-cards=(list card)  our-txs
       %^  spin  ~(tap by eggs.update)  our-txs
       |=  [[hash=@ux [@da =egg-location:ui =egg:smart]] txs=_our-txs]
       ::  update status code and send to frontend
       ::  following error code spec in sur/wallet
+      =/  status  (add 200 `@`status.shell.egg)
+      ?>  ?=(transaction-status-code status)
       ^-  [card _our-txs]
       :-  ?~  this-tx=(~(get by sent.txs) hash)
             (tx-update-card hash egg [%custom (crip (text !>(yolk.egg)))])
-          (tx-update-card hash egg args.u.this-tx)
+          (tx-update-card hash egg(status.shell status) args.u.this-tx)
       %=    txs
           sent
         ?.  (~(has by sent.txs) hash)  sent.txs
         %+  ~(jab by sent.txs)  hash
         |=  [p=egg:smart q=supported-args]
-        =/  status  (add 200 `@`status.shell.egg)
-        ?>  ?=(transaction-status-code status)
         [p(status.shell status) q]
       ::
           ::  TODO update nonce for town if tx was rejected for bad nonce (code 3)

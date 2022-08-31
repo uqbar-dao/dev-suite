@@ -34,17 +34,15 @@
       %-  ot
       :~  [%from (se %ux)]
           [%to (se %ux)]
-          [%town ni]
+          [%town (se %ux)]
           [%gas (ot ~[[%rate ni] [%bud ni]])]
-          [%args (se %t)]
-          [%my-grains (ar (se %ux))]
-          [%cont-grains (ar (se %ux))]
+          [%yolk (se %t)]
       ==
     ++  parse-submit
       %-  ot
       :~  [%from (se %ux)]
           [%to (se %ux)]
-          [%town ni]
+          [%town (se %ux)]
           [%gas (ot ~[[%rate ni] [%bud ni]])]
           [%args parse-args]
       ==

@@ -4,9 +4,9 @@
 ::  pokes
 ::
 +$  action
-  $%  [%set-sources towns=(list [town-id=id:smart (list ship)])]
-      [%add-source town-id=id:smart =ship]  ::  added to end of priority list
-      [%remove-source town-id=id:smart =ship]
+  $%  [%set-sources towns=(list [town-id=id:smart (set dock)])]
+      [%add-source town-id=id:smart source=dock]
+      [%remove-source town-id=id:smart source=dock]
   ==
 ::
 +$  write
@@ -22,5 +22,13 @@
       [%rejected =ship]
       [%executed result=errorcode:smart]
       [%nonce value=@ud]
+  ==
+::
++$  sources-ping-results
+  %+  map  id:smart
+  $:  previous-up=(set dock)
+      previous-down=(set dock)
+      newest-up=(set dock)
+      newest-down=(set dock)
   ==
 --

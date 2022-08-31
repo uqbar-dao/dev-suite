@@ -185,6 +185,12 @@
       :: :_  ~
       :: [%indexer-update !>(`update:ui`update)]
     ::
+        [%ping ~]
+      :_  this
+      %-  fact-init-kick:io
+      :-  %loob
+      !>(`?`%.y)
+    ::
         [%indexer-catchup ~]
       :_  this
       %-  fact-init-kick:io
