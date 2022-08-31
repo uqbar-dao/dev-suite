@@ -236,7 +236,7 @@
       =/  =yolk:smart  [;;(@tas -.-) +.-]
       ::  put it in the project
       =.  tests.project
-        (~(put by tests.project) test-id [name.act action.act yolk ~ ~ ~])
+        (~(put by tests.project) test-id [name.act action.act yolk ~ ~])
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -244,9 +244,16 @@
       ::  add/replace expected rice outputs
       ?~  current=(~(get by tests.project) id.act)
         ~|("%ziggurat: test does not exist" !!)
+      =/  new=(map id:smart [grain:smart @t])
+        %-  malt
+        %+  turn  ~(tap in expected.act)
+        |=  =rice:smart
+        =/  tex  ;;(@t data.rice)
+        =-  [id.rice %&^rice(data -) tex]
+        q:(slap smart-lib-vase (ream tex))
       =.  tests.project
         %+  ~(put by tests.project)  id.act
-        u.current(expected `expected.act, success ~)
+        u.current(expected (~(uni by expected.u.current) new), result ~)
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -262,9 +269,9 @@
       ::  get existing
       =.  tests.project
         ?~  current=(~(get by tests.project) id.act)
-          (~(put by tests.project) id.act [name.act action.act yolk ~ ~ ~])
+          (~(put by tests.project) id.act [name.act action.act yolk ~ ~])
         %+  ~(put by tests.project)  id.act
-        [name.act action.act yolk expected.u.current ~ ~]
+        [name.act action.act yolk expected.u.current ~]
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -280,24 +287,47 @@
             designated-town-id
             status=0
         ==
-      =/  result
+      =/  =mill-result:mill
         %+  %~  mill  mil
             [caller designated-town-id mill-batch-num.project]
           state.project
         [[0 0 0] shell action.test]
-      ::  remove trace from test
-      =.  last-result.test  `result(hits ~)
-      ::  if test has expected results, go through list and check
-      ::  if grains match those in this output
-      =.  success.test
+      =/  =expected-diff
+        %-  ~(run by p.land.mill-result)
+        |=  [=id:smart made=grain:smart]
+        =/  expected  (~(get by expected.test) id)
+        :+  `made
+          ?~(expected ~ `-.u.expected)
+        ?^(expected `=(-.u.expected made) ~)
+      ::  add any expected that weren't ids in result
+      =.  expected-diff
+        =/  lis  ~(tap by expected.test)
+        |-
+        ?~  lis  expected-diff
+        %=  $
+          lis  t.lis
+        ::
+            expected-diff
+          ?:  (~(has by expected-diff) -.i.lis)
+            expected-diff
+          (~(put by expected-diff) [-.i.lis [~ `-.+.i.lis `%.n]])
+        ==
+      ::
+      =/  success
         ?~  expected.test  ~
         :-  ~
-        %+  levy  ~(tap in u.expected.test)
-        |=  =rice:smart
-        ?~  last-result.test  %.n
-        ?~  comp=(get:big:mill p.land.u.last-result.test id.rice)  %.n
-        ?.  ?=(%& -.u.comp)  %.n
-        =(p.u.comp rice)
+        %+  levy  ~(val by expected-diff)
+        |=  [(unit grain:smart) (unit grain:smart) match=(unit ?)]
+        ?~  match  %.y
+        u.match
+      ::
+      =/  =test-result
+        :*  fee.mill-result
+            errorcode.mill-result
+            crow.mill-result
+            expected-diff
+            success
+        ==
       ::  save result in test, send update
       =.  tests.project  (~(put by tests.project) id.act test)
       :-  (make-contract-update project.act project)^~
@@ -498,7 +528,7 @@
     ?~  project=(~(get by projects) (slav %t i.t.t.path))
       ``json+!>(~)
     ?>  ?=(%& -.u.project)
-    =/  =json  (tests-to-json tests.p.u.project data-texts.p.u.project)
+    =/  =json  (tests-to-json tests.p.u.project)
     ``json+!>(json)
   ::
   ::  APP-PROJECT JSON

@@ -229,7 +229,6 @@
         yolk-1
         ~  ::  TODO
         ~
-        ~
     ==
   =/  action-2=@t
     %-  crip
@@ -248,7 +247,6 @@
         action-2
         yolk-2
         ~  ::  TODO
-        ~
         ~
     ==
   %=    current
@@ -280,6 +278,24 @@
 ::
 ::  JSON parsing utils
 ::
+++  grain-to-json
+  |=  [=grain:smart tex=@t]
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  %+  welp
+    :~  ['lord' %s (scot %ux lord.p.grain)]
+        ['holder' %s (scot %ux holder.p.grain)]
+        ['town_id' %s (scot %ux town-id.p.grain)]
+    ==
+  ?.  ?=(%& -.grain)
+    ['contract' %b %.y]~
+  :~  ['salt' (numb salt.p.grain)]
+      ['label' %s (scot %tas label.p.grain)]
+      ['data_text' %s tex]
+      ['data' %s (crip (noah !>(data.p.grain)))]
+  ==
+::
 ++  contract-project-to-json
   |=  p=contract-project
   =,  enjs:format
@@ -295,30 +311,7 @@
       ::  not sharing imported either
       ['error' %s ?~(error.p '' u.error.p)]
       ['state' (granary-to-json p.state.p data-texts.p)]
-      ['tests' (tests-to-json tests.p data-texts.p)]
-  ==
-::
-++  tests-to-json
-  |=  [=tests data-texts=(map id:smart @t)]
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  %+  turn  ~(tap by tests)
-  |=  [id=@ux =test]
-  [(scot %ux id) (test-to-json test data-texts)]
-::
-++  test-to-json
-  |=  [=test data-texts=(map id:smart @t)]
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['name' %s ?~(name.test '' u.name.test)]
-      ['action_text' %s action-text.test]
-      ['action' %s (crip (noah !>(action.test)))]
-      ['expected' ?~(expected.test ~ (rice-set-to-json u.expected.test))]
-      ['last_result' ?~(last-result.test ~ (granary-to-json p.land.u.last-result.test data-texts))]
-      ['errorcode' ?~(last-result.test ~ (numb errorcode.u.last-result.test))]
-      ['success' ?~(success.test ~ [%b u.success.test])]
+      ['tests' (tests-to-json tests.p)]
   ==
 ::
 ++  granary-to-json
@@ -333,36 +326,73 @@
   |=  [=id:smart merk=@ux =grain:smart]
   ::  ignore contract nock -- just print metadata
   :-  (scot %ux id)
-  %-  pairs
-  %+  welp
-    :~  ['lord' %s (scot %ux lord.p.grain)]
-        ['holder' %s (scot %ux holder.p.grain)]
-        ['town_id' %s (scot %ux town-id.p.grain)]
-    ==
-  ?.  ?=(%& -.grain)
-    ['contract' %b %.y]~
-  :~  ['salt' (numb salt.p.grain)]
-      ['label' %s (scot %tas label.p.grain)]
-      ['data_text' %s ?~(t=(~(get by data-texts) id) '' u.t)]
-      ['data' %s (crip (noah !>(data.p.grain)))]
-  ==
+  %+  grain-to-json  grain
+  ?~(t=(~(get by data-texts) id) '' u.t)
 ::
-++  rice-set-to-json
-  |=  s=(set rice:smart)
+++  tests-to-json
+  |=  =tests
   =,  enjs:format
   ^-  json
   %-  pairs
-  %+  turn  ~(tap in s)
-  |=  =rice:smart
-  :-  (scot %ux id.rice)
+  %+  turn  ~(tap by tests)
+  |=  [id=@ux =test]
+  [(scot %ux id) (test-to-json test)]
+::
+++  test-to-json
+  |=  =test
+  =,  enjs:format
+  ^-  json
   %-  pairs
-  :~  ['lord' %s (scot %ux lord.rice)]
-      ['holder' %s (scot %ux holder.rice)]
-      ['town_id' %s (scot %ux town-id.rice)]
-      ['salt' (numb salt.rice)]
-      ['label' %s (scot %tas label.rice)]
-      ['data' %s (crip (noah !>(data.rice)))]
+  :~  ['name' %s ?~(name.test '' u.name.test)]
+      ['action_text' %s action-text.test]
+      ['action' %s (crip (noah !>(action.test)))]
+      ['expected' (expected-to-json expected.test)]
+      ['result' ?~(result.test ~ (test-result-to-json u.result.test))]
   ==
+::
+++  expected-to-json
+  |=  m=(map id:smart [grain:smart @t])
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  %+  turn  ~(tap by m)
+  |=  [=id:smart =grain:smart tex=@t]
+  [(scot %ux id) (grain-to-json grain tex)]
+::
+++  test-result-to-json
+  |=  t=test-result
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :~  ['fee' (numb fee.t)]
+      ['errorcode' (numb errorcode.t)]
+      ['events' (crow-to-json crow.t)]
+      ['grains' (expected-diff-to-json expected-diff.t)]
+      ['success' ?~(success.t ~ [%b u.success.t])]
+  ==
+::
+++  expected-diff-to-json
+  |=  m=expected-diff
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  %+  turn  ~(tap by m)
+  |=  [=id:smart made=(unit grain:smart) expected=(unit grain:smart) match=(unit ?)]
+  :-  (scot %ux id)
+  %-  pairs
+  :~  ['made' ?~(made ~ (grain-to-json u.made ''))]
+      ['expected' ?~(expected ~ (grain-to-json u.expected ''))]
+      ['match' ?~(match ~ [%b u.match])]
+  ==
+::
+++  crow-to-json
+  |=  =crow:smart
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  %+  turn  crow
+  |=  [label=@tas =json]
+  [(scot %tas label) json]
 ::
 ++  dir-to-json
   |=  dir=(list path)

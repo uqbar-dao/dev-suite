@@ -32,10 +32,19 @@
   $:  name=(unit @t)  ::  optional
       action-text=@t
       action=yolk:smart
-      expected=(unit (set rice:smart))
-      last-result=(unit mill-result:mill)
-      success=(unit ?)  ::  does last-result match expected?
+      expected=(map id:smart [grain:smart @t])
+      result=(unit test-result)
   ==
+::
++$  test-result
+  $:  fee=@ud
+      =errorcode:smart
+      =crow:smart
+      =expected-diff
+      success=(unit ?)  ::  does last-result fully match expected?
+  ==
++$  expected-diff
+  (map id:smart [made=(unit grain:smart) expected=(unit grain:smart) match=(unit ?)])
 ::
 +$  template  ?(%fungible %nft %blank)
 ::
