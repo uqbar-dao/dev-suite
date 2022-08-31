@@ -2,50 +2,55 @@
 
 ##  Initial Installation
 
-1. Start by cloning the custom urbit runtime with pedersen jets
-`git clone -b mb/local-jet git@github.com:martyr-binbex/urbit.git`
+1. Clone & build the custom Urbit runtime with Pedersen jets, and set env var `URBIT_BIN` to point to the resulting binary.
+   Sequencers must use the Pedersen-jetted binary for Uqbar code to run at reasonable speed.
+   Building requires the Nix package manager, see [install instructions](https://nixos.org/download.html).
+   ```bash
+   mkdir ~/git && cd ~/git  # Replace with your chosen directory.
 
-1. Assuming you have nix installed, build the custom vere
-`nix-build -A urbit`
+   git clone -b mb/local-jet git@github.com:martyr-binbex/urbit.git urbit-jet
+   cd urbit-jet
+   nix-build -A urbit
+   export URBIT_BIN=$(realpath ./result/bin/urbit)
+   ```
+2. Clone the official Urbit repository & add this repository as a submodule.
+   This structure is necessary to resolve symbolic links to other desks like base-dev and garden-dev.
+   ```bash
+   cd ~/git  # Replace with your chosen directory.
 
-The result should be at `./urbit-jet/result/bin/urbit`.
+   git clone git@github.com:urbit/urbit.git
+   cd urbit/pkg
+   git submodule add git@github.com:uqbar-dao/ziggurat.git ziggurat
+   ```
+3. Boot a development fakeship:
+   ```bash
+   $URBIT_BIN -F zod
+   ```
+4. In the Dojo of the fakeship, set up a `%zig` desk, where we will copy the files in this repo:
+   ```hoon
+   |merge %zig our %base
+   |mount %zig
+   ```
+5. In a new terminal, copy the files from this repo into the `%zig` desk:
+   ```bash
+   cd ~/git/urbit/pkg  # Replace with your chosen directory.
 
-You must use this version for developing with fakeships, otherwise running tests/contracts becomes untenable.
+   rm -rf zod/zig/*
+   cp -RL ziggurat/* zod/zig/
+   ```
+6. In the Dojo of the fakeship, commit the copied files and install.
+   ```hoon
+   |commit %zig
+   |install our %zig
+   ```
+7. Run tests if desired in the Dojo.
+  ```hoon
+  ::  Run all tests.
+  -test ~[/=zig=/tests]
 
-1. Next, clone the urbit/urbit repository from github.
-`git clone git@github.com:urbit/urbit.git`
-
-2. Then, change directory to urbit/pkg.
-`cd urbit/pkg`
-
-3. Then, add this repository as a submodule. This is necessary to resolve symbolic
-links to other desks, such as base-dev and garden-dev.
-`git submodule add git@github.com:uqbar-dao/ziggurat.git ziggurat`
-
-4. To boot your development Urbit, run the following command:
-`urbit -F zod`
-
-5. To create a `%zig` desk, run
-`|merge %zig our %base`
-
-6. To mount the `%zig` desk to the filesystem, run
-`|mount %zig`.
-
-7. Next, remove all the files from the zig directory.
-`rm -rf zod/zig/*`
-
-8. Now, copy all the files from our ziggurat repository into the `%zig` desk.
-`cp -RL urbit/pkg/ziggurat/* zod/zig/`
-
-9. Commit those files into your Urbit.
-`|commit %zig`
-
-10. Now, install the desk in your Urbit, which will run the agents.
-`|install our %zig`
-
-
-To run all tests, enter `-test ~[/=zig=/tests]`, or `-test ~[/=zig=/tests/contracts]` for just the contracts.
-
+  ::  Run only contract tests.
+   -test ~[/=zig=/tests/contracts]
+  ```
 
 ---
 ## Running a Blockchain
