@@ -55,13 +55,13 @@
    |install our %zig
    ```
 7. Run tests if desired in the Dojo.
-  ```hoon
-  ::  Run all tests.
-  -test ~[/=zig=/tests]
+   ```hoon
+   ::  Run all tests.
+   -test ~[/=zig=/tests]
 
-  ::  Run only contract tests.
-   -test ~[/=zig=/tests/contracts]
-  ```
+   ::  Run only contract tests.
+    -test ~[/=zig=/tests/contracts]
+   ```
 
 
 ## Running a Blockchain
