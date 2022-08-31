@@ -19,7 +19,7 @@
   :*  %&
       `@`'zigs'
       %account
-      [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
+      [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
       zigs-1
       zigs-wheat-id:smart
       pubkey-1
@@ -30,7 +30,7 @@
   :*  %&
       `@`'zigs'
       %account
-      [200.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
+      [200.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
       zigs-2
       zigs-wheat-id:smart
       pubkey-2
@@ -41,7 +41,7 @@
   :*  %&
       `@`'zigs'
       %account
-      [100.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
+      [100.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
       zigs-3
       zigs-wheat-id:smart
       pubkey-3

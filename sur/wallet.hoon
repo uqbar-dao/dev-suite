@@ -107,6 +107,7 @@
   $:  balance=@ud
       allowances=(map sender=id:smart @ud)
       metadata=id:smart
+      nonce=@ud
   ==
 ::
 ::  hardcoded molds comporting to account-NFT standard
