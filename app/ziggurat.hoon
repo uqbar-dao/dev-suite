@@ -373,14 +373,22 @@
     ::
         %save-file
       :_  state
-      =-  [%pass /save-wire %arvo %c -]~
-      [%info `@tas`project.act %& [file.act %ins %hoon !>(text.act)]~]
+      :~  =-  [%pass /save-wire %arvo %c -]
+          [%info `@tas`project.act %& [file.act %ins %hoon !>(text.act)]~]
+          =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
+          [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
+      ==
+
     ::
         %delete-file
       ::  should show warning
       :_  state
-      =-  [%pass /del-wire %arvo %c -]~
-      [%info `@tas`project.act %& [file.act %del ~]~]
+      :~  =-  [%pass /del-wire %arvo %c -]~
+          [%info `@tas`project.act %& [file.act %del ~]~]
+          =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
+          [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
+      ==
+
     ::
         %publish-app
       ::  should assert that desk.bill contains only our agent name,
