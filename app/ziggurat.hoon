@@ -356,8 +356,7 @@
         :*  %|
             ~
             ~
-            %.n
-            *clause:docket
+            %.y
         ==
       :_  state(projects (~(put by projects) project.act project))
       :~  [%pass /merge-wire %arvo %c merge-task]
@@ -383,7 +382,7 @@
         %delete-file
       ::  should show warning
       :_  state
-      :~  =-  [%pass /del-wire %arvo %c -]~
+      :~  =-  [%pass /del-wire %arvo %c -]
           [%info `@tas`project.act %& [file.act %del ~]~]
           =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
           [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
@@ -391,10 +390,39 @@
 
     ::
         %publish-app
+      ::  [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
       ::  should assert that desk.bill contains only our agent name,
       ::  and that clause has been filled out at least partially,
       ::  then poke treaty agent with publish
-      !!
+      =/  project  (~(got by projects) project.act)
+      ?>  ?=(%| -.project)
+      ~|  "project must compile before publishing!"
+      ?>  compiled.p.project
+      =/  bill
+        ;;  (list @tas)
+        .^(* %cx /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)/desk/bill)
+      ~|  "desk.bill should only contain our agent"
+      ?>  =(bill ~[project.act])
+      =/  docket-0
+        :*  %1
+            'Foo'
+            'An app that does a thing.'
+            0xf9.8e40
+            [%glob `@tas`project.act [0v0 [%ames our.bowl]]]
+            `'https://example.com/tile.svg'
+            [0 0 1]
+            'https://example.com'
+            'MIT'
+        ==
+      =/  docket-task
+        [%info `@tas`project.act %& [/desk/docket-0 %ins %docket-0 !>(docket-0)]~]
+      :_  state
+      :~  [%pass /save-wire %arvo %c docket-task]
+          =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
+          [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
+          =-  [%pass /treaty-wire %agent [our.bowl %treaty] %poke -]
+          [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
+      ==
     ::
         %read-desk
       ::  for internal use -- app calls itself to scry clay

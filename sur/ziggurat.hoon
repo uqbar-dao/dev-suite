@@ -10,7 +10,6 @@
   $:  dir=(list path)
       error=(unit @t)
       compiled=?
-      =clause:docket
   ==
 ::
 +$  contract-project
