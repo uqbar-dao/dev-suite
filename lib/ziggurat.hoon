@@ -363,4 +363,13 @@
       ['label' %s (scot %tas label.rice)]
       ['data' %s (crip (noah !>(data.rice)))]
   ==
+::
+++  dir-to-json
+  |=  dir=(list path)
+  =,  enjs:format
+  ^-  json
+  :-  %a
+  %+  turn  dir
+  |=  p=^path
+  (path p)
 --
