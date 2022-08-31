@@ -1,5 +1,16 @@
 # Development Instructions
 
+
+## Contents
+
+* [Initial Installation](#initial-installation)
+* [Running a Blockchain](#running-a-blockchain)
+* [Compiling Contracts and the Standard Library](#compiling-contracts-and-the-standard-library)
+* [Using the Wallet](#using-the-wallet)
+* [Indexer](#indexer)
+* [Testing Zink](#testing-zink)
+
+
 ##  Initial Installation
 
 1. Clone & build the custom Urbit runtime with Pedersen jets, and set env var `URBIT_BIN` to point to the resulting binary.
@@ -52,12 +63,13 @@
    -test ~[/=zig=/tests/contracts]
   ```
 
----
+
 ## Running a Blockchain
 
 *Note: make sure the ship you're using is in the [whitelist](https://github.com/uqbar-dao/ziggurat/blob/77579b1924e51774c168ba19356f3b807f607861/lib/zig/util.hoon#L14-L26)*
 
-**To start up a new testnet:**
+
+### Starting up a new testnet
 
 We'll use a pubkey/seed combo here that has tokens pre-minted for us.
 Enter these commands in dojo after following the setup instructions above:
@@ -104,8 +116,8 @@ private: 0x3163.45c7.9265.36bd.6a32.d317.87c0.c961.8df2.8d91.4c07.1a04.b929.baf6
 public: 0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
 ```
 
----
-**To index on an existing testnet:**
+
+### Indexing on an existing testnet
 
 First make sure you're on the whitelist for the ship hosting the rollup simulator. Then, if `~zod` was that host:
 ```
@@ -114,16 +126,15 @@ First make sure you're on the whitelist for the ship hosting the rollup simulato
 :indexer &set-rollup [~zod %rollup]
 :uqbar|set-sources 0x0 ~[our ~zod]
 ```
----
 
-**To sequence on an existing testnet:**
+
+### Sequencing on an existing testnet
 
 First make sure you're on the whitelist for the ship hosting the rollup simulator. Then, if `~zod` was that host:
 ```
 :sequencer|init ~zod <YOUR_TOWN_ID> <PRIVATE_KEY>
 ```
 
----
 
 ## Compiling Contracts and the Standard Library
 
@@ -149,8 +160,6 @@ cp ./<fakezod_pier>/.urb/put/*.noun ./<urbit-git-dir>/pkg/ziggurat/lib/zig/compi
 (This assumes you've cloned this repo (ziggurat) as a submodule into the pkg folder as instructed above.)
 
 
-
----
 ## Using the Wallet
 
 1. Scry for a JSON dict of accounts, keyed by address, containing private key, nickname, and nonces:
@@ -166,7 +175,7 @@ cp ./<fakezod_pier>/.urb/put/*.noun ./<urbit-git-dir>/pkg/ziggurat/lib/zig/compi
 `.^(json %gx /=wallet=/seed/json)`
 
 
-**Wallet pokes available:**
+### Wallet pokes available
 (only those with JSON support shown)
 
 ```
@@ -209,51 +218,14 @@ Example pokes that will work upon chain initialization in dojo):
 #  CUSTOM TRANSACTION
 :uqbar &zig-wallet-poke [%submit-custom from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] yolk='[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]']
 ```
----
 
-### DAO set up
-
-1. Start the chain and the indexer (i.e. see "To initialize a blockchain" section above).
-
-2. Tell the DAO agent to watch our indexer:
-```
-:dao &set-indexer [our %indexer]
-```
-
-3. Set up subscription of off-chain DAO agent to on-chain DAO (which is created in `gen/sequencer/init-dao.hoon`):
-```
-::  arguments are rid, which is analogous to a landscape group, salt, which is unique to each DAO, and DAO name
--zig!create-dao-comms [[~zod %uqbar-dao] `@`'uqbar-dao' 'Uqbar DAO']
-```
-
-### Changing DAO state
-
-To change the DAO state, a transaction must be sent to the chain.
-The helper thread `ted/send-dao-action.hoon` builds transactions.
-For example, from a ship that is a DAO owner (and additionally currently limited to `~zod` as of 220502), the following will submit transactions to create two proposals and then add a vote to each.
-If the threshold is surpassed by the vote, the proposals will pass.
-```
-::  account ids
-=pubkey 0x2.e3c1.d19b.fd3e.43aa.319c.b816.1c89.37fb.b246.3a65.f84d.8562.155d.6181.8113.c85b
-=zigs-id 0x10b.4ca5.fb93.480b.a0d7.c168.0f3e.6d43
-=dao-id 0xef44.5e1e.2113.c21d.7560.c831.6056.d984
-
-::  prepare on-chain-update objects for proposals
-=add-perm-host-update [%add-permissions dao-id %host [our %uqbar-dao] (~(put in *(set @tas)) %comms-host)]
-=add-role-host-update [%add-roles dao-id (~(put in *(set @tas)) %comms-host) pubkey]
-
-::  proposals and votes
--zig!send-dao-action [our [pubkey 1 zigs-id] [%propose dao-id add-perm-host-update]]
--zig!send-dao-action [our [pubkey 2 zigs-id] [%propose dao-id add-role-host-update]]
--zig!send-dao-action [our [pubkey 3 zigs-id] [%vote dao-id 0x54c2.59a7]]
--zig!send-dao-action [our [pubkey 4 zigs-id] [%vote dao-id 0x44f5.977d]]
-```
 
 ## Indexer
 
 The indexer exposes a variety of scry and subscription paths.
 A few are discussed below with examples.
 Please see the docstring at the top of `app/indexer.hoon` for a fuller set of available paths.
+
 
 ### Indexer scries
 
@@ -321,6 +293,7 @@ await api.scry({app: "indexer", path: "/egg/0xdead.beef"});
 await api.scry({app: "indexer", path: "/from/0xcafe.babe"});
 ```
 
+
 ### Indexer subscriptions
 
 One example subscription will be discussed: subscribing to receive each new block (or "slot") that is processed by the indexer. (TODO)
@@ -328,7 +301,8 @@ Please see the docstring at the top of `app/indexer.hoon` for a fuller set of av
 
 For the HTTP API, the app to subscribe to is `"indexer"`, and the path is `"/slot"`.
 
-# Testing Zink
+
+## Testing Zink
 
 ```
 =z -build-file /=zig=/lib/zink/zink/hoon
@@ -346,12 +320,9 @@ For the HTTP API, the app to subscribe to is `"indexer"`, and the path is `"/slo
 > =r (~(hash-noun zink:z +>.r) [1 2 3])
 ```
 
-### Precomputing Hashes for Zink
+
+## Precomputing Hashes for Zink
 
 ```
 .hash-cache/noun +zig!build-hash-cache 100
 ```
-
-
----
-
