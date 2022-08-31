@@ -18,6 +18,4 @@
 =/  watch-wire=wire  /ping-response
 ;<  =cage  bind:m
   (watch-one watch-wire indexer-to-ping watch-path)
-~&  >  "uqbar-pinger: done with {<cage>}"
 ?.(?=(%loob p.cage) (pure:m !>(`?`%.n)) (pure:m q.cage))
-:: (pure:m !>(`?`!<(? q.cage)))

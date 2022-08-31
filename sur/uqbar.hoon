@@ -7,6 +7,7 @@
   $%  [%set-sources towns=(list [town-id=id:smart (set dock)])]
       [%add-source town-id=id:smart source=dock]
       [%remove-source town-id=id:smart source=dock]
+      [%set-wallet-source app-name=@tas]  ::  to plug in a third-party wallet app
   ==
 ::
 +$  write
@@ -24,7 +25,7 @@
       [%nonce value=@ud]
   ==
 ::
-+$  sources-ping-results
++$  indexer-sources-ping-results
   %+  map  id:smart
   $:  previous-up=(set dock)
       previous-down=(set dock)
