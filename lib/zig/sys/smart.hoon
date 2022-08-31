@@ -283,6 +283,18 @@
 |%
 +$  hash  @ux
 ::
+++  make-pmap                                           ::  pmap from list
+  |*  a=(list)
+  (polt `(list [p=_-<.a q=_->.a])`a)
+::
+++  polt                                                ::  map from pair list
+  |*  a=(list (pair))  ::  ^-  =,(i.-.a (map _p _q))
+  (~(gas py *(pmap _p.i.-.a _q.i.-.a)) a)
+::
+++  make-pset                                           ::  pset from list
+  |*  a=(list)  ::  ^-  (set _i.-.a)
+  (~(gas pn *(pset _?>(?=(^ a) i.a))) a)
+::
 ::  +merk: merkle tree
 ::
 ++  merk
