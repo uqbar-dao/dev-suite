@@ -329,7 +329,8 @@
             success
         ==
       ::  save result in test, send update
-      =.  tests.project  (~(put by tests.project) id.act test)
+      =.  tests.project
+        (~(put by tests.project) id.act test(result `test-result))
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
