@@ -1,17 +1,43 @@
-# Development Instructions
+# Ziggurat
+
+Ziggurat is the Uqbar developer suite.
+It contains code for the Gall apps required to simulate the ZK-rollup to Ethereum, to sequence transactions in order to run a town, and the user application suite: the `%wallet` for chain writes, the `%indexer` for chain reads, and `%uqbar`, a unified read-write interface.
 
 
 ## Contents
 
+* [Project Structure](#project-structure)
 * [Initial Installation](#initial-installation)
-* [Running a Blockchain](#running-a-blockchain)
+* [Starting a Fakeship Testnet](#starting-a-fakeship-testnet)
+* [Joining an Existing Testnet](#joining-an-existing-testnet)
 * [Compiling Contracts and the Standard Library](#compiling-contracts-and-the-standard-library)
-* [Using the Wallet](#using-the-wallet)
+* [Additional Wallet Pokes](#additional-wallet-pokes)
 * [Indexer](#indexer)
 * [Testing Zink](#testing-zink)
 
 
-##  Initial Installation
+## Project Structure
+
+![Project Structure](/assets/220901-project-structure.png)
+
+The `%rollup` app simulates the ZK rollup to the Ethereum L1.
+The `%sequencer` app runs a town, receiving transactions from users and batching them up to send to the `%rollup`.
+The user suite of apps include:
+* `%wallet`: manages key pairs, tracks assets, handles writes to chain
+* `%indexer`: indexes batches, provides a scry interface for chain state, sends subscription updates
+* `%uqbar`: wraps `%wallet` and `%indexer` to provide a unified read/write interface
+
+The user suite of apps interact with the `%rollup` and `%sequencer` apps, and provide interfaces for use by Urbit apps that need to read or write to the chain.
+
+A single `%rollup` app will be run on a single ship.
+One `%sequencer` app will run each town.
+Any ship that interacts with the chain will run the `%wallet`, `%indexer`, and `%uqbar` apps.
+
+In the future, multiple `%sequencer`s may take turns sequencing a single town.
+In the future, with remote scry, users will not need to run their own `%indexer`, and will instead be able to point their `%uqbar` app at a remote `%indexer`.
+
+
+## Initial Installation
 
 1. Clone & build the custom Urbit runtime with Pedersen jets, and set env var `URBIT_BIN` to point to the resulting binary.
    Sequencers must use the Pedersen-jetted binary for Uqbar code to run at reasonable speed.
@@ -60,20 +86,22 @@
    -test ~[/=zig=/tests]
 
    ::  Run only contract tests.
-    -test ~[/=zig=/tests/contracts]
+   -test ~[/=zig=/tests/contracts]
    ```
 
 
-## Running a Blockchain
+## Starting a Fakeship Testnet
 
-*Note: make sure the ship you're using is in the [whitelist](https://github.com/uqbar-dao/ziggurat/blob/77579b1924e51774c168ba19356f3b807f607861/lib/zig/util.hoon#L14-L26)*
+*Note: make sure the ship you're using is in the [whitelist](https://github.com/uqbar-dao/ziggurat/blob/master/lib/rollup.hoon)*
 
 
 ### Starting up a new testnet
 
-We'll use a pubkey/seed combo here that has tokens pre-minted for us.
-Enter these commands in dojo after following the setup instructions above:
-```
+Uqbar provides a generator to set up a fakeship testnet for local development.
+That generator, used as a poke to the `%sequencer` app as `:sequencer|init`, populates a new town with some `grain`s: `wheat` (contract code) and `rice` (owned data).
+Specifically, contracts for zigs tokens, NFTs, and publishing new contracts are pre-deployed.
+After [initial installation](#initial-installation), start the `%rollup`, initialize the `%sequencer`, set up the `%uqbar` middleware, and configure the `%wallet` to point to some pre-set assets, minted in the `:sequencer|init` poke:
+```hoon
 :rollup|activate
 :sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608
 :indexer &set-sequencer [our %sequencer]
@@ -81,58 +109,118 @@ Enter these commands in dojo after following the setup instructions above:
 :uqbar|set-sources 0x0 ~[our]
 :uqbar &zig-wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
 ```
-Note that the private key we're initializing the sequencer app with matches that of the seed phrase we're using in the wallet -- so you'll be the one collecting gas fees for transactions run through that local sequencer.
 
-This sequencer initialization script launches a new "town" into the rollup with a nice starting state for testing. It contains the contract-publishing contract, zigs token contract, and a generic NFT contract pre-deployed. From the wallets provided below, you can send zigs, publish contracts, and deploy NFT projects. There's one NFT project pre-deployed as well, with a single NFT in the wallet we import above.
 
-Seed phrases / private key / public key combos with tokens pre-supplied on init script:
+### Example: writing to chain with `%wallet`
 
+After [starting the testnet](#starting-up-a-new-testnet), send transactions using the `%wallet`.
+Note that pokes here are to `%uqbar`.
+Pokes with the `%zig-wallet-poke` mark are routed through `%uqbar` to `%wallet`, so the pokes below could just as easily be sent to `%wallet`.
+
+```hoon
+::  Send zigs tokens.
+:uqbar &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 grain=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
+
+::  Send an NFT.
+:uqbar &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0xcafe.babe town=0x0 gas=[1 1.000.000] [%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de grain=0x7e21.2812.bfae.4d2e.6b3d.9941.b776.3c0f.33bc.fb6d.c759.2d80.be02.a7b2.48a8.da97]]
+
+::  Use the custom transaction interface to send zigs tokens.
+:uqbar &zig-wallet-poke [%submit-custom from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] yolk='[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]']
 ```
-300 zigs:
-seed: uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove
 
-encryption password: squid
-
-private: 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608
-
-public: 0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
-
-200 zigs:
-seed: post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney
-
-encryption password: squid
-
-private: 0x38b7.e413.7f0d.9d05.ae1e.382d.debd.cc79.3f3a.6be3.912b.1eea.33e2.dd94.bd1c.d330
-
-public: 0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
-
-100 zigs:
-seed: flee alter erode parrot turkey harvest pass combine casual interest receive album coyote shrug envelope turtle broken purity wear else fluid egg theme buyer
-
-encryption password: squid
-
-private: 0x3163.45c7.9265.36bd.6a32.d317.87c0.c961.8df2.8d91.4c07.1a04.b929.baf6.cfd2.b4e8
-
-public: 0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
+Each transaction sent will be stored in the `%sequencer`s `basket` -- analogous to a mempool.
+To execute the transactions, create the new batch with updated town state, and send it to the `%rollup`, poke the `%sequencer`:
+```hoon
+:sequencer|batch
 ```
+
+
+### Example: reading chain state with `%indexer`:
+
+Chain state can be scried inside Urbit or from outside Urbit using the HTTP API.
+Consult the docstring of `app/indexer.hoon` for a complete listing of scry paths.
+
+1. Scrying from the Dojo.
+   ```hoon
+   =ui -build-file /=zig=/sur/indexer/hoon
+
+   ::  Query all fields for the given hash.
+   .^(update:ui %gx /=indexer=/hash/0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70/noun)
+
+   ::  Query for the history of the given grain.
+   .^(update:ui %gx /=indexer=/grain/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun)
+
+   ::  Query for the current state of the given grain.
+   .^(update:ui %gx /=indexer=/newest/grain/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun)
+   ```
+
+2. Scrying from outside Urbit using the HTTP API.
+   The following examples assume `~zod` is running on `localhost:8080`.
+   ```bash
+   export ZOD_COOKIE=$(curl -i -X POST localhost:8080/~/login -d 'password=lidlut-tabwed-pillex-ridrup' | grep set-cookie | awk '{print $2}' | awk -F ';' '{print $1}')
+
+   # Query all fields for the given hash.
+   curl --cookie "$ZOD_COOKIE" localhost:8080/~/scry/uqbar/indexer/hash/0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70.json | jq
+
+   # Query for the history of the given grain.
+   curl --cookie "$ZOD_COOKIE" localhost:8080/~/scry/uqbar/indexer/grain/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6.json | jq
+
+   # Query for the current state of the given grain.
+   curl --cookie "$ZOD_COOKIE" localhost:8080/~/scry/uqbar/indexer/newest/grain/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6.json | jq
+   ```
+
+### Accounts initialized by init script
+
+Below are listed the seed phrases, encryption passwords, and key pairs initialized by the `:sequencer|init` call [above](#starting-a-new-testnet).
+Note in that section we make use of the first of these accounts to set up the `%wallet` (and `%sequencer`) on `~zod`.
+
+```hoon
+::  Account holding a rice with 300 zigs.
+::  Seed, password, private key, public key:
+uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove
+squid
+0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608
+0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
+
+::  Account holding a rice with 200 zigs:
+::  Seed, password, private key, public key:
+post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney
+squid
+0x38b7.e413.7f0d.9d05.ae1e.382d.debd.cc79.3f3a.6be3.912b.1eea.33e2.dd94.bd1c.d330
+0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
+
+::  Account holding a rice with 100 zigs:
+::  Seed, password, private key, public key:
+flee alter erode parrot turkey harvest pass combine casual interest receive album coyote shrug envelope turtle broken purity wear else fluid egg theme buyer
+squid
+0x3163.45c7.9265.36bd.6a32.d317.87c0.c961.8df2.8d91.4c07.1a04.b929.baf6.cfd2.b4e8
+0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
+```
+
+
+## Joining an Existing Testnet
+
+First make sure you're on the [whitelist](https://github.com/uqbar-dao/ziggurat/blob/master/lib/rollup.hoon) for the ship hosting the rollup simulator.
+The following two examples assume `~zod` is the host:
 
 
 ### Indexing on an existing testnet
-
-First make sure you're on the whitelist for the ship hosting the rollup simulator. Then, if `~zod` was that host:
-```
+```hoon
 :indexer &indexer-catchup [~zod %indexer]
 :indexer &set-sequencer [~zod %sequencer]
 :indexer &set-rollup [~zod %rollup]
-:uqbar|set-sources 0x0 ~[our ~zod]
+:uqbar|set-sources 0x0 ~[our]
 ```
+In this example, not all the hosts need be the same ship.
+To give a specific example, `~zod` might be running the `%rollup`, while `~bus` runs the `%sequencer` for town `0x0` and also the `%indexer`.
+Every user who wishes to interact with the chain must currently run their own `%indexer`, so there will likely be many options to `%indexer-catchup` from.
 
 
 ### Sequencing on an existing testnet
 
-First make sure you're on the whitelist for the ship hosting the rollup simulator. Then, if `~zod` was that host:
-```
-:sequencer|init ~zod <YOUR_TOWN_ID> <PRIVATE_KEY>
+To start sequencing a new town:
+```hoon
+:sequencer|init ~zod <YOUR_TOWN_ID> <YOUR_PRIVATE_KEY>
 ```
 
 
@@ -160,22 +248,7 @@ cp ./<fakezod_pier>/.urb/put/*.noun ./<urbit-git-dir>/pkg/ziggurat/lib/zig/compi
 (This assumes you've cloned this repo (ziggurat) as a submodule into the pkg folder as instructed above.)
 
 
-## Using the Wallet
-
-1. Scry for a JSON dict of accounts, keyed by address, containing private key, nickname, and nonces:
-`.^(json %gx /=wallet=/accounts/noun)`
-
-2. Scry for a JSON dict of known assets (rice), keyed by address, then by rice address:
-`.^(json %gx /=wallet=/book/json)`
-
-3. Scry for JSON dict of token metadata we're aware of:
-`.^(json %gx /=wallet=/token-metadata/json)`
-
-4. Scry for seed phrase and password (todo separate these):
-`.^(json %gx /=wallet=/seed/json)`
-
-
-### Wallet pokes available
+## Additional Wallet Pokes
 (only those with JSON support shown)
 
 ```
@@ -206,17 +279,6 @@ cp ./<fakezod_pier>/.urb/put/*.noun ./<urbit-git-dir>/pkg/ziggurat/lib/zig/compi
    args: {give: {salt: "1.936.157.050", to: "0x2.eaea.cffd.2bbe.e0c0.02dd.b5f8.dd04.e63f.297f.14cf.d809.b616.2137.126c.da9e.8d3d", amount: 777}}
    }
 }
-```
-Example pokes that will work upon chain initialization in dojo):
-```
-#  ZIGS
-:uqbar &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 grain=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
-
-#  NFT
-:uqbar &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0xcafe.babe town=0x0 gas=[1 1.000.000] [%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de grain=0x7e21.2812.bfae.4d2e.6b3d.9941.b776.3c0f.33bc.fb6d.c759.2d80.be02.a7b2.48a8.da97]]
-
-#  CUSTOM TRANSACTION
-:uqbar &zig-wallet-poke [%submit-custom from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] yolk='[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]']
 ```
 
 
