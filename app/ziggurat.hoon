@@ -240,20 +240,27 @@
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
-        %add-test-expectations
-      ::  add/replace expected rice outputs
+        %add-test-expectation
+      ::  add/replace expected rice output
       ?~  current=(~(get by tests.project) id.act)
         ~|("%ziggurat: test does not exist" !!)
-      =/  new=(map id:smart [grain:smart @t])
-        %-  malt
-        %+  turn  ~(tap in expected.act)
-        |=  =rice:smart
-        =/  tex  ;;(@t data.rice)
+      =*  rice  expected.act
+      =/  tex  ;;(@t data.rice)
+      =/  new
         =-  [id.rice %&^rice(data -) tex]
         q:(slap smart-lib-vase (ream tex))
       =.  tests.project
         %+  ~(put by tests.project)  id.act
-        u.current(expected (~(uni by expected.u.current) new), result ~)
+        u.current(expected (~(put by expected.u.current) new), result ~)
+      :-  (make-contract-update project.act project)^~
+      state(projects (~(put by projects) project.act %&^project))
+    ::
+        %delete-test-expectation
+      ?~  current=(~(get by tests.project) id.act)
+        ~|("%ziggurat: test does not exist" !!)
+      =.  tests.project
+        %+  ~(put by tests.project)  id.act
+        u.current(expected (~(del by expected.u.current) delete.act), result ~)
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::

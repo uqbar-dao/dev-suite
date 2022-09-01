@@ -65,7 +65,8 @@
           [%delete-from-state =id:smart]
           ::
           [%add-test name=(unit @t) action=@t]  ::  name optional
-          [%add-test-expectations id=@ux expected=(set rice:smart)]
+          [%add-test-expectation id=@ux expected=rice:smart]
+          [%delete-test-expectation id=@ux delete=id:smart]
           [%delete-test id=@ux]
           [%edit-test id=@ux name=(unit @t) action=@t]
           [%run-test id=@ux rate=@ud bud=@ud]
