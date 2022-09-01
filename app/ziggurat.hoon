@@ -293,12 +293,15 @@
           state.project
         [[0 0 0] shell action.test]
       =/  =expected-diff
-        %-  ~(run by p.land.mill-result)
-        |=  [=id:smart made=grain:smart]
+        %-  malt
+        %+  turn  ~(tap by p.land.mill-result)
+        |=  [=id:smart [@ux made=grain:smart]]
         =/  expected  (~(get by expected.test) id)
+        :-  id
         :+  `made
           ?~(expected ~ `-.u.expected)
-        ?^(expected `=(-.u.expected made) ~)
+        ?~  expected  ~
+        `=(-.u.expected made)
       ::  add any expected that weren't ids in result
       =.  expected-diff
         =/  lis  ~(tap by expected.test)

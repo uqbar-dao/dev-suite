@@ -243,7 +243,7 @@
     =-  [;;(@tas -.-) +.-]
     q:(slap smart-lib-vase (ream action-2))
   =/  test-2=test
-    :*  `'test-give'
+    :*  `'test-take'
         action-2
         yolk-2
         ~  ::  TODO
@@ -259,7 +259,7 @@
     :~  [id.meta-rice ;;(@t data.meta-rice)]
         [dead-beef-account-id '[balance=200 allowances=~ metadata=0xdada.dada nonce=0]']
         [cafe-babe-account-id '[balance=100 allowances=~ metadata=0xdada.dada nonce=0]']
-        [cafe-babe-account-id '[balance=100 allowances=(~(gas py *(pmap @ux @ud)) ~[[0xdead.beef 50]]) metadata=0xdada.dada nonce=0]']
+        [cafe-d00d-account-id '[balance=100 allowances=(~(gas py *(pmap @ux @ud)) ~[[0xdead.beef 50]]) metadata=0xdada.dada nonce=0]']
     ==
   ::
       p.state
