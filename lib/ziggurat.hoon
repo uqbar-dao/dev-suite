@@ -206,7 +206,7 @@
     :*  %&  salt.metadata
         %account
         [100 (~(gas py:smart *(pmap:smart @ux @ud)) ~[[0xdead.beef 50]]) id.meta-rice 0]
-        cafe-babe-account-id
+        cafe-d00d-account-id
         lord.meta-rice
         0xcafe.d00d
         designated-town-id
