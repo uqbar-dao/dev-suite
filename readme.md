@@ -11,9 +11,8 @@ It contains code for the Gall apps required to simulate the ZK-rollup to Ethereu
 * [Starting a Fakeship Testnet](#starting-a-fakeship-testnet)
 * [Joining an Existing Testnet](#joining-an-existing-testnet)
 * [Compiling Contracts and the Standard Library](#compiling-contracts-and-the-standard-library)
-* [Additional Wallet Pokes](#additional-wallet-pokes)
-* [Indexer](#indexer)
 * [Testing Zink](#testing-zink)
+* [Glossary](#glossary)
 
 
 ## Project Structure
@@ -92,10 +91,8 @@ In the future, with remote scry, users will not need to run their own `%indexer`
 
 ## Starting a Fakeship Testnet
 
-*Note: make sure the ship you're using is in the [whitelist](https://github.com/uqbar-dao/ziggurat/blob/master/lib/rollup.hoon)*
-
-
-### Starting up a new testnet
+To develop this repo or new contracts, it is convenient to start with a fakeship testnet.
+First, make sure the fakeship you're using is in the [whitelist](https://github.com/uqbar-dao/ziggurat/blob/master/lib/rollup.hoon).
 
 Uqbar provides a generator to set up a fakeship testnet for local development.
 That generator, used as a poke to the `%sequencer` app as `:sequencer|init`, populates a new town with some `grain`s: `wheat` (contract code) and `rice` (owned data).
@@ -200,6 +197,7 @@ squid
 
 ## Joining an Existing Testnet
 
+To add a new ship to a fakeship testnet or to a live testnet, follow these instructions.
 First make sure you're on the [whitelist](https://github.com/uqbar-dao/ziggurat/blob/master/lib/rollup.hoon) for the ship hosting the rollup simulator.
 The following two examples assume `~zod` is the host:
 
@@ -226,142 +224,27 @@ To start sequencing a new town:
 
 ## Compiling Contracts and the Standard Library
 
+Contracts and the standard library must be compiled before they can be used.
+Compilation makes use of generators that can be easily run in the Dojo.
+The compiled `.noun` files can be found in the `put` directory of your pier.
+For example, if you compile using a fakezod, the `noun` files can be found within `zod/.urb/put`.
 
-The following line compiles the `dao.hoon` contract. In general, you can replace `dao` with the name of any other contract.
-```hoon
-.dao/noun +zig!deploy /=zig=/lib/zig/contracts/dao/hoon
-```
-
-Run the following if you've made changes to the standard library and want to recompile it.
+To recompile the standard library, use
 ```hoon
 .smart-lib/noun +zig!mk-smart
 ```
 
-The above instructions output their content into the `put` directory of your pier, located at e.g. `nec/.urb/put`.
-
-To include the compiled contracts into the git tree, run the following:
-
-```bash
-cp ./<fakezod_pier>/.urb/put/*.noun ./<urbit-git-dir>/pkg/ziggurat/lib/zig/compiled/
-```
-
-(This assumes you've cloned this repo (ziggurat) as a submodule into the pkg folder as instructed above.)
-
-
-## Additional Wallet Pokes
-(only those with JSON support shown)
-
-```
-{import-seed: {mnemonic: "12-24 word phrase", password: "password", nick: "nickname for the first address in this wallet"}}
-{generate-hot-wallet: {password: "password", nick: "nickname"}}
-# leave hdpath empty ("") to let wallet auto-increment from 0 on main path
-{derive-new-address: {hdpath: "m/44'/60'/0'/0/0", nick: "nickname"}}
-# use this to save a hardware wallet account
-{add-tracked-address: {address: "0x1234.5678" nick: "nickname"}}
-{delete-address: {address: "0x1234.5678"}}
-{edit-nickname: {address: "0x1234.5678", nick: "nickname"}}
-{set-node: {town: 1, ship: "~zod"}}  # set the sequencer to send txs to, per town
-{set-indexer: {ship: "~zod"}}
-{submit-custom: {from: "0x1234", to: "0x5678", town: 1, gas: {rate: 1, bud: 10000}, args: "[%give ... .. (this is HOON)]", my-grains: {"0x1111", "0x2222"}, cont-grains: {"0x3333", "0x4444"}}}
-# for TOKEN and NFT transactions
-# 'from' is our address
-# 'to' is the address of the smart contract
-# 'town' is the number ID of the town on which the contract&rice are deployed
-# 'gas' rate and bud are amounts of zigs to spend on tx
-# 'args' will eventually cover many types of transactions,
-# currently only concerned with token sends following this format,
-# where 'token' is address of token metadata rice, 'to' is address receiving tokens.
-{submit:
-  {from: "0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423",
-   to: "0x74.6361.7274.6e6f.632d.7367.697a",
-   town: 1,
-   gas: {rate: 1, bud: 10000},
-   args: {give: {salt: "1.936.157.050", to: "0x2.eaea.cffd.2bbe.e0c0.02dd.b5f8.dd04.e63f.297f.14cf.d809.b616.2137.126c.da9e.8d3d", amount: 777}}
-   }
-}
+Contracts can be compiled using variations of the following command.
+Here, the `zigs` contract is compiled.
+In general, replace `zigs` with the name of any other contract.
+```hoon
+.zigs/noun +zig!deploy /=zig=/lib/zig/contracts/zigs/hoon
 ```
 
 
-## Indexer
+## Deploying Contracts to a Running Testnet
 
-The indexer exposes a variety of scry and subscription paths.
-A few are discussed below with examples.
-Please see the docstring at the top of `app/indexer.hoon` for a fuller set of available paths.
-
-
-### Indexer scries
-
-Four example scries will be shown below for a user scrying from the Dojo; externally using the Curl commandline tool; and using the Urbit HTTP API.
-
-For simplicity, the following is assumed:
-
-I. The `%indexer` app is running on the `%zig` desk on a fakezod.
-II. The fakezod is running at `localhost:8080`.
-
-Examples:
-
-1. The most recent 5 block headers.
-
-```
-::  inside Urbit
-=z -build-file /=zig=/sur/ziggurat/hoon
-.^((list [epoch-num=@ud =block-header:z]) %gx /=indexer=/headers/5/noun)
-
-# using Curl
-curl -i -X POST localhost:8080/~/login -d 'password=lidlut-tabwed-pillex-ridrup'
-# record cookie from above and use below
-curl --cookie "urbauth-~zod=$ZOD_COOKIE" localhost:8080/~/scry/indexer/headers/5.json
-
-# using HTTP API
-await api.scry({app: "indexer", path: "/headers/5"});
-```
-
-2. All data in a chunk with epoch number, block number, and chunk/town number as `1`, `2`, and `3`, respectively (these should, of course, be substituted for variables appropriate).
-
-```
-::  inside Urbit
-::  TODO
-
-# using Curl
-# TODO
-
-# using HTTP API
-await api.scry({app: "indexer", path: "/chunk-num/1/2/3"});
-```
-
-3. A given transaction with hash `0xdead.beef` (this should, of course, be substituted for a variable as appropriate).
-
-```
-::  inside Urbit
-::  TODO
-
-# using Curl
-# TODO
-
-# using HTTP API
-await api.scry({app: "indexer", path: "/egg/0xdead.beef"});
-```
-
-4. All transactions for a given address with hash `0xcafe.babe` (this should, of course, be substituted for a variable as appropriate) (TODO: add start/end times to retrieve subset of transactions).
-
-```
-::  inside Urbit
-::  TODO
-
-# using Curl
-# TODO
-
-# using HTTP API
-await api.scry({app: "indexer", path: "/from/0xcafe.babe"});
-```
-
-
-### Indexer subscriptions
-
-One example subscription will be discussed: subscribing to receive each new block (or "slot") that is processed by the indexer. (TODO)
-Please see the docstring at the top of `app/indexer.hoon` for a fuller set of available paths.
-
-For the HTTP API, the app to subscribe to is `"indexer"`, and the path is `"/slot"`.
+TODO
 
 
 ## Testing Zink
@@ -388,3 +271,43 @@ For the HTTP API, the app to subscribe to is `"indexer"`, and the path is `"/slo
 ```
 .hash-cache/noun +zig!build-hash-cache 100
 ```
+
+
+## Glossary
+
+### `batch`
+A `batch` is analogous to a block in a blockchain.
+`batch`es have a definite order, and are produced by a `%sequencer` for a given `town`.
+It is called `batch` here to call
+
+
+### `egg`
+
+An `egg` is a transaction.
+It consists of two parts, a `shell` and a `yolk`.
+The `shell` is the same for all `egg`s, and contains information about who the transaction is from, what contract it called, what gas budget was allocated and so on.
+The `yolk` has a form that depends on the contract `wheat`.
+
+
+### `grain`
+
+A `grain` is either a piece of data (a `rice`) or a piece of code (a `wheat`).
+
+
+### `rice`
+
+A `rice` is a piece of data associated with a specific `wheat` that is `lord` over it.
+For example, a `rice` of the `zigs` `wheat` might be an `account`, holding some number of tokens.
+Or a `rice` of the `nft` `wheat` might be a particular `nft` with certain characteristics.
+
+
+### `town`
+
+A `town` is a shard.
+A `%sequencer` runs a `town`, receiving transactions from users, executing them, and then sending the updated state to the `%rollup`.
+
+
+### `wheat`
+
+A `wheat` is a piece of code: it is a contract.
+For example, the `zigs` contract that governs the base rollup tokens is a `wheat`, and the `nft` contract that enables NFTs to be held and sent is another.
