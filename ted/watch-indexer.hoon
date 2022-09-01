@@ -23,8 +23,11 @@
 ;<  =cage  bind:m  (take-fact watch-wire)
 ~&  >  "watch-indexer: got:"
 ~&  >  "watch-indexer:  {<cage>}"
-?>  ?=(%indexer-update p.cage)
-~&  >  "watch-indexer:  {<!<(update:ui q.cage)>}"
+?:  ?=(%indexer-update p.cage)
+  ~&  >  "watch-indexer:  {<!<(update:ui q.cage)>}"
+  ;<  ~  bind:m  (leave watch-wire [our.bowl %indexer])
+  ~&  >  "watch-indexer:  done"
+  (pure:m !>(~))
 ;<  ~  bind:m  (leave watch-wire [our.bowl %indexer])
 ~&  >  "watch-indexer:  done"
 (pure:m !>(~))

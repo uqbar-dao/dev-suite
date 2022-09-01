@@ -11,7 +11,6 @@
       %grain-eggs
       %holder
       %lord
-      %slot
       %to
       %town
       %hash
@@ -84,7 +83,9 @@
 ::
 +$  update
   $@  ~
-  $%  [%batch batches=(map batch-id=id:smart [timestamp=@da location=town-location =batch])]
+  $%  [%path-does-not-exist ~]
+      [%batch batches=(map batch-id=id:smart [timestamp=@da location=town-location =batch])]
+      [%batch-order =batch-order]
       [%egg eggs=(map egg-id=id:smart [timestamp=@da location=egg-location =egg:smart])]
       [%grain grains=(jar grain-id=id:smart [timestamp=@da location=batch-location =grain:smart])]
       $:  %hash
@@ -92,5 +93,35 @@
           eggs=(map egg-id=id:smart [timestamp=@da location=egg-location =egg:smart])
           grains=(jar grain-id=id:smart [timestamp=@da location=batch-location =grain:smart])
       ==
+      [%newest-batch batch-id=id:smart timestamp=@da location=town-location =batch]
+      [%newest-batch-order batch-id=id:smart]
+      [%newest-egg egg-id=id:smart timestamp=@da location=egg-location =egg:smart]
+      [%newest-grain grain-id=id:smart timestamp=@da location=batch-location =grain:smart]
+      ::  %newest-hash type is just %hash, since can have multiple
+      ::  eggs/grains, considering second-order indices
   ==
+::
+::  TODO: change update interface to below
+:: +$  update
+::   $@  ~
+::   $%  [%path-does-not-exist ~]
+::       [%batches (map batch-id=id:smart [timestamp=@da location=town-location =batch])]
+::       [%batch-order =batch-order]
+::       [%eggs (map egg-id=id:smart [timestamp=@da location=egg-location =egg:smart])]
+::       [%grains (jar grain-id=id:smart [timestamp=@da location=batch-location =grain:smart])]
+::       $:  %hashes
+::           batches=(map batch-id=id:smart [timestamp=@da location=town-location =batch])
+::           eggs=(map egg-id=id:smart [timestamp=@da location=egg-location =egg:smart])
+::           grains=(jar grain-id=id:smart [timestamp=@da location=batch-location =grain:smart])
+::       ==
+::       [%batch batch-id=id:smart timestamp=@da location=town-location =batch]
+::       [%newest-batch-id batch-id=id:smart]  ::  keep?
+::       [%egg egg-id=id:smart timestamp=@da location=egg-location =egg:smart]
+::       [%grain grain-id=id:smart timestamp=@da location=batch-location =grain:smart]
+::       $:  %hash
+::           batch=[batch-id=id:smart timestamp=@da location=town-location =batch]
+::           egg=[egg-id=id:smart timestamp=@da location=egg-location =egg:smart]
+::           grain=[grain-id=id:smart timestamp=@da location=batch-location =grain:smart]
+::       ==
+::   ==
 --

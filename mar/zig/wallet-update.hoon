@@ -14,12 +14,18 @@
         %new-book
       %-  pairs
       %+  turn  ~(tap by tokens.upd)
-      |=  [pub=@ux =book]
-      :-  (scot %ux pub)
+      |=  [=address:smart =book]
+      :-  (scot %ux address)
       %-  pairs
       %+  turn  ~(tap by book)
-      |=  [* [=token-type =grain:smart]]
-      (parse-asset token-type grain)
+      |=  [=id:smart =asset]
+      (parse-asset id asset)
+    ::
+        %new-metadata
+      %-  pairs
+      %+  turn  ~(tap by metadata.upd)
+      |=  [=id:smart d=asset-metadata]
+      (parse-metadata id d)
     ::
         %tx-status
       %-  frond

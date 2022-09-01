@@ -3,6 +3,20 @@
 /+  smart=zig-sys-smart
 ::
 |%
+::  use, e.g., to extract single grain from a
+::  `/newest/grain/...`  scry
+++  extract-single-grain
+  |=  =update:ui
+  ^-  (unit grain:smart)
+  ?.  ?=(%grain -.update)   ~
+  =/  values=(list (list [@da location:ui =grain:smart]))
+    ~(val by grains.update)
+  ?~  values                ~
+  ?.  =(1 (lent values))    ~
+  ?~  i.values              ~
+  ?.  =(1 (lent i.values))  ~
+  `grain.i.i.values
+::
 ++  enjs
   =,  enjs:format
   |%
@@ -11,8 +25,14 @@
     ^-  json
     ?~  update  ~
     ?-    -.update
+        %path-does-not-exist
+      (frond %path-does-not-exist ~)
+    ::
         %batch
       (frond %batch (batches batches.update))
+    ::
+        %batch-order
+      (frond %batch-order (batch-order batch-order.update))
     ::
         %egg
       (frond %egg (eggs eggs.update))
@@ -27,6 +47,19 @@
           [%eggs (eggs eggs.update)]
         [%grains (grains grains.update)]
       ~
+    ::
+        %newest-batch
+      (frond %newest-batch (newest-batch +.update))
+    ::
+        %newest-batch-order
+      %+  frond  %newest-batch-order
+      (frond %batch-id %s (scot %ux batch-id.update))
+    ::
+        %newest-egg
+      (frond %newest-egg (newest-egg +.update))
+    ::
+        %newest-grain
+      (frond %newest-grain (newest-grain +.update))
     ==
   ::
   ++  town-location
@@ -61,7 +94,17 @@
     |=  [=id:smart timestamp=@da location=town-location:ui b=batch:ui]
     :-  (scot %ux id)
     %-  pairs
-    :^    [%timestamp (time timestamp)]
+    :^    [%timestamp (sect timestamp)]
+        [%location (town-location location)]
+      [%batch (batch b)]
+    ~
+  ::
+  ++  newest-batch
+    |=  [=id:smart timestamp=@da location=town-location:ui b=batch:ui]
+    ^-  json
+    %-  pairs
+    :-  [%batch-id %s (scot %ux id)]
+    :^    [%timestamp (sect timestamp)]
         [%location (town-location location)]
       [%batch (batch b)]
     ~
@@ -93,7 +136,17 @@
     |=  [=id:smart timestamp=@da location=egg-location:ui e=egg:smart]
     :-  (scot %ux id)
     %-  pairs
-    :^    [%timestamp (time timestamp)]
+    :^    [%timestamp (sect timestamp)]
+        [%location (egg-location location)]
+      [%egg (egg e)]
+    ~
+  ::
+  ++  newest-egg
+    |=  [=id:smart timestamp=@da location=egg-location:ui e=egg:smart]
+    ^-  json
+    %-  pairs
+    :-  [%egg-id %s (scot %ux id)]
+    :^    [%timestamp (sect timestamp)]
         [%location (egg-location location)]
       [%egg (egg e)]
     ~
@@ -171,7 +224,17 @@
     %+  turn  gs
     |=  [timestamp=@da location=batch-location:ui g=grain:smart]
     %-  pairs
-    :^    [%timestamp (time timestamp)]
+    :^    [%timestamp (sect timestamp)]
+        [%location (batch-location location)]
+      [%grain (grain g)]
+    ~
+  ::
+  ++  newest-grain
+    |=  [=id:smart timestamp=@da location=batch-location:ui g=grain:smart]
+    ^-  json
+    %-  pairs
+    :-  [%grain-id %s (scot %ux id)]
+    :^    [%timestamp (sect timestamp)]
         [%location (batch-location location)]
       [%grain (grain g)]
     ~
@@ -302,9 +365,6 @@
   ++  batch-order
     |=  =batch-order:ui
     ^-  json
-    %-  pairs
-    :_  ~
-    :-  %batch-order
     :-  %a
     %+  turn  batch-order
     |=  batch-root=id:smart
