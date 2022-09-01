@@ -30,7 +30,7 @@
           [%edit-test (ot ~[[%id (se %ux)] [%name so:dejs-soft:format] [%action so]])]
           [%run-test parse-test]
           [%run-tests (ar parse-test)]
-          [%deploy-contract parse-deploy-location]
+          [%deploy-contract parse-deploy]
       ==
     ::
     ++  parse-rice
@@ -51,10 +51,14 @@
           [%bud ni]
       ==
     ::
-    ++  parse-deploy-location
+    ++  parse-deploy
       %-  ot
-      :~  [%deploy-location (se %tas)]
+      :~  [%address (se %ux)]
+          [%rate ni]
+          [%bud ni]
+          [%deploy-location (se %tas)]
           [%town-id (se %ux)]
+          [%upgradable bo]
       ==
     --
   --
