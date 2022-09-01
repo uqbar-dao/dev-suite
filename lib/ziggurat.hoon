@@ -168,8 +168,8 @@
         salt.metadata
     ==
   =/  dead-beef-account
-    ^-  grain:smart
-    :*  %&  salt.metadata
+    ^-  rice:smart
+    :*  salt.metadata
         %account
         [200 ~ id.meta-rice 0]
         dead-beef-account-id
@@ -185,8 +185,8 @@
         salt.metadata
     ==
   =/  cafe-babe-account
-    ^-  grain:smart
-    :*  %&  salt.metadata
+    ^-  rice:smart
+    :*  salt.metadata
         %account
         [100 ~ id.meta-rice 0]
         cafe-babe-account-id
@@ -202,8 +202,8 @@
         salt.metadata
     ==
   =/  cafe-d00d-account
-    ^-  grain:smart
-    :*  %&  salt.metadata
+    ^-  rice:smart
+    :*  salt.metadata
         %account
         [100 (~(gas py:smart *(pmap:smart @ux @ud)) ~[[0xdead.beef 50]]) id.meta-rice 0]
         cafe-d00d-account-id
@@ -224,10 +224,22 @@
     =-  [;;(@tas -.-) +.-]
     q:(slap smart-lib-vase (ream action-1))
   =/  test-1=test
+    =/  data-1
+      '[balance=170 allowances=~ metadata=0xdada.dada nonce=0]'
+    =/  data-2
+      '[balance=130 allowances=~ metadata=0xdada.dada nonce=0]'
     :*  `'test-give'
         action-1
         yolk-1
-        ~  ::  TODO
+        %-  malt
+        :~  :+  dead-beef-account-id
+              %&^dead-beef-account(data q:(slap smart-lib-vase (ream data-1)))
+            data-1
+            :+  cafe-babe-account-id
+              %&^cafe-babe-account(data q:(slap smart-lib-vase (ream data-2)))
+            data-2
+        ==
+        %0
         ~
     ==
   =/  action-2=@t
@@ -243,15 +255,51 @@
     =-  [;;(@tas -.-) +.-]
     q:(slap smart-lib-vase (ream action-2))
   =/  test-2=test
+    =/  data-1
+      '[balance=50 allowances=(~(gas py:smart *(pmap:smart @ux @ud)) ~[[0xdead.beef 0]]) metadata=0xdada.dada nonce=0]'
+    =/  data-2
+      '[balance=150 allowances=~ metadata=0xdada.dada nonce=0]'
     :*  `'test-take'
         action-2
         yolk-2
-        ~  ::  TODO
+        %-  malt
+        :~  :+  cafe-d00d-account-id
+              %&^cafe-d00d-account(data q:(slap smart-lib-vase (ream data-1)))
+            data-1
+            :+  cafe-babe-account-id
+              %&^cafe-babe-account(data q:(slap smart-lib-vase (ream data-2)))
+            data-2
+        ==
+        %0
+        ~
+    ==
+  =/  action-3=@t
+    %-  crip
+    %-  zing
+    :~  "[%set-allowance who=0xcafe.babe amount=100 account="
+        (trip (scot %ux dead-beef-account-id))
+        "]"
+    ==
+  =/  yolk-3=yolk:smart
+    =-  [;;(@tas -.-) +.-]
+    q:(slap smart-lib-vase (ream action-3))
+  =/  test-3=test
+    =/  data-1
+      '[balance=200 allowances=(~(gas py:smart *(pmap:smart @ux @ud)) ~[[0xcafe.babe 100]]) metadata=0xdada.dada nonce=0]'
+    :*  `'test-give'
+        action-3
+        yolk-3
+        %-  malt
+        :~  :+  dead-beef-account-id
+              %&^dead-beef-account(data q:(slap smart-lib-vase (ream data-1)))
+            data-1
+        ==
+        %0
         ~
     ==
   %=    current
       tests
-    (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2]])
+    (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
   ::
       data-texts
     %-  ~(uni by data-texts.current)
@@ -266,9 +314,9 @@
     =-  (uni:big:mill p.state.current -)
     %+  gas:big:mill  *granary:mill
     :~  [id.meta-rice %&^meta-rice(data metadata)]
-        [dead-beef-account-id dead-beef-account]
-        [cafe-babe-account-id cafe-babe-account]
-        [cafe-d00d-account-id cafe-d00d-account]
+        [dead-beef-account-id %&^dead-beef-account]
+        [cafe-babe-account-id %&^cafe-babe-account]
+        [cafe-d00d-account-id %&^cafe-d00d-account]
     ==
   ==
 ++  nft-template-project
@@ -347,6 +395,7 @@
       ['action_text' %s action-text.test]
       ['action' %s (crip (noah !>(action.test)))]
       ['expected' (expected-to-json expected.test)]
+      ['expected_error' ?~(expected-error.test n+'0' (numb expected-error.test))]
       ['result' ?~(result.test ~ (test-result-to-json u.result.test))]
   ==
 ::

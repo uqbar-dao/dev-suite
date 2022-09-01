@@ -234,9 +234,12 @@
       ::  ream action to form yolk
       =+  q:(slap smart-lib-vase (ream action.act))
       =/  =yolk:smart  [;;(@tas -.-) +.-]
+      =/  new-error
+        ?~  expected-error.act  0
+        u.expected-error.act
       ::  put it in the project
       =.  tests.project
-        (~(put by tests.project) test-id [name.act action.act yolk ~ ~])
+        (~(put by tests.project) test-id [name.act action.act yolk ~ new-error ~])
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -273,12 +276,17 @@
       ::  ream action to form yolk
       =+  q:(slap smart-lib-vase (ream action.act))
       =/  =yolk:smart  [;;(@tas -.-) +.-]
+      =/  new-error
+        ?~  expected-error.act  0
+        u.expected-error.act
       ::  get existing
       =.  tests.project
         ?~  current=(~(get by tests.project) id.act)
-          (~(put by tests.project) id.act [name.act action.act yolk ~ ~])
+          (~(put by tests.project) id.act [name.act action.act yolk ~ new-error ~])
         %+  ~(put by tests.project)  id.act
-        [name.act action.act yolk expected.u.current ~]
+        =-  [name.act action.act yolk expected.u.current - ~]
+        ?~  expected-error.act  expected-error.u.current
+        u.expected-error.act
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -326,10 +334,13 @@
       =/  success
         ?~  expected.test  ~
         :-  ~
-        %+  levy  ~(val by expected-diff)
-        |=  [(unit grain:smart) (unit grain:smart) match=(unit ?)]
-        ?~  match  %.y
-        u.match
+        ?&  =(errorcode.mill-result expected-error.test)
+        ::
+            %+  levy  ~(val by expected-diff)
+            |=  [(unit grain:smart) (unit grain:smart) match=(unit ?)]
+            ?~  match  %.y
+            u.match
+        ==
       ::
       =/  =test-result
         :*  fee.mill-result

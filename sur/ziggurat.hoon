@@ -33,6 +33,7 @@
       action-text=@t
       action=yolk:smart
       expected=(map id:smart [grain:smart @t])
+      expected-error=@ud  ::  bad, but we can't get term literals :/
       result=(unit test-result)
   ==
 ::
@@ -64,11 +65,11 @@
           [%add-to-state =rice:smart]
           [%delete-from-state =id:smart]
           ::
-          [%add-test name=(unit @t) action=@t]  ::  name optional
+          [%add-test name=(unit @t) action=@t expected-error=(unit @ud)]  ::  name optional
           [%add-test-expectation id=@ux expected=rice:smart]
           [%delete-test-expectation id=@ux delete=id:smart]
           [%delete-test id=@ux]
-          [%edit-test id=@ux name=(unit @t) action=@t]
+          [%edit-test id=@ux name=(unit @t) action=@t expected-error=(unit @ud)]
           [%run-test id=@ux rate=@ud bud=@ud]
           [%run-tests tests=(list [id=@ux rate=@ud bud=@ud])]  :: each one run with same gas
           ::
