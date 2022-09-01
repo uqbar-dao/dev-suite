@@ -1,4 +1,4 @@
-/-  mill, docket
+/-  mill, docket, wallet
 /+  smart=zig-sys-smart
 |%
 +$  card  card:agent:gall
@@ -71,7 +71,13 @@
           [%run-test id=@ux rate=@ud bud=@ud]
           [%run-tests tests=(list [id=@ux rate=@ud bud=@ud])]  :: each one run with same gas
           ::
-          [%deploy-contract =deploy-location town-id=@ux]
+          $:  %deploy-contract
+              =address:smart
+              rate=@ud  bud=@ud
+              =deploy-location
+              town-id=@ux
+              upgradable=?
+          ==
       ==
   ==
 ::

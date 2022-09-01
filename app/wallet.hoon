@@ -234,8 +234,11 @@
         :+  from.act  +(nonce)
         ::  generate our zigs token account ID
         (fry-rice:smart zigs-wheat-id:smart from.act town.act `@`'zigs')
-      =+  q:(slap !>(+:(cue q.q.smart-lib)) (ream yolk.act))
-      =/  =yolk:smart  [;;(@tas -.-) +.-]
+      =/  =yolk:smart
+        =-  [;;(@tas -.-) +.-]
+        ?.  ?=(@t yolk.act)
+          yolk.act
+        q:(slap !>(+:(cue q.q.smart-lib)) (ream yolk.act))
       =/  keypair  (~(got by keys.state) from.act)
       =/  =shell:smart
         :*  caller
@@ -254,7 +257,7 @@
         `@uvI`hash  u.priv.keypair
       =/  =egg:smart  [sig shell yolk]
       =/  formed=supported-args
-        [%custom yolk.act]
+        [%custom ?:(?=(@t yolk.act) yolk.act '')]
       ?~  priv.keypair
         ::  if we don't have private key for this address, set as pending
         ::  and allow frontend to sign with HW wallet or otherwise
