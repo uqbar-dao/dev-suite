@@ -198,7 +198,7 @@ squid
 ## Joining an Existing Testnet
 
 To add a new ship to a fakeship testnet or to a live testnet, follow these instructions.
-First make sure you're on the [whitelist](https://github.com/uqbar-dao/ziggurat/blob/master/lib/rollup.hoon) for the ship hosting the rollup simulator.
+First make sure your ship is on the [whitelist](https://github.com/uqbar-dao/ziggurat/blob/master/lib/rollup.hoon) of the ship hosting the rollup simulator.
 The following two examples assume `~zod` is the host:
 
 
