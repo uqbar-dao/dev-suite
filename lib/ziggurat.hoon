@@ -256,7 +256,7 @@
     q:(slap smart-lib-vase (ream action-2))
   =/  test-2=test
     =/  data-1
-      '[balance=50 allowances=(~(gas py:smart *(pmap:smart @ux @ud)) ~[[0xdead.beef 0]]) metadata=0xdada.dada nonce=0]'
+      '[balance=50 allowances=(~(gas py *(pmap @ux @ud)) ~[[0xdead.beef 0]]) metadata=0xdada.dada nonce=0]'
     =/  data-2
       '[balance=150 allowances=~ metadata=0xdada.dada nonce=0]'
     :*  `'test-take'
@@ -285,7 +285,7 @@
     q:(slap smart-lib-vase (ream action-3))
   =/  test-3=test
     =/  data-1
-      '[balance=200 allowances=(~(gas py:smart *(pmap:smart @ux @ud)) ~[[0xcafe.babe 100]]) metadata=0xdada.dada nonce=0]'
+      '[balance=200 allowances=(~(gas py *(pmap @ux @ud)) ~[[0xcafe.babe 100]]) metadata=0xdada.dada nonce=0]'
     :*  `'test-give'
         action-3
         yolk-3
