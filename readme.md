@@ -238,7 +238,7 @@ Contracts can be compiled using variations of the following command.
 Here, the `zigs` contract is compiled.
 In general, replace `zigs` with the name of any other contract.
 ```hoon
-.zigs/noun +zig!deploy /=zig=/lib/zig/contracts/zigs/hoon
+.zigs/noun +zig!compile /=zig=/lib/zig/contracts/zigs/hoon
 ```
 
 
@@ -249,14 +249,15 @@ TODO
 
 ## Testing Zink
 
-TODO
+TODO: Still relevant? If so, write this section; else, remove.
 
 
 ## Precomputing Hashes for Zink
 
-TODO: Prose description of what this is doing and how it is useful.
+TODO: Prose description of what this is doing, how it is useful, and when it should be done.
+      Consider combining this with Compiling Contracts and the Standard Library, above.
 
-```
+```hoon
 .hash-cache/noun +zig!build-hash-cache 100
 ```
 
