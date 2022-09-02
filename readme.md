@@ -11,7 +11,9 @@ It contains code for the Gall apps required to simulate the ZK-rollup to Ethereu
 * [Starting a Fakeship Testnet](#starting-a-fakeship-testnet)
 * [Joining an Existing Testnet](#joining-an-existing-testnet)
 * [Compiling Contracts and the Standard Library](#compiling-contracts-and-the-standard-library)
+* [Deploying Contracts to a Running Testnet](#deploying-contracts-to-a-running-testnet)
 * [Testing Zink](#testing-zink)
+* [Precomputing Hases for Zink](#precomputing-hashes-for-zink)
 * [Glossary](#glossary)
 
 
@@ -244,7 +246,17 @@ In general, replace `zigs` with the name of any other contract.
 
 ## Deploying Contracts to a Running Testnet
 
-TODO
+Contracts are deployed using the `publish` contract found in this repo at `lib/zig/contracts/publish.hoon`.
+The `publish` contract is usually deployed on `town`s in the `wheat` with ID `0x1111.1111`.
+For example, to deploy the `multisig` contract, first [compile it](#compiling-contracts-and-the-standard-library).
+Then place it at `lib/zig/compiled`.
+To deploy on town `0x0`, in the Dojo:
+```hoon
+=contract-path /=zig=/lib/zig/compiled/multisig/noun
+=contract-noun .^(* %cx contract-path)
+=contract ;;([bat=* pay=*] contract-noun)
+:uqbar &zig-wallet-poke [%submit-custom from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x1111.1111 town=0x0 gas=[1 1.000.000] yolk=[%deploy mutable=%.n cont=contract interface=~ types=~ owns=~]]
+```
 
 
 ## Testing Zink
