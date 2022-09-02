@@ -4,38 +4,40 @@
 ::
 ::  set parameters for our local test environment
 ::
-++  designated-address  0xdead.beef
 ++  designated-contract-id  0xfafa.fafa
 ++  designated-metadata-id  0xdada.dada
 ++  designated-caller
-  |=  nonce=@ud
+  |=  [=address:smart nonce=@ud]
   ^-  caller:smart
-  [designated-address nonce id.p:designated-zigs-grain]
+  [address nonce id.p:(designated-zigs-grain address)]
 ++  designated-town-id  0x0
 ::  we set the designated caller to have 300 zigs
 ++  designated-zigs-grain
+  |=  =address:smart
   ^-  grain:smart
   :*  %&  `@`'zigs'
       %account
       [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
       %:  fry-rice:smart
           zigs-wheat-id:smart
-          designated-address
+          address
           designated-town-id
           `@`'zigs'
       ==
       zigs-wheat-id:smart
-      designated-address
+      address
       designated-town-id
   ==
 ::
 ++  starting-state
+  |=  =address:smart
   ^-  land:mill
   :_  ~
-  (put:big:mill ~ id.p:designated-zigs-grain designated-zigs-grain)
+  =-  (put:big:mill ~ id.p.- -)
+  (designated-zigs-grain address)
 ::
 ++  make-contract-grain
-  |=  cont=[bat=* pay=*]
+  |=  [=address:smart cont=[bat=* pay=*]]
   ^-  grain:smart
   :*  %|
       `cont
@@ -43,7 +45,7 @@
       types=~
       designated-contract-id
       0x0
-      designated-address
+      address
       designated-town-id
   ==
 ::
@@ -163,7 +165,7 @@
   =/  dead-beef-account-id
     %:  fry-rice:smart
         lord.meta-rice
-        designated-address
+        user-address.current
         designated-town-id
         salt.metadata
     ==
@@ -174,7 +176,7 @@
         [200 ~ id.meta-rice 0]
         dead-beef-account-id
         lord.meta-rice
-        designated-address
+        user-address.current
         designated-town-id
     ==
   =/  cafe-babe-account-id

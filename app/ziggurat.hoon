@@ -110,9 +110,10 @@
             compiled=~
             imported=~
             error=~
-            state=starting-state
-            data-texts=(malt ~[[id.p:designated-zigs-grain '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
-            caller-nonce=0
+            state=(starting-state user-address.act)
+            data-texts=(malt ~[[id.p:(designated-zigs-grain user-address.act) '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
+            user-address.act
+            user-nonce=0
             mill-batch-num=0
             tests=~
         ==
@@ -122,7 +123,7 @@
         `p.build-result
       =?  p.state.proj  ?=(%& -.build-result)
         %+  put:big:mill  p.state.proj
-        [designated-contract-id (make-contract-grain p.build-result)]
+        [designated-contract-id (make-contract-grain user-address.act p.build-result)]
       =?  error.proj  ?=(%| -.build-result)
         `p.build-result
       :_  state(projects (~(put by projects) project.act %&^proj))
@@ -170,7 +171,7 @@
         `p.build-result
       =?  p.state.project  ?=(%& -.build-result)
         %+  put:big:mill  p.state.project
-        [designated-contract-id (make-contract-grain p.build-result)]
+        [designated-contract-id (make-contract-grain user-address.project p.build-result)]
       ::  set error to ~ if successful build
       =.  error.project
         ?.  ?=(%| -.build-result)  ~
@@ -192,7 +193,7 @@
         `p.build-result
       =?  p.state.project  ?=(%& -.build-result)
         %+  put:big:mill  p.state.project
-        [designated-contract-id (make-contract-grain p.build-result)]
+        [designated-contract-id (make-contract-grain user-address.project p.build-result)]
       ::  set error to ~ if successful build
       =.  error.project
         ?.  ?=(%| -.build-result)  ~
@@ -293,7 +294,7 @@
         %run-test
       =/  =test  (~(got by tests.project) id.act)
       =/  caller
-        (designated-caller +(caller-nonce.project))
+        (designated-caller user-address.project +(user-nonce.project))
       =/  =shell:smart
         :*  caller
             ~
@@ -360,10 +361,10 @@
       ::  note that this doesn't save last-result for each test,
       ::  as results here will not reflect *just this test*
       =/  [eggs=(list [@ux egg:smart]) new-nonce=@ud]
-        %^  spin  tests.act  caller-nonce.project
+        %^  spin  tests.act  user-nonce.project
         |=  [[id=@ux rate=@ud bud=@ud] nonce=@ud]
         =/  =test  (~(got by tests.project) id)
-        =/  caller  (designated-caller +(nonce))
+        =/  caller  (designated-caller user-address.project +(nonce))
         =/  =shell:smart
           :*  caller
               ~
@@ -377,7 +378,7 @@
         [[0 0 0] shell action.test]
       =/  [res=state-transition:mill *]
         %^    %~  mill-all  mil
-              [(designated-caller 0) designated-town-id mill-batch-num.project]
+              [(designated-caller user-address.project 0) designated-town-id mill-batch-num.project]
             state.project
           (silt eggs)
         256

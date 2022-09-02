@@ -20,7 +20,8 @@
       error=(unit @t)  ::  ~ means successfully compiled
       state=land:mill
       data-texts=(map id:smart @t)  ::  holds rice data that got ream'd
-      caller-nonce=@ud
+      user-address=address:smart
+      user-nonce=@ud
       mill-batch-num=@ud
       =tests
   ==
@@ -56,7 +57,7 @@
 ::
 +$  contract-action
   $:  project=@t
-      $%  [%new-contract-project =template]  ::  creates a contract project, TODO add gall option
+      $%  [%new-contract-project =template user-address=address:smart]  ::  creates a contract project, TODO add gall option
           [%populate-template =template metadata=rice:smart]
           [%delete-project ~]
           [%save-file name=@t text=@t]  ::  generates new file or overwrites existing
