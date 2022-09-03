@@ -143,7 +143,7 @@
       =.  project
         ?:  ?=(%fungible template.act)
           (fungible-template-project project metadata.act smart-lib-vase)
-        (nft-template-project metadata.act)
+        (nft-template-project project metadata.act smart-lib-vase)
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -392,11 +392,6 @@
       ::  will fail if chosen testnet+town combo doesn't exist or doesn't have
       ::  the publish.hoon contract deployed.
       ::
-      ::  :uqbar &zig-wallet-poke [%submit-custom
-      ::  from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a
-      ::  town=0x0 gas=[1 1.000.000] yolk='[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
-      ::  amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6
-      ::  to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]']
       ?~  compiled.project
         ~|("%ziggurat: project must be compiled before deploy!" !!)
       ?^  error.project
@@ -579,7 +574,7 @@
     =/  pat=^path  `^path`t.t.t.path
     =/  pre  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
     =/  res  .^(@t %cx (weld pre pat))
-    ``json+!>([%s res])
+    ``json+!>(`json`[%s res])
   ==
 ::
 ++  on-leave  on-leave:def

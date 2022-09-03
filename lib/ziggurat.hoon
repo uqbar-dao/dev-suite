@@ -322,9 +322,176 @@
     ==
   ==
 ++  nft-template-project
-  |=  meta-rice=rice:smart
+  |=  [current=contract-project meta-rice=rice:smart smart-lib-vase=vase]
   ^-  contract-project
-  !!
+  ::  make fungible accounts and tests
+  =/  metadata
+    ;;  $:  name=@t
+            symbol=@t
+            properties=(pset:smart @tas)
+            supply=@ud
+            cap=(unit @ud)
+            mintable=?
+            minters=(pset:smart address:smart)
+            deployer=address:smart
+            salt=@
+        ==
+    q:(slap smart-lib-vase (ream ;;(@t data.meta-rice)))
+  ::
+  =/  props
+    %-  ~(gas py:smart *(map @tas @t))
+    %+  turn  ~(tap pn:smart properties.metadata)
+    |=  prop=@tas
+    [prop 'random_attribute']
+  ::
+  =/  nft-1-id
+    %:  fry-rice:smart
+        lord.meta-rice
+        user-address.current
+        designated-town-id
+        (cat 3 salt.metadata (scot %ud 1))
+    ==
+  =/  nft-1
+    ^-  rice:smart
+    :*  (cat 3 salt.metadata (scot %ud 1))
+        %nft
+        [1 'https://image.link' id.meta-rice ~ props &]
+        nft-1-id
+        lord.meta-rice
+        user-address.current
+        designated-town-id
+    ==
+  =/  nft-2-id
+    %:  fry-rice:smart
+        lord.meta-rice
+        0xcafe.babe
+        designated-town-id
+        (cat 3 salt.metadata (scot %ud 2))
+    ==
+  =/  nft-2
+    ^-  rice:smart
+    :*  (cat 3 salt.metadata (scot %ud 2))
+        %nft
+        [2 'https://image.link' id.meta-rice ~ props &]
+        nft-2-id
+        lord.meta-rice
+        0xcafe.babe
+        designated-town-id
+    ==
+  ::
+  =/  action-1=@t
+    %-  crip
+    %-  zing
+    :~  "[%give to=0xcafe.babe grain-id="
+        (trip (scot %ux nft-1-id))
+        "]"
+    ==
+  =/  yolk-1=yolk:smart
+    =-  [;;(@tas -.-) +.-]
+    q:(slap smart-lib-vase (ream action-1))
+  =/  test-1=test
+    :*  `'test-give'
+        action-1
+        yolk-1
+        %-  malt
+        :~  :+  nft-1-id
+              %&^nft-1(holder 0xcafe.babe)
+            ''
+        ==
+        %0
+        ~
+    ==
+  ::
+  =/  action-2=@t
+    %-  crip
+    %-  zing
+    :~  "[%give to=0xcafe.babe grain-id="
+        (trip (scot %ux nft-2-id))
+        "]"
+    ==
+  =/  yolk-2=yolk:smart
+    =-  [;;(@tas -.-) +.-]
+    q:(slap smart-lib-vase (ream action-2))
+  =/  test-2=test
+    :*  `'test-give-dont-have'
+        action-2
+        yolk-2
+        ~
+        %6
+        ~
+    ==
+  ::
+  =/  action-3=@t
+    %-  crip
+    %-  zing
+    :~  "[%mint token=0xdada.dada mints=[to="
+        (trip (scot %ux user-address.current))
+        " uri='https://image.link' properties=(~(gas py *(pmap @tas @t)) ~["
+        ^-  tape
+        %-  zing
+        %+  turn  ~(tap pn:smart properties.metadata)
+        |=  prop=@tas
+        %-  zing
+        :~  "[%"  (trip (scot %tas prop))
+            " 'random_attribute']"
+        ==
+        "]) transferrable=&] ~]"
+    ==
+  ~&  >  action-3
+  =/  yolk-3=yolk:smart
+    =-  [;;(@tas -.-) +.-]
+    q:(slap smart-lib-vase (ream action-3))
+  =/  nft-3-id
+    %:  fry-rice:smart
+        lord.meta-rice
+        user-address.current
+        designated-town-id
+        (cat 3 salt.metadata (scot %ud 3))
+    ==
+  =/  nft-3
+    ^-  rice:smart
+    :*  (cat 3 salt.metadata (scot %ud 3))
+        %nft
+        [3 'https://image.link' id.meta-rice ~ props &]
+        nft-3-id
+        lord.meta-rice
+        user-address.current
+        designated-town-id
+    ==
+  =/  test-3=test
+    :*  `'test-mint'
+        action-3
+        yolk-3
+        %-  malt
+        :~  :+  nft-3-id
+              %&^nft-3
+            ''
+        ==
+        %0
+        ~
+    ==
+  ::
+  %=    current
+      tests
+    (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
+  ::
+      data-texts
+    %-  ~(uni by data-texts.current)
+    %-  ~(gas by *(map id:smart @t))
+    :~  [id.meta-rice ;;(@t data.meta-rice)]
+        ::  TODO: make dynamic data-text for nft properties..?
+        [nft-1-id '']
+        [nft-2-id '']
+    ==
+  ::
+      p.state
+    =-  (uni:big:mill p.state.current -)
+    %+  gas:big:mill  *granary:mill
+    :~  [id.meta-rice %&^meta-rice(data metadata)]
+        [nft-1-id %&^nft-1]
+        [nft-2-id %&^nft-2]
+    ==
+  ==
 ::
 ::  JSON parsing utils
 ::
