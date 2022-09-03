@@ -7,10 +7,7 @@
 +$  project   (each contract-project app-project)
 ::
 +$  app-project
-  $:  dir=(list path)
-      error=(unit @t)
-      compiled=?
-  ==
+  dir=(list path)
 ::
 +$  contract-project
   $:  main=@t
@@ -109,12 +106,7 @@
   ==
 ::
 +$  app-update
-  ::  should scry clay with %t to get dir here
-  ::  TODO: how to retrieve compilation result for gall app?
-  $:  dir=(list path)
-      error=(unit @t)
-      compiled=?
-  ==
+  dir=(list path)
 ::
 +$  test-update
   [%result state-transition:mill]

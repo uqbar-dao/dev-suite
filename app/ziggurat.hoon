@@ -418,13 +418,7 @@
       =/  merge-task  [%merg `@tas`project.act our.bowl -.+.byk.bowl da+now.bowl %init]
       =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
       =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
-      =/  =project
-        :*  %|
-            ~
-            ~
-            %.y
-        ==
-      :_  state(projects (~(put by projects) project.act project))
+      :_  state(projects (~(put by projects) project.act [%| ~]))
       :~  [%pass /merge-wire %arvo %c merge-task]
           [%pass /mount-wire %arvo %c mount-task]
           [%pass /save-wire %arvo %c bill-task]
@@ -462,8 +456,6 @@
       ::  then poke treaty agent with publish
       =/  project  (~(got by projects) project.act)
       ?>  ?=(%| -.project)
-      ~|  "project must compile before publishing!"
-      ?>  compiled.p.project
       =/  bill
         ;;  (list @tas)
         .^(* %cx /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)/desk/bill)
@@ -549,8 +541,9 @@
     %-  pairs
     %+  murn  ~(tap by projects)
     |=  [name=@t =project]
-    ?:  ?=(%| -.project)  ~
     :-  ~  :-  name
+    ?:  ?=(%| -.project)
+      (app-project-to-json p.project)
     (contract-project-to-json p.project)
   ::
       [%project-state @ ~]
@@ -573,6 +566,7 @@
     =/  des  (slav %tas i.t.t.path)
     =/  pat=^path  `^path`t.t.t.path
     =/  pre  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
+    ~&  >  (weld pre pat)
     =/  res  .^(@t %cx (weld pre pat))
     ``json+!>(`json`[%s res])
   ==

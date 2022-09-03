@@ -73,20 +73,14 @@
 ++  make-app-update
   |=  [project=@t =app-project]
   ^-  card
-  =/  =app-update
-    :*  dir.app-project
-        error.app-project
-        compiled.app-project
-    ==
   =/  =path  /app-project/[project]
-  [%give %fact ~[path] %ziggurat-app-update !>(app-update)]
+  [%give %fact ~[path] %ziggurat-app-update !>(`app-update`app-project)]
 ::
 ++  make-multi-test-update
   |=  [project=@t result=state-transition:mill]
   ^-  card
-  =/  =test-update  [%result result]
   =/  =path         /test-updates/[project]
-  [%give %fact ~[path] %ziggurat-test-update !>(test-update)]
+  [%give %fact ~[path] %ziggurat-test-update !>(`test-update`[%result result])]
 ::
 ++  build-contract-project
   |=  [smart-lib=vase proj=contract-project]
@@ -512,6 +506,13 @@
       ['data_text' %s tex]
       ['data' %s (crip (noah !>(data.p.grain)))]
   ==
+::
+++  app-project-to-json
+  |=  p=app-project
+  =,  enjs:format
+  ^-  json
+  %-  frond
+  ['dir' (dir-to-json dir.p)]
 ::
 ++  contract-project-to-json
   |=  p=contract-project
