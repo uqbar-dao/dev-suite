@@ -286,21 +286,6 @@ To deploy on town `0x0`, in the Dojo:
 ```
 
 
-## Testing Zink
-
-TODO: Still relevant? If so, write this section; else, remove.
-
-
-## Precomputing Hashes for Zink
-
-TODO: Prose description of what this is doing, how it is useful, and when it should be done.
-      Consider combining this with Compiling Contracts and the Standard Library, above.
-
-```hoon
-.hash-cache/noun +zig!build-hash-cache 100
-```
-
-
 ## Glossary
 
 ### `batch`
