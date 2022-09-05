@@ -143,6 +143,7 @@
 ++  fungible-template-project
   |=  [current=contract-project meta-rice=rice:smart smart-lib-vase=vase]
   ^-  contract-project
+  ~&  >  ;;(@t data.meta-rice)
   ::  make fungible accounts and tests
   =/  metadata
     ;;  $:  name=@t
@@ -282,7 +283,7 @@
   =/  test-3=test
     =/  data-1
       '[balance=200 allowances=(~(gas py *(pmap @ux @ud)) ~[[0xcafe.babe 100]]) metadata=0xdada.dada nonce=0]'
-    :*  `'test-give'
+    :*  `'test-set-allowance'
         action-3
         yolk-3
         %-  malt
@@ -337,6 +338,19 @@
     %+  turn  ~(tap pn:smart properties.metadata)
     |=  prop=@tas
     [prop 'random_attribute']
+  =/  props-tape=tape
+    %-  zing
+    :~  "properties=(~(gas py *(pmap @tas @t)) ~["
+        ^-  tape
+        %-  zing
+        %+  turn  ~(tap pn:smart properties.metadata)
+        |=  prop=@tas
+        %-  zing
+        :~  "[%"  (trip (scot %tas prop))
+            " 'random_attribute']"
+        ==
+        "])"
+    ==
   ::
   =/  nft-1-id
     %:  fry-rice:smart
@@ -420,18 +434,10 @@
     %-  zing
     :~  "[%mint token=0xdada.dada mints=[to="
         (trip (scot %ux user-address.current))
-        " uri='https://image.link' properties=(~(gas py *(pmap @tas @t)) ~["
-        ^-  tape
-        %-  zing
-        %+  turn  ~(tap pn:smart properties.metadata)
-        |=  prop=@tas
-        %-  zing
-        :~  "[%"  (trip (scot %tas prop))
-            " 'random_attribute']"
-        ==
-        "]) transferrable=&] ~]"
+        " uri='https://image.link' "
+        props-tape
+        " transferrable=&] ~]"
     ==
-  ~&  >  action-3
   =/  yolk-3=yolk:smart
     =-  [;;(@tas -.-) +.-]
     q:(slap smart-lib-vase (ream action-3))
@@ -473,9 +479,22 @@
     %-  ~(uni by data-texts.current)
     %-  ~(gas by *(map id:smart @t))
     :~  [id.meta-rice ;;(@t data.meta-rice)]
-        ::  TODO: make dynamic data-text for nft properties..?
-        [nft-1-id '']
-        [nft-2-id '']
+        ::  [1 'https://image.link' id.meta-rice ~ props &]
+        :-  nft-1-id
+        %-  crip
+        %-  zing
+        :~  "[id=1 uri='https://image.link' metadata=0xdada.dada allowances=~ "
+            props-tape
+            " transferrable=%.y"
+        ==
+    ::
+        :-  nft-2-id
+        %-  crip
+        %-  zing
+        :~  "[id=2 uri='https://image.link' metadata=0xdada.dada allowances=~ "
+            props-tape
+            " transferrable=%.y"
+        ==
     ==
   ::
       p.state
