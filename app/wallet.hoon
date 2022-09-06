@@ -396,8 +396,8 @@
       (update-metadata-store new-book our.bowl metadata-store.state [our now]:bowl)
     =+  %+  ~(put by tokens.state)  pub
         (~(uni by old-book) new-book)
-    :-  :~  [%give %fact ~[/book-updates] %zig-wallet-update !>([%new-book -])]
-            [%give %fact ~[/metadata-updates] %zig-wallet-update !>([%new-metadata new-metadata])]
+    :-  :~  [%give %fact ~[/book-updates] %zig-wallet-update !>(`wallet-update`[%new-book -])]
+            [%give %fact ~[/metadata-updates] %zig-wallet-update !>(`wallet-update`[%new-metadata new-metadata])]
         ==
     this(tokens -, metadata-store new-metadata)
   ::

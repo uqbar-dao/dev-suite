@@ -13,7 +13,6 @@
 ++  tx-update-card
   |=  [hash=@ux =egg:smart =supported-actions]
   ^-  card
-  ~&  >>>  `wallet-update`[%tx-status hash egg supported-actions]
   =+  `wallet-update`[%tx-status hash egg supported-actions]
   [%give %fact ~[/tx-updates] %zig-wallet-update !>(-)]
 ::
