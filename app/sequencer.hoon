@@ -284,6 +284,10 @@
     ?~  town  ``noun+!>(~)
     ``noun+!>(`town-id.hall.u.town)
   ::
+      [%basket-size ~]
+    ::  returns number of transactions in basket
+    ``noun+!>(`@ud`~(wyt in basket))
+  ::
   ::  state reads fail if sequencer not active
   ::
       [%has @ ~]
