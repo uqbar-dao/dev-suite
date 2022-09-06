@@ -114,7 +114,7 @@
     ^-  (list hoon)
     %+  turn  raw
     |=  [face=term =path]
-    `hoon`[%ktts face (rain path (~(got by libs.proj) `@t`face))]
+    `hoon`[%ktts face (rain path (~(got by libs.proj) `@t`(rear path)))]
   ::
   ++  build-libs  ::  third
     |=  braw=(list hoon)
@@ -505,6 +505,70 @@
         [nft-2-id %&^nft-2]
     ==
   ==
+::
+::  files we delete from zig desk to make new gall desk
+::
+++  clean-desk
+  |=  name=@t
+  :~  [/app/indexer/hoon %del ~]
+      [/app/rollup/hoon %del ~]
+      [/app/sequencer/hoon %del ~]
+      [/app/uqbar/hoon %del ~]
+      [/app/wallet/hoon %del ~]
+      [/app/ziggurat/hoon %del ~]
+      [/gen/rollup/activate/hoon %del ~]
+      [/gen/sequencer/batch/hoon %del ~]
+      [/gen/sequencer/init/hoon %del ~]
+      [/gen/uqbar/set-sources/hoon %del ~]
+      [/gen/wallet/basic-tx/hoon %del ~]
+      [/gen/build-hash-cache/hoon %del ~]
+      [/gen/compile/hoon %del ~]
+      [/gen/compose/hoon %del ~]
+      [/gen/merk-profiling/hoon %del ~]
+      [/gen/mk-smart/hoon %del ~]
+      [/tests/contracts/fungible/hoon %del ~]
+      [/tests/contracts/nft/hoon %del ~]
+      [/tests/contracts/publish/hoon %del ~]
+      [/tests/lib/merk/hoon %del ~]
+      [/tests/lib/mill-2/hoon %del ~]
+      [/tests/lib/mill/hoon %del ~]
+      [/roadmap/md %del ~]
+      [/readme/md %del ~]
+      [/app/[name]/hoon %ins hoon+!>(simple-app)]
+  ==
+::
+++  simple-app
+  ^-  @t
+ '/+  default-agent, dbug\0a\
+  /|%\0a\
+  /+$  versioned-state\0a\
+  /    $%  state-0\0a\
+  /    ==\0a\
+  /+$  state-0  [%0 ~]\0a\
+  /--\0a\
+  /%-  agent:dbug\0a\
+  /=|  state-0\0a\
+  /=*  state  -\0a\
+  /^-  agent:gall\0a\
+  /|_  =bowl:gall\0a\
+  /+*  this     .\0a\
+  /    default   ~(. (default-agent this %|) bowl)\0a\
+  /::\0a\
+  /++  on-init\0a\
+  /  `this(state [%0 ~])\0a\
+  /++  on-save\0a\
+  /  ^-  vase\0a\
+  /  !>(state)\0a\
+  /++  on-load\0a\
+  /  on-load:default\0a\
+  /++  on-poke  on-poke:default\0a\
+  /++  on-watch  on-watch:default\0a\
+  /++  on-leave  on-leave:default\0a\
+  /++  on-peek   on-peek:default\0a\
+  /++  on-agent  on-agent:default\0a\
+  /++  on-arvo   on-arvo:default\0a\
+  /++  on-fail   on-fail:default\0a\
+  /--'
 ::
 ::  JSON parsing utils
 ::
