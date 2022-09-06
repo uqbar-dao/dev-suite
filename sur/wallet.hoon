@@ -20,13 +20,18 @@
 ::
 +$  transaction-store
   %+  map  address:smart
-  $:  sent=(map @ux [=egg:smart args=supported-args])
+  $:  sent=(map @ux [=egg:smart action=supported-actions])
       received=(map @ux =egg:smart)
   ==
 ::
++$  pending-store
+  %+  map  address:smart
+  (map @ux [=egg:smart action=supported-actions])
+::
 +$  transaction-status-code
-  $%  %100  ::  100: transaction submitted from wallet to sequencer
-      %101  ::  101: transaction received by sequencer
+  $%  %100  ::  100: transaction pending in wallet
+      %101  ::  101: transaction submitted from wallet to sequencer
+      %102  ::  102: transaction received by sequencer
       %103  ::  103: failure: transaction rejected by sequencer
       ::
       ::  200-class refers to codes that come from a completed, processed transaction
@@ -48,7 +53,7 @@
 +$  wallet-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
       [%new-metadata metadata=metadata-store]
-      [%tx-status hash=@ux =egg:smart args=supported-args]
+      [%tx-status hash=@ux =egg:smart action=supported-actions]
   ==
 ::
 ::  received from web interface
@@ -60,34 +65,40 @@
       [%delete-address address=@ux]
       [%edit-nickname address=@ux nick=@t]
       [%sign-typed-message from=id:smart =typed-message:smart]
-      ::  HW wallet stuff
       [%add-tracked-address address=@ux nick=@t]
-      [%submit-signed hash=@ eth-hash=@ sig=[v=@ r=@ s=@]]
       ::  testing and internal
       [%set-nonce address=@ux town=id:smart new=@ud]
+      ::
       ::  TX submit pokes
-      ::  if we have a private key for the 'from' address, sign. if not,
-      ::  allow hardware wallet to sign on frontend and %submit-signed
-      $:  %submit-custom
-          from=id:smart
-          to=id:smart
-          town=id:smart
+      ::
+      ::  sign a pending transaction from an attached hardware wallet
+      $:  %submit-signed
+          from=address:smart
+          hash=@
+          eth-hash=@
+          sig=[v=@ r=@ s=@]
           gas=[rate=@ud bud=@ud]
-          yolk=@t  ::  literally `ream`ed to form yolk
       ==
+      ::  sign a pending transaction from this wallet
       $:  %submit
-          from=id:smart
-          to=id:smart
-          town=id:smart
+          from=address:smart
+          hash=@
           gas=[rate=@ud bud=@ud]
-          args=supported-args
+      ==
+      ::
+      $:  %transaction
+          from=address:smart
+          contract=id:smart
+          town=id:smart
+          action=supported-actions
       ==
   ==
 ::
-+$  supported-args
++$  supported-actions
   $%  [%give to=address:smart amount=@ud grain=id:smart]
       [%give-nft to=address:smart grain=id:smart]
-      [%custom args=@t]
+      [%text @t]
+      [%noun *]
   ==
 ::
 ::  hardcoded molds comporting to account-token standard

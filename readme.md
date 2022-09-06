@@ -169,42 +169,45 @@ cp ./<fakezod_pier>/.urb/put/*.noun ./<urbit-git-dir>/pkg/ziggurat/lib/zig/compi
 {generate-hot-wallet: {password: "password", nick: "nickname"}}
 # leave hdpath empty ("") to let wallet auto-increment from 0 on main path
 {derive-new-address: {hdpath: "m/44'/60'/0'/0/0", nick: "nickname"}}
+
 # use this to save a hardware wallet account
 {add-tracked-address: {address: "0x1234.5678" nick: "nickname"}}
 {delete-address: {address: "0x1234.5678"}}
 {edit-nickname: {address: "0x1234.5678", nick: "nickname"}}
-{set-node: {town: 1, ship: "~zod"}}  # set the sequencer to send txs to, per town
-{set-indexer: {ship: "~zod"}}
-{submit-custom: {from: "0x1234", to: "0x5678", town: 1, gas: {rate: 1, bud: 10000}, args: "[%give ... .. (this is HOON)]", my-grains: {"0x1111", "0x2222"}, cont-grains: {"0x3333", "0x4444"}}}
-# for TOKEN and NFT transactions
-# 'from' is our address
-# 'to' is the address of the smart contract
-# 'town' is the number ID of the town on which the contract&rice are deployed
-# 'gas' rate and bud are amounts of zigs to spend on tx
-# 'args' will eventually cover many types of transactions,
-# currently only concerned with token sends following this format,
-# where 'token' is address of token metadata rice, 'to' is address receiving tokens.
-{submit:
-  {from: "0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423",
-   to: "0x74.6361.7274.6e6f.632d.7367.697a",
-   town: 1,
-   gas: {rate: 1, bud: 10000},
-   args: {give: {salt: "1.936.157.050", to: "0x2.eaea.cffd.2bbe.e0c0.02dd.b5f8.dd04.e63f.297f.14cf.d809.b616.2137.126c.da9e.8d3d", amount: 777}}
-   }
+
+# use this to sign a pending transaction with hardware wallet
+{submit-signed: {from: "0x1234", hash: "0x5678", eth-hash: "0xeeee", gas: {rate: 1, bud: 100000}, sig: {v: 123, r: 456, s: 789}}}
+
+# can submit token and nft sends in special formatting, and custom transactions via hoon string
+# send some token
+# the FROM is your address
+# the CONTRACT is the lord of the account grain
+# the TO inside ACTION is the address of person you're sending to
+# the GRAIN inside ACTION is your account grain's ID
+{transaction: {from: "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70", contract: "0x74.6361.7274.6e6f.632d.7367.697a", town: "0x0", action: {give: {to: "0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de", amount: 123456, grain: "0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6"}}}}
 }
+
+# custom transaction
+{transaction: {from: "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70", contract: "0x74.6361.7274.6e6f.632d.7367.697a", town: "0x0", action: {text: "[%this %is %some %hoon]"}}}
+}
+
+# use this poke to sign a pending transaction with HOT wallet
+{submit-signed: {from: "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70", hash: "0x5678", gas: {rate: 1, bud: 100000}}}
 ```
 Example pokes that will work upon chain initialization in dojo):
-*NEED INDEXER INFO TO WORK NON-CUSTOM*
+*need an active %indexer running for non-custom transactions to work*
 ```
 #  ZIGS
-:uqbar &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 grain=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
+:uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 grain=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
 
 #  NFT
-:uqbar &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0xcafe.babe town=0x0 gas=[1 1.000.000] [%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de grain=0x7e21.2812.bfae.4d2e.6b3d.9941.b776.3c0f.33bc.fb6d.c759.2d80.be02.a7b2.48a8.da97]]
+:uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0xcafe.babe town=0x0 action=[%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de grain=0x7e21.2812.bfae.4d2e.6b3d.9941.b776.3c0f.33bc.fb6d.c759.2d80.be02.a7b2.48a8.da97]]
 
 #  CUSTOM TRANSACTION
-:uqbar &zig-wallet-poke [%submit-custom from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] yolk='[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]']
+:uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%noun [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]]]
 ```
+
+After sending transactions to your wallet, they'll be pending a signature and gas assignment. Use the %submit poke to do this from a hot wallet, or the %submit-signed poke for a hardware wallet.
 ---
 
 ### DAO set up
