@@ -4,8 +4,8 @@
 ::
 ::  set parameters for our local test environment
 ::
-++  designated-contract-id  0xfafa.fafa
-++  designated-metadata-id  0xdada.dada
+++  designated-contract-id  0xfafa.0000.0000.0000.0000.0000.0000.0000.0000.fafa
+++  designated-metadata-id  0xdada.0000.0000.0000.0000.0000.0000.0000.0000.dada
 ++  designated-caller
   |=  [=address:smart nonce=@ud]
   ^-  caller:smart
