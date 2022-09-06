@@ -913,74 +913,147 @@
       ==
     ::
     ++  get-second-order
-      %+  roll  locations
-      |=  $:  second-order-id=location:ui
-              out=update:ui
-          ==
-      =/  next-update=update:ui
-        %=  get-from-index
-            query-payload  second-order-id
-            query-type
-          ?:  |(?=(%holder query-type) ?=(%lord query-type))
-            %grain
-          %egg
-        ==
-      ?~  next-update  out
-      ?~  out          next-update
-      ?+    -.out  ~|("indexer: get-second-order unexpected update type {<-.out>}" !!)
-          %egg
-        ?.  ?=(?(%egg %newest-egg) -.next-update)  out
-        %=  out
-            eggs
-          ?:  ?=(%egg -.next-update)
-            (~(uni by eggs.out) eggs.next-update)
-          ?>  ?=(%newest-egg -.next-update)
-          (~(put by eggs.out) +.next-update)
-        ==
-      ::
+      =/  first-order-type=?(%egg %grain)
+        ?:  |(?=(%holder query-type) ?=(%lord query-type))
           %grain
-        ?.  ?=(?(%grain %newest-grain) -.next-update)  out
-        %=  out
-            grains
-          ?:  ?=(%grain -.next-update)
-            (~(uni by grains.out) grains.next-update)  ::  TODO: can this clobber?
-          ?>  ?=(%newest-grain -.next-update)
-          (~(add ja grains.out) +.next-update)
+        %egg
+      |^
+      =/  =update:ui  create-update
+      ?~  update  ~
+      ?+    -.update  ~|("indexer: get-second-order unexpected return type" !!)
+          %egg    update(eggs (filter-eggs eggs.update))
+          %grain  update(grains (filter-grains grains.update))
+          %newest-egg    ?.((is-egg-hit +.+.update) ~ update)
+          %newest-grain  ?.((is-grain-hit +.+.update) ~ update)
+      ==
+      ::
+      ++  is-egg-hit
+        |=  value=egg-update-value:ui
+        ^-  ?
+        ?|  ?&  ?=(%from query-type)
+                =(query-payload id.from.shell.egg.value)
+            ==
+            ?&  ?=(%to query-type)
+                =(query-payload to.shell.egg.value)
+            ==
         ==
       ::
-          %newest-egg
-        ?+    -.next-update  out
+      ++  is-grain-hit
+        |=  value=grain-update-value:ui
+        ^-  ?
+        ::  hack to get around grain's `each`
+        =/  [holder=id:smart lord=id:smart]
+          ?:  -.grain.value
+            [holder.p.grain.value lord.p.grain.value]
+          [holder.p.grain.value lord.p.grain.value]
+        ?|  &(?=(%holder query-type) =(query-payload holder))
+            &(?=(%lord query-type) =(query-payload lord))
+        ==
+      ::
+      ++  filter-eggs
+        |=  eggs=(map id:smart egg-update-value:ui)
+        ^-  (map id:smart egg-update-value:ui)
+        %-  ~(gas by *(map id:smart egg-update-value:ui))
+        %-  flop
+        %+  roll  ~(tap by eggs)
+        |=  $:  [egg-id=id:smart =egg-update-value:ui]
+                out=(list [id:smart egg-update-value:ui])
+            ==
+        ?.  (is-egg-hit egg-update-value)  out
+        [[egg-id egg-update-value] out]
+      ::
+      ++  filter-grains
+        |=  grains=(jar id:smart grain-update-value:ui)
+        ^-  (jar id:smart grain-update-value:ui)
+        %-  %~  gas  by
+            *(map id:smart (list grain-update-value:ui))
+        %-  flop
+        %+  roll  ~(tap by grains)
+        |=  $:  [grain-id=id:smart values=(list grain-update-value:ui)]
+                out=(list [id:smart (list grain-update-value:ui)])
+            ==
+        =/  filtered-values=(list grain-update-value:ui)
+          %+  roll  values
+          |=  $:  =grain-update-value:ui
+                  inner-out=(list grain-update-value:ui)
+              ==
+          ?.  (is-grain-hit grain-update-value)  inner-out
+          [grain-update-value inner-out]
+        ?~  filtered-values  out
+        [[grain-id (flop filtered-values)] out]
+      ::
+      ++  create-update
+        ^-  update:ui
+        %+  roll  locations
+        |=  $:  second-order-id=location:ui
+                out=update:ui
+            ==
+        =/  next-update=update:ui
+          %=  get-from-index
+              query-payload  second-order-id
+              query-type     first-order-type
+          ==
+        ?~  next-update  out
+        ?~  out          next-update
+        ?+    -.out  ~|("indexer: get-second-order unexpected update type {<-.out>}" !!)
             %egg
-          %=  next-update
+          ?.  ?=(?(%egg %newest-egg) -.next-update)  out
+          %=  out
               eggs
-            (~(put by eggs.next-update) +.out)
+            ?:  ?=(%egg -.next-update)
+              (~(uni by eggs.out) eggs.next-update)
+            ?>  ?=(%newest-egg -.next-update)
+            ?.  (is-egg-hit +.+.next-update)  eggs.out
+            (~(put by eggs.out) +.next-update)
+          ==
+        ::
+            %grain
+          ?.  ?=(?(%grain %newest-grain) -.next-update)  out
+          %=  out
+              grains
+            ?:  ?=(%grain -.next-update)
+              (~(uni by grains.out) grains.next-update)  ::  TODO: can this clobber?
+            ?>  ?=(%newest-grain -.next-update)
+            ?.  (is-grain-hit +.+.next-update)  grains.out
+            (~(add ja grains.out) +.next-update)
           ==
         ::
             %newest-egg
-          :-  %egg
-          %.  ~[+.out +.next-update]
-          %~  gas  by
-          *(map id:smart [@da egg-location:ui egg:smart])
-        ==
-      ::
-          %newest-grain
-        ?+    -.next-update  out
-            %grain
-          %=  next-update
-              grains
-            (~(add ja grains.next-update) +.out)  ::  TODO: ordering?
+          ?+    -.next-update  out
+              %egg
+            %=  next-update
+                eggs
+              ?.  (is-egg-hit +.+.out)  eggs.next-update
+              (~(put by eggs.next-update) +.out)
+            ==
+          ::
+              %newest-egg
+            :-  %egg
+            %.  ~[+.out +.next-update]
+            %~  gas  by
+            *(map id:smart [@da egg-location:ui egg:smart])
           ==
         ::
             %newest-grain
-          :-  %grain
-          %.  +.next-update
-          %~  add  ja
-          %.  +.out
-          %~  add  ja
-          ^*  %+  jar  id:smart
-          [@da batch-location:ui grain:smart]
+          ?+    -.next-update  out
+              %grain
+            %=  next-update
+                grains
+              ?.  (is-grain-hit +.+.out)  grains.next-update
+              (~(add ja grains.next-update) +.out)  ::  TODO: ordering?
+            ==
+          ::
+              %newest-grain
+            :-  %grain
+            %.  +.next-update
+            %~  add  ja
+            %.  +.out
+            %~  add  ja
+            ^*  %+  jar  id:smart
+            [@da batch-location:ui grain:smart]
+          ==
         ==
-      ==
+      --
     --
   ::
   ++  get-locations
