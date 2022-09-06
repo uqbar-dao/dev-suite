@@ -165,7 +165,7 @@
       ?~  rollup.state
         ~|("%sequencer: error: no known rollup host" !!)
       ?~  basket.state
-        ~|("%sequencer: error: no transactions to include in batch" !!)
+        ~|("%sequencer: no transactions to include in batch" !!)
       =*  town  u.town.state
       ?:  ?=(%committee -.mode.hall.town)
         ::  TODO data-availability committee
