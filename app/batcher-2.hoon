@@ -4,12 +4,13 @@
 +$  card  card:agent:gall
 +$  state-0
   $:  %0
-      interval=@dr
+      threshold=@ud
   ==
 --
 ::
-::  This agent allows you to set an interval at which your sequencer app should produce a batch.
-::  Poke like so: `:batcher-1 ~s30` to trigger a batch every 30 seconds.
+::  This agent allows you to trigger a sequencer batch after its mempool reaches a certain size.
+::  It works by polling the sequencer's basket-size scry path every ~s30, and if the size is
+::  above the threshold, triggering a batch.
 ::
 =|  state-0
 =*  state  -
@@ -23,31 +24,34 @@
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
-  ~|  "%batcher: wasn't poked with valid @dr"
-  =/  new-interval  !<(@dr vase)
-  ~&  >  "%batcher set at {<now.bowl>} with batching interval {<new-interval>}"
-  =/  wait  (add now.bowl new-interval)
-  :_  this(interval new-interval)
+  ~|  "%batcher: wasn't poked with valid @ud"
+  =/  new-threshold  !<(@ud vase)
+  ~&  >  "%batcher set to poll for batch-size={<new-threshold>} at {<now.bowl>}"
+  =/  wait  (add now.bowl ~s30)
+  :_  this(threshold new-threshold)
   [%pass /batch-timer %arvo %b %wait wait]~
 ::
 ++  on-arvo
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)
   ?>  ?=([%batch-timer ~] wire)
-  =/  wait  (add now.bowl interval)
+  =/  wait  (add now.bowl ~s30)
+  ::  check basket-size
   =/  basket-size  .^(@ud %gx /(scot %p our.bowl)/sequencer/(scot %da now.bowl)/basket-size/noun)
-  ?:  =(0 basket-size)
-    ::  don't trigger if empty mempool
+  ~&  >  "%batcher: scanning mempool...   current size: {<basket-size>}"
+  ::  compare to threshold
+  ?.  (gte basket-size threshold)
+    ::  keep waiting
     :_  this
     [%pass /batch-timer %arvo %b %wait wait]~
-  ~&  >  "%batcher: triggering batch with current mempool size: {<basket-size>}"
+  ::  at/above threshold, trigger batch
   :_  this
   :~  [%pass /batch-timer %arvo %b %wait wait]
       =-  [%pass /seq-poke %agent [our.bowl %sequencer] %poke -]
       [%sequencer-town-action !>(`town-action:sequencer`[%trigger-batch ~])]
   ==
 ::
-++  on-init   `this(state [%0 ~m1])
+++  on-init   `this(state [%0 1])
 ++  on-save   !>(state)
 ++  on-load
   |=  =old=vase
