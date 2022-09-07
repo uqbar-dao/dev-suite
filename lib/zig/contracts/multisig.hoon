@@ -46,7 +46,7 @@
     ::  caller must be in the multisig
     ?>  (~(has pn members.data.multisig) id.from.cart)
     ::  proposal must exist in pending
-    =/  proposal  (~(got py pending.data.multisig) proposal-hash.act)
+    =/  =proposal:sur  (~(got py pending.data.multisig) proposal-hash.act)
     ::  if caller has voted already, will replace existing
     =:  ayes.proposal  ?:(aye.act +(ayes.proposal) ayes.proposal)
         nays.proposal  ?.(aye.act +(nays.proposal) nays.proposal)
@@ -63,7 +63,7 @@
       (result [%&^multisig]^~ ~ ~ ~)
     ::  otherwise return modified proposal
     =.  pending.data.multisig
-      (~(put py pending.data.multisig) [proposal-hash.act proposal])
+      (~(put py pending.data.multisig) proposal-hash.act proposal)
     (result [%&^multisig]^~ ~ ~ ~)
   ::
       %propose
