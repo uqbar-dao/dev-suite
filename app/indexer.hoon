@@ -930,24 +930,32 @@
       ++  is-egg-hit
         |=  value=egg-update-value:ui
         ^-  ?
+        =/  query-hash=id:smart
+          ?:  ?=(@ query-payload)  query-payload
+          ?>  ?=([@ @] query-payload)
+          +.query-payload
         ?|  ?&  ?=(%from query-type)
-                =(query-payload id.from.shell.egg.value)
+                =(query-hash id.from.shell.egg.value)
             ==
             ?&  ?=(%to query-type)
-                =(query-payload to.shell.egg.value)
+                =(query-hash to.shell.egg.value)
             ==
         ==
       ::
       ++  is-grain-hit
         |=  value=grain-update-value:ui
         ^-  ?
+        =/  query-hash=id:smart
+          ?:  ?=(@ query-payload)  query-payload
+          ?>  ?=([@ @] query-payload)
+          +.query-payload
         ::  hack to get around grain's `each`
         =/  [holder=id:smart lord=id:smart]
           ?:  -.grain.value
             [holder.p.grain.value lord.p.grain.value]
           [holder.p.grain.value lord.p.grain.value]
-        ?|  &(?=(%holder query-type) =(query-payload holder))
-            &(?=(%lord query-type) =(query-payload lord))
+        ?|  &(?=(%holder query-type) =(query-hash holder))
+            &(?=(%lord query-type) =(query-hash lord))
         ==
       ::
       ++  filter-eggs
