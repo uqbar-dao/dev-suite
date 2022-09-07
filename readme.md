@@ -192,7 +192,7 @@ cp ./<fakezod_pier>/.urb/put/*.noun ./<urbit-git-dir>/pkg/ziggurat/lib/zig/compi
 }
 
 # use this poke to sign a pending transaction with HOT wallet
-{submit-signed: {from: "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70", hash: "0x5678", gas: {rate: 1, bud: 100000}}}
+{submit: {from: "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70", hash: "0x5678", gas: {rate: 1, bud: 100000}}}
 ```
 Example pokes that will work upon chain initialization in dojo):
 *need an active %indexer running for non-custom transactions to work*
@@ -208,6 +208,7 @@ Example pokes that will work upon chain initialization in dojo):
 ```
 
 After sending transactions to your wallet, they'll be pending a signature and gas assignment. Use the %submit poke to do this from a hot wallet, or the %submit-signed poke for a hardware wallet.
+
 ---
 
 ### DAO set up
