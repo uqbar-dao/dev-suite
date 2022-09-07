@@ -284,6 +284,8 @@
   ++  on-peek
     |=  =path
     ^-  (unit (unit cage))
+    ?:  =(/x/dbug/state path)
+      ~  ::  Don't send :indexer +dbug %path-does-not-exist.
     ?.  ?=(?([@ @ @ ~] [@ @ @ @ ~] [@ @ @ @ @ ~]) path)
       :^  ~  ~  %indexer-update
       !>(`update:ui`[%path-does-not-exist ~])
