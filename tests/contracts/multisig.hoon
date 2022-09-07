@@ -451,7 +451,7 @@
 ++  test-remove-member
   =/  yolk-1=yolk:smart  [%vote id:one-man-sig 0x1 %.y]
   =/  shell-1=shell:smart
-    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:multisig-wheat 2 1.000.000 town-id 0]
   =/  yolk-2=yolk:smart  [%vote id:one-man-sig 0x2 %.y]
   =/  shell-2=shell:smart
     [[holder-1 +(nonce:caller-1) zigs:caller-1] ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
