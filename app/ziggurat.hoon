@@ -418,10 +418,12 @@
       =/  merge-task  [%merg `@tas`project.act our.bowl -.+.byk.bowl da+now.bowl %init]
       =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
       =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
+      =/  deletions-task  [%info `@tas`project.act %& (clean-desk project.act)]
       :_  state(projects (~(put by projects) project.act [%| ~]))
       :~  [%pass /merge-wire %arvo %c merge-task]
           [%pass /mount-wire %arvo %c mount-task]
           [%pass /save-wire %arvo %c bill-task]
+          [%pass /save-wire %arvo %c deletions-task]
           =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
           [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
       ==
