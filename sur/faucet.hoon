@@ -8,6 +8,7 @@
 +$  configure
   $%  [%edit-gas gas=[rate=@ud budget=@ud]]
       [%edit-volume volume=@ud]
+      [%edit-timeout-duration timeout-duration=@dr]
       [%put-town town-id=id:smart =town-info]
   ==
 ::
@@ -19,6 +20,8 @@
   $:  %0
       town-infos=(map id:smart town-info)
       gas=[rate=@ud budget=@ud]
+      on-timeout=(map @p @da)
+      timeout-duration=@dr
       volume=@ud
   ==
 ::
