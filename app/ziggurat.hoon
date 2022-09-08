@@ -398,9 +398,9 @@
         ~|("%ziggurat: you should save a build without errors first" !!)
       ~&  >  "%ziggurat: deploying contract to {<deploy-location.act>} testnet"
       =/  pok
-        :*  %submit-custom  from=address.act  to=0x1111.1111
-            town=town-id.act  gas=[rate.act bud.act]
-            yolk=[%deploy upgradable.act u.compiled.project ~ ~]
+        :*  %transaction  from=address.act
+            contract=0x1111.1111  town=town-id.act
+            action=[%deploy upgradable.act u.compiled.project ~ ~]
         ==
       :_  state
       =+  [%zig-wallet-poke !>(`wallet-poke:wallet`pok)]
