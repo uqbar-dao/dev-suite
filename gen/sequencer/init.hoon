@@ -1,52 +1,25 @@
 /-  *sequencer
 /+  smart=zig-sys-smart, ethereum, merk
-/*  zigs-contract     %noun  /lib/zig/compiled/zigs/noun
-/*  nft-contract      %noun  /lib/zig/compiled/nft/noun
-/*  publish-contract  %noun  /lib/zig/compiled/publish/noun
-::  TODO
-::  /*  multisig-contract      %noun  /lib/zig/compiled/multisig/noun
-::  /*  fungible-contract      %noun  /lib/zig/compiled/fungible/noun
+/*  zigs-contract      %noun  /lib/zig/compiled/zigs/noun
+/*  publish-contract   %noun  /lib/zig/compiled/publish/noun
+/*  nft-contract       %noun  /lib/zig/compiled/nft/noun
+/*  fungible-contract  %noun  /lib/zig/compiled/fungible/noun
 :-  %say
 |=  [[now=@da eny=@uvJ bek=beak] [rollup-host=@p town-id=@ux private-key=@ux ~] ~]
-=/  pubkey-1  0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
-=/  pubkey-2  0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
-=/  pubkey-3  0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
-=/  zigs-1  (fry-rice:smart zigs-wheat-id:smart pubkey-1 town-id `@`'zigs')
-=/  zigs-2  (fry-rice:smart zigs-wheat-id:smart pubkey-2 town-id `@`'zigs')
-=/  zigs-3  (fry-rice:smart zigs-wheat-id:smart pubkey-3 town-id `@`'zigs')
-=/  beef-zigs-grain
-  ^-  grain:smart
-  :*  %&
-      `@`'zigs'
+::  one hundred million testnet zigs, now and forever
+=/  testnet-zigs-supply  100.000.000.000.000.000.000.000.000
+=/  faucet-pubkey  0x1a37.8abd.e505.f675.49e2.091f.769e.cc9e.013c.3ee6
+=/  zigs-1
+  ^-  rice:smart
+  :*  `@`'zigs'
       %account
-      [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
-      zigs-1
+      [testnet-zigs-supply ~ `@ux`'zigs-metadata']
+      (fry-rice:smart zigs-wheat-id:smart faucet-pubkey town-id `@`'zigs')
       zigs-wheat-id:smart
-      pubkey-1
+      faucet-pubkey
       town-id
   ==
-=/  dead-zigs-grain
-  ^-  grain:smart
-  :*  %&
-      `@`'zigs'
-      %account
-      [200.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
-      zigs-2
-      zigs-wheat-id:smart
-      pubkey-2
-      town-id
-  ==
-=/  cafe-zigs-grain
-  ^-  grain:smart
-  :*  %&
-      `@`'zigs'
-      %account
-      [100.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
-      zigs-3
-      zigs-wheat-id:smart
-      pubkey-3
-      town-id
-  ==
+::
 =/  zigs-metadata
   ^-  rice:smart
   :*  `@`'zigs'
@@ -54,8 +27,8 @@
       :*  name='UQ| Tokens'
           symbol='ZIG'
           decimals=18
-          supply=1.000.000.000.000.000.000.000.000
-          cap=~
+          supply=testnet-zigs-supply
+          cap=`testnet-zigs-supply
           mintable=%.n
           minters=~
           deployer=0x0
@@ -66,22 +39,15 @@
       zigs-wheat-id:smart
       town-id
   ==
+::  zigs.hoon contract
 =/  zigs-wheat
   ^-  wheat:smart
-  ::  interface
-  =/  interface  ~
-    ::  %-  ~(gas by *(map @tas lump))
-    ::  :~  (to-lump ...)
-    ::  ==
-  ::  types
-  =/  types  ~
-    ::  %-  ~(gas by *(map @tas lump))
-    ::  :~  (to-lump ...)
-    ::  ==
+  =/  interface  ~  ::  TODO
+  =/  types  ~  ::  TODO
   ::
   :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] zigs-contract)))
-      interface=~  ::  TODO
-      types=~      ::  TODO
+      interface
+      types
       zigs-wheat-id:smart  ::  id
       zigs-wheat-id:smart  ::  lord
       zigs-wheat-id:smart  ::  holder
@@ -93,90 +59,55 @@
   :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] publish-contract)))
       interface=~  ::  TODO
       types=~      ::  TODO
-      0x1111.1111     ::  id
-      0x1111.1111     ::  lord
-      0x1111.1111     ::  holder
-      town-id         ::  town-id
+      0x1111.1111  ::  id
+      0x0          ::  lord
+      0x0          ::  holder
+      town-id      ::  town-id
   ==
-::
-:: NFT stuff
-::
-=/  nft-metadata-rice
-  ^-  rice:smart
-  :*  salt=`@`'nftsalt'
-      label=%metadata
-      :*  name='Ziggurat Girls'
-          symbol='GOODART'
-          properties=(~(gas pn:smart *(pset:smart @tas)) `(list @tas)`~[%hat %eyes %mouth])
-          supply=1
-          cap=`5
-          mintable=%.y
-          minters=(~(gas pn:smart *(pset:smart address:smart)) ~[pubkey-1])
-          deployer=pubkey-1
-          salt=`@`'nftsalt'
-      ==
-      id=`@ux`'nft-metadata'
-      lord=0xcafe.babe
-      holder=0xcafe.babe
-      town-id
-  ==
-=/  nft-1  (fry-rice:smart 0xcafe.babe pubkey-1 town-id `@`'nftsalt1')
-=/  nft-rice
-  ^-  rice:smart
-  :*  salt=`@`'nftsalt1'
-      label=%nft
-      :*  1
-          'ipfs://QmUbFVTm113tJEuJ4hZY2Hush4Urzx7PBVmQGjv1dXdSV9'
-          id:nft-metadata-rice
-          ~
-          %-  ~(gas py:smart *(pmap:smart @tas @t))
-          `(list [@tas @t])`~[[%hat 'pyramid'] [%eyes 'big'] [%mouth 'smile']]
-          %.y
-      ==
-      nft-1
-      0xcafe.babe
-      pubkey-1
-      town-id
-  ==
+::  nft.hoon contract
 =/  nft-wheat
   ^-  wheat:smart
-  :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] nft-contract)))
+  =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] nft-contract)))
+  :*  `cont
       interface=~  ::  TODO
       types=~      ::  TODO
-      0xcafe.babe     ::  id
-      0xcafe.babe     ::  lord
-      0xcafe.babe     ::  holder
-      town-id         ::  town-id
+      (fry-wheat:smart 0x0 0x0 `cont)
+      0x0          ::  lord
+      0x0          ::  holder
+      town-id      ::  town-id
+  ==
+::  fungible.hoon contract
+=/  fungible-wheat
+  ^-  wheat:smart
+  =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] fungible-contract)))
+  :*  `cont
+      interface=~  ::  TODO
+      types=~      ::  TODO
+      (fry-wheat:smart 0x0 0x0 `cont)
+      0x0          ::  lord
+      0x0          ::  holder
+      town-id      ::  town-id
   ==
 ::
 =/  fake-granary
   ^-  granary
   %+  gas:(bi:merk id:smart grain:smart)
     *(merk:merk id:smart grain:smart)
-  :~  [zigs-1 beef-zigs-grain]
-      [zigs-2 dead-zigs-grain]
-      [zigs-3 cafe-zigs-grain]
-      [nft-1 [%& nft-rice]]
-      [id.zigs-metadata [%& zigs-metadata]]
-      [id.nft-metadata-rice [%& nft-metadata-rice]]
+  :~  [id.zigs-wheat [%| zigs-wheat]]
       [id.publish-wheat [%| publish-wheat]]
-      [id.zigs-wheat [%| zigs-wheat]]
       [id.nft-wheat [%| nft-wheat]]
+      [id.fungible-wheat [%| fungible-wheat]]
+      [id.zigs-1 [%& zigs-1]]
+      [id.zigs-metadata [%& zigs-metadata]]
   ==
-=/  fake-populace
-  ^-  populace
-  %+  gas:(bi:merk id:smart @ud)  *(merk:merk id:smart @ud)
-  ~[[pubkey-1 0] [pubkey-2 0] [pubkey-3 0]]
-::
-=/  =address:smart  (address-from-prv:key:ethereum private-key)
 ::
 :-  %sequencer-town-action
 ^-  town-action
 :*  %init
     rollup-host
-    address
+    (address-from-prv:key:ethereum private-key)
     private-key
     town-id
-    `[fake-granary fake-populace]
+    `[fake-granary *populace]
     [%full-publish ~]
 ==
