@@ -39,8 +39,9 @@
 ++  on-init
   :-  ~
   %=  this
-      gas     [rate=1 budget=1.000.000]
-      volume  1.000.000.000.000.000.000
+      gas               [rate=1 budget=1.000.000]
+      timeout-duration  ~h1
+      volume            1.000.000.000.000.000.000
   ==
 ++  on-save  !>(state)
 ++  on-load
@@ -48,7 +49,7 @@
   =/  old  !<(versioned-state:f old-vase)
   ?-    -.old
       %0
-      `this(state old)
+      `this(state old(on-timeout ~))
   ==
 ::
 ++  on-poke
@@ -64,22 +65,29 @@
     ^-  (quip card _this)
     ?-    -.action
         %open
+      =*  src  src.bowl
       ?~  town-info=(~(get by town-infos) town-id.action)
         ~|("%faucet: invalid town. Valid towns: {<~(key by town-infos)>}" !!)
-      :_  this
-      :_  ~
-      %+  ~(poke-our pass:io /open-poke-wire)
-        %wallet
-      :-  %zig-wallet-poke
-      !>  ^-  wallet-poke:w
-      :*  %submit
-          from=address.u.town-info
-          to=zigs-wheat.u.town-info
-          town=town-id.action
-          gas=gas
-          :^  %give  to=address.action  amount=volume
-          grain=zigs-rice.u.town-info
-      ==
+      ?^  timeout-done=(~(get by on-timeout) src)
+        ~|("%faucet: must wait until after {<u.timeout-done>} to acquire more zigs." !!)
+      =/  until=@da  (add now.bowl timeout-duration)
+      :_  this(on-timeout (~(put by on-timeout) src until))
+      :+  %.  until
+          %~  wait  pass:io
+          /done/(scot %p src)/(scot %da until)
+        %+  ~(poke-our pass:io /open-poke-wire)
+          %wallet
+        :-  %zig-wallet-poke
+        !>  ^-  wallet-poke:w
+        :*  %submit
+            from=address.u.town-info
+            to=zigs-wheat.u.town-info
+            town=town-id.action
+            gas=gas
+            :^  %give  to=address.action  amount=volume
+            grain=zigs-rice.u.town-info
+        ==
+      ~
     ==
   ::
   ++  handle-configure
@@ -89,6 +97,9 @@
     ?-    -.c
         %edit-gas     `this(gas gas.c)
         %edit-volume  `this(volume volume.c)
+        %edit-timeout-duration
+      `this(timeout-duration timeout-duration.c)
+    ::
         %put-town
       :-  ~
       %=  this
@@ -98,10 +109,23 @@
     ==
   --
 ::
+++  on-arvo
+  |=  [=wire =sign-arvo:agent:gall]
+  ^-  (quip card _this)
+  ?+    wire  (on-arvo:def wire sign-arvo)
+      [%done @ @ ~]
+    ?+    sign-arvo  (on-arvo:def wire sign-arvo)
+        [%behn %wake *]
+      =/  who=@p     (slav %p i.t.wire)
+      =/  until=@da  (slav %da i.t.t.wire)
+      ?:  (gth until now.bowl)  `this
+      `this(on-timeout (~(del by on-timeout) who))
+    ==
+  ==
+::
 ++  on-watch  on-watch:def
 ++  on-leave  on-leave:def
 ++  on-peek   on-peek:def
 ++  on-agent  on-agent:def
-++  on-arvo   on-arvo:def
 ++  on-fail   on-fail:def
 --

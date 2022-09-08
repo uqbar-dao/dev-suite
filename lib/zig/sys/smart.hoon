@@ -191,7 +191,7 @@
 +$  shell
   $:  from=caller
       eth-hash=(unit @)  ::  if transaction signed with eth wallet, use this to verify signature
-      to=id
+      to=id  ::  TODO change to `contract`
       rate=@ud
       budget=@ud
       town-id=id
