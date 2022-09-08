@@ -1,5 +1,4 @@
-/-  r=resource,
-    seq=sequencer
+/-  seq=sequencer
 /+  smart=zig-sys-smart
 ::
 |%

@@ -7,10 +7,7 @@
 +$  project   (each contract-project app-project)
 ::
 +$  app-project
-  $:  dir=(list path)
-      error=(unit @t)
-      compiled=?
-  ==
+  dir=(list path)
 ::
 +$  contract-project
   $:  main=@t
@@ -20,7 +17,8 @@
       error=(unit @t)  ::  ~ means successfully compiled
       state=land:mill
       data-texts=(map id:smart @t)  ::  holds rice data that got ream'd
-      caller-nonce=@ud
+      user-address=address:smart
+      user-nonce=@ud
       mill-batch-num=@ud
       =tests
   ==
@@ -56,7 +54,7 @@
 ::
 +$  contract-action
   $:  project=@t
-      $%  [%new-contract-project =template]  ::  creates a contract project, TODO add gall option
+      $%  [%new-contract-project =template user-address=address:smart]  ::  creates a contract project, TODO add gall option
           [%populate-template =template metadata=rice:smart]
           [%delete-project ~]
           [%save-file name=@t text=@t]  ::  generates new file or overwrites existing
@@ -108,12 +106,7 @@
   ==
 ::
 +$  app-update
-  ::  should scry clay with %t to get dir here
-  ::  TODO: how to retrieve compilation result for gall app?
-  $:  dir=(list path)
-      error=(unit @t)
-      compiled=?
-  ==
+  dir=(list path)
 ::
 +$  test-update
   [%result state-transition:mill]

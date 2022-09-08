@@ -116,16 +116,27 @@ After [initial installation](#initial-installation), start the `%rollup`, initia
 After [starting the testnet](#starting-up-a-new-testnet), send transactions using the `%wallet`.
 Note that pokes here are to `%uqbar`.
 Pokes with the `%zig-wallet-poke` mark are [routed through `%uqbar`](#why-route-reads-and-writes-through-uqbar) to `%wallet`; the pokes below could just as easily be sent to `%wallet`.
+
+First, create a pending transaction.
+The `%wallet` will send the transaction hash on a subscription wire as well as print it in the Dojo.
 ```hoon
 ::  Send zigs tokens.
-:uqbar &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 grain=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
+:uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 grain=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
 
 ::  Send an NFT.
-:uqbar &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0xcafe.babe town=0x0 gas=[1 1.000.000] [%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de grain=0x7e21.2812.bfae.4d2e.6b3d.9941.b776.3c0f.33bc.fb6d.c759.2d80.be02.a7b2.48a8.da97]]
+:uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0xcafe.babe town=0x0 action=[%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de grain=0x7e21.2812.bfae.4d2e.6b3d.9941.b776.3c0f.33bc.fb6d.c759.2d80.be02.a7b2.48a8.da97]]
 
 ::  Use the custom transaction interface to send zigs tokens.
-:uqbar &zig-wallet-poke [%submit-custom from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 gas=[1 1.000.000] yolk='[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]']
+:uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%noun [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]]]
 ```
+
+Then, sign the transaction and assign it a gas budget.
+For example, for the zigs token transaction above:
+```hoon
+::  Sign with hot wallet.
+:uqbar &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash= gas=[rate=1 bud=1.000.000]]
+```
+Transactions can also be signed using a hardware wallet, via `%submit-signed`.
 
 Each transaction sent will be stored in the `%sequencer`s `basket` (analogous to a mempool).
 To execute the transactions, create the new batch with updated town state, and send it to the `%rollup`, poke the `%sequencer`:
@@ -324,3 +335,53 @@ A `%sequencer` runs a `town`, receiving transactions from users, executing them,
 
 A `wheat` is a piece of code: it is a contract.
 For example, the `zigs` contract that governs the base rollup tokens is a `wheat`, and the `nft` contract that enables NFTs to be held and sent is another.
+
+
+## Appendix: Wallet Usage for Frontend Devs
+
+```hoon
+::  JSON object of accounts, keyed by address, containing private key, nickname, and nonces:
+.^(json %gx /=wallet=/accounts/noun)
+
+::  JSON object of known assets (rice), keyed by address, then by rice address:
+.^(json %gx /=wallet=/book/json)
+
+::  JSON object of token metadata we're aware of:
+.^(json %gx /=wallet=/token-metadata/json)
+
+::  Seed phrase and password (todo separate these)
+.^(json %gx /=wallet=/seed/json)
+```
+
+### JSON-enabled wallet pokes
+
+```
+{import-seed: {mnemonic: "12-24 word phrase", password: "password", nick: "nickname for the first address in this wallet"}}
+{generate-hot-wallet: {password: "password", nick: "nickname"}}
+# leave hdpath empty ("") to let wallet auto-increment from 0 on main path
+{derive-new-address: {hdpath: "m/44'/60'/0'/0/0", nick: "nickname"}}
+
+# use this to save a hardware wallet account
+{add-tracked-address: {address: "0x1234.5678" nick: "nickname"}}
+{delete-address: {address: "0x1234.5678"}}
+{edit-nickname: {address: "0x1234.5678", nick: "nickname"}}
+
+# use this to sign a pending transaction with hardware wallet
+{submit-signed: {from: "0x1234", hash: "0x5678", eth-hash: "0xeeee", gas: {rate: 1, bud: 100000}, sig: {v: 123, r: 456, s: 789}}}
+
+# can submit token and nft sends in special formatting, and custom transactions via hoon string
+# send some token
+# the FROM is your address
+# the CONTRACT is the lord of the account grain
+# the TO inside ACTION is the address of person you're sending to
+# the GRAIN inside ACTION is your account grain's ID
+{transaction: {from: "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70", contract: "0x74.6361.7274.6e6f.632d.7367.697a", town: "0x0", action: {give: {to: "0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de", amount: 123456, grain: "0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6"}}}}
+}
+
+# custom transaction
+{transaction: {from: "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70", contract: "0x74.6361.7274.6e6f.632d.7367.697a", town: "0x0", action: {text: "[%this %is %some %hoon]"}}}
+}
+
+# use this poke to sign a pending transaction with HOT wallet
+{submit: {from: "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70", hash: "0x5678", gas: {rate: 1, bud: 100000}}}
+```
