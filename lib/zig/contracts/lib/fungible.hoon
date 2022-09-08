@@ -128,7 +128,7 @@
     =/  giver  (husk account:sur - `me.cart `id.from.cart)
     ::  this will fail if amount > balance, as desired
     =.  balance.data.giver  (sub balance.data.giver amount.act)
-    ?:  ?=(~ to-account.act)
+    ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
       =+  [amount.act ~ metadata.data.giver 0]
