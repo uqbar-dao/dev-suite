@@ -207,12 +207,16 @@
       ?~  txn=(~(get by my-pending) hash.act)
         ~|("%wallet: can't find pending transaction with that hash" !!)
       =*  egg  egg.u.txn
-      ::  update egg with sig and gas
-      =:  sig.egg             sig.act
-          rate.shell.egg      rate.gas.act
-          budget.shell.egg    bud.gas.act
-          eth-hash.shell.egg  `eth-hash.act
-          status.shell.egg    %101
+      ::  get our nonce
+      =/  our-nonces  (~(gut by nonces.state) from.act ~)
+      =/  nonce=@ud   (~(gut by our-nonces) town-id.shell.egg 0)
+      ::  update egg with sig, nonce, and gas
+      =:  sig.egg               sig.act
+          nonce.from.shell.egg  +(nonce)
+          rate.shell.egg        rate.gas.act
+          budget.shell.egg      bud.gas.act
+          eth-hash.shell.egg    `eth-hash.act
+          status.shell.egg      %101
       ==
       ::  update hash of egg with new values
       =/  hash  (hash-egg [shell yolk]:egg)
@@ -230,6 +234,9 @@
           ::
               transaction-store
             (~(put by transaction-store) from.act our-txns)
+          ::
+              nonces
+            (~(put by nonces) from.act (~(put by our-nonces) town-id.shell.egg +(nonce)))
           ==
       :~  (tx-update-card hash egg action.u.txn)
           :*  %pass  /submit-tx/(scot %ux hash)
@@ -248,10 +255,14 @@
       ?~  keypair=(~(get by keys.state) from.act)
         ~|("%wallet: don't have knowledge of that address" !!)
       =*  egg  egg.u.txn
-      ::  update egg with sig and gas
-      =:  rate.shell.egg    rate.gas.act
-          budget.shell.egg  bud.gas.act
-          status.shell.egg  %101
+      ::  get our nonce
+      =/  our-nonces  (~(gut by nonces.state) from.act ~)
+      =/  nonce=@ud   (~(gut by our-nonces) town-id.shell.egg 0)
+      ::  update egg with sig, nonce, and gas
+      =:  rate.shell.egg        rate.gas.act
+          nonce.from.shell.egg  +(nonce)
+          budget.shell.egg      bud.gas.act
+          status.shell.egg      %101
       ==
       ::  update hash of egg with new values
       =/  hash  (hash-egg [shell yolk]:egg)
@@ -275,6 +286,9 @@
           ::
               transaction-store
             (~(put by transaction-store) from.act our-txns)
+          ::
+              nonces
+            (~(put by nonces) from.act (~(put by our-nonces) town-id.shell.egg +(nonce)))
           ==
       :~  (tx-update-card hash egg action.u.txn)
           :*  %pass  /submit-tx/(scot %ux hash)
@@ -284,12 +298,23 @@
           ==
       ==
     ::
+        %delete-pending
+      ~|  "%wallet: no pending transactions from that address"
+      =/  my-pending  (~(got by pending-store) from.act)
+      ?~  txn=(~(get by my-pending) hash.act)
+        ~|("%wallet: can't find pending transaction with that hash" !!)
+      ::  remove without signing
+      :-  ~
+      %=    state
+          pending-store
+        (~(put by pending-store) from.act (~(del by my-pending) hash.act))
+      ==
+    ::
         %transaction
       ::  take in a new pending transaction
-      =/  our-nonces  (~(gut by nonces.state) from.act ~)
-      =/  nonce=@ud   (~(gut by our-nonces) town.act 0)
       =/  =caller:smart
-        :+  from.act  +(nonce)
+        :+  from.act
+          0  ::  we fill in *correct* nonce upon submission
         ::  generate our zigs token account ID
         (fry-rice:smart zigs-wheat-id:smart from.act town.act `@`'zigs')
       ::  build yolk of transaction, depending on argument type
@@ -342,7 +367,6 @@
       :-  (tx-update-card hash egg action.act)^~
       %=  state
         pending-store  (~(put by pending-store) from.act my-pending)
-        nonces  (~(put by nonces) from.act (~(put by our-nonces) town.act +(nonce)))
       ==
     ==
   --

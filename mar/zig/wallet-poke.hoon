@@ -21,6 +21,7 @@
           ::
           [%submit-signed parse-signed]
           [%submit parse-submit]
+          [%delete-pending parse-delete]
           [%transaction parse-transaction]
       ==
     ++  parse-signed
@@ -36,6 +37,11 @@
       :~  [%from (se %ux)]
           [%hash (se %ux)]
           [%gas (ot ~[[%rate ni] [%bud ni]])]
+      ==
+    ++  parse-delete
+      %-  ot
+      :~  [%from (se %ux)]
+          [%hash (se %ux)]
       ==
     ++  parse-transaction
       %-  ot
