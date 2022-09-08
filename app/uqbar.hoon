@@ -112,7 +112,6 @@
     |=  [=mark =vase]
     ^-  (quip card _this)
     |^
-    ?>  =(src.bowl our.bowl)
     =^  cards  state
       ?+    mark  ~|("%uqbar: rejecting erroneous poke" !!)
           %uqbar-action  (handle-action !<(action:u vase))
@@ -140,6 +139,7 @@
     ++  handle-action
       |=  act=action:u
       ^-  (quip card _state)
+      ?>  =(src.bowl our.bowl)
       ?-    -.act
           %set-wallet-source
         `state(wallet-source app-name.act)
@@ -214,6 +214,7 @@
       ::  and unsub when either status is received, or batch is rejected. (TODO how to determine latter?)
       ::
           %submit
+        ?>  =(src.bowl our.bowl)
         =/  town-id  `@ux`town-id.shell.egg.write
         ?~  seq=(~(get by sequencers.state) town-id)
           ~|("%uqbar: no known sequencer for that town" !!)

@@ -341,7 +341,7 @@
         ::
             %text
           =-  [;;(@tas -.-) +.-]
-          q:(slap !>(+:(cue q.q.smart-lib)) (ream +.action.act))
+          q:(slap !>(+:(cue +.+:;;([* * @] smart-lib))) (ream +.action.act))
         ::
             %noun
           ;;(yolk:smart +.action.act)

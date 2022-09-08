@@ -27,10 +27,10 @@
     def   ~(. (default-agent this %|) bowl)
 ::
 ++  on-init
-  =/  smart-lib=vase  ;;(vase (cue q.q.smart-lib-noun))
+  =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  mil
     %~  mill  mill:sequencer
-    [smart-lib ;;((map * @) (cue q.q.zink-cax-noun)) %.y]
+    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
   :-  ~
   %_    this
       state
@@ -40,10 +40,10 @@
 ++  on-load
   |=  =old=vase
   ::  on-load: pre-cue our compiled smart contract library
-  =/  smart-lib=vase  ;;(vase (cue q.q.smart-lib-noun))
+  =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  mil
     %~  mill  mill:sequencer
-    [smart-lib ;;((map * @) (cue q.q.zink-cax-noun)) %.y]
+    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
   `this(state [!<(state-0 old-vase) mil smart-lib])
 ::
 ++  on-watch
