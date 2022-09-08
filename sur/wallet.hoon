@@ -124,6 +124,7 @@
   $:  balance=@ud
       allowances=(pmap:smart sender=id:smart @ud)
       metadata=id:smart
+      nonce=@ud
   ==
 ::
 ::  hardcoded molds comporting to account-NFT standard

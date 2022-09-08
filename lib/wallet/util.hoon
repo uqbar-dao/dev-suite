@@ -52,10 +52,10 @@
   `[%pass wire %agent [ship term] %leave ~]
 ::
 ++  indexer-update-to-books
-  |=  [=update:ui our=@ux =metadata-store]
+  |=  =update:ui
   ^-  book
   =|  new-book=book
-  ?.  ?=(%grain -.update)  ~
+  ?>  ?=(%grain -.update)
   =/  grains-list=(list [@da =batch-location:ui =grain:smart])
     (zing ~(val by grains.update))
   |-  ^-  book
@@ -70,6 +70,18 @@
     grains-list  t.grains-list
     new-book  (~(put by new-book) id.p.grain asset)
   ==
+::
+++  indexer-update-to-asset
+  |=  =update:ui
+  ^-  [id:smart asset]
+  =|  new-book=book
+  ?>  ?=(%newest-grain -.update)
+  :-  grain-id.update
+  ?.  ?=(%& -.grain.update)
+    ::  handle contract asset
+    [%unknown town-id.p.grain.update lord.p.grain.update ~]
+  ::  determine type token/nft/unknown
+  (discover-asset-mold town-id.p.grain.update lord.p.grain.update data.p.grain.update)
 ::
 ++  discover-asset-mold
   |=  [town=@ux contract=@ux data=*]
