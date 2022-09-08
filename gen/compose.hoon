@@ -2,7 +2,7 @@
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
 :-  %say
 |=  [[now=@da eny=@uvJ bek=beak] [=wheat:smart ~] ~]
-=/  smart-lib=vase  ;;(vase (cue q.q.smart-lib-noun))
+=/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
 ::  goal: to take a bat=* and payload=* and produce runnable nock
 =/  cont  (need cont.wheat)
 =/  payload  .*(q.smart-lib pay.cont)

@@ -79,7 +79,7 @@
     ::  :~  (to-lump ...)
     ::  ==
   ::
-  :*  `;;([bat=* pay=*] (cue q.q.zigs-contract))
+  :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] zigs-contract)))
       interface=~  ::  TODO
       types=~      ::  TODO
       zigs-wheat-id:smart  ::  id
@@ -90,7 +90,7 @@
 ::  publish.hoon contract
 =/  publish-wheat
   ^-  wheat:smart
-  :*  `;;([bat=* pay=*] (cue q.q.publish-contract))
+  :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] publish-contract)))
       interface=~  ::  TODO
       types=~      ::  TODO
       0x1111.1111     ::  id
@@ -140,7 +140,7 @@
   ==
 =/  nft-wheat
   ^-  wheat:smart
-  :*  `;;([bat=* pay=*] (cue q.q.nft-contract))
+  :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] nft-contract)))
       interface=~  ::  TODO
       types=~      ::  TODO
       0xcafe.babe     ::  id
