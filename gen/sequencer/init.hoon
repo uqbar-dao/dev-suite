@@ -13,7 +13,7 @@
   ^-  rice:smart
   :*  `@`'zigs'
       %account
-      [testnet-zigs-supply ~ `@ux`'zigs-metadata']
+      [testnet-zigs-supply ~ `@ux`'zigs-metadata' 0]
       (fry-rice:smart zigs-wheat-id:smart faucet-pubkey town-id `@`'zigs')
       zigs-wheat-id:smart
       faucet-pubkey
