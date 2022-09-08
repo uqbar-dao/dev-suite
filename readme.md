@@ -16,6 +16,7 @@ It contains code for the Gall apps required to simulate the ZK rollup to Ethereu
 * [Testing Zink](#testing-zink)
 * [Precomputing Hashes for Zink](#precomputing-hashes-for-zink)
 * [Glossary](#glossary)
+* [Appendix: Wallet Usage for Frontend Devs](#appendix-wallet-usage-for-frontend-devs)
 
 
 ## Project Structure
