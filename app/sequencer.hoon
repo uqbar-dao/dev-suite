@@ -34,10 +34,10 @@
     def   ~(. (default-agent this %|) bowl)
 ::
 ++  on-init
-  =/  smart-lib=vase  ;;(vase (cue q.q.smart-lib-noun))
+  =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  mil
     %~  mill  mill
-    [smart-lib ;;((map * @) (cue q.q.zink-cax-noun)) %.y]
+    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
   :-  ~
   %_    this
       state
@@ -50,10 +50,10 @@
 ++  on-load
   |=  =old=vase
   ::  on-load: pre-cue our compiled smart contract library
-  =/  smart-lib=vase  ;;(vase (cue q.q.smart-lib-noun))
+  =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  mil
     %~  mill  mill
-    [smart-lib ;;((map * @) (cue q.q.zink-cax-noun)) %.y]
+    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
   `this(state [!<(state-0 old-vase) mil smart-lib])
 ::
 ++  on-watch
@@ -165,7 +165,7 @@
       ?~  rollup.state
         ~|("%sequencer: error: no known rollup host" !!)
       ?~  basket.state
-        ~|("%sequencer: error: no transactions to include in batch" !!)
+        ~|("%sequencer: no transactions to include in batch" !!)
       =*  town  u.town.state
       ?:  ?=(%committee -.mode.hall.town)
         ::  TODO data-availability committee
@@ -283,6 +283,10 @@
       [%town-id ~]
     ?~  town  ``noun+!>(~)
     ``noun+!>(`town-id.hall.u.town)
+  ::
+      [%basket-size ~]
+    ::  returns number of transactions in basket
+    ``noun+!>(`@ud`~(wyt in basket))
   ::
   ::  state reads fail if sequencer not active
   ::

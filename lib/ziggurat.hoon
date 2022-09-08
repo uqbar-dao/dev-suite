@@ -4,38 +4,40 @@
 ::
 ::  set parameters for our local test environment
 ::
-++  designated-address  0xdead.beef
-++  designated-contract-id  0xfafa.fafa
-++  designated-metadata-id  0xdada.dada
+++  designated-contract-id  0xfafa.0000.0000.0000.0000.0000.0000.0000.0000.fafa
+++  designated-metadata-id  0xdada.0000.0000.0000.0000.0000.0000.0000.0000.dada
 ++  designated-caller
-  |=  nonce=@ud
+  |=  [=address:smart nonce=@ud]
   ^-  caller:smart
-  [designated-address nonce id.p:designated-zigs-grain]
+  [address nonce id.p:(designated-zigs-grain address)]
 ++  designated-town-id  0x0
 ::  we set the designated caller to have 300 zigs
 ++  designated-zigs-grain
+  |=  =address:smart
   ^-  grain:smart
   :*  %&  `@`'zigs'
       %account
       [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
       %:  fry-rice:smart
           zigs-wheat-id:smart
-          designated-address
+          address
           designated-town-id
           `@`'zigs'
       ==
       zigs-wheat-id:smart
-      designated-address
+      address
       designated-town-id
   ==
 ::
 ++  starting-state
+  |=  =address:smart
   ^-  land:mill
   :_  ~
-  (put:big:mill ~ id.p:designated-zigs-grain designated-zigs-grain)
+  =-  (put:big:mill ~ id.p.- -)
+  (designated-zigs-grain address)
 ::
 ++  make-contract-grain
-  |=  cont=[bat=* pay=*]
+  |=  [=address:smart cont=[bat=* pay=*]]
   ^-  grain:smart
   :*  %|
       `cont
@@ -43,7 +45,7 @@
       types=~
       designated-contract-id
       0x0
-      designated-address
+      address
       designated-town-id
   ==
 ::
@@ -71,20 +73,14 @@
 ++  make-app-update
   |=  [project=@t =app-project]
   ^-  card
-  =/  =app-update
-    :*  dir.app-project
-        error.app-project
-        compiled.app-project
-    ==
   =/  =path  /app-project/[project]
-  [%give %fact ~[path] %ziggurat-app-update !>(app-update)]
+  [%give %fact ~[path] %ziggurat-app-update !>(`app-update`app-project)]
 ::
 ++  make-multi-test-update
   |=  [project=@t result=state-transition:mill]
   ^-  card
-  =/  =test-update  [%result result]
   =/  =path         /test-updates/[project]
-  [%give %fact ~[path] %ziggurat-test-update !>(test-update)]
+  [%give %fact ~[path] %ziggurat-test-update !>(`test-update`[%result result])]
 ::
 ++  build-contract-project
   |=  [smart-lib=vase proj=contract-project]
@@ -118,7 +114,7 @@
     ^-  (list hoon)
     %+  turn  raw
     |=  [face=term =path]
-    `hoon`[%ktts face (rain path (~(got by libs.proj) `@t`face))]
+    `hoon`[%ktts face (rain path (~(got by libs.proj) `@t`(rear path)))]
   ::
   ++  build-libs  ::  third
     |=  braw=(list hoon)
@@ -147,6 +143,7 @@
 ++  fungible-template-project
   |=  [current=contract-project meta-rice=rice:smart smart-lib-vase=vase]
   ^-  contract-project
+  ~&  >  ;;(@t data.meta-rice)
   ::  make fungible accounts and tests
   =/  metadata
     ;;  $:  name=@t
@@ -163,18 +160,18 @@
   =/  dead-beef-account-id
     %:  fry-rice:smart
         lord.meta-rice
-        designated-address
+        user-address.current
         designated-town-id
         salt.metadata
     ==
   =/  dead-beef-account
-    ^-  grain:smart
-    :*  %&  salt.metadata
+    ^-  rice:smart
+    :*  salt.metadata
         %account
         [200 ~ id.meta-rice 0]
         dead-beef-account-id
         lord.meta-rice
-        designated-address
+        user-address.current
         designated-town-id
     ==
   =/  cafe-babe-account-id
@@ -185,8 +182,8 @@
         salt.metadata
     ==
   =/  cafe-babe-account
-    ^-  grain:smart
-    :*  %&  salt.metadata
+    ^-  rice:smart
+    :*  salt.metadata
         %account
         [100 ~ id.meta-rice 0]
         cafe-babe-account-id
@@ -202,11 +199,11 @@
         salt.metadata
     ==
   =/  cafe-d00d-account
-    ^-  grain:smart
-    :*  %&  salt.metadata
+    ^-  rice:smart
+    :*  salt.metadata
         %account
         [100 (~(gas py:smart *(pmap:smart @ux @ud)) ~[[0xdead.beef 50]]) id.meta-rice 0]
-        cafe-babe-account-id
+        cafe-d00d-account-id
         lord.meta-rice
         0xcafe.d00d
         designated-town-id
@@ -224,10 +221,22 @@
     =-  [;;(@tas -.-) +.-]
     q:(slap smart-lib-vase (ream action-1))
   =/  test-1=test
+    =/  data-1
+      '[balance=170 allowances=~ metadata=0xdada.dada nonce=0]'
+    =/  data-2
+      '[balance=130 allowances=~ metadata=0xdada.dada nonce=0]'
     :*  `'test-give'
         action-1
         yolk-1
-        ~  ::  TODO
+        %-  malt
+        :~  :+  dead-beef-account-id
+              %&^dead-beef-account(data q:(slap smart-lib-vase (ream data-1)))
+            data-1
+            :+  cafe-babe-account-id
+              %&^cafe-babe-account(data q:(slap smart-lib-vase (ream data-2)))
+            data-2
+        ==
+        %0
         ~
     ==
   =/  action-2=@t
@@ -243,15 +252,51 @@
     =-  [;;(@tas -.-) +.-]
     q:(slap smart-lib-vase (ream action-2))
   =/  test-2=test
-    :*  `'test-give'
+    =/  data-1
+      '[balance=50 allowances=(~(gas py *(pmap @ux @ud)) ~[[0xdead.beef 0]]) metadata=0xdada.dada nonce=0]'
+    =/  data-2
+      '[balance=150 allowances=~ metadata=0xdada.dada nonce=0]'
+    :*  `'test-take'
         action-2
         yolk-2
-        ~  ::  TODO
+        %-  malt
+        :~  :+  cafe-d00d-account-id
+              %&^cafe-d00d-account(data q:(slap smart-lib-vase (ream data-1)))
+            data-1
+            :+  cafe-babe-account-id
+              %&^cafe-babe-account(data q:(slap smart-lib-vase (ream data-2)))
+            data-2
+        ==
+        %0
+        ~
+    ==
+  =/  action-3=@t
+    %-  crip
+    %-  zing
+    :~  "[%set-allowance who=0xcafe.babe amount=100 account="
+        (trip (scot %ux dead-beef-account-id))
+        "]"
+    ==
+  =/  yolk-3=yolk:smart
+    =-  [;;(@tas -.-) +.-]
+    q:(slap smart-lib-vase (ream action-3))
+  =/  test-3=test
+    =/  data-1
+      '[balance=200 allowances=(~(gas py *(pmap @ux @ud)) ~[[0xcafe.babe 100]]) metadata=0xdada.dada nonce=0]'
+    :*  `'test-set-allowance'
+        action-3
+        yolk-3
+        %-  malt
+        :~  :+  dead-beef-account-id
+              %&^dead-beef-account(data q:(slap smart-lib-vase (ream data-1)))
+            data-1
+        ==
+        %0
         ~
     ==
   %=    current
       tests
-    (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2]])
+    (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
   ::
       data-texts
     %-  ~(uni by data-texts.current)
@@ -259,22 +304,271 @@
     :~  [id.meta-rice ;;(@t data.meta-rice)]
         [dead-beef-account-id '[balance=200 allowances=~ metadata=0xdada.dada nonce=0]']
         [cafe-babe-account-id '[balance=100 allowances=~ metadata=0xdada.dada nonce=0]']
-        [cafe-babe-account-id '[balance=100 allowances=(~(gas py *(pmap @ux @ud)) ~[[0xdead.beef 50]]) metadata=0xdada.dada nonce=0]']
+        [cafe-d00d-account-id '[balance=100 allowances=(~(gas py *(pmap @ux @ud)) ~[[0xdead.beef 50]]) metadata=0xdada.dada nonce=0]']
     ==
   ::
       p.state
     =-  (uni:big:mill p.state.current -)
     %+  gas:big:mill  *granary:mill
     :~  [id.meta-rice %&^meta-rice(data metadata)]
-        [dead-beef-account-id dead-beef-account]
-        [cafe-babe-account-id cafe-babe-account]
-        [cafe-d00d-account-id cafe-d00d-account]
+        [dead-beef-account-id %&^dead-beef-account]
+        [cafe-babe-account-id %&^cafe-babe-account]
+        [cafe-d00d-account-id %&^cafe-d00d-account]
     ==
   ==
 ++  nft-template-project
-  |=  meta-rice=rice:smart
+  |=  [current=contract-project meta-rice=rice:smart smart-lib-vase=vase]
   ^-  contract-project
-  !!
+  ::  make fungible accounts and tests
+  =/  metadata
+    ;;  $:  name=@t
+            symbol=@t
+            properties=(pset:smart @tas)
+            supply=@ud
+            cap=(unit @ud)
+            mintable=?
+            minters=(pset:smart address:smart)
+            deployer=address:smart
+            salt=@
+        ==
+    q:(slap smart-lib-vase (ream ;;(@t data.meta-rice)))
+  ::
+  =/  props
+    %-  ~(gas py:smart *(map @tas @t))
+    %+  turn  ~(tap pn:smart properties.metadata)
+    |=  prop=@tas
+    [prop 'random_attribute']
+  =/  props-tape=tape
+    %-  zing
+    :~  "properties=(~(gas py *(pmap @tas @t)) ~["
+        ^-  tape
+        %-  zing
+        %+  turn  ~(tap pn:smart properties.metadata)
+        |=  prop=@tas
+        %-  zing
+        :~  "[%"  (trip (scot %tas prop))
+            " 'random_attribute']"
+        ==
+        "])"
+    ==
+  ::
+  =/  nft-1-id
+    %:  fry-rice:smart
+        lord.meta-rice
+        user-address.current
+        designated-town-id
+        (cat 3 salt.metadata (scot %ud 1))
+    ==
+  =/  nft-1
+    ^-  rice:smart
+    :*  (cat 3 salt.metadata (scot %ud 1))
+        %nft
+        [1 'https://image.link' id.meta-rice ~ props &]
+        nft-1-id
+        lord.meta-rice
+        user-address.current
+        designated-town-id
+    ==
+  =/  nft-2-id
+    %:  fry-rice:smart
+        lord.meta-rice
+        0xcafe.babe
+        designated-town-id
+        (cat 3 salt.metadata (scot %ud 2))
+    ==
+  =/  nft-2
+    ^-  rice:smart
+    :*  (cat 3 salt.metadata (scot %ud 2))
+        %nft
+        [2 'https://image.link' id.meta-rice ~ props &]
+        nft-2-id
+        lord.meta-rice
+        0xcafe.babe
+        designated-town-id
+    ==
+  ::
+  =/  action-1=@t
+    %-  crip
+    %-  zing
+    :~  "[%give to=0xcafe.babe grain-id="
+        (trip (scot %ux nft-1-id))
+        "]"
+    ==
+  =/  yolk-1=yolk:smart
+    =-  [;;(@tas -.-) +.-]
+    q:(slap smart-lib-vase (ream action-1))
+  =/  test-1=test
+    :*  `'test-give'
+        action-1
+        yolk-1
+        %-  malt
+        :~  :+  nft-1-id
+              %&^nft-1(holder 0xcafe.babe)
+            ''
+        ==
+        %0
+        ~
+    ==
+  ::
+  =/  action-2=@t
+    %-  crip
+    %-  zing
+    :~  "[%give to=0xcafe.babe grain-id="
+        (trip (scot %ux nft-2-id))
+        "]"
+    ==
+  =/  yolk-2=yolk:smart
+    =-  [;;(@tas -.-) +.-]
+    q:(slap smart-lib-vase (ream action-2))
+  =/  test-2=test
+    :*  `'test-give-dont-have'
+        action-2
+        yolk-2
+        ~
+        %6
+        ~
+    ==
+  ::
+  =/  action-3=@t
+    %-  crip
+    %-  zing
+    :~  "[%mint token=0xdada.dada mints=[to="
+        (trip (scot %ux user-address.current))
+        " uri='https://image.link' "
+        props-tape
+        " transferrable=&] ~]"
+    ==
+  =/  yolk-3=yolk:smart
+    =-  [;;(@tas -.-) +.-]
+    q:(slap smart-lib-vase (ream action-3))
+  =/  nft-3-id
+    %:  fry-rice:smart
+        lord.meta-rice
+        user-address.current
+        designated-town-id
+        (cat 3 salt.metadata (scot %ud 3))
+    ==
+  =/  nft-3
+    ^-  rice:smart
+    :*  (cat 3 salt.metadata (scot %ud 3))
+        %nft
+        [3 'https://image.link' id.meta-rice ~ props &]
+        nft-3-id
+        lord.meta-rice
+        user-address.current
+        designated-town-id
+    ==
+  =/  test-3=test
+    :*  `'test-mint'
+        action-3
+        yolk-3
+        %-  malt
+        :~  :+  nft-3-id
+              %&^nft-3
+            ''
+        ==
+        %0
+        ~
+    ==
+  ::
+  %=    current
+      tests
+    (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
+  ::
+      data-texts
+    %-  ~(uni by data-texts.current)
+    %-  ~(gas by *(map id:smart @t))
+    :~  [id.meta-rice ;;(@t data.meta-rice)]
+        ::  [1 'https://image.link' id.meta-rice ~ props &]
+        :-  nft-1-id
+        %-  crip
+        %-  zing
+        :~  "[id=1 uri='https://image.link' metadata=0xdada.dada allowances=~ "
+            props-tape
+            " transferrable=%.y"
+        ==
+    ::
+        :-  nft-2-id
+        %-  crip
+        %-  zing
+        :~  "[id=2 uri='https://image.link' metadata=0xdada.dada allowances=~ "
+            props-tape
+            " transferrable=%.y"
+        ==
+    ==
+  ::
+      p.state
+    =-  (uni:big:mill p.state.current -)
+    %+  gas:big:mill  *granary:mill
+    :~  [id.meta-rice %&^meta-rice(data metadata)]
+        [nft-1-id %&^nft-1]
+        [nft-2-id %&^nft-2]
+    ==
+  ==
+::
+::  files we delete from zig desk to make new gall desk
+::
+++  clean-desk
+  |=  name=@t
+  :~  [/app/indexer/hoon %del ~]
+      [/app/rollup/hoon %del ~]
+      [/app/sequencer/hoon %del ~]
+      [/app/uqbar/hoon %del ~]
+      [/app/wallet/hoon %del ~]
+      [/app/ziggurat/hoon %del ~]
+      [/gen/rollup/activate/hoon %del ~]
+      [/gen/sequencer/batch/hoon %del ~]
+      [/gen/sequencer/init/hoon %del ~]
+      [/gen/uqbar/set-sources/hoon %del ~]
+      [/gen/wallet/basic-tx/hoon %del ~]
+      [/gen/build-hash-cache/hoon %del ~]
+      [/gen/compile/hoon %del ~]
+      [/gen/compose/hoon %del ~]
+      [/gen/merk-profiling/hoon %del ~]
+      [/gen/mk-smart/hoon %del ~]
+      [/tests/contracts/fungible/hoon %del ~]
+      [/tests/contracts/nft/hoon %del ~]
+      [/tests/contracts/publish/hoon %del ~]
+      [/tests/lib/merk/hoon %del ~]
+      [/tests/lib/mill-2/hoon %del ~]
+      [/tests/lib/mill/hoon %del ~]
+      [/roadmap/md %del ~]
+      [/readme/md %del ~]
+      [/app/[name]/hoon %ins hoon+!>(simple-app)]
+  ==
+::
+++  simple-app
+  ^-  @t
+ '/+  default-agent, dbug\0a\
+  /|%\0a\
+  /+$  versioned-state\0a\
+  /    $%  state-0\0a\
+  /    ==\0a\
+  /+$  state-0  [%0 ~]\0a\
+  /--\0a\
+  /%-  agent:dbug\0a\
+  /=|  state-0\0a\
+  /=*  state  -\0a\
+  /^-  agent:gall\0a\
+  /|_  =bowl:gall\0a\
+  /+*  this     .\0a\
+  /    default   ~(. (default-agent this %|) bowl)\0a\
+  /::\0a\
+  /++  on-init\0a\
+  /  `this(state [%0 ~])\0a\
+  /++  on-save\0a\
+  /  ^-  vase\0a\
+  /  !>(state)\0a\
+  /++  on-load\0a\
+  /  on-load:default\0a\
+  /++  on-poke  on-poke:default\0a\
+  /++  on-watch  on-watch:default\0a\
+  /++  on-leave  on-leave:default\0a\
+  /++  on-peek   on-peek:default\0a\
+  /++  on-agent  on-agent:default\0a\
+  /++  on-arvo   on-arvo:default\0a\
+  /++  on-fail   on-fail:default\0a\
+  /--'
 ::
 ::  JSON parsing utils
 ::
@@ -295,6 +589,13 @@
       ['data_text' %s tex]
       ['data' %s (crip (noah !>(data.p.grain)))]
   ==
+::
+++  app-project-to-json
+  |=  p=app-project
+  =,  enjs:format
+  ^-  json
+  %-  frond
+  ['dir' (dir-to-json dir.p)]
 ::
 ++  contract-project-to-json
   |=  p=contract-project
@@ -347,6 +648,7 @@
       ['action_text' %s action-text.test]
       ['action' %s (crip (noah !>(action.test)))]
       ['expected' (expected-to-json expected.test)]
+      ['expected_error' ?~(expected-error.test n+'0' (numb expected-error.test))]
       ['result' ?~(result.test ~ (test-result-to-json u.result.test))]
   ==
 ::

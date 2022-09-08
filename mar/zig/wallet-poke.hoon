@@ -17,53 +17,55 @@
           [%derive-new-address (ot ~[[%hdpath sa] [%nick so]])]
           [%delete-address (ot ~[[%address (se %ux)]])]
           [%edit-nickname (ot ~[[%address (se %ux)] [%nick so]])]
-          [%set-node (ot ~[[%town ni] [%ship (se %p)]])]
-          [%set-indexer (ot ~[[%ship (se %p)]])]
           [%add-tracked-address (ot ~[[%address (se %ux)] [%nick so]])]
+          ::
           [%submit-signed parse-signed]
-          [%submit-custom parse-custom]
           [%submit parse-submit]
+          [%delete-pending parse-delete]
+          [%transaction parse-transaction]
       ==
     ++  parse-signed
       %-  ot
-      :~  [%hash (se %ux)]
+      :~  [%from (se %ux)]
+          [%hash (se %ux)]
           [%eth-hash (se %ux)]
           [%sig (ot ~[[%v ni] [%r (se %ux)] [%s (se %ux)]])]
-      ==
-    ++  parse-custom
-      %-  ot
-      :~  [%from (se %ux)]
-          [%to (se %ux)]
-          [%town ni]
           [%gas (ot ~[[%rate ni] [%bud ni]])]
-          [%args (se %t)]
-          [%my-grains (ar (se %ux))]
-          [%cont-grains (ar (se %ux))]
       ==
     ++  parse-submit
       %-  ot
       :~  [%from (se %ux)]
-          [%to (se %ux)]
-          [%town ni]
+          [%hash (se %ux)]
           [%gas (ot ~[[%rate ni] [%bud ni]])]
-          [%args parse-args]
       ==
-    ++  parse-args
+    ++  parse-delete
+      %-  ot
+      :~  [%from (se %ux)]
+          [%hash (se %ux)]
+      ==
+    ++  parse-transaction
+      %-  ot
+      :~  [%from (se %ux)]
+          [%contract (se %ux)]
+          [%town (se %ux)]
+          [%action parse-action]
+      ==
+    ++  parse-action
       %-  of
       :~  [%give parse-give]
           [%give-nft parse-nft]
+          [%text so]
       ==
     ++  parse-give
       %-  ot
-      :~  [%salt (se %ud)]
-          [%to (se %ux)]
+      :~  [%to (se %ux)]
           [%amount ni]
+          [%grain (se %ux)]
       ==
     ++  parse-nft
       %-  ot
-      :~  [%salt (se %ud)]
-          [%to (se %ux)]
-          [%item-id ni]
+      :~  [%to (se %ux)]
+          [%grain (se %ux)]
       ==
     --
   --

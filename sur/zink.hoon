@@ -63,7 +63,7 @@
       [%rsh 1]  [%run 1]  [%rut 1]
       [%sew 1]  [%swp 1]  [%xeb 1]
       ::  list
-      [%turn 5]
+      ::  [%turn 5]
       ::  sha
       [%sham 1.000]
       [%shax 1.000]

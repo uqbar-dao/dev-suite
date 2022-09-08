@@ -27,10 +27,10 @@
     def   ~(. (default-agent this %|) bowl)
 ::
 ++  on-init
-  =/  smart-lib=vase  ;;(vase (cue q.q.smart-lib-noun))
+  =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  mil
     %~  mill  mill:sequencer
-    [smart-lib ;;((map * @) (cue q.q.zink-cax-noun)) %.y]
+    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
   :-  ~
   %_    this
       state
@@ -40,10 +40,10 @@
 ++  on-load
   |=  =old=vase
   ::  on-load: pre-cue our compiled smart contract library
-  =/  smart-lib=vase  ;;(vase (cue q.q.smart-lib-noun))
+  =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  mil
     %~  mill  mill:sequencer
-    [smart-lib ;;((map * @) (cue q.q.zink-cax-noun)) %.y]
+    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
   `this(state [!<(state-0 old-vase) mil smart-lib])
 ::
 ++  on-watch
@@ -110,9 +110,10 @@
             compiled=~
             imported=~
             error=~
-            state=starting-state
-            data-texts=(malt ~[[id.p:designated-zigs-grain '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
-            caller-nonce=0
+            state=(starting-state user-address.act)
+            data-texts=(malt ~[[id.p:(designated-zigs-grain user-address.act) '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
+            user-address.act
+            user-nonce=0
             mill-batch-num=0
             tests=~
         ==
@@ -122,7 +123,7 @@
         `p.build-result
       =?  p.state.proj  ?=(%& -.build-result)
         %+  put:big:mill  p.state.proj
-        [designated-contract-id (make-contract-grain p.build-result)]
+        [designated-contract-id (make-contract-grain user-address.act p.build-result)]
       =?  error.proj  ?=(%| -.build-result)
         `p.build-result
       :_  state(projects (~(put by projects) project.act %&^proj))
@@ -142,7 +143,7 @@
       =.  project
         ?:  ?=(%fungible template.act)
           (fungible-template-project project metadata.act smart-lib-vase)
-        (nft-template-project metadata.act)
+        (nft-template-project project metadata.act smart-lib-vase)
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -170,7 +171,7 @@
         `p.build-result
       =?  p.state.project  ?=(%& -.build-result)
         %+  put:big:mill  p.state.project
-        [designated-contract-id (make-contract-grain p.build-result)]
+        [designated-contract-id (make-contract-grain user-address.project p.build-result)]
       ::  set error to ~ if successful build
       =.  error.project
         ?.  ?=(%| -.build-result)  ~
@@ -192,7 +193,7 @@
         `p.build-result
       =?  p.state.project  ?=(%& -.build-result)
         %+  put:big:mill  p.state.project
-        [designated-contract-id (make-contract-grain p.build-result)]
+        [designated-contract-id (make-contract-grain user-address.project p.build-result)]
       ::  set error to ~ if successful build
       =.  error.project
         ?.  ?=(%| -.build-result)  ~
@@ -234,26 +235,36 @@
       ::  ream action to form yolk
       =+  q:(slap smart-lib-vase (ream action.act))
       =/  =yolk:smart  [;;(@tas -.-) +.-]
+      =/  new-error
+        ?~  expected-error.act  0
+        u.expected-error.act
       ::  put it in the project
       =.  tests.project
-        (~(put by tests.project) test-id [name.act action.act yolk ~ ~])
+        (~(put by tests.project) test-id [name.act action.act yolk ~ new-error ~])
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
-        %add-test-expectations
-      ::  add/replace expected rice outputs
+        %add-test-expectation
+      ::  add/replace expected rice output
       ?~  current=(~(get by tests.project) id.act)
         ~|("%ziggurat: test does not exist" !!)
-      =/  new=(map id:smart [grain:smart @t])
-        %-  malt
-        %+  turn  ~(tap in expected.act)
-        |=  =rice:smart
-        =/  tex  ;;(@t data.rice)
+      =*  rice  expected.act
+      =/  tex  ;;(@t data.rice)
+      =/  new
         =-  [id.rice %&^rice(data -) tex]
         q:(slap smart-lib-vase (ream tex))
       =.  tests.project
         %+  ~(put by tests.project)  id.act
-        u.current(expected (~(uni by expected.u.current) new), result ~)
+        u.current(expected (~(put by expected.u.current) new), result ~)
+      :-  (make-contract-update project.act project)^~
+      state(projects (~(put by projects) project.act %&^project))
+    ::
+        %delete-test-expectation
+      ?~  current=(~(get by tests.project) id.act)
+        ~|("%ziggurat: test does not exist" !!)
+      =.  tests.project
+        %+  ~(put by tests.project)  id.act
+        u.current(expected (~(del by expected.u.current) delete.act), result ~)
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
@@ -266,19 +277,24 @@
       ::  ream action to form yolk
       =+  q:(slap smart-lib-vase (ream action.act))
       =/  =yolk:smart  [;;(@tas -.-) +.-]
+      =/  new-error
+        ?~  expected-error.act  0
+        u.expected-error.act
       ::  get existing
       =.  tests.project
         ?~  current=(~(get by tests.project) id.act)
-          (~(put by tests.project) id.act [name.act action.act yolk ~ ~])
+          (~(put by tests.project) id.act [name.act action.act yolk ~ new-error ~])
         %+  ~(put by tests.project)  id.act
-        [name.act action.act yolk expected.u.current ~]
+        =-  [name.act action.act yolk expected.u.current - ~]
+        ?~  expected-error.act  expected-error.u.current
+        u.expected-error.act
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
     ::
         %run-test
       =/  =test  (~(got by tests.project) id.act)
       =/  caller
-        (designated-caller +(caller-nonce.project))
+        (designated-caller user-address.project +(user-nonce.project))
       =/  =shell:smart
         :*  caller
             ~
@@ -293,12 +309,15 @@
           state.project
         [[0 0 0] shell action.test]
       =/  =expected-diff
-        %-  ~(run by p.land.mill-result)
-        |=  [=id:smart made=grain:smart]
+        %-  malt
+        %+  turn  ~(tap by p.land.mill-result)
+        |=  [=id:smart [@ux made=grain:smart]]
         =/  expected  (~(get by expected.test) id)
+        :-  id
         :+  `made
           ?~(expected ~ `-.u.expected)
-        ?^(expected `=(-.u.expected made) ~)
+        ?~  expected  ~
+        `=(-.u.expected made)
       ::  add any expected that weren't ids in result
       =.  expected-diff
         =/  lis  ~(tap by expected.test)
@@ -316,10 +335,13 @@
       =/  success
         ?~  expected.test  ~
         :-  ~
-        %+  levy  ~(val by expected-diff)
-        |=  [(unit grain:smart) (unit grain:smart) match=(unit ?)]
-        ?~  match  %.y
-        u.match
+        ?&  =(errorcode.mill-result expected-error.test)
+        ::
+            %+  levy  ~(val by expected-diff)
+            |=  [(unit grain:smart) (unit grain:smart) match=(unit ?)]
+            ?~  match  %.y
+            u.match
+        ==
       ::
       =/  =test-result
         :*  fee.mill-result
@@ -339,10 +361,10 @@
       ::  note that this doesn't save last-result for each test,
       ::  as results here will not reflect *just this test*
       =/  [eggs=(list [@ux egg:smart]) new-nonce=@ud]
-        %^  spin  tests.act  caller-nonce.project
+        %^  spin  tests.act  user-nonce.project
         |=  [[id=@ux rate=@ud bud=@ud] nonce=@ud]
         =/  =test  (~(got by tests.project) id)
-        =/  caller  (designated-caller +(nonce))
+        =/  caller  (designated-caller user-address.project +(nonce))
         =/  =shell:smart
           :*  caller
               ~
@@ -356,7 +378,7 @@
         [[0 0 0] shell action.test]
       =/  [res=state-transition:mill *]
         %^    %~  mill-all  mil
-              [(designated-caller 0) designated-town-id mill-batch-num.project]
+              [(designated-caller user-address.project 0) designated-town-id mill-batch-num.project]
             state.project
           (silt eggs)
         256
@@ -369,7 +391,20 @@
       ::  this will call %wallet agent with a custom constructed %publish call
       ::  will fail if chosen testnet+town combo doesn't exist or doesn't have
       ::  the publish.hoon contract deployed.
-      !!
+      ::
+      ?~  compiled.project
+        ~|("%ziggurat: project must be compiled before deploy!" !!)
+      ?^  error.project
+        ~|("%ziggurat: you should save a build without errors first" !!)
+      ~&  >  "%ziggurat: deploying contract to {<deploy-location.act>} testnet"
+      =/  pok
+        :*  %transaction  from=address.act
+            contract=0x1111.1111  town=town-id.act
+            action=[%noun [%deploy upgradable.act u.compiled.project ~ ~]]
+        ==
+      :_  state
+      =+  [%zig-wallet-poke !>(`wallet-poke:wallet`pok)]
+      [%pass /uqbar-poke %agent [our.bowl %uqbar] %poke -]~
     ==
   ::
   ++  handle-app-poke
@@ -383,16 +418,12 @@
       =/  merge-task  [%merg `@tas`project.act our.bowl -.+.byk.bowl da+now.bowl %init]
       =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
       =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
-      =/  =project
-        :*  %|
-            ~
-            ~
-            %.y
-        ==
-      :_  state(projects (~(put by projects) project.act project))
+      =/  deletions-task  [%info `@tas`project.act %& (clean-desk project.act)]
+      :_  state(projects (~(put by projects) project.act [%| ~]))
       :~  [%pass /merge-wire %arvo %c merge-task]
           [%pass /mount-wire %arvo %c mount-task]
           [%pass /save-wire %arvo %c bill-task]
+          [%pass /save-wire %arvo %c deletions-task]
           =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
           [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
       ==
@@ -427,8 +458,6 @@
       ::  then poke treaty agent with publish
       =/  project  (~(got by projects) project.act)
       ?>  ?=(%| -.project)
-      ~|  "project must compile before publishing!"
-      ?>  compiled.p.project
       =/  bill
         ;;  (list @tas)
         .^(* %cx /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)/desk/bill)
@@ -514,8 +543,9 @@
     %-  pairs
     %+  murn  ~(tap by projects)
     |=  [name=@t =project]
-    ?:  ?=(%| -.project)  ~
     :-  ~  :-  name
+    ?:  ?=(%| -.project)
+      (app-project-to-json p.project)
     (contract-project-to-json p.project)
   ::
       [%project-state @ ~]
@@ -538,8 +568,9 @@
     =/  des  (slav %tas i.t.t.path)
     =/  pat=^path  `^path`t.t.t.path
     =/  pre  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
+    ~&  >  (weld pre pat)
     =/  res  .^(@t %cx (weld pre pat))
-    ``json+!>([%s res])
+    ``json+!>(`json`[%s res])
   ==
 ::
 ++  on-leave  on-leave:def

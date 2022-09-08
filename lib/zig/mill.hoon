@@ -253,14 +253,6 @@
   ::
   ++  farm
     |_  =granary
-    +$  hatchling
-      $:  hits=(list hints)
-          diff=(unit ^granary)
-          burned=^granary
-          =crow:smart
-          rem=@ud
-          =errorcode:smart
-      ==
     ::  +work: take egg and return diff granary, remaining budget,
     ::  and errorcode (0=success)
     ++  work
@@ -273,6 +265,9 @@
       |=  [=egg:smart hits=(list hints) burned=^granary]
       ^-  hatchling
       =/  from  [id.from.shell.egg nonce.from.shell.egg]
+      ::  check for grain burn transaction
+      ?:  &(=(0x0 to.shell.egg) =(%burn p.yolk.egg))
+        (poach egg)
       ::  insert budget argument if egg is %give-ing zigs
       =?  q.yolk.egg  &(=(to.shell.egg zigs-wheat-id:smart) =(p.yolk.egg %give))
         [budget.shell.egg q.yolk.egg]
@@ -423,7 +418,9 @@
           ::  only grains that proclaim us lord may be burned AND
           ::  burned cannot contain grain used to pay for gas
           ::
-          ::  NOTE: you *CAN* modify a grain in-contract before burning it.
+          ::  NOTE: you *can* modify a grain in-contract before burning it.
+          ::  the town-id of a burned grain marks the town which can REDEEM it.
+          ::
           =/  old  (get:big granary id)
           ?&  ?=(^ old)
               =(id id.p.grain)
@@ -432,6 +429,37 @@
               =(lord lord.p.u.old)
               !=(zigs.from id)
           ==
+      ==
+    ::
+    ::  +poach: handle special burn-only transactions, used for manually
+    ::  escaping some grain from a town. must be EITHER holder or lord to burn.
+    ::
+    ++  poach
+      |=  =egg:smart
+      ^-  hatchling
+      ::  TODO provide new error codes for these things
+      ::  TODO assign reasonable fixed cost for a burn
+      =/  fixed-burn-cost  1.000
+      ::  charge fixed cost for failed transactions too
+      ::  TODO should do this everywhere that we can inside +farm
+      =/  fail  [~ ~ ~ ~ (sub budget.shell.egg fixed-burn-cost) %6]
+      ::  argument for %burn must be a grain ID
+      ?.  ?=([id=@ux town=@ux] q.yolk.egg)          fail
+      ::  grain must exist in granary
+      ?~  to-burn=(get:big granary id.q.yolk.egg)   fail
+      ::  town ID must be different from current town
+      ?:  =(town.q.yolk.egg town-id.p.u.to-burn)    fail
+      ::  caller must be lord OR holder
+      ?.  ?|  =(lord.p.u.to-burn id.from.shell.egg)
+              =(holder.p.u.to-burn id.from.shell.egg)
+          ==
+        fail
+      ::  produce hatchling
+      :*  ~  ~
+          (gas:big *^granary ~[[id.p.u.to-burn u.to-burn]])
+          ~[[%burn `json`[%s (scot %ux id.p.u.to-burn)]]]
+          (sub budget.shell.egg fixed-burn-cost)
+          %0
       ==
     --
   --

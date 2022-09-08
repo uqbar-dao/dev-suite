@@ -1,4 +1,4 @@
-/-  mill, docket
+/-  mill, docket, wallet
 /+  smart=zig-sys-smart
 |%
 +$  card  card:agent:gall
@@ -7,10 +7,7 @@
 +$  project   (each contract-project app-project)
 ::
 +$  app-project
-  $:  dir=(list path)
-      error=(unit @t)
-      compiled=?
-  ==
+  dir=(list path)
 ::
 +$  contract-project
   $:  main=@t
@@ -20,7 +17,8 @@
       error=(unit @t)  ::  ~ means successfully compiled
       state=land:mill
       data-texts=(map id:smart @t)  ::  holds rice data that got ream'd
-      caller-nonce=@ud
+      user-address=address:smart
+      user-nonce=@ud
       mill-batch-num=@ud
       =tests
   ==
@@ -33,6 +31,7 @@
       action-text=@t
       action=yolk:smart
       expected=(map id:smart [grain:smart @t])
+      expected-error=@ud  ::  bad, but we can't get term literals :/
       result=(unit test-result)
   ==
 ::
@@ -55,7 +54,7 @@
 ::
 +$  contract-action
   $:  project=@t
-      $%  [%new-contract-project =template]  ::  creates a contract project, TODO add gall option
+      $%  [%new-contract-project =template user-address=address:smart]  ::  creates a contract project, TODO add gall option
           [%populate-template =template metadata=rice:smart]
           [%delete-project ~]
           [%save-file name=@t text=@t]  ::  generates new file or overwrites existing
@@ -64,14 +63,21 @@
           [%add-to-state =rice:smart]
           [%delete-from-state =id:smart]
           ::
-          [%add-test name=(unit @t) action=@t]  ::  name optional
-          [%add-test-expectations id=@ux expected=(set rice:smart)]
+          [%add-test name=(unit @t) action=@t expected-error=(unit @ud)]  ::  name optional
+          [%add-test-expectation id=@ux expected=rice:smart]
+          [%delete-test-expectation id=@ux delete=id:smart]
           [%delete-test id=@ux]
-          [%edit-test id=@ux name=(unit @t) action=@t]
+          [%edit-test id=@ux name=(unit @t) action=@t expected-error=(unit @ud)]
           [%run-test id=@ux rate=@ud bud=@ud]
           [%run-tests tests=(list [id=@ux rate=@ud bud=@ud])]  :: each one run with same gas
           ::
-          [%deploy-contract =deploy-location town-id=@ux]
+          $:  %deploy-contract
+              =address:smart
+              rate=@ud  bud=@ud
+              =deploy-location
+              town-id=@ux
+              upgradable=?
+          ==
       ==
   ==
 ::
@@ -100,12 +106,7 @@
   ==
 ::
 +$  app-update
-  ::  should scry clay with %t to get dir here
-  ::  TODO: how to retrieve compilation result for gall app?
-  $:  dir=(list path)
-      error=(unit @t)
-      compiled=?
-  ==
+  dir=(list path)
 ::
 +$  test-update
   [%result state-transition:mill]
