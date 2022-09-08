@@ -64,6 +64,14 @@ Enter these commands in dojo after following the setup instructions above:
 :uqbar|set-sources 0x0 ~[our]
 :uqbar &zig-wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
 ```
+
+We've included an app that handles regular sequencer batching on intervals. To use it, start the app and set an interval at which it should trigger a batch:
+```
+|rein %zig [& %batcher-interval]
+:batcher-interval ~s30
+```
+This will tell your sequencer to attempt to produce a batch every 30 seconds.
+
 Note that the private key we're initializing the sequencer app with matches that of the seed phrase we're using in the wallet -- so you'll be the one collecting gas fees for transactions run through that local sequencer.
 
 This sequencer initialization script launches a new "town" into the rollup with a nice starting state for testing. It contains the contract-publishing contract, zigs token contract, and a generic NFT contract pre-deployed. From the wallets provided below, you can send zigs, publish contracts, and deploy NFT projects. There's one NFT project pre-deployed as well, with a single NFT in the wallet we import above.
