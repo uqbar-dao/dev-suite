@@ -139,12 +139,45 @@ For example, for the zigs token transaction above:
 ```
 Transactions can also be signed using a hardware wallet, via `%submit-signed`.
 
-Each transaction sent will be stored in the `%sequencer`s `basket` (analogous to a mempool).
+
+### Submitting a `%batch`
+
+Each signed transaction sent to the `%sequencer` will be stored in the `%sequencer`s `basket` (analogous to a mempool).
 To execute the transactions, create the new batch with updated town state, and send it to the `%rollup`, poke the `%sequencer`:
 ```hoon
 :sequencer|batch
 ```
 
+Alternatively, use `%batcher-interval` or `%batcher-threshold` to automatically create batches.
+
+
+#### `%batcher-interval`
+
+`%batcher-interval` creates batches after some time period has passed.
+However, if `%sequencer` has not received any transactions, it will not create a batch for that period.
+```hoon
+|rein %zig [& %batcher-interval]
+
+::  Batch every 30 seconds.
+:batcher-interval `~s30
+
+::  Stop periodic batching.
+:batcher-interval ~
+```
+
+
+#### `%batcher-threshold`
+
+`%batcher-threshold` creates batches after some number of transactions has been received by `%sequencer`.
+```hoon
+|rein %zig [& %batcher-threshold]
+
+::  Batch every 10 transactions.
+:batcher-threshold `10
+
+::  Stop automatic batching.
+:batcher-threshold ~
+```
 
 ### Example: reading chain state with `%indexer`:
 
@@ -237,11 +270,8 @@ To start sequencing a new town:
 :sequencer|init ~zod <YOUR_TOWN_ID> <YOUR_PRIVATE_KEY>
 ```
 
-Note that `%sequencer` does not create batches of transactions automatically.
-To manually create a batch, use
-```hoon
-:sequencer|batch
-```
+`%sequencer` does not create batches automatically unless configured to do so.
+Instructions for how to manually or automatically create batches are [here](#submitting-a-batch).
 
 
 ## Why Route Reads and Writes Through `%uqbar`
