@@ -6,6 +6,7 @@
 /*  smart-lib-noun     %noun  /lib/zig/compiled/smart-lib/noun
 /*  zink-cax-noun      %noun  /lib/zig/compiled/hash-cache/noun
 /*  multisig-contract  %noun  /lib/zig/compiled/multisig/noun
+/*  zigs-contract      %noun  /lib/zig/compiled/zigs/noun
 |%
 ::
 ::  constants / dummy info for mill
@@ -13,7 +14,7 @@
 ++  big  (bi:merk id:smart grain:smart)  ::  merkle engine for granary
 ++  pig  (bi:merk id:smart @ud)          ::                for populace
 ++  town-id   0x0
-++  batch-num  5
+++  batch-num  1
 ++  fake-sig  [0 0 0]
 ++  mil
   %~  mill  mill
@@ -37,6 +38,20 @@
 ::
 ++  zigs
   |%
+  ++  wheat
+    ^-  grain:smart
+    =/  cont  ;;([bat=* pay=*] (cue q.q.zigs-contract))
+    =/  interface=lumps:smart  ~
+    =/  types=lumps:smart  ~
+    :*  %|
+        `cont
+        interface
+        types
+        zigs-wheat-id:smart  ::  id
+        zigs-wheat-id:smart  ::  lord
+        zigs-wheat-id:smart  ::  holder
+        town-id
+    ==
   ++  make-id
     |=  holder=id:smart
     (fry-rice:smart zigs-wheat-id:smart holder town-id `@`'zigs')
@@ -52,59 +67,36 @@
     ==
   --
 ::
-++  multisig-wheat
-  ^-  grain:smart
-  =/  cont  ;;([bat=* pay=*] (cue q.q.multisig-contract))
-  =/  interface=lumps:smart  ~
-  =/  types=lumps:smart  ~
-  :*  %|
-      `cont
-      interface
-      types
-      0xdada.dada  ::  id
-      0xdada.dada  ::  lord
-      0xdada.dada  ::  holder
-      town-id
-  ==
-::
-++  two-man-sig
-  ^-  grain:smart
-  =/  salt
-    `@`(shag:smart (cat 3 id:caller-1 0))  ::  0 is batch
-  =/  =id:smart
-    (fry-rice:smart id.p:multisig-wheat id.p:multisig-wheat town-id salt)
-  =/  members
-    %-  ~(gas pn:smart *(pset:smart address:smart))
-    ~[id:caller-1 id:caller-2]
-  =/  proposal
-    :^  [id.p:multisig-wheat town-id [%add-member id holder-3]]^~
-    ~  0  0
-  =/  pending
-    %-  ~(gas py:smart *(pmap:smart @ux _proposal))
-    [0x1234 proposal]^~
-  :*  %&  salt  %multisig
-      [members 2 pending]
-      id
-      id.p:multisig-wheat
-      id.p:multisig-wheat
-      town-id
-  ==
-::
-++  one-man-sig
+++  multisig
   |%
-  ++  salt
-    `@`(shag:smart (cat 3 id:caller-1 1))  ::  1 is batch
+  ++  wheat
+    ^-  grain:smart
+    =/  cont  ;;([bat=* pay=*] (cue q.q.multisig-contract))
+    =/  interface=lumps:smart  ~
+    =/  types=lumps:smart  ~
+    :*  %|
+        `cont
+        interface
+        types
+        0xdada.dada  ::  id
+        0xdada.dada  ::  lord
+        0xdada.dada  ::  holder
+        town-id
+    ==
   ++  id
-    (fry-rice:smart id.p:multisig-wheat id.p:multisig-wheat town-id salt)
+    (fry-rice:smart id.p:wheat:multisig id.p:wheat:multisig town-id 0)
   ++  proposal-1
-    :^  [id.p:multisig-wheat town-id [%add-member id holder-2]]^~
+    :^  [id.p:wheat:multisig town-id [%add-member id holder-2]]^~
     ~  0  0
   ++  proposal-2
-    :^  [id.p:multisig-wheat town-id [%remove-member id holder-2]]^~
+    :^  [id.p:wheat:multisig town-id [%remove-member id holder-2]]^~
     ~  0  0
   ++  proposal-3
-    :^  [id.p:multisig-wheat town-id [%set-threshold id 2]]^~
-      ~  0  0
+    :^  [id.p:wheat:multisig town-id [%set-threshold id 2]]^~
+    ~  0  0
+  ++  proposal-4
+    :^  [id.p:wheat:zigs town-id [%give 0xdead.beef 100 (make-id:zigs 0xdada.dada) ~]]^~
+    ~  0  0
   ++  grain
     ^-  grain:smart
     =/  members
@@ -119,8 +111,8 @@
     :*  %&  salt  %multisig
         [members 1 pending]
         id
-        id.p:multisig-wheat
-        id.p:multisig-wheat
+        id.p:wheat:multisig
+        id.p:wheat:multisig
         town-id
     ==
   --
@@ -169,7 +161,7 @@
   =/  member-set  (~(gas pn:smart *(pset:smart address:smart)) ~[id:caller-1])
   =/  =yolk:smart  [%create 1 member-set]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
@@ -177,7 +169,7 @@
   ::
   =/  correct-salt  (shag:smart (cat 3 id:caller-1 batch-num))
   =/  correct-id
-    (fry-rice:smart id.p:multisig-wheat id.p:multisig-wheat town-id correct-salt)
+    (fry-rice:smart id.p:wheat:multisig id.p:wheat:multisig town-id correct-salt)
   =/  correct
     ^-  grain:smart
     :*  %&
@@ -185,8 +177,8 @@
         %multisig
         [member-set 1 ~]
         correct-id
-        id.p:multisig-wheat
-        id.p:multisig-wheat
+        id.p:wheat:multisig
+        id.p:wheat:multisig
         town-id
     ==
   ::
@@ -203,7 +195,7 @@
 ++  test-create-no-members
   =/  =yolk:smart  [%create 0 ~]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
@@ -216,7 +208,7 @@
   =/  member-set  (~(gas pn:smart *(pset:smart address:smart)) ~[id:caller-1])
   =/  =yolk:smart  [%create 2 ~]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
@@ -231,7 +223,7 @@
     ~[id:caller-1 id:caller-2 id:caller-3 0xdead 0xbeef 0xcafe 0xbabe]
   =/  =yolk:smart  [%create 4 member-set]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
@@ -239,7 +231,7 @@
   ::
   =/  correct-salt  (shag:smart (cat 3 id:caller-1 batch-num))
   =/  correct-id
-    (fry-rice:smart id.p:multisig-wheat id.p:multisig-wheat town-id correct-salt)
+    (fry-rice:smart id.p:wheat:multisig id.p:wheat:multisig town-id correct-salt)
   =/  correct
     ^-  grain:smart
     :*  %&
@@ -247,8 +239,8 @@
         %multisig
         [member-set 4 ~]
         correct-id
-        id.p:multisig-wheat
-        id.p:multisig-wheat
+        id.p:wheat:multisig
+        id.p:wheat:multisig
         town-id
     ==
   ::
@@ -267,7 +259,7 @@
 ++  test-vote-not-member
   =/  =yolk:smart  [%vote id.p:two-man-sig 0x1234 %.y]
   =/  shel=shell:smart
-    [caller-3 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-3 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
@@ -279,7 +271,7 @@
 ++  test-vote-no-proposal
   =/  =yolk:smart  [%vote id.p:two-man-sig 0x6789 %.y]
   =/  shel=shell:smart
-    [caller-3 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-3 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
@@ -291,13 +283,13 @@
 ++  test-vote-aye
   =/  =yolk:smart  [%vote id.p:two-man-sig 0x1234 %.y]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
     `egg:smart`[fake-sig shel yolk]
   =/  correct-proposal
-    :^  [id.p:multisig-wheat town-id [%add-member id.p:two-man-sig holder-3]]^~
+    :^  [id.p:wheat:multisig town-id [%add-member id.p:two-man-sig holder-3]]^~
       %-  ~(gas py:smart *(pmap:smart address:smart ?))
       [id:caller-1 %.y]^~
     1  0
@@ -316,13 +308,13 @@
 ++  test-vote-nay
   =/  =yolk:smart  [%vote id.p:two-man-sig 0x1234 %.n]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
     `egg:smart`[fake-sig shel yolk]
   =/  correct-proposal
-    :^  [id.p:multisig-wheat town-id [%add-member id.p:two-man-sig holder-3]]^~
+    :^  [id.p:wheat:multisig town-id [%add-member id.p:two-man-sig holder-3]]^~
       %-  ~(gas py:smart *(pmap:smart address:smart ?))
       [id:caller-1 %.n]^~
     0  1
@@ -341,9 +333,9 @@
 ++  test-vote-execute
   =/  =yolk:smart  [%vote id.p:two-man-sig 0x1234 %.y]
   =/  shel-1=shell:smart
-    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  shel-2=shell:smart
-    [caller-2 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-2 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  =basket:mill
     %-  silt
     :~  [(shag:smart [shel-1 yolk]) [fake-sig shel-1 yolk]]
@@ -360,8 +352,8 @@
         %multisig
         [(~(gas pn:smart *(pset:smart address:smart)) ~[id:caller-1 id:caller-2 id:caller-3]) 2 ~]
         id.p:two-man-sig
-        id.p:multisig-wheat
-        id.p:multisig-wheat
+        id.p:wheat:multisig
+        id.p:wheat:multisig
         town-id
     ==
   ::
@@ -373,13 +365,13 @@
 ::
 ++  test-propose
   =/  my-proposal
-    [id.p:multisig-wheat town-id [%add-member id.p:two-man-sig 0xdead.beef]]^~
+    [id.p:wheat:multisig town-id [%add-member id.p:two-man-sig 0xdead.beef]]^~
   =/  proposal-hash
     (shag:smart my-proposal)
   =/  =yolk:smart
     [%propose id.p:two-man-sig my-proposal]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
@@ -403,10 +395,10 @@
 ::
 ++  test-propose-not-member
   =/  my-proposal
-    [id.p:multisig-wheat town-id [%add-member id.p:two-man-sig 0xdead.beef]]^~
+    [id.p:wheat:multisig town-id [%add-member id.p:two-man-sig 0xdead.beef]]^~
   =/  =yolk:smart  [%propose id.p:two-man-sig my-proposal]
   =/  shel=shell:smart
-    [caller-3 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-3 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
@@ -421,7 +413,7 @@
 ++  test-add-member
   =/  =yolk:smart  [%vote id:one-man-sig 0x1 %.y]
   =/  =shell:smart
-    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
@@ -439,8 +431,8 @@
             [0x3 proposal-3:one-man-sig]
         ==
         id:one-man-sig
-        id.p:multisig-wheat
-        id.p:multisig-wheat
+        id.p:wheat:multisig
+        id.p:wheat:multisig
         town-id
     ==
   ::
@@ -451,10 +443,10 @@
 ++  test-remove-member
   =/  yolk-1=yolk:smart  [%vote id:one-man-sig 0x1 %.y]
   =/  shell-1=shell:smart
-    [caller-1 ~ id.p:multisig-wheat 2 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:multisig 2 1.000.000 town-id 0]
   =/  yolk-2=yolk:smart  [%vote id:one-man-sig 0x2 %.y]
   =/  shell-2=shell:smart
-    [[holder-1 +(nonce:caller-1) zigs:caller-1] ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [[holder-1 +(nonce:caller-1) zigs:caller-1] ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  =basket:mill
     %-  silt
     :~  [(shag:smart [shell-1 yolk-1]) [fake-sig shell-1 yolk-1]]
@@ -475,8 +467,8 @@
         :~  [0x3 proposal-3:one-man-sig]
         ==
         id:one-man-sig
-        id.p:multisig-wheat
-        id.p:multisig-wheat
+        id.p:wheat:multisig
+        id.p:wheat:multisig
         town-id
     ==
   ::
@@ -487,10 +479,10 @@
 ++  test-set-threshold
   =/  yolk-1=yolk:smart  [%vote id:one-man-sig 0x1 %.y]
   =/  shell-1=shell:smart
-    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  yolk-2=yolk:smart  [%vote id:one-man-sig 0x3 %.y]
   =/  shell-2=shell:smart
-    [[holder-1 +(nonce:caller-1) zigs:caller-1] ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [[holder-1 +(nonce:caller-1) zigs:caller-1] ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  =basket:mill
     %-  silt
     :~  [(shag:smart [shell-1 yolk-1]) [fake-sig shell-1 yolk-1]]
@@ -511,8 +503,8 @@
         :~  [0x2 proposal-2:one-man-sig]
         ==
         id:one-man-sig
-        id.p:multisig-wheat
-        id.p:multisig-wheat
+        id.p:wheat:multisig
+        id.p:wheat:multisig
         town-id
     ==
   ::
@@ -523,7 +515,7 @@
 ++  test-set-threshold-too-high
   =/  =yolk:smart  [%vote id:one-man-sig 0x3 %.y]
   =/  =shell:smart
-    [caller-1 ~ id.p:multisig-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land

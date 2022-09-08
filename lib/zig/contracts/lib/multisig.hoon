@@ -18,11 +18,10 @@
     ==
   ::
   +$  action
-    $%  ::  anyone can call the following to create a new multisig grain
+    $%  ::  called once to initialize multisig
         [%create threshold=@ud members=(pset address)]
-        ::  actions for an already-created multisig
-        [%vote multisig=id proposal-hash=@ux aye=?]
         ::
+        [%vote multisig=id proposal-hash=@ux aye=?]
         [%propose multisig=id calls=(list [to=id town=id =yolk])]
         ::  the following must be sent by the contract, which means
         ::  that they can only be executed by a successful proposal!

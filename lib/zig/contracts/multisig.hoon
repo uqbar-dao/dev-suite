@@ -1,8 +1,7 @@
 ::  multisig.hoon  [UQ| DAO]
 ::
-::  Generic contract to manage a simple multisig wallet.
-::  New multisigs can be generated through the %create
-::  argument, and are stored in account-controlled rice.
+::  Contract to manage a simple multisig wallet. Assets given
+::  to this contract's address will be spendable by the multisig.
 ::
 ::  This is a simple example -- note that this functionality
 ::  can be better served with an off-chain Urbit app to
@@ -18,6 +17,12 @@
   |=  act=action:sur
   ^-  chick
   ?:  ?=(%create -.act)
+    ::  since the id we generate here is unique, this
+    ::  function can only be called once -- any further
+    ::  attempts will fail to issue an ID that already exists.
+    ::  this is the desired behavior, since the data
+    ::  generated here controls the multisig.
+    ::
     ::  issue a new grain for a new multisig wallet
     ::  threshold must be <= member count, > 0
     ?>  ?&  (gth threshold.act 0)
@@ -25,11 +30,10 @@
         ==
     ::  must have at least one member
     ?>  ?=(^ members.act)
-    ::  generate unique salt to differentiate grain IDs
-    =/  salt  (shag (cat 3 id.from.cart batch.cart))
-    =/  =id  (fry-rice me.cart me.cart town-id.cart salt)
+    ::  no salt -- this contract creates a single grain.
+    =/  =id  (fry-rice me.cart me.cart town-id.cart 0)
     =/  =grain
-      :*  %&  salt  %multisig
+      :*  %&  0  %multisig
           [members.act threshold.act ~]
           id
           lord=me.cart
@@ -91,6 +95,9 @@
     =.  pending.data.multisig
       (~(put py pending.data.multisig) [proposal-hash proposal])
     (result [%&^multisig]^~ ~ ~ ~)
+  ::
+  ::  these functions can only be called by this contract, resulting
+  ::  from a successful multisig vote.
   ::
       %add-member
     ?>  =(id.from.cart me.cart)
