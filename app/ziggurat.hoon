@@ -400,7 +400,7 @@
       =/  pok
         :*  %transaction  from=address.act
             contract=0x1111.1111  town=town-id.act
-            action=[%deploy upgradable.act u.compiled.project ~ ~]
+            action=[%noun [%deploy upgradable.act u.compiled.project ~ ~]]
         ==
       :_  state
       =+  [%zig-wallet-poke !>(`wallet-poke:wallet`pok)]
