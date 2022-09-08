@@ -13,8 +13,6 @@ It contains code for the Gall apps required to simulate the ZK rollup to Ethereu
 * [Why Route Reads and Writes Through `%uqbar`](#why-route-reads-and-writes-through-uqbar)
 * [Compiling Contracts and the Standard Library](#compiling-contracts-and-the-standard-library)
 * [Deploying Contracts to a Running Testnet](#deploying-contracts-to-a-running-testnet)
-* [Testing Zink](#testing-zink)
-* [Precomputing Hashes for Zink](#precomputing-hashes-for-zink)
 * [Glossary](#glossary)
 * [Appendix: Wallet Usage for Frontend Devs](#appendix-wallet-usage-for-frontend-devs)
 
@@ -100,7 +98,7 @@ First, make sure the fakeship you're using is in the [whitelist](https://github.
 
 Uqbar provides a generator to set up a fakeship testnet for local development.
 That generator, used as a poke to the `%sequencer` app as `:sequencer|init`, populates a new town with some [`grain`](#grain)s: [`wheat`](#wheat) (contract code) and [`rice`](#rice) (contract data).
-Specifically, contracts for zigs tokens, NFTs, and publishing new contracts are pre-deployed.
+Specifically, contracts for zigs tokens, NFTs, fungible tokens, and publishing new contracts are pre-deployed.
 After [initial installation](#initial-installation), start the `%rollup`, initialize the `%sequencer`, set up the `%uqbar` read-write interface, and configure the `%wallet` to point to some [pre-set assets](#accounts-initialized-by-init-script), minted in the `:sequencer|init` poke:
 ```hoon
 :rollup|activate
@@ -324,7 +322,7 @@ To deploy on town `0x0`, in the Dojo:
 =contract-path /=zig=/lib/zig/compiled/multisig/noun
 =contract-noun .^(* %cx contract-path)
 =contract ;;([bat=* pay=*] contract-noun)
-:uqbar &zig-wallet-poke [%submit-custom from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 to=0x1111.1111 town=0x0 gas=[1 1.000.000] yolk=[%deploy mutable=%.n cont=contract interface=~ types=~ owns=~]]
+:uqbar &zig-wallet-poke [%transaction from=YOUR_ADDRESS contract=0x1111.1111 town=0x0 action=[%noun [%deploy mutable=%.n cont=contract interface=~ types=~]]]
 ```
 
 
