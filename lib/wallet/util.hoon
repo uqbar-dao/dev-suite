@@ -11,9 +11,9 @@
   `@ux`(sham [shell yolk])
 ::
 ++  tx-update-card
-  |=  [hash=@ux =egg:smart =supported-args]
+  |=  [hash=@ux =egg:smart =supported-actions]
   ^-  card
-  =+  [%tx-status hash egg supported-args]
+  =+  `wallet-update`[%tx-status hash egg supported-actions]
   [%give %fact ~[/tx-updates] %zig-wallet-update !>(-)]
 ::
 ++  create-holder-and-id-subs
