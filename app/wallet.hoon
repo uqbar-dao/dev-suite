@@ -413,11 +413,17 @@
     ?.  ?=(%indexer-update p.cage.sign)  (on-agent:def wire sign)
     =+  pub=?:(?=([@ @ @ ~] wire) (slav %ux i.t.t.wire) (slav %ux i.t.t.t.wire))
     =/  =update:ui  !<(update:ui q.cage.sign)
-    =/  =book  (~(gut by tokens.state) pub ~)
-    =.  book  (~(put by book) (indexer-update-to-asset update))
+    =/  old-book=book  (~(gut by tokens.state) pub ~)
+    =/  new-book=book
+      ?:  ?=(%grain -.update)
+        ::  handle initial subscribe with all held grains
+        (indexer-update-to-books update)
+      ::  handle newest-grain stream
+      (malt ~[(indexer-update-to-asset update)])
     =/  new-metadata=^metadata-store
-      (update-metadata-store book our.bowl metadata-store.state [our now]:bowl)
-    =+  (~(put by tokens.state) pub book)
+      (update-metadata-store new-book our.bowl metadata-store.state [our now]:bowl)
+    =+  %+  ~(put by tokens.state)  pub
+        (~(uni by old-book) new-book)
     :-  :~  [%give %fact ~[/book-updates] %zig-wallet-update !>(`wallet-update`[%new-book -])]
             [%give %fact ~[/metadata-updates] %zig-wallet-update !>(`wallet-update`[%new-metadata new-metadata])]
         ==

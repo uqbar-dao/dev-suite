@@ -51,6 +51,26 @@
   ?.  |(?=([%indexer %id *] wire) ?=([%indexer %holder *] wire))  ~
   `[%pass wire %agent [ship term] %leave ~]
 ::
+++  indexer-update-to-books
+  |=  =update:ui
+  ^-  book
+  =|  new-book=book
+  ?>  ?=(%grain -.update)
+  =/  grains-list=(list [@da =batch-location:ui =grain:smart])
+    (zing ~(val by grains.update))
+  |-  ^-  book
+  ?~  grains-list  new-book
+  =*  grain  grain.i.grains-list
+  ?.  ?=(%& -.grain)
+    ::  if grain isn't data, just skip
+    $(grains-list t.grains-list)
+  ::  determine type token/nft/unknown and store in book
+  =/  =asset  (discover-asset-mold town-id.p.grain lord.p.grain data.p.grain)
+  %=  $
+    grains-list  t.grains-list
+    new-book  (~(put by new-book) id.p.grain asset)
+  ==
+::
 ++  indexer-update-to-asset
   |=  =update:ui
   ^-  [id:smart asset]
