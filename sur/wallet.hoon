@@ -85,6 +85,11 @@
           hash=@
           gas=[rate=@ud bud=@ud]
       ==
+      ::  remove a pending transaction without signing
+      $:  %delete-pending
+          from=address:smart
+          hash=@
+      ==
       ::
       $:  %transaction
           from=address:smart
