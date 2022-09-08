@@ -29,7 +29,7 @@
     ::
         %tx-status
       %-  frond
-      (parse-transaction hash.upd egg.upd args.upd)
+      (parse-transaction hash.upd egg.upd action.upd)
     ==
   --
 ++  grad  %noun

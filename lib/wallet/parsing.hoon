@@ -82,33 +82,38 @@
   |=([prop=@tas val=@t] [prop [%s val]])
 ::
 ++  parse-transaction
-  |=  [hash=@ux t=egg:smart args=supported-args]
+  |=  [hash=@ux t=egg:smart action=supported-actions]
   ^-  [p=@t q=json]
   :-  (scot %ux hash)
   %-  pairs
   :~  ['from' [%s (scot %ux id.from.shell.t)]]
       ['nonce' (numb nonce.from.shell.t)]
-      ['to' [%s (scot %ux to.shell.t)]]
+      ['contract' [%s (scot %ux to.shell.t)]]
       ['rate' (numb rate.shell.t)]
       ['budget' (numb budget.shell.t)]
       ['town' [%s (scot %ux town-id.shell.t)]]
       ['status' (numb status.shell.t)]
-      :-  'args'
+      :-  'action'
       %-  frond
-      :-  (scot %tas -.args)
+      :-  (scot %tas -.action)
       %-  pairs
-      ?-    -.args
+      ?-    -.action
           %give
-        :~  ['to' [%s (scot %ux to.args)]]
-            ['grain' [%s (scot %ux grain.args)]]
-        ==
-          %give-nft
-        :~  ['to' [%s (scot %ux to.args)]]
-            ['grain' [%s (scot %ux grain.args)]]
+        :~  ['to' [%s (scot %ux to.action)]]
+            ['amount' (numb amount.action)]
+            ['grain' [%s (scot %ux grain.action)]]
         ==
       ::
-          %custom
-        ~[['args' [%s args.args]]]
+          %give-nft
+        :~  ['to' [%s (scot %ux to.action)]]
+            ['grain' [%s (scot %ux grain.action)]]
+        ==
+      ::
+          %text
+        ~[['custom' [%s +.action]]]
+      ::
+          %noun
+        ~[['custom' [%s (crip (noah !>(+.action)))]]]
       ==
   ==
 --
