@@ -176,10 +176,8 @@
   ++  yolk
     |=  =yolk:smart
     ^-  json
-    %-  pairs
-    ::  TODO get lump format from contract interface and convert
-    :-  [%action %s `@t`p.yolk]
-    ~
+    ::  TODO get json format from contract interface and convert
+    (frond p.yolk %s (crip (noah !>(q.yolk))))
   ::
   ++  caller
     |=  =caller:smart
@@ -249,14 +247,14 @@
         :~  [%is-rice %b %&]
             [%salt (numb salt.p.grain)]
             [%label %s `@ta`label.p.grain]
-            ::  TODO get lump format from contract types and convert
-            [%data ~]
+            ::  TODO get json format from contract types and convert
+            [%data %s (crip (noah !>(data.p.grain)))]
         ==
       ::  wheat
       :~  [%is-rice %b %|]
           [%cont (numb (jam cont.p.grain))]
-          [%interface ~]  ::  TODO
-          [%types ~]  ::  TODO
+          [%interface (tas-to-json interface.p.grain)]
+          [%types (tas-to-json types.p.grain)]
       ==
     :~  [%id %s (scot %ux id.p.grain)]
         [%lord %s (scot %ux lord.p.grain)]
@@ -369,6 +367,11 @@
     %+  turn  batch-order
     |=  batch-root=id:smart
     [%s (scot %ux batch-root)]
+  ::
+  ++  tas-to-json
+    |=  mapping=(map @tas json)
+    ^-  json
+    ?:(=(0 ~(wyt by mapping)) ~ [%o mapping])
   --
 ::  ++  dejs  ::  see https://github.com/uqbar-dao/ziggurat/blob/d395f3bb8100ddbfad10c38cd8e7606545e164d3/lib/indexer.hoon#L295
 --

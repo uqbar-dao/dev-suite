@@ -1,5 +1,5 @@
 /-  *sequencer
-/+  smart=zig-sys-smart, ethereum, merk
+/+  smart=zig-sys-smart, ethereum, merk, zigs=zig-contracts-lib-zigs-interface-types
 /*  zigs-contract      %noun  /lib/zig/compiled/zigs/noun
 /*  publish-contract   %noun  /lib/zig/compiled/publish/noun
 /*  nft-contract       %noun  /lib/zig/compiled/nft/noun
@@ -42,12 +42,9 @@
 ::  zigs.hoon contract
 =/  zigs-wheat
   ^-  wheat:smart
-  =/  interface  ~  ::  TODO
-  =/  types  ~  ::  TODO
-  ::
   :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] zigs-contract)))
-      interface
-      types
+      interface=interface-json:zigs
+      types=types-json:zigs
       zigs-wheat-id:smart  ::  id
       zigs-wheat-id:smart  ::  lord
       zigs-wheat-id:smart  ::  holder
