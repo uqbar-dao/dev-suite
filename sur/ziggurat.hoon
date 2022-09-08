@@ -1,33 +1,113 @@
-/-  *sequencer
+/-  mill, docket, wallet
 /+  smart=zig-sys-smart
 |%
-++  epoch-interval  ~s30
-++  relay-town-id   0
++$  card  card:agent:gall
 ::
-::  epoch >> slot >> block >> chunk
++$  projects  (map @t project)
++$  project   (each contract-project app-project)
 ::
-+$  epoch   [num=@ud =start=time order=(list ship) =slots]
-+$  epochs  ((mop @ud epoch) gth)
-++  poc     ((on @ud epoch) gth)
++$  app-project
+  dir=(list path)
 ::
-+$  slot   (pair block-header (unit block))
-+$  slots  ((mop @ud slot) gth)
-++  sot    ((on @ud slot) gth)
-::
-+$  height        @ud  ::  block height
-+$  block         [=height =signature =chunks]
-+$  block-header  [num=@ud prev-header-hash=@uvH data-hash=@uvH]
-::
-+$  chunks  (map town-id=@ud =chunk)
-+$  chunk   [(list [@ux egg:smart]) land]
-::
-+$  signature   [p=@ux q=ship r=life]
-::
-+$  update
-  $%  [%epochs-catchup =epochs]
-      [%blocks-catchup epoch-num=@ud =slots]
-      [%new-block epoch-num=@ud header=block-header =block]
-      [%saw-block epoch-num=@ud header=block-header]
-      [%indexer-block epoch-num=@ud epoch-start-time=time header=block-header blk=(unit block)]
++$  contract-project
+  $:  main=@t
+      libs=(map name=@t text=@t)
+      compiled=(unit [bat=* pay=*])
+      imported=(map name=@t text=@t)  ::  any other files to view but not compile
+      error=(unit @t)  ::  ~ means successfully compiled
+      state=land:mill
+      data-texts=(map id:smart @t)  ::  holds rice data that got ream'd
+      user-address=address:smart
+      user-nonce=@ud
+      mill-batch-num=@ud
+      =tests
   ==
+::
++$  build-result   (each [bat=* pay=*] @t)
+::
++$  tests  (map @ux test)
++$  test
+  $:  name=(unit @t)  ::  optional
+      action-text=@t
+      action=yolk:smart
+      expected=(map id:smart [grain:smart @t])
+      expected-error=@ud  ::  bad, but we can't get term literals :/
+      result=(unit test-result)
+  ==
+::
++$  test-result
+  $:  fee=@ud
+      =errorcode:smart
+      =crow:smart
+      =expected-diff
+      success=(unit ?)  ::  does last-result fully match expected?
+  ==
++$  expected-diff
+  (map id:smart [made=(unit grain:smart) expected=(unit grain:smart) match=(unit ?)])
+::
++$  template  ?(%fungible %nft %blank)
+::
++$  deploy-location  ?(%local testnet)
++$  testnet  ship
+::
+::  available actions. TODO actions for gall side
+::
++$  contract-action
+  $:  project=@t
+      $%  [%new-contract-project =template user-address=address:smart]  ::  creates a contract project, TODO add gall option
+          [%populate-template =template metadata=rice:smart]
+          [%delete-project ~]
+          [%save-file name=@t text=@t]  ::  generates new file or overwrites existing
+          [%delete-file name=@t]
+          ::
+          [%add-to-state =rice:smart]
+          [%delete-from-state =id:smart]
+          ::
+          [%add-test name=(unit @t) action=@t expected-error=(unit @ud)]  ::  name optional
+          [%add-test-expectation id=@ux expected=rice:smart]
+          [%delete-test-expectation id=@ux delete=id:smart]
+          [%delete-test id=@ux]
+          [%edit-test id=@ux name=(unit @t) action=@t expected-error=(unit @ud)]
+          [%run-test id=@ux rate=@ud bud=@ud]
+          [%run-tests tests=(list [id=@ux rate=@ud bud=@ud])]  :: each one run with same gas
+          ::
+          $:  %deploy-contract
+              =address:smart
+              rate=@ud  bud=@ud
+              =deploy-location
+              town-id=@ux
+              upgradable=?
+          ==
+      ==
+  ==
+::
++$  app-action
+  $:  project=@t
+      $%  [%new-app-project ~]
+          [%delete-project ~]
+          ::
+          [%save-file file=path text=@t]
+          [%delete-file file=path]
+          ::
+          [%read-desk ~]
+          ::
+          [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
+      ==
+  ==
+::
+::  subscription update types
+::
++$  contract-update
+  $:  compiled=?
+      error=(unit @t)
+      state=land:mill
+      data-texts=(map id:smart @t)
+      =tests
+  ==
+::
++$  app-update
+  dir=(list path)
+::
++$  test-update
+  [%result state-transition:mill]
 --
