@@ -4,12 +4,19 @@
 +$  card  card:agent:gall
 +$  state-0
   $:  %0
+      active=?
       interval=@dr
   ==
 --
 ::
 ::  This agent allows you to set an interval at which your sequencer app should produce a batch.
-::  Poke like so: `:batcher-1 ~s30` to trigger a batch every 30 seconds.
+::
+::  To start, poke with (unit) interval timing:
+::  :batcher-interval `~s30
+::
+::  To stop, poke with empty unit:
+::  :batcher-interval ~
+::
 ::
 =|  state-0
 =*  state  -
@@ -24,16 +31,20 @@
   |=  [=mark =vase]
   ^-  (quip card _this)
   ~|  "%batcher: wasn't poked with valid @dr"
-  =/  new-interval  !<(@dr vase)
+  =/  new-interval  !<((unit @dr) vase)
+  ?~  new-interval
+    ~&  >>>  "%batcher inactive"
+    `this(active %.n)
   ~&  >  "%batcher set at {<now.bowl>} with batching interval {<new-interval>}"
-  =/  wait  (add now.bowl new-interval)
-  :_  this(interval new-interval)
+  =/  wait  (add now.bowl u.new-interval)
+  :_  this(interval u.new-interval, active %.y)
   [%pass /batch-timer %arvo %b %wait wait]~
 ::
 ++  on-arvo
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)
   ?>  ?=([%batch-timer ~] wire)
+  ?.  active  `this
   =/  wait  (add now.bowl interval)
   =/  basket-size  .^(@ud %gx /(scot %p our.bowl)/sequencer/(scot %da now.bowl)/basket-size/noun)
   ?:  =(0 basket-size)
@@ -47,7 +58,7 @@
       [%sequencer-town-action !>(`town-action:sequencer`[%trigger-batch ~])]
   ==
 ::
-++  on-init   `this(state [%0 ~m1])
+++  on-init   `this(state [%0 %.n ~m1])
 ++  on-save   !>(state)
 ++  on-load
   |=  =old=vase
