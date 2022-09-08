@@ -59,11 +59,15 @@
     ?:  =(ayes.proposal threshold.data.multisig)
       ::  if this vote meets threshold, execute the proposal
       ::  NOTE: with this design, final voter ends up paying gas
-      ::  for the proposal. can reimburse them automatically in
-      ::  the future for budget.
+      ::  for the proposal.
       =.  pending.data.multisig
         (~(del py pending.data.multisig) proposal-hash.act)
       %+  continuation  calls.proposal
+      (result [%&^multisig]^~ ~ ~ ~)
+    ?:  (gth nays.proposal (sub ~(wyt pn members.data.multisig) threshold.data.multisig))
+      ::  if the vote cannot pass, delete the proposal
+      =.  pending.data.multisig
+        (~(del py pending.data.multisig) proposal-hash.act)
       (result [%&^multisig]^~ ~ ~ ~)
     ::  otherwise return modified proposal
     =.  pending.data.multisig
