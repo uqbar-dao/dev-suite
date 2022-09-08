@@ -716,13 +716,17 @@
   ==
 ::
 ++  inflate-state
-  |=  batches-by-town-list=(list [@ux =batches:ui batch-order:ui])
+  |=  batches-by-town-list=(list [@ux =batches:ui =batch-order:ui])
   ^-  indices-0:ui
   =|  temporary-state=_state
   |^
   ?~  batches-by-town-list  +.temporary-state
   =/  batches-list=(list [root=@ux timestamp=@da =batch:ui])
-    ~(tap by batches.i.batches-by-town-list)
+    %+  murn  (flop batch-order.i.batches-by-town-list)
+    |=  =id:smart
+    ?~  batch=(~(get by batches.i.batches-by-town-list) id)
+      ~
+    `[id u.batch]
   %=  $
       batches-by-town-list  t.batches-by-town-list
       temporary-state       (inflate-town batches-list)
