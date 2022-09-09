@@ -34,11 +34,11 @@
 ::  +fry: standard hashing functions for rice and wheat grains
 ::
 ++  fry-wheat
-  |=  [lord=id town=id cont=(unit [bat=* pay=*])]
+  |=  [lord=id holder=id town=id cont=(unit [bat=* pay=*])]
   ^-  id
   ^-  @ux
   %-  shax
-  :((cury cat 3) lord town (sham cont))
+  :((cury cat 3) town lord holder (sham cont))
 ::
 ++  fry-rice
   |=  [lord=id holder=id town=id salt=@]
@@ -158,7 +158,7 @@
 +$  chick    (each rooster hen)
 ::
 +$  rooster  [changed=(merk id grain) issued=(merk id grain) burned=(merk id grain) =crow]
-+$  hen      [next=(list [to=id town-id=id =yolk]) =rooster]
++$  hen      [next=(list [contract=id town-id=id =yolk]) =rooster]
 ::
 +$  crow     (list [@tas json])
 ::
@@ -191,7 +191,7 @@
 +$  shell
   $:  from=caller
       eth-hash=(unit @)  ::  if transaction signed with eth wallet, use this to verify signature
-      to=id
+      contract=id
       rate=@ud
       budget=@ud
       town-id=id

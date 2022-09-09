@@ -1095,7 +1095,7 @@
       [parsed-egg parsed-from parsed-to]
     =*  egg-hash     -.i.txs
     =*  egg          +.i.txs
-    =*  to           to.shell.egg
+    =*  to           contract.shell.egg
     =*  from         id.from.shell.egg
     =/  =egg-location:ui  [town-id root egg-num]
     %=  $

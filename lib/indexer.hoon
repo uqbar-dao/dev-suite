@@ -113,7 +113,7 @@
     %-  pairs
     :~  [%from (caller from.shell)]
         [%eth-hash (eth-hash eth-hash.shell)]
-        [%to %s (scot %ux to.shell)]
+        [%contract %s (scot %ux contract.shell)]
         [%rate (numb rate.shell)]
         [%budget (numb budget.shell)]
         [%town-id %s (scot %ux town-id.shell)]

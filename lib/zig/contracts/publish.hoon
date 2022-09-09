@@ -12,25 +12,24 @@
   ^-  chick
   ?-    -.act
       %deploy
-    =+  our-id=(fry-wheat me.cart town-id.cart `cont.act)
-    =/  holder  ?:(mutable.act id.from.cart 0x0)
+    =/  lord  ?:(mutable.act me.cart 0x0)
     =/  contract=grain
       :*  %|
           `cont.act
           interface.act
           types.act
-          our-id
-          me.cart
-          holder
+          (fry-wheat lord id.from.cart town-id.cart `cont.act)
+          lord
+          id.from.cart
           town-id.cart
       ==
     (result ~ [contract ~] ~ ~)
   ::
       %upgrade
-    ::  caller must be holder
+    ::  we must be lord to upgrade
     =/  contract  (need (scry to-upgrade.act))
     ?>  ?&  ?=(%| -.contract)
-            =(holder.p.contract id.from.cart)
+            =(lord.p.contract me.cart)
         ==
     =.  cont.p.contract  `new-nok.act
     (result [contract ~] ~ ~ ~)
