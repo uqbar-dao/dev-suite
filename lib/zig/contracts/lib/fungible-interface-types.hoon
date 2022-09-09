@@ -15,9 +15,9 @@
       {"symbol": "@t"},
       {"decimals": "@ud"},
       {"supply": "@ud"},
-      {"cap": "~"},
+      {"cap": "(unit @ud)"},
       {"mintable": "?"},
-      {"minters": "~"},
+      {"minters": ["@ux"]},
       {"deployer-address": "@ux"},
       {"salt": "@"}
     ]
