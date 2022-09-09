@@ -1,9 +1,15 @@
 /-  *sequencer
-/+  smart=zig-sys-smart, ethereum, merk
-/*  zigs-contract      %noun  /lib/zig/compiled/zigs/noun
-/*  publish-contract   %noun  /lib/zig/compiled/publish/noun
-/*  nft-contract       %noun  /lib/zig/compiled/nft/noun
+/+  ethereum,
+    merk,
+    smart=zig-sys-smart,
+    fungible=zig-contracts-lib-fungible-interface-types,
+    nft=zig-contracts-lib-nft-interface-types,
+    publish=zig-contracts-lib-publish-interface-types,
+    zigs=zig-contracts-lib-zigs-interface-types
 /*  fungible-contract  %noun  /lib/zig/compiled/fungible/noun
+/*  nft-contract       %noun  /lib/zig/compiled/nft/noun
+/*  publish-contract   %noun  /lib/zig/compiled/publish/noun
+/*  zigs-contract      %noun  /lib/zig/compiled/zigs/noun
 :-  %say
 |=  [[now=@da eny=@uvJ bek=beak] [rollup-host=@p town-id=@ux private-key=@ux ~] ~]
 ::  one hundred million testnet zigs, now and forever
@@ -42,12 +48,9 @@
 ::  zigs.hoon contract
 =/  zigs-wheat
   ^-  wheat:smart
-  =/  interface  ~  ::  TODO
-  =/  types  ~  ::  TODO
-  ::
   :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] zigs-contract)))
-      interface
-      types
+      interface=interface-json:zigs
+      types=types-json:zigs
       zigs-wheat-id:smart  ::  id
       zigs-wheat-id:smart  ::  lord
       zigs-wheat-id:smart  ::  holder
@@ -57,8 +60,8 @@
 =/  publish-wheat
   ^-  wheat:smart
   :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] publish-contract)))
-      interface=~  ::  TODO
-      types=~      ::  TODO
+      interface=interface-json:publish
+      types=~
       0x1111.1111  ::  id
       0x0          ::  lord
       0x0          ::  holder
@@ -69,8 +72,8 @@
   ^-  wheat:smart
   =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] nft-contract)))
   :*  `cont
-      interface=~  ::  TODO
-      types=~      ::  TODO
+      interface=interface-json:nft
+      types=types-json:nft
       (fry-wheat:smart 0x0 0x0 `cont)
       0x0          ::  lord
       0x0          ::  holder
@@ -81,8 +84,8 @@
   ^-  wheat:smart
   =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] fungible-contract)))
   :*  `cont
-      interface=~  ::  TODO
-      types=~      ::  TODO
+      interface=interface-json:fungible
+      types=types-json:fungible
       (fry-wheat:smart 0x0 0x0 `cont)
       0x0          ::  lord
       0x0          ::  holder

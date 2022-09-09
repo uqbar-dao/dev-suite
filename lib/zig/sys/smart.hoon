@@ -34,11 +34,11 @@
 ::  +fry: standard hashing functions for rice and wheat grains
 ::
 ++  fry-wheat
-  |=  [lord=id town=id cont=(unit [bat=* pay=*])]
+  |=  [lord=id holder=id town=id cont=(unit [bat=* pay=*])]
   ^-  id
   ^-  @ux
   %-  shax
-  :((cury cat 3) lord town (sham cont))
+  :((cury cat 3) town lord holder (sham cont))
 ::
 ++  fry-rice
   |=  [lord=id holder=id town=id salt=@]
@@ -103,7 +103,12 @@
 ::
 ::  contract contains itself and every imported library in pay
 ::
-+$  wheat  [cont=(unit [bat=* pay=*]) interface=lumps types=lumps bran]
++$  wheat
+  $:  cont=(unit [bat=* pay=*])
+      interface=(map @tas json)
+      types=(map @tas json)
+      bran
+  ==
 ::
 ::  labeled "restricted types" that define contract actions and rice data
 ::
@@ -158,7 +163,7 @@
 +$  chick    (each rooster hen)
 ::
 +$  rooster  [changed=(merk id grain) issued=(merk id grain) burned=(merk id grain) =crow]
-+$  hen      [next=(list [to=id town-id=id =yolk]) =rooster]
++$  hen      [next=(list [contract=id town-id=id =yolk]) =rooster]
 ::
 +$  crow     (list [@tas json])
 ::
@@ -191,7 +196,7 @@
 +$  shell
   $:  from=caller
       eth-hash=(unit @)  ::  if transaction signed with eth wallet, use this to verify signature
-      to=id  ::  TODO change to `contract`
+      contract=id
       rate=@ud
       budget=@ud
       town-id=id
@@ -282,6 +287,18 @@
 ::::::
 |%
 +$  hash  @ux
+::
+++  make-pmap                                           ::  pmap from list
+  |*  a=(list)
+  (polt `(list [p=_-<.a q=_->.a])`a)
+::
+++  polt                                                ::  pmap from pair list
+  |*  a=(list (pair))
+  (~(gas py *(pmap _p.i.-.a _q.i.-.a)) a)
+::
+++  make-pset                                           ::  pset from list
+  |*  a=(list)
+  (~(gas pn *(pset _?>(?=(^ a) i.a))) a)
 ::
 ::  +merk: merkle tree
 ::
