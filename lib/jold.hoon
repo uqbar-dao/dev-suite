@@ -10,14 +10,8 @@
 ::  because the object represents a number with a face,
 ::  i.e. foo=5.
 |%
-++  jold-data
-  |=  [jold=json data=*]
-  ^-  json
-  ~
-::
-::  jold of tuple with faces
-::  [%a ~[[%o p={[p=%foo q=[%s p='ud']]}] [%o p={[p=%bar q=[%s p='tas']]}]]]
-++  jold-tuple
+::  jold of full tuple
+++  jold-full-tuple
   |=  [jolds=json data=*]
   ^-  json
   ?>  ?=(%a -.jolds)
@@ -25,12 +19,47 @@
   =|  jout=(list json)
   |-
   ?~  p.jolds  (flop jout)
-  =/  is-last=?  ?=(@ data)
-  =*  datum  ?:(is-last data -.data)
+  ?>  ?=(%o -.i.p.jolds)
+  =/  is-last=?  =(1 (lent p.jolds))
+  =*  datum      ?:(is-last data -.data)
+  =*  next-data  ?:(is-last ~ +.data)
   %=  $
       p.jolds  t.p.jolds
-      data     ?:(is-last ~ +.data)
-      jout     [(jold-single-jace i.p.jolds `@`datum) jout]
+      data     next-data
+      jout     [(jold-object i.p.jolds datum) jout]
+  ==
+::
+::  jold of full object
+++  jold-object
+  |=  [jold=json datum=*]
+  ^-  json
+  ?>  ?=(%o -.jold)
+  :-  %o
+  =/  jolds=(list [p=@t q=json])  ~(tap by p.jold)
+  ?>  ?=([[@ ^] ~] jolds)
+  =*  jace       p.i.jolds
+  =*  jold-type  q.i.jolds
+  %+  ~(put by *(map @t json))  jace
+  ?+    -.jold-type  ~|("jold-object: type must be %s, %a, not {<-.jold-type>}" !!)
+      %s
+    ?>  ?=(@ datum)
+    ~&  >  "jo %s jace, jold-type, datum"
+    ~&  jace
+    ~&  jold-type
+    ~&  datum
+    (prefix-and-mold-atom p.jold-type datum)
+  ::
+      %a
+    ~&  jace
+    ~&  jold-type
+    ~&  datum
+    ::  TODO:
+    ::  * case %a %s:
+    ::    * implement recursive types
+    ::    * implement non-recursive, but multi-word types, like (unit ..)
+    ::  * case %a %o:
+    ::    * implement recursion to +jold-full-tuple in case %a %o
+    [%s (crip (noah !>(datum)))]
   ==
 ::
 ::  jold of atom with a face
@@ -43,6 +72,9 @@
   ?>  ?=([[@ ^] ~] jolds)
   =*  jace         p.i.jolds
   =*  single-jold  q.i.jolds
+  ~|  "jsf: unexpected non-%s. jace, s-jold:"
+  ~|  jace
+  ~|  single-jold
   ?>  ?=(%s -.single-jold)
   :-  %o
   %+  ~(put by *(map @t json))  jace
