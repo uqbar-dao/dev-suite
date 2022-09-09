@@ -4,25 +4,44 @@
     smart=zig-sys-smart
 ::
 |_  =bowl:gall
-++  get-interface-types
-  |=  [contract-id=id:smart return=?(%interface %types)]
-  ^-  (map @tas json)
-  =/  =update:ui
-    .^  update:ui
-        %gx
-        %-  zing
-        :+  /(scot %p our.bowl)/indexer/(scot %da now.bowl)
-          /newest/grain/(scot %ux contract-id)/noun
-        ~
+++  get-interface-types-json
+  |=  $:  contract-id=id:smart
+          return=?(%interface %types)
+          label=@tas
+          data=*
+      ==
+  |^  ^-  json
+  ?:  =(*bowl:gall bowl)
+    ~&  >  "1"
+    [%s (crip (noah !>(data)))]
+  =/  interface-types=(map @tas json)  get-interface-types
+  ~&  >  interface-types
+  ~&  >  label
+  ?~  interface-type=(~(get by interface-types) label)
+    ~&  >  "2"
+    [%s (crip (noah !>(data)))]
+  ~&  >  "3"
+  (jold-full-tuple:jold u.interface-type data)
+  ::
+  ++  get-interface-types
+    ^-  (map @tas json)
+    =/  =update:ui
+      .^  update:ui
+          %gx
+          %-  zing
+          :+  /(scot %p our.bowl)/indexer/(scot %da now.bowl)
+            /newest/grain/(scot %ux contract-id)/noun
+          ~
+      ==
+    ?~  update                      ~
+    ?.  ?=(%newest-grain -.update)  ~
+    =*  contract  grain.update
+    ?.  ?=(%| -.contract)  ~
+    ?-  return
+      %interface  interface.p.contract
+      %types      types.p.contract
     ==
-  ?~  update                      ~
-  ?.  ?=(%newest-grain -.update)  ~
-  =*  contract  grain.update
-  ?.  ?=(%| -.contract)  ~
-  ?-  return
-    %interface  interface.p.contract
-    %types      types.p.contract
-  ==
+  --
 ::
 ++  enjs
   =,  enjs:format
@@ -184,13 +203,7 @@
     |=  [=yolk:smart contract-id=id:smart]
     ^-  json
     %+  frond  p.yolk
-    ?:  =(*bowl:gall bowl)
-      [%s (crip (noah !>(q.yolk)))]
-    =/  interfaces=(map @tas json)
-      (get-interface-types contract-id %interface)
-    ?~  interface=(~(get by interfaces) p.yolk)
-      [%s (crip (noah !>(q.yolk)))]
-    (jold-full-tuple:jold u.interface q.yolk)
+    (get-interface-types-json contract-id %interface yolk)
   ::
   ++  caller
     |=  =caller:smart
@@ -262,18 +275,12 @@
             [%label %s `@ta`label.p.grain]
             :-  %data
             %+  frond  label.p.grain
-            ?:  =(*bowl:gall bowl)
-              ~&  >  "1"
-              [%s (crip (noah !>(data.p.grain)))]
-            =/  typs=(map @tas json)
-              (get-interface-types lord.p.grain %types)
-            ~&  >  typs
-            ~&  >  label.p.grain
-            ?~  typ=(~(get by typs) label.p.grain)
-              ~&  >  "2"
-              [%s (crip (noah !>(data.p.grain)))]
-            ~&  >  "3"
-            (jold-full-tuple:jold u.typ data.p.grain)
+            %:  get-interface-types-json
+                lord.p.grain
+                %types
+                label.p.grain
+                data.p.grain
+            ==
         ==
       ::  wheat
       :~  [%is-rice %b %|]
