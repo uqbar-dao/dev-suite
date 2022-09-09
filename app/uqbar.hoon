@@ -144,28 +144,29 @@
           %set-wallet-source
         `state(wallet-source app-name.act)
       ::
-          %add-source
+          %ping
         =/  faster-next-ping-time=@da
           %+  add  ping-time-fast-delay
           ?~(pings-timedout now.bowl u.pings-timedout)
-        :-  :+  (make-ping-rest-card next-ping-time)
-              (make-ping-wait-card:uc faster-next-ping-time)
-            ~
+        :_  state(next-ping-time faster-next-ping-time)
+        :+  (make-ping-rest-card next-ping-time)
+          (make-ping-wait-card:uc faster-next-ping-time)
+        ~
+      ::
+          %add-source
+        :-  :_  ~
+            %-  ~(poke-self pass:io /ping-action-poke)
+            [%uqbar-action !>(`action:u`[%ping ~])]
         %=  state
-            next-ping-time  faster-next-ping-time
             indexer-sources
           (~(put ju indexer-sources) town-id.act source.act)
         ==
       ::
           %remove-source
-        =/  faster-next-ping-time=@da
-          %+  add  ping-time-fast-delay
-          ?~(pings-timedout now.bowl u.pings-timedout)
-        :-  :+  (make-ping-rest-card next-ping-time)
-              (make-ping-wait-card:uc faster-next-ping-time)
-            ~
+        :-  :_  ~
+            %-  ~(poke-self pass:io /ping-action-poke)
+            [%uqbar-action !>(`action:u`[%ping ~])]
         %=  state
-            next-ping-time  faster-next-ping-time
             indexer-sources-ping-results
           ?^(pings-timedout ~ indexer-sources-ping-results)  :: TODO: can do better?
         ::
@@ -175,18 +176,13 @@
       ::
           %set-sources
         =/  p=path  /capitol-updates
-        =/  faster-next-ping-time=@da
-          %+  add  ping-time-fast-delay
-          ?~(pings-timedout now.bowl u.pings-timedout)
-        :-  :+  (make-ping-rest-card next-ping-time)
-              (make-ping-wait-card:uc faster-next-ping-time)
+        :-  :-  %-  ~(poke-self pass:io /ping-action-poke)
+                [%uqbar-action !>(`action:u`[%ping ~])]
             %+  murn  towns.act
             |=  [town=id:smart indexers=(set dock)]
-            ^-  (unit card)
             ?~  indexers  ~
             `(~(watch pass:io p) -.indexers p)  ::  TODO: do better here
         %=  state
-            next-ping-time  faster-next-ping-time
             indexer-sources-ping-results
           ?^(pings-timedout ~ indexer-sources-ping-results)  :: TODO: can do better?
         ::
