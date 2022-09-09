@@ -2,9 +2,8 @@
 ++  types-json
   |^  ^-  (map @tas json)
   %-  ~(gas by *(map @tas json))
-  :^    [%token-metadata (need (de-json:html token-metadata-cord))]
-      [%account (need (de-json:html account-cord))]
-    [%approval (need (de-json:html approval-cord))]
+  :+  [%token-metadata (need (de-json:html token-metadata-cord))]
+    [%account (need (de-json:html account-cord))]
   ~
   ::
   ++  token-metadata-cord
@@ -31,18 +30,6 @@
       {"allowances": {"map": {"key": "ux", "val": "ud"}}},
       {"metadata": "ux"},
       {"nonce": "ud"}
-    ]
-    '''
-  ::
-  ++  approval-cord
-    ^-  cord
-    '''
-    [
-      {"from": "ux"},
-      {"to": "ux"},
-      {"amount": "ud"},
-      {"nonce": "ud"},
-      {"deadline": "da"}
     ]
     '''
   --
