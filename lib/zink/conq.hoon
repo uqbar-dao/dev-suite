@@ -189,7 +189,8 @@
   %-  mean  %-  flop
   =/  lyn  p.hair
   =/  col  q.hair
-  :~  leaf+"syntax error at [{<lyn>} {<col>}]"
+  :~  leaf+"syntax error"
+      leaf+"\{{<lyn>} {<col>}}"
       leaf+(runt [(dec col) '-'] "^")
       leaf+(trip (snag (dec lyn) (to-wain:format (crip tex))))
   ==

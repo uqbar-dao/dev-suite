@@ -36,8 +36,9 @@
   ^-  (quip card _this)
   ?.  =(%available status.state)
     ~|("%rollup: error: got watch while not active" !!)
-  ?>  (allowed-participant [src our now]:bowl)
-  ::  give new subscibing sequencer recent root from every town
+  ::  open: anyone can watch rollup
+  ::  ?>  (allowed-participant [src our now]:bowl)
+  ::  give new subscribers recent root from every town
   ::
   ?+    path  !!
       [%capitol-updates ~]
@@ -62,6 +63,7 @@
   |^
   ?.  ?=(%rollup-action mark)
     ~|("%rollup: error: got erroneous %poke" !!)
+  ::  whitelist: only designated sequencers can interact
   ?>  (allowed-participant [src our now]:bowl)
   =^  cards  state
     (handle-poke !<(action vase))

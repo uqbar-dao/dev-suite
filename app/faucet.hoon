@@ -72,22 +72,40 @@
         ~|("%faucet: must wait until after {<u.timeout-done>} to acquire more zigs." !!)
       =/  until=@da  (add now.bowl timeout-duration)
       :_  this(on-timeout (~(put by on-timeout) src until))
-      :+  %.  until
-          %~  wait  pass:io
-          /done/(scot %p src)/(scot %da until)
-        %+  ~(poke-our pass:io /open-poke-wire)
-          %wallet
-        :-  %zig-wallet-poke
-        !>  ^-  wallet-poke:w
-        :*  %submit
-            from=address.u.town-info
-            to=zigs-wheat.u.town-info
-            town=town-id.action
-            gas=gas
-            :^  %give  to=address.action  amount=volume
-            grain=zigs-rice.u.town-info
-        ==
+      :^    %.  until
+            %~  wait  pass:io
+            /done/(scot %p src)/(scot %da until)
+          =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]
+          :-  %zig-wallet-poke
+          !>  ^-  wallet-poke:w
+          :*  %transaction
+              from=address.u.town-info
+              contract=zigs-wheat.u.town-info
+              town=town-id.action
+              :^    %give
+                  to=address.action
+                amount=volume
+              grain=zigs-rice.u.town-info
+          ==
+        =-  [%pass /self-poke %agent [our.bowl %faucet] %poke -]
+        [%faucet-action !>(`action:f`[%confirm address.u.town-info])]
       ~
+    ::
+        %confirm
+      ?>  =(src.bowl our.bowl)
+      ::  make faucet auto-complete transaction in wallet
+      :_  this
+      =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]~
+      :-  %zig-wallet-poke
+      !>  ^-  wallet-poke:w
+      :*  %submit
+          from=me.action
+          ::  take first transaction in wallet pending store and slam it through
+          ::  assumes that faucet operator never uses wallet for other things!
+          =-  -.-:~(tap by .^((map @ux [egg:smart supported-actions:w]) %gx -))
+          /(scot %p our.bowl)/wallet/(scot %da now.bowl)/pending-noun/(scot %ux me.action)/noun
+          gas
+      ==
     ==
   ::
   ++  handle-configure

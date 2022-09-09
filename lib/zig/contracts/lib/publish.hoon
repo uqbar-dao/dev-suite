@@ -4,8 +4,8 @@
   $%  $:  %deploy
           mutable=?
           cont=[bat=* pay=*]
-          interface=(map @tas lump)
-          types=(map @tas lump)
+          interface=(map @tas json)
+          types=(map @tas json)
       ==
       ::
       $:  %upgrade

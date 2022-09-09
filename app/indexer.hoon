@@ -944,7 +944,7 @@
                 =(query-hash id.from.shell.egg.value)
             ==
             ?&  ?=(%to query-type)
-                =(query-hash to.shell.egg.value)
+                =(query-hash contract.shell.egg.value)
             ==
         ==
       ::
@@ -1470,7 +1470,7 @@
     ?~  txs  [parsed-egg parsed-from parsed-to]
     =*  egg-hash     -.i.txs
     =*  egg          +.i.txs
-    =*  to           to.shell.egg
+    =*  contract     contract.shell.egg
     =*  from         id.from.shell.egg
     =/  =egg-location:ui  [town-id root egg-num]
     %=  $
@@ -1490,9 +1490,9 @@
     ::
         parsed-to
       ?:  %+  exists-in-index  town-id
-          [to egg-hash to-index]
+          [contract egg-hash to-index]
         parsed-to
-      [[to egg-hash] parsed-to]
+      [[contract egg-hash] parsed-to]
     ==
   ::
   ++  exists-in-index

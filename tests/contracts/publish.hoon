@@ -57,7 +57,7 @@
   [bat=[8 [1 0 [0 0] 0 0] [1 [8 [1 0] [1 [1 0] 1 0] 0 1] 8 [1 0] [1 8 [8 [9 2.398 0 16.127] 9 2 10 [6 7 [0 3] 1 100] 0 2] 1 0 0 0 0 0] 0 1] 0 1] pay=[1 0]]
 ::
 ++  upgradable-id
-  (fry-wheat:smart id.p:publish-wheat town-id `trivial-nok)
+  (fry-wheat:smart id.p:publish-wheat id:caller-1 town-id `trivial-nok)
 ++  upgradable
   ^-  grain:smart
   :*  %|
@@ -71,7 +71,7 @@
   ==
 ::
 ++  immutable-id
-  (fry-wheat:smart id.p:publish-wheat town-id `immutable-nok)
+  (fry-wheat:smart 0x0 id:caller-1 town-id `immutable-nok)
 ++  immutable
   ^-  grain:smart
   :*  %|
@@ -79,8 +79,8 @@
       ~
       ~
       immutable-id
-      id.p:publish-wheat
       0x0
+      id:caller-1
       town-id
   ==
 ::

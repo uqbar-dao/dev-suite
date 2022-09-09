@@ -12,15 +12,7 @@
   ^-  (set ship)
   %-  ~(gas in *(set ship))
   :~  ::  fakeships for localhost testnets
+      ::  edit this locally on your own rollup.hoon host
       ~zod  ~bus  ~nec  ~wet  ~rys
-      ::  hodzod's testing moons
-      ~watryp-loplyd-dozzod-bacrys
-      ::  hosted's testing moons
-      ~ricmun-lasfer-hosted-fornet
-      ::  ~littel-wolfur's
-      ~harden-ripped-littel-wolfur
-      ~mipber
-      ::  ~roslug-fampet's testing moons
-      ~hosdex-hodsud-roslug-fampet
   ==
 --

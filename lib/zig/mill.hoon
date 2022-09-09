@@ -202,6 +202,7 @@
       $:  balance=@ud
           allowances=(map sender=id:smart @ud)
           metadata=id:smart
+          nonce=@ud
       ==
     ::  +audit: evaluate whether a caller can afford gas,
     ::  and appropriately set budget for any zigs transactions
@@ -238,7 +239,7 @@
       =/  acc=grain:smart
         %^  gut:big  granary  zigs.miller
         ::  create a new account rice for the sequencer if needed
-        =/  =token-account  [total ~ `@ux`'zigs-metadata']
+        =/  =token-account  [total ~ `@ux`'zigs-metadata' 0]
         =/  =id:smart  (fry-rice:smart zigs-wheat-id:smart id.miller town-id `@`'zigs')
         [%& 'zigs' %account token-account id zigs-wheat-id:smart id.miller town-id]
       ?.  ?=(%& -.acc)  granary
@@ -266,12 +267,12 @@
       ^-  hatchling
       =/  from  [id.from.shell.egg nonce.from.shell.egg]
       ::  check for grain burn transaction
-      ?:  &(=(0x0 to.shell.egg) =(%burn p.yolk.egg))
+      ?:  &(=(0x0 contract.shell.egg) =(%burn p.yolk.egg))
         (poach egg)
       ::  insert budget argument if egg is %give-ing zigs
-      =?  q.yolk.egg  &(=(to.shell.egg zigs-wheat-id:smart) =(p.yolk.egg %give))
+      =?  q.yolk.egg  &(=(contract.shell.egg zigs-wheat-id:smart) =(p.yolk.egg %give))
         [budget.shell.egg q.yolk.egg]
-      ?~  gra=(get:big granary to.shell.egg)
+      ?~  gra=(get:big granary contract.shell.egg)
         ::  can't find contract to call
         [~ ~ ~ ~ budget.shell.egg %5]
       ?.  ?=(%| -.u.gra)
@@ -284,11 +285,11 @@
       |=  [from=[=id:smart nonce=@ud] =wheat:smart =egg:smart hits=(list hints) burned=^granary]
       ^-  hatchling
       |^
-      =+  [hit chick rem err]=(weed to.shell.egg budget.shell.egg)
+      =+  [hit chick rem err]=(weed contract.shell.egg budget.shell.egg)
       ?~  chick  [hit^hits ~ ~ ~ rem err]
       ?:  ?=(%& -.u.chick)
         ::  rooster result, finished growing
-        ?~  diff=(harvest p.u.chick to.shell.egg from.shell.egg)
+        ?~  diff=(harvest p.u.chick contract.shell.egg from.shell.egg)
           ::  failed validation
           [hit^hits ~ ~ ~ rem %7]
         ::  harvest passed
@@ -299,7 +300,7 @@
       =/  all-burns  burned.rooster.p.u.chick
       =*  next  next.p.u.chick
       =.  hits  hit^hits
-      =/  last-diff  (harvest rooster.p.u.chick to.shell.egg from.shell.egg)
+      =/  last-diff  (harvest rooster.p.u.chick contract.shell.egg from.shell.egg)
       |-
       ?~  last-diff
         ::  diff from last call failed validation
@@ -312,10 +313,10 @@
       =/  inter
         %+  ~(incubate farm (dif:big (uni:big granary all-diffs) all-burns))
           %=  egg
-            id.from.shell  to.shell.egg
-            to.shell       to.i.next
-            budget.shell   rem
-            yolk           yolk.i.next
+            id.from.shell   contract.shell.egg
+            contract.shell  contract.i.next
+            budget.shell    rem
+            yolk            yolk.i.next
           ==
         [hits all-burns]
       ?.  =(%0 errorcode.inter)
@@ -399,14 +400,14 @@
           %-  ~(all in issued.res)
           |=  [=id:smart @ =grain:smart]
           ::  id in issued map must be equal to id in grain AND
-          ::  lord of grain must be contract issuing it AND
+          ::  lord of grain must either be contract issuing it or 0x0 AND
           ::  grain must not yet exist at that id AND
           ::  grain IDs must match defined hashing functions
           ?&  =(id id.p.grain)
-              =(lord lord.p.grain)
+              |(=(lord lord.p.grain) =(0x0 lord.p.grain))
               !(has:big granary id.p.grain)
               ?:  ?=(%| -.grain)
-                =(id (fry-wheat:smart lord town-id.p.grain cont.p.grain))
+                =(id (fry-wheat:smart lord holder.p.grain town-id.p.grain cont.p.grain))
               =(id (fry-rice:smart lord holder.p.grain town-id.p.grain salt.p.grain))
           ==
         ::

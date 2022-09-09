@@ -88,7 +88,7 @@
   %-  pairs
   :~  ['from' [%s (scot %ux id.from.shell.t)]]
       ['nonce' (numb nonce.from.shell.t)]
-      ['contract' [%s (scot %ux to.shell.t)]]
+      ['contract' [%s (scot %ux contract.shell.t)]]
       ['rate' (numb rate.shell.t)]
       ['budget' (numb budget.shell.t)]
       ['town' [%s (scot %ux town-id.shell.t)]]

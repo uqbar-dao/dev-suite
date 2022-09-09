@@ -1,5 +1,5 @@
 ::  [UQ| DAO]
-::  zigs.hoon v0.9
+::  zigs.hoon v1.0
 ::
 ::  Contract for 'zigs' (official name TBD) token, the gas-payment
 ::  token for the Uqbar network.
@@ -16,57 +16,58 @@
   ^-  chick
   ?-    -.act
       %give
-    =+  `grain`(need (scry from-account.act))
-    =/  giver  (husk account:sur - `me.cart ~)
-    ::  contract can initiate a %give, or holder of grain can.
-    ?>  |(=(id.from.cart me.cart) =(id.from.cart holder.giver))
-    ::  unlike other assertions, this is non-optional: we must confirm
-    ::  that the giver's zigs balance is enough to cover the maximum
-    ::  cost in the original transaction, which is provided in budget
-    ::  argument via execution engine.
+    =+  (need (scry from-account.act))
+    =/  giver  (husk account:sur - `me.cart `id.from.cart)
+    ::  we must confirm that the giver's zigs balance is enough to
+    ::  cover the maximum cost in the original transaction, which
+    ::  is provided in budget argument via execution engine.
     ?>  (gte balance.data.giver (add amount.act budget.act))
+    =.  balance.data.giver  (sub balance.data.giver amount.act)
     ?~  to-account.act
-      ::  if no receiver account specified, generate new account for them
+      ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
-      =/  =rice
-        [salt.giver %account [0 ~ metadata.data.giver] id me.cart to.act town-id.cart]
-      =/  next  [%give to.act amount.act id.giver `id.rice]
-      (continuation [me.cart town-id.cart next]^~ (result ~ [%& rice]^~ ~ ~))
-    ::  have a specified receiver account, grab it and add to balance
-    =+  `grain`(need (scry u.to-account.act))
+      =+  [amount.act ~ metadata.data.giver 0]
+      =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
+      (result [%&^giver ~] [%&^receiver ~] ~ ~)
+    ::  otherwise, add amount given to the existing account for that address
+    =+  (need (scry u.to-account.act))
+    ::  assert that account is held by the address we're sending to
     =/  receiver  (husk account:sur - `me.cart `to.act)
-    =:  balance.data.giver     (sub balance.data.giver amount.act)
-        balance.data.receiver  (add balance.data.receiver amount.act)
-    ==
-    (result [[%& giver] [%& receiver] ~] ~ ~ ~)
+    =.  balance.data.receiver  (add balance.data.receiver amount.act)
+    ::  return the result: two changed grains
+    (result [%&^giver %&^receiver ~] ~ ~ ~)
+
   ::
       %take
     =+  (need (scry from-account.act))
     =/  giver  (husk account:sur - `me.cart ~)
-    ::  no assertions required here for balance or allowance,
-    ::  because subtract underflow will crash when we try to edit these.
-    ?~  to-account.act
-      ::  if no receiver account specified, generate new account for them
-      =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
-      =/  =rice
-        [salt.giver %account [0 ~ metadata.data.giver] id me.cart to.act town-id.cart]
-      =/  next  [%take to.act amount.act id.giver `id.rice]
-      (continuation [me.cart town-id.cart next]^~ (result ~ [%& rice]^~ ~ ~))
-    ::  have a specified receiver account, grab it and add to balance
-    =+  (need (scry u.to-account.act))
-    =/  receiver  (husk account:sur - `me.cart `to.act)
-    =:  balance.data.giver     (sub balance.data.giver amount.act)
-        balance.data.receiver  (add balance.data.receiver amount.act)
+    ::  this will fail if amount > balance or allowance is exceeded, as desired
+    =:  balance.data.giver  (sub balance.data.giver amount.act)
     ::
           allowances.data.giver
-      %+  ~(jab py allowances.data.giver)
-        id.from.cart
-      |=(old=@ud (sub old amount.act))
+        %+  ~(jab py allowances.data.giver)
+          id.from.cart
+        |=(old=@ud (sub old amount.act))
     ==
-    (result [[%& giver] [%& receiver] ~] ~ ~ ~)
+    ?~  to-account.act
+      ::  if receiver doesn't have an account, try to produce one for them
+      =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
+      =+  [amount.act ~ metadata.data.giver 0]
+      =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
+      (result [%&^giver ~] [%&^receiver ~] ~ ~)
+    ::  otherwise, add amount given to the existing account for that address
+    =+  (need (scry u.to-account.act))
+    ::  assert that account is held by the address we're sending to
+    =/  receiver  (husk account:sur - `me.cart `to.act)
+    =.  balance.data.receiver  (add balance.data.receiver amount.act)
+    ::  return the result: two changed grains
+    (result [%&^giver %&^receiver ~] ~ ~ ~)
   ::
       %set-allowance
-    ::  cannot set an allowance to ourselves
+    ::  let some pubkey spend tokens on your behalf
+    ::  note that you can arbitrarily allow as much spend as you want,
+    ::  but spends will still be constrained by token balance
+    ::  note: cannot set an allowance to ourselves
     ?>  !=(who.act id.from.cart)
     =+  (need (scry account.act))
     =/  account  (husk account:sur - `me.cart `id.from.cart)
