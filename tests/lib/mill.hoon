@@ -33,8 +33,8 @@
 ++  fake-sig   [0 0 0]
 ++  mil
   %~  mill  mill
-  :+    ;;(vase (cue q.q.smart-lib-noun))
-    ;;((map * @) (cue q.q.zink-cax-noun))
+  :+    ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
+    ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun)))
   %.y
 ::
 +$  mill-result
@@ -86,7 +86,7 @@
     ==
   ++  wheat-grain
     ^-  grain
-    =/  =wheat  ;;(wheat (cue q.q.zigs-contract))
+    =/  =wheat  ;;(wheat (cue +.+:;;([* * @] zigs-contract)))
     :*  zigs-wheat-id
         zigs-wheat-id
         zigs-wheat-id
@@ -97,7 +97,7 @@
 ::
 ++  triv-wheat
   ^-  grain
-  =/  =wheat  ;;(wheat (cue q.q.triv-contract))
+  =/  =wheat  ;;(wheat (cue +.+:;;([* * @] triv-contract)))
   :*  0xdada.dada  ::  id
       0xdada.dada  ::  lord
       0xdada.dada  ::  holder
@@ -116,7 +116,7 @@
 ::
 ++  mill-tester
   ^-  grain
-  =/  =wheat  ;;(wheat (cue q.q.test-contract))
+  =/  =wheat  ;;(wheat (cue +.+:;;([* * @] test-contract)))
   :*  0xeeee.eeee  ::  id
       0xeeee.eeee  ::  lord
       0xeeee.eeee  ::  holder

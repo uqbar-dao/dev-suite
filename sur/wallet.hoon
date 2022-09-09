@@ -7,9 +7,9 @@
 ::
 +$  book  (map id:smart asset)
 +$  asset
-  $%  [%token town-id=@ux metadata=id:smart token-account]
-      [%nft town-id=@ux metadata=id:smart nft]
-      [%unknown town-id=@ux *]
+  $%  [%token town-id=@ux contract=id:smart metadata=id:smart token-account]
+      [%nft town-id=@ux contract=id:smart metadata=id:smart nft]
+      [%unknown town-id=@ux contract=id:smart *]
   ==
 ::
 +$  metadata-store  (map id:smart asset-metadata)
@@ -20,13 +20,18 @@
 ::
 +$  transaction-store
   %+  map  address:smart
-  $:  sent=(map @ux [=egg:smart args=supported-args])
+  $:  sent=(map @ux [=egg:smart action=supported-actions])
       received=(map @ux =egg:smart)
   ==
 ::
++$  pending-store
+  %+  map  address:smart
+  (map @ux [=egg:smart action=supported-actions])
+::
 +$  transaction-status-code
-  $%  %100  ::  100: transaction submitted from wallet to sequencer
-      %101  ::  101: transaction received by sequencer
+  $%  %100  ::  100: transaction pending in wallet
+      %101  ::  101: transaction submitted from wallet to sequencer
+      %102  ::  102: transaction received by sequencer
       %103  ::  103: failure: transaction rejected by sequencer
       ::
       ::  200-class refers to codes that come from a completed, processed transaction
@@ -47,7 +52,8 @@
 ::
 +$  wallet-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
-      [%tx-status hash=@ux =egg:smart args=supported-args]
+      [%new-metadata metadata=metadata-store]
+      [%tx-status hash=@ux =egg:smart action=supported-actions]
   ==
 ::
 ::  received from web interface
@@ -59,34 +65,45 @@
       [%delete-address address=@ux]
       [%edit-nickname address=@ux nick=@t]
       [%sign-typed-message from=id:smart =typed-message:smart]
-      ::  HW wallet stuff
       [%add-tracked-address address=@ux nick=@t]
-      [%submit-signed hash=@ eth-hash=@ sig=[v=@ r=@ s=@]]
       ::  testing and internal
       [%set-nonce address=@ux town=id:smart new=@ud]
+      ::
       ::  TX submit pokes
-      ::  if we have a private key for the 'from' address, sign. if not,
-      ::  allow hardware wallet to sign on frontend and %submit-signed
-      $:  %submit-custom
-          from=id:smart
-          to=id:smart
-          town=id:smart
+      ::
+      ::  sign a pending transaction from an attached hardware wallet
+      $:  %submit-signed
+          from=address:smart
+          hash=@
+          eth-hash=@
+          sig=[v=@ r=@ s=@]
           gas=[rate=@ud bud=@ud]
-          yolk=@t  ::  literally `ream`ed to form yolk
       ==
+      ::  sign a pending transaction from this wallet
       $:  %submit
-          from=id:smart
-          to=id:smart
-          town=id:smart
+          from=address:smart
+          hash=@
           gas=[rate=@ud bud=@ud]
-          args=supported-args
+      ==
+      ::  remove a pending transaction without signing
+      $:  %delete-pending
+          from=address:smart
+          hash=@
+      ==
+      ::
+      $:  %transaction
+          from=address:smart
+          contract=id:smart
+          town=id:smart
+          action=supported-actions
       ==
   ==
 ::
-+$  supported-args
++$  supported-actions
   $%  [%give to=address:smart amount=@ud grain=id:smart]
       [%give-nft to=address:smart grain=id:smart]
-      [%custom args=@t]
+      [%text @t]
+      [%noun *]
   ==
 ::
 ::  hardcoded molds comporting to account-token standard
@@ -98,15 +115,16 @@
       supply=@ud
       cap=(unit @ud)
       mintable=?
-      minters=(set id:smart)
+      minters=(pset:smart id:smart)
       deployer=id:smart
       salt=@
   ==
 ::
 +$  token-account
   $:  balance=@ud
-      allowances=(map sender=id:smart @ud)
+      allowances=(pmap:smart sender=id:smart @ud)
       metadata=id:smart
+      nonce=@ud
   ==
 ::
 ::  hardcoded molds comporting to account-NFT standard
@@ -114,11 +132,11 @@
 +$  nft-metadata
   $:  name=@t
       symbol=@t
-      properties=(set @tas)
+      properties=(pset:smart @tas)
       supply=@ud
       cap=(unit @ud)  ::  (~ if mintable is false)
       mintable=?      ::  automatically set to %.n if supply == cap
-      minters=(set address:smart)
+      minters=(pset:smart address:smart)
       deployer=id:smart
       salt=@
   ==
@@ -127,8 +145,8 @@
   $:  id=@ud
       uri=@t
       metadata=id:smart
-      allowances=(set address:smart)
-      properties=(map @tas @t)
+      allowances=(pset:smart address:smart)
+      properties=(pmap:smart @tas @t)
       transferrable=?
   ==
 --

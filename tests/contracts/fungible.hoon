@@ -18,8 +18,8 @@
 ++  fake-sig   [0 0 0]
 ++  mil
   %~  mill  mill
-  :+    ;;(vase (cue q.q.smart-lib-noun))
-    ;;((map * @) (cue q.q.zink-cax-noun))
+  :+    ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
+    ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun)))
   %.y
 ::
 +$  granary   (merk:merk id:smart grain:smart)
@@ -64,7 +64,7 @@
     ==
   ++  wheat
     ^-  grain:smart
-    =/  cont  ;;([bat=* pay=*] (cue q.q.zigs-contract))
+    =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] zigs-contract)))
     =/  interface=lumps:smart  ~
     =/  types=lumps:smart  ~
     :*  %|
@@ -115,7 +115,7 @@
 ::
 ++  fungible-wheat
   ^-  grain:smart
-  =/  cont  ;;([bat=* pay=*] (cue q.q.fungible-contract))
+  =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] fungible-contract)))
   =/  interface=lumps:smart  ~
   =/  types=lumps:smart      ~
   :*  %|
@@ -325,7 +325,7 @@
   =/  action
     :*  %mint
         id.p:token-mintable
-        ~[[id:caller-1 50 `id.p:account-1-mintable] [id:caller-2 10 `id.p:account-2-mintable]]
+        ~[[id:caller-1 `id.p:account-1-mintable 50] [id:caller-2 `id.p:account-2-mintable 10]]
     ==
   =/  shel=shell:smart
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
@@ -345,7 +345,7 @@
 ++  test-mint-unknown-receiver
   ^-  tang
   =/  action
-    [%mint id.p:token-mintable ~[[id:caller-3 50 ~]]]
+    [%mint id.p:token-mintable ~[[id:caller-3 ~ 50]]]
   =/  shel=shell:smart
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  expected=grain:smart

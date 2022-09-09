@@ -202,6 +202,7 @@
       $:  balance=@ud
           allowances=(map sender=id:smart @ud)
           metadata=id:smart
+          nonce=@ud
       ==
     ::  +audit: evaluate whether a caller can afford gas,
     ::  and appropriately set budget for any zigs transactions
@@ -238,7 +239,7 @@
       =/  acc=grain:smart
         %^  gut:big  granary  zigs.miller
         ::  create a new account rice for the sequencer if needed
-        =/  =token-account  [total ~ `@ux`'zigs-metadata']
+        =/  =token-account  [total ~ `@ux`'zigs-metadata' 0]
         =/  =id:smart  (fry-rice:smart zigs-wheat-id:smart id.miller town-id `@`'zigs')
         [%& 'zigs' %account token-account id zigs-wheat-id:smart id.miller town-id]
       ?.  ?=(%& -.acc)  granary

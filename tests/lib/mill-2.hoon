@@ -35,8 +35,8 @@
 ++  fake-sig   [0 0 0]
 ++  mil
   %~  mill  mill
-  :+    ;;(vase (cue q.q.smart-lib-noun))
-    ;;((map * @) (cue q.q.zink-cax-noun))
+  :+    ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
+    ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun)))
   %.y
 ::
 +$  mill-result
@@ -104,7 +104,7 @@
     ==
   ++  wheat
     ^-  grain:smart
-    =/  cont  ;;([bat=* pay=*] (cue q.q.zigs-contract))
+    =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] zigs-contract)))
     =/  interface=lumps:smart  ~
     =/  types=lumps:smart  ~
     :*  %|
@@ -120,7 +120,7 @@
 ::
 ++  scry-wheat
   ^-  grain:smart
-  =/  cont  ;;([bat=* pay=*] (cue q.q.scry-contract))
+  =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] scry-contract)))
   =/  interface=lumps:smart  ~
   =/  types=lumps:smart  ~
   :*  %|
@@ -135,7 +135,7 @@
 ::
 ++  temp-wheat
   ^-  grain:smart
-  =/  cont  ;;([bat=* pay=*] (cue q.q.temp-contract))
+  =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] temp-contract)))
   =/  interface=lumps:smart  ~
   =/  types=lumps:smart      ~
   :*  %|

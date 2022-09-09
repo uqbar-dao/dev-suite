@@ -16,8 +16,8 @@
 ++  fake-sig  [0 0 0]
 ++  mil
   %~  mill  mill
-  :+    ;;(vase (cue q.q.smart-lib-noun))
-    ;;((map * @) (cue q.q.zink-cax-noun))
+  :+    ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
+    ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun)))
   %.y
 ::
 +$  mill-result
@@ -84,7 +84,7 @@
   ==
 ++  nft-wheat
   ^-  wheat:smart
-  :*  `;;([bat=* pay=*] (cue q.q.nft-contract))
+  :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] nft-contract)))
       interface=~  ::  TODO
       types=~      ::  TODO
       0xcafe.babe  ::  id

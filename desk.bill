@@ -1,4 +1,5 @@
-:~  %sequencer
+:~  %ziggurat
+    %sequencer
     %rollup
     %indexer
     %uqbar

@@ -16,8 +16,8 @@
 ++  fake-sig  [0 0 0]
 ++  mil
   %~  mill  mill
-  :+    ;;(vase (cue q.q.smart-lib-noun))
-    ;;((map * @) (cue q.q.zink-cax-noun))
+  :+    ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
+    ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun)))
   %.y
 ::
 +$  mill-result
@@ -86,7 +86,7 @@
 ::
 ++  publish-wheat
   ^-  grain:smart
-  =/  cont  ;;([bat=* pay=*] (cue q.q.publish-contract))
+  =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] publish-contract)))
   =/  interface=lumps:smart  ~
   =/  types=lumps:smart  ~
   :*  %|
