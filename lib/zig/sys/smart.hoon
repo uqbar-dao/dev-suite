@@ -103,7 +103,12 @@
 ::
 ::  contract contains itself and every imported library in pay
 ::
-+$  wheat  [cont=(unit [bat=* pay=*]) interface=lumps types=lumps bran]
++$  wheat
+  $:  cont=(unit [bat=* pay=*])
+      interface=(map @tas json)
+      types=(map @tas json)
+      bran
+  ==
 ::
 ::  labeled "restricted types" that define contract actions and rice data
 ::
