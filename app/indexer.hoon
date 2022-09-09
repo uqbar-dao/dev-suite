@@ -944,7 +944,7 @@
                 =(query-hash id.from.shell.egg.value)
             ==
             ?&  ?=(%to query-type)
-                =(query-hash to.shell.egg.value)
+                =(query-hash contract.shell.egg.value)
             ==
         ==
       ::
