@@ -31,7 +31,7 @@
     [
       {"balance": "@ud"},
       {"allowances": {"map": {"key": "@ux", "val": "@ud"}}},
-      {"metadata": "@ux"}
+      {"metadata": "@ux"},
       {"nonce": "@ud"}
     ]
     '''
@@ -48,34 +48,34 @@
   ++  give-cord
     ^-  cord
     '''
-    {
-      "budget": "@ud",
-      "to": "@ux",
-      "amount": "@ud",
-      "from-account": "@ux",
-      "to-account": "(unit @ux)"
-    }
+    [
+      {"budget": "@ud"},
+      {"to": "@ux"},
+      {"amount": "@ud"},
+      {"from-account": "@ux"},
+      {"to-account": "(unit @ux)"}
+    ]
     '''
   ::
   ++  take-cord
     ^-  cord
     '''
-    {
-      "to": "@ux",
-      "amount": "@ud",
-      "from-account": "@ux",
-      "to-account": "(unit @ux)"
-    }
+    [
+      {"to": "@ux"},
+      {"amount": "@ud"},
+      {"from-account": "@ux"},
+      {"to-account": "(unit @ux)"}
+    ]
     '''
   ::
   ++  set-allowance-cord
     ^-  cord
     '''
-    {
-      "who": "@ux",
-      "amount": "@ud",
-      "account": "@ux"
-    }
+    [
+      {"who": "@ux"},
+      {"amount": "@ud"},
+      {"account": "@ux"}
+    ]
     '''
   --
 --
