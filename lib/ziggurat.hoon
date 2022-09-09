@@ -126,7 +126,7 @@
     =/  libraries=hoon  [%clsg braw]
     :-  q:(~(mint ut p.smart-lib) %noun libraries)
     (slap smart-lib libraries)
-  ::1
+  ::
   ++  build-main  ::  fourth
     |=  [payload=vase contract=hoon]
     ^-  *
