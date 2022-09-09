@@ -133,7 +133,7 @@ Then, sign the transaction and assign it a gas budget.
 For example, for the zigs token transaction above:
 ```hoon
 ::  Sign with hot wallet.
-:uqbar &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=[HASH_HERE] gas=[rate=1 bud=1.000.000]]
+:uqbar &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=[yourhash] gas=[rate=1 bud=1.000.000]]
 ```
 Transactions can also be signed using a hardware wallet, via `%submit-signed`.
 
@@ -322,7 +322,7 @@ To deploy on town `0x0`, in the Dojo:
 =contract-path /=zig=/lib/zig/compiled/multisig/noun
 =contract-noun .^(* %cx contract-path)
 =contract ;;([bat=* pay=*] contract-noun)
-:uqbar &zig-wallet-poke [%transaction from=YOUR_ADDRESS contract=0x1111.1111 town=0x0 action=[%noun [%deploy mutable=%.n cont=contract interface=~ types=~]]]
+:uqbar &zig-wallet-poke [%transaction from=[youraddress] contract=0x1111.1111 town=0x0 action=[%noun [%deploy mutable=%.n cont=contract interface=~ types=~]]]
 ```
 
 
