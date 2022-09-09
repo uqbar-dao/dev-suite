@@ -98,7 +98,7 @@ First, make sure the fakeship you're using is in the [whitelist](https://github.
 
 Uqbar provides a generator to set up a fakeship testnet for local development.
 That generator, used as a poke to the `%sequencer` app as `:sequencer|init`, populates a new town with some [`grain`](#grain)s: [`wheat`](#wheat) (contract code) and [`rice`](#rice) (contract data).
-Specifically, contracts for zigs tokens, NFTs, fungible tokens, and publishing new contracts are pre-deployed.
+Specifically, contracts for zigs tokens, NFTs, and publishing new contracts are pre-deployed.
 After [initial installation](#initial-installation), start the `%rollup`, initialize the `%sequencer`, set up the `%uqbar` read-write interface, and configure the `%wallet` to point to some [pre-set assets](#accounts-initialized-by-init-script), minted in the `:sequencer|init` poke:
 ```hoon
 :rollup|activate
