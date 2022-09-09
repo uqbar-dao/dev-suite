@@ -3,7 +3,7 @@
 ::  Take a jold and a piece of data of the proper shape
 ::  and give back json with the data properly jolded.
 ::  For example, in the trivial case
-::    jold -> [%o p={[p=%foo q=[%s p='@ud']]}]
+::    jold -> [%o p={[p=%foo q=[%s p='ud']]}]
 ::    data -> 5
 ::  the result should be
 ::    json -> [%o p={[p=%foo q=[%n p=5]]}]
@@ -15,7 +15,25 @@
   ^-  json
   ~
 ::
-::  jold of form
+::  jold of tuple with faces
+::  [%a ~[[%o p={[p=%foo q=[%s p='ud']]}] [%o p={[p=%bar q=[%s p='tas']]}]]]
+++  jold-tuple
+  |=  [jolds=json data=*]
+  ^-  json
+  ?>  ?=(%a -.jolds)
+  :-  %a
+  =|  jout=(list json)
+  |-
+  ?~  p.jolds  (flop jout)
+  =/  is-last=?  ?=(@ data)
+  =*  datum  ?:(is-last data -.data)
+  %=  $
+      p.jolds  t.p.jolds
+      data     ?:(is-last ~ +.data)
+      jout     [(jold-single-jace i.p.jolds `@`datum) jout]
+  ==
+::
+::  jold of atom with a face
 ::  [%o p={[p=%foo q=[%s p='@ud']]}]
 ++  jold-single-jace
   |=  [jold=json data=@]
@@ -26,12 +44,9 @@
   =*  jace         p.i.jolds
   =*  single-jold  q.i.jolds
   ?>  ?=(%s -.single-jold)
-  :: =/  molded-data  ;;((select-mold p.single-jold) data)
   :-  %o
   %+  ~(put by *(map @t json))  jace
   (prefix-and-mold-atom p.single-jold data)
-  :: :: ?:  ?=(?(%'?' %ud) p.single-jold)  molded-data
-  :: (scot p.single-jold molded-data)
 ::
 ++  prefix-and-mold-atom
   |=  [type-tas=@tas data=@]
