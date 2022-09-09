@@ -84,7 +84,7 @@
   |=  [type-tas=@tas data=@]
   ?+  type-tas  ~|("jold: prefix-and-mold {<type-tas>} not yet implemented" !!)
     %'?'  [%b ;;(? data)]
-    %ud   [%n (scot %ud ;;(@ud data))]
+    %ud   (numb:enjs:format ;;(@ud data))
     %da   [%s (scot %da ;;(@da data))]
     %p    [%s (scot %p ;;(@p data))]
     %ux   [%s (scot %ux ;;(@ux data))]
