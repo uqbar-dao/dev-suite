@@ -376,7 +376,6 @@
     ++  harvest
       |=  [res=rooster:smart lord=id:smart from=caller:smart]
       ^-  (unit ^granary)
-      ~&  >>  res
       =-  ?.  -
             ~&  >>>  "harvest checks failed"
             ~
