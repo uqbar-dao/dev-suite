@@ -8,6 +8,7 @@
       [%add-source town-id=id:smart source=dock]
       [%remove-source town-id=id:smart source=dock]
       [%set-wallet-source app-name=@tas]  ::  to plug in a third-party wallet app
+      [%ping ~]
   ==
 ::
 +$  write

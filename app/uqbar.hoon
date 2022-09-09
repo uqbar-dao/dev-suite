@@ -138,36 +138,40 @@
     ::
     ++  handle-action
       |=  act=action:u
-      ^-  (quip card _state)
+      |^  ^-  (quip card _state)
       ?>  =(src.bowl our.bowl)
       ?-    -.act
           %set-wallet-source
         `state(wallet-source app-name.act)
       ::
-          %add-source
+          %ping
         =/  faster-next-ping-time=@da
           %+  add  ping-time-fast-delay
           ?~(pings-timedout now.bowl u.pings-timedout)
-        :-  :+  (make-ping-rest-card next-ping-time)
-              (make-ping-wait-card:uc faster-next-ping-time)
-            ~
+        :_  state(next-ping-time faster-next-ping-time)
+        :+  (make-ping-rest-card next-ping-time)
+          (make-ping-wait-card:uc faster-next-ping-time)
+        ~
+      ::
+          %add-source
+        :-  :_  ~
+            %-  ~(poke-self pass:io /ping-action-poke)
+            [%uqbar-action !>(`action:u`[%ping ~])]
         %=  state
-            next-ping-time  faster-next-ping-time
             indexer-sources
           (~(put ju indexer-sources) town-id.act source.act)
         ==
       ::
           %remove-source
-        =/  faster-next-ping-time=@da
-          %+  add  ping-time-fast-delay
-          ?~(pings-timedout now.bowl u.pings-timedout)
-        :-  :+  (make-ping-rest-card next-ping-time)
-              (make-ping-wait-card:uc faster-next-ping-time)
-            ~
+        :-  :_  ~
+            %-  ~(poke-self pass:io /ping-action-poke)
+            [%uqbar-action !>(`action:u`[%ping ~])]
         %=  state
-            next-ping-time  faster-next-ping-time
             indexer-sources-ping-results
-          ?^(pings-timedout ~ indexer-sources-ping-results)  :: TODO: can do better?
+          %^    remove-from-ping-results
+              town-id.act
+            source.act
+          indexer-sources-ping-results
         ::
             indexer-sources
           (~(del ju indexer-sources) town-id.act source.act)
@@ -175,25 +179,59 @@
       ::
           %set-sources
         =/  p=path  /capitol-updates
-        =/  faster-next-ping-time=@da
-          %+  add  ping-time-fast-delay
-          ?~(pings-timedout now.bowl u.pings-timedout)
-        :-  :+  (make-ping-rest-card next-ping-time)
-              (make-ping-wait-card:uc faster-next-ping-time)
+        :-  :-  %-  ~(poke-self pass:io /ping-action-poke)
+                [%uqbar-action !>(`action:u`[%ping ~])]
             %+  murn  towns.act
             |=  [town=id:smart indexers=(set dock)]
-            ^-  (unit card)
             ?~  indexers  ~
             `(~(watch pass:io p) -.indexers p)  ::  TODO: do better here
         %=  state
-            next-ping-time  faster-next-ping-time
             indexer-sources-ping-results
-          ?^(pings-timedout ~ indexer-sources-ping-results)  :: TODO: can do better?
+          (set-sources-remove-from-ping-results towns.act)
         ::
             indexer-sources
           (~(gas by *(map id:smart (set dock))) towns.act)
         ==
       ==
+      ::
+      ++  remove-from-ping-results
+        |=  $:  town-id=id:smart
+                source=dock
+                =indexer-sources-ping-results:u
+            ==
+        ^-  indexer-sources-ping-results:u
+        =/  old
+          %+  ~(gut by indexer-sources-ping-results)
+          town-id  [~ ~ ~ ~]
+        ?:  ?=([~ ~ ~ ~] old)  indexer-sources-ping-results
+        %+  ~(put by indexer-sources-ping-results)
+          town-id
+        :^    (~(del in previous-up.old) source)
+            (~(del in previous-down.old) source)
+          (~(del in newest-up.old) source)
+        (~(del in newest-down.old) source)
+      ::
+      ++  set-sources-remove-from-ping-results
+        |=  towns=(list [town-id=id:smart (set dock)])
+        ^-  indexer-sources-ping-results:u
+        ?~  towns  indexer-sources-ping-results
+        =*  town-id  town-id.i.towns
+        =/  docks=(list dock)  ~(tap in +.i.towns)
+        %=  $
+            towns  t.towns
+            indexer-sources-ping-results
+          |-
+          ?~  docks  indexer-sources-ping-results
+          %=  $
+              docks  t.docks
+              indexer-sources-ping-results
+            %^    remove-from-ping-results
+                town-id
+              i.docks
+            indexer-sources-ping-results
+          ==
+        ==
+      --
     ::
     ++  handle-write
       |=  =write:u

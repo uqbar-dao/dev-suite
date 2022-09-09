@@ -12,7 +12,7 @@
   ^-  chick
   ?-    -.act
       %deploy
-    =/  lord  ?:(mutable.act me.cart 0x0)
+    =/  lord=id  ?:(mutable.act me.cart 0x0)
     =/  contract=grain
       :*  %|
           `cont.act
