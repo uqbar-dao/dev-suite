@@ -144,6 +144,15 @@
           %set-wallet-source
         `state(wallet-source app-name.act)
       ::
+          %ping
+        =/  faster-next-ping-time=@da
+          %+  add  ping-time-fast-delay
+          ?~(pings-timedout now.bowl u.pings-timedout)
+        :-  :+  (make-ping-rest-card next-ping-time)
+              (make-ping-wait-card:uc faster-next-ping-time)
+            ~
+        `state(next-ping-time faster-next-ping-time)
+      ::
           %add-source
         =/  faster-next-ping-time=@da
           %+  add  ping-time-fast-delay
