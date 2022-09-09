@@ -117,7 +117,7 @@
     [
       {"name": "t"},
       {"symbol": "t"},
-      {"salt": ""},
+      {"salt": "ux"},
       {"cap": "unit-ud"},
       {"minters": ["ux"]},
       {
