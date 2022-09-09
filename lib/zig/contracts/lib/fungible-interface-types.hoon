@@ -11,15 +11,15 @@
     ^-  cord
     '''
     [
-      {"name": "@t"},
-      {"symbol": "@t"},
-      {"decimals": "@ud"},
-      {"supply": "@ud"},
-      {"cap": "(unit @ud)"},
+      {"name": "t"},
+      {"symbol": "t"},
+      {"decimals": "ud"},
+      {"supply": "ud"},
+      {"cap": "unit-ud"},
       {"mintable": "?"},
-      {"minters": ["@ux"]},
-      {"deployer-address": "@ux"},
-      {"salt": "@"}
+      {"minters": ["ux"]},
+      {"deployer-address": "ux"},
+      {"salt": "ux"}
     ]
     '''
   ::
@@ -27,10 +27,10 @@
     ^-  cord
     '''
     [
-      {"balance": "@ud"},
-      {"allowances": {"map": {"key": "@ux", "val": "@ud"}}},
-      {"metadata": "@ux"},
-      {"nonce": "@ud"}
+      {"balance": "ud"},
+      {"allowances": {"map": {"key": "ux", "val": "ud"}}},
+      {"metadata": "ux"},
+      {"nonce": "ud"}
     ]
     '''
   ::
@@ -38,11 +38,11 @@
     ^-  cord
     '''
     [
-      {"from": "@ux"},
-      {"to": "@ux"},
-      {"amount": "@ud"},
-      {"nonce": "@ud"},
-      {"deadline": "@da"}
+      {"from": "ux"},
+      {"to": "ux"},
+      {"amount": "ud"},
+      {"nonce": "ud"},
+      {"deadline": "da"}
     ]
     '''
   --
@@ -61,10 +61,10 @@
     ^-  cord
     '''
     [
-      {"to": "@ux"},
-      {"amount": "@ud"},
-      {"from-account": "@ux"},
-      {"to-account": "(unit @ux)"}
+      {"to": "ux"},
+      {"amount": "ud"},
+      {"from-account": "ux"},
+      {"to-account": "unit-ux"}
     ]
     '''
   ::
@@ -72,10 +72,10 @@
     ^-  cord
     '''
     [
-      {"to": "@ux"},
-      {"amount": "@ud"},
-      {"from-account": "@ux"},
-      {"to-account": "(unit @ux)"}
+      {"to": "ux"},
+      {"amount": "ud"},
+      {"from-account": "ux"},
+      {"to-account": "unit-ux"}
     ]
     '''
   ::
@@ -83,17 +83,17 @@
     ^-  cord  :: TODO: Sig
     '''
     [
-      {"to": "@ux"},
-      {"from-account": "@ux"},
-      {"to-account": "(unit @ux)"},
-      {"amount": "@ud"},
-      {"nonce": "@ud"},
-      {"deadline": "@da"},
+      {"to": "ux"},
+      {"from-account": "ux"},
+      {"to-account": "unit-ux"},
+      {"amount": "ud"},
+      {"nonce": "ud"},
+      {"deadline": "da"},
       {
         "sig": [
-          {"v": "@"},
-          {"r": "@"},
-          {"s": "@"}
+          {"v": "ux"},
+          {"r": "ux"},
+          {"s": "ux"}
         ]
       }
     ]
@@ -103,9 +103,9 @@
     ^-  cord
     '''
     [
-      {"who": "@ux"},
-      {"amount": "@ud"},
-      {"account": "@ux"}
+      {"who": "ux"},
+      {"amount": "ud"},
+      {"account": "ux"}
     ]
     '''
   ::
@@ -113,12 +113,12 @@
     ^-  cord
     '''
     [
-      {"token": "@ux"},
+      {"token": "ux"},
       {
         "mints": [
-          {"to": "@ux"},
-          {"account": "(unit @ux)"},
-          {"amount": "@ud"}
+          {"to": "ux"},
+          {"account": "unit-ux"},
+          {"amount": "ud"}
         ]
       }
     ]
@@ -128,15 +128,15 @@
     ^-  cord
     '''
     [
-      {"name": "@t"},
-      {"symbol": "@t"},
-      {"salt": "@"},
-      {"cap": "(unit @ud)"},
-      {"minters": ["@ux"]},
+      {"name": "t"},
+      {"symbol": "t"},
+      {"salt": ""},
+      {"cap": "unit-ud"},
+      {"minters": ["ux"]},
       {
         "initial-distribution": [
-          {"to": "@ux"},
-          {"amount": "@ud"}
+          {"to": "ux"},
+          {"amount": "ud"}
         ]
       }
     ]

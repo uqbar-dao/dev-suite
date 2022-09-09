@@ -12,8 +12,8 @@
     [
       {"mutable": "?"},
       {"cont": "~"},
-      {"interface": {"map": {"key": "@tas", "val": "json"}}},
-      {"types": {"map": {"key": "@tas", "val": "json"}}}
+      {"interface": {"map": {"key": "tas", "val": "json"}}},
+      {"types": {"map": {"key": "tas", "val": "json"}}}
     ]
     '''
   ::
@@ -21,7 +21,7 @@
     ^-  cord
     '''
     [
-      {"to-update": "@ux"},
+      {"to-update": "ux"},
       {"new-nok": "~"}
     ]
     '''

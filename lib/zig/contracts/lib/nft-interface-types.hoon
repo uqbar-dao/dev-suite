@@ -11,15 +11,15 @@
     ^-  cord
     '''
     [
-      {"name": "@t"},
-      {"symbol": "@t"},
-      {"properties": ["@ud"]},
-      {"supply": "@ud"},
-      {"cap": "(unit @ud)"},
+      {"name": "t"},
+      {"symbol": "t"},
+      {"properties": ["ud"]},
+      {"supply": "ud"},
+      {"cap": "unit-ud"},
       {"mintable": "?"},
-      {"minters": "[@ux]"},
-      {"deployer": "@ux"},
-      {"salt": "@"}
+      {"minters": ["ux"]},
+      {"deployer": "ux"},
+      {"salt": "ux"}
     ]
     '''
   ::
@@ -27,11 +27,11 @@
     ^-  cord
     '''
     [
-      {"id": "@ud"},
-      {"uri": "@t"},
-      {"metadata": "@ux"},
-      {"allowances": ["@ux"]},
-      {"properties": {"map": {"key": "@tas", "val": "@t"}}},
+      {"id": "ud"},
+      {"uri": "t"},
+      {"metadata": "ux"},
+      {"allowances": ["ux"]},
+      {"properties": {"map": {"key": "tas", "val": "t"}}},
       {"transferrable": "?"}
     ]
     '''
@@ -54,8 +54,8 @@
     ^-  cord
     '''
     [
-      {"to": "@ux"},
-      {"grain-id": "@ux"}
+      {"to": "ux"},
+      {"grain-id": "ux"}
     ]
     '''
   ::
@@ -63,8 +63,8 @@
     ^-  cord
     '''
     [
-      {"to": "@ux"},
-      {"grain-id": "@ux"}
+      {"to": "ux"},
+      {"grain-id": "ux"}
     ]
     '''
   ::
@@ -74,8 +74,8 @@
     [
       {
         "items": [
-          {"who": "@ux"},
-          {"grain": "@ux"},
+          {"who": "ux"},
+          {"grain": "ux"},
           {"allowed": "?"}
         ]
       }
@@ -88,10 +88,10 @@
         3
         '''
         [
-          {"token": "@ux"},
+          {"token": "ux"},
           {
             "mints": [
-              {"to": "@ux"},
+              {"to": "ux"},
         '''
         inner-nft-contents-cord
         ']}]'
@@ -104,15 +104,15 @@
         3
         '''
         [
-          {"name": "@t"},
-          {"symbol": "@t"},
-          {"salt": "@"},
-          {"properties": ["@tas"]},
-          {"cap": "(unit @ud)"},
-          {"minters": ["@ux"]},
+          {"name": "t"},
+          {"symbol": "t"},
+          {"salt": "ux"},
+          {"properties": ["tas"]},
+          {"cap": "unit-ud"},
+          {"minters": ["ux"]},
           {
             "initial-distribution": [
-              {"to": "@ux"},
+              {"to": "ux"},
         '''
         inner-nft-contents-cord
         ']}]'
@@ -123,8 +123,8 @@
 ++  inner-nft-contents-cord
   ^-  cord
   '''
-  {"uri": "@t"},
-  {"properties": {"map": {"key": "@tas", "val": "@t"}}},
+  {"uri": "t"},
+  {"properties": {"map": {"key": "tas", "val": "t"}}},
   {"transferrable": "?"}
   '''
 --

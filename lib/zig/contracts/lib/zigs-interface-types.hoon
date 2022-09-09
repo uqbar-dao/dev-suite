@@ -13,15 +13,15 @@
     ^-  cord
     '''
     [
-      {"name": "@t"},
-      {"symbol": "@t"},
-      {"decimals": "@ud"},
-      {"supply": "@ud"},
+      {"name": "t"},
+      {"symbol": "t"},
+      {"decimals": "ud"},
+      {"supply": "ud"},
       {"cap": "~"},
       {"mintable": "?"},
       {"minters": "~"},
-      {"deployer-address": "@ux"},
-      {"salt": "@"}
+      {"deployer-address": "ux"},
+      {"salt": "ux"}
     ]
     '''
   ::
@@ -29,10 +29,10 @@
     ^-  cord
     '''
     [
-      {"balance": "@ud"},
-      {"allowances": {"map": {"key": "@ux", "val": "@ud"}}},
-      {"metadata": "@ux"},
-      {"nonce": "@ud"}
+      {"balance": "ud"},
+      {"allowances": {"map": {"key": "ux", "val": "ud"}}},
+      {"metadata": "ux"},
+      {"nonce": "ud"}
     ]
     '''
   --
@@ -49,11 +49,11 @@
     ^-  cord
     '''
     [
-      {"budget": "@ud"},
-      {"to": "@ux"},
-      {"amount": "@ud"},
-      {"from-account": "@ux"},
-      {"to-account": "(unit @ux)"}
+      {"budget": "ud"},
+      {"to": "ux"},
+      {"amount": "ud"},
+      {"from-account": "ux"},
+      {"to-account": "unit-ux"}
     ]
     '''
   ::
@@ -61,10 +61,10 @@
     ^-  cord
     '''
     [
-      {"to": "@ux"},
-      {"amount": "@ud"},
-      {"from-account": "@ux"},
-      {"to-account": "(unit @ux)"}
+      {"to": "ux"},
+      {"amount": "ud"},
+      {"from-account": "ux"},
+      {"to-account": "unit-ux"}
     ]
     '''
   ::
@@ -72,9 +72,9 @@
     ^-  cord
     '''
     [
-      {"who": "@ux"},
-      {"amount": "@ud"},
-      {"account": "@ux"}
+      {"who": "ux"},
+      {"amount": "ud"},
+      {"account": "ux"}
     ]
     '''
   --
