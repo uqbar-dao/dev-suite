@@ -14,9 +14,9 @@
       {"symbol": "t"},
       {"decimals": "ud"},
       {"supply": "ud"},
-      {"cap": "unit-ud"},
+      {"cap": ["unit", "ud"]},
       {"mintable": "?"},
-      {"minters": ["ux"]},
+      {"minters": ["set", "ux"]},
       {"deployer-address": "ux"},
       {"salt": "ux"}
     ]
@@ -27,7 +27,7 @@
     '''
     [
       {"balance": "ud"},
-      {"allowances": {"map": {"key": "ux", "val": "ud"}}},
+      {"allowances": ["map", "ux", "ud"]},
       {"metadata": "ux"},
       {"nonce": "ud"}
     ]
@@ -51,7 +51,7 @@
       {"to": "ux"},
       {"amount": "ud"},
       {"from-account": "ux"},
-      {"to-account": "unit-ux"}
+      {"to-account": ["unit", "ux"]}
     ]
     '''
   ::
@@ -62,7 +62,7 @@
       {"to": "ux"},
       {"amount": "ud"},
       {"from-account": "ux"},
-      {"to-account": "unit-ux"}
+      {"to-account": ["unit", "ux"]}
     ]
     '''
   ::
@@ -72,7 +72,7 @@
     [
       {"to": "ux"},
       {"from-account": "ux"},
-      {"to-account": "unit-ux"},
+      {"to-account": ["unit", "ux"]},
       {"amount": "ud"},
       {"nonce": "ud"},
       {"deadline": "da"},
@@ -104,7 +104,7 @@
       {
         "mints": [
           {"to": "ux"},
-          {"account": "unit-ux"},
+          {"account": ["unit", "ux"]},
           {"amount": "ud"}
         ]
       }
@@ -118,12 +118,21 @@
       {"name": "t"},
       {"symbol": "t"},
       {"salt": "ux"},
-      {"cap": "unit-ud"},
-      {"minters": ["ux"]},
+      {"cap": ["unit", "ud"]},
+      {"minters": ["set", "ux"]},
       {
         "initial-distribution": [
           {"to": "ux"},
           {"amount": "ud"}
+        ]
+      },
+      {
+        "initial-distribution": [
+          "list",
+          [
+            {"to": "ux"},
+            {"amount": "ud"}
+          ]
         ]
       }
     ]

@@ -11,9 +11,14 @@
     '''
     [
       {"mutable": "?"},
-      {"cont": "~"},
-      {"interface": {"map": {"key": "tas", "val": "json"}}},
-      {"types": {"map": {"key": "tas", "val": "json"}}}
+      {
+        "cont": [
+          {"bat": "*"},
+          {"pay": "*"}
+        ]
+      },
+      {"interface": ["map", "tas", "json"]},
+      {"types": ["map", "tas", "json"]}
     ]
     '''
   ::
@@ -22,7 +27,12 @@
     '''
     [
       {"to-update": "ux"},
-      {"new-nok": "~"}
+      {
+        "new-nok": [
+          {"bat": "*"},
+          {"pay": "*"}
+        ]
+      }
     ]
     '''
   --

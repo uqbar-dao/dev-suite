@@ -30,7 +30,7 @@
     '''
     [
       {"balance": "ud"},
-      {"allowances": {"map": {"key": "ux", "val": "ud"}}},
+      {"allowances": ["map", "ux", "ud"]},
       {"metadata": "ux"},
       {"nonce": "ud"}
     ]
@@ -53,7 +53,7 @@
       {"to": "ux"},
       {"amount": "ud"},
       {"from-account": "ux"},
-      {"to-account": "unit-ux"}
+      {"to-account": ["unit", "ux"]}
     ]
     '''
   ::
@@ -64,7 +64,7 @@
       {"to": "ux"},
       {"amount": "ud"},
       {"from-account": "ux"},
-      {"to-account": "unit-ux"}
+      {"to-account": ["unit", "ux"]}
     ]
     '''
   ::

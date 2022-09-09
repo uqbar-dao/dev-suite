@@ -13,11 +13,11 @@
     [
       {"name": "t"},
       {"symbol": "t"},
-      {"properties": ["ud"]},
+      {"properties": ["set", "ud"]},
       {"supply": "ud"},
-      {"cap": "unit-ud"},
+      {"cap": ["unit", "ud"]},
       {"mintable": "?"},
-      {"minters": ["ux"]},
+      {"minters": ["set", "ux"]},
       {"deployer": "ux"},
       {"salt": "ux"}
     ]
@@ -30,8 +30,8 @@
       {"id": "ud"},
       {"uri": "t"},
       {"metadata": "ux"},
-      {"allowances": ["ux"]},
-      {"properties": {"map": {"key": "tas", "val": "t"}}},
+      {"allowances": ["set", "ux"]},
+      {"properties": ["map", "tas", "t"]},
       {"transferrable": "?"}
     ]
     '''
@@ -91,10 +91,12 @@
           {"token": "ux"},
           {
             "mints": [
-              {"to": "ux"},
+              "list",
+              [
+                {"to": "ux"},
         '''
         inner-nft-contents-cord
-        ']}]'
+        ']]}]'
         ~
     ==
   ::
@@ -107,15 +109,17 @@
           {"name": "t"},
           {"symbol": "t"},
           {"salt": "ux"},
-          {"properties": ["tas"]},
-          {"cap": "unit-ud"},
-          {"minters": ["ux"]},
+          {"properties": ["set", "tas"]},
+          {"cap": ["unit", "ud"]},
+          {"minters": ["set", "ux"]},
           {
             "initial-distribution": [
-              {"to": "ux"},
+              "list",
+              [
+                {"to": "ux"},
         '''
         inner-nft-contents-cord
-        ']}]'
+        ']]}]'
         ~
     ==
   --
@@ -124,7 +128,7 @@
   ^-  cord
   '''
   {"uri": "t"},
-  {"properties": {"map": {"key": "tas", "val": "t"}}},
+  {"properties": ["map", "tas", "t"]},
   {"transferrable": "?"}
   '''
 --
