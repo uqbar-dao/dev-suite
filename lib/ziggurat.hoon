@@ -92,16 +92,20 @@
   |^
   =/  first  (mule |.((parse-main main.proj)))
   ?:  ?=(%| -.first)
-    %|^(get-formatted-error (snoc p.first 'error parsing main:'))
+    :-  %|
+    %-  get-formatted-error
+    (snoc (scag 4 p.first) 'error parsing main:')
   =/  second  (mule |.((parse-libs -.p.first)))
   ?:  ?=(%| -.second)
-    %|^(get-formatted-error (snoc p.second 'error parsing libraries:'))
+    :-  %|
+    %-  get-formatted-error
+    (snoc (scag 3 p.second) 'error parsing library:')
   =/  third  (mule |.((build-libs p.second)))
   ?:  ?=(%| -.third)
-    %|^(get-formatted-error (snoc p.third 'error building libraries:'))
+    %|^(get-formatted-error (snoc (scag 1 p.third) 'error building libraries:'))
   =/  fourth  (mule |.((build-main +.p.third +.p.first)))
   ?:  ?=(%| -.fourth)
-    %|^(get-formatted-error (snoc p.fourth 'error building libraries:'))
+    %|^(get-formatted-error (snoc (scag 1 p.fourth) 'error building main:'))
   %&^[bat=p.fourth pay=-.p.third]
   ::
   ++  parse-main  ::  first
