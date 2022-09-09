@@ -148,10 +148,10 @@
         =/  faster-next-ping-time=@da
           %+  add  ping-time-fast-delay
           ?~(pings-timedout now.bowl u.pings-timedout)
-        :-  :+  (make-ping-rest-card next-ping-time)
-              (make-ping-wait-card:uc faster-next-ping-time)
-            ~
-        `state(next-ping-time faster-next-ping-time)
+        :_  state(next-ping-time faster-next-ping-time)
+        :+  (make-ping-rest-card next-ping-time)
+          (make-ping-wait-card:uc faster-next-ping-time)
+        ~
       ::
           %add-source
         :-  :_  ~
@@ -176,13 +176,12 @@
       ::
           %set-sources
         =/  p=path  /capitol-updates
-        :-  %-  ~(poke-self pass:io /ping-action-poke)
-            [%uqbar-action !>(`action:u`[%ping ~])]
-        %+  murn  towns.act
-        |=  [town=id:smart indexers=(set dock)]
-        ^-  (unit card)
-        ?~  indexers  ~
-        `(~(watch pass:io p) -.indexers p)  ::  TODO: do better here
+        :-  :-  %-  ~(poke-self pass:io /ping-action-poke)
+                [%uqbar-action !>(`action:u`[%ping ~])]
+            %+  murn  towns.act
+            |=  [town=id:smart indexers=(set dock)]
+            ?~  indexers  ~
+            `(~(watch pass:io p) -.indexers p)  ::  TODO: do better here
         %=  state
             indexer-sources-ping-results
           ?^(pings-timedout ~ indexer-sources-ping-results)  :: TODO: can do better?

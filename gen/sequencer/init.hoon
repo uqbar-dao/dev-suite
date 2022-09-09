@@ -74,7 +74,7 @@
   :*  `cont
       interface=interface-json:nft
       types=types-json:nft
-      (fry-wheat:smart 0x0 0x0 `cont)
+      (fry-wheat:smart 0x0 0x0 town-id `cont)
       0x0          ::  lord
       0x0          ::  holder
       town-id      ::  town-id
@@ -86,7 +86,7 @@
   :*  `cont
       interface=interface-json:fungible
       types=types-json:fungible
-      (fry-wheat:smart 0x0 0x0 `cont)
+      (fry-wheat:smart 0x0 0x0 town-id `cont)
       0x0          ::  lord
       0x0          ::  holder
       town-id      ::  town-id
