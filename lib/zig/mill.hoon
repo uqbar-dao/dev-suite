@@ -407,7 +407,7 @@
               |(=(lord lord.p.grain) =(0x0 lord.p.grain))
               !(has:big granary id.p.grain)
               ?:  ?=(%| -.grain)
-                =(id (fry-wheat:smart lord holder.p.grain town-id.p.grain cont.p.grain))
+                =(id (fry-wheat:smart lord.p.grain holder.p.grain town-id.p.grain cont.p.grain))
               =(id (fry-rice:smart lord holder.p.grain town-id.p.grain salt.p.grain))
           ==
         ::

@@ -87,12 +87,10 @@
 ++  publish-wheat
   ^-  grain:smart
   =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] publish-contract)))
-  =/  interface=lumps:smart  ~
-  =/  types=lumps:smart  ~
   :*  %|
       `cont
-      interface
-      types
+      interface=~
+      types=~
       0xdada.dada  ::  id
       0xdada.dada  ::  lord
       0xdada.dada  ::  holder
