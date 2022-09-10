@@ -42,11 +42,11 @@
   %+  ~(put by *(map @t json))  jace
   ?+    -.jold-type  ~|("jold-object: type must be %s, %a, not {<-.jold-type>}" !!)
       %s
-    ?>  ?=(@ datum)
     ~&  >  "jo %s jace, jold-type, datum"
     ~&  jace
     ~&  jold-type
     ~&  datum
+    ?>  ?=(@ datum)
     (prefix-and-mold-atom p.jold-type datum)
   ::
       %a
@@ -83,11 +83,13 @@
 ++  prefix-and-mold-atom
   |=  [type-tas=@tas data=@]
   ?+  type-tas  ~|("jold: prefix-and-mold {<type-tas>} not yet implemented" !!)
+    %'~'  ~
     %'?'  [%b ;;(? data)]
     %ud   (numb:enjs:format ;;(@ud data))
     %da   [%s (scot %da ;;(@da data))]
     %p    [%s (scot %p ;;(@p data))]
     %ux   [%s (scot %ux ;;(@ux data))]
+    %t    [%s `@t`data]
     %ta   [%s (scot %ta ;;(@ta data))]
     %tas  [%s (scot %tas ;;(@tas data))]
   ==
