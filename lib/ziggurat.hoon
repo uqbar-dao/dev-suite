@@ -17,7 +17,7 @@
   ^-  grain:smart
   :*  %&  `@`'zigs'
       %account
-      [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata']
+      [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
       %:  fry-rice:smart
           zigs-wheat-id:smart
           address
