@@ -9,17 +9,37 @@
 ::    json -> [%o p={[p=%foo q=[%n p=5]]}]
 ::  because the object represents a number with a face,
 ::  i.e. foo=5.
+::
+::  Specification of jolds:
+::  1. Top level is always an array (%a) of objects (%o) (i.e. a Hoon tuple).
+::  2. Objects (%o) contain a single key-value pair.
+::     An object represents a face and a type: the key is the face, the value is the type.
+::     The type may be a string (%s) or an array (%a).
+::  3. Arrays may contain either objects or strings+arrays.
+::     An array containing objects contains only objects.
+::     An array containing strings may also contain arrays.
+::     An array containing strings+arrays will always start with a string.
+::     a. If the array contains objects, it represents a Hoon tuple.
+::     b. If the array contains strings+arrays, it represents a multi-word type.
+::        Arrays here are Hoon tuples.
+::  4. Multiword types are, e.g.,
+::     ```
+::     ["unit", "ud"]
+::     ["map", "tas", "ux"]
+::     ["list", "map", "tas", "set", "ux"]
+::     ["list", [{"to": "ux"}, {"amount": "ud"}]]
+::     ```
+::
 |%
 ::  jold of full tuple
 ++  jold-full-tuple
   |=  [jolds=json data=*]
   ^-  json
-  ?>  ?=(%a -.jolds)
-  :-  %a
+  ?.  ?=(%a -.jolds)  [%s (crip (noah !>(data)))]
   =|  jout=(list json)
   |-
-  ?~  p.jolds  (flop jout)
-  ?>  ?=(%o -.i.p.jolds)
+  ?~  p.jolds  [%a (flop jout)]
+  ?.  ?=(%o -.i.p.jolds)  [%s (crip (noah !>(data)))]
   =/  is-last=?  =(1 (lent p.jolds))
   =*  datum      ?:(is-last data -.data)
   =*  next-data  ?:(is-last ~ +.data)
@@ -33,26 +53,28 @@
 ++  jold-object
   |=  [jold=json datum=*]
   ^-  json
-  ?>  ?=(%o -.jold)
-  :-  %o
+  ?.  ?=(%o -.jold)  [%s (crip (noah !>(datum)))]
   =/  jolds=(list [p=@t q=json])  ~(tap by p.jold)
-  ?>  ?=([[@ ^] ~] jolds)
+  ?.  ?=([[@ ^] ~] jolds)  [%s (crip (noah !>(datum)))]
+  :-  %o
   =*  jace       p.i.jolds
   =*  jold-type  q.i.jolds
   %+  ~(put by *(map @t json))  jace
-  ?+    -.jold-type  ~|("jold-object: type must be %s, %a, not {<-.jold-type>}" !!)
+  ?+    -.jold-type
+        ~&  >>>  "jold-object: type must be %s, %a, not {<-.jold-type>}"
+        [%s (crip (noah !>(datum)))]
       %s
-    ~&  >  "jo %s jace, jold-type, datum"
-    ~&  jace
-    ~&  jold-type
-    ~&  datum
-    ?>  ?=(@ datum)
+    :: ~&  >  "jo %s jace, jold-type, datum"
+    :: ~&  jace
+    :: ~&  jold-type
+    :: ~&  datum
+    ?.  ?=(@ datum)  [%s (crip (noah !>(datum)))]
     (prefix-and-mold-atom p.jold-type datum)
   ::
       %a
-    ~&  jace
-    ~&  jold-type
-    ~&  datum
+    :: ~&  jace
+    :: ~&  jold-type
+    :: ~&  datum
     ::  TODO:
     ::  * case %a %s:
     ::    * implement recursive types
@@ -62,36 +84,21 @@
     [%s (crip (noah !>(datum)))]
   ==
 ::
-::  jold of atom with a face
-::  [%o p={[p=%foo q=[%s p='@ud']]}]
-++  jold-single-jace
-  |=  [jold=json data=@]
-  ^-  json
-  ?>  ?=(%o -.jold)
-  =/  jolds=(list [p=@t q=json])  ~(tap by p.jold)
-  ?>  ?=([[@ ^] ~] jolds)
-  =*  jace         p.i.jolds
-  =*  single-jold  q.i.jolds
-  ~|  "jsf: unexpected non-%s. jace, s-jold:"
-  ~|  jace
-  ~|  single-jold
-  ?>  ?=(%s -.single-jold)
-  :-  %o
-  %+  ~(put by *(map @t json))  jace
-  (prefix-and-mold-atom p.single-jold data)
-::
 ++  prefix-and-mold-atom
-  |=  [type-tas=@tas data=@]
-  ?+  type-tas  ~|("jold: prefix-and-mold {<type-tas>} not yet implemented" !!)
+  |=  [type-tas=@tas datum=@]
+  ^-  json
+  ?+  type-tas
+      ~&  >>>  "jold: prefix-and-mold {<type-tas>} not yet implemented"
+      [%s (crip (noah !>(datum)))]
     %'~'  ~
-    %'?'  [%b ;;(? data)]
-    %ud   (numb:enjs:format ;;(@ud data))
-    %da   [%s (scot %da ;;(@da data))]
-    %p    [%s (scot %p ;;(@p data))]
-    %ux   [%s (scot %ux ;;(@ux data))]
-    %t    [%s `@t`data]
-    %ta   [%s (scot %ta ;;(@ta data))]
-    %tas  [%s (scot %tas ;;(@tas data))]
+    %'?'  [%b ;;(? datum)]
+    %ud   (numb:enjs:format ;;(@ud datum))
+    %da   [%s (scot %da ;;(@da datum))]
+    %p    [%s (scot %p ;;(@p datum))]
+    %ux   [%s (scot %ux ;;(@ux datum))]
+    %t    [%s `@t`datum]
+    %ta   [%s (scot %ta ;;(@ta datum))]
+    %tas  [%s (scot %tas ;;(@tas datum))]
   ==
 ::
 ++  select-json-prefix

@@ -12,15 +12,15 @@
       ==
   |^  ^-  json
   ?:  =(*bowl:gall bowl)
-    ~&  >  "1"
+    :: ~&  >  "1"
     [%s (crip (noah !>(data)))]
   =/  interface-types=(map @tas json)  get-interface-types
-  ~&  >  interface-types
-  ~&  >  label
+  :: ~&  >  interface-types
+  :: ~&  >  label
   ?~  interface-type=(~(get by interface-types) label)
-    ~&  >  "2"
+    :: ~&  >  "2"
     [%s (crip (noah !>(data)))]
-  ~&  >  "3"
+  :: ~&  >  "3"
   (jold-full-tuple:jold u.interface-type data)
   ::
   ++  get-interface-types
