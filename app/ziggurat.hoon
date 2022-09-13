@@ -2,7 +2,7 @@
 ::
 ::  Contract Playground
 ::
-/+  *ziggurat, smart=zig-sys-smart, sequencer, zink=zink-zink,
+/+  *ziggurat, smart=zig-sys-smart, sequencer,
     default-agent, dbug, verb
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
@@ -212,7 +212,7 @@
         (zebra:zink 200.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
       =.  data.rice.act
         ?.  ?=(%& -.p.res)
-          ~|("ziggurat: faild to compile custom data!" !!)
+          ~|("ziggurat: failed to compile custom data!" !!)
         (need p.p.res)
       ::  put a new grain in the granary
       =:  p.state.project

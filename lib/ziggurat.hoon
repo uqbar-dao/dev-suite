@@ -1,5 +1,5 @@
 /-  *ziggurat
-/+  conq=zink-conq
+/+  conq=zink-conq, zink=zink-zink
 |%
 ::
 ::  set parameters for our local test environment
@@ -160,7 +160,13 @@
             deployer=address:smart
             salt=@
         ==
-    q:(slap smart-lib-vase (ream ;;(@t data.meta-rice)))
+    =/  data-text  ;;(@t data.meta-rice)
+    =+  gun=(~(mint ut p.smart-lib-vase) %noun (ream data-text))
+    =/  res=book:zink
+      (zebra:zink 200.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
+    ?.  ?=(%& -.p.res)
+      ~|("ziggurat: failed to compile custom data!" !!)
+    (need p.p.res)
   =/  dead-beef-account-id
     %:  fry-rice:smart
         lord.meta-rice
@@ -323,6 +329,7 @@
 ++  nft-template-project
   |=  [current=contract-project meta-rice=rice:smart smart-lib-vase=vase]
   ^-  contract-project
+  ~&  >  ;;(@t data.meta-rice)
   ::  make fungible accounts and tests
   =/  metadata
     ;;  $:  name=@t
@@ -335,7 +342,13 @@
             deployer=address:smart
             salt=@
         ==
-    q:(slap smart-lib-vase (ream ;;(@t data.meta-rice)))
+    =/  data-text  ;;(@t data.meta-rice)
+    =+  gun=(~(mint ut p.smart-lib-vase) %noun (ream data-text))
+    =/  res=book:zink
+      (zebra:zink 200.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
+    ?.  ?=(%& -.p.res)
+      ~|("ziggurat: failed to compile custom data!" !!)
+    (need p.p.res)
   ::
   =/  props
     %-  ~(gas py:smart *(map @tas @t))
