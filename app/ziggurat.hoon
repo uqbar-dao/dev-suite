@@ -212,7 +212,8 @@
         =+  gun=(~(mint ut p.smart-lib-vase) %noun data-hoon)
         =/  res=book:zink
           (zebra:zink 50.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
-        ?.  ?=(%& -.p.res)  !!
+        ?.  ?=(%& -.p.res)
+          ~|("ziggurat: faild to compile custom data!" !!)
         (need p.p.res)
       ::  put a new grain in the granary
       =:  p.state.project

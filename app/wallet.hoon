@@ -348,7 +348,8 @@
           =+  gun=(~(mint ut p.smart-lib-vase) %noun data-hoon)
           =/  res=book:zink
             (zebra:zink 50.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
-          ?.  ?=(%& -.p.res)  !!
+          ?.  ?=(%& -.p.res)
+            ~|("wallet: faild to compile custom action!" !!)
           =+  noun=(need p.p.res)
           [;;(@tas -.noun) +.noun]
 
