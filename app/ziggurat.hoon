@@ -209,7 +209,7 @@
       =/  data-text  ;;(@t data.rice.act)
       =+  gun=(~(mint ut p.smart-lib-vase) %noun (ream data-text))
       =/  res=book:zink
-        (zebra:zink 50.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
+        (zebra:zink 200.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
       =.  data.rice.act
         ?.  ?=(%& -.p.res)
           ~|("ziggurat: faild to compile custom data!" !!)

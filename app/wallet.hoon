@@ -345,7 +345,7 @@
           =/  data-hoon  (ream ;;(@t +.action.act))
           =+  gun=(~(mint ut p.smart-lib-vase) %noun data-hoon)
           =/  res=book:zink
-            (zebra:zink 50.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
+            (zebra:zink 200.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
           ?.  ?=(%& -.p.res)
             ~|("wallet: failed to compile custom action!" !!)
           =+  noun=(need p.p.res)
