@@ -2,7 +2,7 @@
 ::
 ::  Contract Playground
 ::
-/+  *ziggurat, smart=zig-sys-smart, sequencer,
+/+  *ziggurat, smart=zig-sys-smart, sequencer, zink=zink-zink,
     default-agent, dbug, verb
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
@@ -207,8 +207,13 @@
         %add-to-state
       ::  take text data input and ream to form data noun
       =/  data-text  ;;(@t data.rice.act)
+      =+  gun=(~(mint ut p.smart-lib-vase) %noun (ream data-text))
+      =/  res=book:zink
+        (zebra:zink 200.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
       =.  data.rice.act
-        q:(slap smart-lib-vase (ream data-text))
+        ?.  ?=(%& -.p.res)
+          ~|("ziggurat: faild to compile custom data!" !!)
+        (need p.p.res)
       ::  put a new grain in the granary
       =:  p.state.project
         %+  put:big:mill  p.state.project

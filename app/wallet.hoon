@@ -4,7 +4,8 @@
 ::  transactions, holding nonce values, and keeping track of owned data.
 ::
 /-  ui=indexer
-/+  *wallet-util, wallet-parsing, uqbar, ethereum, default-agent, dbug, verb, bip32, bip39, ui-lib=indexer
+/+  *wallet-util, wallet-parsing, uqbar, ethereum, zink=zink-zink,
+    default-agent, dbug, verb, bip32, bip39, ui-lib=indexer
 /*  smart-lib  %noun  /lib/zig/compiled/smart-lib/noun
 |%
 +$  card  card:agent:gall
@@ -340,8 +341,15 @@
           [%give to.action.act grain.action.act]
         ::
             %text
-          =-  [;;(@tas -.-) +.-]
-          q:(slap !>(+:(cue +.+:;;([* * @] smart-lib))) (ream +.action.act))
+          =/  smart-lib-vase  ;;(^vase (cue +.+:;;([* * @] smart-lib)))
+          =/  data-hoon  (ream ;;(@t +.action.act))
+          =+  gun=(~(mint ut p.smart-lib-vase) %noun data-hoon)
+          =/  res=book:zink
+            (zebra:zink 200.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
+          ?.  ?=(%& -.p.res)
+            ~|("wallet: failed to compile custom action!" !!)
+          =+  noun=(need p.p.res)
+          [;;(@tas -.noun) +.noun]
         ::
             %noun
           ;;(yolk:smart +.action.act)

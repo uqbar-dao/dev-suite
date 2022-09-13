@@ -261,10 +261,10 @@
   ::
       [%11 [tag=@ clue=*] next=*]
     ::  look for jet with this tag and compute sample
-    ~&  >  "hint: {<`@tas`tag.f>}"
-    ~?  ?=(%fast tag.f)
-      ?>  ?=([@ @ [@ @] @] clue.f)
-      "jet: {<`@tas`-.+.clue.f>}"
+    ::  ~&  >  "hint: {<`@tas`tag.f>}"
+    ::  ~?  ?=(%fast tag.f)
+    ::    ?>  ?=([@ @ [@ @] @] clue.f)
+    ::    "jet: {<`@tas`-.+.clue.f>}"
     =^  sam=body  app
       $(f clue.f)
     ?:  ?=(%| -.sam)  ~&  269  [%|^trace app]
