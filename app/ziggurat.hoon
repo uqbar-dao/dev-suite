@@ -207,13 +207,8 @@
         %add-to-state
       ::  take text data input and ream to form data noun
       =/  data-text  ;;(@t data.rice.act)
-      =+  gun=(~(mint ut p.smart-lib-vase) %noun (ream data-text))
-      =/  res=book:zink
-        (zebra:zink 200.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
       =.  data.rice.act
-        ?.  ?=(%& -.p.res)
-          ~|("ziggurat: failed to compile custom data!" !!)
-        (need p.p.res)
+        (text-to-zebra-noun data-text smart-lib-vase)
       ::  put a new grain in the granary
       =:  p.state.project
         %+  put:big:mill  p.state.project
@@ -238,7 +233,7 @@
       ::  generate an id for the test
       =/  test-id  `@ux`(mug now.bowl)
       ::  ream action to form yolk
-      =+  q:(slap smart-lib-vase (ream action.act))
+      =+  (text-to-zebra-noun action.act smart-lib-vase)
       =/  =yolk:smart  [;;(@tas -.-) +.-]
       =/  new-error
         ?~  expected-error.act  0
@@ -257,7 +252,7 @@
       =/  tex  ;;(@t data.rice)
       =/  new
         =-  [id.rice %&^rice(data -) tex]
-        q:(slap smart-lib-vase (ream tex))
+        (text-to-zebra-noun tex smart-lib-vase)
       =.  tests.project
         %+  ~(put by tests.project)  id.act
         u.current(expected (~(put by expected.u.current) new), result ~)
@@ -280,7 +275,7 @@
     ::
         %edit-test
       ::  ream action to form yolk
-      =+  q:(slap smart-lib-vase (ream action.act))
+      =+  (text-to-zebra-noun action.act smart-lib-vase)
       =/  =yolk:smart  [;;(@tas -.-) +.-]
       =/  new-error
         ?~  expected-error.act  0

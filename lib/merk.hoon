@@ -125,7 +125,7 @@
     ~>  %bout
     ^+  a
     ?~  b  a
-    ~&  >>  "merk: gassing val with key {<p.i.b>}"
+    ~&  "merk: building a map..."
     $(b t.b, a (put a i.b))
   ::
   ++  get                                               ::  grab value by key
