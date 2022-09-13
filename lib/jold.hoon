@@ -87,9 +87,19 @@
   ?+  p.i.jolds  |=(* [%s (crip (noah !>(data)))])
     %list  compute-list
     %unit  compute-unit
-    :: %set   compute-set
+    %set   compute-set
     :: %map   compute-map
   ==
+::
+:: ++  compute-map
+::   |=  [jolds=(list json) data=*]
+::   ^-  json
+::   (tree-noun-to-list data)
+::
+++  compute-set
+  |=  [jolds=(list json) data=*]
+  ^-  json
+  (compute-list jolds (tree-noun-to-list data))
 ::
 ++  compute-unit
   |=  [jolds=(list json) data=*]
@@ -145,6 +155,18 @@
     %t    [%s `@t`datum]
     %ta   [%s (scot %ta ;;(@ta datum))]
     %tas  [%s (scot %tas ;;(@tas datum))]
+  ==
+::  source:
+::   https://github.com/urbit/urbit/blob/master/pkg/arvo/lib/pprint.hoon#L709-L717
+::
+++  tree-noun-to-list
+  |=  n=*
+  ^-  (list *)
+  ?@  n  ~
+  :-  -.n
+  %-  zing
+  :~  (tree-noun-to-list +.+.n)
+      (tree-noun-to-list -.+.n)
   ==
 ::
 ++  select-json-prefix
