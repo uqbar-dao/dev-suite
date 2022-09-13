@@ -589,56 +589,64 @@
 ::
 ++  get-best-source
   |=  [town-id=id:smart seen=(list @ud) level=?(%nu %nd %pu %pd %~)]
-  |^  ^-  (unit [p=dock q=(list @ud) r=?(%nu %nd %pu %pd %~)])
-  ?:  ?=(%~ level)  ~
-  =/  best-source  get-best-source-inner
-  ?~  best-source  ~
-  ?^  p.u.best-source  `[u.p.u.best-source +.u.best-source]
-  %=  $
-      seen   q.u.best-source
-      level  r.u.best-source
-  ==
-  ::
-  ++  get-best-source-inner
-    ^-  (unit [p=(unit dock) q=(list @ud) r=?(%nu %nd %pu %pd %~)])
-    =+  town-spr=(~(get by indexer-sources-ping-results) town-id)
-    =+  town-s=(~(get ju indexer-sources) town-id)
-    ?~  town-spr
-      =/  size-town-s=@ud  ~(wyt in town-s)
-      ?:  =(0 size-town-s)  ~
-      =^  index  seen
-        (roll-without-replacement size-town-s seen)
-      `[`(snag index ~(tap in town-s)) seen %~]
-    =/  [level-town-spr=(set dock) next-level=?(%nu %nd %pu %pd %~)]
-      =*  newest-up    newest-up.u.town-spr
-      =*  newest-down  newest-down.u.town-spr
-      =/  newest-seen-so-far=(set dock)
-        (~(uni in newest-up) newest-down)
-      ?+    level  !!  ::  TODO: handle better?
-          %nu
-        :-  newest-up
-        ?:  (gth ~(wyt in newest-up) (lent seen))  level
-        ?:(=(town-s newest-seen-so-far) %nd %pu)
-      ::
-          %pu
-        =*  previous-up  previous-up.u.town-spr
-        :-  (~(dif in previous-up) newest-seen-so-far)
-        ?:((gth ~(wyt in previous-up) (lent seen)) level %pd)
-      ::
-          %pd
-        =*  previous-down  previous-down.u.town-spr
-        :-  (~(dif in previous-down) newest-seen-so-far)
-        ?:((gth ~(wyt in previous-down) (lent seen)) level %nd)
-      ::
-          %nd
-        :-  newest-down
-        ?:((gth ~(wyt in newest-down) (lent seen)) level %~)
-      ==
-    =/  size-level-town-spr=@ud  ~(wyt in level-town-spr)
-    ?:  =(0 size-level-town-spr)  `[~ seen next-level]
-    =^  index  seen
-      (roll-without-replacement size-level-town-spr seen)
-    :^  ~  `(snag index ~(tap in level-town-spr))
-    ?.(=(level next-level) ~ seen)  next-level
-  --
+  ^-  (unit [p=dock q=(list @ud) r=?(%nu %nd %pu %pd %~)])
+  ::  TODO:
+  ::   temporary hack to reduce fragility, since the
+  ::   complicated fallback logic below is not required
+  ::   until remote scry (because all users must host their
+  ::   own %indexer anyways). Once remote scry is out,
+  ::   revisit the fallback logic below and make it robust.
+  `[[our.bowl %indexer] ~ %~]
+  :: |^  ^-  (unit [p=dock q=(list @ud) r=?(%nu %nd %pu %pd %~)])
+  :: ?:  ?=(%~ level)  ~
+  :: =/  best-source  get-best-source-inner
+  :: ?~  best-source  ~
+  :: ?^  p.u.best-source  `[u.p.u.best-source +.u.best-source]
+  :: %=  $
+  ::     seen   q.u.best-source
+  ::     level  r.u.best-source
+  :: ==
+  :: ::
+  :: ++  get-best-source-inner
+  ::   ^-  (unit [p=(unit dock) q=(list @ud) r=?(%nu %nd %pu %pd %~)])
+  ::   =+  town-spr=(~(get by indexer-sources-ping-results) town-id)
+  ::   =+  town-s=(~(get ju indexer-sources) town-id)
+  ::   ?~  town-spr
+  ::     =/  size-town-s=@ud  ~(wyt in town-s)
+  ::     ?:  =(0 size-town-s)  ~
+  ::     =^  index  seen
+  ::       (roll-without-replacement size-town-s seen)
+  ::     `[`(snag index ~(tap in town-s)) seen %~]
+  ::   =/  [level-town-spr=(set dock) next-level=?(%nu %nd %pu %pd %~)]
+  ::     =*  newest-up    newest-up.u.town-spr
+  ::     =*  newest-down  newest-down.u.town-spr
+  ::     =/  newest-seen-so-far=(set dock)
+  ::       (~(uni in newest-up) newest-down)
+  ::     ?+    level  !!  ::  TODO: handle better?
+  ::         %nu
+  ::       :-  newest-up
+  ::       ?:  (gth ~(wyt in newest-up) (lent seen))  level
+  ::       ?:(=(town-s newest-seen-so-far) %nd %pu)
+  ::     ::
+  ::         %pu
+  ::       =*  previous-up  previous-up.u.town-spr
+  ::       :-  (~(dif in previous-up) newest-seen-so-far)
+  ::       ?:((gth ~(wyt in previous-up) (lent seen)) level %pd)
+  ::     ::
+  ::         %pd
+  ::       =*  previous-down  previous-down.u.town-spr
+  ::       :-  (~(dif in previous-down) newest-seen-so-far)
+  ::       ?:((gth ~(wyt in previous-down) (lent seen)) level %nd)
+  ::     ::
+  ::         %nd
+  ::       :-  newest-down
+  ::       ?:((gth ~(wyt in newest-down) (lent seen)) level %~)
+  ::     ==
+  ::   =/  size-level-town-spr=@ud  ~(wyt in level-town-spr)
+  ::   ?:  =(0 size-level-town-spr)  `[~ seen next-level]
+  ::   =^  index  seen
+  ::     (roll-without-replacement size-level-town-spr seen)
+  ::   :^  ~  `(snag index ~(tap in level-town-spr))
+  ::   ?.(=(level next-level) ~ seen)  next-level
+  :: --
 --
