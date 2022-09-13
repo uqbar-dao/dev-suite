@@ -207,11 +207,10 @@
         %add-to-state
       ::  take text data input and ream to form data noun
       =/  data-text  ;;(@t data.rice.act)
-      =/  data-hoon  (ream data-text)
+      =+  gun=(~(mint ut p.smart-lib-vase) %noun (ream data-text))
+      =/  res=book:zink
+        (zebra:zink 50.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
       =.  data.rice.act
-        =+  gun=(~(mint ut p.smart-lib-vase) %noun data-hoon)
-        =/  res=book:zink
-          (zebra:zink 50.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
         ?.  ?=(%& -.p.res)
           ~|("ziggurat: faild to compile custom data!" !!)
         (need p.p.res)
