@@ -101,12 +101,13 @@
 ++  compute-unit
   |=  [jolds=(list json) data=*]
   ^-  json
-  ::  simplified form: no recursion
-  ?~  jolds                    [%s (crip (noah !>(data)))]
-  ?.  =(1 (lent jolds))        [%s (crip (noah !>(data)))]
-  ?.  ?=(%s -.i.jolds)         [%s (crip (noah !>(data)))]
+  ?~  jolds  [%s (crip (noah !>(data)))]
+  ?.  =(1 (lent jolds))
+    ?.  ?=(^ data)  [%s (crip (noah !>(data)))]
+    (compute-multiword t.jolds +.data)
+  ?.  ?=(%s -.i.jolds)  [%s (crip (noah !>(data)))]
   ?:  &(?=(@ data) =(0 data))  ~
-  ?.  ?=([@ @] data)           [%s (crip (noah !>(data)))]
+  ?.  ?=([@ @] data)  [%s (crip (noah !>(data)))]
   (prefix-and-mold-atom p.i.jolds +.data)
 ::
 ++  compute-list
