@@ -341,7 +341,6 @@
           [%give to.action.act grain.action.act]
         ::
             %text
-          ~&  >>  +.action.act
           =/  smart-lib-vase  ;;(^vase (cue +.+:;;([* * @] smart-lib)))
           =/  data-text  ;;(@t +.action.act)
           =/  data-hoon  (ream data-text)
@@ -352,7 +351,6 @@
             ~|("wallet: faild to compile custom action!" !!)
           =+  noun=(need p.p.res)
           [;;(@tas -.noun) +.noun]
-
         ::
             %noun
           ;;(yolk:smart +.action.act)
