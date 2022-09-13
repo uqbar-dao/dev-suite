@@ -51,37 +51,83 @@
 ::
 ::  jold of full object
 ++  jold-object
-  |=  [jold=json datum=*]
+  |=  [jold=json data=*]
   ^-  json
-  ?.  ?=(%o -.jold)  [%s (crip (noah !>(datum)))]
+  ?.  ?=(%o -.jold)  [%s (crip (noah !>(data)))]
   =/  jolds=(list [p=@t q=json])  ~(tap by p.jold)
-  ?.  ?=([[@ ^] ~] jolds)  [%s (crip (noah !>(datum)))]
+  ?.  ?=([[@ ^] ~] jolds)  [%s (crip (noah !>(data)))]
   :-  %o
   =*  jace       p.i.jolds
   =*  jold-type  q.i.jolds
   %+  ~(put by *(map @t json))  jace
   ?+    -.jold-type
         ~&  >>>  "jold-object: type must be %s, %a, not {<-.jold-type>}"
-        [%s (crip (noah !>(datum)))]
+        [%s (crip (noah !>(data)))]
       %s
     :: ~&  >  "jo %s jace, jold-type, datum"
     :: ~&  jace
     :: ~&  jold-type
     :: ~&  datum
-    ?.  ?=(@ datum)  [%s (crip (noah !>(datum)))]
-    (prefix-and-mold-atom p.jold-type datum)
+    ?.  ?=(@ data)  [%s (crip (noah !>(data)))]
+    (prefix-and-mold-atom p.jold-type data)
   ::
       %a
     :: ~&  jace
     :: ~&  jold-type
-    :: ~&  datum
+    :: ~&  data
+    (compute-multiword p.jold-type data)
     ::  TODO:
     ::  * case %a %s:
     ::    * implement recursive types
     ::    * implement non-recursive, but multi-word types, like (unit ..)
     ::  * case %a %o:
     ::    * implement recursion to +jold-full-tuple in case %a %o
-    [%s (crip (noah !>(datum)))]
+    :: [%s (crip (noah !>(data)))]
+  ==
+::
+++  compute-multiword
+  |=  [jolds=(list json) data=*]
+  ^-  json
+  ?~  jolds  !!  ::  ?
+  ?>  ?=(%s -.i.jolds)
+  %.  [t.jolds data]
+  ?+  p.i.jolds  |=(* [%s (crip (noah !>(data)))])
+    %list  compute-list
+    %unit  compute-unit
+    :: %set   compute-set
+    :: %map   compute-map
+  ==
+::
+++  compute-unit
+  |=  [jolds=(list json) data=*]
+  ^-  json
+  ::  simplified form: no recursion
+  ?~  jolds                    [%s (crip (noah !>(data)))]
+  ?.  =(1 (lent jolds))        [%s (crip (noah !>(data)))]
+  ?.  ?=(%s -.i.jolds)         [%s (crip (noah !>(data)))]
+  ?:  &(?=(@ data) =(0 data))  ~
+  ?.  ?=([@ @] data)           [%s (crip (noah !>(data)))]
+  (prefix-and-mold-atom p.i.jolds +.data)
+::
+++  compute-list
+  |=  [jolds=(list json) data=*]
+  ^-  json
+  ::  simplified form: no recursion
+  ?~  jolds              [%s (crip (noah !>(data)))]
+  ?.  =(1 (lent jolds))  [%s (crip (noah !>(data)))]
+  ?.  ?=(%s -.i.jolds)   [%s (crip (noah !>(data)))]
+  =|  jout=(list json)
+  |-
+  ?:  &(?=(@ data) =(0 data))  [%a (flop jout)]
+  :: ?:  ?=(@ data)
+  ::   ?>  =(0 data)
+  ::   [%o (flop jout)]
+  :: ?>  ?=(^ data)
+  ?.  ?=(@ -.data)  [%s (crip (noah !>(data)))]
+  %=  $
+      data  +.data
+      jout
+    [(prefix-and-mold-atom p.i.jolds -.data) jout]
   ==
 ::
 ++  prefix-and-mold-atom
