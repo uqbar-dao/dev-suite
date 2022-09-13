@@ -13,7 +13,7 @@
     [
       {"name": "t"},
       {"symbol": "t"},
-      {"properties": ["set", "ud"]},
+      {"properties": ["set", "tas"]},
       {"supply": "ud"},
       {"cap": ["unit", "ud"]},
       {"mintable": "?"},

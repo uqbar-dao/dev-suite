@@ -88,13 +88,35 @@
     %list  compute-list
     %unit  compute-unit
     %set   compute-set
-    :: %map   compute-map
+    %map   compute-map
   ==
 ::
-:: ++  compute-map
-::   |=  [jolds=(list json) data=*]
-::   ^-  json
-::   (tree-noun-to-list data)
+++  compute-map
+  ::  simplfied, non-recursive
+  |=  [jolds=(list json) data=*]
+  ^-  json
+  ?~  jolds  [%s (crip (noah !>(data)))]
+  =|  jout=(list [@t json])
+  ?.  ?=([^ ^ ~] jolds)  [%s (crip (noah !>(data)))]
+  ::
+  ?.  &(?=(%s -.i.jolds) ?=(%s -.i.t.jolds))
+    [%s (crip (noah !>(data)))]
+  =*  key-type  p.i.jolds
+  =*  val-type  p.i.t.jolds
+  =.  data  (tree-noun-to-list data)
+  |-
+  ?:  &(?=(@ data) =(0 data))
+    [%o (~(gas by *(map @t json)) jout)]
+  %=  $
+      data  +.data
+      jout
+    ?.  ?=([@ @] -.data)  jout  :: ?
+    =/  key=json  (prefix-and-mold-atom key-type -.-.data)
+    =/  val=json  (prefix-and-mold-atom val-type +.-.data)
+    ?~  key  jout
+    ?.  ?=(?(%n %s) -.key)  jout  :: ?
+    [[p.key val] jout]
+  ==
 ::
 ++  compute-set
   |=  [jolds=(list json) data=*]
