@@ -81,6 +81,22 @@
 ::
 ::    ## Subscription paths
 ::
+::    Subscription paths reply by default with
+::    history of the item subscribed to.
+::    To suppress the initial history on-watch, append
+::    a `/no-init` to the end of the subscription path.
+::
+::    Subscription paths, similar to scry paths,
+::    may be prepended with a `/json`, which will cause
+::    the subscription to return JSON rather than an
+::    `update:ui` and will attempt to mold the `data` in
+::    `grain`s and the `yolk` in `egg`s.
+::    In order to do so it requires the `lord` contracts
+::    have properly filled out `interface` and `types`
+::    fields, see `lib/jolds.hoon` docstring for the spec
+::    and `lib/zig/contracts/lib/*interface-types.hoon`
+::    for examples.
+::
 ::    /batch-order/[town-id=@ux]:
 ::      A stream of batch ids.
 ::      Reply on-watch in historical batch-order.
@@ -202,6 +218,7 @@
     ::
         $?  [%batch-order @ %no-init ~]
             [%capitol-updates %no-init ~]
+            [%json @ @ %no-init ~]  [%json @ @ @ %no-init ~]
             [%hash @ %no-init ~]    [%hash @ @ %no-init ~]
             [%id @ %no-init ~]      [%id @ @ %no-init ~]
             [%grain @ %no-init ~]   [%grain @ @ %no-init ~]
@@ -217,16 +234,6 @@
       :-  %indexer-catchup
       !>(`versioned-state:ui`-.state)
     ::
-        [%batch-order @ ~]
-      :_  this
-      =/  town-id=@ux  (slav %ux i.t.path)
-      :_  ~
-      %-  fact:io
-      :_  ~
-      :-  %indexer-update
-      ?~  bs=(~(get by batches-by-town) town-id)  !>(~)
-      !>(`update:ui`[%batch-order batch-order.u.bs])
-    ::
         [%capitol-updates ~]
       :_  this
       :_  ~
@@ -235,47 +242,26 @@
       :-  %sequencer-capitol-update
       !>(`capitol-update:seq`[%new-capitol capitol])
     ::
-        ?([%hash @ ~] [%hash @ @ ~])
+        ?([@ @ ~] [@ @ @ ~] [@ @ @ @ ~])
       :_  this
-      =/  =query-payload:ui
-        ?:  ?=([@ @ ~] path)  (slav %ux i.t.path)
-        ?>  ?=([@ @ @ ~] path)
-        [(slav %ux i.t.path) (slav %ux i.t.t.path)]
-      ?~  update=(get-hashes query-payload %.n)  ~
       :_  ~
       %-  fact:io
       :_  ~
-      [%indexer-update !>(`update:ui`update)]
-    ::
-        ?([%id @ ~] [%id @ @ ~])
-      :_  this
-      =/  =query-payload:ui
-        ?:  ?=([@ @ ~] path)  (slav %ux i.t.path)
-        ?>  ?=([@ @ @ ~] path)
-        [(slav %ux i.t.path) (slav %ux i.t.t.path)]
-      ?~  update=(get-ids query-payload %.n)  ~
-      :_  ~
-      %-  fact:io
-      :_  ~
-      [%indexer-update !>(`update:ui`update)]
-    ::
-        $?  [%grain @ ~]       [%grain @ @ ~]
-            :: [%grain-eggs @ ~]  [%grain-eggs @ @ ~]
-            [%holder @ ~]      [%holder @ @ ~]
-            [%lord @ ~]        [%lord @ @ ~]
-            [%town @ ~]        [%town @ @ ~]
+      ?:  ?=(%json i.path)
+        :-  %json
+        !>  ^-  json
+        .^  json
+            %gx
+            %+  scry:pass:io  %indexer
+            (snoc `(list @ta)`path `@ta`%json)
         ==
-      :_  this
-      =/  =query-type:ui  i.path
-      =/  =query-payload:ui
-        ?:  ?=([@ @ ~] path)  (slav %ux i.t.path)
-        ?>  ?=([@ @ @ ~] path)
-        [(slav %ux i.t.path) (slav %ux i.t.t.path)]
-      ?~  update=(serve-update query-type query-payload %.n)  ~
-      :_  ~
-      %-  fact:io
-      :_  ~
-      [%indexer-update !>(`update:ui`update)]
+      :-  %indexer-update
+      !>  ^-  update:ui
+      .^  update:ui
+          %gx
+          %+  scry:pass:io  %indexer
+          (snoc `(list @ta)`path `@ta`%noun)
+      ==
     ==
   ::
   ++  on-leave
@@ -288,6 +274,7 @@
             :: [%grain-eggs *]
             [%holder *]
             [%id *]
+            [%json *]
             [%lord *]
             [%town *]
             [%capitol-updates *]
@@ -544,7 +531,8 @@
   --
 ::
 |_  =bowl:gall
-+*  io  ~(. agentio bowl)
++*  io      ~(. agentio bowl)
+    ui-lib  ~(. indexer-lib bowl)
 ::
 ++  rollup-capitol-wire
   ^-  wire
@@ -1234,7 +1222,8 @@
     |=  [ship sub-path=path]
     ^-  (unit [@tas path])
     ?~  sub-path  ~
-    ?.  ?=(?(%hash %id %grain %holder %lord %town) i.sub-path)
+    ?.  ?=  ?(%grain %hash %holder %id %json %lord %town)
+        i.sub-path
       ~
     `[`@tas`i.sub-path t.sub-path]
   ::
@@ -1245,9 +1234,9 @@
     |^
     =/  out=(pair (list (list card)) (list (list [path update:ui])))
       %+  roll
-        ^-  (list ?(%id query-type:ui))
-        ~[%grain %hash %holder %id %lord %town]
-      |=  $:  query-type=?(%id query-type:ui)
+        ^-  (list ?(%id %json query-type:ui))
+        ~[%grain %hash %holder %id %json %lord %town]
+      |=  $:  query-type=?(%id %json query-type:ui)
               out=(pair (list (list card)) (list (list [path update:ui])))
           ==
       =/  [p=(list card) q=(list [path update:ui])]
@@ -1262,12 +1251,21 @@
     (zing p.out)
     ::
     ++  make-sub-cards
-      |=  query-type=?(%id query-type:ui)
+      |=  query-type=?(%id %json query-type:ui)
       ^-  [(list card) (list [path update:ui])]
+      =/  is-json=?  ?=(%json query-type)
       %+  roll  ~(tap in (~(get ju sub-paths) query-type))
       |=  $:  sub-path=path
               out=(pair (list card) (list [path update:ui]))
           ==
+      ?~  sub-path  out
+      =.  query-type
+        ?.  is-json  query-type
+        ;;(?(%id query-type:ui) i.sub-path)
+      =.  sub-path
+        ?.  is-json  sub-path
+        ?>  ?=([@ ^] sub-path)
+        t.sub-path
       =/  payload=?(@ux [@ux @ux])
         ?:  ?=(?([@ ~] [@ %no-init ~]) sub-path)
           (slav %ux i.sub-path)
@@ -1287,9 +1285,13 @@
       ?~  update-diff  out
       :_  [[total-path update] q.out]
       :_  p.out
+      ?.  is-json
+        %+  fact:io
+          [%indexer-update !>(`update:ui`update-diff)]
+        (expand-paths %no-init ~[total-path])
       %+  fact:io
-        [%indexer-update !>(`update:ui`update-diff)]
-      (expand-paths %no-init ~[total-path])
+        [%json !>(`json`(update:enjs:ui-lib update-diff))]
+      (expand-paths %no-init ~[[%json total-path]])
     ::
     ++  expand-paths
       |=  [appendend=@tas paths=(list path)]
@@ -1314,6 +1316,7 @@
         ?~  diff=(diff-update-maps batches.old batches.new)
           ~
         [%batch diff]
+      ::
           %batch-order
         ?>  ?=(%batch-order -.new)
         ?~  batch-order.old  ?~(batch-order.new ~ new)
