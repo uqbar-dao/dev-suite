@@ -31,6 +31,25 @@
 ::     ```
 ::
 |%
+::  helper function to wrap `+json-full-tuple`
+::   that gives nicer output for frontends
+::   (transforms array of single-pair objects
+::   to a single multi-pair object)
+++  jold-full-tuple-to-object
+  |=  [jolds=json data=*]
+  ^-  json
+  =/  array=json  (jold-full-tuple jolds data)
+  ?.  ?=(%a -.array)  array
+  =/  jsons=(list json)  p.array
+  =|  object=(map @t json)
+  |-
+  ?~  jsons  [%o object]
+  ?.  ?=(%o -.i.jsons)          array
+  ?.  =(1 ~(wyt by p.i.jsons))  array
+  %=  $
+      jsons   t.jsons
+      object  (~(uni by object) p.i.jsons)
+  ==
 ::  jold of full tuple
 ++  jold-full-tuple
   |=  [jolds=json data=*]
@@ -125,7 +144,8 @@
     ?.  ?=(?(%n %s) -.key)  jout  ::  TODO: can we do better?
     =/  val=json
       ?:  ?=(%a -.i.t.jolds)
-        (jold-full-tuple i.t.jolds +.-.data)
+        (jold-full-tuple-to-object i.t.jolds +.-.data)
+        :: (jold-full-tuple i.t.jolds +.-.data)
       ?.  ?=(@ +.-.data)  [%s (crip (noah !>(data)))]
       (prefix-and-mold-atom val-type +.-.data)
     [[p.key val] jout]
@@ -170,7 +190,8 @@
       jout
     :_  jout
     ?:  ?=(%a -.i.jolds)
-      (jold-full-tuple i.jolds -.data)
+      (jold-full-tuple-to-object i.jolds -.data)
+      :: (jold-full-tuple i.jolds -.data)
     ?.  ?=(@ -.data)  [%s (crip (noah !>(data)))]
     (prefix-and-mold-atom p.i.jolds -.data)
   ==
