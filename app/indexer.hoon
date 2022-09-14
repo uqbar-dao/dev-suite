@@ -27,6 +27,19 @@
 ::    by `0xdead.beef` would be queried using
 ::    `/x/newest/holder/0xdead.beef`.
 ::
+::    Scry paths may be prepended with a `/json`, which
+::    will cause the scry to return JSON rather than an
+::    `update:ui` and will attempt to mold the `data` in
+::    `grain`s and the `yolk` in `egg`s.
+::    In order to do so it requires the `lord` contracts
+::    have properly filled out `interface` and `types`
+::    fields, see `lib/jolds.hoon` docstring for the spec
+::    and `lib/zig/contracts/lib/*interface-types.hoon`
+::    for examples.
+::    
+::    When used in combination, the `/json` prefix must
+::    come before the `/newest` prefix, so a valid example
+::    is `/x/json/newest/holder/0xdead.beef`.
 ::
 ::    /x/batch/[batch-id=@ux]
 ::    /x/batch/[town-id=@ux]/[batch-id=@ux]:
