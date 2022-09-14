@@ -81,7 +81,7 @@
 ++  compute-multiword
   |=  [jolds=(list json) data=*]
   ^-  json
-  ?~  jolds  !!  ::  ?
+  ?~  jolds  [%s (crip (noah !>(data)))]
   ?>  ?=(%s -.i.jolds)
   %.  [t.jolds data]
   ?+  p.i.jolds  |=(* [%s (crip (noah !>(data)))])
@@ -209,66 +209,5 @@
   %-  zing
   :~  (tree-noun-to-list +.+.n)
       (tree-noun-to-list -.+.n)
-  ==
-::
-++  select-json-prefix
-  |=  type-tas=@tas
-  ^-  ?(%a %b %n %o %s)
-  :: ^-  @tas ::?(%a %b %n %o %s)
-  ?+  type-tas  ~|("jold: select-json-prefix {<type-tas>} not yet implemented" !!)
-    %'?'  %b
-    %ud   %n
-    ?(%da %p %ux %uv %ta %tas)  %s
-    :: ?(%da %ud)   %n
-    :: ?(%p %ux %uv %ta %tas)  %s
-    :: ::   ?()  %a
-    ::   %'?'  %b
-    ::   ?(%'@u' %'@ud' %'@ui')  %n
-    :: ::   ?()  %o
-    ::   $?  %'@da'  %'@dr'
-    ::       %'@rd'  %'@rh'  %'@rq'  %'@rs'
-    ::       %'@sb'  %'@sc'  %'@sd'  %'@si'  %'@sv'  %'@sw'  %'@sx'
-    ::       %'@t'   %'@ta'  %'@tas'
-    ::       %'@ub'  %'@uc'  %'@uv'  %'@uw'  %'@ux'
-    ::   ==
-    :: %s
-  ==
-::
-++  select-mold
-  |=  type-tas=@tas
-  ?+  type-tas  ~|("jold: select-mold {<type-tas>} not yet implemented" !!)
-    %'?'  ?
-    %ud   @ud
-    %da   @da
-    %p    @p
-    %ux   @ux
-    %uv   @uv
-    %ta   @ta
-    %tas  @tas
-    :: %'?'     ?
-    :: %'@da'   @da
-    :: %'@dr'   @dr
-    :: %'@rd'   @rd
-    :: %'@rh'   @rh
-    :: %'@rq'   @rq
-    :: %'@rs'   @rs
-    :: %'@sb'   @sb
-    :: %'@sc'   @sc
-    :: %'@sd'   @sd
-    :: %'@si'   @si
-    :: %'@sv'   @sv
-    :: %'@sw'   @sw
-    :: %'@sx'   @sx
-    :: %'@t'    @t
-    :: %'@ta'   @ta
-    :: %'@tas'  @tas
-    :: %'@u'    @u
-    :: %'@ub'   @ub
-    :: %'@uc'   @uc
-    :: %'@ud'   @ud
-    :: %'@ui'   @ui
-    :: %'@uv'   @uv
-    :: %'@uw'   @uw
-    :: %'@ux'   @ux
   ==
 --
