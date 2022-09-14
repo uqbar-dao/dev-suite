@@ -69,13 +69,6 @@
   ::
       %a
     (compute-multiword p.jold-type data)
-    ::  TODO:
-    ::  * case %a %s:
-    ::    * implement recursive types
-    ::    * implement non-recursive, but multi-word types, like (unit ..)
-    ::  * case %a %o:
-    ::    * implement recursion to +jold-full-tuple in case %a %o
-    :: [%s (crip (noah !>(data)))]
   ==
 ::
 ++  compute-multiword
