@@ -188,7 +188,7 @@
           properties.act
           (lent initial-distribution.act)
           cap.act
-          ?~(minters.act %.y %.n)
+          ?~(minters.act %.n %.y)
           minters.act
           id.from.cart
           salt.act
