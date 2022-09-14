@@ -539,11 +539,15 @@
     ::
     ?.  =(%x -.path)  ~
     ?+    +.path  (on-peek:def path)
-        ::  TODO: scry contract interface/data from sequencer?
-        [%indexer *]
-      :^  ~  ~  %indexer-update
-      !>  ^-  update:ui
-      .^(update:ui %gx (scry:io %indexer (snoc t.t.path %noun)))
+        [%indexer @ *]
+      =/  is-json=?  ?=(%json i.t.t.path)
+      ?.  is-json
+        :^  ~  ~  %indexer-update
+        !>  ^-  update:ui
+        .^(update:ui %gx (scry:io %indexer (snoc t.t.path %noun)))
+      :^  ~  ~  %json
+      !>  ^-  json
+      .^(json %gx (scry:io %indexer (snoc t.t.path %json)))
     ::
     ::  TODO: scry wallet?
     ::   first need unified type to cast with scry

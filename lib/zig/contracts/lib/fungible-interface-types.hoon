@@ -122,12 +122,6 @@
       {"minters": ["set", "ux"]},
       {
         "initial-distribution": [
-          {"to": "ux"},
-          {"amount": "ud"}
-        ]
-      },
-      {
-        "initial-distribution": [
           "list",
           [
             {"to": "ux"},

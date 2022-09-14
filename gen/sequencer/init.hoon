@@ -59,12 +59,12 @@
 =/  zigs-metadata
   ^-  rice:smart
   :*  `@`'zigs'
-      %metadata
+      %token-metadata
       :*  name='UQ| Tokens'
           symbol='ZIG'
           decimals=18
           supply=testnet-zigs-supply
-          cap=`testnet-zigs-supply
+          cap=~
           mintable=%.n
           minters=~
           deployer=0x0

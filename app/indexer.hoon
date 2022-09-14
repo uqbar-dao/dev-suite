@@ -27,6 +27,19 @@
 ::    by `0xdead.beef` would be queried using
 ::    `/x/newest/holder/0xdead.beef`.
 ::
+::    Scry paths may be prepended with a `/json`, which
+::    will cause the scry to return JSON rather than an
+::    `update:ui` and will attempt to mold the `data` in
+::    `grain`s and the `yolk` in `egg`s.
+::    In order to do so it requires the `lord` contracts
+::    have properly filled out `interface` and `types`
+::    fields, see `lib/jolds.hoon` docstring for the spec
+::    and `lib/zig/contracts/lib/*interface-types.hoon`
+::    for examples.
+::    
+::    When used in combination, the `/json` prefix must
+::    come before the `/newest` prefix, so a valid example
+::    is `/x/json/newest/holder/0xdead.beef`.
 ::
 ::    /x/batch/[batch-id=@ux]
 ::    /x/batch/[town-id=@ux]/[batch-id=@ux]:
@@ -117,6 +130,7 @@
     dbug,
     default-agent,
     verb,
+    indexer-lib=indexer,
     smart=zig-sys-smart
 ::
 |%
@@ -136,6 +150,7 @@
       io            ~(. agentio bowl)
       indexer-core  +>
       ic            ~(. indexer-core bowl)
+      ui-lib        ~(. indexer-lib bowl)
   ::
   ++  on-init  `this
   ++  on-save  !>(-.state)
@@ -286,31 +301,39 @@
     ^-  (unit (unit cage))
     ?:  =(/x/dbug/state path)
       ~  ::  Don't send :indexer +dbug %path-does-not-exist.
-    ?.  ?=(?([@ @ @ ~] [@ @ @ @ ~] [@ @ @ @ @ ~]) path)
+    ?.  ?=  $?  [@ @ @ ~]  [@ @ @ @ @ @ ~]
+                [@ @ @ @ ~]  [@ @ @ @ @ ~]
+            ==
+        path
       :^  ~  ~  %indexer-update
       !>(`update:ui`[%path-does-not-exist ~])
-    =/  only-newest=?  ?=(%newest i.t.path)
-    =/  args=^path  ?.(only-newest t.path t.t.path)
+    ::
+    =/  is-json=?      ?=(%json i.t.path)
+    =/  only-newest=?
+      ?.  is-json  ?=(%newest i.t.path)
+      ?=(%newest i.t.t.path)
+    =/  args=^path
+      =/  num=@ud  (add is-json only-newest)
+      ?:  =(2 num)  t.path
+      ?:  =(1 num)  t.t.path
+      ?:  =(0 num)  t.t.t.path
+      !!
     |^
     ?+    args  :^  ~  ~  %indexer-update
                 !>(`update:ui`[%path-does-not-exist ~])
         ?([%hash @ ~] [%hash @ @ ~])
       =/  query-payload=(unit query-payload:ui)
         read-query-payload-from-args
-      ?~  query-payload
-        :^  ~  ~  %indexer-update
-        !>(`update:ui`[%path-does-not-exist ~])
-      :^  ~  ~  %indexer-update
-      !>(`update:ui`(get-hashes u.query-payload only-newest))
+      %-  make-peek-update
+      ?~  query-payload  [%path-does-not-exist ~]
+      (get-hashes u.query-payload only-newest)
     ::
         ?([%id @ ~] [%id @ @ ~])
       =/  query-payload=(unit query-payload:ui)
         read-query-payload-from-args
-      ?~  query-payload
-        :^  ~  ~  %indexer-update
-        !>(`update:ui`[%path-does-not-exist ~])
-      :^  ~  ~  %indexer-update
-      !>(`update:ui`(get-ids u.query-payload only-newest))
+      %-  make-peek-update
+      ?~  query-payload  [%path-does-not-exist ~]
+      (get-ids u.query-payload only-newest)
     ::
         $?  [%batch @ ~]       [%batch @ @ ~]
             [%egg @ ~]         [%egg @ @ ~]
@@ -325,29 +348,31 @@
       =/  =query-type:ui  ;;(query-type:ui i.args)
       =/  query-payload=(unit query-payload:ui)
         read-query-payload-from-args
-      ?~  query-payload
-        :^  ~  ~  %indexer-update
-        !>(`update:ui`[%path-does-not-exist ~])
-      :^  ~  ~  %indexer-update
-      !>  ^-  update:ui
+      %-  make-peek-update
+      ?~  query-payload  [%path-does-not-exist ~]
       (serve-update query-type u.query-payload only-newest)
     ::
         [%batch-order @ ~]
       =/  town-id=@ux  (slav %ux i.t.args)
-      :^  ~  ~  %indexer-update
-      ?~  bs=(~(get by batches-by-town) town-id)  !>(~)
-      !>(`update:ui`[%batch-order batch-order.u.bs])
+      %-  make-peek-update
+      ?~  bs=(~(get by batches-by-town) town-id)  ~
+      [%batch-order batch-order.u.bs]
     ::
         [%batch-order @ @ @ ~]
       =/  [town-id=@ux nth-most-recent=@ud how-many=@ud]
         :+  (slav %ux i.t.args)  (slav %ud i.t.t.args)
         (slav %ud i.t.t.t.args)
-      :^  ~  ~  %indexer-update
-      ?~  bs=(~(get by batches-by-town) town-id)  !>(~)
-      !>  ^-  update:ui
+      %-  make-peek-update
+      ?~  bs=(~(get by batches-by-town) town-id)  ~
       :-  %batch-order
       (swag [nth-most-recent how-many] batch-order.u.bs)
     ==
+    ::
+    ++  make-peek-update
+      |=  =update:ui
+      ?.  is-json
+        [~ ~ %indexer-update !>(`update:ui`update)]
+      [~ ~ %json !>(`json`(update:enjs:ui-lib update))]
     ::
     ++  read-query-payload-from-args
       ^-  (unit query-payload:ui)

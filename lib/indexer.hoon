@@ -1,21 +1,42 @@
 /-  ui=indexer,
     seq=sequencer
-/+  smart=zig-sys-smart
+/+  jold,
+    smart=zig-sys-smart
 ::
-|%
-::  use, e.g., to extract single grain from a
-::  `/newest/grain/...`  scry
-++  extract-single-grain
-  |=  =update:ui
-  ^-  (unit grain:smart)
-  ?.  ?=(%grain -.update)   ~
-  =/  values=(list (list [@da location:ui =grain:smart]))
-    ~(val by grains.update)
-  ?~  values                ~
-  ?.  =(1 (lent values))    ~
-  ?~  i.values              ~
-  ?.  =(1 (lent i.values))  ~
-  `grain.i.i.values
+|_  =bowl:gall
+++  get-interface-types-json
+  |=  $:  contract-id=id:smart
+          return=?(%interface %types)
+          label=@tas
+          data=*
+      ==
+  |^  ^-  json
+  ?:  =(*bowl:gall bowl)
+    [%s (crip (noah !>(data)))]
+  =/  interface-types=(map @tas json)  get-interface-types
+  ?~  interface-type=(~(get by interface-types) label)
+    [%s (crip (noah !>(data)))]
+  (jold-full-tuple-to-object:jold u.interface-type data)
+  ::
+  ++  get-interface-types
+    ^-  (map @tas json)
+    =/  =update:ui
+      .^  update:ui
+          %gx
+          %-  zing
+          :+  /(scot %p our.bowl)/indexer/(scot %da now.bowl)
+            /newest/grain/(scot %ux contract-id)/noun
+          ~
+      ==
+    ?~  update                      ~
+    ?.  ?=(%newest-grain -.update)  ~
+    =*  contract  grain.update
+    ?.  ?=(%| -.contract)  ~
+    ?-  return
+      %interface  interface.p.contract
+      %types      types.p.contract
+    ==
+  --
 ::
 ++  enjs
   =,  enjs:format
@@ -157,7 +178,7 @@
     %-  pairs
     :^    [%sig (sig sig.egg)]
         [%shell (shell shell.egg)]
-      [%yolk (yolk yolk.egg)]
+      [%yolk (yolk yolk.egg contract.shell.egg)]
     ~
   ::
   ++  shell
@@ -174,10 +195,10 @@
     ==
   ::
   ++  yolk
-    |=  =yolk:smart
+    |=  [=yolk:smart contract-id=id:smart]
     ^-  json
-    ::  TODO get json format from contract interface and convert
-    (frond p.yolk %s (crip (noah !>(q.yolk))))
+    %+  frond  p.yolk
+    (get-interface-types-json contract-id %interface yolk)
   ::
   ++  caller
     |=  =caller:smart
@@ -247,8 +268,14 @@
         :~  [%is-rice %b %&]
             [%salt (numb salt.p.grain)]
             [%label %s `@ta`label.p.grain]
-            ::  TODO get json format from contract types and convert
-            [%data %s (crip (noah !>(data.p.grain)))]
+            :-  %data
+            %+  frond  label.p.grain
+            %:  get-interface-types-json
+                lord.p.grain
+                %types
+                label.p.grain
+                data.p.grain
+            ==
         ==
       ::  wheat
       :~  [%is-rice %b %|]
