@@ -92,14 +92,31 @@
   ==
 ::
 ++  compute-map
-  ::  simplfied, non-recursive
+  ::  simplfied, only recursive for value types;
+  ::   key types must be atoms
   |=  [jolds=(list json) data=*]
   ^-  json
   ?~  jolds  [%s (crip (noah !>(data)))]
   =|  jout=(list [@t json])
-  ?.  ?=([^ ^ ~] jolds)  [%s (crip (noah !>(data)))]
+  ?.  ?=([^ ^ ~] jolds)
+    ?.  ?=(%s -.i.jolds)  [%s (crip (noah !>(data)))]
+    =*  key-type  p.i.jolds
+    =.  data  (tree-noun-to-list data)
+    |-
+    ?:  &(?=(@ data) =(0 data))
+      [%o (~(gas by *(map @t json)) jout)]
+    %=  $
+        data  +.data
+        jout
+      ?.  ?=([@ *] -.data)  jout  ::  TODO: can we do better?
+      ?~  key=(prefix-and-mold-atom key-type -.-.data)  jout
+      ?.  ?=(?(%n %s) -.key)  jout  ::  TODO: can we do better?
+      =/  val=json  (compute-multiword t.jolds +.-.data)
+      [[p.key val] jout]
+    ==
+
   ::
-  ?.  &(?=(%s -.i.jolds) ?=(%s -.i.t.jolds))
+  ?.  &(?=(%s -.i.jolds) ?=(?(%a %s) -.i.t.jolds))
     [%s (crip (noah !>(data)))]
   =*  key-type  p.i.jolds
   =*  val-type  p.i.t.jolds
@@ -110,11 +127,14 @@
   %=  $
       data  +.data
       jout
-    ?.  ?=([@ @] -.data)  jout  :: ?
-    =/  key=json  (prefix-and-mold-atom key-type -.-.data)
-    =/  val=json  (prefix-and-mold-atom val-type +.-.data)
-    ?~  key  jout
-    ?.  ?=(?(%n %s) -.key)  jout  :: ?
+    ?.  ?=([@ *] -.data)  jout  ::  TODO: can we do better?
+    ?~  key=(prefix-and-mold-atom key-type -.-.data)  jout
+    ?.  ?=(?(%n %s) -.key)  jout  ::  TODO: can we do better?
+    =/  val=json
+      ?:  ?=(%a -.i.t.jolds)
+        (jold-full-tuple i.t.jolds +.-.data)
+      ?.  ?=(@ +.-.data)  [%s (crip (noah !>(data)))]
+      (prefix-and-mold-atom val-type +.-.data)
     [[p.key val] jout]
   ==
 ::
