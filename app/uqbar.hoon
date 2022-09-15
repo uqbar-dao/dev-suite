@@ -563,8 +563,6 @@
         %indexer
       ::  must be of the form, e.g.,
       ::   /indexer/[requesting-app-name]/grain/[town-id]/[grain-id]
-      ~&  >  "ol wire dock-path:"
-      ~&  path
       ?.  ?=([%indexer @ @ @ @ ~] path)  ~
       leave-indexer
     ==
@@ -576,7 +574,6 @@
     ++  leave-indexer
       ^-  (list card)
       ?~  dock-path=(get-wex-dock-by-wire:uc path)  ~
-      ~&  dock-path
       [(~(leave pass:io path) p.u.dock-path)]~
     --
   ++  on-fail   on-fail:def
