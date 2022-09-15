@@ -499,6 +499,36 @@
         %pedersen-hash
       ?.  ?=([@ @] sam)  %|^trace
       %&^(some (hash:pedersen sam))
+    ::                                                                       ::
+    ::  crypto                                                               ::
+    ::                                                                       ::
+        %k224
+      ?.  ?=([@ud @] sam)  %|^trace
+      %&^(some (keccak-224:keccak:crypto sam))
+    ::
+        %k256
+      ?.  ?=([@ud @] sam)  %|^trace
+      %&^(some (keccak-256:keccak:crypto sam))
+    ::
+        %k384
+      ?.  ?=([@ud @] sam)  %|^trace
+      %&^(some (keccak-384:keccak:crypto sam))
+    ::
+        %k512
+      ?.  ?=([@ud @] sam)  %|^trace
+      %&^(some (keccak-512:keccak:crypto sam))
+    ::
+        %make
+      ?.  ?=([@uvI @] sam)  %|^trace
+      %&^(some (make-k:secp256k1:crypto sam))
+    ::
+        %sign
+      ?.  ?=([@uvI @] sam)  %|^trace
+      %&^(some (ecdsa-raw-sign:secp256k1:crypto sam))
+    ::
+        %reco
+      ?.  ?=([@uvI @] sam)  %|^trace
+      %&^(some (ecdsa-raw-recover:secp256k1:crypto sam))
     ==
   ::
   ++  frag

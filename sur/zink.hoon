@@ -71,6 +71,9 @@
       ::  etc
       [%need 1]
       [%scot 5]
-      [%pedersen-hash 10]
+      [%pedersen-hash 100]
+      ::  crypto
+      [%k224 100]  [%k256 100]  [%k384 100]  [%k512 100]
+      [%make 100]  [%sign 100]  [%reco 100]
     ==
 --
