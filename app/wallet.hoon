@@ -443,6 +443,7 @@
     ?.  ?=(%fact -.sign)       (on-agent:def wire sign)
     ?.  ?=(%indexer-update p.cage.sign)  (on-agent:def wire sign)
     =/  =update:ui  !<(=update:ui q.cage.sign)
+    ?~  update             `this
     ?.  ?=(%egg -.update)  `this
     =/  our-id=@ux  ?:(?=([@ @ @ ~] wire) (slav %ux i.t.t.wire) (slav %ux i.t.t.t.wire))
     =+  our-txs=(~(gut by transaction-store.state) our-id [sent=~ received=~])

@@ -21,13 +21,23 @@
   (watch watch-wire [our.bowl %indexer] watch-path)
 ~&  >  "watch-indexer: watching {<watch-path>}..."
 ;<  =cage  bind:m  (take-fact watch-wire)
-~&  >  "watch-indexer: got:"
-~&  >  "watch-indexer:  {<cage>}"
-?:  ?=(%indexer-update p.cage)
-  ~&  >  "watch-indexer:  {<!<(update:ui q.cage)>}"
+:: ~&  >  "watch-indexer: got:"
+:: ~&  >  "watch-indexer:  {<cage>}"
+;<  ~  bind:m  (leave watch-wire [our.bowl %indexer])
+?+    p.cage
+      ~&  >  "watch-indexer: done"
+      (pure:m !>(~))
+    %indexer-update
+  ~&  >  "watch-indexer:  got:"
+  ~&  !<(update:ui q.cage)
+  ~&  >  "watch-indexer:  done"
+  (pure:m !>(~))
+::
+    %json
+  ~&  >  "watch-indexer:  got:"
+  ~&  !<(json q.cage)
+  ~&  (en-json:html !<(json q.cage))
   ;<  ~  bind:m  (leave watch-wire [our.bowl %indexer])
   ~&  >  "watch-indexer:  done"
   (pure:m !>(~))
-;<  ~  bind:m  (leave watch-wire [our.bowl %indexer])
-~&  >  "watch-indexer:  done"
-(pure:m !>(~))
+==
