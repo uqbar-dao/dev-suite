@@ -70,6 +70,9 @@
       ::  rejected to front, so need to +flop before each pass
       %+  sort  ~(tap in basket)
       |=  [a=[@ux =egg:smart] b=[@ux =egg:smart]]
+      ::  sort by rate, unless caller is same, in which case order by nonce
+      ?:  =(id.from.shell.egg.a id.from.shell.egg.b)
+        (lth nonce.from.shell.egg.a nonce.from.shell.egg.b)
       (lth rate.shell.egg.a rate.shell.egg.b)
     ::
     =|  final=state-transition
