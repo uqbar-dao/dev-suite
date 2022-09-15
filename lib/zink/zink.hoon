@@ -520,15 +520,15 @@
     ::
         %make
       ?.  ?=([@uvI @] sam)  %|^trace
-      %&^(some (make-k:secp256k1:crypto sam))
+      %&^(some (make-k:secp256k1:secp:crypto sam))
     ::
         %sign
       ?.  ?=([@uvI @] sam)  %|^trace
-      %&^(some (ecdsa-raw-sign:secp256k1:crypto sam))
+      %&^(some (ecdsa-raw-sign:secp256k1:secp:crypto sam))
     ::
         %reco
-      ?.  ?=([@uvI @] sam)  %|^trace
-      %&^(some (ecdsa-raw-recover:secp256k1:crypto sam))
+      ?.  ?=([@ [@ @ @]] sam)  %|^trace
+      %&^(some (ecdsa-raw-recover:secp256k1:secp:crypto sam))
     ==
   ::
   ++  frag
