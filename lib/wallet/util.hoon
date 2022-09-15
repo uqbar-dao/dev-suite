@@ -39,7 +39,7 @@
   %+  murn  ~(tap by wex)
   |=  [[=wire =ship =term] *]
   ^-  (unit card)
-  ?.  |(=([%indexer %id @ id] wire) =([%indexer %holder @ id] wire))  ~
+  ?.  =((slav %ux (rear wire)) id)  ~
   `[%pass wire %agent [ship term] %leave ~]
 ::
 ++  clear-all-holder-and-id-subs
