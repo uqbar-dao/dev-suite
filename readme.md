@@ -251,9 +251,9 @@ The following two examples assume `~zod` is the host:
 
 ### Indexing on an existing testnet
 ```hoon
-:indexer &indexer-catchup [~zod %indexer]
 :indexer &set-sequencer [~zod %sequencer]
 :indexer &set-rollup [~zod %rollup]
+:indexer &indexer-catchup [~zod %indexer]
 :uqbar|set-sources 0x0 ~[our]
 ```
 In this example, not all the hosts need be the same ship.
