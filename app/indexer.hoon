@@ -109,6 +109,12 @@
 ::    /holder/[holder-id=@ux]
 ::    /holder/[town-id=@ux]/[holder-id=@ux]:
 ::      A stream of new activity of given holder.
+::      If a held grain changes holders, the final update
+::      sent for that grain will have the updated holder.
+::      Thus, applications will need to check the holder
+::      field and update their state as appropriate when
+::      it has changed; subsequent updates will not include
+::      that grain.
 ::      Reply on-watch is entire history of held grains.
 ::    /id/[id=@ux]
 ::    /id/[town-id=@ux]/[id=@ux]:
