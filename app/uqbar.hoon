@@ -76,16 +76,16 @@
         %track  ~
         %wallet
       ::  must be of the form, e.g.,
-      ::   /wallet/*-updates
-      ?.  ?=([%wallet @ ~] path)  ~
-      (watch-wallet /[i.path] t.path)
+      ::   /wallet/[requesting-app-name]/[*-updates]
+      ?.  ?=([%wallet @ @ ~] path)  ~
+      (watch-wallet /[i.path]/[i.t.path] t.t.path)
     ::
         %indexer
       ::  must be of the form, e.g.,
-      ::   /indexer/grain/[town-id]/[grain-id]
-      ?.  ?=([%indexer @ @ @ ~] path)  ~
-      =/  town-id=id:smart  (slav %ux i.t.t.path)
-      (watch-indexer town-id /[i.path] t.path)
+      ::   /indexer/[requesting-app-name]/grain/[town-id]/[grain-id]
+      ?.  ?=([%indexer @ @ @ @ ~] path)  ~
+      =/  town-id=id:smart  (slav %ux i.t.t.t.path)
+      (watch-indexer town-id /[i.path]/[i.t.path] t.t.path)
     ==
     ::
     ++  watch-wallet
@@ -362,20 +362,10 @@
     ::
     ++  rejoin  ::  TODO: ping indexers and find responsive one?
       ^-  (list card)
-      =/  old-source=(unit [dock path])  get-wex-dock-by-wire
+      =/  old-source=(unit [dock path])
+        (get-wex-dock-by-wire:uc wire)
       ?~  old-source  ~
       ~[(~(watch pass:io wire) u.old-source)]
-    ::
-    ++  get-wex-dock-by-wire
-      ^-  (unit [dock path])
-      ?:  =(0 ~(wyt by wex.bowl))  ~
-      =/  wexs=(list [[w=^wire s=ship t=term] a=? p=path])
-        ~(tap by wex.bowl)
-      |-
-      ?~  wexs  ~
-      =*  wex  i.wexs
-      ?.  =(wire w.wex)  $(wexs t.wexs)
-      `[[s.wex t.wex] p.wex]
     ::
     ++  update-sequencers
       |=  upd=capitol-update:s
@@ -557,7 +547,35 @@
     ::   .^(update:ui %gx (scry:io %indexer (snoc t.t.path %noun)))
     ==
   ::
-  ++  on-leave  on-leave:def
+  ++  on-leave
+    |=  =path
+    |^  ^-  (quip card _this)
+    ?>  =(src.bowl our.bowl)
+    :_  this
+    ?+    -.path  !!
+        %track  ~
+        %wallet
+      ::  must be of the form, e.g.,
+      ::   /wallet/[requesting-app-name]/[*-updates]
+      ?.  ?=([%wallet @ @ ~] path)  ~
+      leave-wallet
+    ::
+        %indexer
+      ::  must be of the form, e.g.,
+      ::   /indexer/[requesting-app-name]/grain/[town-id]/[grain-id]
+      ?.  ?=([%indexer @ @ @ @ ~] path)  ~
+      leave-indexer
+    ==
+    ::
+    ++  leave-wallet
+      ^-  (list card)
+      [(~(leave-our pass:io path) wallet-source)]~
+    ::
+    ++  leave-indexer
+      ^-  (list card)
+      ?~  dock-path=(get-wex-dock-by-wire:uc path)  ~
+      [(~(leave pass:io path) p.u.dock-path)]~
+    --
   ++  on-fail   on-fail:def
   --
 ::
@@ -590,6 +608,18 @@
     =.  roll  (add roll index)
     [roll (into seen index roll)]
   $(index +(index))
+::
+++  get-wex-dock-by-wire
+  |=  =wire
+  ^-  (unit (pair dock path))
+  ?:  =(0 ~(wyt by wex.bowl))  ~
+  =/  wexs=(list [[w=^wire s=ship t=term] a=? p=path])
+    ~(tap by wex.bowl)
+  |-
+  ?~  wexs  ~
+  =*  wex  i.wexs
+  ?.  =(wire w.wex)  $(wexs t.wexs)
+  `[[s.wex t.wex] p.wex]
 ::
 ++  get-best-source
   |=  [town-id=id:smart seen=(list @ud) level=?(%nu %nd %pu %pd %~)]

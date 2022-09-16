@@ -25,13 +25,13 @@
     |=  k=@ux
     =-  [%pass - %agent [our %uqbar] %watch -]
     :: /indexer/id/(scot %ux k)
-    /indexer/id/0x0/(scot %ux k)  ::  TODO: remove hardcode
+    /indexer/wallet/id/0x0/(scot %ux k)  ::  TODO: remove hardcode; replace %wallet with [dap.bowl]?
   %+  turn
     ~(tap in pubkeys)
   |=  k=@ux
   =-  [%pass - %agent [our %uqbar] %watch -]
   :: /indexer/holder/(scot %ux k)
-  /indexer/holder/0x0/(scot %ux k)  ::  TODO: remove hardcode
+  /indexer/wallet/holder/0x0/(scot %ux k)  ::  TODO: remove hardcode; replace %wallet with [dap.bowl]?
 ::
 ++  clear-holder-and-id-sub
   |=  [id=@ux wex=boat:gall]
@@ -39,7 +39,7 @@
   %+  murn  ~(tap by wex)
   |=  [[=wire =ship =term] *]
   ^-  (unit card)
-  ?.  |(=([%indexer %id @ id] wire) =([%indexer %holder @ id] wire))  ~
+  ?.  =((slav %ux (rear wire)) id)  ~
   `[%pass wire %agent [ship term] %leave ~]
 ::
 ++  clear-all-holder-and-id-subs
