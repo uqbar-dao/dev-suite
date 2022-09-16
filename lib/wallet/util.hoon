@@ -21,6 +21,7 @@
   ^-  (map @ux [=egg:smart action=supported-actions])
   =/  txn-history=update:ui
     .^(update:ui %gx /(scot %p our)/indexer/(scot %da now)/from/0x0/(scot %ux address)/noun)
+  ?~  txn-history  ~
   ?.  ?=(%egg -.txn-history)  ~
   %-  ~(urn by eggs.txn-history)
   |=  [hash=@ux upd=[@ * =egg:smart]]
