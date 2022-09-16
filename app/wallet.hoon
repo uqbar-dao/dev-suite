@@ -380,6 +380,9 @@
   ^-  (quip card _this)
   ?+    wire  (on-agent:def wire sign)
       [%new-batch ~]
+    ?:  ?=(%kick -.sign)
+      :_  this  ::  attempt to re-sub
+      (watch-for-batches our.bowl 0x0)
     ?:  ?=(%watch-ack -.sign)  (on-agent:def wire sign)
     ?.  ?=(%fact -.sign)       (on-agent:def wire sign)
     ~&  >  "wallet: new batch !"
