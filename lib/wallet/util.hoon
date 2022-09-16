@@ -16,6 +16,17 @@
   =+  `wallet-update`[%tx-status hash egg supported-actions]
   [%give %fact ~[/tx-updates] %zig-wallet-update !>(-)]
 ::
+++  get-sent-history
+  |=  [=address:smart our=@p now=@da]
+  ^-  (map @ux [=egg:smart action=supported-actions])
+  =/  txn-history=update:ui
+    .^(update:ui %gx /(scot %p our)/indexer/(scot %da now)/from/0x0/(scot %ux address)/noun)
+  ?~  txn-history  ~
+  ?.  ?=(%egg -.txn-history)  ~
+  %-  ~(urn by eggs.txn-history)
+  |=  [hash=@ux upd=[@ * =egg:smart]]
+  [egg.upd [%noun yolk.egg.upd]]
+::
 ++  create-holder-and-id-subs
   |=  [pubkeys=(set @ux) our=@p]
   ^-  (list card)
