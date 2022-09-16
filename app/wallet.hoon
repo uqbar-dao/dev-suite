@@ -163,6 +163,7 @@
       ::  get txn history for this new address
       =/  sent  (get-sent-history address.act [our now]:bowl)
       :-  ~
+
       %=  state
         keys  (~(put by keys) address.act [~ nick.act])
         transaction-store  (~(put by transaction-store) address.act [sent ~])
