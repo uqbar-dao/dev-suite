@@ -25,7 +25,7 @@
   ?.  ?=(%egg -.txn-history)  ~
   %-  ~(urn by eggs.txn-history)
   |=  [hash=@ux upd=[@ * =egg:smart]]
-  [egg.upd [%noun yolk.egg.upd]]
+  [egg.upd(status.shell (add 200 `@`status.shell.egg.upd)) [%noun yolk.egg.upd]]
 ::
 ++  watch-for-batches
   |=  [our=@p town-id=@ux]
