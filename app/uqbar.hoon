@@ -83,7 +83,7 @@
         %indexer
       ::  must be of the form, e.g.,
       ::   /indexer/[requesting-app-name]/grain/[town-id]/[grain-id]
-      ?.  ?=([%indexer @ @ @ @ ~] path)  ~
+      ?.  ?=([%indexer @ @ ^] path)  ~
       =/  town-id=id:smart  (slav %ux i.t.t.t.path)
       (watch-indexer town-id /[i.path]/[i.t.path] t.t.path)
     ==
