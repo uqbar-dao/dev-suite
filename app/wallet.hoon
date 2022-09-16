@@ -385,7 +385,6 @@
       (watch-for-batches our.bowl 0x0)
     ?:  ?=(%watch-ack -.sign)  (on-agent:def wire sign)
     ?.  ?=(%fact -.sign)       (on-agent:def wire sign)
-    ~&  >  "wallet: new batch !"
     ::  new batch -- scry to indexer for latest tokens and nfts held
     =/  addrs=(list address:smart)  ~(tap in ~(key by keys))
     =/  new-tokens
