@@ -27,6 +27,29 @@
   |=  [hash=@ux upd=[@ * =egg:smart]]
   [egg.upd(status.shell (add 200 `@`status.shell.egg.upd)) [%noun yolk.egg.upd]]
 ::
+++  create-id-subs
+  |=  [pubkeys=(set @ux) our=@p]
+  ^-  (list card)
+  %+  turn  ~(tap in pubkeys)
+  |=  k=@ux
+  =-  [%pass - %agent [our %uqbar] %watch -]
+  /indexer/wallet/id/0x0/(scot %ux k)  ::  TODO: remove hardcode; replace %wallet with [dap.bowl]?
+::
+++  clear-id-sub
+  |=  [id=@ux our=@p]
+  ^-  (list card)
+  =+  /indexer/wallet/id/0x0/(scot %ux id)
+  [%pass - %agent [our %uqbar] %leave ~]~
+::
+++  clear-all-id-subs
+  |=  wex=boat:gall
+  ^-  (list card)
+  %+  murn  ~(tap by wex)
+  |=  [[=wire =ship =term] *]
+  ^-  (unit card)
+  ?.  ?=([%indexer %wallet %id *] wire)  ~
+  `[%pass wire %agent [ship term] %leave ~]
+::
 ++  watch-for-batches
   |=  [our=@p town-id=@ux]
   ^-  (list card)

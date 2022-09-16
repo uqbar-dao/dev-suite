@@ -103,7 +103,9 @@
       ::  get txn history for this new address
       =/  sent  (get-sent-history addr [our now]:bowl)
       ::  sub to batch updates
-      :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
+      :-  %+  weld  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
+          %+  weld  (clear-all-id-subs wex.bowl)
+          (create-id-subs (silt ~[addr]) our.bowl)
       ::  clear all existing state, except for public keys imported from HW wallets
       ::  TODO save nonces/tokens from HW wallets too
       ::  for now treat this as a nuke of the wallet
@@ -127,7 +129,9 @@
       ::  get txn history for this new address
       =/  sent  (get-sent-history addr [our now]:bowl)
       ::  sub to batch updates
-      :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
+      :-  %+  weld  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
+          %+  weld  (clear-all-id-subs wex.bowl)
+          (create-id-subs (silt ~[addr]) our.bowl)
       ::  clear all existing state, except for public keys imported from HW wallets
       ::  TODO save nonces/tokens from HW wallets too
       ::  for now treat this as a nuke of the wallet
@@ -152,7 +156,7 @@
       =+  addr=(address-from-prv:key:ethereum prv:core)
       ::  get txn history for this new address
       =/  sent  (get-sent-history addr [our now]:bowl)
-      :-  ~
+      :-  (create-id-subs (silt ~[addr]) our.bowl)
       %=  state
         seed  seed(address-index +(address-index.seed))
         keys  (~(put by keys) addr [`prv:core nick.act])
@@ -162,8 +166,7 @@
         %add-tracked-address
       ::  get txn history for this new address
       =/  sent  (get-sent-history address.act [our now]:bowl)
-      :-  ~
-
+      :-  (create-id-subs (silt ~[address.act]) our.bowl)
       %=  state
         keys  (~(put by keys) address.act [~ nick.act])
         transaction-store  (~(put by transaction-store) address.act [sent ~])
@@ -171,7 +174,7 @@
     ::
         %delete-address
       ::  can recover by re-deriving same path
-      :-  ~
+      :-  (clear-id-sub address.act our.bowl)
       %=  state
         keys    (~(del by keys) address.act)
         nonces  (~(del by nonces) address.act)
