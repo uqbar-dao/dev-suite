@@ -7,7 +7,7 @@
       %egg
       %from
       %grain
-      %grain-eggs
+      :: %grain-eggs
       %holder
       %lord
       %to
@@ -73,7 +73,7 @@
   $:  =egg-index
       from-index=second-order-index
       grain-index=batch-index
-      grain-eggs-index=second-order-index
+      :: grain-eggs-index=second-order-index
       holder-index=second-order-index
       lord-index=second-order-index
       to-index=second-order-index

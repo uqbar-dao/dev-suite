@@ -287,7 +287,7 @@
     |=  =path
     ^-  (unit (unit cage))
     ?:  =(/x/dbug/state path)
-      ~  ::  Don't send :indexer +dbug %path-does-not-exist.
+      ``[%noun !>(`_state`state)]
     ?.  ?=  $?  [@ @ @ ~]  [@ @ @ @ @ @ ~]
                 [@ @ @ @ ~]  [@ @ @ @ @ ~]
             ==
@@ -417,6 +417,24 @@
         [%indexer-catchup-update ~]
       ?+    -.sign  (on-agent:def wire sign)
           %fact
+        ::  Reset state to initial conditions: this happens
+        ::   automagically `+on-load`, but not here.
+        ::   If don't do this, can get bad state starting
+        ::   up a new indexer.
+        =:  batches-by-town         ~
+            capitol                 ~
+            sequencer-update-queue  ~
+            town-update-queue       ~
+            old-sub-updates         ~
+            egg-index               ~
+            from-index              ~
+            grain-index             ~
+            :: grain-eggs-index        ~
+            holder-index            ~
+            lord-index              ~
+            to-index                ~
+            newest-batch-by-town    ~
+        ==
         `this(state (set-state-from-vase q.cage.sign))
       ==
     ==
@@ -720,12 +738,12 @@
 ++  set-state-from-vase
   |=  state-vase=vase
   ^-  _state
-  =/  new-base-state  !<(versioned-state:ui state-vase)
-  ?-    -.new-base-state
+  =+  !<(=versioned-state:ui state-vase)
+  ?-    -.versioned-state
       %0
-    :-  new-base-state(old-sub-updates ~)
+    :-  versioned-state(old-sub-updates ~)
     %-  inflate-state
-    ~(tap by batches-by-town.new-base-state)
+    ~(tap by batches-by-town.versioned-state)
   ==
 ::
 ++  inflate-state
@@ -758,7 +776,10 @@
           timestamp.i.batches-list
           %.n
       ==
-    $(batches-list t.batches-list)
+    %=  $
+        batches-list     t.batches-list
+        temporary-state  temporary-state
+    ==
   --
 ::
 ++  serve-update
