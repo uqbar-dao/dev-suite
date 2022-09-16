@@ -25,74 +25,60 @@
   ?.  ?=(%egg -.txn-history)  ~
   %-  ~(urn by eggs.txn-history)
   |=  [hash=@ux upd=[@ * =egg:smart]]
-  [egg.upd [%noun yolk.egg.upd]]
+  [egg.upd(status.shell (add 200 `@`status.shell.egg.upd)) [%noun yolk.egg.upd]]
 ::
-++  create-holder-and-id-subs
-  |=  [pubkeys=(set @ux) our=@p]
+++  watch-for-batches
+  |=  [our=@p town-id=@ux]
   ^-  (list card)
-  %+  weld
-    %+  turn
-      ~(tap in pubkeys)
-    |=  k=@ux
-    =-  [%pass - %agent [our %uqbar] %watch -]
-    :: /indexer/id/(scot %ux k)
-    /indexer/wallet/id/0x0/(scot %ux k)  ::  TODO: remove hardcode; replace %wallet with [dap.bowl]?
-  %+  turn
-    ~(tap in pubkeys)
-  |=  k=@ux
-  =-  [%pass - %agent [our %uqbar] %watch -]
-  :: /indexer/holder/(scot %ux k)
-  /indexer/wallet/holder/0x0/(scot %ux k)  ::  TODO: remove hardcode; replace %wallet with [dap.bowl]?
+  :~  =-  [%pass /new-batch %agent [our %uqbar] %watch -]
+      /indexer/wallet/batch-order/(scot %ux town-id)
+  ==
 ::
-++  clear-holder-and-id-sub
-  |=  [id=@ux wex=boat:gall]
-  ^-  (list card)
-  %+  murn  ~(tap by wex)
-  |=  [[=wire =ship =term] *]
-  ^-  (unit card)
-  ?.  =((slav %ux (rear wire)) id)  ~
-  `[%pass wire %agent [ship term] %leave ~]
+++  make-tokens
+  |=  [addrs=(list address:smart) our=@p now=@da]
+  ^-  (map address:smart book)
+  =|  new=(map address:smart book)
+  |-  ::  scry for each tracked address
+  ?~  addrs  new
+  =/  upd  .^(update:ui %gx /(scot %p our)/uqbar/(scot %da now)/indexer/newest/holder/0x0/(scot %ux i.addrs)/noun)
+  ?.  ?=(%grain -.upd)
+    ::  handle newest-grain update type
+    ?>  ?=(%newest-grain -.upd)
+    =/  single=asset
+      ?.  ?=(%& -.grain.upd)
+        ::  handle contract asset
+        [%unknown town-id.p.grain.upd lord.p.grain.upd ~]
+      ::  determine type token/nft/unknown
+      (discover-asset-mold town-id.p.grain.upd lord.p.grain.upd data.p.grain.upd)
+      %=  $
+        addrs  t.addrs
+        new  (~(put by new) i.addrs (malt ~[[id.p.grain.upd single]]))
+      ==
+  %=  $
+    addrs  t.addrs
+    new  (~(put by new) i.addrs (indexer-update-to-book upd))
+  ==
 ::
-++  clear-all-holder-and-id-subs
-  |=  wex=boat:gall
-  ^-  (list card)
-  %+  murn  ~(tap by wex)
-  |=  [[=wire =ship =term] *]
-  ^-  (unit card)
-  ?.  |(?=([%indexer %id *] wire) ?=([%indexer %holder *] wire))  ~
-  `[%pass wire %agent [ship term] %leave ~]
-::
-++  indexer-update-to-books
+++  indexer-update-to-book
   |=  =update:ui
   ^-  book
-  =|  new-book=book
   ?>  ?=(%grain -.update)
   =/  grains-list=(list [@da =batch-location:ui =grain:smart])
     (zing ~(val by grains.update))
+  =|  new-book=book
   |-  ^-  book
   ?~  grains-list  new-book
   =*  grain  grain.i.grains-list
-  ?.  ?=(%& -.grain)
-    ::  if grain isn't data, just skip
-    $(grains-list t.grains-list)
-  ::  determine type token/nft/unknown and store in book
-  =/  =asset  (discover-asset-mold town-id.p.grain lord.p.grain data.p.grain)
+  =/  =asset
+    ?.  ?=(%& -.grain)
+      ::  handle contract asset
+      [%unknown town-id.p.grain lord.p.grain ~]
+    ::  determine type token/nft/unknown and store in book
+    (discover-asset-mold town-id.p.grain lord.p.grain data.p.grain)
   %=  $
     grains-list  t.grains-list
     new-book  (~(put by new-book) id.p.grain asset)
   ==
-::
-++  indexer-update-to-asset
-  |=  =update:ui
-  ^-  [id:smart asset]
-  =|  new-book=book
-  ?>  ?=(%newest-grain -.update)
-  :-  grain-id.update
-  ?.  ?=(%& -.grain.update)
-    ::  handle contract asset
-    [%unknown town-id.p.grain.update lord.p.grain.update ~]
-  ::  determine type token/nft/unknown
-  (discover-asset-mold town-id.p.grain.update lord.p.grain.update data.p.grain.update)
 ::
 ++  discover-asset-mold
   |=  [town=@ux contract=@ux data=*]
@@ -106,8 +92,11 @@
   [%unknown town contract data]
 ::
 ++  update-metadata-store
-  |=  [=book our=ship =metadata-store our=ship now=time]
-  =/  book=(list [=id:smart =asset])  ~(tap by book)
+  |=  [tokens=(map address:smart book) =metadata-store our=@p now=@da]
+  =/  book=(list [=id:smart =asset])
+    %-  zing
+    %+  turn  ~(val by tokens)
+    |=(=book ~(tap by book))
   |-  ^-  ^metadata-store
   ?~  book  metadata-store
   =*  asset  asset.i.book
