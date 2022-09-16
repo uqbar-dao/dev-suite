@@ -41,7 +41,19 @@
   |-  ::  scry for each tracked address
   ?~  addrs  new
   =/  upd  .^(update:ui %gx /(scot %p our)/uqbar/(scot %da now)/indexer/newest/holder/0x0/(scot %ux i.addrs)/noun)
-  ?.  ?=(%grain -.upd)  $(addrs t.addrs)
+  ?.  ?=(%grain -.upd)
+    ::  handle newest-grain update type
+    ?>  ?=(%newest-grain -.upd)
+    =/  single=asset
+      ?.  ?=(%& -.grain.upd)
+        ::  handle contract asset
+        [%unknown town-id.p.grain.upd lord.p.grain.upd ~]
+      ::  determine type token/nft/unknown
+      (discover-asset-mold town-id.p.grain.upd lord.p.grain.upd data.p.grain.upd)
+      %=  $
+        addrs  t.addrs
+        new  (~(put by new) i.addrs (malt ~[[id.p.grain.upd single]]))
+      ==
   %=  $
     addrs  t.addrs
     new  (~(put by new) i.addrs (indexer-update-to-book upd))
