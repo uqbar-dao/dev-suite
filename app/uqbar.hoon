@@ -470,7 +470,7 @@
       ?~  source=(get-best-source:uc town-id ~ %nu)  out
       :+  (~(leave pass:io w) [s t])
         %+  ~(watch pass:io w)  p.u.source
-        ?:(?=(%no-init (rear p)) p (snoc p %no-init))
+        ?.(?=(%history (rear p)) p (snip p))
       out
     ::
     ++  make-ping-indexer-cards
