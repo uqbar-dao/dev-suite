@@ -101,30 +101,25 @@
 ::
 ::    /batch-order/[town-id=@ux]:
 ::      A stream of batch ids.
-::      Reply on-watch in historical batch-order.
 ::    /grain/[grain-id=@ux]
 ::    /grain/[town-id=@ux]/[grain-id=@ux]:
 ::      A stream of changes to given grain.
-::      Reply on-watch is entire grain history.
 ::    /hash/[@ux]:
 ::      A stream of new activity of given id.
 ::    /holder/[holder-id=@ux]
 ::    /holder/[town-id=@ux]/[holder-id=@ux]:
 ::      A stream of new activity of given holder.
-::      Reply on-watch is entire history of held grains.
 ::    /id/[id=@ux]
 ::    /id/[town-id=@ux]/[id=@ux]:
-::      A stream of new transactions of given id.
-::      Reply on-watch is all historical
-::      transactions `from` or `to` id.
+::      A stream of new transactions of given id:
+::      specifically transactions where id appears
+::      in the `from` or `contract` fields.
 ::    /lord/[lord-id=@ux]
 ::    /lord/[town-id=@ux]/[lord-id=@ux]:
 ::      A stream of new activity of given lord.
-::      Reply on-watch is entire history of ruled grains.
 ::    /town/[town-id=@ux]
 ::    /town/[town-id=@ux]/[town-id=@ux]:
 ::      A stream of each new batch for town.
-::      Reply on-watch is history of batches in town.
 ::
 ::
 ::    ##  Pokes
