@@ -123,7 +123,7 @@ The `%wallet` will send the transaction hash on a subscription wire as well as p
 :uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 grain=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
 
 ::  Send an NFT.
-:uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x53f9.b35a.4884.8c46.4c53.1846.cee8.0e4c.e898.440b.18d8.ebe8.decd.c3af.617e.89af town=0x0 action=[%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de grain=0x273a.33fb.ac87.6864.4181.38cf.8b07.48f8.be05.ab08.3055.c38e.9977.de2b.80e8.4a3f]]
+:uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0xc9fb.6b1b.e8b2.7b73.65e4.700f.9665.24c8.9388.2cde.fadd.c422.eb9a.3624.ca5d.014d town=0x0 action=[%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de grain=0x7b61.8ce0.26ec.f2b9.3bc9.5800.ba7f.164e.89ba.817b.e0d9.5cfd.96bc.c12a.5c29.00a1]]
 
 ::  Use the custom transaction interface to send zigs tokens.
 :uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%noun [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]]]
