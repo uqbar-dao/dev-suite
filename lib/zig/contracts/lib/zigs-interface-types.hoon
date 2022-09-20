@@ -46,10 +46,10 @@
   ~
   ::
   ++  give-cord
+    ::  TODO: add back in `{"budget": "ud"},` field
     ^-  cord
     '''
     [
-      {"budget": "ud"},
       {"to": "ux"},
       {"amount": "ud"},
       {"from-account": "ux"},
