@@ -145,9 +145,10 @@
 ::      Subscribe to rollup for new batch roots.
 ::
 ::
-/-  ui=indexer,
+/-  mill,
+    uqbar,
     seq=sequencer,
-    mill
+    ui=indexer
 /+  agentio,
     dbug,
     default-agent,
@@ -174,7 +175,48 @@
       ic            ~(. indexer-core bowl)
       ui-lib        ~(. indexer-lib bowl)
   ::
-  ++  on-init  `this
+  ++  on-init
+    ::  Temporary hardcode for ~bacdun testnet
+    ::   to allow easier setup.
+    ::   TODO: Remove hardcode and add a GUI button/
+    ::         input menu to setup.
+    =/  testnet-host=@p          ~bacdun
+    =/  indexer-catchup-host=@p  ~dister-dozzod-bacdun
+    =/  rollup-dock=dock         [testnet-host %rollup]
+    =/  sequencer-dock=dock      [testnet-host %sequencer]
+    =/  indexer-catchup-dock=dock
+      [indexer-catchup-host %indexer]
+    :_  this
+    :-  %+  ~(poke-our pass:io /set-source-poke)  %uqbar
+        :-  %uqbar-action
+        !>  ^-  action:uqbar
+        :-  %set-sources
+        [0x0 (~(gas in *(set dock)) ~[[our dap]:bowl])]~
+    ?:  ?|  =(testnet-host our.bowl)
+            =(indexer-catchup-host our.bowl)
+        ==
+      ~
+    ;:  weld
+        %^    set-watch-target:ic
+            sequencer-wire
+          sequencer-dock
+        sequencer-path
+    ::
+        %^    set-watch-target:ic
+            rollup-capitol-wire
+          rollup-dock
+        rollup-capitol-path
+    ::
+        %^    set-watch-target:ic
+            rollup-root-wire
+          rollup-dock
+        rollup-root-path
+    ::
+        %^    set-watch-target:ic
+            indexer-catchup-wire
+          indexer-catchup-dock
+        indexer-catchup-path
+    ==
   ++  on-save  !>(-.state)
   ++  on-load
     |=  old-vase=vase
