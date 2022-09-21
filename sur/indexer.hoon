@@ -67,7 +67,8 @@
       =capitol:seq
       =sequencer-update-queue
       =town-update-queue
-      old-sub-updates=(map path update)
+      old-sub-paths=(map path @ux)
+      old-sub-updates=(map @ux update)
   ==
 +$  indices-0
   $:  =egg-index
