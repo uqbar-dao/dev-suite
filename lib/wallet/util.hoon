@@ -65,6 +65,7 @@
   |-  ::  scry for each tracked address
   ?~  addrs  new
   =/  upd  .^(update:ui %gx /(scot %p our)/uqbar/(scot %da now)/indexer/newest/holder/0x0/(scot %ux i.addrs)/noun)
+  ?~  upd  new
   ?.  ?=(%grain -.upd)
     ::  handle newest-grain update type
     ?>  ?=(%newest-grain -.upd)

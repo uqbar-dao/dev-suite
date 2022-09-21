@@ -109,6 +109,13 @@
 ::    /holder/[holder-id=@ux]
 ::    /holder/[town-id=@ux]/[holder-id=@ux]:
 ::      A stream of new activity of given holder.
+::      If a held grain changes holders, the final update
+::      sent for that grain will have the updated holder.
+::      Thus, applications will need to check the holder
+::      field and update their state as appropriate when
+::      it has changed; subsequent updates will not include
+::      that grain.
+::      Reply on-watch is entire history of held grains.
 ::    /id/[id=@ux]
 ::    /id/[town-id=@ux]/[id=@ux]:
 ::      A stream of new transactions of given id:
@@ -136,9 +143,10 @@
 ::      Subscribe to rollup for new batch roots.
 ::
 ::
-/-  ui=indexer,
+/-  mill,
+    uqbar,
     seq=sequencer,
-    mill
+    ui=indexer
 /+  agentio,
     dbug,
     default-agent,
@@ -165,7 +173,48 @@
       ic            ~(. indexer-core bowl)
       ui-lib        ~(. indexer-lib bowl)
   ::
-  ++  on-init  `this
+  ++  on-init
+    ::  Temporary hardcode for ~bacdun testnet
+    ::   to allow easier setup.
+    ::   TODO: Remove hardcode and add a GUI button/
+    ::         input menu to setup.
+    =/  testnet-host=@p          ~bacdun
+    =/  indexer-catchup-host=@p  ~dister-dozzod-bacdun
+    =/  rollup-dock=dock         [testnet-host %rollup]
+    =/  sequencer-dock=dock      [testnet-host %sequencer]
+    =/  indexer-catchup-dock=dock
+      [indexer-catchup-host %indexer]
+    :_  this
+    :-  %+  ~(poke-our pass:io /set-source-poke)  %uqbar
+        :-  %uqbar-action
+        !>  ^-  action:uqbar
+        :-  %set-sources
+        [0x0 (~(gas in *(set dock)) ~[[our dap]:bowl])]~
+    ?:  ?|  =(testnet-host our.bowl)
+            =(indexer-catchup-host our.bowl)
+        ==
+      ~
+    ;:  weld
+        %^    set-watch-target:ic
+            sequencer-wire
+          sequencer-dock
+        sequencer-path
+    ::
+        %^    set-watch-target:ic
+            rollup-capitol-wire
+          rollup-dock
+        rollup-capitol-path
+    ::
+        %^    set-watch-target:ic
+            rollup-root-wire
+          rollup-dock
+        rollup-root-path
+    ::
+        %^    set-watch-target:ic
+            indexer-catchup-wire
+          indexer-catchup-dock
+        indexer-catchup-path
+    ==
   ++  on-save  !>(-.state)
   ++  on-load
     |=  old-vase=vase
@@ -317,7 +366,7 @@
         read-query-payload-from-args
       %-  make-peek-update
       ?~  query-payload  [%path-does-not-exist ~]
-      (get-hashes u.query-payload only-newest)
+      (get-hashes u.query-payload only-newest %.y)
     ::
         ?([%id @ ~] [%id @ @ ~])
       =/  query-payload=(unit query-payload:ui)
@@ -341,7 +390,12 @@
         read-query-payload-from-args
       %-  make-peek-update
       ?~  query-payload  [%path-does-not-exist ~]
-      (serve-update query-type u.query-payload only-newest)
+      %:  serve-update
+          query-type
+          u.query-payload
+          only-newest
+          %.y
+      ==
     ::
         [%batch-order @ ~]
       =/  town-id=@ux  (slav %ux i.t.args)
@@ -646,21 +700,22 @@
 ++  get-ids
   |=  [qp=query-payload:ui only-newest=?]
   ^-  update:ui
-  =/  from=update:ui  (serve-update %from qp only-newest)
-  =/  to=update:ui    (serve-update %to qp only-newest)
+  =/  from=update:ui  (serve-update %from qp only-newest %.n)
+  =/  to=update:ui    (serve-update %to qp only-newest %.n)
   (combine-egg-updates ~[from to])
 ::
 ++  get-hashes
-  |=  [qp=query-payload:ui only-newest=?]
+  |=  [qp=query-payload:ui only-newest=? should-filter=?]
   ^-  update:ui
-  =/  batch=update:ui   (serve-update %batch qp only-newest)
-  =/  egg=update:ui     (serve-update %egg qp only-newest)
-  =/  from=update:ui    (serve-update %from qp only-newest)
-  =/  grain=update:ui   (serve-update %grain qp only-newest)
-  =/  holder=update:ui  (serve-update %holder qp only-newest)
-  =/  lord=update:ui    (serve-update %lord qp only-newest)
-  =/  to=update:ui      (serve-update %to qp only-newest)
-  =/  town=update:ui    (serve-update %town qp only-newest)
+  =*  options  [only-newest should-filter]
+  =/  batch=update:ui   (serve-update %batch qp options)
+  =/  egg=update:ui     (serve-update %egg qp options)
+  =/  from=update:ui    (serve-update %from qp options)
+  =/  grain=update:ui   (serve-update %grain qp options)
+  =/  holder=update:ui  (serve-update %holder qp options)
+  =/  lord=update:ui    (serve-update %lord qp options)
+  =/  to=update:ui      (serve-update %to qp options)
+  =/  town=update:ui    (serve-update %town qp options)
   :: =/  grain-eggs=update:ui
   ::   (serve-update %grain-eggs qp only-newest)
   %^  combine-updates  ~[batch town]  ~[egg from to]
@@ -785,7 +840,11 @@
   --
 ::
 ++  serve-update
-  |=  [=query-type:ui =query-payload:ui only-newest=?]
+  |=  $:  =query-type:ui
+          =query-payload:ui
+          only-newest=?
+          should-filter=?
+      ==
   ^-  update:ui
   =/  get-appropriate-batch
     ?.  only-newest  get-batch
@@ -963,26 +1022,20 @@
       =/  =update:ui  create-update
       ?~  update  ~
       ?+    -.update  ~|("indexer: get-second-order unexpected return type" !!)
-          %egg    update(eggs (filter-eggs eggs.update))
-          %grain  update(grains (filter-grains grains.update))
-          %newest-egg    ?.((is-egg-hit +.+.update) ~ update)
-          %newest-grain  ?.((is-grain-hit +.+.update) ~ update)
-      ==
+          %newest-egg  update
+          %egg         update
       ::
-      ++  is-egg-hit
-        |=  value=egg-update-value:ui
-        ^-  ?
-        =/  query-hash=id:smart
-          ?:  ?=(@ query-payload)  query-payload
-          ?>  ?=([@ @] query-payload)
-          +.query-payload
-        ?|  ?&  ?=(%from query-type)
-                =(query-hash id.from.shell.egg.value)
-            ==
-            ?&  ?=(%to query-type)
-                =(query-hash contract.shell.egg.value)
-            ==
+          %newest-grain
+        ?.  should-filter  update
+        ?.((is-grain-hit +.+.update) ~ update)
+      ::
+          %grain
+        %=  update
+            grains
+          ?.  should-filter  grains.update
+          (filter-grains grains.update)
         ==
+      ==
       ::
       ++  is-grain-hit
         |=  value=grain-update-value:ui
@@ -991,25 +1044,11 @@
           ?:  ?=(@ query-payload)  query-payload
           ?>  ?=([@ @] query-payload)
           +.query-payload
-        ::  hack to get around grain's `each`
-        =/  [holder=id:smart lord=id:smart]
-          ?:  -.grain.value
-            [holder.p.grain.value lord.p.grain.value]
-          [holder.p.grain.value lord.p.grain.value]
+        =*  holder  holder.p.grain.value
+        =*  lord    lord.p.grain.value
         ?|  &(?=(%holder query-type) =(query-hash holder))
             &(?=(%lord query-type) =(query-hash lord))
         ==
-      ::
-      ++  filter-eggs
-        |=  eggs=(map id:smart egg-update-value:ui)
-        ^-  (map id:smart egg-update-value:ui)
-        %-  ~(gas by *(map id:smart egg-update-value:ui))
-        %+  roll  ~(tap by eggs)
-        |=  $:  [egg-id=id:smart =egg-update-value:ui]
-                out=(list [id:smart egg-update-value:ui])
-            ==
-        ?.  (is-egg-hit egg-update-value)  out
-        [[egg-id egg-update-value] out]
       ::
       ++  filter-grains  ::  TODO: generalize w/ `+diff-update-grains`
         |=  grains=(jar id:smart grain-update-value:ui)
@@ -1051,7 +1090,6 @@
             ?:  ?=(%egg -.next-update)
               (~(uni by eggs.out) eggs.next-update)
             ?>  ?=(%newest-egg -.next-update)
-            ?.  (is-egg-hit +.+.next-update)  eggs.out
             (~(put by eggs.out) +.next-update)
           ==
         ::
@@ -1062,7 +1100,6 @@
             ?:  ?=(%grain -.next-update)
               (~(uni by grains.out) grains.next-update)  ::  TODO: can this clobber?
             ?>  ?=(%newest-grain -.next-update)
-            ?.  (is-grain-hit +.+.next-update)  grains.out
             (~(add ja grains.out) +.next-update)
           ==
         ::
@@ -1071,7 +1108,6 @@
               %egg
             %=  next-update
                 eggs
-              ?.  (is-egg-hit +.+.out)  eggs.next-update
               (~(put by eggs.next-update) +.out)
             ==
           ::
@@ -1087,7 +1123,6 @@
               %grain
             %=  next-update
                 grains
-              ?.  (is-grain-hit +.+.out)  grains.next-update
               (~(add ja grains.next-update) +.out)  ::  TODO: ordering?
             ==
           ::
@@ -1097,8 +1132,7 @@
             %~  add  ja
             %.  +.out
             %~  add  ja
-            ^*  %+  jar  id:smart
-            [@da batch-location:ui grain:smart]
+            *(jar id:smart grain-update-value:ui)
           ==
         ==
       --
@@ -1252,8 +1286,7 @@
   ::
   ++  make-all-sub-cards
     ^-  [(list card) (list [path update:ui])]
-    =/  sub-paths=(jug @tas path)
-      make-sub-paths
+    =/  sub-paths=(jug @tas path)  make-sub-paths
     |^
     =/  out=(pair (list (list card)) (list (list [path update:ui])))
       %+  roll
@@ -1296,10 +1329,11 @@
         [(slav %ux i.sub-path) (slav %ux i.t.sub-path)]
       =/  =update:ui
         ?+    query-type  !!
-            %hash  (get-hashes payload %.y)
-            %id    (get-ids payload %.y)
-            ?(%grain %holder %lord %town)
-          (serve-update query-type payload %.y)
+            %hash    (get-hashes payload %.y %.n)
+            %holder  (serve-update query-type payload %.y %.n)
+            %id      (get-ids payload %.y)
+            ?(%grain %lord %town)
+          (serve-update query-type payload %.y %.y)
         ==
       ?~  update  out
       =/  total-path=path  [query-type sub-path]
@@ -1329,11 +1363,13 @@
     ++  compute-update-diff
       |=  [new=update:ui sub-path=path]
       |^  ^-  update:ui
+      =*  query-type  -.sub-path
       =/  old=update:ui
         (~(gut by old-sub-updates) sub-path ~)
       ?~  old             new
       ?.  =(-.old -.new)  ~  ::  require same type updates
       ?+    -.old         ~
+      ::  TODO: simplify where we don't need diffs
           %batch
         ?>  ?=(%batch -.new)
         ?~  diff=(diff-update-maps batches.old batches.new)
@@ -1355,7 +1391,9 @@
         ?>  ?=(%grain -.new)
         ?~  diff=(diff-update-grains grains.old grains.new)
           ~
-        [%grain diff]
+        :-  %grain
+        ?.  ?=(%holder query-type)  diff
+        (filter-holder-held-in-last-batch diff grains.old)
       ::
           %hash
         ?>  ?=(%hash -.new)
@@ -1365,6 +1403,10 @@
           (diff-update-maps eggs.old eggs.new)
         =/  grain-diff=(jar id:smart grain-update-value:ui)
           (diff-update-grains grains.old grains.new)
+        =.  grain-diff
+        ?.  ?=(%holder query-type)  grain-diff
+        %+  filter-holder-held-in-last-batch  grain-diff
+        grains.old
         ?:  ?&  ?=(~ batch-diff)
                 ?=(~ egg-diff)
                 ?=(~ grain-diff)
@@ -1396,6 +1438,33 @@
         ?~  diff=(diff-update-value +.+.old +.+.new)  ~
         [%newest-grain grain-id.new u.diff]
       ==
+      ::
+      ++  filter-holder-held-in-last-batch
+        |=  $:  diff-grains=(jar id:smart grain-update-value:ui)
+                old-grains=(jar id:smart grain-update-value:ui)
+            ==
+        ^-  (jar id:smart grain-update-value:ui)
+        =/  holder-id=id:smart
+          %+  slav  %ux
+          ?:  ?=  ?([%holder @ ~] [%holder @ %no-init ~])
+              sub-path
+            i.t.sub-path
+          ?>  ?=  ?([%holder @ @ ~] [%holder @ @ %no-init ~])
+              sub-path
+          i.t.t.sub-path
+        %-  %~  gas  by
+            *(map id:smart (list grain-update-value:ui))
+        %+  roll  ~(tap by diff-grains)
+        |=  $:  [=id:smart diff-vals=(list grain-update-value:ui)]
+                out=(list [id:smart (list grain-update-value:ui)])
+            ==
+        ?~  old-vals=(~(get ja old-grains) id)
+          [[id diff-vals] out]
+        ~|  "expected newest"
+        ?>  =(1 (lent diff-vals))
+        ?>  =(1 (lent old-vals))
+        ?.  =(holder-id holder.p.grain.i.old-vals)  out
+        [[id diff-vals] out]
       ::
       ++  diff-update-value
         |*  [old-val=[@da * *] new-val=[@da * *]]
