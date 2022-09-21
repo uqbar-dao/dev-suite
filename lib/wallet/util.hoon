@@ -34,7 +34,7 @@
   |=  k=@ux
   =/  w=wire  /id/0x0/(scot %ux k)
   =-  [%pass w %agent [our %uqbar] %watch -]
-  /indexer/wallet/id/0x0/(scot %ux k)/history)  ::  TODO: remove hardcode; replace %wallet with [dap.bowl]?
+  /indexer/wallet/id/0x0/(scot %ux k)/history  ::  TODO: remove hardcode; replace %wallet with [dap.bowl]?
 ::
 ++  clear-id-sub
   |=  [id=@ux our=@p]
