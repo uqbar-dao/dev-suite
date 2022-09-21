@@ -81,6 +81,17 @@
 ::
 ::    ## Subscription paths
 ::
+::    Subscriptions paths must be appended with a unique
+::    subscription identifier.
+::    The %uqbar app does this automatically. 
+::    One recommended way to do this is to append
+::    ```
+::    (scot %ux (cut 5 [0 1] eny.bowl))
+::    ```
+::    to the path.`
+::    The unique identifier is required to return the
+::    properly diff'd update to each subscriber.
+::
 ::    Subscription paths do not send anything on-watch.
 ::    To receive the history on-watch, append `/history`
 ::    to the end of the subscription path.
