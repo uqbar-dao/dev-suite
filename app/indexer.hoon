@@ -1220,11 +1220,11 @@
   %=  state
       old-sub-paths
     ?~  paths.all-sub-cards  old-sub-paths
-    (~(gas by *_old-sub-paths) paths.all-sub-cards)
+    (~(gas by *(map path @ux)) paths.all-sub-cards)
   ::
       old-sub-updates
     ?~  updates.all-sub-cards  old-sub-updates
-    (~(gas by *_old-sub-updates) updates.all-sub-cards)
+    (~(gas by *(map @ux update:ui)) updates.all-sub-cards)
   ==
   ::
   ++  gas-ja-egg
@@ -1349,10 +1349,10 @@
       =/  total-path=path  [query-type sub-path]
       =/  update-diff=update:ui
         (compute-update-diff update total-path)
-      ?~  update-diff  out
       =/  update-hash=@ux  (mug update)
       :_  :-  [[total-path update-hash] paths.out]
           [[update-hash update] updates.out]
+      ?~  update-diff  cards.out
       :_  cards.out
       ?.  is-json
         %-  fact:io
