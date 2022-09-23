@@ -309,11 +309,14 @@
   ?:(=(~ a) & (apt:(bi key value) a))
 ::
 ++  shag                                                ::  256bit noun hash
-  |=  yux=*  ^-  hash
+  |=  yux=*
+  ~>  %shag.+<
+  ^-  hash
+  `@ux`(sham yux)
   ::  TODO: make LRU-cache-optimized version for granary retrivial & modification
-  ?@  yux
-    (hash:pedersen yux 0)
-  (hash:pedersen $(yux -.yux) $(yux +.yux))
+  ::  ?@  yux
+  ::    (hash:pedersen yux 0)
+  ::  (hash:pedersen $(yux -.yux) $(yux +.yux))
 ::
 ::  +sore: single Pedersen hash in ascending order, uses +dor as
 ::  fallback
