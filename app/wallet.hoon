@@ -117,7 +117,7 @@
         pending-store      ~
         seed  [mnemonic.act password.act 0]
         transaction-store  [[addr [sent ~]] ~ ~]
-        keys  (~(put by *_keys) addr [`private-key:core nick.act])
+        keys  (~(put by *(map address:smart [(unit @ux) @t])) addr [`private-key:core nick.act])
       ==
     ::
         %generate-hot-wallet
@@ -143,7 +143,7 @@
         pending-store      ~
         seed  [(crip mnem) password.act 0]
         transaction-store  [[addr [sent ~]] ~ ~]
-        keys  (~(put by *_keys) addr [`private-key:core nick.act])
+        keys  (~(put by *(map address:smart [(unit @ux) @t])) addr [`private-key:core nick.act])
       ==
     ::
         %derive-new-address
