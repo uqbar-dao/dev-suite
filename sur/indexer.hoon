@@ -41,7 +41,9 @@
   (map @ux (jar @ux second-order-location))
 ::
 +$  batches-by-town
-  (map town-id=id:smart [=batches =batch-order])
+  (map town-id=id:smart batches-and-order)
++$  batches-and-order
+  [=batches =batch-order]
 +$  batches
   (map id:smart [timestamp=@da =batch])
 +$  batch-order
@@ -68,6 +70,7 @@
       =sequencer-update-queue
       =town-update-queue
       old-sub-updates=(map path update)
+      catchup-indexer=dock
   ==
 +$  indices-0
   $:  =egg-index
