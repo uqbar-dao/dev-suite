@@ -539,6 +539,8 @@
           :-  (~(uni by p.u.old) batches)
           (weld batch-order (slag root-index q.u.old))
         %=  this
+            sequencer-update-queue  ~
+            town-update-queue       ~
             +.state
           %-  inflate-state
           ~(tap by batches-by-town)
@@ -553,6 +555,48 @@
         %+  %~  gut  by  batches-by-town
         town-id  [*batches:ui *batches-by-town:ui]
       (~(has by batches) root)
+    ::
+    ++  consume-sequencer-update
+      |=  update=indexer-update:seq
+      ^-  (quip card _state)
+      ?-    -.update
+          %update
+        =*  town-id  town-id.hall.update
+        =*  root     root.update
+        ?:  (has-root-already town-id root)  `state
+        ?.  =(root (sham land.update))       `state
+        =/  timestamp=(unit @da)
+          %.  root
+          %~  get  by
+          %+  ~(gut by town-update-queue)  town-id
+          *(map @ux @da)
+        ?~  timestamp
+          :-  ~
+          %=  state
+              sequencer-update-queue
+            %+  ~(put by sequencer-update-queue)  town-id
+            %+  %~  put  by
+                %+  ~(gut by sequencer-update-queue)  town-id
+                *(map @ux batch:ui)
+              root
+            [transactions.update [land.update hall.update]]
+          ==
+        =^  cards  state
+          %:  consume-batch:ic
+              root
+              transactions.update
+              [land.update hall.update]
+              u.timestamp
+              %.y
+          ==
+        :-  cards
+        %=  state
+            town-update-queue
+          %+  ~(put by town-update-queue)  town-id
+          %.  root
+          ~(del by (~(got by town-update-queue) town-id))
+        ==
+      ==
     ::
     ++  consume-rollup-update
       |=  update=rollup-update:seq
@@ -659,48 +703,6 @@
         ?.  |(=(l-old l-new) =(l-old (dec l-new)))  %.n
         $(town-ids t.town-ids)
       --
-    ::
-    ++  consume-sequencer-update
-      |=  update=indexer-update:seq
-      ^-  (quip card _state)
-      ?-    -.update
-          %update
-        =*  town-id  town-id.hall.update
-        =*  root     root.update
-        ?:  (has-root-already town-id root)  `state
-        ?.  =(root (sham land.update))       `state
-        =/  timestamp=(unit @da)
-          %.  root
-          %~  get  by
-          %+  ~(gut by town-update-queue)  town-id
-          *(map @ux @da)
-        ?~  timestamp
-          :-  ~
-          %=  state
-              sequencer-update-queue
-            %+  ~(put by sequencer-update-queue)  town-id
-            %+  %~  put  by
-                %+  ~(gut by sequencer-update-queue)  town-id
-                *(map @ux batch:ui)
-              root
-            [transactions.update [land.update hall.update]]
-          ==
-        =^  cards  state
-          %:  consume-batch:ic
-              root
-              transactions.update
-              [land.update hall.update]
-              u.timestamp
-              %.y
-          ==
-        :-  cards
-        %=  state
-            town-update-queue
-          %+  ~(put by town-update-queue)  town-id
-          %.  root
-          ~(del by (~(got by town-update-queue) town-id))
-        ==
-      ==
     --
   ::
   ++  on-arvo  on-arvo:def
