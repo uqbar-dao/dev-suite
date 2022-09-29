@@ -800,9 +800,10 @@
   `[batch-root u.b]
 ::
 ++  get-newest-batch
-  |=  town-id=id:smart
+  |=  [town-id=id:smart expected-root=id:smart]
   ^-  (unit [batch-id=id:smart timestamp=@da =batch:ui])
   ?~  b=(~(get by newest-batch-by-town) town-id)  ~
+  ?.  =(expected-root batch-id.u.b)               ~
   `u.b
 ::
 ++  combine-egg-updates
@@ -964,8 +965,7 @@
       ==
   ^-  update:ui
   =/  get-appropriate-batch
-    ?.  only-newest  get-batch
-    |=([town-id=id:smart @] (get-newest-batch town-id))
+    ?.(only-newest get-batch get-newest-batch)
   |^
   ?+    query-type  ~
       %batch
@@ -1010,11 +1010,11 @@
     ?.  ?=(@ query-payload)  ~
     =*  batch-id  query-payload
     =/  out=[%batch (map id:smart [@da town-location:ui batch:ui])]
-      %+  roll  ~(tap by batches-by-town)
-      |=  $:  [town-id=id:smart =batches:ui batch-order:ui]
+      %+  roll  ~(tap in ~(key by batches-by-town))
+      |=  $:  town-id=id:smart
               out=[%batch (map id:smart [@da town-location:ui batch:ui])]
           ==
-      ?~  b=(~(get by batches) batch-id)  out
+      ?~  b=(get-appropriate-batch town-id batch-id)  out
       =*  timestamp  timestamp.u.b
       =*  batch      batch.u.b
       :-  %batch
