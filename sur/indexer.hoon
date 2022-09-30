@@ -60,10 +60,21 @@
   (map town-id=@ux (map batch-id=@ux batch))
 ::
 +$  versioned-state
-  $%  base-state-1
+  $%  base-state-2
+      base-state-1
       base-state-0
   ==
 ::
++$  base-state-2
+  $:  %2
+      =batches-by-town
+      =capitol:seq
+      =sequencer-update-queue
+      =town-update-queue
+      old-sub-paths=(map path @ux)
+      old-sub-updates=(map @ux update)
+      catchup-indexer=dock
+  ==
 +$  base-state-1
   $:  %1
       =batches-by-town
@@ -93,6 +104,7 @@
       =newest-batch-by-town
   ==
 ::
++$  inflated-state-2  [base-state-2 indices-0]
 +$  inflated-state-1  [base-state-1 indices-0]
 +$  inflated-state-0  [base-state-0 indices-0]
 ::
