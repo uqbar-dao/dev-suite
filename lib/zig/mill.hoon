@@ -288,7 +288,8 @@
       |=  [from=[=id:smart nonce=@ud] =wheat:smart =egg:smart hits=(list hints) burned=^granary]
       ^-  hatchling
       |^
-      =+  [hit chick rem err]=(weed contract.shell.egg budget.shell.egg)
+      =/  =cart:smart  [contract.shell.egg from batch town-id]
+      =+  [hit chick rem err]=(weed budget.shell.egg cart)
       ?~  chick  [hit^hits ~ ~ ~ rem err]
       ?:  ?=(%& -.u.chick)
         ::  rooster result, finished growing
@@ -336,13 +337,12 @@
       ::  +weed: run contract formula with arguments and memory, bounded by bud
       ::
       ++  weed
-        |=  [to=id:smart budget=@ud]
+        |=  [budget=@ud =cart:smart]
         ^-  [hints (unit chick:smart) rem=@ud =errorcode:smart]
         ~>  %bout
         |^
         ?~  cont.wheat   [~ ~ budget %6]
-        =/  =cart:smart  [to from batch town-id]
-        =/  gun  (load u.cont.wheat cart yolk.egg)
+        =/  gun  (load u.cont.wheat cart !>(yolk.egg) %$)
         ::
         ::  generate ZK-proof hints with zebra
         ::
@@ -360,31 +360,33 @@
         [(hole (unit chick:smart) p.p.book) bud.q.book %0]
         ::
         ++  load
-          |=  [cont=[bat=* pay=*] =cart =yolk]
+          |=  [cont=[bat=* pay=*] =cart:smart arg=vase inner-arm=?(%$ %noun %json)]
           ^-  (pair)
           =/  payload   .*(q.library pay.cont)
           =/  cor       .*([q.library payload] bat.cont)
           =/  dor=vase  [-:!>(*contract:smart) cor]
-          (ajar dor %write !>(cart) !>(yolk))
+          (ajar dor %write !>(cart) arg inner-arm)
         ::
         ++  search
-          |=  pat=path
+          |=  pat=^
           ::  TODO make search return [hints product]
           ^-  (unit [(list phash) product=*])
           ::  custom scry to handle grain reads and contract reads
-          ?+    t.pat  ~
+          ?+    +.pat  ~
               [%0 %granary @ ~]
             ::  /granary/[grain-id]
-            ?~  id=(slaw %ux i.t.t.t.pat)  ~
+            ?~  id=(slaw %ux -.+.+.+.pat)  ~
             ~&  >>  "looking for grain: {<`@ux`u.id>}"
             ?~  grain=(get:big granary u.id)
               ~&  >>>  "didn't find it"  ~
             `[(mek:big granary u.id) u.grain]
           ::
-              [%0 %contract @ ^]
-              ::  /contract/[contract-id]/path/defined/in/contract
-            =/  read-path=path  t.t.t.t.pat
-            ?~  id=(slaw %ux i.t.t.t.pat)  ~
+              [%0 %contract @ @ ^]
+              ::  /contract/[%noun or %json]/[contract-id]/path/defined/in/contract
+            =/  kind  `@tas`-.+.+.+.pat
+            ?.  ?=(?(%noun %json) kind)  ~
+            =/  read-path=path  ;;(path +.+.+.+.+.pat)
+            ?~  id=(slaw %ux -.+.+.+.+.pat)  ~
             ~&  >>  "looking for contract wheat: {<`@ux`u.id>}"
             ?~  grain=(get:big granary u.id)
               ~&  >>>  "didn't find it"  ~
@@ -392,7 +394,7 @@
               ~&  >>>  "wasn't wheat"  ~
             ?~  cont.p.u.grain
               ~&  >>>  "nok was empty"  ~
-            =/  gun  (load u.cont.p.u.res cart read-path)
+            =/  gun  (load u.cont.p.u.grain cart !>(read-path) kind)
             ::  TODO figure out how to spend a portion of budget here
             =/  =book
               (zebra budget zink-cax search gun test-mode)
