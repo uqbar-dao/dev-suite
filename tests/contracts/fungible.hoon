@@ -65,8 +65,8 @@
   ++  wheat
     ^-  grain:smart
     =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] zigs-contract)))
-    =/  interface=lumps:smart  ~
-    =/  types=lumps:smart  ~
+    =/  interface  ~
+    =/  types  ~
     :*  %|
         `cont
         interface
@@ -116,8 +116,8 @@
 ++  fungible-wheat
   ^-  grain:smart
   =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] fungible-contract)))
-  =/  interface=lumps:smart  ~
-  =/  types=lumps:smart      ~
+  =/  interface  ~
+  =/  types  ~
   :*  %|
       `cont
       interface

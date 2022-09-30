@@ -16,20 +16,20 @@
   %+  ecdsa-raw-recover:secp256k1:secp:crypto
   hash  sig.egg
 ::
-::  ++  shut                                            ::  slam a door
-::    |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase]
-::    ^-  vase
-::    %+  slap
-::      (slop dor (slop dor-sam arm-sam))
-::    ^-  hoon
-::    :-  %cnsg
-::    :^    [%$ ~]
-::        [%cnsg [arm ~] [%$ 2] [%$ 6] ~]  ::  replace sample
-::      [%$ 7]
-::    ~
+++  shut                                               ::  slam a door
+  |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase inner-arm=@tas]
+  ^-  vase
+  %+  slap
+    (slop dor (slop dor-sam arm-sam))
+  ^-  hoon
+  :-  %cnsg
+  :^    [inner-arm ~]
+      [%cnsg [arm ~] [%$ 2] [%$ 6] ~]  ::  replace sample
+    [%$ 7]
+  ~
 ::
 ++  ajar                                               ::  partial shut
-  |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase inner-arm=?(%$ %noun %json)]
+  |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase inner-arm=@tas]
   ^-  (pair)
   =/  typ=type
     [%cell p.dor [%cell p.dor-sam p.arm-sam]]
@@ -342,7 +342,8 @@
         ~>  %bout
         |^
         ?~  cont.wheat   [~ ~ budget %6]
-        =/  gun  (load u.cont.wheat cart !>(yolk.egg) %$)
+        =/  dor=vase  (load u.cont.wheat)
+        =/  gun  (ajar dor %write !>(cart) !>(yolk.egg) %$)
         ::
         ::  generate ZK-proof hints with zebra
         ::
@@ -360,12 +361,11 @@
         [(hole (unit chick:smart) p.p.book) bud.q.book %0]
         ::
         ++  load
-          |=  [cont=[bat=* pay=*] =cart:smart arg=vase inner-arm=?(%$ %noun %json)]
-          ^-  (pair)
+          |=  cont=[bat=* pay=*]
+          ^-  vase
           =/  payload   .*(q.library pay.cont)
           =/  cor       .*([q.library payload] bat.cont)
-          =/  dor=vase  [-:!>(*contract:smart) cor]
-          (ajar dor %write !>(cart) arg inner-arm)
+          [-:!>(*contract:smart) cor]
         ::
         ++  search
           |=  pat=^
@@ -394,8 +394,9 @@
               ~&  >>>  "wasn't wheat"  ~
             ?~  cont.p.u.grain
               ~&  >>>  "nok was empty"  ~
-            =/  gun  (load u.cont.p.u.grain cart !>(read-path) kind)
-            ::  TODO figure out how to spend a portion of budget here
+            =/  dor=vase  (load u.cont.p.u.grain)
+            =/  gun  (ajar dor %read !>(cart) !>(read-path) kind)
+            ::  TODO figure out how to spend only a portion of budget here!
             =/  =book
               (zebra budget zink-cax search gun test-mode)
             :+  ~  ~  ::  TODO return hints here
