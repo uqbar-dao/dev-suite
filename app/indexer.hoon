@@ -173,7 +173,7 @@
 +$  card  card:agent:gall
 --
 ::
-=|  inflated-state-1:ui
+=|  inflated-state-2:ui
 =*  state  -
 ::
 %-  agent:dbug
@@ -520,6 +520,7 @@
             capitol                 ~
             sequencer-update-queue  ~
             town-update-queue       ~
+            old-sub-paths           ~
             old-sub-updates         ~
             egg-index               ~
             from-index              ~
@@ -935,11 +936,12 @@
       [catchup-indexer-host %indexer]
     :_  %-  inflate-state
         ~(tap by batches-by-town.versioned-state)
-    :*  %1
+    :*  %2
         batches-by-town.versioned-state
         capitol.versioned-state
         sequencer-update-queue.versioned-state
         town-update-queue.versioned-state
+        ~
         ~
         catchup-indexer-dock
     ==
@@ -947,8 +949,22 @@
       %1
     :_  %-  inflate-state
         ~(tap by batches-by-town.versioned-state)
+    :*  %2
+        batches-by-town.versioned-state
+        capitol.versioned-state
+        sequencer-update-queue.versioned-state
+        town-update-queue.versioned-state
+        ~
+        ~
+        catchup-indexer.versioned-state
+    ==
+  ::
+      %2
+    :_  %-  inflate-state
+        ~(tap by batches-by-town.versioned-state)
     %=  versioned-state
-        old-sub-updates   ~
+        old-sub-paths    ~
+        old-sub-updates  ~
         catchup-indexer  catchup-indexer
     ==
   ==
