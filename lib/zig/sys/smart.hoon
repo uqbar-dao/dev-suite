@@ -27,8 +27,7 @@
 ::
 ++  scry
   |=  =id
-  ^-  (unit grain)
-  =-  ;;((unit grain) -)
+  ;;  (unit grain)
   .*(0 [%12 [%0 1] [%1 /granary/(scot %ux id)]])
 ::
 ::  +fry: standard hashing functions for rice and wheat grains

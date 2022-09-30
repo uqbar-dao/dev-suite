@@ -16,26 +16,26 @@
   %+  ecdsa-raw-recover:secp256k1:secp:crypto
   hash  sig.egg
 ::
-++  shut                                               ::  slam a door
-  |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase]
-  ^-  vase
-  %+  slap
-    (slop dor (slop dor-sam arm-sam))
-  ^-  hoon
-  :-  %cnsg
-  :^    [%$ ~]
-      [%cnsg [arm ~] [%$ 2] [%$ 6] ~]  ::  replace sample
-    [%$ 7]
-  ~
+::  ++  shut                                            ::  slam a door
+::    |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase]
+::    ^-  vase
+::    %+  slap
+::      (slop dor (slop dor-sam arm-sam))
+::    ^-  hoon
+::    :-  %cnsg
+::    :^    [%$ ~]
+::        [%cnsg [arm ~] [%$ 2] [%$ 6] ~]  ::  replace sample
+::      [%$ 7]
+::    ~
 ::
 ++  ajar                                               ::  partial shut
-  |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase]
+  |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase inner-arm=?(%$ %noun %json)]
   ^-  (pair)
   =/  typ=type
     [%cell p.dor [%cell p.dor-sam p.arm-sam]]
   =/  gen=hoon
     :-  %cnsg
-    :^    [%$ ~]
+    :^    [inner-arm ~]
         [%cnsg [arm ~] [%$ 2] [%$ 6] ~]
       [%$ 7]
     ~
@@ -339,12 +339,10 @@
         |=  [to=id:smart budget=@ud]
         ^-  [hints (unit chick:smart) rem=@ud =errorcode:smart]
         ~>  %bout
+        |^
         ?~  cont.wheat   [~ ~ budget %6]
         =/  =cart:smart  [to from batch town-id]
-        =/  payload   .*(q.library pay.u.cont.wheat)
-        =/  cor       .*([q.library payload] bat.u.cont.wheat)
-        =/  dor=vase  [-:!>(*contract:smart) cor]
-        =/  gun  (ajar dor %write !>(cart) !>(yolk.egg))
+        =/  gun  (load u.cont.wheat cart yolk.egg)
         ::
         ::  generate ZK-proof hints with zebra
         ::
@@ -360,17 +358,56 @@
           ~&  >>>  "mill: ran out of gas"
           [~ 0 %8]
         [(hole (unit chick:smart) p.p.book) bud.q.book %0]
-      ::
-      ++  search
-        |=  pat=^
-        ^-  (unit [path=(list phash) product=*])
-        ?.  ?=([%0 %granary @ ~] +.pat)   ~
-        ?~  id=(slaw %ux -.+.+.+.pat)     ~
-        ~&  >>  "looking for grain: {<`@ux`u.id>}"
-        ?~  grain=(get:big granary u.id)
-          ~&  >>>  "didn't find it"  ~
-        ::  TODO populate path using +mek in merk
-        `[(mek:big granary u.id) u.grain]
+        ::
+        ++  load
+          |=  [cont=[bat=* pay=*] =cart =yolk]
+          ^-  (pair)
+          =/  payload   .*(q.library pay.cont)
+          =/  cor       .*([q.library payload] bat.cont)
+          =/  dor=vase  [-:!>(*contract:smart) cor]
+          (ajar dor %write !>(cart) !>(yolk))
+        ::
+        ++  search
+          |=  pat=path
+          ::  TODO make search return [hints product]
+          ^-  (unit [(list phash) product=*])
+          ::  custom scry to handle grain reads and contract reads
+          ?+    t.pat  ~
+              [%0 %granary @ ~]
+            ::  /granary/[grain-id]
+            ?~  id=(slaw %ux i.t.t.t.pat)  ~
+            ~&  >>  "looking for grain: {<`@ux`u.id>}"
+            ?~  grain=(get:big granary u.id)
+              ~&  >>>  "didn't find it"  ~
+            `[(mek:big granary u.id) u.grain]
+          ::
+              [%0 %contract @ ^]
+              ::  /contract/[contract-id]/path/defined/in/contract
+            =/  read-path=path  t.t.t.t.pat
+            ?~  id=(slaw %ux i.t.t.t.pat)  ~
+            ~&  >>  "looking for contract wheat: {<`@ux`u.id>}"
+            ?~  grain=(get:big granary u.id)
+              ~&  >>>  "didn't find it"  ~
+            ?.  ?=(%| -.u.grain)
+              ~&  >>>  "wasn't wheat"  ~
+            ?~  cont.p.u.grain
+              ~&  >>>  "nok was empty"  ~
+            =/  gun  (load u.cont.p.u.res cart read-path)
+            ::  TODO figure out how to spend a portion of budget here
+            =/  =book
+              (zebra budget zink-cax search gun test-mode)
+            :+  ~  ~  ::  TODO return hints here
+            ?:  ?=(%| -.p.book)
+              ::  error in contract execution
+              ~&  >>>  p.book
+              ~
+            ::  chick result
+            ?~  p.p.book
+              ~&  >>>  "mill: ran out of gas inside read"
+              ~
+            u.p.p.book
+          ==
+        --
       --
     ::
     ::  +harvest: take a completed execution and validate all changes
