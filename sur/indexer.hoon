@@ -41,7 +41,9 @@
   (map @ux (jar @ux second-order-location))
 ::
 +$  batches-by-town
-  (map town-id=id:smart [=batches =batch-order])
+  (map town-id=id:smart batches-and-order)
++$  batches-and-order
+  [=batches =batch-order]
 +$  batches
   (map id:smart [timestamp=@da =batch])
 +$  batch-order
@@ -58,9 +60,19 @@
   (map town-id=@ux (map batch-id=@ux batch))
 ::
 +$  versioned-state
-  $%  base-state-0
+  $%  base-state-1
+      base-state-0
   ==
 ::
++$  base-state-1
+  $:  %1
+      =batches-by-town
+      =capitol:seq
+      =sequencer-update-queue
+      =town-update-queue
+      old-sub-updates=(map path update)
+      catchup-indexer=dock
+  ==
 +$  base-state-0
   $:  %0
       =batches-by-town
@@ -69,6 +81,7 @@
       =town-update-queue
       old-sub-updates=(map path update)
   ==
+::
 +$  indices-0
   $:  =egg-index
       from-index=second-order-index
@@ -79,6 +92,8 @@
       to-index=second-order-index
       =newest-batch-by-town
   ==
+::
++$  inflated-state-1  [base-state-1 indices-0]
 +$  inflated-state-0  [base-state-0 indices-0]
 ::
 +$  batch-update-value
