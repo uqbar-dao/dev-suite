@@ -27,23 +27,21 @@
 =/  args  !<((unit arg-mold) arg)
 ?~  args
   ~&  >>>  "Usage:"
-  ~&  >>>  "-zig!indexer-catchup town-id indexer-ship sequencer-ship rollup-ship"
+  ~&  >>>  "-zig!indexer-bootstrap town-id indexer-ship sequencer-ship rollup-ship"
   (pure:m !>(~))
 ::
 =*  town-id         town-id.u.args
 =*  indexer-ship    indexer-ship.u.args
 =*  sequencer-ship  sequencer-ship.u.args
 =*  rollup-ship     rollup-ship.u.args
-::  catchup must come before setting sequencer and rollup
-::  or the ordering of batches within the new indexer will
-::  be incorrect
 ::
 ~&  >  "catching up to %indexer at {<indexer-ship>}..."
 ;<  ~  bind:m
-  %^  poke-our  %indexer  %indexer-catchup
+  %^  poke-our  %indexer  %indexer-bootstrap
   !>(`dock`[indexer-ship %indexer])
-::  hacky sleep to allow catchup to run before other pokes
+::  hacky sleep to allow bootstrap to run before other pokes
 ::  TODO: replace hack with a more correct wait of some kind
+::  TODO: check if just putting bootstrap after seq/rol fixes
 ::
 ;<  ~  bind:m  (sleep ~s10)
 ::

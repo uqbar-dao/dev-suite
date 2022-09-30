@@ -72,5 +72,6 @@
       [%need 1]
       [%scot 5]
       [%pedersen-hash 10]
+      [%shag 1.000]
     ==
 --
