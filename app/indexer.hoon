@@ -81,10 +81,12 @@
 ::
 ::    ## Subscription paths
 ::
-::    Subscription paths reply by default with
-::    history of the item subscribed to.
-::    To suppress the initial history on-watch, append
-::    a `/no-init` to the end of the subscription path.
+::    Subscription paths do not send anything on-watch.
+::    To receive the history on-watch, append `/history`
+::    to the end of the subscription path.
+::    E.g., `/grain/0xdead.beef` will not receive an
+::    immediate response, while `/grain/0xdead.beef/history`
+::    will immediately receive the history of that grain.
 ::
 ::    Subscription paths, similar to scry paths,
 ::    may be prepended with a `/json`, which will cause
@@ -99,11 +101,9 @@
 ::
 ::    /batch-order/[town-id=@ux]:
 ::      A stream of batch ids.
-::      Reply on-watch in historical batch-order.
 ::    /grain/[grain-id=@ux]
 ::    /grain/[town-id=@ux]/[grain-id=@ux]:
 ::      A stream of changes to given grain.
-::      Reply on-watch is entire grain history.
 ::    /hash/[@ux]:
 ::      A stream of new activity of given id.
 ::    /holder/[holder-id=@ux]
@@ -118,17 +118,15 @@
 ::      Reply on-watch is entire history of held grains.
 ::    /id/[id=@ux]
 ::    /id/[town-id=@ux]/[id=@ux]:
-::      A stream of new transactions of given id.
-::      Reply on-watch is all historical
-::      transactions `from` or `to` id.
+::      A stream of new transactions of given id:
+::      specifically transactions where id appears
+::      in the `from` or `contract` fields.
 ::    /lord/[lord-id=@ux]
 ::    /lord/[town-id=@ux]/[lord-id=@ux]:
 ::      A stream of new activity of given lord.
-::      Reply on-watch is entire history of ruled grains.
 ::    /town/[town-id=@ux]
 ::    /town/[town-id=@ux]/[town-id=@ux]:
 ::      A stream of each new batch for town.
-::      Reply on-watch is history of batches in town.
 ::
 ::
 ::    ##  Pokes
@@ -279,18 +277,6 @@
       :-  %loob
       !>(`?`%.y)
     ::
-        $?  [%batch-order @ %no-init ~]
-            [%capitol-updates %no-init ~]
-            [%json @ @ %no-init ~]  [%json @ @ @ %no-init ~]
-            [%hash @ %no-init ~]    [%hash @ @ %no-init ~]
-            [%id @ %no-init ~]      [%id @ @ %no-init ~]
-            [%grain @ %no-init ~]   [%grain @ @ %no-init ~]
-            [%holder @ %no-init ~]  [%holder @ @ %no-init ~]
-            [%lord @ %no-init ~]    [%lord @ @ %no-init ~]
-            [%town @ %no-init ~]    [%town @ @ %no-init ~]
-        ==
-      `this
-    ::
         [%indexer-bootstrap ~]
       :_  this
       %-  fact-init-kick:io
@@ -323,7 +309,15 @@
       :-  %sequencer-capitol-update
       !>(`capitol-update:seq`[%new-capitol capitol])
     ::
-        ?([@ @ ~] [@ @ @ ~] [@ @ @ @ ~])
+        $?  [%batch-order @ %history ~]
+            [%json @ @ %history ~]  [%json @ @ @ %history ~]
+            [%hash @ %history ~]    [%hash @ @ %history ~]
+            [%id @ %history ~]      [%id @ @ %history ~]
+            [%grain @ %history ~]   [%grain @ @ %history ~]
+            [%holder @ %history ~]  [%holder @ @ %history ~]
+            [%lord @ %history ~]    [%lord @ @ %history ~]
+            [%town @ %history ~]    [%town @ @ %history ~]
+        ==
       :_  this
       :_  ~
       %-  fact:io
@@ -334,15 +328,26 @@
         .^  json
             %gx
             %+  scry:pass:io  %indexer
-            (snoc `(list @ta)`path `@ta`%json)
+            (snoc (snip `(list @ta)`path) `@ta`%json)
         ==
       :-  %indexer-update
       !>  ^-  update:ui
       .^  update:ui
           %gx
           %+  scry:pass:io  %indexer
-          (snoc `(list @ta)`path `@ta`%noun)
+          (snoc (snip `(list @ta)`path) `@ta`%noun)
       ==
+    ::
+        $?  [%batch-order @ ~]
+            [%json @ @ ~]  [%json @ @ @ ~]
+            [%hash @ ~]    [%hash @ @ ~]
+            [%id @ ~]      [%id @ @ ~]
+            [%grain @ ~]   [%grain @ @ ~]
+            [%holder @ ~]  [%holder @ @ ~]
+            [%lord @ ~]    [%lord @ @ ~]
+            [%town @ ~]    [%town @ @ ~]
+        ==
+      `this
     ==
   ::
   ++  on-leave
@@ -1435,7 +1440,7 @@
     :-  %+  fact:io
           :-  %indexer-update
           !>(`update:ui`[%batch-order ~[root]])
-        %+  expand-paths  %no-init
+        %+  expand-paths  %history
         ~[/batch-order/(scot %ux town-id)]
     (zing p.out)
     ::
@@ -1456,9 +1461,9 @@
         ?>  ?=([@ ^] sub-path)
         t.sub-path
       =/  payload=?(@ux [@ux @ux])
-        ?:  ?=(?([@ ~] [@ %no-init ~]) sub-path)
+        ?:  ?=(?([@ ~] [@ %history ~]) sub-path)
           (slav %ux i.sub-path)
-        ?>  ?=(?([@ @ ~] [@ @ %no-init ~]) sub-path)
+        ?>  ?=(?([@ @ ~] [@ @ %history ~]) sub-path)
         [(slav %ux i.sub-path) (slav %ux i.t.sub-path)]
       =/  =update:ui
         ?+    query-type  !!
@@ -1478,10 +1483,10 @@
       ?.  is-json
         %+  fact:io
           [%indexer-update !>(`update:ui`update-diff)]
-        (expand-paths %no-init ~[total-path])
+        (expand-paths %history ~[total-path])
       %+  fact:io
         [%json !>(`json`(update:enjs:ui-lib update-diff))]
-      (expand-paths %no-init ~[[%json total-path]])
+      (expand-paths %history ~[[%json total-path]])
     ::
     ++  expand-paths
       |=  [appendend=@tas paths=(list path)]

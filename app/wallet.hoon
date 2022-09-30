@@ -430,7 +430,7 @@
       ==
     `this
   ::
-      ?([%indexer %wallet %id @ ~] [%indexer %wallet %id @ @ ~])
+      ?([%id @ ~] [%id @ @ ~])
     ::  update to a transaction from a tracked account
     ?:  ?=(%watch-ack -.sign)  (on-agent:def wire sign)
     ?.  ?=(%fact -.sign)       (on-agent:def wire sign)
@@ -438,7 +438,7 @@
     =/  =update:ui  !<(=update:ui q.cage.sign)
     ?~  update             `this
     ?.  ?=(%egg -.update)  `this
-    =/  our-id=@ux  ?:(?=([@ @ @ @ ~] wire) (slav %ux i.t.t.t.wire) (slav %ux i.t.t.t.t.wire))
+    =/  our-id=@ux  ?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
     =+  our-txs=(~(gut by transaction-store.state) our-id [sent=~ received=~])
     =^  tx-status-cards=(list card)  our-txs
       %^  spin  ~(tap by eggs.update)  our-txs

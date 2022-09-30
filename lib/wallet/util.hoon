@@ -32,8 +32,9 @@
   ^-  (list card)
   %+  turn  ~(tap in pubkeys)
   |=  k=@ux
-  =-  [%pass - %agent [our %uqbar] %watch -]
-  /indexer/wallet/id/0x0/(scot %ux k)  ::  TODO: remove hardcode; replace %wallet with [dap.bowl]?
+  =/  w=wire  /id/0x0/(scot %ux k)
+  =-  [%pass w %agent [our %uqbar] %watch -]
+  /indexer/wallet/id/0x0/(scot %ux k)/history  ::  TODO: remove hardcode; replace %wallet with [dap.bowl]?
 ::
 ++  clear-id-sub
   |=  [id=@ux our=@p]
@@ -54,7 +55,7 @@
   |=  [our=@p town-id=@ux]
   ^-  (list card)
   :~  =-  [%pass /new-batch %agent [our %uqbar] %watch -]
-      /indexer/wallet/batch-order/(scot %ux town-id)
+      /indexer/wallet/batch-order/(scot %ux town-id)/history
   ==
 ::
 ++  make-tokens
