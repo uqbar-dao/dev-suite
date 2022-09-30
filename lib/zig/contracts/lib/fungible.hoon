@@ -281,7 +281,38 @@
   ::
   ++  deploy
     |=  [=cart act=deploy:sur]
-    !!
+    ::  create new metadata grain
+    =/  =token-metadata:sur
+      :*  name.act
+          symbol.act
+          18
+          supply=0
+          cap.act
+          ?~(minters.act %.n %.y)
+          minters.act
+          deployer=id.from.cart
+          salt.act
+      ==
+    =/  metadata-id
+      (fry-rice me.cart me.cart town-id.cart salt.act)
+    =/  =rice
+      :*  salt.act
+          %token-metadata
+          token-metadata
+          metadata-id
+          me.cart  me.cart  town-id.cart
+      ==
+    ::  issue metadata grain and c-call a mint
+    ::  for initial distribution, if any
+    =/  res  (result ~ [%&^rice ~] ~ ~)
+    ?~  initial-distribution.act
+      res
+    =/  mints
+      %+  turn  initial-distribution.act
+      |=([to=address amount=@ud] [to ~ amount])
+    %+  continuation
+      ~[[me.cart town-id.cart [%mint metadata-id mints]]]
+    res
   ::
   ::  JSON parsing for types
   ::

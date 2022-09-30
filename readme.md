@@ -253,12 +253,12 @@ The following two examples assume `~zod` is the host:
 ```hoon
 :indexer &set-sequencer [~zod %sequencer]
 :indexer &set-rollup [~zod %rollup]
-:indexer &indexer-catchup [~zod %indexer]
+:indexer &indexer-bootstrap [~zod %indexer]
 :uqbar|set-sources 0x0 ~[our]
 ```
 In this example, not all the hosts need be the same ship.
 To give a specific example, `~zod` might be running the `%rollup`, while `~bus` runs the `%sequencer` for town `0x0` and also the `%indexer`.
-Every user who wishes to interact with the chain must currently run their own `%indexer`, so there will likely be many options to `%indexer-catchup` from.
+Every user who wishes to interact with the chain must currently run their own `%indexer`, so there will likely be many options to `%indexer-bootstrap` from.
 
 
 ### Sequencing on an existing testnet

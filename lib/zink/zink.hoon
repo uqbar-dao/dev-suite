@@ -1,5 +1,5 @@
 /-  *zink
-/+  *zink-pedersen, *zink-json
+/+  *zink-pedersen, *zink-json, merk
 =>  |%
     +$  good      (unit *)
     +$  fail      (list [@ta *])
@@ -499,6 +499,9 @@
         %pedersen-hash
       ?.  ?=([@ @] sam)  %|^trace
       %&^(some (hash:pedersen sam))
+    ::
+        %shag
+      %&^(some (shag:merk sam))
     ==
   ::
   ++  frag

@@ -10,16 +10,7 @@
 ++  shag                                                ::  256bit noun hash
   |=  yux=*  ^-  hash
   ::  TODO: make LRU-cache-optimized version for granary retrivial & modification
-  ?@  yux
-    (hash:pedersen yux 0)
-  ::
-  ::  NB:  first option here is more correct, but leads
-  ::  to extremely long hashing times for large nouns.
-  ::  second is a ~30x speedup on hashing contract nocks.
-  ::  TODO: jet +shag
-  ::
-  ::  (hash:pedersen $(yux -.yux) $(yux +.yux))
-  (hash:pedersen (jam yux) 0)
+  `@ux`(sham yux)
 ::
 ::  +sore: single sha-256 hash in ascending order, uses +dor as
 ::  fallback
