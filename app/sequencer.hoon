@@ -332,10 +332,6 @@
       [%grain @ ~]
     ?~  town  [~ ~]
     (read-grain t.path p.land.u.town)
-  ::
-      [%read @ @tas @ta @ ^]  :: grain id, %noun/%json, argument @ta, other +jam'd data, like tx args, then any associated rice IDs
-    ?~  town  [~ ~]
-    (read-wheat t.path now.bowl town-id.hall.u.town p.land.u.town smart-lib-vase)
   ==
 ::
 ++  on-leave  on-leave:def
