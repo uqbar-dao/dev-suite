@@ -25,10 +25,15 @@
 ::
 ::  +scry: scry wrapper
 ::
-++  scry
+++  scry-granary
   |=  =id
   ;;  (unit grain)
   .*(0 [%12 [%0 1] [%1 /granary/(scot %ux id)]])
+::
+++  scry-contract
+  |=  [=id =path]
+  ;;  (unit *)
+  .*(0 [%12 [%0 1] [%1 (weld /contract/noun/(scot %ux id) path)]])
 ::
 ::  +fry: standard hashing functions for rice and wheat grains
 ::
