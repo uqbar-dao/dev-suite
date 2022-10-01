@@ -304,9 +304,10 @@
       $(f path.f)
     ?:  ?=(%| -.path)    ~&  293  [%|^trace app]
     ?~  p.path           [%&^~ app]
-    ?~  result=(scry p.ref p.path)
-      [%&^~^~ app]
-    [%&^[~ `product.u.result] app]
+    =/  result  (scry bud p.ref p.path)
+    ?~  product.result
+      [%&^~^~ app(bud bud.result)]
+    [%&^[~ product.result] app(bud bud.result)]
   ==
   ::
   ++  jet

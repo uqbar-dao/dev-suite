@@ -1,7 +1,7 @@
 |%
 +$  granary-scry
-  $-  ^
-  (unit [path=(list phash) product=*])
+  $-  [bud=@ud ^]
+  [bud=@ud product=(unit *)]
 ::
 +$  child  *
 +$  parent  *

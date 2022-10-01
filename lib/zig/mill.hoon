@@ -368,47 +368,48 @@
           [-:!>(*contract:smart) cor]
         ::
         ++  search
-          |=  pat=^
+          |=  [bud=@ud pat=^]
           ::  TODO make search return [hints product]
-          ^-  (unit [(list phash) product=*])
+          ^-  [bud=@ud product=(unit *)]
           ::  custom scry to handle grain reads and contract reads
-          ?+    +.pat  ~
+          =/  rem  (sub bud 100)
+          ?+    +.pat  rem^~
               [%0 %granary @ ~]
             ::  /granary/[grain-id]
-            ?~  id=(slaw %ux -.+.+.+.pat)  ~
+            ?~  id=(slaw %ux -.+.+.+.pat)  rem^~
             ~&  >>  "looking for grain: {<`@ux`u.id>}"
             ?~  grain=(get:big granary u.id)
-              ~&  >>>  "didn't find it"  ~
-            `[(mek:big granary u.id) u.grain]
+              ~&  >>>  "didn't find it"  rem^~
+            rem^grain
           ::
               [%0 %contract @ @ ^]
               ::  /contract/[%noun or %json]/[contract-id]/path/defined/in/contract
+            =/  rem  (sub bud 100)  ::  base cost
             =/  kind  `@tas`-.+.+.+.pat
-            ?.  ?=(?(%noun %json) kind)  ~
+            ?.  ?=(?(%noun %json) kind)  rem^~
             =/  read-path=path  ;;(path +.+.+.+.+.pat)
-            ?~  id=(slaw %ux -.+.+.+.+.pat)  ~
+            ?~  id=(slaw %ux -.+.+.+.+.pat)  rem^~
             ~&  >>  "looking for contract wheat: {<`@ux`u.id>}"
             ?~  grain=(get:big granary u.id)
-              ~&  >>>  "didn't find it"  ~
+              ~&  >>>  "didn't find it"  rem^~
             ?.  ?=(%| -.u.grain)
-              ~&  >>>  "wasn't wheat"  ~
+              ~&  >>>  "wasn't wheat"  rem^~
             ?~  cont.p.u.grain
-              ~&  >>>  "nok was empty"  ~
+              ~&  >>>  "nok was empty"  rem^~
             =/  dor=vase  (load u.cont.p.u.grain)
             =/  gun  (ajar dor %read !>(cart) !>(read-path) kind)
             ::  TODO figure out how to spend only a portion of budget here!
             =/  =book
-              (zebra budget zink-cax search gun test-mode)
-            :+  ~  ~  ::  TODO return hints here
+              (zebra rem zink-cax search gun test-mode)
             ?:  ?=(%| -.p.book)
               ::  error in contract execution
               ~&  >>>  p.book
-              ~
+              bud.q.book^~
             ::  chick result
             ?~  p.p.book
               ~&  >>>  "mill: ran out of gas inside read"
-              ~
-            u.p.p.book
+              bud.q.book^~
+            bud.q.book^p.p.book
           ==
         --
       --
