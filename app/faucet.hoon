@@ -65,17 +65,20 @@
     ^-  (quip card _this)
     ?-    -.action
         %open
-      =*  src  src.bowl
+      =,  bowl
       ?~  town-info=(~(get by town-infos) town-id.action)
         ~|("%faucet: invalid town. Valid towns: {<~(key by town-infos)>}" !!)
-      ?^  timeout-done=(~(get by on-timeout) src)
-        ~|("%faucet: must wait until after {<u.timeout-done>} to acquire more zigs." !!)
-      =/  until=@da  (add now.bowl timeout-duration)
-      :_  this(on-timeout (~(put by on-timeout) src until))
-      :^    %.  until
-            %~  wait  pass:io
-            /done/(scot %p src)/(scot %da until)
-          =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]
+      =/  [unlock=@da count=@ud]
+        (~(gut by on-timeout) src [*@da 0])
+      ?:  (gth unlock now)
+        ~|("%faucet: must wait until after {<unlock>} to acquire more zigs." !!)
+      =/  until=@da  (add now.bowl (mul timeout-duration (pow 2 count)))
+      :_  %=    this
+              on-timeout
+            %+  ~(put by on-timeout)  src
+            [until ?:((gte count 12) count +(count))]
+          ==
+      :~  =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]
           :-  %zig-wallet-poke
           !>  ^-  wallet-poke:w
           :*  %transaction
@@ -87,9 +90,9 @@
                 amount=volume
               grain=zigs-rice.u.town-info
           ==
-        =-  [%pass /self-poke %agent [our.bowl %faucet] %poke -]
-        [%faucet-action !>(`action:f`[%confirm address.u.town-info])]
-      ~
+          =-  [%pass /self-poke %agent [our.bowl %faucet] %poke -]
+          [%faucet-action !>(`action:f`[%confirm address.u.town-info])]
+      ==
     ::
         %confirm
       ?>  =(src.bowl our.bowl)
@@ -127,20 +130,7 @@
     ==
   --
 ::
-++  on-arvo
-  |=  [=wire =sign-arvo:agent:gall]
-  ^-  (quip card _this)
-  ?+    wire  (on-arvo:def wire sign-arvo)
-      [%done @ @ ~]
-    ?+    sign-arvo  (on-arvo:def wire sign-arvo)
-        [%behn %wake *]
-      =/  who=@p     (slav %p i.t.wire)
-      =/  until=@da  (slav %da i.t.t.wire)
-      ?:  (gth until now.bowl)  `this
-      `this(on-timeout (~(del by on-timeout) who))
-    ==
-  ==
-::
+++  on-arvo  on-arvo:def
 ++  on-watch  on-watch:def
 ++  on-leave  on-leave:def
 ++  on-peek   on-peek:def
