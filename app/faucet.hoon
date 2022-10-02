@@ -66,16 +66,22 @@
     ?-    -.action
         %open
       =,  bowl
+      ?:  =(%pawn (clan:title src))
+        ~|("%faucet: comets cannot use the faucet! get a planet!" !!)
+      =/  par
+        ?:  =(%earl (clan:title src))
+          (sein:title our now src)
+        src
       ?~  town-info=(~(get by town-infos) town-id.action)
         ~|("%faucet: invalid town. Valid towns: {<~(key by town-infos)>}" !!)
       =/  [unlock=@da count=@ud]
-        (~(gut by on-timeout) src [*@da 0])
+        (~(gut by on-timeout) par [*@da 0])
       ?:  (gth unlock now)
         ~|("%faucet: must wait until after {<unlock>} to acquire more zigs." !!)
       =/  until=@da  (add now.bowl (mul timeout-duration (pow 2 count)))
       :_  %=    this
               on-timeout
-            %+  ~(put by on-timeout)  src
+            %+  ~(put by on-timeout)  par
             [until ?:((gte count 12) count +(count))]
           ==
       :~  =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]
