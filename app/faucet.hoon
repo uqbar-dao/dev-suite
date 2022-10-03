@@ -84,7 +84,7 @@
             %+  ~(put by on-timeout)  par
             [until ?:((gte count 12) count +(count))]
           ==
-      :~  =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]
+      :+  =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]
           :-  %zig-wallet-poke
           !>  ^-  wallet-poke:w
           :*  %transaction
@@ -96,9 +96,9 @@
                 amount=volume
               grain=zigs-rice.u.town-info
           ==
-          =-  [%pass /self-poke %agent [our.bowl %faucet] %poke -]
-          [%faucet-action !>(`action:f`[%confirm address.u.town-info])]
-      ==
+        =-  [%pass /self-poke %agent [our.bowl %faucet] %poke -]
+        [%faucet-action !>(`action:f`[%confirm address.u.town-info])]
+      ~
     ::
         %confirm
       ?>  =(src.bowl our.bowl)
