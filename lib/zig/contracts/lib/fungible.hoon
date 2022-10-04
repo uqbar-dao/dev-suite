@@ -67,6 +67,7 @@
   +$  action
     $%  give
         take
+        push
         pull
         set-allowance
         mint
@@ -86,6 +87,13 @@
         amount=@ud
         from-account=id
         to-account=(unit id)
+    ==
+  +$  push
+    $:  %push
+        to=address
+        from-account=id
+        to-account=id :: not a unit because the contract *must* set up an account rice to use push
+        amount=@ud
     ==
   +$  pull
     $:  %pull
@@ -173,6 +181,32 @@
     ?>  =(metadata.data.receiver metadata.data.giver)
     =.  balance.data.receiver  (add balance.data.receiver amount.act)
     ::  return the result: two changed grains
+    (result [%&^giver %&^receiver ~] ~ ~ ~)
+  ::
+  ++  push
+    :: This is an ERC677 implementation. It let's you send tokens to a contract
+    :: and execute arbitrary logic after that - saving you an extra approve
+    :: transaction. For any contract that wants to implement this, the wheat
+    :: must have an %on-push arm implemented as [%on-push from=id amount=id]
+    :: Any contract that users must pay to use should implement this - e.g.
+    :: an oracle query.
+    |=  [=cart act=push:sur]
+    ^-  chick
+    =+  (need (scry from-account.act))
+    =/  giver  (husk account:sur - `me.cart `id.from.cart)
+    ::  this will fail if amount > balance, as desired
+    =.  balance.data.giver  (sub balance.data.giver amount.act)
+    ::  add amount given to the existing account for that address
+    =+  (need (scry to-account.act))
+    ::  assert that account is held by the address we're sending to
+    =/  receiver  (husk account:sur - `me.cart `to.act)
+    ::  assert that token accounts are of the same token
+    ::  (since this contract can deploy and thus manage multiple tokens)
+    ?>  =(metadata.data.receiver metadata.data.giver)
+    =.  balance.data.receiver  (add balance.data.receiver amount.act)
+    ::  return the result: two changed grains
+    %+  continuation
+      [to.act town-id.cart [%on-push id.from.cart amount.act]]~
     (result [%&^giver %&^receiver ~] ~ ~ ~)
   ::
   ++  pull
