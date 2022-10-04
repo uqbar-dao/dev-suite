@@ -50,7 +50,7 @@
   !<(typ [-:!>(*typ) val])
 ::
 ++  mill
-  |_  [miller=caller:smart town-id=id:smart batch=@ud]
+  |_  [miller=caller:smart town-id=id:smart batch=@ud eth-block-height=@ud]
   ::
   ::  +mill-all
   ::
@@ -340,11 +340,11 @@
         ^-  [hints (unit chick:smart) rem=@ud =errorcode:smart]
         ~>  %bout
         ?~  cont.wheat   [~ ~ budget %6]
-        =/  =cart:smart  [to from batch town-id]
+        =/  =context:smart  [to from batch eth-block-height town-id]
         =/  payload   .*(q.library pay.u.cont.wheat)
         =/  cor       .*([q.library payload] bat.u.cont.wheat)
         =/  dor=vase  [-:!>(*contract:smart) cor]
-        =/  gun  (ajar dor %write !>(cart) !>(yolk.egg))
+        =/  gun  (ajar dor %write !>(context) !>(yolk.egg))
         ::
         ::  generate ZK-proof hints with zebra
         ::

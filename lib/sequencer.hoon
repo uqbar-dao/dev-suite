@@ -52,13 +52,13 @@
   ::  ?.  =(~(wyt by owns) (lent contract-rice))
   ::    ``noun+!>(~)
   ::  TODO swap this with +zebra when able?
-  =/  cart     [id from=[0x0 0] now town-id owns]
+  =/  context     [id from=[0x0 0] now town-id owns]
   =/  payload  .*(q.library pay.cont)
   =/  battery  .*([q.library payload] bat.cont)
   =/  dor      [-:!>(*contract:smart) battery]
   ?+  read-type  [~ ~]
-    %noun  ``noun+!>(`q:(read-shut dor %read !>(cart) !>(arg) %noun))
-    %json  ``json+!>(;;(json q:(read-shut dor %read !>(cart) !>(arg) %json)))
+    %noun  ``noun+!>(`q:(read-shut dor %read !>(context) !>(arg) %noun))
+    %json  ``json+!>(;;(json q:(read-shut dor %read !>(context) !>(arg) %json)))
   ==
   ::
   ++  read-shut                                               ::  slam a door

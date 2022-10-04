@@ -159,6 +159,18 @@
     ::
         %trigger-batch
       ?>  =(src.bowl our.bowl)
+      ::  fetch latest ETH block height and perform batch
+      =/  tid  `@ta`(cat 3 'thread_' (scot %uv (sham eny.bowl)))
+      =/  ta-now  `@ta`(scot %da now.bowl)
+      =/  start-args  [~ `tid byk.bowl(r da+now.bowl) %sequencer-get-block-height !>(~)]
+      :_  state
+      :~
+        [%pass /thread/[ta-now] %agent [our.bowl %spider] %watch /thread-result/[tid]]
+        [%pass /thread/[ta-now] %agent [our.bowl %spider] %poke %spider-start !>(start-args)]
+      ==
+    ::
+        %perform-batch
+      ?>  =(src.bowl our.bowl)
       ?.  =(%available status.state)
         ~|("%sequencer: error: got poke while not active" !!)
       ?~  town.state
@@ -180,7 +192,7 @@
       =+  /(scot %p our.bowl)/wallet/(scot %da now.bowl)/account/(scot %ux addr)/(scot %ux town-id.hall.town)/noun
       =+  .^(caller:smart %gx -)
       =/  [new=state-transition rejected=carton]
-        %^    ~(mill-all mil - town-id.hall.town batch-num)
+        %^    ~(mill-all mil - town-id.hall.town batch-num eth-block-height.act)
             land.town
           basket.state
         256  ::  number of parallel "passes"
@@ -247,6 +259,24 @@
     =^  cards  state
       (update-fact !<(town-update q.cage.sign))
     [cards this]
+  ::
+      [%thread @ ~]
+    ?+    -.sign  (on-agent:def wire sign)
+        %fact
+      ?+    p.cage.sign  (on-agent:def wire sign)
+          %thread-fail
+        =/  err  !<  (pair term tang)  q.cage.sign
+        %-  (slog leaf+"%sequencer: get-eth-block thread failed: {(trip p.err)}" q.err)
+        `this
+          %thread-done
+        =/  height=@ud  !<(@ud q.cage.sign)
+        ~&  >  "eth-block-height: {<height>}"
+        :_  this
+        =-  [%pass /perform %agent [our.bowl %sequencer] %poke -]~
+        [%sequencer-town-action !>(`town-action`[%perform-batch height])]
+      ==
+    ==
+  ::
   ==
   ::
   ++  update-fact
