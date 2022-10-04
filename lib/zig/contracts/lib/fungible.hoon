@@ -27,7 +27,7 @@
 ::  addresses that are permitted to mint, or set a permanent supply,
 ::  all of which must be distributed at first issuance.
 ::
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 |%
 ++  sur
   |%
@@ -50,7 +50,7 @@
     $:  balance=@ud                    ::  the amount of tokens someone has
         allowances=(pmap address @ud)  ::  a map of pubkeys they've permitted to spend their tokens and how much
         metadata=id                    ::  address of the rice holding this token's metadata
-        nonce=@ud                      ::  necessary for gasless approves
+        nonces=(map address @ud)       ::  necessary for gasless approves
     ==
   ::
   +$  approval
@@ -67,7 +67,7 @@
   +$  action
     $%  give
         take
-        take-with-sig
+        pull
         set-allowance
         mint
         deploy
@@ -87,14 +87,14 @@
         from-account=id
         to-account=(unit id)
     ==
-  +$  take-with-sig
-    $:  %take-with-sig
+  +$  pull
+    $:  %pull
         to=address
         from-account=id
         to-account=(unit id)
         amount=@ud
         nonce=@ud
-        deadline=@da
+        deadline=@ud :: can we do a @ud with now.cart? doesn't exist anymore
         =sig
     ==
   +$  set-allowance
@@ -175,10 +175,10 @@
     ::  return the result: two changed grains
     (result [%&^giver %&^receiver ~] ~ ~ ~)
   ::
-  ++  take-with-sig
-    |=  [=cart act=take-with-sig:sur]
+  ++  pull
+    |=  [=cart act=pull:sur]
     ^-  chick
-    ::  %take-with-sig allows for gasless approvals for transferring tokens
+    ::  %pull allows for gasless approvals for transferring tokens
     ::  the giver must sign the from-account id and the typed +$approve struct above
     ::  and the taker will pass in the signature to take the tokens
     =/  giv=grain          (need (scry from-account.act))
@@ -196,6 +196,12 @@
       (ecdsa-raw-recover:secp256k1:secp:crypto signed-hash sig.act)
     ::  assert the signature is valid
     ?>  =(recovered-address holder.p.giv)
+    :: assert nonce is valid
+    =+  (~(get by nonces.giver) to.act)
+    ?>  .=  nonce.act
+      ?~  -
+        =>((~(put py nonces.giver) to.act 1) 0)
+      =>((~(jab py nonces.giver) to.act succ) ->)
     :: TODO need to figure out how to implement the deadline since now.cart no longer exists
     ?>  (lte batch.cart deadline.act)
     ?>  (gte balance.giver amount.act)
@@ -203,9 +209,9 @@
     ::  create new rice for reciever and add it to state
       =+  (fry-rice to.act me.cart town-id.cart salt.p.giv)
       =/  new=grain
-        [%& salt.p.giv %account [amount.act ~ metadata.giver 0] - me.cart to.act town-id.cart]
+        [%& salt.p.giv %account [amount.act ~ metadata.giver ~] - me.cart to.act town-id.cart]
       ::  continuation call: %take to rice found in book
-      =/  =action:sur  [%take-with-sig to.act id.p.giv `id.p.new amount.act nonce.act deadline.act sig.act]
+      =/  =action:sur  [%pull to.act id.p.giv `id.p.new amount.act nonce.act deadline.act sig.act]
       %+  continuation
         [me.cart town-id.cart action]~
       (result [new ~] ~ ~ ~)
@@ -217,8 +223,8 @@
     =:  data.p.rec  receiver(balance (add balance.receiver amount.act))
         data.p.giv
       %=  giver
-        balance  (sub balance.giver amount.act)
-        nonce  .+(nonce.giver)
+        balance   (sub balance.giver amount.act)
+        nonces    (~(jab py nonces.giver) to.act succ) 
       ==
     ==
     (result [giv rec ~] ~ ~ ~)
@@ -324,9 +330,9 @@
       ^-  json
       %-  pairs
       :~  ['balance' (numb balance.a)]
-          ['allowances' (allowances allowances.a)]
+          ['allowances' (addr-to-ud-map allowances.a)]
           ['metadata' %s (scot %ux metadata.a)]
-          ['nonce' (numb nonce.a)]
+          ['nonce' (addr-to-ud-map nonces.a)]
       ==
     ::
     ++  metadata
@@ -344,7 +350,7 @@
           ['salt' (numb salt.md)]
       ==
     ::
-    ++  allowances
+    ++  addr-to-ud-map
       |=  al=(pmap address @ud)
       ^-  json
       %-  pairs

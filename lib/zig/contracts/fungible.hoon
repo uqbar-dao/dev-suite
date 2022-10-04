@@ -13,7 +13,7 @@
   ?-    -.act
     %give           (give:lib:fungible cart act)
     %take           (take:lib:fungible cart act)
-    %take-with-sig  (take-with-sig:lib:fungible cart act)
+    %pull           (pull:lib:fungible cart act)
     %set-allowance  (set-allowance:lib:fungible cart act)
     %mint           (mint:lib:fungible cart act)
     %deploy         (deploy:lib:fungible cart act)
