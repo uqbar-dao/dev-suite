@@ -94,6 +94,7 @@
         from-account=id
         to-account=(unit id)
         amount=@ud
+        data=*
     ==
   +$  pull
     $:  %pull
@@ -202,7 +203,7 @@
       =+  [amount.act ~ metadata.data.giver 0]
       =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
       %+  continuation
-        [to.act town-id.cart [%on-push id.from.cart amount.act]]~
+        [to.act town-id.cart [%on-push id.from.cart amount.act data.act]]~
       (result [%&^giver %&^receiver ~] ~ ~ ~)
     ::  add amount given to the existing account for that address
     =+  (need (scry u.to-account.act))
@@ -214,7 +215,7 @@
     =.  balance.data.receiver  (add balance.data.receiver amount.act)
     ::  return the result: two changed grains
     %+  continuation
-      [to.act town-id.cart [%on-push id.from.cart amount.act]]~
+      [to.act town-id.cart [%on-push id.from.cart amount.act data.act]]~
     (result [%&^giver %&^receiver ~] ~ ~ ~)
   ::
   ++  pull
