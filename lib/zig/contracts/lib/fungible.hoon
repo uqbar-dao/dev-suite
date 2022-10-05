@@ -50,7 +50,7 @@
     $:  balance=@ud                    ::  the amount of tokens someone has
         allowances=(pmap address @ud)  ::  a map of pubkeys they've permitted to spend their tokens and how much
         metadata=id                    ::  address of the rice holding this token's metadata
-        nonces=(pmap address @ud)       ::  necessary for gasless approves
+        nonces=(pmap address @ud)      ::  necessary for gasless approves
     ==
   ::
   +$  approval
@@ -102,7 +102,7 @@
         to-account=(unit id)
         amount=@ud
         nonce=@ud
-        deadline=@ud :: can we do a @ud with now.cart? doesn't exist anymore
+        deadline=@ud :: how to implement without now.cart?
         =sig
     ==
   +$  set-allowance
@@ -372,9 +372,9 @@
       ^-  json
       %-  pairs
       :~  ['balance' (numb balance.a)]
-          ['allowances' (addr-to-ud-map allowances.a)]
+          ['allowances' (pmap-addr-to-ud allowances.a)]
           ['metadata' %s (scot %ux metadata.a)]
-          ['nonce' (addr-to-ud-map nonces.a)]
+          ['nonce' (pmap-addr-to-ud nonces.a)]
       ==
     ::
     ++  metadata
@@ -392,7 +392,7 @@
           ['salt' (numb salt.md)]
       ==
     ::
-    ++  addr-to-ud-map
+    ++  pmap-addr-to-ud
       |=  al=(pmap address @ud)
       ^-  json
       %-  pairs
