@@ -563,6 +563,30 @@
       (~(gut by pending-store) pub ~)
     ::
     ``noun+!>(`(map @ux [egg:smart supported-actions])`our)
+  ::
+      [%sign-message @ @ ~]
+    =/  from=id:smart  (slav %ux i.t.path)
+    =/  message=@      (slav %ud i.t.t.path)
+    =/  keypair  (~(got by keys.state) from)
+    ?~  priv.keypair
+      !!  ::  put it into some temporary thing for cold storage. Make it pending
+    :^  ~  ~  %noun
+    !>  ^-  sig:smart
+    %+  ecdsa-raw-sign:secp256k1:secp:crypto  message
+    u.priv.keypair
+  ::
+      [%sign-typed-message @ @ ~]
+    =/  from=id:smart  (slav %ux i.t.path)
+    =/  =typed-message:smart
+      ;;(typed-message:smart (cue (slav %ud i.t.t.path)))
+    =/  keypair  (~(got by keys.state) from)
+    =/  hash     (sham typed-message)
+    ?~  priv.keypair
+      !!  ::  put it into some temporary thing for cold storage. Make it pending
+    :^  ~  ~  %noun
+    !>  ^-  sig:smart
+    %+  ecdsa-raw-sign:secp256k1:secp:crypto  hash
+    u.priv.keypair
   ==
 ::
 ++  on-leave  on-leave:def
