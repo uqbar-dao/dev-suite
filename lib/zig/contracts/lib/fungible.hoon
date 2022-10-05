@@ -92,7 +92,7 @@
     $:  %push
         to=address
         from-account=id
-        to-account=id :: not a unit because the contract *must* set up an account rice to use push
+        to-account=(unit id)
         amount=@ud
     ==
   +$  pull
@@ -196,8 +196,16 @@
     =/  giver  (husk account:sur - `me.cart `id.from.cart)
     ::  this will fail if amount > balance, as desired
     =.  balance.data.giver  (sub balance.data.giver amount.act)
+    ?~  to-account.act
+      ::  if receiver doesn't have an account, try to produce one for them
+      =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
+      =+  [amount.act ~ metadata.data.giver 0]
+      =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
+      %+  continuation
+        [to.act town-id.cart [%on-push id.from.cart amount.act]]~
+      (result [%&^giver %&^receiver ~] ~ ~ ~)
     ::  add amount given to the existing account for that address
-    =+  (need (scry to-account.act))
+    =+  (need (scry u.to-account.act))
     ::  assert that account is held by the address we're sending to
     =/  receiver  (husk account:sur - `me.cart `to.act)
     ::  assert that token accounts are of the same token
