@@ -397,7 +397,7 @@
             ?~  cont.p.u.grain
               ~&  >>>  "nok was empty"  rem^~
             =/  dor=vase  (load u.cont.p.u.grain)
-            =/  gun  (ajar dor %read !>(cart) !>(read-path) kind)
+            =/  gun  (ajar dor %read !>(cart(me u.id)) !>(read-path) kind)
             ::  TODO figure out how to spend only a portion of budget here!
             =/  =book
               (zebra rem zink-cax search gun test-mode)
