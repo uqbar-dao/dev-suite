@@ -96,7 +96,7 @@
       :*  name='ECS Token'
           'ECS'
           decimals=18
-          supply=100.000.000.000.000.000.000
+          supply=200.000.000.000.000.000.000
           cap=~
           mintable=%.n
           minters=~
@@ -108,6 +108,27 @@
       id:fungible-wheat
       town-id
   ==
+++  sal-token
+  ^-  grain:smart
+  =+  deployer=0x0
+  =+  salt=`@`'sal-token'
+  :*  %&  salt  %metadata
+      :*  name='SAL Token'
+          'SAL'
+          decimals=18
+          supply=300.000.000.000.000.000.000
+          cap=~
+          mintable=%.n
+          minters=~
+          deployer
+          salt
+      ==
+      `@ux`'sal-metadata'
+      id:fungible-wheat
+      id:fungible-wheat
+      town-id
+  ==
+::
 ++  make-fun-account
   |=  [holder=id:smart amt=@ud meta=grain:smart allowances=(pmap:smart address:smart @ud)]
   ::  meta - metadata of the fungible account. defaults to `@ux`'simple' unless provided
@@ -138,6 +159,37 @@
       (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat 100.000.000.000.000.000.000]])
   ==
 ::
+::  these are held by amm contract
+::
+++  amm-ecs-account
+  %:  make-fun-account
+      id:amm-wheat
+      100.000.000.000.000.000.000
+      ecs-token
+      ~
+  ==
+++  amm-sal-account
+  %:  make-fun-account
+      id:amm-wheat
+      300.000.000.000.000.000.000
+      sal-token
+      ~
+  ==
+::
+++  ecs-sal-pool
+  ^-  grain:smart
+  =/  salt  (cat 3 `@`'ecs-metadata' `@`'sal-metadata')
+  :*  %&  salt  %pool
+      :*  [`@ux`'ecs-metadata' 100.000.000.000.000.000.000]
+          [`@ux`'sal-metadata' 300.000.000.000.000.000.000]
+          liq-shares=173.205.080.756.887.728.352
+      ==
+      (fry-rice:smart id:amm-wheat id:amm-wheat town-id salt)
+      id:amm-wheat
+      id:amm-wheat
+      town-id
+  ==
+::
 ++  fake-granary
   ^-  granary
   %+  gas:big  *(merk:merk id:smart grain:smart)
@@ -145,9 +197,13 @@
       [id:fungible-wheat [%| fungible-wheat]]
       [id.p:account-1:zigs account-1:zigs]
       [id.p:cgy-token cgy-token]
-      [id.p:cgy-account cgy-account]
       [id.p:ecs-token ecs-token]
+      [id.p:sal-token sal-token]
+      [id.p:cgy-account cgy-account]
       [id.p:ecs-account ecs-account]
+      [id.p:amm-ecs-account amm-ecs-account]
+      [id.p:amm-sal-account amm-sal-account]
+      [id.p:ecs-sal-pool ecs-sal-pool]
   ==
 ++  fake-populace
   ^-  populace
@@ -159,10 +215,38 @@
 ::
 ::  begin tests
 ::
-++  test-pool-start
+++  stest-pool-start
   =/  =yolk:smart
     :+  %start-pool
       [id.p:cgy-token 100.000.000.000.000.000.000]
+    [id.p:ecs-token 50.000.000.000.000.000.000]
+  =/  shel=shell:smart
+    [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
+  ::  ~&  >  "starting state:"
+  ::  ~&  >  %+  turn  ~(tap by fake-granary)
+  ::         |=  [@ux @ux =grain:smart]
+  ::         ^-  (unit grain:smart)
+  ::         ?:  ?=(%& -.grain)
+  ::           `grain
+  ::         ~
+  =/  res=mill-result
+    %+  ~(mill mil miller town-id 1)
+      fake-land
+    `egg:smart`[fake-sig shel yolk]
+  ::
+  ~&  >>>  "fee: {<fee.res>}"
+  ~&  >>  "result:"
+  ~&  >>  land.res
+  ;:  weld
+  ::  assert that our call went through
+    %+  expect-eq
+    !>(%0)  !>(errorcode.res)
+  ==
+::
+++  test-swap
+  =/  =yolk:smart
+    :+  %swap
+      id.p:ecs-sal-pool
     [id.p:ecs-token 50.000.000.000.000.000.000]
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
