@@ -5,7 +5,7 @@
 /+  *test, smart=zig-sys-smart, *sequencer, merk
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
-/*  amm-contract    %noun  /lib/zig/compiled/amm/noun
+/*  amm-contract    %noun  /lib/zig/contracts/uhoon-amm/compiled/amm/noun
 /*  fungible-contract  %noun  /lib/zig/compiled/fungible/noun
 |%
 ::
@@ -215,7 +215,7 @@
 ::
 ::  begin tests
 ::
-++  stest-pool-start
+++  test-pool-start
   =/  =yolk:smart
     :+  %start-pool
       [id.p:cgy-token 100.000.000.000.000.000.000]
@@ -250,13 +250,6 @@
     [id.p:ecs-token 50.000.000.000.000.000.000]
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
-  ~&  >  "starting state:"
-  ~&  >  %+  turn  ~(tap by fake-granary)
-         |=  [@ux @ux =grain:smart]
-         ^-  (unit grain:smart)
-         ?:  ?=(%& -.grain)
-           `grain
-         ~
   =/  res=mill-result
     %+  ~(mill mil miller town-id 1)
       fake-land
