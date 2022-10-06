@@ -25,7 +25,7 @@
     ^-  ^json
     ?+    path  !!
         [%inspect @ ~]
-      ?~  g=(scry (slav %ux i.t.path))  ~
+      ?~  g=(scry-granary (slav %ux i.t.path))  ~
       ?.  ?=(%& -.u.g)  ~
       ?^  acc=((soft account:sur:fungible) data.p.u.g)
         (account:enjs:lib:fungible u.acc)
