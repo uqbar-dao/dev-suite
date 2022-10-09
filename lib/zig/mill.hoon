@@ -309,12 +309,12 @@
       ?~  last-diff
         ::  diff from last call failed validation
         [hits ~ ~ ~ rem %7]
-      =.  all-diffs  (uni:big all-diffs u.last-diff)
+      =.  all-diffs  (dif:big (uni:big all-diffs u.last-diff) all-burns)
       ?~  next
         ::  all continuations complete
         [hits `all-diffs all-burns (weld crows crow.rooster.p.u.chick) rem %0]
       ::  continue continuing
-      =/  inter
+      =/  inter=hatchling
         %+  ~(incubate farm (dif:big (uni:big granary all-diffs) all-burns))
           %=  egg
             id.from.shell   contract.shell.egg
@@ -478,6 +478,8 @@
     ::
     ::  +poach: handle special burn-only transactions, used for manually
     ::  escaping some grain from a town. must be EITHER holder or lord to burn.
+    ::  if town-id is the same as the source town, the grain is burned
+    ::  permanently. otherwise, it can be reinstantiated on the specified town.
     ::
     ++  poach
       |=  =egg:smart
@@ -488,19 +490,17 @@
       ::  charge fixed cost for failed transactions too
       ::  TODO should do this everywhere that we can inside +farm
       =/  fail  [~ ~ ~ ~ (sub budget.shell.egg fixed-burn-cost) %6]
-      ::  argument for %burn must be a grain ID
-      ?.  ?=([id=@ux town=@ux] q.yolk.egg)          fail
+      ::  argument for %burn must be a grain ID and town ID
+      ?.  ?=([id=@ux town=@ux] q.yolk.egg)  fail
       ::  grain must exist in granary
-      ?~  to-burn=(get:big granary id.q.yolk.egg)   fail
-      ::  town ID must be different from current town
-      ?:  =(town.q.yolk.egg town-id.p.u.to-burn)    fail
+      ?~  to-burn=(get:big granary id.q.yolk.egg)  fail
       ::  caller must be lord OR holder
       ?.  ?|  =(lord.p.u.to-burn id.from.shell.egg)
               =(holder.p.u.to-burn id.from.shell.egg)
           ==
         fail
       ::  produce hatchling
-      :*  ~  ~
+      :*  ~  [~ ~]
           (gas:big *^granary ~[[id.p.u.to-burn u.to-burn]])
           ~[[%burn `json`[%s (scot %ux id.p.u.to-burn)]]]
           (sub budget.shell.egg fixed-burn-cost)

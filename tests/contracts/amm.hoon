@@ -38,7 +38,7 @@
     :*  %&
         `@`'zigs'
         %account
-        [300.000.000 ~ `@ux`'zigs-metadata']
+        [300.000.000 ~ `@ux`'zigs-metadata' 0]
         (fry-rice:smart zigs-wheat-id:smart pubkey-1 town-id `@`'zigs')
         zigs-wheat-id:smart
         pubkey-1
@@ -116,7 +116,7 @@
       :*  name='SAL Token'
           'SAL'
           decimals=18
-          supply=300.000.000.000.000.000.000
+          supply=400.000.000.000.000.000.000
           cap=~
           mintable=%.n
           minters=~
@@ -124,6 +124,25 @@
           salt
       ==
       `@ux`'sal-metadata'
+      id:fungible-wheat
+      id:fungible-wheat
+      town-id
+  ==
+++  ecs-sal-lt-token
+  ^-  grain:smart
+  =+  salt=`@`(cat 3 `@`'ecs-metadata' `@`'sal-metadata')
+  :*  %&  salt  %metadata
+      :*  name='Liquidity Token: xx'
+          'LT'
+          decimals=18
+          supply=173.205.080.756.887.728.352
+          cap=~
+          mintable=%.y
+          minters=(make-pset:smart ~[id:amm-wheat])
+          deployer=id:amm-wheat
+          salt
+      ==
+      (fry-rice:smart id:fungible-wheat id:fungible-wheat town-id salt)
       id:fungible-wheat
       id:fungible-wheat
       town-id
@@ -159,6 +178,22 @@
       (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat 100.000.000.000.000.000.000]])
   ==
 ::
+++  sal-account
+  %:  make-fun-account
+      pubkey-1
+      100.000.000.000.000.000.000
+      sal-token
+      (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat 100.000.000.000.000.000.000]])
+  ==
+::
+++  ecs-sal-lt-account
+  %:  make-fun-account
+      pubkey-1
+      173.205.080.756.887.728.352
+      ecs-sal-lt-token
+      (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat 173.205.080.756.887.728.352]])
+  ==
+::
 ::  these are held by amm contract
 ::
 ++  amm-ecs-account
@@ -183,6 +218,7 @@
       :*  [`@ux`'ecs-metadata' 100.000.000.000.000.000.000]
           [`@ux`'sal-metadata' 300.000.000.000.000.000.000]
           liq-shares=173.205.080.756.887.728.352
+          liq-token-meta=id.p:ecs-sal-lt-token
       ==
       (fry-rice:smart id:amm-wheat id:amm-wheat town-id salt)
       id:amm-wheat
@@ -199,8 +235,11 @@
       [id.p:cgy-token cgy-token]
       [id.p:ecs-token ecs-token]
       [id.p:sal-token sal-token]
+      [id.p:ecs-sal-lt-token ecs-sal-lt-token]
       [id.p:cgy-account cgy-account]
       [id.p:ecs-account ecs-account]
+      [id.p:sal-account sal-account]
+      [id.p:ecs-sal-lt-account ecs-sal-lt-account]
       [id.p:amm-ecs-account amm-ecs-account]
       [id.p:amm-sal-account amm-sal-account]
       [id.p:ecs-sal-pool ecs-sal-pool]
@@ -215,39 +254,84 @@
 ::
 ::  begin tests
 ::
-++  test-pool-start
-  =/  =yolk:smart
-    :+  %start-pool
-      [id.p:cgy-token 100.000.000.000.000.000.000]
-    [id.p:ecs-token 50.000.000.000.000.000.000]
-  =/  shel=shell:smart
-    [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
-  ::  ~&  >  "starting state:"
-  ::  ~&  >  %+  turn  ~(tap by fake-granary)
-  ::         |=  [@ux @ux =grain:smart]
-  ::         ^-  (unit grain:smart)
-  ::         ?:  ?=(%& -.grain)
-  ::           `grain
-  ::         ~
-  =/  res=mill-result
-    %+  ~(mill mil miller town-id 1)
-      fake-land
-    `egg:smart`[fake-sig shel yolk]
-  ::
-  ~&  >>>  "fee: {<fee.res>}"
-  ~&  >>  "result:"
-  ~&  >>  land.res
-  ;:  weld
-  ::  assert that our call went through
-    %+  expect-eq
-    !>(%0)  !>(errorcode.res)
-  ==
+::  ++  test-pool-start
+::    =/  =yolk:smart
+::      :+  %start-pool
+::        [id.p:cgy-token 100.000.000.000.000.000.000]
+::      [id.p:ecs-token 50.000.000.000.000.000.000]
+::    =/  shel=shell:smart
+::      [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
+::    ::  ~&  >  "starting state:"
+::    ::  ~&  >  %+  turn  ~(tap by fake-granary)
+::    ::         |=  [@ux @ux =grain:smart]
+::    ::         ^-  (unit grain:smart)
+::    ::         ?:  ?=(%& -.grain)
+::    ::           `grain
+::    ::         ~
+::    =/  res=mill-result
+::      %+  ~(mill mil miller town-id 1)
+::        fake-land
+::      `egg:smart`[fake-sig shel yolk]
+::    ::
+::    ~&  >>>  "fee: {<fee.res>}"
+::    ~&  >>  "result:"
+::    ~&  >>  land.res
+::    ;:  weld
+::    ::  assert that our call went through
+::      %+  expect-eq
+::      !>(%0)  !>(errorcode.res)
+::    ==
+::  ::
+::  ++  test-swap
+::    =/  =yolk:smart
+::      :+  %swap
+::        id.p:ecs-sal-pool
+::      [id.p:ecs-token 50.000.000.000.000.000.000]
+::    =/  shel=shell:smart
+::      [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
+::    =/  res=mill-result
+::      %+  ~(mill mil miller town-id 1)
+::        fake-land
+::      `egg:smart`[fake-sig shel yolk]
+::    ::
+::    ~&  >>>  "fee: {<fee.res>}"
+::    ~&  >>  "result:"
+::    ~&  >>  land.res
+::    ;:  weld
+::    ::  assert that our call went through
+::      %+  expect-eq
+::      !>(%0)  !>(errorcode.res)
+::    ==
+::  ::
+::  ++  test-add-liq
+::    =/  =yolk:smart
+::      :^    %add-liq
+::          id.p:ecs-sal-pool
+::        [id.p:ecs-token 10.000.000.000.000.000.000]
+::      [id.p:sal-token 30.000.000.000.000.000.000]
+::    =/  shel=shell:smart
+::      [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
+::    =/  res=mill-result
+::      %+  ~(mill mil miller town-id 1)
+::        fake-land
+::      `egg:smart`[fake-sig shel yolk]
+::    ::
+::    ~&  >>>  "fee: {<fee.res>}"
+::    ~&  >>  "result:"
+::    ~&  >>  land.res
+::    ;:  weld
+::    ::  assert that our call went through
+::      %+  expect-eq
+::      !>(%0)  !>(errorcode.res)
+::    ==
 ::
-++  test-swap
+++  test-remove-liq
+  ::  removing liquidity from ECS-SAL pool
   =/  =yolk:smart
-    :+  %swap
-      id.p:ecs-sal-pool
-    [id.p:ecs-token 50.000.000.000.000.000.000]
+    :^    %remove-liq
+        id.p:ecs-sal-pool
+      id.p:ecs-sal-lt-account
+    73.000.000.000.000.000.000
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
   =/  res=mill-result
