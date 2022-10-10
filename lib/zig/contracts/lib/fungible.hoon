@@ -224,40 +224,31 @@
     ::  %pull allows for gasless approvals for transferring tokens
     ::  the giver must sign the from-account id and the typed +$approve struct above
     ::  and the taker will pass in the signature to take the tokens
-    =/  giv=grain          (need (scry from-account.act))
-    ?>  ?=(%& -.giv)
-    =/  giver=account:sur  data:(husk account:sur giv `me.cart ~)
-    ::  reconstruct the typed message and hash
-    =/  =typed-message
-      :-  (fry-rice me.cart holder.p.giv town-id.cart salt.p.giv)
-      (sham [holder.p.giv to.act amount.act nonce.act deadline.act])
-    =/  signed-hash  (sham typed-message)
+    =+  (need (scry from-account.act))
+    =/  giver  (husk account:sur - `me.cart `id.from.cart)
+    ::  this will fail if amount > balance, as desired
+    =.  balance.data.giver  (sub balance.data.giver amount.act)
+    ::  reconstruct the hash of the typed message and hash
+    =+  %+  sham
+          (fry-rice me.cart holder.p.giv town-id.cart salt.p.giv)
+        (sham [holder.p.giv to.act amount.act nonce.act deadline.act])
     ::  recover the address from the message and signature
-    =/  recovered-address
-      %-  address-from-pub
-      %-  serialize-point:secp256k1:secp:crypto
-      (ecdsa-raw-recover:secp256k1:secp:crypto signed-hash sig.act)
+    =+  %-  address-from-pub
+        %-  serialize-point:secp256k1:secp:crypto
+        (ecdsa-raw-recover:secp256k1:secp:crypto - sig.act)
     ::  assert the signature is valid
-    ?>  =(recovered-address holder.p.giv)
+    ?>  =(- holder.bran.giver)
     :: assert nonce is valid
     =+  (~(get by nonces.giver) to.act)
     ?>  .=  nonce.act
-      ?~  -
-        =>((~(put py nonces.giver) to.act 1) 0)
-      =>((~(jab py nonces.giver) to.act succ) ->)
-    :: TODO need to figure out how to implement the deadline since now.cart no longer exists
-    ?>  (lte batch.cart deadline.act)
-    ?>  (gte balance.giver amount.act)
+      +((~(gut by nonces.giver) to.act 0))
+    ?>  (lte batch.cart deadline.act) :: TODO implement deadline; now.cart is gone
     ?~  to-account.act
     ::  create new rice for reciever and add it to state
-      =+  (fry-rice to.act me.cart town-id.cart salt.p.giv)
-      =/  new=grain
-        [%& salt.p.giv %account [amount.act ~ metadata.giver ~] - me.cart to.act town-id.cart]
-      ::  continuation call: %take to rice found in book
-      =/  =action:sur  [%pull to.act id.p.giv `id.p.new amount.act nonce.act deadline.act sig.act]
-      %+  continuation
-        [me.cart town-id.cart action]~
-      (result [new ~] ~ ~ ~)
+      =/  =id  (fry-rice to.act me.cart town-id.cart salt.p.giv)
+      =+  [amount.act ~ metadata.data.giver ~]
+      =+  receiver=[salt.p.giv %account - me.cart to.act town-id.cart salt.giver]
+      (result [%&^giver ~] [%&^receiver] ~ ~)
     ::  direct send
     =/  rec=grain  (need (scry u.to-account.act))
     =/  receiver   data:(husk account:sur rec `me.cart `to.act)
@@ -267,7 +258,7 @@
         data.p.giv
       %=  giver
         balance   (sub balance.giver amount.act)
-        nonces    (~(jab py nonces.giver) to.act succ) 
+        nonces    (~(put py nonces.giver) to.act +(nonce.act))
       ==
     ==
     (result [giv rec ~] ~ ~ ~)
@@ -375,7 +366,7 @@
       :~  ['balance' (numb balance.a)]
           ['allowances' (pmap-addr-to-ud allowances.a)]
           ['metadata' %s (scot %ux metadata.a)]
-          ['nonce' (pmap-addr-to-ud nonces.a)]
+          ['nonces' (pmap-addr-to-ud nonces.a)]
       ==
     ::
     ++  metadata
