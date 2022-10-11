@@ -64,6 +64,7 @@
       [%derive-new-address hdpath=tape nick=@t]
       [%delete-address address=@ux]
       [%edit-nickname address=@ux nick=@t]
+      [%sign-typed-message from=id:smart =typed-message:smart]
       [%add-tracked-address address=@ux nick=@t]
       ::  testing and internal
       [%set-nonce address=@ux town=id:smart new=@ud]

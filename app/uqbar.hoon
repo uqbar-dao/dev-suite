@@ -71,23 +71,20 @@
     |=  =path
     |^  ^-  (quip card _this)
     ?>  =(src.bowl our.bowl)
+    :_  this
     ?+    -.path  !!
-        %track  `this
+        %track  ~
         %wallet
-      ?.  ?=([%wallet @ @ ~] path)
-        ~|  "%uqbar: wallet subscriptions must be of form:"
-        ~|  " /wallet/[requesting-app-name]/[*-updates]"
-        !!
-      :_  this
+      ::  must be of the form, e.g.,
+      ::   /wallet/[requesting-app-name]/[*-updates]
+      ?.  ?=([%wallet @ @ ~] path)  ~
       (watch-wallet /[i.path]/[i.t.path] t.t.path)
     ::
         %indexer
-      ?.  ?=([%indexer @ @ ^] path)
-        ~|  "%uqbar: indexer subscriptions must be of form:"
-        ~|  " /indexer/[requesting-app-name]/grain/[town-id]/[grain-id]"
-        !!
+      ::  must be of the form, e.g.,
+      ::   /indexer/[requesting-app-name]/grain/[town-id]/[grain-id]
+      ?.  ?=([%indexer @ @ ^] path)  ~
       =/  town-id=id:smart  (slav %ux i.t.t.t.path)
-      :_  this
       (watch-indexer town-id /[i.path]/[i.t.path] t.t.path)
     ==
     ::
@@ -301,7 +298,7 @@
         [cards this]
       ==
     ::
-        ?(%indexer %wallet)
+        %indexer
       ?+  -.sign  (on-agent:def wire sign)
         %kick  [rejoin this]
         %fact  [[(pass-through cage.sign)]~ this]

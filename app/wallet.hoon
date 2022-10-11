@@ -20,7 +20,7 @@
       ::  we track the nonce of each address we're handling
       ::  TODO: introduce a poke to check nonce from chain and re-align
       nonces=(map address:smart (map town=@ux nonce=@ud))
-      ::  TODO: remove signatures in state-1
+      ::  signatures tracks any signed calls we've made
       signatures=(list [=typed-message:smart =sig:smart])
       ::  tokens tracked for each address we're handling
       tokens=(map address:smart =book)
@@ -111,6 +111,7 @@
       ::  for now treat this as a nuke of the wallet
       %=  state
         nonces             ~
+        signatures         ~
         tokens             ~
         metadata-store     ~
         pending-store      ~
@@ -136,6 +137,7 @@
       ::  for now treat this as a nuke of the wallet
       %=  state
         nonces             ~
+        signatures         ~
         tokens             ~
         metadata-store     ~
         pending-store      ~
@@ -183,6 +185,17 @@
         %edit-nickname
       =+  -:(~(got by keys.state) address.act)
       `state(keys (~(put by keys) address.act [- nick.act]))
+    ::
+        %sign-typed-message
+      =/  keypair  (~(got by keys.state) from.act)
+      =/  hash     (sham typed-message.act)
+      =/  signature
+        ?~  priv.keypair
+          !!  ::  put it into some temporary thing for cold storage. Make it pending
+        %+  ecdsa-raw-sign:secp256k1:secp:crypto
+          hash
+        u.priv.keypair
+      `state(signatures [[typed-message.act signature] signatures])
     ::
         %set-nonce  ::  for testing/debugging
       =+  acc=(~(gut by nonces.state) address.act ~)
@@ -528,6 +541,9 @@
     |=  [hash=@ux [t=egg:smart action=supported-actions]]
     (parse-transaction:wallet-parsing hash t action)
   ::
+      [%signatures ~]
+    ``noun+!>(signatures.state)
+  ::
       [%pending @ ~]
     ::  return pending store for given pubkey
     =/  pub  (slav %ux i.t.t.path)
@@ -547,16 +563,6 @@
       (~(gut by pending-store) pub ~)
     ::
     ``noun+!>(`(map @ux [egg:smart supported-actions])`our)
-  ::
-      [%sign-message @ @ ~]
-    =/  from=id:smart  (slav %ux i.t.t.path)
-    =/  message=@      (slav %ud i.t.t.t.path)
-    =/  keypair  (~(got by keys.state) from)
-    ?~  priv.keypair  !!
-    :^  ~  ~  %noun
-    !>  ^-  sig:smart
-    %+  ecdsa-raw-sign:secp256k1:secp:crypto  message
-    u.priv.keypair
   ==
 ::
 ++  on-leave  on-leave:def
