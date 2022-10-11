@@ -140,7 +140,7 @@
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
-      =+  [amount.act ~ metadata.data.giver 0]
+      =+  [amount.act ~ metadata.data.giver ~]
       =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
       (result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
@@ -170,7 +170,7 @@
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
-      =+  [amount.act ~ metadata.data.giver 0]
+      =+  [amount.act ~ metadata.data.giver ~]
       =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
       (result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
@@ -200,7 +200,7 @@
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
-      =+  [amount.act ~ metadata.data.giver 0]
+      =+  [amount.act ~ metadata.data.giver ~]
       =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
       %+  continuation
         [to.act town-id.cart [%on-push id.from.cart amount.act calldata.act]]~
@@ -302,7 +302,7 @@
     ?~  account.m
       ::  create new account for receiver
       =/  =id  (fry-rice me.cart to.m town-id.cart salt.data.meta)
-      =+  [amount.m ~ token.act 0]
+      =+  [amount.m ~ token.act ~]
       =+  receiver=[salt.data.meta %account - id me.cart to.m town-id.cart]
       %=  $
         mints.act         t.mints.act

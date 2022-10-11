@@ -26,7 +26,7 @@
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
-      =+  [amount.act ~ metadata.data.giver 0]
+      =+  [amount.act ~ metadata.data.giver ~]
       =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
       (result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
@@ -52,7 +52,7 @@
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
-      =+  [amount.act ~ metadata.data.giver 0]
+      =+  [amount.act ~ metadata.data.giver ~]
       =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
       (result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
