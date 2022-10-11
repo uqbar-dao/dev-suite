@@ -241,7 +241,7 @@
     :: assert nonce is valid
     =+  (~(get by nonces.data.giver) to.act)
     ?>  .=  nonce.act
-      +((~(gut by nonces.data.giver) to.act 0))
+        +((~(gut by nonces.data.giver) to.act 0))
     ?>  (lte batch.cart deadline.act) :: TODO implement deadline; now.cart is gone
     ?~  to-account.act
     ::  create new rice for reciever and add it to state
