@@ -27,7 +27,7 @@
 ::  addresses that are permitted to mint, or set a permanent supply,
 ::  all of which must be distributed at first issuance.
 ::
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 |%
 ++  sur
   |%
@@ -230,38 +230,34 @@
     =.  balance.data.giver  (sub balance.data.giver amount.act)
     ::  reconstruct the hash of the typed message and hash
     =+  %+  sham
-          (fry-rice me.cart holder.p.giv town-id.cart salt.p.giv)
-        (sham [holder.p.giv to.act amount.act nonce.act deadline.act])
+          (fry-rice me.cart holder.giver town-id.cart salt.giver)
+        (sham [holder.giver to.act amount.act nonce.act deadline.act])
     ::  recover the address from the message and signature
     =+  %-  address-from-pub
         %-  serialize-point:secp256k1:secp:crypto
         (ecdsa-raw-recover:secp256k1:secp:crypto - sig.act)
     ::  assert the signature is valid
-    ?>  =(- holder.bran.giver)
+    ?>  =(- holder.giver)
     :: assert nonce is valid
-    =+  (~(get by nonces.giver) to.act)
+    =+  (~(get by nonces.data.giver) to.act)
     ?>  .=  nonce.act
-      +((~(gut by nonces.giver) to.act 0))
+      +((~(gut by nonces.data.giver) to.act 0))
     ?>  (lte batch.cart deadline.act) :: TODO implement deadline; now.cart is gone
     ?~  to-account.act
     ::  create new rice for reciever and add it to state
-      =/  =id  (fry-rice to.act me.cart town-id.cart salt.p.giv)
+      =/  =id  (fry-rice to.act me.cart town-id.cart salt.giver)
       =+  [amount.act ~ metadata.data.giver ~]
-      =+  receiver=[salt.p.giv %account - me.cart to.act town-id.cart salt.giver]
-      (result [%&^giver ~] [%&^receiver] ~ ~)
+      =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
+      (result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  direct send
     =/  rec=grain  (need (scry u.to-account.act))
     =/  receiver   data:(husk account:sur rec `me.cart `to.act)
     ?>  ?=(%& -.rec)
-    ?>  =(metadata.receiver metadata.giver)
+    ?>  =(metadata.receiver metadata.data.giver)
     =:  data.p.rec  receiver(balance (add balance.receiver amount.act))
-        data.p.giv
-      %=  giver
-        balance   (sub balance.giver amount.act)
-        nonces    (~(put py nonces.giver) to.act +(nonce.act))
-      ==
+        nonces.data.giver  (~(put py nonces.data.giver) to.act +(nonce.act))
     ==
-    (result [giv rec ~] ~ ~ ~)
+    (result [%&^giver rec ~] ~ ~ ~)
   ::
   ++  set-allowance
     |=  [=cart act=set-allowance:sur]
