@@ -307,7 +307,7 @@ Contracts can be compiled using variations of the following command.
 Here, the `zigs` contract is compiled.
 In general, replace `zigs` with the name of any other contract.
 ```hoon
-.zigs/noun +zig!compile /=zig=/lib/zig/contracts/zigs/hoon
+.zigs/noun +zig!compile /=zig=/con/zigs/hoon
 ```
 
 
