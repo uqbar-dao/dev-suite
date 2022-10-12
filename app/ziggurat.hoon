@@ -206,8 +206,8 @@
     ::
         %add-to-state
       =/  data-text  ;;(@t data.act)
-      =/  =id  (fry-rice:smart lord.act holder.act town-id.act salt.act)
-      =/  =rice
+      =/  =id:smart  (fry-rice:smart lord.act holder.act town-id.act salt.act)
+      =/  =rice:smart
         =+  (text-to-zebra-noun data-text smart-lib-vase)
         [salt.act label.act - id lord.act holder.act town-id.act]
       ::  take text data input and ream to form data noun
@@ -250,8 +250,8 @@
       ::  add/replace expected rice output
       ?~  current=(~(get by tests.project) id.act)
         ~|("%ziggurat: test does not exist" !!)
-      =/  =id  (fry-rice:smart lord.act holder.act town-id.act salt.act)
-      =/  =rice
+      =/  =id:smart  (fry-rice:smart lord.act holder.act town-id.act salt.act)
+      =/  =rice:smart
         [salt.act label.act data.act id lord.act holder.act town-id.act]
       =/  tex  ;;(@t data.rice)
       =/  new
