@@ -5,7 +5,7 @@
 ::  on any town that wishes to allow contract production.
 ::
 ::  /+  *zig-sys-smart
-/=  pub  /lib/zig/contracts/lib/publish
+/=  pub  /contracts/lib/publish
 |_  =cart
 ++  write
   |=  act=action:pub

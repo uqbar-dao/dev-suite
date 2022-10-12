@@ -10,7 +10,7 @@
 ::  gas, gain privacy, and get better UX that way.
 ::
 ::  /+  *zig-sys-smart
-/=  lib  /lib/zig/contracts/lib/multisig
+/=  lib  /contracts/lib/multisig
 =,  lib
 |_  =cart
 ++  write

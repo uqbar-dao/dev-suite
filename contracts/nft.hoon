@@ -4,7 +4,7 @@
 ::  to deploy and mint new sets of tokens.
 ::
 ::  /+  *zig-sys-smart
-/=  nft  /lib/zig/contracts/lib/nft
+/=  nft  /contracts/lib/nft
 =,  nft
 |_  =cart
 ++  write
