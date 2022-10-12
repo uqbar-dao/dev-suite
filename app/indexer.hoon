@@ -34,9 +34,9 @@
 ::    In order to do so it requires the `lord` contracts
 ::    have properly filled out `interface` and `types`
 ::    fields, see `lib/jolds.hoon` docstring for the spec
-::    and `lib/zig/contracts/lib/*interface-types.hoon`
+::    and `con/lib/*interface-types.hoon`
 ::    for examples.
-::    
+::
 ::    When used in combination, the `/json` prefix must
 ::    come before the `/newest` prefix, so a valid example
 ::    is `/x/json/newest/holder/0xdead.beef`.
@@ -83,7 +83,7 @@
 ::
 ::    Subscriptions paths must be appended with a unique
 ::    subscription identifier.
-::    The %uqbar app does this automatically. 
+::    The %uqbar app does this automatically.
 ::    One recommended way to do this is to append
 ::    ```
 ::    (scot %ux (cut 5 [0 1] eny.bowl))
@@ -107,7 +107,7 @@
 ::    In order to do so it requires the `lord` contracts
 ::    have properly filled out `interface` and `types`
 ::    fields, see `lib/jolds.hoon` docstring for the spec
-::    and `lib/zig/contracts/lib/*interface-types.hoon`
+::    and `con/lib/*interface-types.hoon`
 ::    for examples.
 ::
 ::    /batch-order/[town-id=@ux]:

@@ -1,11 +1,9 @@
 /-  *sequencer
-/+  ethereum,
-    merk,
-    smart=zig-sys-smart,
-    fungible=zig-contracts-lib-fungible-interface-types,
-    nft=zig-contracts-lib-nft-interface-types,
-    publish=zig-contracts-lib-publish-interface-types,
-    zigs=zig-contracts-lib-zigs-interface-types
+/+  ethereum, merk, smart=zig-sys-smart
+/=  fungible  /con/lib/fungible-interface-types
+/=  nft  /con/lib/nft-interface-types
+/=  publish  /con/lib/publish-interface-types
+/=  zigs  /con/lib/zigs-interface-types
 /*  fungible-contract  %noun  /con/compiled/fungible/noun
 /*  nft-contract       %noun  /con/compiled/nft/noun
 /*  publish-contract   %noun  /con/compiled/publish/noun
