@@ -1,6 +1,6 @@
 ::  /+  *zig-sys-smart
-/=  library    /contracts/lib/library
-/=  library-2  /contracts/lib/library-2
+/=  library    /con/lib/library
+/=  library-2  /con/lib/library-2
 =,  library-2
 |_  =cart
 ++  write

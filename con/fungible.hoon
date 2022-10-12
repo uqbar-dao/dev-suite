@@ -5,7 +5,7 @@
 ::  without any changes can be issued through this contract.
 ::
 ::  /+  *zig-sys-smart
-/=  fungible  /contracts/lib/fungible
+/=  fungible  /con/lib/fungible
 |_  =cart
 ++  write
   |=  act=action:sur:fungible
