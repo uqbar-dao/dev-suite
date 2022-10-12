@@ -6,10 +6,10 @@
     nft=zig-contracts-lib-nft-interface-types,
     publish=zig-contracts-lib-publish-interface-types,
     zigs=zig-contracts-lib-zigs-interface-types
-/*  fungible-contract  %noun  /lib/zig/compiled/fungible/noun
-/*  nft-contract       %noun  /lib/zig/compiled/nft/noun
-/*  publish-contract   %noun  /lib/zig/compiled/publish/noun
-/*  zigs-contract      %noun  /lib/zig/compiled/zigs/noun
+/*  fungible-contract  %noun  /con/compiled/fungible/noun
+/*  nft-contract       %noun  /con/compiled/nft/noun
+/*  publish-contract   %noun  /con/compiled/publish/noun
+/*  zigs-contract      %noun  /con/compiled/zigs/noun
 :-  %say
 |=  [[now=@da eny=@uvJ bek=beak] [rollup-host=@p town-id=@ux private-key=@ux ~] ~]
 ::  one hundred million testnet zigs, now and forever
