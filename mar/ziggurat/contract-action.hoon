@@ -38,8 +38,8 @@
       %-  ot
       :~  [%salt ni]
           [%label (se %tas)]
-          [%id (se %ux)]
           [%data so]  ::  note: reaming to form data noun
+          [%id (se %ux)]
           [%lord (se %ux)]
           [%holder (se %ux)]
           [%town-id (se %ux)]
