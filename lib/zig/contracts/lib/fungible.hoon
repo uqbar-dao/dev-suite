@@ -27,7 +27,7 @@
 ::  addresses that are permitted to mint, or set a permanent supply,
 ::  all of which must be distributed at first issuance.
 ::
-/+  *zig-sys-smart
+::  /+  *zig-sys-smart
 |%
 ++  sur
   |%
