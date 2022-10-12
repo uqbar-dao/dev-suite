@@ -82,6 +82,12 @@
   =/  =path         /test-updates/[project]
   [%give %fact ~[path] %ziggurat-test-update !>(`test-update`[%result result])]
 ::
+++  make-read-desk
+  |=  project=@t
+  ^-  card
+  =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
+  [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
+::
 ++  text-to-zebra-noun
   |=  [tex=@t smart-lib=vase]
   ^-  *

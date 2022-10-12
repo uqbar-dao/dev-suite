@@ -424,8 +424,7 @@
           [%pass /mount-wire %arvo %c mount-task]
           [%pass /save-wire %arvo %c bill-task]
           [%pass /save-wire %arvo %c deletions-task]
-          =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
-          [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
+          (make-read-desk project.act)
       ==
     ::
         %delete-project
@@ -436,8 +435,8 @@
       :_  state
       :~  =-  [%pass /save-wire %arvo %c -]
           [%info `@tas`project.act %& [file.act %ins %hoon !>(text.act)]~]
-          =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
-          [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
+      ::
+          (make-read-desk project.act)
       ==
 
     ::
@@ -446,8 +445,8 @@
       :_  state
       :~  =-  [%pass /del-wire %arvo %c -]
           [%info `@tas`project.act %& [file.act %del ~]~]
-          =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
-          [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
+      ::
+          (make-read-desk project.act)
       ==
 
     ::
@@ -478,8 +477,8 @@
         [%info `@tas`project.act %& [/desk/docket-0 %ins %docket-0 !>(docket-0)]~]
       :_  state
       :~  [%pass /save-wire %arvo %c docket-task]
-          =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
-          [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
+          (make-read-desk project.act)
+      ::
           =-  [%pass /treaty-wire %agent [our.bowl %treaty] %poke -]
           [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
       ==
