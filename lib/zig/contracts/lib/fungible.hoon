@@ -90,10 +90,9 @@
     ==
   +$  push
     $:  %push
-        to=address
-        from-account=id
-        to-account=(unit id)
+        who=address
         amount=@ud
+        account=id
         calldata=*
     ==
   +$  pull
@@ -185,38 +184,20 @@
     (result [%&^giver %&^receiver ~] ~ ~ ~)
   ::
   ++  push
-    :: This is an ERC677 implementation. It let's you send tokens to a contract
-    :: and execute arbitrary logic after that - saving you an extra approve
-    :: transaction. For any contract that wants to implement this, the wheat
-    :: must have an %on-push arm implemented as [%on-push from=id amount=id]
-    :: Any contract that users must pay to use should implement this - e.g.
-    :: an oracle query.
     |=  [=cart act=push:sur]
     ^-  chick
-    =+  (need (scry from-account.act))
-    =/  giver  (husk account:sur - `me.cart `id.from.cart)
-    ::  this will fail if amount > balance, as desired
-    =.  balance.data.giver  (sub balance.data.giver amount.act)
-    ?~  to-account.act
-      ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
-      =+  [amount.act ~ metadata.data.giver ~]
-      =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
-      %+  continuation
-        [to.act town-id.cart [%on-push id.from.cart amount.act calldata.act]]~
-      (result [%&^giver %&^receiver ~] ~ ~ ~)
-    ::  add amount given to the existing account for that address
-    =+  (need (scry u.to-account.act))
-    ::  assert that account is held by the address we're sending to
-    =/  receiver  (husk account:sur - `me.cart `to.act)
-    ::  assert that token accounts are of the same token
-    ::  (since this contract can deploy and thus manage multiple tokens)
-    ?>  =(metadata.data.receiver metadata.data.giver)
-    =.  balance.data.receiver  (add balance.data.receiver amount.act)
-    ::  return the result: two changed grains
+    ::  This is an implementation of the approveAndCall psuedo-standard for ERC20 tokens.
+    ::  In a single transaction you can approve a max spend and call a function, saving
+    ::  an extra transaction. For any contract that wants to implement this, the wheat
+    ::  must have an %on-push arm implemented as [%on-push from=id amount=id calldata=*]
+    ?>  !=(who.act id.from.cart)
+    =+  (need (scry account.act))
+    =/  account  (husk account:sur - `me.cart `id.from.cart)
+    =.  allowances.data.account
+      (~(put py allowances.data.account) who.act amount.act)
     %+  continuation
-      [to.act town-id.cart [%on-push id.from.cart amount.act calldata.act]]~
-    (result [%&^giver %&^receiver ~] ~ ~ ~)
+      [who.act town-id.cart [%on-push id.from.cart amount.act calldata.act]]~
+    (result [%&^account ~] ~ ~ ~)
   ::
   ++  pull
     |=  [=cart act=pull:sur]
