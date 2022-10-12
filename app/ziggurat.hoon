@@ -205,17 +205,25 @@
     ::  local chain state management
     ::
         %add-to-state
+      =/  data-text  ;;(@t data.act)
+      =/  id  (fry-rice:smart lord.act holder.act town-id.act salt.act)
+      =/  rice  
+        :*  salt=salt.act
+            label=label.act
+            data=(text-to-zebra-noun data-text smart-lib-vase)
+            id=id
+            lord=lord.act
+            holder=holder.act
+            town-id=town-id.act
+        ==
       ::  take text data input and ream to form data noun
-      =/  data-text  ;;(@t data.rice.act)
-      =.  data.rice.act
-        (text-to-zebra-noun data-text smart-lib-vase)
       ::  put a new grain in the granary
       =:  p.state.project
         %+  put:big:mill  p.state.project
-        [id.rice.act %&^rice.act]
+        [id.rice %&^rice]
       ::
           data-texts.project
-        (~(put by data-texts.project) id.rice.act data-text)
+        (~(put by data-texts.project) id.rice data-text)
       ==
       :-  (make-contract-update project.act project)^~
       state(projects (~(put by projects) project.act %&^project))
@@ -248,7 +256,16 @@
       ::  add/replace expected rice output
       ?~  current=(~(get by tests.project) id.act)
         ~|("%ziggurat: test does not exist" !!)
-      =*  rice  expected.act
+      =/  id  (fry-rice:smart lord.act holder.act town-id.act salt.act)
+      =/  rice  
+        :*  salt=salt.act
+            label=label.act
+            data=data.act
+            id=id
+            lord=lord.act
+            holder=holder.act
+            town-id=town-id.act
+        ==
       =/  tex  ;;(@t data.rice)
       =/  new
         =-  [id.rice %&^rice(data -) tex]

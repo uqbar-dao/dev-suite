@@ -22,10 +22,10 @@
           [%delete-project ul]
           [%save-file (ot ~[[%name so] [%text so]])]
           [%delete-file (ot ~[[%name so]])]
-          [%add-to-state parse-rice]
+          [%add-to-state parse-rice-without-id]
           [%delete-from-state (ot ~[[%id (se %ux)]])]
           [%add-test (ot ~[[%name so:dejs-soft:format] [%action so] [%expected-error ni:dejs-soft:format]])]
-          [%add-test-expectation (ot ~[[%id (se %ux)] [%expected parse-rice]])]
+          [%add-test-expectation (ot ~[[%id (se %ux)] [%expected parse-rice-without-id]])]
           [%delete-test-expectation (ot ~[[%id (se %ux)] [%delete (se %ux)]])]
           [%delete-test (ot ~[[%id (se %ux)]])]
           [%edit-test (ot ~[[%id (se %ux)] [%name so:dejs-soft:format] [%action so] [%expected-error ni:dejs-soft:format]])]
@@ -38,8 +38,18 @@
       %-  ot
       :~  [%salt ni]
           [%label (se %tas)]
-          [%data so]  ::  note: reaming to form data noun
           [%id (se %ux)]
+          [%data so]  ::  note: reaming to form data noun
+          [%lord (se %ux)]
+          [%holder (se %ux)]
+          [%town-id (se %ux)]
+      ==
+    ::
+    ++  parse-rice-without-id
+      %-  ot
+      :~  [%salt ni]
+          [%label (se %tas)]
+          [%data so]
           [%lord (se %ux)]
           [%holder (se %ux)]
           [%town-id (se %ux)]
