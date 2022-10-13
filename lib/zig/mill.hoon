@@ -42,13 +42,6 @@
   =/  gun  (~(mint ut typ) %noun gen)
   [[q.dor [q.dor-sam q.arm-sam]] q.gun]
 ::
-::  +hole: vase-checks your types for you
-::
-++  hole
-  |*  [typ=mold val=*]
-  ^-  typ
-  !<(typ [-:!>(*typ) val])
-::
 ++  mill
   |_  [miller=caller:smart town-id=id:smart batch=@ud]
   ::
@@ -217,8 +210,8 @@
       ?.  =(id.from.shell.egg holder.p.u.zigs)        %.n
       ?.  =(zigs-wheat-id:smart lord.p.u.zigs)        %.n
       ?.  ?=(%& -.u.zigs)                             %.n
-      =/  acc  (hole token-account data.p.u.zigs)
-      (gte balance.acc (mul budget.shell.egg rate.shell.egg))
+      =/  balance  ;;(@ud -.data.p.u.zigs)
+      (gte balance (mul budget.shell.egg rate.shell.egg))
     ::  +charge: extract gas fee from caller's zigs balance
     ::  returns a single modified grain to be inserted into a diff
     ::  cannot crash after audit, as long as zigs contract adequately
@@ -232,9 +225,9 @@
         %^  gut:big  diff  zigs.payee
         (got:big granary zigs.payee)
       ?>  ?=(%& -.zigs)
-      =/  acc  (hole token-account data.p.zigs)
-      =.  balance.acc  (sub balance.acc fee)
-      [zigs.payee zigs(data.p acc)]
+      =/  balance  ;;(@ud -.data.p.zigs)
+      =-  [zigs.payee zigs(data.p -)]
+      [(sub balance fee) +.data.p.zigs]
     ::  +pay: give fees from eggs to miller
     ++  pay
       |=  total=@ud
@@ -246,7 +239,7 @@
         =/  =id:smart  (fry-rice:smart zigs-wheat-id:smart id.miller town-id `@`'zigs')
         [%& 'zigs' %account token-account id zigs-wheat-id:smart id.miller town-id]
       ?.  ?=(%& -.acc)  granary
-      =/  account  (hole token-account data.p.acc)
+      =/  account  ;;(token-account data.p.acc)
       ?.  =(`@ux`'zigs-metadata' metadata.account)  granary
       =.  balance.account  (add balance.account total)
       =.  data.p.acc  account

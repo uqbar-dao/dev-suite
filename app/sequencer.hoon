@@ -6,8 +6,8 @@
 /+  *sequencer, *rollup, uqbar, zink=zink-zink, sig=zig-sig, default-agent, dbug, verb
 ::  Choose which library smart contracts are executed against here
 ::
-/*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
-/*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
+/*  smart-lib-noun  %noun  /con/compiled/smart-lib/noun
+/*  zink-cax-noun   %noun  /con/compiled/hash-cache/noun
 |%
 +$  card  card:agent:gall
 +$  state-0

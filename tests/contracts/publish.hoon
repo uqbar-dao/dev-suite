@@ -3,9 +3,9 @@
 ::
 /-  zink
 /+  *test, smart=zig-sys-smart, *sequencer, merk
-/*  smart-lib-noun    %noun  /lib/zig/compiled/smart-lib/noun
-/*  zink-cax-noun     %noun  /lib/zig/compiled/hash-cache/noun
-/*  publish-contract  %noun  /lib/zig/compiled/publish/noun
+/*  smart-lib-noun    %noun  /con/compiled/smart-lib/noun
+/*  zink-cax-noun     %noun  /con/compiled/hash-cache/noun
+/*  publish-contract  %noun  /con/compiled/publish/noun
 |%
 ::
 ::  constants / dummy info for mill

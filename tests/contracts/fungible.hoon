@@ -1,10 +1,10 @@
 ::  fungible.hoon tests
 /-  zink
 /+  *test, smart=zig-sys-smart, *sequencer, merk, ethereum
-/*  smart-lib-noun     %noun  /lib/zig/compiled/smart-lib/noun
-/*  zink-cax-noun      %noun  /lib/zig/compiled/hash-cache/noun
-/*  zigs-contract      %noun  /lib/zig/compiled/zigs/noun
-/*  fungible-contract  %noun  /lib/zig/compiled/fungible/noun
+/*  smart-lib-noun     %noun  /con/compiled/smart-lib/noun
+/*  zink-cax-noun      %noun  /con/compiled/hash-cache/noun
+/*  zigs-contract      %noun  /con/compiled/zigs/noun
+/*  fungible-contract  %noun  /con/compiled/fungible/noun
 |%
 ::
 ::  constants / dummy info for mill

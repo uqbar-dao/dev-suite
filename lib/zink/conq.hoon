@@ -1,6 +1,6 @@
 /+  *zink-zink, smart=zig-sys-smart, mill=zig-mill
-/*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
-/*  triv-txt        %hoon  /lib/zig/contracts/trivial/hoon
+/*  smart-lib-noun  %noun  /con/compiled/smart-lib/noun
+/*  triv-txt        %hoon  /con/trivial/hoon
 |%
 ::
 ++  hash

@@ -8,7 +8,7 @@
 ::  zig spends to be guaranteed not to underflow.
 ::
 ::  /+  *zig-sys-smart
-/=  zigs  /lib/zig/contracts/lib/zigs
+/=  zigs  /con/lib/zigs
 =,  zigs
 |_  =cart
 ++  write
