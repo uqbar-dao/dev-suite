@@ -27,17 +27,32 @@
 ++  compile-contract
   |=  [desk=path txt=@t]
   ^-  [bat=* pay=*]
+  ::
+  ::  goal flow:
+  ::  - take main file, parse to find libs
+  ::  - for each lib, parse to find any libs there
+  ::  - if an import is already present in that stack
+  ::    (circular), crash
+  ::  - once a file with no imports is reached, (rain ) it
+  ::  - compose against this back up the stack
+  ::
+  ::  old stuff:
+  ::
   ::  parse contract code
   =/  [raw=(list [face=term =path]) contract-hoon=hoon]
     (parse-pile (trip txt))
   ::  generate initial subject containing uHoon
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
-  ::  compose libraries flatly against uHoon subject
+  ::  compose libraries against uHoon subject
   =/  braw=(list hoon)
     %+  turn  raw
     |=  [face=term =path]
     =/  pax  (weld desk path)
-    `hoon`[%ktts face (rain pax .^(@t %cx (welp pax /hoon)))]
+    ^-  hoon
+    :+  %ktts  face
+    =/  lib-txt  .^(@t %cx (welp pax /hoon))
+    ::  CURRENTLY IGNORING IMPORTS INSIDE LIBRARIES
+    +:(parse-pile (trip lib-txt))
   =/  libraries=hoon  [%clsg braw]
   =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun libraries)
   =/  payload=vase  (slap smart-lib libraries)
@@ -51,7 +66,6 @@
   =/  [raw=(list [face=term =path]) contract-hoon=hoon]
     (parse-pile (trip triv-txt))
   =/  smart-lib=vase
-    ::  (slap (slap !>(~) (ream hoonlib-txt)) (ream smartlib-txt))
     ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  libraries=hoon  [%clsg ~]
   =/  full-nock=*     q:(~(mint ut p.smart-lib) %noun libraries)

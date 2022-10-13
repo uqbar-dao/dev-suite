@@ -1,4 +1,5 @@
 /+  *zig-sys-smart
+/=  libby  /con/lib/library
 |_  =cart
 ++  write
   |=  [%find my-account=id]
