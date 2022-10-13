@@ -8,6 +8,12 @@
   ++  json
     ~
   ++  noun
-    %hellofriend
+    ?+    path  !!
+        [%read-me ~]
+      %hellofriend
+    ::
+        [%pay-to-read-me ~]
+      %hellogoodfriend
+    ==
   --
 --

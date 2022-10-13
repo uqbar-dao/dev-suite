@@ -351,7 +351,7 @@
         ?~  p.p.book
           ~&  >>>  "mill: ran out of gas"
           [~ 0 %8]
-        [(hole (unit chick:smart) p.p.book) bud.q.book %0]
+        [;;((unit chick:smart) p.p.book) bud.q.book %0]
         ::
         ++  load
           |=  cont=[bat=* pay=*]
@@ -375,13 +375,12 @@
               ~&  >>>  "didn't find it"  rem^~
             rem^grain
           ::
-              [%0 %contract @ @ @ ^]
-              ::  /contract/[%noun or %json]/[contract-id]/[fee]/path/defined/in/contract
+              [%0 %contract @ @ ^]
+              ::  /contract/[%noun or %json]/[contract-id]/path/defined/in/contract
             =/  rem  (sub bud 100)  ::  base cost
             =/  kind  `@tas`-.+.+.+.pat
             ?.  ?=(?(%noun %json) kind)  rem^~
             ?~  id=(slaw %ux -.+.+.+.+.pat)  rem^~
-            =/  read-fee  `@ud`-.+.+.+.+.+.pat
             ::  path includes fee, as it must match fee in contract
             =/  read-path=path  ;;(path +.+.+.+.+.pat)
             ~&  >>  "looking for contract wheat: {<`@ux`u.id>}"
@@ -392,10 +391,8 @@
             ?~  cont.p.u.grain
               ~&  >>>  "nok was empty"  rem^~
             =/  dor=vase  (load u.cont.p.u.grain)
-            =/  gun  (ajar dor %read !>(cart(me u.id)) !>(read-path) kind)
-            ::  TODO figure out how to spend only a portion of budget here!
-            =/  =book
-              (zebra rem zink-cax search gun test-mode)
+            =/  gun    (ajar dor %read !>(cart(me u.id)) !>(read-path) kind)
+            =/  =book  (zebra rem zink-cax search gun test-mode)
             ?:  ?=(%| -.p.book)
               ::  error in contract execution
               ~&  >>>  p.book
@@ -404,11 +401,7 @@
             ?~  p.p.book
               ~&  >>>  "mill: ran out of gas inside read"
               bud.q.book^~
-            ::  read-fee extracted on success
-            ?:  (gth read-fee bud.q.book)
-              ~&  >>>  "mill: ran out of gas paying read-fee"
-              bud.q.book^~
-            (sub bud.q.book read-fee)^p.p.book
+            bud.q.book^p.p.book
           ==
         --
       --
