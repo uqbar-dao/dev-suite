@@ -60,7 +60,7 @@
           [%save-file name=@t text=@t]  ::  generates new file or overwrites existing
           [%delete-file name=@t]
           ::
-          [%add-to-state label=@tas data=* lord=id:smart holder=id:smart town-id=id:smart salt=@]
+          [%add-to-state salt=@ label=@tas data=* lord=id:smart holder=id:smart town-id=id:smart]
           [%delete-from-state =id:smart]
           ::
           [%add-test name=(unit @t) action=@t expected-error=(unit @ud)]  ::  name optional
