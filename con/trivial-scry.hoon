@@ -1,3 +1,4 @@
+/+  *zig-sys-smart
 |_  =cart
 ++  write
   |=  [%find my-account=id]

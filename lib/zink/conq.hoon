@@ -181,6 +181,7 @@
     $:  raw=(list [face=term =path])
         =hoon
     ==
++$  taut  [face=(unit term) pax=term]
 ++  parse-pile
   |=  tex=tape
   ^-  small-pile
@@ -196,8 +197,12 @@
   ==
 ++  pile-rule
   %-  full
-  %+  ifix  [gay gay]
+  %+  ifix
+    :_  gay
+    ::  parse optional smart library import and ignore
+    ;~(plug gay (punt ;~(plug fas lus gap taut-rule gap)))
   ;~  plug
+  ::  only accept /= imports for contract libraries
     %+  rune  tis
     ;~(plug sym ;~(pfix gap stap))
   ::
@@ -215,4 +220,11 @@
 ++  mast
   |*  [bus=rule fel=rule]
   ;~(sfix (more bus fel) bus)
+++  taut-rule
+  %+  cook  |=(taut +<)
+  ;~  pose
+    (stag ~ ;~(pfix tar sym))
+    ;~(plug (stag ~ sym) ;~(pfix tis sym))
+    (cook |=(a=term [`a a]) sym)
+  ==
 --
