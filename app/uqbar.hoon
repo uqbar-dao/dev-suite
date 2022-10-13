@@ -103,9 +103,13 @@
         ~&  >>>  " do not have indexer source for town {<town-id>}."
         ~&  >>>  " Add indexer source for town and try again."
         ~
+      =/  disambiguator=@ta  (scot %ux (cut 5 [0 1] eny.bowl))
       :_  ~
       %+  ~(watch pass:io (weld wire-prefix sub-path))
-      p.u.source  sub-path
+        p.u.source
+      ?.  ?=(%history (rear sub-path))
+        (snoc sub-path disambiguator)
+      (snoc (snoc (snip sub-path) disambiguator) %history)
     --
   ::
   ++  on-poke
@@ -178,7 +182,8 @@
         ==
       ::
           %set-sources
-        =/  p=path  /capitol-updates
+        =/  p=path
+          /capitol-updates/[(scot %ux (cut 5 [0 1] eny.bowl))]
         :-  :-  %-  ~(poke-self pass:io /ping-action-poke)
                 [%uqbar-action !>(`action:u`[%ping ~])]
             %+  murn  towns.act
@@ -470,7 +475,7 @@
       ?~  source=(get-best-source:uc town-id ~ %nu)  out
       :+  (~(leave pass:io w) [s t])
         %+  ~(watch pass:io w)  p.u.source
-        ?:(?=(%no-init (rear p)) p (snoc p %no-init))
+        ?.(?=(%history (rear p)) p (snip p))
       out
     ::
     ++  make-ping-indexer-cards
