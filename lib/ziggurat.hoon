@@ -54,7 +54,7 @@
 ++  get-template
   |=  [pat=path our=ship now=time]
   ^-  @t
-  =/  pre=path  /(scot %p our)/zig/(scot %da now)/lib/zig/contracts
+  =/  pre=path  /(scot %p our)/zig/(scot %da now)/con
   .^(@t %cx (weld pre pat))
 ::
 ++  make-contract-update

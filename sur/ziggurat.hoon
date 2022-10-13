@@ -60,11 +60,11 @@
           [%save-file name=@t text=@t]  ::  generates new file or overwrites existing
           [%delete-file name=@t]
           ::
-          [%add-to-state =rice:smart]
+          [%add-to-state label=@tas data=* lord=id:smart holder=id:smart town-id=id:smart salt=@]
           [%delete-from-state =id:smart]
           ::
           [%add-test name=(unit @t) action=@t expected-error=(unit @ud)]  ::  name optional
-          [%add-test-expectation id=@ux expected=rice:smart]
+          [%add-test-expectation id=@ux label=@tas data=* lord=id:smart holder=id:smart town-id=id:smart salt=@]
           [%delete-test-expectation id=@ux delete=id:smart]
           [%delete-test id=@ux]
           [%edit-test id=@ux name=(unit @t) action=@t expected-error=(unit @ud)]

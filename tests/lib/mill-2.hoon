@@ -18,12 +18,12 @@
 ::
 /-  zink
 /+  *test, smart=zig-sys-smart, *sequencer, merk
-/*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
-/*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
-/*  triv-contract   %noun  /lib/zig/compiled/trivial/noun
-/*  scry-contract   %noun  /lib/zig/compiled/trivial-scry/noun
-/*  zigs-contract   %noun  /lib/zig/compiled/zigs/noun
-/*  temp-contract   %noun  /lib/zig/compiled/tester/noun
+/*  smart-lib-noun  %noun  /con/compiled/smart-lib/noun
+/*  zink-cax-noun   %noun  /con/compiled/hash-cache/noun
+/*  triv-contract   %noun  /con/compiled/trivial/noun
+/*  scry-contract   %noun  /con/compiled/trivial-scry/noun
+/*  zigs-contract   %noun  /con/compiled/zigs/noun
+/*  temp-contract   %noun  /con/compiled/tester/noun
 |%
 ::
 ::  constants / dummy info for mill
