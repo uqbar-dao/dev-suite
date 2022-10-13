@@ -64,7 +64,7 @@
           [%delete-from-state =id:smart]
           ::
           [%add-test name=(unit @t) action=@t expected-error=(unit @ud)]  ::  name optional
-          [%add-test-expectation id=@ux label=@tas data=* lord=id:smart holder=id:smart town-id=id:smart salt=@]
+          [%add-test-expectation id=@ux salt=@ label=@tas data=* lord=id:smart holder=id:smart town-id=id:smart]
           [%delete-test-expectation id=@ux delete=id:smart]
           [%delete-test id=@ux]
           [%edit-test id=@ux name=(unit @t) action=@t expected-error=(unit @ud)]
