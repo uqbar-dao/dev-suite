@@ -307,19 +307,19 @@ Contracts can be compiled using variations of the following command.
 Here, the `zigs` contract is compiled.
 In general, replace `zigs` with the name of any other contract.
 ```hoon
-.zigs/noun +zig!compile /=zig=/lib/zig/contracts/zigs/hoon
+.zigs/noun +zig!compile /=zig=/con/zigs/hoon
 ```
 
 
 ## Deploying Contracts to a Running Testnet
 
-Contracts are deployed using the `publish` contract found in this repo at `lib/zig/contracts/publish.hoon`.
+Contracts are deployed using the `publish` contract found in this repo at `con/publish.hoon`.
 The `publish` contract is usually deployed on `town`s in the `wheat` with ID `0x1111.1111`.
 For example, to deploy the `multisig` contract, first [compile it](#compiling-contracts-and-the-standard-library).
-Then place it at `lib/zig/compiled`.
+Then place it at `con/compiled/multisig.noun`.
 To deploy on town `0x0`, in the Dojo:
 ```hoon
-=contract-path /=zig=/lib/zig/compiled/multisig/noun
+=contract-path /=zig=/con/compiled/multisig/noun
 =contract-noun .^(* %cx contract-path)
 =contract ;;([bat=* pay=*] contract-noun)
 :uqbar &zig-wallet-poke [%transaction from=[youraddress] contract=0x1111.1111 town=0x0 action=[%noun [%deploy mutable=%.n cont=contract interface=~ types=~]]]

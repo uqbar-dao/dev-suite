@@ -54,7 +54,7 @@
 ++  get-template
   |=  [pat=path our=ship now=time]
   ^-  @t
-  =/  pre=path  /(scot %p our)/zig/(scot %da now)/lib/zig/contracts
+  =/  pre=path  /(scot %p our)/zig/(scot %da now)/con
   .^(@t %cx (weld pre pat))
 ::
 ++  make-contract-update
@@ -573,36 +573,38 @@
 ::
 ++  simple-app
   ^-  @t
- '/+  default-agent, dbug\0a\
-  /|%\0a\
-  /+$  versioned-state\0a\
-  /    $%  state-0\0a\
-  /    ==\0a\
-  /+$  state-0  [%0 ~]\0a\
-  /--\0a\
-  /%-  agent:dbug\0a\
-  /=|  state-0\0a\
-  /=*  state  -\0a\
-  /^-  agent:gall\0a\
-  /|_  =bowl:gall\0a\
-  /+*  this     .\0a\
-  /    default   ~(. (default-agent this %|) bowl)\0a\
-  /::\0a\
-  /++  on-init\0a\
-  /  `this(state [%0 ~])\0a\
-  /++  on-save\0a\
-  /  ^-  vase\0a\
-  /  !>(state)\0a\
-  /++  on-load\0a\
-  /  on-load:default\0a\
-  /++  on-poke  on-poke:default\0a\
-  /++  on-watch  on-watch:default\0a\
-  /++  on-leave  on-leave:default\0a\
-  /++  on-peek   on-peek:default\0a\
-  /++  on-agent  on-agent:default\0a\
-  /++  on-arvo   on-arvo:default\0a\
-  /++  on-fail   on-fail:default\0a\
-  /--'
+  '''
+  +  default-agent, dbug
+  |%
+  +$  versioned-state
+      $%  state-0
+      ==
+  +$  state-0  [%0 ~]
+  --
+  %-  agent:dbug
+  =|  state-0
+  =*  state  -
+  ^-  agent:gall
+  |_  =bowl:gall
+  +*  this     .
+      default   ~(. (default-agent this %|) bowl)
+  ::
+  ++  on-init
+    `this(state [%0 ~])
+  ++  on-save
+    ^-  vase
+    !>(state)
+  ++  on-load
+    on-load:default
+  ++  on-poke  on-poke:default
+  ++  on-watch  on-watch:default
+  ++  on-leave  on-leave:default
+  ++  on-peek   on-peek:default
+  ++  on-agent  on-agent:default
+  ++  on-arvo   on-arvo:default
+  ++  on-fail   on-fail:default
+  --
+  '''
 ::
 ::  JSON parsing utils
 ::
