@@ -5,7 +5,7 @@
 ::  state -1 fields
 +$  book  (map id:smart asset)
 +$  asset
-  $%  [%token town-id=@ux contract=id:smart metadata=id:smart token-account-1]
+  $%  [%token town-id=@ux contract=id:smart metadata=id:smart token-account]
       [%nft town-id=@ux contract=id:smart metadata=id:smart nft]
       [%unknown town-id=@ux contract=id:smart *]
   ==

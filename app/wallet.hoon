@@ -27,7 +27,7 @@
       ::  signatures tracks any signed calls we've made
       signatures=(list [=typed-message:smart =sig:smart])
       ::  tokens tracked for each address we're handling
-      tokens-0=(map address:smart =book-0)
+      tokens-old=(map address:smart =book-0)
       ::  metadata for tokens we track
       =metadata-store
       ::  transactions we've sent and received
