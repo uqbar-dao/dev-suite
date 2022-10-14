@@ -91,6 +91,9 @@
     (zebra:zink 200.000 ~ *granary-scry:zink [q.smart-lib q.gun] %.y)
   ~|  "ziggurat: failed to compile custom data!"
   ?.  ?=(%& -.p.res)  !!
+  ~&  >>  "size: {<(met 3 (jam p.p.res))>}"
+  ?:  (gth (met 3 (jam p.p.res)) 5.000)
+    ~|("ziggurat: custom data noun too large, likely using a mold" !!)
   ~|  "ziggurat: result of custom data compile was ~"
   (need p.p.res)
 ::
