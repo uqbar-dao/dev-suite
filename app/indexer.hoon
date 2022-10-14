@@ -1447,7 +1447,7 @@
     |=  [ship sub-path=path]
     ^-  (unit [@tas path])
     ?~  sub-path  ~
-    ?.  ?=  ?(%grain %hash %holder %id %json %lord %town)
+    ?.  ?=  ?(%batch-order %grain %hash %holder %id %json %lord %town)
         i.sub-path
       ~
     `[`@tas`i.sub-path t.sub-path]
@@ -1461,25 +1461,27 @@
     |^
     =/  out
       %+  roll
-        ^-  (list ?(%id %json query-type:ui))
-        ~[%grain %hash %holder %id %json %lord %town]
-      |=  $:  query-type=?(%id %json query-type:ui)
+        ^-  (list ?(%batch-order %id %json query-type:ui))
+        :~  %batch-order
+            %grain
+            %hash
+            %holder
+            %id
+            %json
+            %lord
+            %town
+        ==
+      |=  $:  query-type=?(%batch-order %id %json query-type:ui)
               out=[cards=(list (list card)) paths=(list (list [path @ux])) updates=(list (list [@ux update:ui]))]
           ==
       =/  sub-cards  (make-sub-cards query-type)
       :+  [cards.sub-cards cards.out]
         [paths.sub-cards paths.out]
       [updates.sub-cards updates.out]
-    :_  [(zing paths.out) (zing updates.out)]
-    :-  %+  fact:io
-          :-  %indexer-update
-          !>(`update:ui`[%batch-order ~[root]])
-        %+  expand-paths  %history
-        ~[/batch-order/(scot %ux town-id)]
-    (zing cards.out)
+    [(zing cards.out) (zing paths.out) (zing updates.out)]
     ::
     ++  make-sub-cards
-      |=  query-type=?(%id %json query-type:ui)
+      |=  query-type=?(%batch-order %id %json query-type:ui)
       ^-  $:  cards=(list card)
               paths=(list [path @ux])
               updates=(list [@ux update:ui])
@@ -1504,9 +1506,12 @@
         [(slav %ux i.sub-path) (slav %ux i.t.sub-path)]
       =/  =update:ui
         ?+    query-type  !!
-            %hash    (get-hashes payload %.y %.n)
-            %holder  (serve-update query-type payload %.y %.n)
-            %id      (get-ids payload %.y)
+            %batch-order  [%batch-order ~[root]]
+            %hash         (get-hashes payload %.y %.n)
+            %id           (get-ids payload %.y)
+            %holder
+          (serve-update query-type payload %.y %.n)
+        ::
             ?(%grain %lord %town)
           (serve-update query-type payload %.y %.y)
         ==
