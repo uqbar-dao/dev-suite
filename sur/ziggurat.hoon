@@ -4,17 +4,12 @@
 +$  card  card:agent:gall
 ::
 +$  projects  (map @t project)
-+$  project   (each contract-project app-project)
-::
-+$  app-project
-  dir=(list path)
-::
-+$  contract-project
-  $:  main=@t
-      libs=(map name=@t text=@t)
-      compiled=(unit [bat=* pay=*])
-      imported=(map name=@t text=@t)  ::  any other files to view but not compile
-      error=(unit @t)  ::  ~ means successfully compiled
++$  project
+  $:  dir=(list path)
+      user-files=(set path)  ::  not on list -> grayed out in GUI
+      to-compile=(map path id:smart)  ::  compile these contracts with these id's
+      next-contract-id=id:smart
+      errors=(list [path @t])
       state=land:mill
       data-texts=(map id:smart @t)  ::  holds rice data that got ream'd
       user-address=address:smart
@@ -28,6 +23,7 @@
 +$  tests  (map @ux test)
 +$  test
   $:  name=(unit @t)  ::  optional
+      for-contract=id:smart
       action-text=@t
       action=yolk:smart
       expected=(map id:smart [grain:smart @t])
@@ -50,28 +46,33 @@
 +$  deploy-location  ?(%local testnet)
 +$  testnet  ship
 ::
-::  available actions. TODO actions for gall side
-::
-+$  contract-action
++$  action
   $:  project=@t
-      $%  [%new-contract-project =template user-address=address:smart]  ::  creates a contract project, TODO add gall option
+      $%  [%new-project user-address=address:smart]
           [%populate-template =template metadata=rice:smart]
           [%delete-project ~]
-          [%save-file name=@t text=@t]  ::  generates new file or overwrites existing
-          [%delete-file name=@t]
+      ::
+          [%save-file file=path text=@t]  ::  generates new file or overwrites existing
+          [%delete-file file=path]
+          ::
+          [%register-contract-for-compilation file=path]
+          [%compile-contracts ~]  ::  alterations to project files call %compile-contracts which calls %read-desk which sends a project update; TODO: skip compile when no change?
+          [%read-desk ~]
           ::
           [%add-to-state salt=@ label=@tas data=* lord=id:smart holder=id:smart town-id=id:smart]
           [%delete-from-state =id:smart]
           ::
-          [%add-test name=(unit @t) action=@t expected-error=(unit @ud)]  ::  name optional
+          [%add-test name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]  ::  name optional
           [%add-test-expectation id=@ux salt=@ label=@tas data=* lord=id:smart holder=id:smart town-id=id:smart]
           [%delete-test-expectation id=@ux delete=id:smart]
           [%delete-test id=@ux]
-          [%edit-test id=@ux name=(unit @t) action=@t expected-error=(unit @ud)]
+          [%edit-test id=@ux name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]
           [%run-test id=@ux rate=@ud bud=@ud]
           [%run-tests tests=(list [id=@ux rate=@ud bud=@ud])]  :: each one run with same gas
           ::
+          [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
           $:  %deploy-contract
+              =path
               =address:smart
               rate=@ud  bud=@ud
               =deploy-location
@@ -81,32 +82,16 @@
       ==
   ==
 ::
-+$  app-action
-  $:  project=@t
-      $%  [%new-app-project ~]
-          [%delete-project ~]
-          ::
-          [%save-file file=path text=@t]
-          [%delete-file file=path]
-          ::
-          [%read-desk ~]
-          ::
-          [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
-      ==
-  ==
-::
 ::  subscription update types
 ::
-+$  contract-update
-  $:  compiled=?
-      error=(unit @t)
++$  project-update
+  $:  dir=(list path)
+      compiled=?
+      errors=(list [path @t])
       state=land:mill
       data-texts=(map id:smart @t)
       =tests
   ==
-::
-+$  app-update
-  dir=(list path)
 ::
 +$  test-update
   [%result state-transition:mill]
