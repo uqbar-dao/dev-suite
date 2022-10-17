@@ -42,16 +42,16 @@
 ::  +fry: standard hashing functions for items
 ::
 ++  hash-pact
-  |=  [source=id holder=id town=id code=*]
+  |=  [source=id holder=id shard=id code=*]
   ^-  id
   ^-  @ux  %-  shax
-  :((cury cat 3) town source holder (sham code))
+  :((cury cat 3) shard source holder (sham code))
 ::
 ++  hash-data
-  |=  [source=id holder=id town=id salt=@]
+  |=  [source=id holder=id shard=id salt=@]
   ^-  id
   ^-  @ux  %-  shax
-  :((cury cat 3) town source holder salt)
+  :((cury cat 3) shard source holder salt)
 ::
 ::  +result: generate a diff
 ::
@@ -85,19 +85,19 @@
 +$  item  (each data pact)
 ::
 ::  each piece of data includes a contract-defined salt and label
-::  salt is for hashing, to be combined with source/holder/town for
+::  salt is for hashing, to be combined with source/holder/shard for
 ::  a unique rice ID without needing to jam data. label matches
 ::  types defined in pact and allows apps to find a type
 ::  representation for the contained data.
 ::
 +$  data
-  $:  =id  source=id  holder=id  town-id=id
+  $:  =id  source=id  holder=id  shard=id
       salt=@  label=@tas
       noun=*
   ==
 ::
 +$  pact
-  $:  =id  source=id  holder=id  town-id=id
+  $:  =id  source=id  holder=id  shard=id
       code=*
       interface=(map @tas json)
       types=(map @tas json)
@@ -110,7 +110,7 @@
       from=[=id nonce=@ud]  ::  information about caller
       batch=@ud
       eth-block=@ud
-      town-id=id
+      shard=id
   ==
 ::
 ::  smart contract definition
@@ -139,28 +139,24 @@
       burned=(merk id item)
       =events
   ==
-+$  call  [contract=id town-id=id =calldata]
++$  call  [contract=id shard=id =calldata]
 +$  events  (list [@tas json])
 ::
 ::  transaction types
 ::
 +$  transaction  [=sig =calldata shell]
 +$  caller  [=address nonce=@ud zigs=id]
-::
-::  @tas label should match to one in contract's interface
-::  calldata becomes the noun fed into contract write arm
-::
 +$  calldata  (pair @tas *)
 +$  shell
   $:  =caller  ::  contains address, nonce, and zigs account
-      eth-hash=(unit @)  ::  if signed with eth wallet, used to verify signature
+      eth-hash=(unit @)  ::  if signed with eth wallet, use verify signature
       contract=id
       gas=[rate=@ud bud=@ud]
-      town-id=id
+      shard=id
       status=@ud  ::  error code
   ==
 ::
-::  egg error codes
+::  transaction error codes
 ::
 +$  errorcode
   $%  %0  ::  0: successfully performed

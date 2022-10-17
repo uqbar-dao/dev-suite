@@ -1,37 +1,41 @@
-/-  *mill
+/-  *zig-engine
 /+  smart=zig-sys-smart, zink=zink-zink
 |%
-+$  signature   [p=@ux q=ship r=life]
++$  ship-sig   [p=@ux q=ship r=life]
 +$  sequencer  (pair address:smart ship)
 ::
-+$  availability-method
-  $%  [%full-publish ~]
-      [%committee members=(map address:smart [ship (unit sig:smart)])]
-  ==
-::
-+$  town  [=land =hall]
++$  shard  [=chain =hall]
 ::
 +$  hall
-  $:  town-id=id:smart
+  $:  shard-id=@ux
       batch-num=@ud
       =sequencer
       mode=availability-method
       latest-diff-hash=@ux
       roots=(list @ux)
   ==
-::  capitol: tracks sequencer and state roots / diffs for all towns
-+$  capitol  (map id:smart hall)
 ::
-+$  batch  ::  state transition
+::  capitol: tracks sequencer and state roots / diffs for all shards
+::
++$  capitol  (map @ux hall)
+::
+::  shard state transition
+::
++$  batch
   $:  town-id=id:smart
       num=@ud
       mode=availability-method
-      state-diffs=(list diff)
+      state-diffs=(list state)
       diff-hash=@ux
       new-root=@ux
-      new-state=land
-      peer-roots=(map id:smart @ux)  ::  roots for all other towns (must be up-to-date)
+      new-state=chain
+      peer-roots=(map id:smart @ux)  ::  roots for all other towns
       =sig:smart                     ::  sequencer signs new state root
+  ==
+::
++$  availability-method
+  $%  [%full-publish ~]
+      [%committee members=(map address:smart [ship (unit sig:smart)])]
   ==
 ::
 +$  town-action
@@ -40,14 +44,14 @@
           rollup-host=ship
           =address:smart
           private-key=@ux
-          town-id=id:smart
-          starting-state=(unit land)
+          shard-id=@ux
+          starting-state=(unit chain)
           mode=availability-method
       ==
       [%clear-state ~]
       ::  transactions
-      [%receive-assets assets=granary]
-      [%receive eggs=(set egg:smart)]
+      [%receive-assets assets=state]
+      [%receive txns=(set transaction:smart)]
       ::  batching
       [%trigger-batch ~]
       [%perform-batch eth-block-height=@ud]
@@ -55,15 +59,16 @@
 ::
 +$  rollup-update
   $%  capitol-update
-      town-update
+      shard-update
   ==
 +$  capitol-update  [%new-capitol =capitol]
-+$  town-update
-  $%  [%new-peer-root town-id=id:smart root=@ux timestamp=@da]
-      [%new-sequencer town-id=id:smart who=ship]
++$  shard-update
+  $%  [%new-peer-root shard=id:smart root=@ux timestamp=@da]
+      [%new-sequencer shard=id:smart who=ship]
   ==
 ::
 ::  indexer must verify root is posted to rollup before verifying new state
 ::  pair of [transactions town] is batch from sur/indexer.hoon
-+$  indexer-update  [%update root=@ux transactions=(list [@ux egg:smart]) town]
++$  indexer-update
+  [%update root=@ux transactions=(list [@ux transaction:smart]) shard]
 --
