@@ -124,7 +124,7 @@
   ++  give
     |=  [=cart act=give:sur]
     ^-  chick
-    =+  (need (scry from-account.act))
+    =+  (need (scry-granary from-account.act))
     =/  giver  (husk account:sur - `me.cart `id.from.cart)
     ::  this will fail if amount > balance, as desired
     =.  balance.data.giver  (sub balance.data.giver amount.act)
@@ -135,7 +135,7 @@
       =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
       (result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
-    =+  (need (scry u.to-account.act))
+    =+  (need (scry-granary u.to-account.act))
     ::  assert that account is held by the address we're sending to
     =/  receiver  (husk account:sur - `me.cart `to.act)
     ::  assert that token accounts are of the same token
@@ -148,7 +148,7 @@
   ++  take
     |=  [=cart act=take:sur]
     ^-  chick
-    =+  (need (scry from-account.act))
+    =+  (need (scry-granary from-account.act))
     =/  giver  (husk account:sur - `me.cart ~)
     ::  this will fail if amount > balance or allowance is exceeded, as desired
     =:  balance.data.giver  (sub balance.data.giver amount.act)
@@ -165,7 +165,7 @@
       =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
       (result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
-    =+  (need (scry u.to-account.act))
+    =+  (need (scry-granary u.to-account.act))
     ::  assert that account is held by the address we're sending to
     =/  receiver  (husk account:sur - `me.cart `to.act)
     ::  assert that token accounts are of the same token
@@ -181,7 +181,7 @@
     ::  %take-with-sig allows for gasless approvals for transferring tokens
     ::  the giver must sign the from-account id and the typed +$approve struct above
     ::  and the taker will pass in the signature to take the tokens
-    =/  giv=grain          (need (scry from-account.act))
+    =/  giv=grain          (need (scry-granary from-account.act))
     ?>  ?=(%& -.giv)
     =/  giver=account:sur  data:(husk account:sur giv `me.cart ~)
     ::  reconstruct the typed message and hash
@@ -210,7 +210,7 @@
         [me.cart town-id.cart action]~
       (result [new ~] ~ ~ ~)
     ::  direct send
-    =/  rec=grain  (need (scry u.to-account.act))
+    =/  rec=grain  (need (scry-granary u.to-account.act))
     =/  receiver   data:(husk account:sur rec `me.cart `to.act)
     ?>  ?=(%& -.rec)
     ?>  =(metadata.receiver metadata.giver)
@@ -231,7 +231,7 @@
     ::  but spends will still be constrained by token balance
     ::  note: cannot set an allowance to ourselves
     ?>  !=(who.act id.from.cart)
-    =+  (need (scry account.act))
+    =+  (need (scry-granary account.act))
     =/  account  (husk account:sur - `me.cart `id.from.cart)
     =.  allowances.data.account
       (~(put py allowances.data.account) who.act amount.act)
@@ -240,7 +240,7 @@
   ++  mint
     |=  [=cart act=mint:sur]
     ^-  chick
-    =+  (need (scry token.act))
+    =+  (need (scry-granary token.act))
     =/  meta  (husk token-metadata:sur - `me.cart `me.cart)
     ::  first, check if token is mintable
     ?>  mintable.data.meta
@@ -270,7 +270,7 @@
         issued            [%&^receiver issued]
       ==
     ::  find and modify existing receiver account
-    =+  (need (scry u.account.m))
+    =+  (need (scry-granary u.account.m))
     =/  receiver  (husk account:sur - `me.cart `to.m)
     =.  balance.data.receiver  (add balance.data.receiver amount.m)
     %=  $
@@ -295,24 +295,33 @@
       ==
     =/  metadata-id
       (fry-rice me.cart me.cart town-id.cart salt.act)
-    =/  =rice
-      :*  salt.act
-          %token-metadata
-          token-metadata
-          metadata-id
-          me.cart  me.cart  town-id.cart
-      ==
-    ::  issue metadata grain and c-call a mint
+    ::  issue metadata grain and mint
     ::  for initial distribution, if any
-    =/  res  (result ~ [%&^rice ~] ~ ~)
+    =|  issued=(list grain)
+    |-
     ?~  initial-distribution.act
-      res
-    =/  mints
-      %+  turn  initial-distribution.act
-      |=([to=address amount=@ud] [to ~ amount])
-    %+  continuation
-      ~[[me.cart town-id.cart [%mint metadata-id mints]]]
-    res
+      ::  finished minting
+      =/  metadata-rice
+        :*  salt.act
+            %token-metadata
+            token-metadata
+            metadata-id
+            me.cart  me.cart  town-id.cart
+        ==
+      (result ~ [%&^metadata-rice issued] ~ ~)
+    =*  m  i.initial-distribution.act
+    =/  new-supply  (add supply.token-metadata amount.m)
+    ?>  ?~  cap.token-metadata  %.y
+        (gte u.cap.token-metadata new-supply)
+    ::  create new account for receiver
+    =/  =id  (fry-rice me.cart to.m town-id.cart salt.token-metadata)
+    =+  [amount.m ~ metadata-id 0]
+    =+  receiver=[salt.token-metadata %account - id me.cart to.m town-id.cart]
+    %=  $
+      supply.token-metadata     new-supply
+      issued                    [%&^receiver issued]
+      initial-distribution.act  t.initial-distribution.act
+    ==
   ::
   ::  JSON parsing for types
   ::

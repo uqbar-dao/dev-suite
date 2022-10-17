@@ -4,8 +4,8 @@
 ::
 /+  *ziggurat, smart=zig-sys-smart, sequencer,
     default-agent, dbug, verb
-/*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
-/*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
+/*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
+/*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
 ::
 |%
 +$  state-0
@@ -50,21 +50,12 @@
   |=  =path
   ^-  (quip card _this)
   ?+    path  !!
-      [%contract-project @ ~]
-    ::  serve updates about state of a given contract project
+      [%project @ ~]
+    ::  serve updates about state of a given project
     =/  name=@t  `@t`i.t.path
     ?~  proj=(~(get by projects) name)
       `this
-    ?>  ?=(%& -.u.proj)
-    [(make-contract-update name p.u.proj)^~ this]
-  ::
-      [%app-project @ ~]
-    ::  TODO
-    =/  name=@t  `@t`i.t.path
-    ?~  proj=(~(get by projects) name)
-      `this
-    ?>  ?=(%| -.u.proj)
-    [(make-app-update name p.u.proj)^~ this]
+    [(make-project-update name u.proj)^~ this]
   ::
       [%test-updates @ ~]
     ::  serve updates for all %run-tests executed
@@ -78,37 +69,45 @@
   |^
   ::  TODO handle app project pokes in their own arm
   =^  cards  state
-    ?+    mark  !!
-        %ziggurat-app-action
-      (handle-app-poke !<(app-action vase))
-        %ziggurat-contract-action
-      (handle-contract-poke !<(contract-action vase))
+    ?+  mark  !!
+      %ziggurat-action  (handle-poke !<(action vase))
     ==
   [cards this]
   ::
-  ++  handle-contract-poke
-    |=  act=contract-action
+  ++  handle-poke
+    |=  act=action
     ^-  (quip card _state)
-    ?:  ?=(%new-contract-project -.+.act)
-      ?:  (~(has by projects) project.act)
-        ~|("%ziggurat: project name already taken" !!)
-      =/  [main=@t libs=(map @t @t)]
-        ?-    template.act
-            %blank
-          [(get-template /trivial/hoon [our now]:bowl) ~]
-        ::
-            %nft
-          :-  (get-template /nft/hoon [our now]:bowl)
-          (malt ['nft' (get-template /lib/nft/hoon [our now]:bowl)]~)
-        ::
-            %fungible
-          :-  (get-template /fungible/hoon [our now]:bowl)
-          (malt ['fungible' (get-template /lib/fungible/hoon [our now]:bowl)]~)
+    ?-    -.+.act
+        %new-project
+      ~&  desk
+      ~&  >  "scrying..."
+      =/  desks=(set desk)
+        .^  (set desk)
+            %cd
+            /(scot %p our.bowl)/[dap.bowl]/(scot %da now.bowl)
         ==
-      =/  proj=contract-project
-        :*  main  libs
-            compiled=~
-            imported=~
+      ?:  (~(has in desks) project.act)
+        ~|("%ziggurat: project desk already exists" !!)  ::  TODO: start project using this desk?
+      ::  merge new desk, mount desk
+      ::  currently using ziggurat desk as template -- should refine this
+      ~&  >>  q.byk.bowl
+      =/  merge-task  [%merg `@tas`project.act our.bowl q.byk.bowl da+now.bowl %init]
+      =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
+      =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
+      =/  deletions-task  [%info `@tas`project.act %& (clean-desk project.act)]
+      :-  :~  [%pass /merge-wire %arvo %c merge-task]
+              [%pass /mount-wire %arvo %c mount-task]
+              [%pass /save-wire %arvo %c bill-task]
+              [%pass /save-wire %arvo %c deletions-task]
+              (make-read-desk project.act our.bowl)
+          ==
+      %=  state
+          projects
+        %+  ~(put by projects)  project.act
+        :*  dir=~  ::  populated by %read-desk
+            user-files=(~(put in *(set path)) /app/[project.act]/hoon)
+            to-compile=~
+            next-contract-id=0xfafa.faf0
             error=~
             state=(starting-state user-address.act)
             data-texts=(malt ~[[id.p:(designated-zigs-grain user-address.act) '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
@@ -117,138 +116,165 @@
             mill-batch-num=0
             tests=~
         ==
-      ::  attempt to build the project
-      =/  =build-result  (build-contract-project smart-lib-vase proj)
-      =?  compiled.proj  ?=(%& -.build-result)
-        `p.build-result
-      =?  p.state.proj  ?=(%& -.build-result)
-        %+  put:big:mill  p.state.proj
-        [designated-contract-id (make-contract-grain user-address.act p.build-result)]
-      =?  error.proj  ?=(%| -.build-result)
-        `p.build-result
-      :_  state(projects (~(put by projects) project.act %&^proj))
-      (make-contract-update project.act proj)^~
+      ==
     ::
-    ::  all other pokes require existing project
-    ::
-    ?~  proj=(~(get by projects) project.act)
-      ~|("%ziggurat: project does not exist" !!)
-    ::  only handling contract pokes here
-    ?>  ?=(%& -.u.proj)
-    =*  project  p.u.proj
-    ?-    -.+.act
         %populate-template
       ::  spawn some hardcoded example tests and grains for %fungible and %nft templates
+      =/  =project  (~(got by projects) project.act)
       ?<  ?=(%blank template.act)
       =.  project
         ?:  ?=(%fungible template.act)
           (fungible-template-project project metadata.act smart-lib-vase)
         (nft-template-project project metadata.act smart-lib-vase)
-      :-  (make-contract-update project.act project)^~
-      state(projects (~(put by projects) project.act %&^project))
+      :-  (make-compile project.act our.bowl)^~
+      state(projects (~(put by projects) project.act project))
     ::
         %delete-project
       ::  should show a warning on frontend before performing this one ;)
       `state(projects (~(del by projects) project.act))
     ::
-    ::  file management
-    ::
         %save-file
-      ::  NOTE: make sure to enforce on frontend that 'main' file name
-      ::  always matches the name of the project, and that no other files
-      ::  in the project can use that name.
-      ~&  name.act
-      =?  main.project  =(name.act project.act)
-        ::  this is the main file
-        text.act
-      =?  libs.project  !=(name.act project.act)
-        (~(put by libs.project) name.act text.act)
-      ::  attempt to rebuild project
-      =/  =build-result  (build-contract-project smart-lib-vase project)
-      ::  only update compiled nock if successful build
-      =?  compiled.project  ?=(%& -.build-result)
-        ~&  >  "project successfully rebuilt"
-        `p.build-result
-      =?  p.state.project  ?=(%& -.build-result)
-        %+  put:big:mill  p.state.project
-        [designated-contract-id (make-contract-grain user-address.project p.build-result)]
-      ::  set error to ~ if successful build
-      =.  error.project
-        ?.  ?=(%| -.build-result)  ~
-        ~&  >>>  "project build failed"
-        `p.build-result
-      :-  (make-contract-update project.act project)^~
-      state(projects (~(put by projects) project.act %&^project))
+      =/  =project  (~(got by projects) project.act)
+      =.  user-files.project
+        (~(put in user-files.project) file.act)
+      :_  state(projects (~(put by projects) project.act project))
+      :+  (make-save-hoon [project file text]:act)
+        (make-compile project.act our.bowl)
+      ~
     ::
         %delete-file
-      ?:  =(name.act project.act)
-        ::  can't delete the main file
-        ~|("%ziggurat: tried to delete the main file!" !!)
-      =.  libs.project  (~(del by libs.project) name.act)
-      ::  attempt to rebuild project
-      =/  =build-result  (build-contract-project smart-lib-vase project)
-      ::  only update compiled nock if successful build
-      =?  compiled.project  ?=(%& -.build-result)
-        ~&  >  "project successfully rebuilt"
-        `p.build-result
-      =?  p.state.project  ?=(%& -.build-result)
-        %+  put:big:mill  p.state.project
-        [designated-contract-id (make-contract-grain user-address.project p.build-result)]
-      ::  set error to ~ if successful build
-      =.  error.project
-        ?.  ?=(%| -.build-result)  ~
-        ~&  >>>  "project build failed"
-        `p.build-result
-      :-  (make-contract-update project.act project)^~
-      state(projects (~(put by projects) project.act %&^project))
+      ::  should show warning
+      =/  =project  (~(got by projects) project.act)
+      =:  user-files.project
+        (~(del in user-files.project) file.act)
+      ::
+          to-compile.project
+        (~(del by to-compile.project) file.act)
+      ::
+          p.state.project
+        ?~  remove-id=(~(get by to-compile.project) file.act)
+          p.state.project
+        (del:big:mill p.state.project u.remove-id)
+      ==
+      :_  state(projects (~(put by projects) project.act project))
+      :+  (make-compile project.act our.bowl)
+        =-  [%pass /del-wire %arvo %c -]
+        [%info `@tas`project.act %& [file.act %del ~]~]
+      ~
     ::
-    ::  local chain state management
+        %register-contract-for-compilation
+      =/  =project  (~(got by projects) project.act)
+      ?:  (~(has by to-compile.project) file.act)  `state
+      =:  next-contract-id.project
+        (add next-contract-id.project 1)
+      ::
+          user-files.project
+        (~(put in user-files.project) file.act)
+      ::
+          to-compile.project
+        %+  ~(put by to-compile.project)  file.act
+        next-contract-id.project
+      ==
+      :-  (make-compile project.act our.bowl)^~
+      state(projects (~(put by projects) project.act project))
+    ::
+        %compile-contracts
+      ::  for internal use -- app calls itself to scry clay
+      =/  =project  (~(got by projects) project.act)
+      =/  build-results=(list (trel path id:smart build-result))
+        %^  build-contract-projects  smart-lib-vase
+          /(scot %p our.bowl)/[project.act]/(scot %da now.bowl)
+        to-compile.project
+      ~&  "done building, got errors:"
+      =/  [cards=(list card) errors=(list [path @t])]
+        (save-compiled-projects project.act build-results)
+      ~&  errors
+      =:  errors.project  errors
+          p.state.project
+        %+  gas:big:mill  p.state.project
+        %+  murn  build-results
+        |=  [p=path q=id:smart r=build-result]
+        ?:  ?=(%| -.r)  ~
+        :+  ~  q
+        :*  %|
+            cont=`p.r
+            interface=~
+            types=~
+            id=q
+            lord=0x0
+            holder=user-address.project
+            town-id=designated-town-id
+        ==
+      ==
+      :-  [(make-read-desk project.act our.bowl) cards]
+      state(projects (~(put by projects) project.act project))
+    ::
+        %read-desk
+      ::  for internal use -- app calls itself to scry clay
+      =/  =project  (~(got by projects) project.act)
+      =.  dir.project
+        =-  .^((list path) %ct -)
+        /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
     ::
         %add-to-state
+      =/  =project  (~(got by projects) project.act)
+      =/  data-text  ;;(@t data.act)
+      =/  =id:smart  (fry-rice:smart lord.act holder.act town-id.act salt.act)
+      =/  =rice:smart
+        =+  (text-to-zebra-noun data-text smart-lib-vase)
+        [salt.act label.act - id lord.act holder.act town-id.act]
       ::  take text data input and ream to form data noun
-      =/  data-text  ;;(@t data.rice.act)
-      =.  data.rice.act
-        (text-to-zebra-noun data-text smart-lib-vase)
       ::  put a new grain in the granary
       =:  p.state.project
         %+  put:big:mill  p.state.project
-        [id.rice.act %&^rice.act]
+        [id.rice %&^rice]
       ::
           data-texts.project
-        (~(put by data-texts.project) id.rice.act data-text)
+        (~(put by data-texts.project) id.rice data-text)
       ==
-      :-  (make-contract-update project.act project)^~
-      state(projects (~(put by projects) project.act %&^project))
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
     ::
         %delete-from-state
       ::  remove a grain from the granary
+      =/  =project  (~(got by projects) project.act)
       =.  p.state.project
         (del:big:mill p.state.project id.act)
-      :-  (make-contract-update project.act project)^~
-      state(projects (~(put by projects) project.act %&^project))
-    ::
-    ::  test management
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
     ::
         %add-test
       ::  generate an id for the test
+      =/  =project  (~(got by projects) project.act)
       =/  test-id  `@ux`(mug now.bowl)
       ::  ream action to form yolk
       =+  (text-to-zebra-noun action.act smart-lib-vase)
       =/  =yolk:smart  [;;(@tas -.-) +.-]
-      =/  new-error
-        ?~  expected-error.act  0
-        u.expected-error.act
+      =/  new-error=@ud  (fall expected-error.act 0)
       ::  put it in the project
       =.  tests.project
-        (~(put by tests.project) test-id [name.act action.act yolk ~ new-error ~])
-      :-  (make-contract-update project.act project)^~
-      state(projects (~(put by projects) project.act %&^project))
+        %+  ~(put by tests.project)  test-id
+        :*  name.act
+            for-contract.act
+            action.act
+            yolk
+            ~
+            new-error
+            ~
+        ==
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
     ::
         %add-test-expectation
       ::  add/replace expected rice output
+      =/  =project  (~(got by projects) project.act)
       ?~  current=(~(get by tests.project) id.act)
         ~|("%ziggurat: test does not exist" !!)
-      =*  rice  expected.act
+      =/  =id:smart  (fry-rice:smart lord.act holder.act town-id.act salt.act)
+      =/  =rice:smart
+        [salt.act label.act data.act id lord.act holder.act town-id.act]
       =/  tex  ;;(@t data.rice)
       =/  new
         =-  [id.rice %&^rice(data -) tex]
@@ -256,24 +282,27 @@
       =.  tests.project
         %+  ~(put by tests.project)  id.act
         u.current(expected (~(put by expected.u.current) new), result ~)
-      :-  (make-contract-update project.act project)^~
-      state(projects (~(put by projects) project.act %&^project))
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
     ::
         %delete-test-expectation
+      =/  =project  (~(got by projects) project.act)
       ?~  current=(~(get by tests.project) id.act)
         ~|("%ziggurat: test does not exist" !!)
       =.  tests.project
         %+  ~(put by tests.project)  id.act
         u.current(expected (~(del by expected.u.current) delete.act), result ~)
-      :-  (make-contract-update project.act project)^~
-      state(projects (~(put by projects) project.act %&^project))
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
     ::
         %delete-test
+      =/  =project  (~(got by projects) project.act)
       =.  tests.project  (~(del by tests.project) id.act)
-      :-  (make-contract-update project.act project)^~
-      state(projects (~(put by projects) project.act %&^project))
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
     ::
         %edit-test
+      =/  =project  (~(got by projects) project.act)
       ::  ream action to form yolk
       =+  (text-to-zebra-noun action.act smart-lib-vase)
       =/  =yolk:smart  [;;(@tas -.-) +.-]
@@ -283,22 +312,36 @@
       ::  get existing
       =.  tests.project
         ?~  current=(~(get by tests.project) id.act)
-          (~(put by tests.project) id.act [name.act action.act yolk ~ new-error ~])
+          %+  ~(put by tests.project)  id.act
+          :*  name.act
+              for-contract.act
+              action.act
+              yolk
+              ~
+              new-error
+              ~
+          ==
         %+  ~(put by tests.project)  id.act
-        =-  [name.act action.act yolk expected.u.current - ~]
-        ?~  expected-error.act  expected-error.u.current
-        u.expected-error.act
-      :-  (make-contract-update project.act project)^~
-      state(projects (~(put by projects) project.act %&^project))
+        :*  name.act
+            for-contract.act
+            action.act
+            yolk
+            expected.u.current
+            (fall expected-error.act expected-error.u.current)
+            ~
+        ==
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
     ::
         %run-test
+      =/  =project  (~(got by projects) project.act)
       =/  =test  (~(got by tests.project) id.act)
       =/  caller
         (designated-caller user-address.project +(user-nonce.project))
       =/  =shell:smart
         :*  caller
             ~
-            designated-contract-id
+            for-contract.test
             rate.act  bud.act
             designated-town-id
             status=0
@@ -353,13 +396,14 @@
       ::  save result in test, send update
       =.  tests.project
         (~(put by tests.project) id.act test(result `test-result))
-      :-  (make-contract-update project.act project)^~
-      state(projects (~(put by projects) project.act %&^project))
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
     ::
         %run-tests
       ::  run tests IN SUCCESSION against SAME STATE
       ::  note that this doesn't save last-result for each test,
       ::  as results here will not reflect *just this test*
+      =/  =project  (~(got by projects) project.act)
       =/  [eggs=(list [@ux egg:smart]) new-nonce=@ud]
         %^  spin  tests.act  user-nonce.project
         |=  [[id=@ux rate=@ud bud=@ud] nonce=@ud]
@@ -368,7 +412,7 @@
         =/  =shell:smart
           :*  caller
               ~
-              designated-contract-id
+              for-contract.test
               rate  bud
               designated-town-id
               status=0
@@ -383,81 +427,14 @@
           (silt eggs)
         256
       :-  (make-multi-test-update project.act res)^~
-      state(projects (~(put by projects) project.act %&^project))
+      state(projects (~(put by projects) project.act project))
     ::
-    ::  contract deployment to local/remote testnet
-    ::
-        %deploy-contract
-      ::  this will call %wallet agent with a custom constructed %publish call
-      ::  will fail if chosen testnet+town combo doesn't exist or doesn't have
-      ::  the publish.hoon contract deployed.
-      ::
-      ?~  compiled.project
-        ~|("%ziggurat: project must be compiled before deploy!" !!)
-      ?^  error.project
-        ~|("%ziggurat: you should save a build without errors first" !!)
-      ~&  >  "%ziggurat: deploying contract to {<deploy-location.act>} testnet"
-      =/  pok
-        :*  %transaction  from=address.act
-            contract=0x1111.1111  town=town-id.act
-            action=[%noun [%deploy upgradable.act u.compiled.project ~ ~]]
-        ==
-      :_  state
-      =+  [%zig-wallet-poke !>(`wallet-poke:wallet`pok)]
-      [%pass /uqbar-poke %agent [our.bowl %uqbar] %poke -]~
-    ==
-  ::
-  ++  handle-app-poke
-    |=  act=app-action
-    ^-  (quip card _state)
-    ?-    -.+.act
-        %new-app-project
-      ::  merge new desk, mount desk
-      ::  currently using ziggurat desk as template -- should refine this
-      ~&  >>  -.+.byk.bowl
-      =/  merge-task  [%merg `@tas`project.act our.bowl -.+.byk.bowl da+now.bowl %init]
-      =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
-      =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
-      =/  deletions-task  [%info `@tas`project.act %& (clean-desk project.act)]
-      :_  state(projects (~(put by projects) project.act [%| ~]))
-      :~  [%pass /merge-wire %arvo %c merge-task]
-          [%pass /mount-wire %arvo %c mount-task]
-          [%pass /save-wire %arvo %c bill-task]
-          [%pass /save-wire %arvo %c deletions-task]
-          =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
-          [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
-      ==
-    ::
-        %delete-project
-      ::  should show a warning on frontend before performing this one ;)
-      `state(projects (~(del by projects) project.act))
-    ::
-        %save-file
-      :_  state
-      :~  =-  [%pass /save-wire %arvo %c -]
-          [%info `@tas`project.act %& [file.act %ins %hoon !>(text.act)]~]
-          =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
-          [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
-      ==
-
-    ::
-        %delete-file
-      ::  should show warning
-      :_  state
-      :~  =-  [%pass /del-wire %arvo %c -]
-          [%info `@tas`project.act %& [file.act %del ~]~]
-          =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
-          [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
-      ==
-
-    ::
-        %publish-app
+        %publish-app  :: TODO
       ::  [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
       ::  should assert that desk.bill contains only our agent name,
       ::  and that clause has been filled out at least partially,
       ::  then poke treaty agent with publish
       =/  project  (~(got by projects) project.act)
-      ?>  ?=(%| -.project)
       =/  bill
         ;;  (list @tas)
         .^(* %cx /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)/desk/bill)
@@ -477,24 +454,29 @@
       =/  docket-task
         [%info `@tas`project.act %& [/desk/docket-0 %ins %docket-0 !>(docket-0)]~]
       :_  state
-      :~  [%pass /save-wire %arvo %c docket-task]
-          =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
-          [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
-          =-  [%pass /treaty-wire %agent [our.bowl %treaty] %poke -]
-          [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
-      ==
+      :^    [%pass /save-wire %arvo %c docket-task]
+          (make-compile project.act our.bowl)
+        =-  [%pass /treaty-wire %agent [our.bowl %treaty] %poke -]
+        [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
+      ~
     ::
-        %read-desk
-      ::  for internal use -- app calls itself to scry clay
-      =/  =app-project
-        =+  (~(got by projects) project.act)
-        ?>  ?=(%| -.-)
-        p.-
-      =.  dir.app-project
-        =-  .^((list path) %ct -)
-        /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)
-      :-  (make-app-update project.act app-project)^~
-      state(projects (~(put by projects) project.act %|^app-project))
+        %deploy-contract
+      ::  this will call %wallet agent with a custom constructed %publish call
+      ::  will fail if chosen testnet+town combo doesn't exist or doesn't have
+      ::  the publish.hoon contract deployed.
+      ::
+      =/  =project  (~(got by projects) project.act)
+      ?^  errors.project
+        ~|("%ziggurat: please save a build without errors before deployment" !!)
+      ~&  >  "%ziggurat: deploying contract to {<deploy-location.act>} testnet"
+      =/  pok
+        :*  %transaction  from=address.act
+            contract=0x1111.1111  town=town-id.act
+            action=[%noun [%deploy upgradable.act .^(noun %ct path.act) ~ ~]]
+        ==
+      :_  state
+      =+  [%zig-wallet-poke !>(`wallet-poke:wallet`pok)]
+      [%pass /uqbar-poke %agent [our.bowl %uqbar] %poke -]~
     ==
   --
 ::
@@ -527,13 +509,13 @@
   ::
   ::  NOUNS
   ::
-      [%project-nock @ ~]
-    ?~  project=(~(get by projects) (slav %t i.t.t.path))
-      ``noun+!>(~)
-    ?>  ?=(%& -.u.project)
-    ?~  compiled.p.u.project
-      ``noun+!>(~)
-    ``noun+!>(compiled.p.u.project)
+    ::   [%project-nock @ ~]
+    :: ?~  project=(~(get by projects) (slav %t i.t.t.path))
+    ::   ``noun+!>(~)
+    :: ?>  ?=(%& -.u.project)
+    :: ?~  compiled.p.u.project
+    ::   ``noun+!>(~)
+    :: ``noun+!>(compiled.p.u.project)
   ::
   ::  JSONS
   ::
@@ -544,22 +526,19 @@
     %+  murn  ~(tap by projects)
     |=  [name=@t =project]
     :-  ~  :-  name
-    ?:  ?=(%| -.project)
-      (app-project-to-json p.project)
-    (contract-project-to-json p.project)
+    (project-to-json project)
   ::
       [%project-state @ ~]
     ?~  project=(~(get by projects) (slav %t i.t.t.path))
       ``json+!>(~)
-    ?>  ?=(%& -.u.project)
-    =/  =json  (granary-to-json p.state.p.u.project data-texts.p.u.project)
+    =/  =json  (granary-to-json p.state.u.project data-texts.u.project)
     ``json+!>(json)
   ::
       [%project-tests @ ~]
     ?~  project=(~(get by projects) (slav %t i.t.t.path))
       ``json+!>(~)
     ?>  ?=(%& -.u.project)
-    =/  =json  (tests-to-json tests.p.u.project)
+    =/  =json  (tests-to-json tests.u.project)
     ``json+!>(json)
   ::
   ::  APP-PROJECT JSON

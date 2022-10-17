@@ -5,7 +5,7 @@
 ::  on any town that wishes to allow contract production.
 ::
 ::  /+  *zig-sys-smart
-/=  pub  /lib/zig/contracts/lib/publish
+/=  pub  /con/lib/publish
 |_  =cart
 ++  write
   |=  act=action:pub
@@ -27,7 +27,7 @@
   ::
       %upgrade
     ::  we must be lord to upgrade
-    =/  contract  (need (scry to-upgrade.act))
+    =/  contract  (need (scry-granary to-upgrade.act))
     ?>  ?&  ?=(%| -.contract)
             =(lord.p.contract me.cart)
         ==

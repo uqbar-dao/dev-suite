@@ -1,6 +1,6 @@
 /+  *zink-zink, smart=zig-sys-smart, mill=zig-mill
-/*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
-/*  triv-txt        %hoon  /lib/zig/contracts/trivial/hoon
+/*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
+/*  triv-txt        %hoon  /con/trivial/hoon
 |%
 ::
 ++  hash
@@ -133,7 +133,7 @@
   =/  cont=[bat=* pay=*]  (compile-contract /zig triv-txt)
   =/  cor  .*([q.smart-lib pay.cont] bat.cont)
   =/  dor  [-:!>(*contract:smart) cor]
-  =/  gun  (ajar:mill dor %write !>(*context:smart) !>(*yolk:smart))
+  =/  gun  (ajar:mill dor %write !>(*context:smart) !>(*yolk:smart) %$)
   =/  =book  (zebra bud cax *granary-scry gun %.n)
   ~&  p.book
   cax.q.book

@@ -10,7 +10,7 @@
 ::  gas, gain privacy, and get better UX that way.
 ::
 ::  /+  *zig-sys-smart
-/=  lib  /lib/zig/contracts/lib/multisig
+/=  lib  /con/lib/multisig
 =,  lib
 |_  =cart
 ++  write
@@ -42,7 +42,7 @@
       ==
     (result ~ grain^~ ~ ~)
   ::  all other calls require multisig ID in action
-  =+  (need (scry multisig.act))
+  =+  (need (scry-granary multisig.act))
   =/  multisig  (husk multisig-state:sur - `me.cart ~)
   ?-    -.act
       %vote

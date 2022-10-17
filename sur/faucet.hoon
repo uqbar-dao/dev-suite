@@ -21,7 +21,7 @@
   $:  %0
       town-infos=(map id:smart town-info)
       gas=[rate=@ud budget=@ud]
-      on-timeout=(map @p @da)
+      on-timeout=(map @p [unlock=@da count=@ud])
       timeout-duration=@dr
       volume=@ud
   ==

@@ -4,7 +4,7 @@
 ::
 ::  set parameters for our local test environment
 ::
-++  designated-contract-id  0xfafa.fafa
+++  first-contract-id       0xfafa.faf0
 ++  designated-metadata-id  0xdada.dada
 ++  designated-caller
   |=  [=address:smart nonce=@ud]
@@ -36,51 +36,63 @@
   =-  (put:big:mill ~ id.p.- -)
   (designated-zigs-grain address)
 ::
-++  make-contract-grain
-  |=  [=address:smart cont=[bat=* pay=*]]
-  ^-  grain:smart
-  :*  %|
-      `cont
-      interface=~
-      types=~
-      designated-contract-id
-      0x0
-      address
-      designated-town-id
-  ==
-::
 ::  utilities
 ::
 ++  get-template
   |=  [pat=path our=ship now=time]
   ^-  @t
-  =/  pre=path  /(scot %p our)/zig/(scot %da now)/lib/zig/contracts
+  =/  pre=path  /(scot %p our)/zig/(scot %da now)/con
   .^(@t %cx (weld pre pat))
 ::
-++  make-contract-update
-  |=  [project=@t =contract-project]
+++  make-project-update
+  |=  [project-name=@t p=project]
   ^-  card
-  =/  =contract-update
-    :*  compiled=?~(compiled.contract-project %.n %.y)
-        error.contract-project
-        state.contract-project
-        data-texts.contract-project
-        tests.contract-project
+  =/  =path  /project/[project-name]
+  =/  update=project-update
+    :*  dir.p
+        ?=(~ errors.p)
+        errors.p
+        state.p
+        data-texts.p
+        tests.p
     ==
-  =/  =path  /contract-project/[project]
-  [%give %fact ~[path] %ziggurat-contract-update !>(contract-update)]
-::
-++  make-app-update
-  |=  [project=@t =app-project]
-  ^-  card
-  =/  =path  /app-project/[project]
-  [%give %fact ~[path] %ziggurat-app-update !>(`app-update`app-project)]
+  :^  %give  %fact  ~[path]
+  :-  %ziggurat-project-update
+  !>(`project-update`update)
 ::
 ++  make-multi-test-update
   |=  [project=@t result=state-transition:mill]
   ^-  card
-  =/  =path         /test-updates/[project]
+  =/  =path  /test-updates/[project]
   [%give %fact ~[path] %ziggurat-test-update !>(`test-update`[%result result])]
+::
+++  make-compile
+  |=  [project=@t our=@p]
+  ^-  card
+  =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
+  :-  %ziggurat-action
+  !>(`action`project^[%compile-contracts ~])
+::
+++  make-read-desk
+  |=  [project=@t our=@p]
+  ^-  card
+  =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
+  :-  %ziggurat-action
+  !>(`action`project^[%read-desk ~])
+::
+++  make-save-jam
+  |=  [project=@t file=path non=*]
+  ^-  card
+  ?>  ?=(%jam (rear file))
+  =-  [%pass /save-wire %arvo %c -]
+  :-  %info
+  [`@tas`project %& [file %ins %noun !>(`@`(jam non))]~]
+::
+++  make-save-hoon
+  |=  [project=@t file=path text=@t]
+  ^-  card
+  =-  [%pass /save-wire %arvo %c -]
+  [%info `@tas`project %& [file %ins %hoon !>(`@t`text)]~]
 ::
 ++  text-to-zebra-noun
   |=  [tex=@t smart-lib=vase]
@@ -94,15 +106,56 @@
   ~|  "ziggurat: result of custom data compile was ~"
   (need p.p.res)
 ::
+++  save-compiled-projects
+  |=  $:  project=@t
+          build-results=(list [p=path q=@ux r=build-result])
+      ==
+  ^-  [(list card) (list [path @t])]
+  =|  cards=(list card)
+  =|  errors=(list [path @t])
+  |-
+  ?~  build-results  [cards errors]
+  =*  contract-path   p.i.build-results
+  =/  =build-result   r.i.build-results
+  ?:  ?=(%| -.build-result)
+    %=  $
+        build-results  t.build-results
+        errors         [[contract-path p.build-result] errors]
+    ==
+  =/  contract-jam-path=path
+    ?>  ?=([%con *] contract-path)
+    %-  snoc
+    :_  %jam
+    %-  snip
+    `path`(welp /con/compiled +.contract-path)
+  %=  $
+      build-results  t.build-results
+      cards
+    :_  cards
+    %^  make-save-jam  project
+    contract-jam-path  p.build-result
+  ==
+::
+++  build-contract-projects
+  |=  $:  smart-lib=vase
+          desk=path
+          to-compile=(map path @ux)
+      ==
+  ^-  (list [path @ux build-result])
+  %+  turn  ~(tap by to-compile)
+  |=  [p=path q=@ux]
+  ~&  "building {<p>} {<q>}..."
+  [p q (build-contract-project smart-lib desk p)]
+::
 ++  build-contract-project
-  |=  [smart-lib=vase proj=contract-project]
+  |=  [smart-lib=vase desk=path to-compile=path]
   ^-  build-result
   ::
   ::  adapted from compile-contract:conq
   ::  this wacky design is to get a somewhat more helpful error print
   ::
   |^
-  =/  first  (mule |.((parse-main main.proj)))
+  =/  first  (mule |.(parse-main))
   ?:  ?=(%| -.first)
     :-  %|
     %-  get-formatted-error
@@ -121,16 +174,18 @@
   %&^[bat=p.fourth pay=-.p.third]
   ::
   ++  parse-main  ::  first
-    |=  main=@t
     ^-  [raw=(list [face=term =path]) contract-hoon=hoon]
-    (parse-pile:conq (trip main))
+    %-  parse-pile:conq
+    (trip .^(@t %cx (welp desk to-compile)))
   ::
   ++  parse-libs  ::  second
     |=  raw=(list [face=term =path])
     ^-  (list hoon)
     %+  turn  raw
     |=  [face=term =path]
-    `hoon`[%ktts face (rain path (~(got by libs.proj) `@t`(rear path)))]
+    ^-  hoon
+    :+  %ktts  face
+    (rain path .^(@t %cx (welp desk (welp path /hoon))))
   ::
   ++  build-libs  ::  third
     |=  braw=(list hoon)
@@ -157,8 +212,8 @@
 ::  project states for templates
 ::
 ++  fungible-template-project
-  |=  [current=contract-project meta-rice=rice:smart smart-lib-vase=vase]
-  ^-  contract-project
+  |=  [current=project meta-rice=rice:smart smart-lib-vase=vase]
+  ^-  project
   ::  make fungible accounts and tests
   =/  metadata
     ;;  $:  name=@t
@@ -171,13 +226,7 @@
             deployer=address:smart
             salt=@
         ==
-    =/  data-text  ;;(@t data.meta-rice)
-    =+  gun=(~(mint ut p.smart-lib-vase) %noun (ream data-text))
-    =/  res=book:zink
-      (zebra:zink 200.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
-    ?.  ?=(%& -.p.res)
-      ~|("ziggurat: failed to compile custom data!" !!)
-    (need p.p.res)
+    (text-to-zebra-noun ;;(@t data.meta-rice) smart-lib-vase)
   =/  dead-beef-account-id
     %:  fry-rice:smart
         lord.meta-rice
@@ -247,6 +296,7 @@
     =/  data-2
       '[balance=130 allowances=~ metadata=0xdada.dada nonce=0]'
     :*  `'test-give'
+        next-contract-id.current
         action-1
         yolk-1
         %-  malt
@@ -278,6 +328,7 @@
     =/  data-2
       '[balance=150 allowances=~ metadata=0xdada.dada nonce=0]'
     :*  `'test-take'
+        next-contract-id.current
         action-2
         yolk-2
         %-  malt
@@ -305,6 +356,7 @@
     =/  data-1
       '[balance=200 allowances=(make-pmap ~[[0xcafe.babe 100]]) metadata=0xdada.dada nonce=0]'
     :*  `'test-set-allowance'
+        next-contract-id.current
         action-3
         yolk-3
         %-  malt
@@ -315,7 +367,16 @@
         %0
         ~
     ==
-  %=    current
+  =/  fungible-contract-path=path  /con/fungible/hoon
+  %=  current
+      next-contract-id  (add next-contract-id.current 1)
+      user-files
+    (~(put in user-files.current) fungible-contract-path)
+  ::
+      to-compile
+    %+  ~(put by to-compile.current)  fungible-contract-path
+    next-contract-id.current
+  ::
       tests
     (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
   ::
@@ -338,8 +399,8 @@
     ==
   ==
 ++  nft-template-project
-  |=  [current=contract-project meta-rice=rice:smart smart-lib-vase=vase]
-  ^-  contract-project
+  |=  [current=project meta-rice=rice:smart smart-lib-vase=vase]
+  ^-  project
   ::  make fungible accounts and tests
   =/  metadata
     ;;  $:  name=@t
@@ -436,6 +497,7 @@
     q:(slap smart-lib-vase (ream action-1))
   =/  test-1=test
     :*  `'test-give'
+        next-contract-id.current
         action-1
         yolk-1
         %-  malt
@@ -459,6 +521,7 @@
     q:(slap smart-lib-vase (ream action-2))
   =/  test-2=test
     :*  `'test-give-dont-have'
+        next-contract-id.current
         action-2
         yolk-2
         ~
@@ -504,14 +567,23 @@
     ==
   =/  test-3=test
     :*  `'test-mint'
+        next-contract-id.current
         action-3
         yolk-3
         (malt ~[[nft-3-id [%&^nft-3 nft-3-text]]])
         %0
         ~
     ==
+  =/  nft-contract-path=path  /con/nft/hoon
+  %=  current
+      next-contract-id  (add next-contract-id.current 1)
+      user-files
+    (~(put in user-files.current) nft-contract-path)
   ::
-  %=    current
+      to-compile
+    %+  ~(put by to-compile.current)  nft-contract-path
+    next-contract-id.current
+  ::
       tests
     (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
   ::
@@ -567,36 +639,38 @@
 ::
 ++  simple-app
   ^-  @t
- '/+  default-agent, dbug\0a\
-  /|%\0a\
-  /+$  versioned-state\0a\
-  /    $%  state-0\0a\
-  /    ==\0a\
-  /+$  state-0  [%0 ~]\0a\
-  /--\0a\
-  /%-  agent:dbug\0a\
-  /=|  state-0\0a\
-  /=*  state  -\0a\
-  /^-  agent:gall\0a\
-  /|_  =bowl:gall\0a\
-  /+*  this     .\0a\
-  /    default   ~(. (default-agent this %|) bowl)\0a\
-  /::\0a\
-  /++  on-init\0a\
-  /  `this(state [%0 ~])\0a\
-  /++  on-save\0a\
-  /  ^-  vase\0a\
-  /  !>(state)\0a\
-  /++  on-load\0a\
-  /  on-load:default\0a\
-  /++  on-poke  on-poke:default\0a\
-  /++  on-watch  on-watch:default\0a\
-  /++  on-leave  on-leave:default\0a\
-  /++  on-peek   on-peek:default\0a\
-  /++  on-agent  on-agent:default\0a\
-  /++  on-arvo   on-arvo:default\0a\
-  /++  on-fail   on-fail:default\0a\
-  /--'
+  '''
+  +  default-agent, dbug
+  |%
+  +$  versioned-state
+      $%  state-0
+      ==
+  +$  state-0  [%0 ~]
+  --
+  %-  agent:dbug
+  =|  state-0
+  =*  state  -
+  ^-  agent:gall
+  |_  =bowl:gall
+  +*  this     .
+      default   ~(. (default-agent this %|) bowl)
+  ::
+  ++  on-init
+    `this(state [%0 ~])
+  ++  on-save
+    ^-  vase
+    !>(state)
+  ++  on-load
+    on-load:default
+  ++  on-poke  on-poke:default
+  ++  on-watch  on-watch:default
+  ++  on-leave  on-leave:default
+  ++  on-peek   on-peek:default
+  ++  on-agent  on-agent:default
+  ++  on-arvo   on-arvo:default
+  ++  on-fail   on-fail:default
+  --
+  '''
 ::
 ::  JSON parsing utils
 ::
@@ -618,27 +692,16 @@
       ['data' %s (crip (noah !>(data.p.grain)))]
   ==
 ::
-++  app-project-to-json
-  |=  p=app-project
-  =,  enjs:format
-  ^-  json
-  %-  frond
-  ['dir' (dir-to-json dir.p)]
-::
-++  contract-project-to-json
-  |=  p=contract-project
+++  project-to-json
+  |=  p=project
   =,  enjs:format
   ^-  json
   %-  pairs
-  :~  ['main' %s main.p]
-      :-  'libs'
-      %-  pairs
-      %+  turn  ~(tap by libs.p)
-      |=  [name=@t text=@t]
-      [name %s text]
-      ::  not sharing nock, can add later if desired
-      ::  not sharing imported either
-      ['error' %s ?~(error.p '' u.error.p)]
+  :~  ['dir' (dir-to-json dir.p)]
+      ['user_files' (dir-to-json ~(tap in user-files.p))]
+      ['to_compile' (to-compile-to-json to-compile.p)]
+      ['next_contract_id' %s (scot %ux next-contract-id.p)]
+      ['errors' (errors-to-json errors.p)]
       ['state' (granary-to-json p.state.p data-texts.p)]
       ['tests' (tests-to-json tests.p)]
   ==
@@ -673,6 +736,7 @@
   ^-  json
   %-  pairs
   :~  ['name' %s ?~(name.test '' u.name.test)]
+      ['for_contract' %s (scot %ux for-contract.test)]  ::  TODO: to contract path?
       ['action_text' %s action-text.test]
       ['action' %s (crip (noah !>(action.test)))]
       ['expected' (expected-to-json expected.test)]
@@ -732,4 +796,29 @@
   %+  turn  dir
   |=  p=^path
   (path p)
+::
+++  to-compile-to-json
+  |=  to-compile=(map path @ux)
+  =,  enjs:format
+  ^-  json
+  :-  %a
+  %+  turn  ~(tap by to-compile)
+  |=  [p=^path id=@ux]
+  %-  pairs
+  :+  ['path' (path p)]
+    ['wheat-id' %s (scot %ux id)]
+  ~
+::
+++  errors-to-json
+  |=  errors=(list [path @t])
+  =,  enjs:format
+  ^-  json
+  ?~  errors  ~
+  :-  %a
+  %+  turn  errors
+  |=  [p=^path error=@t]
+  %-  pairs
+  :+  ['path' (path p)]
+    ['error' %s error]
+  ~
 --

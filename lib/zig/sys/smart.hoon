@@ -25,11 +25,16 @@
 ::
 ::  +scry: scry wrapper
 ::
-++  scry
+++  scry-granary
   |=  =id
-  ^-  (unit grain)
-  =-  ;;((unit grain) -)
+  ;;  (unit grain)
   .*(0 [%12 [%0 1] [%1 /granary/(scot %ux id)]])
+::
+++  scry-contract
+  |=  [=id =path]
+  ;;  (unit *)
+  .*  0
+  [%12 [%0 1] [%1 (weld /contract/noun/(scot %ux id) path)]]
 ::
 ::  +fry: standard hashing functions for rice and wheat grains
 ::
@@ -58,7 +63,8 @@
     (gas:big *(merk id grain) (turn burned |=(=grain [id.p.grain grain])))
   crow
 ::
-::  +continuation: generate a chick containing an intermediate result and a list of next calls
+::  +continuation: generate a chick containing an intermediate result
+::  and a list of next calls
 ::
 ++  continuation
   |=  [next=(list [to=id town-id=id =yolk]) rooster=chick]
@@ -78,7 +84,9 @@
 ::
 +$  caller  [=id nonce=@ud zigs=id]
 ::
-+$  typed-message  [domain=id message=@]  ::  message should be typed according to some mold specified by the wheat
+::  message should be typed according to some mold specified by the wheat
+::
++$  typed-message  [domain=id message=@]
 ::
 ::  grains populate the state.
 ::
@@ -163,8 +171,11 @@
 ::
 +$  chick    (each rooster hen)
 ::
-+$  rooster  [changed=(merk id grain) issued=(merk id grain) burned=(merk id grain) =crow]
-+$  hen      [next=(list [contract=id town-id=id =yolk]) =rooster]
++$  rooster
+  [changed=(merk id grain) issued=(merk id grain) burned=(merk id grain) =crow]
+::
++$  hen
+  [next=(list [contract=id town-id=id =yolk]) =rooster]
 ::
 +$  crow     (list [@tas json])
 ::
@@ -196,7 +207,8 @@
 +$  yolk    (pair @tas *)
 +$  shell
   $:  from=caller
-      eth-hash=(unit @)  ::  if transaction signed with eth wallet, use this to verify signature
+      ::  if transaction signed with eth wallet, use this to verify signature
+      eth-hash=(unit @)
       contract=id
       rate=@ud
       budget=@ud
@@ -228,40 +240,40 @@
 ::  allows read arm of contracts to generate JSON
 ::
 +$  ship  @p
-+$  json                                                ::  normal json value
-  $@  ~                                                 ::  null
-  $%  [%a p=(list json)]                                ::  array
-      [%b p=?]                                          ::  boolean
-      [%o p=(map @t json)]                              ::  object
-      [%n p=@ta]                                        ::  number
-      [%s p=@t]                                         ::  string
++$  json                                               ::  normal json value
+  $@  ~                                                ::  null
+  $%  [%a p=(list json)]                               ::  array
+      [%b p=?]                                         ::  boolean
+      [%o p=(map @t json)]                             ::  object
+      [%n p=@ta]                                       ::  number
+      [%s p=@t]                                        ::  string
   ==
 ++  format  ^?
   |%
-  ++  enjs  ^?                                          ::  json encoders
+  ++  enjs  ^?                                         ::  json encoders
     |%
-    ::                                                  ::  ++frond:enjs:format
-    ++  frond                                           ::  object from k-v pair
+    ::                                                 ::  ++frond:enjs:format
+    ++  frond                                          ::  object from k-v pair
       |=  [p=@t q=json]
       ^-  json
       [%o [[p q] ~ ~]]
-    ::                                                  ::  ++pairs:enjs:format
-    ++  pairs                                           ::  object from k-v list
+    ::                                                 ::  ++pairs:enjs:format
+    ++  pairs                                          ::  object from k-v list
       |=  a=(list [p=@t q=json])
       ^-  json
       [%o (~(gas by *(map @t json)) a)]
-    ::                                                  ::  ++tape:enjs:format
-    ++  tape                                            ::  string from tape
+    ::                                                 ::  ++tape:enjs:format
+    ++  tape                                           ::  string from tape
       |=  a=^tape
       ^-  json
       [%s (crip a)]
-    ::                                                  ::  ++ship:enjs:format
-    ++  ship                                            ::  string from ship
+    ::                                                 ::  ++ship:enjs:format
+    ++  ship                                           ::  string from ship
       |=  a=^ship
       ^-  json
       [%n (rap 3 '"' (rsh [3 1] (scot %p a)) '"' ~)]
-    ::                                                  ::  ++numb:enjs:format
-    ++  numb                                            ::  number from unsigned
+    ::                                                 ::  ++numb:enjs:format
+    ++  numb                                           ::  number from unsigned
       |=  a=@u
       ^-  json
       :-  %n
@@ -314,7 +326,7 @@
   ~>  %shag.+<
   ^-  hash
   `@ux`(sham yux)
-  ::  TODO: make LRU-cache-optimized version for granary retrivial & modification
+  ::  TODO: make LRU-cache-optimized version for granary retrivial
   ::  ?@  yux
   ::    (hash:pedersen yux 0)
   ::  (hash:pedersen $(yux -.yux) $(yux +.yux))

@@ -5,7 +5,7 @@
 ::  without any changes can be issued through this contract.
 ::
 ::  /+  *zig-sys-smart
-/=  fungible  /lib/zig/contracts/lib/fungible
+/=  fungible  /con/lib/fungible
 |_  =cart
 ++  write
   |=  act=action:sur:fungible
@@ -25,7 +25,7 @@
     ^-  ^json
     ?+    path  !!
         [%inspect @ ~]
-      ?~  g=(scry (slav %ux i.t.path))  ~
+      ?~  g=(scry-granary (slav %ux i.t.path))  ~
       ?.  ?=(%& -.u.g)  ~
       ?^  acc=((soft account:sur:fungible) data.p.u.g)
         (account:enjs:lib:fungible u.acc)

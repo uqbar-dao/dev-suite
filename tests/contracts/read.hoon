@@ -1,11 +1,12 @@
 ::
-::  Tests for nft.hoon
+::  Test of contract scry reads
 ::
 /-  zink
 /+  *test, smart=zig-sys-smart, *sequencer, merk
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
-/*  nft-contract    %noun  /con/compiled/nft/noun
+/*  trivial-read-contract  %noun  /con/compiled/trivial-read/noun
+/*  trivial-read-source-contract  %noun  /con/compiled/trivial-read-source/noun
 |%
 ::
 ::  constants / dummy info for mill
@@ -45,60 +46,33 @@
     ==
   --
 ::
-++  nft-metadata-rice
-  ^-  rice:smart
-  :*  salt=`@`'nftsalt'
-      label=%metadata
-      :*  name='Ziggurat Girls'
-          symbol='GOODART'
-          properties=(~(gas pn:smart *(pset:smart @tas)) `(list @tas)`~[%hat %eyes %mouth])
-          supply=1
-          cap=`5
-          mintable=%.y
-          minters=(~(gas pn:smart *(pset:smart address:smart)) ~[pubkey-1])
-          deployer=pubkey-1
-          salt=`@`'nftsalt'
-      ==
-      id=`@ux`'nft-metadata'
-      lord=0xcafe.babe
-      holder=0xcafe.babe
-      town-id
-  ==
-++  nft-1  (fry-rice:smart 0xcafe.babe pubkey-1 town-id `@`'nftsalt1')
-++  nft-rice
-  ^-  rice:smart
-  :*  salt=`@`'nftsalt1'
-      label=%nft
-      :*  1
-          'ipfs://QmUbFVTm113tJEuJ4hZY2Hush4Urzx7PBVmQGjv1dXdSV9'
-          id:nft-metadata-rice
-          ~
-          %-  ~(gas py:smart *(pmap:smart @tas @t))
-          `(list [@tas @t])`~[[%hat 'pyramid'] [%eyes 'big'] [%mouth 'smile']]
-          %.y
-      ==
-      nft-1
-      0xcafe.babe
-      pubkey-1
-      town-id
-  ==
-++  nft-wheat
+++  read-wheat
   ^-  wheat:smart
-  :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] nft-contract)))
-      interface=~  ::  TODO
-      types=~      ::  TODO
-      0xcafe.babe  ::  id
-      0xcafe.babe  ::  lord
-      0xcafe.babe  ::  holder
-      town-id      ::  town-id
+  :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] trivial-read-contract)))
+      interface=~
+      types=~
+      0x5678  ::  id
+      0x5678  ::  lord
+      0x5678  ::  holder
+      town-id  ::  town-id
+  ==
+::
+++  read-source-wheat
+  ^-  wheat:smart
+  :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] trivial-read-source-contract)))
+      interface=~
+      types=~
+      0x1234  ::  id
+      0x1234  ::  lord
+      0x1234  ::  holder
+      town-id   ::  town-id
   ==
 ::
 ++  fake-granary
   ^-  granary
   %+  gas:big  *(merk:merk id:smart grain:smart)
-  :~  [id:nft-wheat [%| nft-wheat]]
-      [id:nft-metadata-rice [%& nft-metadata-rice]]
-      [id:nft-rice [%& nft-rice]]
+  :~  [id:read-wheat [%| read-wheat]]
+      [id:read-source-wheat [%| read-source-wheat]]
       [id.p:account-1:zigs account-1:zigs]
   ==
 ++  fake-populace
@@ -111,17 +85,16 @@
 ::
 ::  begin tests
 ::
-++  test-mill-nft-give
-  =/  =yolk:smart  [%give 0xffff.ffff.ffff.ffff id:nft-rice]
+++  test-read
+  =/  =yolk:smart  [%whatever ~]
   =/  shel=shell:smart
-    [caller-1 ~ id:nft-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id:read-wheat 1 1.000.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id 1)
       fake-land
     `egg:smart`[fake-sig shel yolk]
   ::
-  ~&  >  "fee: {<fee.res>}"
-  ~&  p.land.res
+  ~&  >  "crow: {<crow.res>}"
   ;:  weld
   ::  assert that our call went through
     %+  expect-eq

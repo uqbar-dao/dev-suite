@@ -250,6 +250,7 @@
     app(hit [%10 axis.f u.hval u.htar u.holdleaf u.hsibs]^hit)
   ::
        [%11 tag=@ next=*]
+    ~&  >  `@tas`tag.f
     =^  next=body  app
       $(f next.f)
     :_  app
@@ -304,9 +305,10 @@
       $(f path.f)
     ?:  ?=(%| -.path)    ~&  293  [%|^trace app]
     ?~  p.path           [%&^~ app]
-    ?~  result=(scry p.ref p.path)
-      [%&^~^~ app]
-    [%&^[~ `product.u.result] app]
+    =/  result  (scry bud p.ref p.path)
+    ?~  product.result
+      [%&^~^~ app(bud bud.result)]
+    [%&^[~ product.result] app(bud bud.result)]
   ==
   ::
   ++  jet

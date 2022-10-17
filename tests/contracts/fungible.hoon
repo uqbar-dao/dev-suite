@@ -1,10 +1,10 @@
 ::  fungible.hoon tests
 /-  zink
 /+  *test, smart=zig-sys-smart, *sequencer, merk, ethereum
-/*  smart-lib-noun     %noun  /lib/zig/compiled/smart-lib/noun
-/*  zink-cax-noun      %noun  /lib/zig/compiled/hash-cache/noun
-/*  zigs-contract      %noun  /lib/zig/compiled/zigs/noun
-/*  fungible-contract  %noun  /lib/zig/compiled/fungible/noun
+/*  smart-lib-noun     %noun  /lib/zig/sys/smart-lib/noun
+/*  zink-cax-noun      %noun  /lib/zig/sys/hash-cache/noun
+/*  zigs-contract      %noun  /con/compiled/zigs/noun
+/*  fungible-contract  %noun  /con/compiled/fungible/noun
 |%
 ::
 ::  constants / dummy info for mill
@@ -65,8 +65,8 @@
   ++  wheat
     ^-  grain:smart
     =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] zigs-contract)))
-    =/  interface=lumps:smart  ~
-    =/  types=lumps:smart  ~
+    =/  interface  ~
+    =/  types  ~
     :*  %|
         `cont
         interface
@@ -116,8 +116,8 @@
 ++  fungible-wheat
   ^-  grain:smart
   =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] fungible-contract)))
-  =/  interface=lumps:smart  ~
-  =/  types=lumps:smart      ~
+  =/  interface  ~
+  =/  types  ~
   :*  %|
       `cont
       interface
