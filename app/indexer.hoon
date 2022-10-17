@@ -173,7 +173,7 @@
 +$  card  card:agent:gall
 --
 ::
-=|  inflated-state-2:ui
+=|  inflated-state-0:ui
 =*  state  -
 ::
 %-  agent:dbug
@@ -930,36 +930,6 @@
   =+  !<(=versioned-state:ui state-vase)
   ?-    -.versioned-state
       %0
-    ::  TODO: remove hardcode
-    =/  catchup-indexer-host=@p  ~dister-dozzod-bacdun
-    =/  catchup-indexer-dock=dock
-      [catchup-indexer-host %indexer]
-    :_  %-  inflate-state
-        ~(tap by batches-by-town.versioned-state)
-    :*  %2
-        batches-by-town.versioned-state
-        capitol.versioned-state
-        sequencer-update-queue.versioned-state
-        town-update-queue.versioned-state
-        ~
-        ~
-        catchup-indexer-dock
-    ==
-  ::
-      %1
-    :_  %-  inflate-state
-        ~(tap by batches-by-town.versioned-state)
-    :*  %2
-        batches-by-town.versioned-state
-        capitol.versioned-state
-        sequencer-update-queue.versioned-state
-        town-update-queue.versioned-state
-        ~
-        ~
-        catchup-indexer.versioned-state
-    ==
-  ::
-      %2
     :_  %-  inflate-state
         ~(tap by batches-by-town.versioned-state)
     %=  versioned-state
