@@ -3,7 +3,7 @@
 |=  [[now=@da eny=@uvJ bek=beak] [gas=@ud ~] ~]
 ::  a good number for gas is 100
 =*  our  p.bek
-=/  hash-cache-file  .^(* %cx /(scot %p our)/zig/(scot %da now)/con/compiled/hash-cache/noun)
+=/  hash-cache-file  .^(* %cx /(scot %p our)/zig/(scot %da now)/lib/zig/sys/hash-cache/noun)
 ?>  ?=((pair * (pair * @)) hash-cache-file)
 =/  smart-txt        .^(@t %cx /(scot %p our)/zig/(scot %da now)/lib/zig/sys/smart/hoon)
 =/  hoon-txt         .^(@t %cx /(scot %p our)/zig/(scot %da now)/lib/zig/sys/hoon/hoon)

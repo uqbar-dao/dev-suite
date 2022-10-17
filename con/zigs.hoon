@@ -16,7 +16,7 @@
   ^-  chick
   ?-    -.act
       %give
-    =+  (need (scry from-account.act))
+    =+  (need (scry-granary from-account.act))
     =/  giver  (husk account:sur - `me.cart `id.from.cart)
     ::  we must confirm that the giver's zigs balance is enough to
     ::  cover the maximum cost in the original transaction, which
@@ -30,7 +30,7 @@
       =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
       (result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
-    =+  (need (scry u.to-account.act))
+    =+  (need (scry-granary u.to-account.act))
     ::  assert that account is held by the address we're sending to
     =/  receiver  (husk account:sur - `me.cart `to.act)
     =.  balance.data.receiver  (add balance.data.receiver amount.act)
@@ -39,7 +39,7 @@
 
   ::
       %take
-    =+  (need (scry from-account.act))
+    =+  (need (scry-granary from-account.act))
     =/  giver  (husk account:sur - `me.cart ~)
     ::  this will fail if amount > balance or allowance is exceeded, as desired
     =:  balance.data.giver  (sub balance.data.giver amount.act)
@@ -56,7 +56,7 @@
       =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
       (result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
-    =+  (need (scry u.to-account.act))
+    =+  (need (scry-granary u.to-account.act))
     ::  assert that account is held by the address we're sending to
     =/  receiver  (husk account:sur - `me.cart `to.act)
     =.  balance.data.receiver  (add balance.data.receiver amount.act)
@@ -69,7 +69,7 @@
     ::  but spends will still be constrained by token balance
     ::  note: cannot set an allowance to ourselves
     ?>  !=(who.act id.from.cart)
-    =+  (need (scry account.act))
+    =+  (need (scry-granary account.act))
     =/  account  (husk account:sur - `me.cart `id.from.cart)
     =.  allowances.data.account
       (~(put py allowances.data.account) who.act amount.act)
@@ -82,7 +82,7 @@
     ^-  ^json
     ?+    path  !!
         [%get-balance @ ~]
-      =+  (need (scry (slav %ux i.t.path)))
+      =+  (need (scry-granary (slav %ux i.t.path)))
       =+  (husk account:sur - ~ ~)
       `^json`[%n (scot %ud balance.data.-)]
     ==

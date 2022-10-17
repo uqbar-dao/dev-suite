@@ -24,7 +24,7 @@
     ^-  ^json
     ?+    path  !!
         [%inspect @ ~]
-      ?~  g=(scry (slav %ux i.t.path))  ~
+      ?~  g=(scry-granary (slav %ux i.t.path))  ~
       ?.  ?=(%& -.u.g)  ~
       ?^  item=((soft nft:sur:nft) data.p.u.g)
         (nft:enjs:lib:nft u.item)

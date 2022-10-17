@@ -1,5 +1,5 @@
 /+  smart=zig-sys-smart, mill=zig-lib-mill
-/*  smart-lib-noun  %noun  /con/compiled/smart-lib/noun
+/*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 :-  %say
 |=  [[now=@da eny=@uvJ bek=beak] [=wheat:smart ~] ~]
 =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))

@@ -3,8 +3,8 @@
 ::
 /-  zink
 /+  *test, smart=zig-sys-smart, *sequencer, merk
-/*  smart-lib-noun  %noun  /con/compiled/smart-lib/noun
-/*  zink-cax-noun   %noun  /con/compiled/hash-cache/noun
+/*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
+/*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
 /*  nft-contract    %noun  /con/compiled/nft/noun
 |%
 ::

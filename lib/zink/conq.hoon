@@ -1,5 +1,5 @@
 /+  *zink-zink, smart=zig-sys-smart, mill=zig-mill
-/*  smart-lib-noun  %noun  /con/compiled/smart-lib/noun
+/*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  triv-txt        %hoon  /con/trivial/hoon
 |%
 ::
