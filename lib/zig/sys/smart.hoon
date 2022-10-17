@@ -106,8 +106,8 @@
 ::  context: state context fed into contract
 ::
 +$  context
-  $:  this=id               ::  ID of current contract
-      from=[=id nonce=@ud]  ::  information about caller
+  $:  this=id                 ::  ID of current contract
+      caller=[=id nonce=@ud]  ::  information about caller
       batch=@ud
       eth-block=@ud
       shard=id
