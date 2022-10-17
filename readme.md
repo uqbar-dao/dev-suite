@@ -321,7 +321,7 @@ To deploy on town `0x0`, in the Dojo:
 ```hoon
 =contract-path /=zig=/con/compiled/multisig/noun
 =contract-noun .^(* %cx contract-path)
-=contract ;;([bat=* pay=*] contract-noun)
+=contract (cue +.+:;;([* * @] contract-noun))
 :uqbar &zig-wallet-poke [%transaction from=[youraddress] contract=0x1111.1111 town=0x0 action=[%noun [%deploy mutable=%.n cont=contract interface=~ types=~]]]
 ```
 
