@@ -281,8 +281,8 @@
       |=  [from=[=id:smart nonce=@ud] =wheat:smart =egg:smart hits=(list hints) burned=^granary]
       ^-  hatchling
       |^
-      =/  =cart:smart  [contract.shell.egg from batch town-id]
-      =+  [hit chick rem err]=(weed budget.shell.egg cart)
+      =/  =context:smart  [contract.shell.egg from batch eth-block-height town-id]
+      =+  [hit chick rem err]=(weed budget.shell.egg context)
       ?~  chick  [hit^hits ~ ~ ~ rem err]
       ?:  ?=(%& -.u.chick)
         ::  rooster result, finished growing
@@ -330,13 +330,13 @@
       ::  +weed: run contract formula with arguments and memory, bounded by bud
       ::
       ++  weed
-        |=  [budget=@ud =cart:smart]
+        |=  [budget=@ud =context:smart]
         ^-  [hints (unit chick:smart) rem=@ud =errorcode:smart]
         ~>  %bout
         |^
         ?~  cont.wheat   [~ ~ budget %6]
         =/  dor=vase  (load u.cont.wheat)
-        =/  gun  (ajar dor %write !>(cart) !>(yolk.egg) %$)
+        =/  gun  (ajar dor %write !>(context) !>(yolk.egg) %$)
         ::
         ::  generate ZK-proof hints with zebra
         ::
@@ -391,7 +391,7 @@
             ?~  cont.p.u.grain
               ~&  >>>  "nok was empty"  rem^~
             =/  dor=vase  (load u.cont.p.u.grain)
-            =/  gun    (ajar dor %read !>(cart(me u.id)) !>(read-path) kind)
+            =/  gun    (ajar dor %read !>(context(me u.id)) !>(read-path) kind)
             =/  =book  (zebra rem zink-cax search gun test-mode)
             ?:  ?=(%| -.p.book)
               ::  error in contract execution
