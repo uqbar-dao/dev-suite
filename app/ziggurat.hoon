@@ -348,7 +348,7 @@
         ==
       =/  =mill-result:mill
         %+  %~  mill  mil
-            [caller designated-town-id mill-batch-num.project]
+            [caller designated-town-id mill-batch-num.project 0]
           state.project
         [[0 0 0] shell action.test]
       =/  =expected-diff
@@ -422,7 +422,7 @@
         [[0 0 0] shell action.test]
       =/  [res=state-transition:mill *]
         %^    %~  mill-all  mil
-              [(designated-caller user-address.project 0) designated-town-id mill-batch-num.project]
+              [(designated-caller user-address.project 0) designated-town-id mill-batch-num.project 0]
             state.project
           (silt eggs)
         256

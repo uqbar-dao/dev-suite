@@ -50,6 +50,7 @@
       [%receive eggs=(set egg:smart)]
       ::  batching
       [%trigger-batch ~]
+      [%perform-batch eth-block-height=@ud]
   ==
 ::
 +$  rollup-update

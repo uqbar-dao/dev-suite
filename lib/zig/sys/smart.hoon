@@ -157,12 +157,13 @@
       [%address @ux]  [%grain @ux]
   ==
 ::
-::  cart: state context fed into contract
+::  context: state context fed into contract
 ::
-+$  cart
++$  context
   $:  me=id
       from=[=id nonce=@ud]
       batch=@ud
+      eth-block=@ud
       town-id=id
   ==
 ::
@@ -182,7 +183,7 @@
 ::
 +$  contract
   $_  ^|
-  |_  cart
+  |_  context
   ++  write
     |~  *
     chick
