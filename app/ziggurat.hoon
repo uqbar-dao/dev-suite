@@ -475,7 +475,7 @@
             action=[%noun [%deploy upgradable.act .^(noun %ct path.act) ~ ~]]
         ==
       :_  state
-      =+  [%zig-wallet-poke !>(`wallet-poke:wallet`pok)]
+      =+  [%wallet-poke !>(`wallet-poke:wallet`pok)]
       [%pass /uqbar-poke %agent [our.bowl %uqbar] %poke -]~
     ==
   --

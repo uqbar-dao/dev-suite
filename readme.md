@@ -106,7 +106,7 @@ After [initial installation](#initial-installation), start the `%rollup`, initia
 :indexer &set-sequencer [our %sequencer]
 :indexer &set-rollup [our %rollup]
 :uqbar|set-sources 0x0 ~[our]
-:uqbar &zig-wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
+:uqbar &wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
 ```
 
 
@@ -114,26 +114,26 @@ After [initial installation](#initial-installation), start the `%rollup`, initia
 
 After [starting the testnet](#starting-up-a-new-testnet), send transactions using the `%wallet`.
 Note that pokes here are to `%uqbar`.
-Pokes with the `%zig-wallet-poke` mark are [routed through `%uqbar`](#why-route-reads-and-writes-through-uqbar) to `%wallet`; the pokes below could just as easily be sent to `%wallet`.
+Pokes with the `%wallet-poke` mark are [routed through `%uqbar`](#why-route-reads-and-writes-through-uqbar) to `%wallet`; the pokes below could just as easily be sent to `%wallet`.
 
 First, create a pending transaction.
 The `%wallet` will send the transaction hash on a subscription wire as well as print it in the Dojo.
 ```hoon
 ::  Send zigs tokens.
-:uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 grain=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
+:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 grain=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
 
 ::  Send an NFT.
-:uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0xc9fb.6b1b.e8b2.7b73.65e4.700f.9665.24c8.9388.2cde.fadd.c422.eb9a.3624.ca5d.014d town=0x0 action=[%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de grain=0x7b61.8ce0.26ec.f2b9.3bc9.5800.ba7f.164e.89ba.817b.e0d9.5cfd.96bc.c12a.5c29.00a1]]
+:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0xc9fb.6b1b.e8b2.7b73.65e4.700f.9665.24c8.9388.2cde.fadd.c422.eb9a.3624.ca5d.014d town=0x0 action=[%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de grain=0x7b61.8ce0.26ec.f2b9.3bc9.5800.ba7f.164e.89ba.817b.e0d9.5cfd.96bc.c12a.5c29.00a1]]
 
 ::  Use the custom transaction interface to send zigs tokens.
-:uqbar &zig-wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%noun [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]]]
+:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%noun [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]]]
 ```
 
 Then, sign the transaction and assign it a gas budget.
 For example, for the zigs token transaction above:
 ```hoon
 ::  Sign with hot wallet.
-:uqbar &zig-wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=[yourhash] gas=[rate=1 bud=1.000.000]]
+:uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=[yourhash] gas=[rate=1 bud=1.000.000]]
 ```
 Transactions can also be signed using a hardware wallet, via `%submit-signed`.
 
@@ -322,7 +322,7 @@ To deploy on town `0x0`, in the Dojo:
 =contract-path /=zig=/con/compiled/multisig/noun
 =contract-noun .^(* %cx contract-path)
 =contract ;;([bat=* pay=*] contract-noun)
-:uqbar &zig-wallet-poke [%transaction from=[youraddress] contract=0x1111.1111 town=0x0 action=[%noun [%deploy mutable=%.n cont=contract interface=~ types=~]]]
+:uqbar &wallet-poke [%transaction from=[youraddress] contract=0x1111.1111 town=0x0 action=[%noun [%deploy mutable=%.n cont=contract interface=~ types=~]]]
 ```
 
 

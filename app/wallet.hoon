@@ -60,14 +60,14 @@
     ?>  =(src.bowl our.bowl)
     ::  send frontend updates along this path
     :_  this
-    =-  ~[[%give %fact ~ %zig-wallet-update -]]
+    =-  ~[[%give %fact ~ %wallet-update -]]
     !>(`wallet-update`[%new-book tokens.state])
   ::
       [%metadata-updates ~]
     ?>  =(src.bowl our.bowl)
     ::  send frontend updates along this path
     :_  this
-    =-  ~[[%give %fact ~ %zig-wallet-update -]]
+    =-  ~[[%give %fact ~ %wallet-update -]]
     !>(`wallet-update`[%new-metadata metadata-store.state])
   ::
       [%tx-updates ~]
@@ -82,7 +82,7 @@
   ^-  (quip card _this)
   |^
   ?+    mark  !!
-      %zig-wallet-poke
+      %wallet-poke
     =^  cards  state
       (poke-wallet !<(wallet-poke vase))
     [cards this]
@@ -394,8 +394,8 @@
     =/  new-metadata
       (update-metadata-store new-tokens metadata-store [our now]:bowl)
     :_  this(tokens new-tokens, metadata-store new-metadata)
-    :~  [%give %fact ~[/book-updates] %zig-wallet-update !>(`wallet-update`[%new-book new-tokens])]
-        [%give %fact ~[/metadata-updates] %zig-wallet-update !>(`wallet-update`[%new-metadata new-metadata])]
+    :~  [%give %fact ~[/book-updates] %wallet-update !>(`wallet-update`[%new-book new-tokens])]
+        [%give %fact ~[/metadata-updates] %wallet-update !>(`wallet-update`[%new-metadata new-metadata])]
     ==
   ::
       [%submit-tx @ @ ~]

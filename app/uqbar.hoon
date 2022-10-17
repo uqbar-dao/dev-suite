@@ -120,7 +120,7 @@
       ?+    mark  ~|("%uqbar: rejecting erroneous poke" !!)
           %uqbar-action  (handle-action !<(action:u vase))
           %uqbar-write   (handle-write !<(write:u vase))
-          %zig-wallet-poke
+          %wallet-poke
         (handle-wallet-poke !<(wallet-poke:w vase))
       ==
     [cards this]
@@ -138,7 +138,7 @@
       :_  state
       :_  ~
       %+  ~(poke-our pass:io /wallet-poke)  wallet-source
-      [%zig-wallet-poke !>(`wallet-poke:w`wallet-poke)]
+      [%wallet-poke !>(`wallet-poke:w`wallet-poke)]
     ::
     ++  handle-action
       |=  act=action:u

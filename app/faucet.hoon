@@ -85,7 +85,7 @@
             [until ?:((gte count 12) count +(count))]
           ==
       :+  =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]
-          :-  %zig-wallet-poke
+          :-  %wallet-poke
           !>  ^-  wallet-poke:w
           :*  %transaction
               from=address.u.town-info
@@ -105,7 +105,7 @@
       ::  make faucet auto-complete transaction in wallet
       :_  this
       =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]~
-      :-  %zig-wallet-poke
+      :-  %wallet-poke
       !>  ^-  wallet-poke:w
       :*  %submit
           from=me.action
