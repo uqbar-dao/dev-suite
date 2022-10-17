@@ -6,8 +6,8 @@
 /+  *sequencer, *rollup, uqbar, zink=zink-zink, sig=zig-sig, default-agent, dbug, verb
 ::  Choose which library smart contracts are executed against here
 ::
-/*  smart-lib-noun  %noun  /con/compiled/smart-lib/noun
-/*  zink-cax-noun   %noun  /con/compiled/hash-cache/noun
+/*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
+/*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
 |%
 +$  card  card:agent:gall
 +$  state-0
@@ -332,10 +332,6 @@
       [%grain @ ~]
     ?~  town  [~ ~]
     (read-grain t.path p.land.u.town)
-  ::
-      [%read @ @tas @ta @ ^]  :: grain id, %noun/%json, argument @ta, other +jam'd data, like tx args, then any associated rice IDs
-    ?~  town  [~ ~]
-    (read-wheat t.path now.bowl town-id.hall.u.town p.land.u.town smart-lib-vase)
   ==
 ::
 ++  on-leave  on-leave:def

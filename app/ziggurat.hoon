@@ -4,8 +4,8 @@
 ::
 /+  *ziggurat, smart=zig-sys-smart, sequencer,
     default-agent, dbug, verb
-/*  smart-lib-noun  %noun  /con/compiled/smart-lib/noun
-/*  zink-cax-noun   %noun  /con/compiled/hash-cache/noun
+/*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
+/*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
 ::
 |%
 +$  state-0

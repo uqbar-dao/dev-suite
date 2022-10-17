@@ -18,8 +18,8 @@
 ::
 /-  zink
 /+  *test, mill=zig-mill, *zig-sys-smart, *sequencer
-/*  smart-lib-noun  %noun  /con/compiled/smart-lib/noun
-/*  zink-cax-noun   %noun  /con/compiled/hash-cache/noun
+/*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
+/*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
 /*  zigs-contract   %noun  /con/compiled/zigs/noun
 /*  triv-contract   %noun  /con/compiled/trivial/noun
 /*  test-contract   %noun  /con/compiled/mill-tester/noun

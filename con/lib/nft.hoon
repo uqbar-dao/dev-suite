@@ -89,7 +89,7 @@
   ++  give
     |=  [=cart act=give:sur]
     ^-  chick
-    =+  (need (scry grain-id.act))
+    =+  (need (scry-granary grain-id.act))
     ::  caller must hold NFT, this contract must be lord
     =/  gift  (husk nft:sur - `me.cart `id.from.cart)
     ::  NFT must be transferrable
@@ -104,7 +104,7 @@
   ++  take
     |=  [=cart act=take:sur]
     ^-  chick
-    =+  (need (scry grain-id.act))
+    =+  (need (scry-granary grain-id.act))
     ::  this contract must be lord
     =/  gift  (husk nft:sur - `me.cart ~)
     ::  caller must be in allowances set
@@ -128,7 +128,7 @@
       ::  finished
       (result changed ~ ~ ~)
     ::  can optimize repeats here by storing these all in pmap at start
-    =+  (need (scry grain.i.items.act))
+    =+  (need (scry-granary grain.i.items.act))
     ::  must hold any NFT we set allowance for
     =/  nft  (husk nft:sur - `me.cart `id.from.cart)
     =.  allowances.data.nft
@@ -143,7 +143,7 @@
   ++  mint
     |=  [=cart act=mint:sur]
     ^-  chick
-    =+  `grain`(need (scry token.act))
+    =+  `grain`(need (scry-granary token.act))
     =/  meta  (husk metadata:sur - `me.cart ~)
     ::  ensure NFT is mintable
     ?>  mintable.data.meta

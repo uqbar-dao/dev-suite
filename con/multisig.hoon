@@ -42,7 +42,7 @@
       ==
     (result ~ grain^~ ~ ~)
   ::  all other calls require multisig ID in action
-  =+  (need (scry multisig.act))
+  =+  (need (scry-granary multisig.act))
   =/  multisig  (husk multisig-state:sur - `me.cart ~)
   ?-    -.act
       %vote

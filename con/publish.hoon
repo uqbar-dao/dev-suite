@@ -27,7 +27,7 @@
   ::
       %upgrade
     ::  we must be lord to upgrade
-    =/  contract  (need (scry to-upgrade.act))
+    =/  contract  (need (scry-granary to-upgrade.act))
     ?>  ?&  ?=(%| -.contract)
             =(lord.p.contract me.cart)
         ==

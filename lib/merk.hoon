@@ -113,10 +113,8 @@
   ::
   ++  gas                                               ::  concatenate
     |=  [a=mert b=(list [p=kee q=val])]
-    ~>  %bout
     ^+  a
     ?~  b  a
-    ~&  "merk: building a map..."
     $(b t.b, a (put a i.b))
   ::
   ++  get                                               ::  grab value by key

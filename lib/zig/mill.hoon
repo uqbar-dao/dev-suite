@@ -17,25 +17,25 @@
   hash  sig.egg
 ::
 ++  shut                                               ::  slam a door
-  |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase]
+  |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase inner-arm=@tas]
   ^-  vase
   %+  slap
     (slop dor (slop dor-sam arm-sam))
   ^-  hoon
   :-  %cnsg
-  :^    [%$ ~]
+  :^    [inner-arm ~]
       [%cnsg [arm ~] [%$ 2] [%$ 6] ~]  ::  replace sample
     [%$ 7]
   ~
 ::
 ++  ajar                                               ::  partial shut
-  |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase]
+  |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase inner-arm=@tas]
   ^-  (pair)
   =/  typ=type
     [%cell p.dor [%cell p.dor-sam p.arm-sam]]
   =/  gen=hoon
     :-  %cnsg
-    :^    [%$ ~]
+    :^    [inner-arm ~]
         [%cnsg [arm ~] [%$ 2] [%$ 6] ~]
       [%$ 7]
     ~
@@ -281,7 +281,8 @@
       |=  [from=[=id:smart nonce=@ud] =wheat:smart =egg:smart hits=(list hints) burned=^granary]
       ^-  hatchling
       |^
-      =+  [hit chick rem err]=(weed contract.shell.egg budget.shell.egg)
+      =/  =cart:smart  [contract.shell.egg from batch town-id]
+      =+  [hit chick rem err]=(weed budget.shell.egg cart)
       ?~  chick  [hit^hits ~ ~ ~ rem err]
       ?:  ?=(%& -.u.chick)
         ::  rooster result, finished growing
@@ -301,12 +302,12 @@
       ?~  last-diff
         ::  diff from last call failed validation
         [hits ~ ~ ~ rem %7]
-      =.  all-diffs  (uni:big all-diffs u.last-diff)
+      =.  all-diffs  (dif:big (uni:big all-diffs u.last-diff) all-burns)
       ?~  next
         ::  all continuations complete
         [hits `all-diffs all-burns (weld crows crow.rooster.p.u.chick) rem %0]
       ::  continue continuing
-      =/  inter
+      =/  inter=hatchling
         %+  ~(incubate farm (dif:big (uni:big granary all-diffs) all-burns))
           %=  egg
             id.from.shell   contract.shell.egg
@@ -329,15 +330,13 @@
       ::  +weed: run contract formula with arguments and memory, bounded by bud
       ::
       ++  weed
-        |=  [to=id:smart budget=@ud]
+        |=  [budget=@ud =cart:smart]
         ^-  [hints (unit chick:smart) rem=@ud =errorcode:smart]
         ~>  %bout
+        |^
         ?~  cont.wheat   [~ ~ budget %6]
-        =/  =cart:smart  [to from batch town-id]
-        =/  payload   .*(q.library pay.u.cont.wheat)
-        =/  cor       .*([q.library payload] bat.u.cont.wheat)
-        =/  dor=vase  [-:!>(*contract:smart) cor]
-        =/  gun  (ajar dor %write !>(cart) !>(yolk.egg))
+        =/  dor=vase  (load u.cont.wheat)
+        =/  gun  (ajar dor %write !>(cart) !>(yolk.egg) %$)
         ::
         ::  generate ZK-proof hints with zebra
         ::
@@ -353,17 +352,58 @@
           ~&  >>>  "mill: ran out of gas"
           [~ 0 %8]
         [;;((unit chick:smart) p.p.book) bud.q.book %0]
-      ::
-      ++  search
-        |=  pat=^
-        ^-  (unit [path=(list phash) product=*])
-        ?.  ?=([%0 %granary @ ~] +.pat)   ~
-        ?~  id=(slaw %ux -.+.+.+.pat)     ~
-        ~&  >>  "looking for grain: {<`@ux`u.id>}"
-        ?~  grain=(get:big granary u.id)
-          ~&  >>>  "didn't find it"  ~
-        ::  TODO populate path using +mek in merk
-        `[(mek:big granary u.id) u.grain]
+        ::
+        ++  load
+          |=  cont=[bat=* pay=*]
+          ^-  vase
+          =/  payload   .*(q.library pay.cont)
+          =/  cor       .*([q.library payload] bat.cont)
+          [-:!>(*contract:smart) cor]
+        ::
+        ++  search
+          |=  [bud=@ud pat=^]
+          ::  TODO make search return [hints product]
+          ^-  [bud=@ud product=(unit *)]
+          ::  custom scry to handle grain reads and contract reads
+          =/  rem  (sub bud 100)
+          ?+    +.pat  rem^~
+              [%0 %granary @ ~]
+            ::  /granary/[grain-id]
+            ?~  id=(slaw %ux -.+.+.+.pat)  rem^~
+            ~&  >>  "looking for grain: {<`@ux`u.id>}"
+            ?~  grain=(get:big granary u.id)
+              ~&  >>>  "didn't find it"  rem^~
+            rem^grain
+          ::
+              [%0 %contract @ @ ^]
+              ::  /contract/[%noun or %json]/[contract-id]/path/defined/in/contract
+            =/  rem  (sub bud 100)  ::  base cost
+            =/  kind  `@tas`-.+.+.+.pat
+            ?.  ?=(?(%noun %json) kind)  rem^~
+            ?~  id=(slaw %ux -.+.+.+.+.pat)  rem^~
+            ::  path includes fee, as it must match fee in contract
+            =/  read-path=path  ;;(path +.+.+.+.+.pat)
+            ~&  >>  "looking for contract wheat: {<`@ux`u.id>}"
+            ?~  grain=(get:big granary u.id)
+              ~&  >>>  "didn't find it"  rem^~
+            ?.  ?=(%| -.u.grain)
+              ~&  >>>  "wasn't wheat"  rem^~
+            ?~  cont.p.u.grain
+              ~&  >>>  "nok was empty"  rem^~
+            =/  dor=vase  (load u.cont.p.u.grain)
+            =/  gun    (ajar dor %read !>(cart(me u.id)) !>(read-path) kind)
+            =/  =book  (zebra rem zink-cax search gun test-mode)
+            ?:  ?=(%| -.p.book)
+              ::  error in contract execution
+              ~&  >>>  p.book
+              bud.q.book^~
+            ::  chick result
+            ?~  p.p.book
+              ~&  >>>  "mill: ran out of gas inside read"
+              bud.q.book^~
+            bud.q.book^p.p.book
+          ==
+        --
       --
     ::
     ::  +harvest: take a completed execution and validate all changes
@@ -430,6 +470,8 @@
     ::
     ::  +poach: handle special burn-only transactions, used for manually
     ::  escaping some grain from a town. must be EITHER holder or lord to burn.
+    ::  if town-id is the same as the source town, the grain is burned
+    ::  permanently. otherwise, it can be reinstantiated on the specified town.
     ::
     ++  poach
       |=  =egg:smart
@@ -440,19 +482,17 @@
       ::  charge fixed cost for failed transactions too
       ::  TODO should do this everywhere that we can inside +farm
       =/  fail  [~ ~ ~ ~ (sub budget.shell.egg fixed-burn-cost) %6]
-      ::  argument for %burn must be a grain ID
-      ?.  ?=([id=@ux town=@ux] q.yolk.egg)          fail
+      ::  argument for %burn must be a grain ID and town ID
+      ?.  ?=([id=@ux town=@ux] q.yolk.egg)  fail
       ::  grain must exist in granary
-      ?~  to-burn=(get:big granary id.q.yolk.egg)   fail
-      ::  town ID must be different from current town
-      ?:  =(town.q.yolk.egg town-id.p.u.to-burn)    fail
+      ?~  to-burn=(get:big granary id.q.yolk.egg)  fail
       ::  caller must be lord OR holder
       ?.  ?|  =(lord.p.u.to-burn id.from.shell.egg)
               =(holder.p.u.to-burn id.from.shell.egg)
           ==
         fail
       ::  produce hatchling
-      :*  ~  ~
+      :*  ~  [~ ~]
           (gas:big *^granary ~[[id.p.u.to-burn u.to-burn]])
           ~[[%burn `json`[%s (scot %ux id.p.u.to-burn)]]]
           (sub budget.shell.egg fixed-burn-cost)
