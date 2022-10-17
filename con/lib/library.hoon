@@ -1,3 +1,4 @@
+/+  *zig-sys-smart
 |%
 ++  special-arm
   |=  a=@ud
