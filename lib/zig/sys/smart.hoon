@@ -168,7 +168,7 @@
       %6  ::  6: crash in contract execution
       %7  ::  7: validation of changed/issued/burned rice failed
       %8  ::  8: ran out of gas while executing
-      %9  ::  9: was not parallel / superceded by another egg in batch
+      %9  ::  9: was not parallel / superceded by another txn in batch
   ==
 ::
 +$  typed-message  [domain=id message=@]
