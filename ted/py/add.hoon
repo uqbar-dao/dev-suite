@@ -8,7 +8,7 @@
 ;<  ~  bind:m  (init-ship ~dev &)
 ;<  ~  bind:m  (dojo ~dev "(add 2 3)")
 ;<  ~  bind:m  (wait-for-output ~dev "5")
-;<  ~  bind:m  (dojo ~dev ".^((list @t) %gx /=azimuth=/dns/noun)")
-;<  ~  bind:m  (wait-for-output ~dev "<||>")
+;<  ~  bind:m  (dojo ~dev ".^(@tas %gx /=sequencer=/status/noun)")
+;<  ~  bind:m  (wait-for-output ~dev "%off")
 ;<  ~  bind:m  end
 (pure:m *vase)
