@@ -281,7 +281,7 @@
       =/  sof  ((soft unix-effect) i.effects)
       ?~  sof
         ~?  aqua-debug=&  [who=who %unknown-effect i.effects]
-        $(effects t.effects)
+        $(effects t.effects)  ::  XX this used to be ..abet-pe
       (publish-effect u.sof)
     $(effects t.effects)
   ::
