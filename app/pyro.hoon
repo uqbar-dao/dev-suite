@@ -4,8 +4,8 @@
 ::  |start %zig %pyro
 ::  :pyro +solid %base %zig
 ::  swap files is NOT working
-::  :pyro &aqua-events [%init-ship ~dev %.y]~
-::  :pyro &action [%dojo ~dev "(add 2 2)"]
+::  :pyro &aqua-events [%init-ship ~dev %.y]~  OR  :pyro|init ~dev
+::  :pyro &action [%dojo ~dev "(add 2 2)"]     OR  :pyro|dojo ~dev "(add 2 2)"
 ::
 ::  Then try stuff:
 ::  XX :aqua [%init ~[~bud ~dev]]
@@ -17,7 +17,7 @@
 ::  XX :aqua [%file ~[~bud ~dev] %/sys/vane]
 ::  XX :aqua [%pause-events ~[~bud ~dev]]
 ::
-::  We get ++unix-event and ++pill from /-aquarium
+::  We get ++unix-event and ++pill from /-pyro
 ::
 /-  *pyro
 /+  pill, default-agent, naive, dbug, verb
@@ -126,7 +126,25 @@
       !!
     `this
   ::
-  ++  on-peek   peek:ac
+  ++  on-peek
+    |=  =path
+    ^-  (unit (unit cage))
+    ?+  path  ~
+        [%x %fleet-snap @ ~]  ``noun+!>((~(has by fleet-snaps) i.t.t.path))
+        [%x %fleets ~]        ``noun+!>((turn ~(tap by fleet-snaps) head))
+        [%x %ships ~]         ``noun+!>((turn ~(tap by ships.piers) head))
+        [%x %pill ~]          ``pill+!>(pil)
+        [%x %i @ @ @ @ @ *]
+      ::   ship | scry path
+      ::          care, ship, desk, time, path
+      ::  scry into running virtual ships
+      =/  who  (slav %p i.t.t.path)
+      =/  pier  (~(get by ships.piers) who)
+      ?~  pier
+        ~
+      :^  ~  ~  %noun  !>
+      (peek:(pe who) t.t.t.path)
+    ==
   ++  on-leave  on-leave:def
   ++  on-agent  on-agent:def
   ++  on-arvo   on-arvo:def
@@ -640,25 +658,6 @@
 ::
 ::  Check whether we have a snapshot
 ::
-++  peek
-  |=  =path
-  ^-  (unit (unit cage))
-  ?+  path  ~
-      [%x %fleet-snap @ ~]  ``noun+!>((~(has by fleet-snaps) i.t.t.path))
-      [%x %fleets ~]        ``noun+!>((turn ~(tap by fleet-snaps) head))
-      [%x %ships ~]         ``noun+!>((turn ~(tap by ships.piers) head))
-      [%x %pill ~]          ``pill+!>(pil)
-      [%x %i @ @ @ @ @ *]
-    ::   ship | scry path
-    ::          care, ship, desk, time, path
-    ::  scry into running virtual ships
-    =/  who  (slav %p i.t.t.path)
-    =/  pier  (~(get by ships.piers) who)
-    ?~  pier
-      ~
-    :^  ~  ~  %noun  !>
-    (peek:(pe who) t.t.t.path)
-  ==
 ::
 ::  Trivial scry for mock
 ::
