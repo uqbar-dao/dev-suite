@@ -10,5 +10,8 @@
 ;<  ~  bind:m  (wait-for-output ~dev "5")
 ;<  ~  bind:m  (dojo ~dev ".^(@tas %gx /=sequencer=/status/noun)")
 ;<  ~  bind:m  (wait-for-output ~dev "%off")
+::  THIS WORKS!!!
+::  ;<  ~  bind:m  (dojo ~dev ":sequencer +dbug")
+::  ;<  ~  bind:m  (wait-for-output ~dev "asdf")
 ;<  ~  bind:m  end
 (pure:m *vase)
