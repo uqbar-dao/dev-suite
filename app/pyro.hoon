@@ -2,8 +2,8 @@
 ::
 ::  usage:
 ::  |start %pyro
-::  :pyro +solid
-::  :pyro [%swap-files %zig]
+::  :pyro +solid %base %zig
+::  swap files is NOT working
 ::  :pyro &aqua-events [%init-ship ~dev %.y]~
 ::
 ::  Then try stuff:
