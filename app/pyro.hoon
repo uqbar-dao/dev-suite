@@ -1,10 +1,11 @@
 ::  An ~~inferno~~ of virtual ships.  Put in some fish and watch them!
 ::
 ::  usage:
-::  |start %pyro
+::  |start %zig %pyro
 ::  :pyro +solid %base %zig
 ::  swap files is NOT working
 ::  :pyro &aqua-events [%init-ship ~dev %.y]~
+::  :pyro &action [%dojo ~dev "(add 2 2)"]
 ::
 ::  Then try stuff:
 ::  XX :aqua [%init ~[~bud ~dev]]
@@ -18,7 +19,7 @@
 ::
 ::  We get ++unix-event and ++pill from /-aquarium
 ::
-/-  *aquarium, *pyro
+/-  *pyro
 /+  pill, default-agent, naive, dbug, verb
 =,  pill-lib=pill
 =>  $~  |%
@@ -30,7 +31,7 @@
           pil=$>(%pill pill)  ::  the boot sequence a new fakeship will use
           assembled=*
           tym=@da  ::  a fake time, starting at *@da and manually ticked up
-          fresh-piers=(map [=ship fake=?] [=pier boths=(list unix-both)])
+          fresh-piers=(map =ship [=pier boths=(list unix-both)])
           fleet-snaps=(map term fleet)
           piers=fleet
       ==
@@ -84,7 +85,6 @@
         %pill         (poke-pill:ac !<(pill vase))
         %noun         (poke-noun:ac !<(* vase))
         %action       (handle-action !<(pyro-action vase))
-        ::  %azimuth-action
       ==
     [cards this]
     ::
@@ -171,17 +171,15 @@
   ::  store post-pill ship for later re-use
   ::
   ++  ahoy
-    |=  fake=?
-    =?  fresh-piers  !(~(has by fresh-piers) [who fake])
-      %+  ~(put by fresh-piers)  [who fake]
+    =?  fresh-piers  !(~(has by fresh-piers) who)
+      %+  ~(put by fresh-piers)  who
       [pier-data (~(get ja unix-boths) who)]
     ..ahoy
   ::
   ::  restore post-pill ship for re-use
   ::
   ++  yaho
-    |=  fake=?
-    =/  fresh  (~(got by fresh-piers) [who fake])
+    =/  fresh  (~(got by fresh-piers) who)
     =.  pier-data  pier.fresh
     =.  boths.fresh  (flop boths.fresh)
     |-
@@ -517,12 +515,10 @@
   ?-  -.ae
   ::
       %init-ship
-    ?:  &(fake.ae (~(has by fresh-piers) [who fake]:ae))
+    ?:  (~(has by fresh-piers) who:ae)
       ~&  [%aqua %cached-init +.ae]
-      =.  this  abet-pe:(yaho fake):[ae (pe who.ae)]
-      ?:  fake.ae  (pe who.ae)
-      ::  %pyro only handles fake ships
-      !!
+      =.  this  abet-pe:yaho:[ae (pe who.ae)]
+      (pe who.ae)
     =.  this  abet-pe:(publish-effect:(pe who.ae) [/ %sleep ~])
     =/  initted
       =<  plow
@@ -547,9 +543,7 @@
         ::
         :_  ~
         :^  /d/term/1  %boot  &
-        ?:  fake.ae
-          [%fake who.ae]
-        !!  ::  %pyro only handles fakeships
+        [%fake who.ae]
         ::
         userspace-ova.pil  :: load os
         ::
@@ -559,14 +553,11 @@
             [/e/http-server/0v1n.2m9vh %live 8.080 `8.445]
             [/a/newt/0v1n.2m9vh %born ~]
             [/d/term/1 %hail ~]
-          ::
-            ?:  fake.ae  ~
-            =+  [%raw-poke %noun %refresh-rate ~s30]
-            [/g/aqua/reduce-refresh-rate %deal [. .]:who.ae %azimuth -]~
+            ~
         ==
       ==
     =.  this
-      abet-pe:(ahoy fake):[ae initted]
+      abet-pe:ahoy:[ae initted]
     (pe who.ae)
   ::
       %pause-events
