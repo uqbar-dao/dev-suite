@@ -2,7 +2,7 @@
 ::
 ::  usage:
 ::  |start %pyro
-::  :pyro &pill +solid
+::  :pyro +solid
 ::  :pyro [%swap-files %zig]
 ::  :pyro &aqua-events [%init-ship ~dev %.y]~
 ::
@@ -19,7 +19,7 @@
 ::  We get ++unix-event and ++pill from /-aquarium
 ::
 /-  *aquarium, *pyro
-/+  pill, default-agent, dbug, verb
+/+  pill, default-agent, naive, dbug, verb
 =,  pill-lib=pill
 =>  $~  |%
     +$  versioned-state
@@ -199,7 +199,6 @@
     |=  ues=(list unix-event)
     ^+  ..abet-pe
     =.  next-events  (~(gas to next-events) ues)
-    ~&  >>  "pushing-events"
     ..abet-pe
   ::
   ::  Send cards to host arvo
@@ -213,7 +212,6 @@
   ::
   ++  plow
     |-  ^+  ..abet-pe
-    ~&  >>  "plowing"
     ?:  =(~ next-events)
       ..abet-pe
     ?.  processing-events
@@ -434,7 +432,7 @@
     ^+  fil
     ?.  =(/app/azimuth/version-0/azimuth-snapshot path)  fil
     ?:  ?=(%| -.fil)  fil
-    !!  ::  &+azimuth-snapshot+[%0 [0x0 0] *^state:naive ~ ~]
+    &+azimuth-snapshot+[%0 [0x0 0] *^state:naive ~ ~]
   =.  this  apex-aqua  =<  abet-aqua
   =.  pil  p
   ~&  lent=(met 3 (jam boot-ova.pil))
