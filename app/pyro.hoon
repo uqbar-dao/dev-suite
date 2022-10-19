@@ -1,4 +1,4 @@
-::  An ~~inferno~~ of virtual ships.  Put in some fish and watch them!
+::  An ~~inferno~~ of virtual ships.  Put in some fish and watch them die!
 ::
 ::  usage:
 ::  |start %zig %pyro
@@ -39,7 +39,7 @@
     ::
     +$  pill  pill:pill-lib
     ::
-    +$  fleet  [ships=(map ship pier)]
+    +$  fleet  (map ship pier)
     +$  pier
       $:  snap=*
           event-log=(list unix-timed-event)
@@ -111,7 +111,7 @@
         [%event who.act ue]
       ::
           %remove-ship
-        =.  ships.piers  (~(del by ships.piers) who.act)
+        =.  piers  (~(del by piers) who.act)
         `state
       ==
     --
@@ -137,14 +137,14 @@
     ?+  path  ~
         [%x %fleet-snap @ ~]  ``noun+!>((~(has by fleet-snaps) i.t.t.path))
         [%x %fleets ~]        ``noun+!>((turn ~(tap by fleet-snaps) head))
-        [%x %ships ~]         ``noun+!>((turn ~(tap by ships.piers) head))
+        [%x %ships ~]         ``noun+!>((turn ~(tap by piers) head))
         [%x %pill ~]          ``pill+!>(pil)
         [%x %i @ @ @ @ @ *]
       ::   ship | scry path
       ::          care, ship, desk, time, path
       ::  scry into running virtual ships
       =/  who  (slav %p i.t.t.path)
-      =/  pier  (~(get by ships.piers) who)
+      =/  pier  (~(get by piers) who)
       ?~  pier
         ~
       :^  ~  ~  %noun  !>
@@ -170,7 +170,7 @@
 ::
 ++  pe
   |=  who=ship
-  =+  (~(gut by ships.piers) who *pier)
+  =+  (~(gut by piers) who *pier)
   =*  pier-data  -
   |%
   ::
@@ -178,7 +178,7 @@
   ::
   ++  abet-pe
     ^+  this
-    =.  ships.piers  (~(put by ships.piers) who pier-data)
+    =.  piers  (~(put by piers) who pier-data)
     this
   ::
   ::  Initialize new ship
@@ -414,7 +414,7 @@
 ++  plow-all
   |-  ^+  this
   =/  who
-    =/  pers  ~(tap by ships.piers)
+    =/  pers  ~(tap by piers)
     |-  ^-  (unit ship)
     ?~  pers
       ~
@@ -586,7 +586,7 @@
   ::
       %snap-ships
     =.  this
-      %+  turn-ships  (turn ~(tap by ships.piers) head)
+      %+  turn-ships  (turn ~(tap by piers) head)
       |=  [who=ship thus=_this]
       =.  this  thus
       (publish-effect:(pe who) [/ %kill ~])
@@ -596,7 +596,7 @@
       %+  murn  hers.ae
       |=  her=ship
       ^-  (unit (pair ship pier))
-      =+  per=(~(get by ships.piers) her)
+      =+  per=(~(get by piers) her)
       ?~  per
         ~
       `[her u.per]
@@ -606,14 +606,14 @@
   ::
       %restore-snap
     =.  this
-      %+  turn-ships  (turn ~(tap by ships.piers) head)
+      %+  turn-ships  (turn ~(tap by piers) head)
       |=  [who=ship thus=_this]
       =.  this  thus
       (publish-effect:(pe who) [/ %kill ~])
     =.  piers  (~(got by fleet-snaps) lab.ae)
     ::  =.  this   start-azimuth-timer
     =.  this
-      %+  turn-ships  (turn ~(tap by ships.piers) head)
+      %+  turn-ships  (turn ~(tap by piers) head)
       |=  [who=ship thus=_this]
       =.  this  thus
       (publish-effect:(pe who) [/ %restore ~])
