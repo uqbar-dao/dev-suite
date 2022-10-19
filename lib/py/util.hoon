@@ -68,6 +68,7 @@
       |=  =blit:dill
       ?.  ?=(%lin -.blit)
         |
+      ::  prints all ship output to the dojo ~&  >  (tufa p.blit) 
       !=(~ (find what p.blit))
   ==
 ::
