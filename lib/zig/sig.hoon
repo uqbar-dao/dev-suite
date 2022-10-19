@@ -1,7 +1,7 @@
 /-  *zig-sequencer
 |%
 ::
-::  ship signatures
+::  ship signing
 ::
 ++  jael-scry
   |*  [=mold our=ship desk=term now=time =path]
@@ -15,7 +15,7 @@
 ::
 ++  sign
   |=  [our=ship now=time hash=@]
-  ^-  signature
+  ^-  ship-sig
   =+  (jael-scry ,=life our %life now /(scot %p our))
   =+  (jael-scry ,=ring our %vein now /(scot %ud life))
   :+  `@ux`(sign:as:(nol:nu:crub:crypto ring) hash)
@@ -23,23 +23,23 @@
   life
 ::
 ++  validate
-  |=  [our=ship =signature hash=@ now=time]
+  |=  [our=ship =ship-sig hash=@ now=time]
   ^-  ?
-  =+  (jael-scry ,lyf=(unit @) our %lyfe now /(scot %p q.signature))
+  =+  (jael-scry ,lyf=(unit @) our %lyfe now /(scot %p q.ship-sig))
   ::  we do not have a public key from ship at this life
   ::
   ?~  lyf  %.y
-  ?.  =(u.lyf r.signature)  %.y
+  ?.  =(u.lyf r.ship-sig)  %.y
   =+  %:  jael-scry
         ,deed=[a=life b=pass c=(unit @ux)]
-        our  %deed  now  /(scot %p q.signature)/(scot %ud r.signature)
+        our  %deed  now  /(scot %p q.ship-sig)/(scot %ud r.ship-sig)
       ==
-  ::  if signature is from a past life, skip validation
+  ::  if ship-sig is from a past life, skip validation
   ::  XX: should be visualised on frontend, not great.
-  ?.  =(a.deed r.signature)  %.y
-  ::  verify signature from ship at life
+  ?.  =(a.deed r.ship-sig)  %.y
+  ::  verify ship-sig from ship at life
   ::
   =/  them
     (com:nu:crub:crypto b.deed)
-  =(`hash (sure:as.them p.signature))
+  =(`hash (sure:as.them p.ship-sig))
 --

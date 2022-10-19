@@ -1,9 +1,9 @@
 ::
 ::  Tests for lib/zig/mill.hoon
-::  Basic goal: construct a simple town / helix state
+::  Basic goal: construct a simple shard / helix state
 ::  and manipulate it with some calls to our zigs contract.
 ::  Mill should handle clearing a mempool populated by
-::  calls and return an updated town. The zigs contract
+::  calls and return an updated shard. The zigs contract
 ::  should manage transactions properly so this is testing
 ::  the arms of that contract as well.
 ::
@@ -28,7 +28,7 @@
 ::  constants / dummy info for mill
 ::
 ++  init-now  *@da
-++  town-id    0x0
+++  shard-id    0x0
 ++  set-fee    7
 ++  fake-sig   [0 0 0]
 ++  mil
@@ -57,7 +57,7 @@
     :*  0x1.1512.3341
         zigs-contract-id
         0x1512.3341
-        town-id
+        shard-id
         [%& `@`'zigs' %account [1.000.000 ~ `@ux`'zigs-metadata']]
     ==
   ++  beef-account
@@ -65,7 +65,7 @@
     :*  0x1.beef
         zigs-contract-id
         holder-1
-        town-id
+        shard-id
         [%& `@`'zigs' %account [300.000 ~ `@ux`'zigs-metadata']]
     ==
   ++  dead-account
@@ -73,7 +73,7 @@
     :*  0x1.dead
         zigs-contract-id
         0xdead
-        town-id
+        shard-id
         [%& `@`'zigs' %account [200.000 ~ `@ux`'zigs-metadata']]
     ==
   ++  cafe-account
@@ -81,7 +81,7 @@
     :*  0x1.cafe
         zigs-contract-id
         0xcafe
-        town-id
+        shard-id
         [%& `@`'zigs' %account [100.000 ~ `@ux`'zigs-metadata']]
     ==
   ++  wheat-grain
@@ -90,7 +90,7 @@
     :*  zigs-contract-id
         zigs-contract-id
         zigs-contract-id
-        town-id
+        shard-id
         [%| wheat(owns (silt ~[0x1.beef 0x1.dead 0x1.cafe]))]
     ==
   --
@@ -101,7 +101,7 @@
   :*  0xdada.dada  ::  id
       0xdada.dada  ::  lord
       0xdada.dada  ::  holder
-      town-id
+      shard-id
       [%| wheat]
   ==
 ::
@@ -110,7 +110,7 @@
   :*  0xffff.ffff  ::  id
       0xffff.ffff  ::  lord
       0xffff.ffff  ::  holder
-      town-id
+      shard-id
       [%| ~ ~]
   ==
 ::
@@ -120,7 +120,7 @@
   :*  0xeeee.eeee  ::  id
       0xeeee.eeee  ::  lord
       0xeeee.eeee  ::  holder
-      town-id
+      shard-id
       [%| wheat(owns (silt ~[0x9999]))]
   ==
 ::
@@ -129,7 +129,7 @@
   :*  0x9999
       0xeeee.eeee
       holder-1:zigs
-      town-id
+      shard-id
       [%& `@`'some-salt' %some-label ['some' 'random' 'data']]
   ==
 ::
@@ -164,9 +164,9 @@
   =/  yok=yolk
     [`[%random-command ~] ~ ~]
   =/  shel=shell
-    [0xbeef fake-sig ~ id:triv-wheat 1 333 town-id 0]
+    [0xbeef fake-sig ~ id:triv-wheat 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -191,9 +191,9 @@
   =/  yok=yolk
     [`[%random-command ~] ~ ~]
   =/  shel=shell
-    [[0xbeef 2 0x1.beef] fake-sig ~ id:triv-wheat 1 333 town-id 0]
+    [[0xbeef 2 0x1.beef] fake-sig ~ id:triv-wheat 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -218,9 +218,9 @@
   =/  yok=yolk
     [`[%random-command ~] ~ ~]
   =/  shel=shell
-    [[0xbeef 0 0x1.beef] fake-sig ~ id:triv-wheat 1 333 town-id 0]
+    [[0xbeef 0 0x1.beef] fake-sig ~ id:triv-wheat 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -245,9 +245,9 @@
   =/  yok=yolk
     [`[%random-command ~] ~ ~]
   =/  shel=shell
-    [[0xbeef 1 0x2.beef] fake-sig ~ id:triv-wheat 1 333 town-id 0]
+    [[0xbeef 1 0x2.beef] fake-sig ~ id:triv-wheat 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -272,9 +272,9 @@
   =/  yok=yolk
     [`[%random-command ~] ~ ~]
   =/  shel=shell
-    [[0xbeef 1 0x1.dead] fake-sig ~ id:triv-wheat 1 333 town-id 0]
+    [[0xbeef 1 0x1.dead] fake-sig ~ id:triv-wheat 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -300,9 +300,9 @@
     [`[%random-command ~] ~ ~]
   =/  hash=@ux  `@ux`(sham yok)
   =/  shel=shell
-    [caller-1 fake-sig ~ id:triv-wheat 1 300.001 town-id 0]
+    [caller-1 fake-sig ~ id:triv-wheat 1 300.001 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -328,9 +328,9 @@
     [`[%random-command ~] ~ ~]
   =/  hash=@ux  `@ux`(sham yok)
   =/  shel=shell
-    [caller-1 fake-sig ~ 0x27.3708.9341 1 333 town-id 0]
+    [caller-1 fake-sig ~ 0x27.3708.9341 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -356,9 +356,9 @@
     [`[%random-command ~] ~ ~]
   =/  hash=@ux  `@ux`(sham yok)
   =/  shel=shell
-    [caller-1 fake-sig ~ id:dead-account:zigs 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:dead-account:zigs 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -384,9 +384,9 @@
     [`[%random-command ~] ~ ~]
   =/  hash=@ux  `@ux`(sham yok)
   =/  shel=shell
-    [caller-1 fake-sig ~ id:empty-wheat 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:empty-wheat 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -413,9 +413,9 @@
       ~
     (silt ~[id:dummy-grain id:beef-account:zigs])
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -446,9 +446,9 @@
       (silt ~[id:dummy-grain id:beef-account:zigs])
     ~
   =/  shel=shell
-    [caller-2 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-2 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -476,9 +476,9 @@
   =/  yok=yolk
     [`[%random-command ~] ~ ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:triv-wheat 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:triv-wheat 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -509,9 +509,9 @@
       (silt ~[id:beef-account:zigs])
     (silt ~[id:dead-account:zigs])
   =/  shel=shell
-    [caller-1 fake-sig ~ zigs-contract-id 1 333 town-id 0]
+    [caller-1 fake-sig ~ zigs-contract-id 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -549,9 +549,9 @@
       (silt ~[id:beef-account:zigs])
     (silt ~[id:dead-account:zigs])
   =/  shel=shell
-    [caller-1 fake-sig ~ zigs-contract-id 1 100.000 town-id 0]
+    [caller-1 fake-sig ~ zigs-contract-id 1 100.000 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -584,9 +584,9 @@
   =/  yok=yolk
     [`[%change-nonexistent ~] ~ ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -614,9 +614,9 @@
   =/  yok=yolk
     [`[%change-type ~] ~ ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -638,9 +638,9 @@
   =/  yok=yolk
     [`[%change-id ~] (silt ~[id:dummy-grain]) ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -662,9 +662,9 @@
   =/  yok=yolk
     [`[%change-salt ~] (silt ~[id:dummy-grain]) ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -686,9 +686,9 @@
   =/  yok=yolk
     [`[%change-lord ~] (silt ~[id:dummy-grain]) ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -713,9 +713,9 @@
   =/  yok=yolk
     [`[%changed-issued-overlap ~] ~ ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -739,9 +739,9 @@
       (silt ~[id:beef-account:zigs])
     ~
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -765,9 +765,9 @@
   =/  yok=yolk
     [`[%issue-non-matching-id ~] ~ ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -789,9 +789,9 @@
   =/  yok=yolk
     [`[%issue-bad-rice-id ~] ~ ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -813,9 +813,9 @@
   =/  yok=yolk
     [`[%issue-bad-wheat-id ~] ~ ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -837,9 +837,9 @@
   =/  yok=yolk
     [`[%issue-without-provenance ~] ~ ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -861,9 +861,9 @@
   =/  yok=yolk
     [`[%issue-already-existing ~] (silt ~[id:beef-account:zigs]) ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -888,9 +888,9 @@
   =/  yok=yolk
     [`[%burn-nonexistent ~] ~ ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -912,9 +912,9 @@
   =/  yok=yolk
     [`[%burn-non-matching-id ~] (silt ~[id:dummy-grain]) ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -936,9 +936,9 @@
   =/  yok=yolk
     [`[%burn-changed-overlap ~] (silt ~[id:dummy-grain]) ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -963,9 +963,9 @@
   =/  yok=yolk
     [`[%burn-issued-overlap ~] ~ ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -987,9 +987,9 @@
   =/  yok=yolk
     [`[%burn-without-provenance ~] (silt ~[id:beef-account:zigs]) ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -1011,9 +1011,9 @@
   =/  yok=yolk
     [`[%burn-change-lord ~] (silt ~[id:dummy-grain]) ~]
   =/  shel=shell
-    [caller-1 fake-sig ~ id:mill-tester 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:mill-tester 1 333 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id init-now)
+    %+  ~(mill mil miller shard-id init-now)
     fake-land  [shel yok]
   ::
   ;:  weld
@@ -1040,9 +1040,9 @@
     [`[%random-command ~] ~ ~]
   =/  hash=@ux  `@ux`(sham yok)
   =/  shel=shell
-    [caller-1 fake-sig ~ id:triv-wheat 1 300.001 town-id 0]
+    [caller-1 fake-sig ~ id:triv-wheat 1 300.001 shard-id 0]
   =/  [res=state-transition rej=carton]
-    %^  ~(mill-all mil miller town-id init-now)
+    %^  ~(mill-all mil miller shard-id init-now)
     fake-land  (silt ~[[hash [shel yok]]])  1.024
   ;:  weld
   ::  assert that our call failed with correct errorcode
@@ -1060,9 +1060,9 @@
     [`[%random-command ~] ~ ~]
   =/  hash=@ux  `@ux`(sham yok)
   =/  shel=shell
-    [caller-1 fake-sig ~ id:triv-wheat 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:triv-wheat 1 333 shard-id 0]
   =/  [res=state-transition rej=carton]
-    %^  ~(mill-all mil miller town-id init-now)
+    %^  ~(mill-all mil miller shard-id init-now)
     fake-land  (silt ~[[hash [shel yok]]])  1.024
   ;:  weld
   ::  assert that our call went through
@@ -1088,7 +1088,7 @@
     [`[%random-command ~] ~ ~]
   =/  hash=@ux  `@ux`(sham yok)
   =/  shel=shell
-    [caller-1 fake-sig ~ id:triv-wheat 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:triv-wheat 1 333 shard-id 0]
   =/  bask=basket
     %-  silt
     %+  turn  (gulf 1 20)
@@ -1097,7 +1097,7 @@
     :_  yok
     shel(rate (sub 21 n), from [id:caller-1 n zigs:caller-1])
   =/  [res=state-transition rej=carton]
-    %^  ~(mill-all mil miller town-id init-now)
+    %^  ~(mill-all mil miller shard-id init-now)
     fake-land  bask  1.024
   =/  expected-cost
     ::  rates 20-1 all * 7
@@ -1128,7 +1128,7 @@
     [`[%random-command ~] ~ ~]
   =/  hash=@ux  `@ux`(sham yok)
   =/  shel=shell
-    [caller-1 fake-sig ~ id:triv-wheat 1 2.000 town-id 0]
+    [caller-1 fake-sig ~ id:triv-wheat 1 2.000 shard-id 0]
   =/  bask=basket
     %-  silt
     %+  turn  (gulf 1 100)
@@ -1137,7 +1137,7 @@
     :_  yok
     shel(rate (sub 101 n), from [id:caller-1 n zigs:caller-1])
   =/  [res=state-transition rej=carton]
-    %^  ~(mill-all mil miller town-id init-now)
+    %^  ~(mill-all mil miller shard-id init-now)
     fake-land  bask  1.024
   =/  expected-cost
     ::  rates 20-1 all * 7
@@ -1168,15 +1168,15 @@
     [`[%random-command ~] ~ ~]
   =/  hash-1=@ux  `@ux`(sham yok-1)
   =/  shel-1=shell
-    [caller-1 fake-sig ~ id:triv-wheat 1 333 town-id 0]
+    [caller-1 fake-sig ~ id:triv-wheat 1 333 shard-id 0]
   =/  yok-2=yolk
     [`[%random-command ~] ~ ~]
   =/  hash-2=@ux  `@ux`(sham yok-2)
   =/  shel-2=shell
-    [caller-2 fake-sig ~ id:triv-wheat 1 333 town-id 0]
+    [caller-2 fake-sig ~ id:triv-wheat 1 333 shard-id 0]
   ::
   =/  [res=state-transition rej=carton]
-    %^    ~(mill-all mil miller town-id init-now)
+    %^    ~(mill-all mil miller shard-id init-now)
         fake-land
       (silt ~[[hash-1 [shel-1 yok-1]] [hash-2 [shel-2 yok-2]]])
     1  ::  two calls must occur in parallel to work

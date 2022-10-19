@@ -1,4 +1,4 @@
 :-  %say
 |=  [[now=@da eny=@uvJ bek=beak] ~ ~]
-:-  %sequencer-town-action
+:-  %sequencer-shard-action
 [%trigger-batch ~]

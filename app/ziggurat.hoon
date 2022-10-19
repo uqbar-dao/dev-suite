@@ -347,7 +347,7 @@
             status=0
         ==
       =/  =single-result:engine
-        %+  %~  execute-single  eng
+        %+  %~  run-single  eng
             [caller designated-shard-id batch-num.project 0]
           chain.project
         [[0 0 0] action.test shell]
@@ -421,7 +421,7 @@
         :-  `@ux`(sham shell action.test)
         [[0 0 0] action.test shell]
       =/  [res=state-transition:engine *]
-        %^    %~  execute  eng
+        %^    %~  run  eng
               [(designated-caller user-address.project 0) designated-shard-id batch-num.project 0]
             chain.project
           (silt eggs)
@@ -462,7 +462,7 @@
     ::
         %deploy-contract
       ::  this will call %wallet agent with a custom constructed %publish call
-      ::  will fail if chosen testnet+town combo doesn't exist or doesn't have
+      ::  will fail if chosen testnet+shard combo doesn't exist or doesn't have
       ::  the publish.hoon contract deployed.
       ::
       =/  =project  (~(got by projects) project.act)
@@ -471,7 +471,7 @@
       ~&  >  "%ziggurat: deploying contract to {<deploy-location.act>} testnet"
       =/  pok
         :*  %transaction  from=address.act
-            contract=0x1111.1111  town=shard-id.act
+            contract=0x1111.1111  shard=shard-id.act
             action=[%noun [%deploy upgradable.act .^(noun %ct path.act) ~ ~]]
         ==
       :_  state

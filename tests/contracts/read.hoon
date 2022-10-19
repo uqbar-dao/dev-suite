@@ -13,7 +13,7 @@
 ::
 ++  big  (bi:merk id:smart item:smart)  ::  merkle engine for granary
 ++  pig  (bi:merk id:smart @ud)          ::                for populace
-++  town-id   0x0
+++  shard-id   0x0
 ++  fake-sig  [0 0 0]
 ++  mil
   %~  mill  mill
@@ -39,10 +39,10 @@
         `@`'zigs'
         %account
         [300.000.000 ~ `@ux`'zigs-metadata']
-        (fry-data:smart zigs-contract-id:smart pubkey-1 town-id `@`'zigs')
+        (fry-data:smart zigs-contract-id:smart pubkey-1 shard-id `@`'zigs')
         zigs-contract-id:smart
         pubkey-1
-        town-id
+        shard-id
     ==
   --
 ::
@@ -54,7 +54,7 @@
       0x5678  ::  id
       0x5678  ::  lord
       0x5678  ::  holder
-      town-id  ::  town-id
+      shard-id  ::  shard-id
   ==
 ::
 ++  read-source-wheat
@@ -65,7 +65,7 @@
       0x1234  ::  id
       0x1234  ::  lord
       0x1234  ::  holder
-      town-id   ::  town-id
+      shard-id   ::  shard-id
   ==
 ::
 ++  fake-granary
@@ -88,9 +88,9 @@
 ++  test-read
   =/  =calldata:smart  [%whatever ~]
   =/  shel=shell:smart
-    [caller-1 ~ id:read-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id:read-wheat 1 1.000.000 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id 1)
+    %+  ~(mill mil miller shard-id 1)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
   ::

@@ -2,7 +2,7 @@
 ::
 ::  Smart contract that processes deployment and upgrades
 ::  for other smart contracts. Automatically (?) inserted
-::  on any town that wishes to allow contract production.
+::  on any shard that wishes to allow contract production.
 ::
 ::  /+  *zig-sys-smart
 /=  pub  /con/lib/publish
@@ -18,10 +18,10 @@
           `cont.act
           interface.act
           types.act
-          (fry-wheat lord id.from.cart town-id.cart `cont.act)
+          (fry-wheat lord id.from.cart shard-id.cart `cont.act)
           lord
           id.from.cart
-          town-id.cart
+          shard-id.cart
       ==
     (result ~ [contract ~] ~ ~)
   ::

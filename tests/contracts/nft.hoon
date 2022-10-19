@@ -12,7 +12,7 @@
 ::
 ++  big  (bi:merk id:smart item:smart)  ::  merkle engine for granary
 ++  pig  (bi:merk id:smart @ud)          ::                for populace
-++  town-id   0x0
+++  shard-id   0x0
 ++  fake-sig  [0 0 0]
 ++  mil
   %~  mill  mill
@@ -38,10 +38,10 @@
         `@`'zigs'
         %account
         [300.000.000 ~ `@ux`'zigs-metadata']
-        (fry-data:smart zigs-contract-id:smart pubkey-1 town-id `@`'zigs')
+        (fry-data:smart zigs-contract-id:smart pubkey-1 shard-id `@`'zigs')
         zigs-contract-id:smart
         pubkey-1
-        town-id
+        shard-id
     ==
   --
 ::
@@ -62,9 +62,9 @@
       id=`@ux`'nft-metadata'
       lord=0xcafe.babe
       holder=0xcafe.babe
-      town-id
+      shard-id
   ==
-++  nft-1  (fry-data:smart 0xcafe.babe pubkey-1 town-id `@`'nftsalt1')
+++  nft-1  (fry-data:smart 0xcafe.babe pubkey-1 shard-id `@`'nftsalt1')
 ++  nft-rice
   ^-  data:smart
   :*  salt=`@`'nftsalt1'
@@ -80,7 +80,7 @@
       nft-1
       0xcafe.babe
       pubkey-1
-      town-id
+      shard-id
   ==
 ++  nft-wheat
   ^-  pact:smart
@@ -90,7 +90,7 @@
       0xcafe.babe  ::  id
       0xcafe.babe  ::  lord
       0xcafe.babe  ::  holder
-      town-id      ::  town-id
+      shard-id      ::  shard-id
   ==
 ::
 ++  fake-granary
@@ -114,9 +114,9 @@
 ++  test-mill-nft-give
   =/  =calldata:smart  [%give 0xffff.ffff.ffff.ffff id:nft-rice]
   =/  shel=shell:smart
-    [caller-1 ~ id:nft-wheat 1 1.000.000 town-id 0]
+    [caller-1 ~ id:nft-wheat 1 1.000.000 shard-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller town-id 1)
+    %+  ~(mill mil miller shard-id 1)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
   ::

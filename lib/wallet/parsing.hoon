@@ -1,4 +1,4 @@
-/-  *wallet, indexer
+/-  *zig-wallet, ui=zig-indexer
 /+  *wallet-util
 =,  enjs:format
 |%
@@ -8,7 +8,7 @@
   :-  (scot %ux id)
   %-  pairs
   :~  ['id' [%s (scot %ux id)]]
-      ['town' [%s (scot %ux town-id.asset)]]
+      ['shard' [%s (scot %ux shard.asset)]]
       ['contract' [%s (scot %ux contract.asset)]]
       ['token_type' [%s (scot %tas -.asset)]]
       :-  'data'
@@ -39,7 +39,7 @@
   :-  (scot %ux id)
   %-  pairs
   :~  ['id' [%s (scot %ux id)]]
-      ['town' [%s (scot %ux town-id.m)]]
+      ['shard' [%s (scot %ux shard.m)]]
       ['token_type' [%s (scot %tas -.m)]]
       :-  'data'
       %-  pairs
@@ -86,13 +86,13 @@
   ^-  [p=@t q=json]
   :-  (scot %ux hash)
   %-  pairs
-  :~  ['from' [%s (scot %ux id.from.shell.t)]]
-      ['nonce' (numb nonce.from.shell.t)]
-      ['contract' [%s (scot %ux contract.shell.t)]]
-      ['rate' (numb rate.shell.t)]
-      ['budget' (numb budget.shell.t)]
-      ['town' [%s (scot %ux town-id.shell.t)]]
-      ['status' (numb status.shell.t)]
+  :~  ['from' [%s (scot %ux address.caller.t)]]
+      ['nonce' (numb nonce.caller.t)]
+      ['contract' [%s (scot %ux contract.t)]]
+      ['rate' (numb rate.gas.t)]
+      ['budget' (numb bud.gas.t)]
+      ['shard' [%s (scot %ux shard.t)]]
+      ['status' (numb status.t)]
       :-  'action'
       %-  frond
       :-  (scot %tas -.action)
@@ -101,12 +101,12 @@
           %give
         :~  ['to' [%s (scot %ux to.action)]]
             ['amount' (numb amount.action)]
-            ['grain' [%s (scot %ux grain.action)]]
+            ['item' [%s (scot %ux item.action)]]
         ==
       ::
           %give-nft
         :~  ['to' [%s (scot %ux to.action)]]
-            ['grain' [%s (scot %ux grain.action)]]
+            ['item' [%s (scot %ux item.action)]]
         ==
       ::
           %text

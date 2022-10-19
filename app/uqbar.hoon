@@ -1,6 +1,6 @@
 ::  uqbar [UQ| DAO]
 ::
-::  The "vane" for interacting with UQ|. Provides read/write layer for userspace agents.
+::  The agent for interacting with Uqbar. Provides read/write layer for userspace agents.
 ::
 /-  spider,
     ui=indexer,
@@ -23,9 +23,9 @@
       ping-time-fast-delay=@dr
       ping-timeout=@dr
       pings-timedout=(unit @da)
-      indexer-sources=(jug id:smart dock)  ::  set of indexers for each town
+      indexer-sources=(jug id:smart dock)  ::  set of indexers for each shard
       =indexer-sources-ping-results:u
-      sequencers=(map id:smart sequencer:s)  ::  single sequencer for each town
+      sequencers=(map id:smart sequencer:s)  ::  single sequencer for each shard
       wallet-source=@tas
   ==
 --
@@ -82,10 +82,10 @@
     ::
         %indexer
       ::  must be of the form, e.g.,
-      ::   /indexer/[requesting-app-name]/grain/[town-id]/[grain-id]
+      ::   /indexer/[requesting-app-name]/grain/[shard-id]/[grain-id]
       ?.  ?=([%indexer @ @ ^] path)  ~
-      =/  town-id=id:smart  (slav %ux i.t.t.t.path)
-      (watch-indexer town-id /[i.path]/[i.t.path] t.t.path)
+      =/  shard-id=id:smart  (slav %ux i.t.t.t.path)
+      (watch-indexer shard-id /[i.path]/[i.t.path] t.t.path)
     ==
     ::
     ++  watch-wallet
@@ -96,12 +96,12 @@
       wallet-source  sub-path
     ::
     ++  watch-indexer  ::  TODO: use fallback better?
-      |=  [town-id=id:smart wire-prefix=wire sub-path=^path]
+      |=  [shard-id=id:smart wire-prefix=wire sub-path=^path]
       ^-  (list card)
-      ?~  source=(get-best-source:uc town-id ~ %nu)
+      ?~  source=(get-best-source:uc shard-id ~ %nu)
         ~&  >>>  "%uqbar: subscription failed:"
-        ~&  >>>  " do not have indexer source for town {<town-id>}."
-        ~&  >>>  " Add indexer source for town and try again."
+        ~&  >>>  " do not have indexer source for shard {<shard-id>}."
+        ~&  >>>  " Add indexer source for shard and try again."
         ~
       =/  disambiguator=@ta  (scot %ux (cut 5 [0 1] eny.bowl))
       :_  ~
@@ -163,7 +163,7 @@
             [%uqbar-action !>(`action:u`[%ping ~])]
         %=  state
             indexer-sources
-          (~(put ju indexer-sources) town-id.act source.act)
+          (~(put ju indexer-sources) shard-id.act source.act)
         ==
       ::
           %remove-source
@@ -173,12 +173,12 @@
         %=  state
             indexer-sources-ping-results
           %^    remove-from-ping-results
-              town-id.act
+              shard-id.act
             source.act
           indexer-sources-ping-results
         ::
             indexer-sources
-          (~(del ju indexer-sources) town-id.act source.act)
+          (~(del ju indexer-sources) shard-id.act source.act)
         ==
       ::
           %set-sources
@@ -186,44 +186,44 @@
           /capitol-updates/[(scot %ux (cut 5 [0 1] eny.bowl))]
         :-  :-  %-  ~(poke-self pass:io /ping-action-poke)
                 [%uqbar-action !>(`action:u`[%ping ~])]
-            %+  murn  towns.act
-            |=  [town=id:smart indexers=(set dock)]
+            %+  murn  shards.act
+            |=  [shard=id:smart indexers=(set dock)]
             ?~  indexers  ~
             `(~(watch pass:io p) -.indexers p)  ::  TODO: do better here
         %=  state
             indexer-sources-ping-results
-          (set-sources-remove-from-ping-results towns.act)
+          (set-sources-remove-from-ping-results shards.act)
         ::
             indexer-sources
-          (~(gas by *(map id:smart (set dock))) towns.act)
+          (~(gas by *(map id:smart (set dock))) shards.act)
         ==
       ==
       ::
       ++  remove-from-ping-results
-        |=  $:  town-id=id:smart
+        |=  $:  shard-id=id:smart
                 source=dock
                 =indexer-sources-ping-results:u
             ==
         ^-  indexer-sources-ping-results:u
         =/  old
           %+  ~(gut by indexer-sources-ping-results)
-          town-id  [~ ~ ~ ~]
+          shard-id  [~ ~ ~ ~]
         ?:  ?=([~ ~ ~ ~] old)  indexer-sources-ping-results
         %+  ~(put by indexer-sources-ping-results)
-          town-id
+          shard-id
         :^    (~(del in previous-up.old) source)
             (~(del in previous-down.old) source)
           (~(del in newest-up.old) source)
         (~(del in newest-down.old) source)
       ::
       ++  set-sources-remove-from-ping-results
-        |=  towns=(list [town-id=id:smart (set dock)])
+        |=  shards=(list [shard-id=id:smart (set dock)])
         ^-  indexer-sources-ping-results:u
-        ?~  towns  indexer-sources-ping-results
-        =*  town-id  town-id.i.towns
-        =/  docks=(list dock)  ~(tap in +.i.towns)
+        ?~  shards  indexer-sources-ping-results
+        =*  shard-id  shard-id.i.shards
+        =/  docks=(list dock)  ~(tap in +.i.shards)
         %=  $
-            towns  t.towns
+            shards  t.shards
             indexer-sources-ping-results
           |-
           ?~  docks  indexer-sources-ping-results
@@ -231,7 +231,7 @@
               docks  t.docks
               indexer-sources-ping-results
             %^    remove-from-ping-results
-                town-id
+                shard-id
               i.docks
             indexer-sources-ping-results
           ==
@@ -258,15 +258,15 @@
       ::
           %submit
         ?>  =(src.bowl our.bowl)
-        =/  town-id  `@ux`town-id.shell.egg.write
-        ?~  seq=(~(get by sequencers.state) town-id)
-          ~|("%uqbar: no known sequencer for that town" !!)
+        =/  shard-id  `@ux`shard-id.shell.egg.write
+        ?~  seq=(~(get by sequencers.state) shard-id)
+          ~|("%uqbar: no known sequencer for that shard" !!)
         =/  egg-hash  (scot %ux `@ux`(sham [shell yolk]:egg.write))
         :_  state
         :+  %+  ~(poke pass:io /submit-transaction/egg-hash)
               [q.u.seq %sequencer]
-            :-  %sequencer-town-action
-            !>(`town-action:s`[%receive (silt ~[egg.write])])
+            :-  %sequencer-shard-action
+            !>(`shard-action:s`[%receive (silt ~[egg.write])])
           %+  fact:io
             [%write-result !>(`write-result:u`[%sent ~])]
           ~[/track/[egg-hash]]
@@ -335,13 +335,13 @@
         ::
             %thread-done
           ?:  =(*vase q.cage.sign)  `this  ::  thread canceled
-          =*  town-id  p.u.source
+          =*  shard-id  p.u.source
           =*  d        q.u.source
           =/  is-last-ping-tid=?  =(0 ~(wyt by ping-tids))
           =.  indexer-sources-ping-results
-            %+  ~(put by indexer-sources-ping-results)  town-id
+            %+  ~(put by indexer-sources-ping-results)  shard-id
             =/  [pu=(set dock) pd=(set dock) nu=(set dock) nd=(set dock)]
-              %+  ~(gut by indexer-sources-ping-results)  town-id
+              %+  ~(gut by indexer-sources-ping-results)  shard-id
               [~ ~ ~ ~]
             =:  nu  ?:(!<(? q.cage.sign) (~(put in nu) d) nu)
                 nd  ?:(!<(? q.cage.sign) nd (~(put in nd) d))
@@ -400,7 +400,7 @@
           max-ping-time
         =.  indexer-sources-ping-results
           %-  ~(urn by indexer-sources-ping-results)
-          |=  $:  town-id=id:smart
+          |=  $:  shard-id=id:smart
                   previous-up=(set dock)
                   previous-down=(set dock)
                   newest-up=(set dock)
@@ -418,29 +418,29 @@
         =/  until=@da  (slav %da i.t.wire)
         ?:  (gth until now.bowl)  `this
         =.  indexer-sources-ping-results
-          =/  ping-tids-list=(list [@ta town-id=id:smart d=dock])
+          =/  ping-tids-list=(list [@ta shard-id=id:smart d=dock])
             ~(tap by ping-tids)
           |-
           ?~  ping-tids-list
             %-  ~(gas by *_indexer-sources-ping-results)
             %+  turn  ~(tap by indexer-sources-ping-results)
-            |=  $:  town-id=id:smart
+            |=  $:  shard-id=id:smart
                     (set dock)
                     (set dock)
                     newest-up=(set dock)
                     newest-down=(set dock)
                 ==
-            [town-id newest-up newest-down ~ ~]
-          =*  town-id  town-id.i.ping-tids-list
+            [shard-id newest-up newest-down ~ ~]
+          =*  shard-id  shard-id.i.ping-tids-list
           =*  d        d.i.ping-tids-list
           %=  $
               ping-tids-list  t.ping-tids-list
               indexer-sources-ping-results
             =/  [pu=(set dock) pd=(set dock) nu=(set dock) nd=(set dock)]
               %+  ~(gut by indexer-sources-ping-results)
-              town-id  [~ ~ ~ ~]
+              shard-id  [~ ~ ~ ~]
             %+  ~(put by indexer-sources-ping-results)
-            town-id  [pu pd nu (~(put in nd) d)]
+            shard-id  [pu pd nu (~(put in nd) d)]
           ==
         :-  %-  zing
             :-  move-downed-subscriptions
@@ -462,7 +462,7 @@
       ^-  (list card)
       %-  zing
       %+  turn  ~(tap by indexer-sources-ping-results)
-      |=  $:  town-id=id:smart
+      |=  $:  shard-id=id:smart
               previous-up=(set dock)
               previous-down=(set dock)
               newest-up=(set dock)
@@ -472,7 +472,7 @@
       |=  [[[w=^wire s=ship t=term] a=? p=path] out=(list card)]
       ?.  (~(has in previous-down) [s t])
         out
-      ?~  source=(get-best-source:uc town-id ~ %nu)  out
+      ?~  source=(get-best-source:uc shard-id ~ %nu)  out
       :+  (~(leave pass:io w) [s t])
         %+  ~(watch pass:io w)  p.u.source
         ?.(?=(%history (rear p)) p (snip p))
@@ -485,9 +485,9 @@
       =/  all-indexer-sources=(list (pair id:smart dock))
         %-  zing
         %+  turn  ~(tap by indexer-sources)
-        |=  [town-id=id:smart docks=(set dock)]
+        |=  [shard-id=id:smart docks=(set dock)]
         %+  turn  ~(tap in docks)
-        |=(d=dock [town-id d])
+        |=(d=dock [shard-id d])
       |-
       ?~  all-indexer-sources
         =.  pings-timedout  `(add now.bowl ping-timeout)
@@ -497,14 +497,14 @@
             %~  wait  pass:io
             /ping-timeout/(scot %da u.pings-timedout)
         cards
-      =*  town-id  p.i.all-indexer-sources
+      =*  shard-id  p.i.all-indexer-sources
       =*  d        q.i.all-indexer-sources
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
             (scot %uw (sham eny.bowl))
             '-'
-            (scot %ux town-id)
+            (scot %ux shard-id)
             '-'
             (scot %p p.d)
         ==
@@ -567,7 +567,7 @@
     ::
         %indexer
       ::  must be of the form, e.g.,
-      ::   /indexer/[requesting-app-name]/grain/[town-id]/[grain-id]
+      ::   /indexer/[requesting-app-name]/grain/[shard-id]/[grain-id]
       ?.  ?=([%indexer @ @ @ @ ~] path)  ~
       leave-indexer
     ==
@@ -627,7 +627,7 @@
   `[[s.wex t.wex] p.wex]
 ::
 ++  get-best-source
-  |=  [town-id=id:smart seen=(list @ud) level=?(%nu %nd %pu %pd %~)]
+  |=  [shard-id=id:smart seen=(list @ud) level=?(%nu %nd %pu %pd %~)]
   ^-  (unit [p=dock q=(list @ud) r=?(%nu %nd %pu %pd %~)])
   ::  TODO:
   ::   temporary hack to reduce fragility, since the
@@ -648,32 +648,32 @@
   :: ::
   :: ++  get-best-source-inner
   ::   ^-  (unit [p=(unit dock) q=(list @ud) r=?(%nu %nd %pu %pd %~)])
-  ::   =+  town-spr=(~(get by indexer-sources-ping-results) town-id)
-  ::   =+  town-s=(~(get ju indexer-sources) town-id)
-  ::   ?~  town-spr
-  ::     =/  size-town-s=@ud  ~(wyt in town-s)
-  ::     ?:  =(0 size-town-s)  ~
+  ::   =+  shard-spr=(~(get by indexer-sources-ping-results) shard-id)
+  ::   =+  shard-s=(~(get ju indexer-sources) shard-id)
+  ::   ?~  shard-spr
+  ::     =/  size-shard-s=@ud  ~(wyt in shard-s)
+  ::     ?:  =(0 size-shard-s)  ~
   ::     =^  index  seen
-  ::       (roll-without-replacement size-town-s seen)
-  ::     `[`(snag index ~(tap in town-s)) seen %~]
-  ::   =/  [level-town-spr=(set dock) next-level=?(%nu %nd %pu %pd %~)]
-  ::     =*  newest-up    newest-up.u.town-spr
-  ::     =*  newest-down  newest-down.u.town-spr
+  ::       (roll-without-replacement size-shard-s seen)
+  ::     `[`(snag index ~(tap in shard-s)) seen %~]
+  ::   =/  [level-shard-spr=(set dock) next-level=?(%nu %nd %pu %pd %~)]
+  ::     =*  newest-up    newest-up.u.shard-spr
+  ::     =*  newest-down  newest-down.u.shard-spr
   ::     =/  newest-seen-so-far=(set dock)
   ::       (~(uni in newest-up) newest-down)
   ::     ?+    level  !!  ::  TODO: handle better?
   ::         %nu
   ::       :-  newest-up
   ::       ?:  (gth ~(wyt in newest-up) (lent seen))  level
-  ::       ?:(=(town-s newest-seen-so-far) %nd %pu)
+  ::       ?:(=(shard-s newest-seen-so-far) %nd %pu)
   ::     ::
   ::         %pu
-  ::       =*  previous-up  previous-up.u.town-spr
+  ::       =*  previous-up  previous-up.u.shard-spr
   ::       :-  (~(dif in previous-up) newest-seen-so-far)
   ::       ?:((gth ~(wyt in previous-up) (lent seen)) level %pd)
   ::     ::
   ::         %pd
-  ::       =*  previous-down  previous-down.u.town-spr
+  ::       =*  previous-down  previous-down.u.shard-spr
   ::       :-  (~(dif in previous-down) newest-seen-so-far)
   ::       ?:((gth ~(wyt in previous-down) (lent seen)) level %nd)
   ::     ::
@@ -681,11 +681,11 @@
   ::       :-  newest-down
   ::       ?:((gth ~(wyt in newest-down) (lent seen)) level %~)
   ::     ==
-  ::   =/  size-level-town-spr=@ud  ~(wyt in level-town-spr)
-  ::   ?:  =(0 size-level-town-spr)  `[~ seen next-level]
+  ::   =/  size-level-shard-spr=@ud  ~(wyt in level-shard-spr)
+  ::   ?:  =(0 size-level-shard-spr)  `[~ seen next-level]
   ::   =^  index  seen
-  ::     (roll-without-replacement size-level-town-spr seen)
-  ::   :^  ~  `(snag index ~(tap in level-town-spr))
+  ::     (roll-without-replacement size-level-shard-spr seen)
+  ::   :^  ~  `(snag index ~(tap in level-shard-spr))
   ::   ?.(=(level next-level) ~ seen)  next-level
   :: --
 --

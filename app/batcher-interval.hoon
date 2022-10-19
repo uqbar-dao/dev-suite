@@ -1,4 +1,4 @@
-/-  sequencer
+/-  seq=zig-sequencer
 /+  default-agent, dbug, verb
 |%
 +$  card  card:agent:gall
@@ -46,16 +46,16 @@
   ?>  ?=([%batch-timer ~] wire)
   ?.  active  `this
   =/  wait  (add now.bowl interval)
-  =/  basket-size  .^(@ud %gx /(scot %p our.bowl)/sequencer/(scot %da now.bowl)/basket-size/noun)
-  ?:  =(0 basket-size)
+  =/  mempool-size  .^(@ud %gx /(scot %p our.bowl)/sequencer/(scot %da now.bowl)/mempool-size/noun)
+  ?:  =(0 mempool-size)
     ::  don't trigger if empty mempool
     :_  this
     [%pass /batch-timer %arvo %b %wait wait]~
-  ~&  >  "%batcher: triggering batch with current mempool size: {<basket-size>}"
+  ~&  >  "%batcher: triggering batch with current mempool size: {<mempool-size>}"
   :_  this
   :~  [%pass /batch-timer %arvo %b %wait wait]
       =-  [%pass /seq-poke %agent [our.bowl %sequencer] %poke -]
-      [%sequencer-town-action !>(`town-action:sequencer`[%trigger-batch ~])]
+      [%sequencer-shard-action !>(`shard-action:seq`[%trigger-batch ~])]
   ==
 ::
 ++  on-init   `this(state [%0 %.n ~m1])

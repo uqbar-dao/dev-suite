@@ -1,4 +1,4 @@
-/-  sequencer
+/-  seq=zig-sequencer
 /+  default-agent, dbug, verb
 |%
 +$  card  card:agent:gall
@@ -48,10 +48,10 @@
   ?.  active  `this
   =/  wait  (add now.bowl ~s30)
   ::  check basket-size
-  =/  basket-size  .^(@ud %gx /(scot %p our.bowl)/sequencer/(scot %da now.bowl)/basket-size/noun)
-  ~&  >  "%batcher: scanning mempool...   current size: {<basket-size>}"
+  =/  mempool-size  .^(@ud %gx /(scot %p our.bowl)/sequencer/(scot %da now.bowl)/mempool-size/noun)
+  ~&  >  "%batcher: scanning mempool...   current size: {<mempool-size>}"
   ::  compare to threshold
-  ?.  (gte basket-size threshold)
+  ?.  (gte mempool-size threshold)
     ::  keep waiting
     :_  this
     [%pass /batch-timer %arvo %b %wait wait]~
@@ -59,7 +59,7 @@
   :_  this
   :~  [%pass /batch-timer %arvo %b %wait wait]
       =-  [%pass /seq-poke %agent [our.bowl %sequencer] %poke -]
-      [%sequencer-town-action !>(`town-action:sequencer`[%trigger-batch ~])]
+      [%sequencer-shard-action !>(`shard-action:seq`[%trigger-batch ~])]
   ==
 ::
 ++  on-init   `this(state [%0 %.n 1])

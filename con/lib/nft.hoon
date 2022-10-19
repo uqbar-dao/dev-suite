@@ -166,11 +166,11 @@
     ::  unique salt for each item in collection
     =*  m  i.mints.act
     =/  salt    (cat 3 salt.meta (scot %ud next-item-id))
-    =/  new-id  (fry-rice me.cart to.m town-id.cart salt)
+    =/  new-id  (fry-rice me.cart to.m shard-id.cart salt)
     ::  properties must match those in metadata spec!
     ?>  =(properties.data.meta ~(key py properties.m))
     =/  data    [next-item-id uri.m id.meta ~ properties.m transferrable.m]
-    =/  =rice   [salt %nft data new-id me.cart to.m town-id.cart]
+    =/  =rice   [salt %nft data new-id me.cart to.m shard-id.cart]
     %=  $
       mints.act     t.mints.act
       next-item-id  +(next-item-id)
@@ -193,14 +193,14 @@
           id.from.cart
           salt.act
       ==
-    =/  =id    (fry-rice me.cart me.cart town-id.cart salt.act)
-    =/  =rice  [salt.act %metadata metadata id me.cart me.cart town-id.cart]
+    =/  =id    (fry-rice me.cart me.cart shard-id.cart salt.act)
+    =/  =rice  [salt.act %metadata metadata id me.cart me.cart shard-id.cart]
     ?~  initial-distribution.act
       (result ~ [[%& rice] ~] ~ ~)
     ::  perform optional mint
     =/  next  [%mint id initial-distribution.act]
     %+  continuation
-      [me.cart town-id.cart next]^~
+      [me.cart shard-id.cart next]^~
     (result ~ [[%& rice] ~] ~ ~)
   ::
   ::

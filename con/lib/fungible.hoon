@@ -130,9 +130,9 @@
     =.  balance.data.giver  (sub balance.data.giver amount.act)
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
+      =/  =id  (fry-rice me.cart to.act shard-id.cart salt.giver)
       =+  [amount.act ~ metadata.data.giver 0]
-      =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
+      =+  receiver=[salt.giver %account - id me.cart to.act shard-id.cart]
       (result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
     =+  (need (scry-granary u.to-account.act))
@@ -160,9 +160,9 @@
     ==
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (fry-rice me.cart to.act town-id.cart salt.giver)
+      =/  =id  (fry-rice me.cart to.act shard-id.cart salt.giver)
       =+  [amount.act ~ metadata.data.giver 0]
-      =+  receiver=[salt.giver %account - id me.cart to.act town-id.cart]
+      =+  receiver=[salt.giver %account - id me.cart to.act shard-id.cart]
       (result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
     =+  (need (scry-granary u.to-account.act))
@@ -186,7 +186,7 @@
     =/  giver=account:sur  data:(husk account:sur giv `me.cart ~)
     ::  reconstruct the typed message and hash
     =/  =typed-message
-      :-  (fry-rice me.cart holder.p.giv town-id.cart salt.p.giv)
+      :-  (fry-rice me.cart holder.p.giv shard-id.cart salt.p.giv)
       (sham [holder.p.giv to.act amount.act nonce.act deadline.act])
     =/  signed-hash  (sham typed-message)
     ::  recover the address from the message and signature
@@ -201,13 +201,13 @@
     ?>  (gte balance.giver amount.act)
     ?~  to-account.act
     ::  create new rice for reciever and add it to state
-      =+  (fry-rice to.act me.cart town-id.cart salt.p.giv)
+      =+  (fry-rice to.act me.cart shard-id.cart salt.p.giv)
       =/  new=grain
-        [%& salt.p.giv %account [amount.act ~ metadata.giver 0] - me.cart to.act town-id.cart]
+        [%& salt.p.giv %account [amount.act ~ metadata.giver 0] - me.cart to.act shard-id.cart]
       ::  continuation call: %take to rice found in book
       =/  =action:sur  [%take-with-sig to.act id.p.giv `id.p.new amount.act nonce.act deadline.act sig.act]
       %+  continuation
-        [me.cart town-id.cart action]~
+        [me.cart shard-id.cart action]~
       (result [new ~] ~ ~ ~)
     ::  direct send
     =/  rec=grain  (need (scry-granary u.to-account.act))
@@ -261,9 +261,9 @@
         (gte u.cap.data.meta new-supply)
     ?~  account.m
       ::  create new account for receiver
-      =/  =id  (fry-rice me.cart to.m town-id.cart salt.data.meta)
+      =/  =id  (fry-rice me.cart to.m shard-id.cart salt.data.meta)
       =+  [amount.m ~ token.act 0]
-      =+  receiver=[salt.data.meta %account - id me.cart to.m town-id.cart]
+      =+  receiver=[salt.data.meta %account - id me.cart to.m shard-id.cart]
       %=  $
         mints.act         t.mints.act
         supply.data.meta  new-supply
@@ -294,7 +294,7 @@
           salt.act
       ==
     =/  metadata-id
-      (fry-rice me.cart me.cart town-id.cart salt.act)
+      (fry-rice me.cart me.cart shard-id.cart salt.act)
     ::  issue metadata grain and mint
     ::  for initial distribution, if any
     =|  issued=(list grain)
@@ -306,7 +306,7 @@
             %token-metadata
             token-metadata
             metadata-id
-            me.cart  me.cart  town-id.cart
+            me.cart  me.cart  shard-id.cart
         ==
       (result ~ [%&^metadata-rice issued] ~ ~)
     =*  m  i.initial-distribution.act
@@ -314,9 +314,9 @@
     ?>  ?~  cap.token-metadata  %.y
         (gte u.cap.token-metadata new-supply)
     ::  create new account for receiver
-    =/  =id  (fry-rice me.cart to.m town-id.cart salt.token-metadata)
+    =/  =id  (fry-rice me.cart to.m shard-id.cart salt.token-metadata)
     =+  [amount.m ~ metadata-id 0]
-    =+  receiver=[salt.token-metadata %account - id me.cart to.m town-id.cart]
+    =+  receiver=[salt.token-metadata %account - id me.cart to.m shard-id.cart]
     %=  $
       supply.token-metadata     new-supply
       issued                    [%&^receiver issued]

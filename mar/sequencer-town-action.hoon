@@ -1,14 +1,14 @@
 /-  sequencer
 ::
-|_  =town-action:sequencer
+|_  =shard-action:sequencer
 ++  grab
   |%
-  ++  noun  town-action:sequencer
+  ++  noun  shard-action:sequencer
   --
 ::
 ++  grow
   |%
-  ++  noun  town-action
+  ++  noun  shard-action
   --
 ::
 ++  grad  %noun

@@ -13,8 +13,8 @@
 ::      Change state of %faucet app.
 ::
 ::
-/-  f=faucet,
-    w=wallet
+/-  f=zig-faucet,
+    w=zig-wallet
 /+  agentio,
     dbug,
     default-agent,
@@ -72,8 +72,8 @@
         ?:  =(%earl (clan:title src))
           (sein:title our now src)
         src
-      ?~  town-info=(~(get by town-infos) town-id.action)
-        ~|("%faucet: invalid town. Valid towns: {<~(key by town-infos)>}" !!)
+      ?~  shard-info=(~(get by shard-infos) shard-id.action)
+        ~|("%faucet: invalid shard. Valid shards: {<~(key by shard-infos)>}" !!)
       =/  [unlock=@da count=@ud]
         (~(gut by on-timeout) par [*@da 0])
       ?:  (gth unlock now)
@@ -88,16 +88,16 @@
           :-  %wallet-poke
           !>  ^-  wallet-poke:w
           :*  %transaction
-              from=address.u.town-info
-              contract=zigs-wheat.u.town-info
-              town=town-id.action
+              from=address.u.shard-info
+              contract=zigs-contract.u.shard-info
+              shard=shard-id.action
               :^    %give
                   to=address.action
                 amount=volume
-              grain=zigs-rice.u.town-info
+              grain=zigs-account.u.shard-info
           ==
         =-  [%pass /self-poke %agent [our.bowl %faucet] %poke -]
-        [%faucet-action !>(`action:f`[%confirm address.u.town-info])]
+        [%faucet-action !>(`action:f`[%confirm address.u.shard-info])]
       ~
     ::
         %confirm
@@ -127,11 +127,11 @@
         %edit-timeout-duration
       `this(timeout-duration timeout-duration.c)
     ::
-        %put-town
+        %put-shard
       :-  ~
       %=  this
-          town-infos
-        (~(put by town-infos) town-id.c town-info.c)
+          shard-infos
+        (~(put by shard-infos) shard-id.c shard-info.c)
       ==
     ==
   --

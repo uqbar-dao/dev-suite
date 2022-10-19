@@ -47,7 +47,7 @@
       %-  ot
       :~  [%from (se %ux)]
           [%contract (se %ux)]
-          [%town (se %ux)]
+          [%shard (se %ux)]
           [%action parse-action]
       ==
     ++  parse-action

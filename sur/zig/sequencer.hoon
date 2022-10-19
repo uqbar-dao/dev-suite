@@ -22,14 +22,14 @@
 ::  shard state transition
 ::
 +$  batch
-  $:  town-id=id:smart
+  $:  shard-id=id:smart
       num=@ud
       mode=availability-method
       state-diffs=(list state)
       diff-hash=@ux
       new-root=@ux
       new-state=chain
-      peer-roots=(map id:smart @ux)  ::  roots for all other towns
+      peer-roots=(map id:smart @ux)  ::  roots for all other shards
       =sig:smart                     ::  sequencer signs new state root
   ==
 ::
@@ -38,7 +38,7 @@
       [%committee members=(map address:smart [ship (unit sig:smart)])]
   ==
 ::
-+$  town-action
++$  shard-action
   $%  ::  administration
       $:  %init
           rollup-host=ship
@@ -68,7 +68,7 @@
   ==
 ::
 ::  indexer must verify root is posted to rollup before verifying new state
-::  pair of [transactions town] is batch from sur/indexer.hoon
+::  pair of [transactions shard] is batch from sur/indexer.hoon
 +$  indexer-update
   [%update root=@ux transactions=(list [@ux transaction:smart]) shard]
 --

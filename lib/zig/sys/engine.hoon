@@ -53,7 +53,7 @@
   ::  accumulated set of diffs. If there is overlap, that call should be discarded or
   ::  pushed into the next parallel "pass", depending on sequencer parameters.
   ::
-  ++  execute
+  ++  run
     |=  [=chain =mempool passes=@ud]
     ^-  [state-transition rejected=memlist]
     |^
@@ -122,7 +122,7 @@
         ==
       ::
       =/  [fee=@ud [diff=state =nonces] burned=state =errorcode:smart hits=(list hints:zink) events=(list contract-event)]
-        (execute-single chain txn.i.pending)
+        (run-single chain txn.i.pending)
       =/  diff-and-burned  (uni:big diff burned)
       ?.  ?&  ?=(~ (int:big all-diffs diff-and-burned))
               ?=(~ (int:big all-burned diff-and-burned))
@@ -162,7 +162,7 @@
   ::
   ::  +mill: processes a single transaction and returns map of modified grains + updated nonce
   ::
-  ++  execute-single
+  ++  run-single
     |=  [=chain txn=transaction:smart]
     ^-  [fee=@ud ^chain burned=state =errorcode:smart hits=(list hints:zink) (list contract-event)]
     ::  validate transaction signature
@@ -305,7 +305,7 @@
         %+  turn  events.diff
         |=  i=[@tas json]
         [contract.txn -.caller.txn i]
-      ::  execute continuation calls
+      ::  run continuation calls
       =/  inter=hatchling
         %+  ~(process work (dif:big (uni:big state all-diffs) all-burned))
           %=  txn
@@ -458,7 +458,7 @@
           ::  burned cannot contain item used to pay for gas
           ::
           ::  NOTE: you *can* modify a item in-contract before burning it.
-          ::  the shard-id of a burned item marks the town which can REDEEM it.
+          ::  the shard-id of a burned item marks the shard which can REDEEM it.
           ::
           =/  old  (get:big state id)
           ?&  ?=(^ old)
@@ -484,7 +484,7 @@
       ::  charge fixed cost for failed transactions too
       ::  TODO should do this everywhere that we can inside +farm
       =/  fail  [~ ~ ~ ~ (sub bud.gas.txn fixed-burn-cost) %6]
-      ::  argument for %burn must be a grain ID and town ID
+      ::  argument for %burn must be a grain ID and shard ID
       ?.  ?=([id=@ux shard=@ux] q.calldata.txn)      fail
       ::  item must exist in state
       ?~  to-burn=(get:big state id.q.calldata.txn)  fail

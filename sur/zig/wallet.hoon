@@ -7,15 +7,15 @@
 ::
 +$  book  (map id:smart asset)
 +$  asset
-  $%  [%token shard-id=@ux contract=id:smart metadata=id:smart token-account]
-      [%nft shard-id=@ux contract=id:smart metadata=id:smart nft]
-      [%unknown shard-id=@ux contract=id:smart *]
+  $%  [%token shard=@ux contract=id:smart metadata=id:smart token-account]
+      [%nft shard=@ux contract=id:smart metadata=id:smart nft]
+      [%unknown shard=@ux contract=id:smart *]
   ==
 ::
 +$  metadata-store  (map id:smart asset-metadata)
 +$  asset-metadata
-  $%  [%token shard-id=@ux token-metadata]
-      [%nft shard-id=@ux nft-metadata]
+  $%  [%token shard=@ux token-metadata]
+      [%nft shard=@ux nft-metadata]
   ==
 ::
 +$  transaction-store
@@ -67,7 +67,7 @@
       [%sign-typed-message from=address:smart =typed-message:smart]
       [%add-tracked-address address=@ux nick=@t]
       ::  testing and internal
-      [%set-nonce address=@ux shard-id=@ux new=@ud]
+      [%set-nonce address=@ux shard=@ux new=@ud]
       ::
       ::  TX submit pokes
       ::
@@ -94,14 +94,14 @@
       $:  %transaction
           from=address:smart
           contract=id:smart
-          shard-id=@ux
+          shard=@ux
           action=supported-actions
       ==
   ==
 ::
 +$  supported-actions
-  $%  [%give to=address:smart amount=@ud item-id=id:smart]
-      [%give-nft to=address:smart item-id=id:smart]
+  $%  [%give to=address:smart amount=@ud item=id:smart]
+      [%give-nft to=address:smart item=id:smart]
       [%text @t]
       [%noun *]
   ==

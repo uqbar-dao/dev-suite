@@ -12,19 +12,19 @@
 ^-  form:m
 =/  arg-mold
   $:  faucet-host=@p
-      town-id=id:smart
+      shard-id=id:smart
       =address:smart
   ==
 =/  args  !<((unit arg-mold) arg)
 ?~  args
   ~&  >  "open-faucet: Poke the %faucet app on faucet-host"
   ~&  >  "             to receive some native tokens to address"
-  ~&  >  "Usage: -zig!open-faucet faucet-host town-id address"
+  ~&  >  "Usage: -zig!open-faucet faucet-host shard-id address"
 =*  faucet-host  faucet-host.u.args
-=*  town-id      town-id.u.args
+=*  shard-id      shard-id.u.args
 =*  address      address.u.args
 ::
 ;<  ~  bind:m
   %^  poke  [faucet-host %faucet]  %faucet-action
-  !>(`action:f`[%open town-id address])
+  !>(`action:f`[%open shard-id address])
 (pure:m !>(~))

@@ -9,16 +9,16 @@
 /*  publish-contract   %noun  /con/compiled/publish/noun
 /*  zigs-contract      %noun  /con/compiled/zigs/noun
 :-  %say
-|=  [[now=@da eny=@uvJ bek=beak] [rollup-host=@p town-id=@ux private-key=@ux ~] ~]
+|=  [[now=@da eny=@uvJ bek=beak] [rollup-host=@p shard-id=@ux private-key=@ux ~] ~]
 ::  one hundred million testnet zigs, now and forever
 =/  testnet-zigs-supply  100.000.000.000.000.000.000.000.000
 ::
 =/  pubkey-1  0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
 =/  pubkey-2  0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
 =/  pubkey-3  0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
-=/  zigs-1  (fry-data:smart zigs-contract-id:smart pubkey-1 town-id `@`'zigs')
-=/  zigs-2  (fry-data:smart zigs-contract-id:smart pubkey-2 town-id `@`'zigs')
-=/  zigs-3  (fry-data:smart zigs-contract-id:smart pubkey-3 town-id `@`'zigs')
+=/  zigs-1  (fry-data:smart zigs-contract-id:smart pubkey-1 shard-id `@`'zigs')
+=/  zigs-2  (fry-data:smart zigs-contract-id:smart pubkey-2 shard-id `@`'zigs')
+=/  zigs-3  (fry-data:smart zigs-contract-id:smart pubkey-3 shard-id `@`'zigs')
 ::
 =/  beef-zigs-grain
   ^-  item:smart
@@ -29,7 +29,7 @@
       zigs-1
       zigs-contract-id:smart
       pubkey-1
-      town-id
+      shard-id
   ==
 =/  dead-zigs-grain
   ^-  item:smart
@@ -40,7 +40,7 @@
       zigs-2
       zigs-contract-id:smart
       pubkey-2
-      town-id
+      shard-id
   ==
 =/  cafe-zigs-grain
   ^-  item:smart
@@ -51,7 +51,7 @@
       zigs-3
       zigs-contract-id:smart
       pubkey-3
-      town-id
+      shard-id
   ==
 ::
 =/  zigs-metadata
@@ -71,7 +71,7 @@
       `@ux`'zigs-metadata'
       zigs-contract-id:smart
       zigs-contract-id:smart
-      town-id
+      shard-id
   ==
 ::  zigs.hoon contract
 =/  zigs-wheat
@@ -82,7 +82,7 @@
       zigs-contract-id:smart  ::  id
       zigs-contract-id:smart  ::  lord
       zigs-contract-id:smart  ::  holder
-      town-id              ::  town-id
+      shard-id              ::  shard-id
   ==
 ::  publish.hoon contract
 =/  publish-wheat
@@ -93,7 +93,7 @@
       0x1111.1111  ::  id
       0x0          ::  lord
       0x0          ::  holder
-      town-id      ::  town-id
+      shard-id      ::  shard-id
   ==
 ::  nft.hoon contract
 =/  nft-wheat
@@ -102,10 +102,10 @@
   :*  `cont
       interface=interface-json:nft
       types=types-json:nft
-      (fry-pact:smart 0x0 0x0 town-id `cont)
+      (fry-pact:smart 0x0 0x0 shard-id `cont)
       0x0          ::  lord
       0x0          ::  holder
-      town-id      ::  town-id
+      shard-id      ::  shard-id
   ==
 ::
 :: NFT stuff
@@ -127,9 +127,9 @@
       id=`@ux`'nft-metadata'
       lord=id:nft-wheat
       holder=id:nft-wheat
-      town-id
+      shard-id
   ==
-=/  nft-1  (fry-data:smart id:nft-wheat pubkey-1 town-id `@`'nftsalt1')
+=/  nft-1  (fry-data:smart id:nft-wheat pubkey-1 shard-id `@`'nftsalt1')
 =/  nft-rice
   ^-  data:smart
   :*  salt=`@`'nftsalt1'
@@ -145,7 +145,7 @@
       nft-1
       id:nft-wheat
       pubkey-1
-      town-id
+      shard-id
   ==
 ::  fungible.hoon contract
 =/  fungible-wheat
@@ -154,10 +154,10 @@
   :*  `cont
       interface=interface-json:fungible
       types=types-json:fungible
-      (fry-pact:smart 0x0 0x0 town-id `cont)
+      (fry-pact:smart 0x0 0x0 shard-id `cont)
       0x0          ::  lord
       0x0          ::  holder
-      town-id      ::  town-id
+      shard-id      ::  shard-id
   ==
 ::
 =/  fake-granary
@@ -176,13 +176,13 @@
       [id.zigs-metadata [%& zigs-metadata]]
   ==
 ::
-:-  %sequencer-town-action
-^-  town-action
+:-  %sequencer-shard-action
+^-  shard-action
 :*  %init
     rollup-host
     (address-from-prv:key:ethereum private-key)
     private-key
-    town-id
+    shard-id
     `[fake-granary *populace]
     [%full-publish ~]
 ==

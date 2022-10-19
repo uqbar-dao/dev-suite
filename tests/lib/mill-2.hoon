@@ -1,9 +1,9 @@
 ::
 ::  Tests for lib/zig/mill.hoon
-::  Basic goal: construct a simple town / helix state
+::  Basic goal: construct a simple shard / helix state
 ::  and manipulate it with some calls to our zigs contract.
 ::  Mill should handle clearing a mempool populated by
-::  calls and return an updated town. The zigs contract
+::  calls and return an updated shard. The zigs contract
 ::  should manage transactions properly so this is testing
 ::  the arms of that contract as well.
 ::
@@ -173,7 +173,7 @@
   =/  shel=shell:smart
     [caller-1 ~ id.p:pact:zigs [1 1.000.000] shard-id 0]
   =/  res=single-result:seq
-    %+  ~(execute-single eng sequencer shard-id batch=1 eth-block-height=0)
+    %+  ~(run-single eng sequencer shard-id batch=1 eth-block-height=0)
     fake-chain  [fake-sig calldata shel]
   ~&  >  "output: {<events.res>}"
   ~&  >  "fee: {<fee.res>}"
@@ -199,7 +199,7 @@
 ::    !>(errorcode.res)
 ::  ::
 ::  ++  test-mill-simple-burn
-::    ::               id of grain to burn, destination town id
+::    ::               id of grain to burn, destination shard id
 ::    =/  =calldata:smart  [%burn id.p:account-1:zigs 0x2]
 ::    =/  shel=shell:smart
 ::      [caller-1 ~ 0x0 1 1.000.000 shard-id 0]
