@@ -16,9 +16,9 @@
 =/  pubkey-1  0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
 =/  pubkey-2  0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
 =/  pubkey-3  0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
-=/  zigs-1  (fry-rice:smart zigs-wheat-id:smart pubkey-1 town-id `@`'zigs')
-=/  zigs-2  (fry-rice:smart zigs-wheat-id:smart pubkey-2 town-id `@`'zigs')
-=/  zigs-3  (fry-rice:smart zigs-wheat-id:smart pubkey-3 town-id `@`'zigs')
+=/  zigs-1  (fry-rice:smart zigs-contract-id:smart pubkey-1 town-id `@`'zigs')
+=/  zigs-2  (fry-rice:smart zigs-contract-id:smart pubkey-2 town-id `@`'zigs')
+=/  zigs-3  (fry-rice:smart zigs-contract-id:smart pubkey-3 town-id `@`'zigs')
 ::
 =/  beef-zigs-grain
   ^-  grain:smart
@@ -27,7 +27,7 @@
       %account
       [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
       zigs-1
-      zigs-wheat-id:smart
+      zigs-contract-id:smart
       pubkey-1
       town-id
   ==
@@ -38,7 +38,7 @@
       %account
       [200.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
       zigs-2
-      zigs-wheat-id:smart
+      zigs-contract-id:smart
       pubkey-2
       town-id
   ==
@@ -49,7 +49,7 @@
       %account
       [100.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
       zigs-3
-      zigs-wheat-id:smart
+      zigs-contract-id:smart
       pubkey-3
       town-id
   ==
@@ -69,8 +69,8 @@
           salt=`@`'zigs'
       ==
       `@ux`'zigs-metadata'
-      zigs-wheat-id:smart
-      zigs-wheat-id:smart
+      zigs-contract-id:smart
+      zigs-contract-id:smart
       town-id
   ==
 ::  zigs.hoon contract
@@ -79,9 +79,9 @@
   :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] zigs-contract)))
       interface=interface-json:zigs
       types=types-json:zigs
-      zigs-wheat-id:smart  ::  id
-      zigs-wheat-id:smart  ::  lord
-      zigs-wheat-id:smart  ::  holder
+      zigs-contract-id:smart  ::  id
+      zigs-contract-id:smart  ::  lord
+      zigs-contract-id:smart  ::  holder
       town-id              ::  town-id
   ==
 ::  publish.hoon contract

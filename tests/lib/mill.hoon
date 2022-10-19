@@ -55,7 +55,7 @@
   ++  miller-account
     ^-  grain
     :*  0x1.1512.3341
-        zigs-wheat-id
+        zigs-contract-id
         0x1512.3341
         town-id
         [%& `@`'zigs' %account [1.000.000 ~ `@ux`'zigs-metadata']]
@@ -63,7 +63,7 @@
   ++  beef-account
     ^-  grain
     :*  0x1.beef
-        zigs-wheat-id
+        zigs-contract-id
         holder-1
         town-id
         [%& `@`'zigs' %account [300.000 ~ `@ux`'zigs-metadata']]
@@ -71,7 +71,7 @@
   ++  dead-account
     ^-  grain
     :*  0x1.dead
-        zigs-wheat-id
+        zigs-contract-id
         0xdead
         town-id
         [%& `@`'zigs' %account [200.000 ~ `@ux`'zigs-metadata']]
@@ -79,7 +79,7 @@
   ++  cafe-account
     ^-  grain
     :*  0x1.cafe
-        zigs-wheat-id
+        zigs-contract-id
         0xcafe
         town-id
         [%& `@`'zigs' %account [100.000 ~ `@ux`'zigs-metadata']]
@@ -87,9 +87,9 @@
   ++  wheat-grain
     ^-  grain
     =/  =wheat  ;;(wheat (cue +.+:;;([* * @] zigs-contract)))
-    :*  zigs-wheat-id
-        zigs-wheat-id
-        zigs-wheat-id
+    :*  zigs-contract-id
+        zigs-contract-id
+        zigs-contract-id
         town-id
         [%| wheat(owns (silt ~[0x1.beef 0x1.dead 0x1.cafe]))]
     ==
@@ -136,7 +136,7 @@
 ++  fake-granary
   ^-  granary
   =/  grains=(list [id grain])
-    :~  [zigs-wheat-id wheat-grain:zigs]
+    :~  [zigs-contract-id wheat-grain:zigs]
         [id:triv-wheat triv-wheat]
         [id:empty-wheat empty-wheat]
         [id:dummy-grain dummy-grain]
@@ -509,7 +509,7 @@
       (silt ~[id:beef-account:zigs])
     (silt ~[id:dead-account:zigs])
   =/  shel=shell
-    [caller-1 fake-sig ~ zigs-wheat-id 1 333 town-id 0]
+    [caller-1 fake-sig ~ zigs-contract-id 1 333 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id init-now)
     fake-land  [shel yok]
@@ -549,7 +549,7 @@
       (silt ~[id:beef-account:zigs])
     (silt ~[id:dead-account:zigs])
   =/  shel=shell
-    [caller-1 fake-sig ~ zigs-wheat-id 1 100.000 town-id 0]
+    [caller-1 fake-sig ~ zigs-contract-id 1 100.000 town-id 0]
   =/  res=mill-result
     %+  ~(mill mil miller town-id init-now)
     fake-land  [shel yok]

@@ -7,15 +7,14 @@
 +$  nonces  (merk:smart address:smart @ud)
 +$  chain   (pair state nonces)
 ::
-+$  mempool  (set [hash=@ux =transaction:smart])   ::  transaction mempool
-+$  memlist  (list [hash=@ux =transaction:smart])  ::  sorted mempool
++$  mempool  (set [hash=@ux txn=transaction:smart])   ::  transaction mempool
++$  memlist  (list [hash=@ux txn=transaction:smart])  ::  sorted mempool
 ::
 +$  state-diff  state  ::  state transitions for one batch
-+$  burns       state  ::  destroyed state with destination shard set in-item
 ::
 ::  contract events are converted to this -- source is txn hash
 ::
-+$  event  [contract=id:smart source=@ux label=@tas =json]
++$  contract-event  [contract=id:smart source=@ux label=@tas =json]
 ::
 ::  final result of +mill-all
 ::
@@ -24,8 +23,8 @@
       processed=memlist
       hits=(list (list hints:zink))
       =state-diff
-      events=(list event)
-      =burns
+      events=(list contract-event)
+      burned=state
   ==
 ::
 ::  intermediate result in +farm
@@ -33,8 +32,8 @@
 +$  hatchling
   $:  hits=(list hints:zink)
       state-diff=(unit state)
-      =burns
-      =events:smart
+      burned=state
+      events=(list contract-event)
       rem=@ud
       =errorcode:smart
   ==
@@ -47,6 +46,6 @@
       burned=state
       =errorcode:smart
       hits=(list hints:zink)
-      =events:smart
+      events=(list contract-event)
   ==
 --

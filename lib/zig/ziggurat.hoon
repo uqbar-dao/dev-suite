@@ -19,12 +19,12 @@
       %account
       [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
       %:  fry-rice:smart
-          zigs-wheat-id:smart
+          zigs-contract-id:smart
           address
           designated-town-id
           `@`'zigs'
       ==
-      zigs-wheat-id:smart
+      zigs-contract-id:smart
       address
       designated-town-id
   ==
@@ -100,7 +100,7 @@
   ~|  "ziggurat: syntax error in custom data!"
   =+  gun=(~(mint ut p.smart-lib) %noun (ream tex))
   =/  res=book:zink
-    (zebra:zink 200.000 ~ *granary-scry:zink [q.smart-lib q.gun] %.y)
+    (zebra:zink 200.000 ~ *chain-state-scry:zink [q.smart-lib q.gun] %.y)
   ~|  "ziggurat: failed to compile custom data!"
   ?.  ?=(%& -.p.res)  !!
   ~|  "ziggurat: result of custom data compile was ~"

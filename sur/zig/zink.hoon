@@ -1,7 +1,7 @@
 |%
-+$  granary-scry
-  $-  [bud=@ud ^]
-  [bud=@ud product=(unit *)]
++$  chain-state-scry
+  $-  [gas=@ud ^]
+  [gas=@ud product=(unit *)]
 ::
 +$  child  *
 +$  parent  *

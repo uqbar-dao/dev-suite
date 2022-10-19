@@ -64,8 +64,8 @@
         `@`'zigs'
         %account
         [1.000.000 ~ `@ux`'zigs-metadata']
-        (fry-rice:smart zigs-wheat-id:smart 0x24c.23b9.8535.cd5a.0645.5486.69fb.afbf.095e.fcc0 town-id `@`'zigs')
-        zigs-wheat-id:smart
+        (fry-rice:smart zigs-contract-id:smart 0x24c.23b9.8535.cd5a.0645.5486.69fb.afbf.095e.fcc0 town-id `@`'zigs')
+        zigs-contract-id:smart
         0x24c.23b9.8535.cd5a.0645.5486.69fb.afbf.095e.fcc0
         town-id
     ==
@@ -75,8 +75,8 @@
         `@`'zigs'
         %account
         [300.000.000 ~ `@ux`'zigs-metadata']
-        (fry-rice:smart zigs-wheat-id:smart holder-1 town-id `@`'zigs')
-        zigs-wheat-id:smart
+        (fry-rice:smart zigs-contract-id:smart holder-1 town-id `@`'zigs')
+        zigs-contract-id:smart
         holder-1
         town-id
     ==
@@ -86,8 +86,8 @@
         `@`'zigs'
         %account
         [200.000 ~ `@ux`'zigs-metadata']
-        (fry-rice:smart zigs-wheat-id:smart holder-2 town-id `@`'zigs')
-        zigs-wheat-id:smart
+        (fry-rice:smart zigs-contract-id:smart holder-2 town-id `@`'zigs')
+        zigs-contract-id:smart
         holder-2
         town-id
     ==
@@ -97,8 +97,8 @@
         `@`'zigs'
         %account
         [100.000 ~ `@ux`'zigs-metadata']
-        (fry-rice:smart zigs-wheat-id:smart holder-3 town-id `@`'zigs')
-        zigs-wheat-id:smart
+        (fry-rice:smart zigs-contract-id:smart holder-3 town-id `@`'zigs')
+        zigs-contract-id:smart
         holder-3
         town-id
     ==
@@ -111,9 +111,9 @@
         `cont
         interface
         types
-        zigs-wheat-id:smart  ::  id
-        zigs-wheat-id:smart  ::  lord
-        zigs-wheat-id:smart  ::  holder
+        zigs-contract-id:smart  ::  id
+        zigs-contract-id:smart  ::  lord
+        zigs-contract-id:smart  ::  holder
         town-id
     ==
   --

@@ -1,20 +1,20 @@
-/-  *zink
+/-  *zig-zink
 /+  *zink-pedersen, *zink-json, merk
 =>  |%
     +$  good      (unit *)
     +$  fail      (list [@ta *])
     +$  body      (each good fail)
     +$  cache     (map * phash)
-    +$  appendix  [cax=cache hit=hints bud=@]
+    +$  appendix  [cax=cache hit=hints gas=@]
     +$  book      (pair body appendix)
     --
 |%
 ++  zebra                                                 ::  bounded zk +mule
-  |=  [bud=@ud cax=cache scry=granary-scry [s=* f=*] test-mode=?]
+  |=  [gas=@ud cax=cache scry=chain-state-scry [s=* f=*] test-mode=?]
   ^-  book
   %.  [s f scry test-mode]
   %*  .  zink
-    app  [cax ~ bud]
+    app  [cax ~ gas]
   ==
 ::
 ++  hash
@@ -47,7 +47,7 @@
   =|  appendix
   =*  app  -
   =|  trace=fail
-  |=  [s=* f=* scry=granary-scry test-mode=?]
+  |=  [s=* f=* scry=chain-state-scry test-mode=?]
   ^-  book
   |^
   |-
@@ -72,8 +72,8 @@
     app(hit [%cons u.hhed u.htal]^hit)
   ::
       [%0 axis=@]
-    =^  part  bud
-      (frag axis.f s bud)
+    =^  part  gas
+      (frag axis.f s gas)
     ?~  part  [%&^~ app]
     ?~  u.part  ~&  78  [%|^trace app]
     =^  hpart=(unit phash)         app  (hash u.u.part)
@@ -206,8 +206,8 @@
       $(f core.f)
     ?:  ?=(%| -.core)  ~&  211  [%|^trace app]
     ?~  p.core  [%&^~ app]
-    =^  arm  bud
-      (frag axis.f u.p.core bud)
+    =^  arm  gas
+      (frag axis.f u.p.core gas)
     ?~  arm  [%&^~ app]
     ?~  u.arm  ~&  216  [%|^trace app]
     =^  harm=(unit phash)  app  (hash u.u.arm)
@@ -234,12 +234,12 @@
       $(f value.f)
     ?:  ?=(%| -.value)  ~&  239  [%|^trace app]
     ?~  p.value  [%&^~ app]
-    =^  mutant=(unit (unit *))  bud
-      (edit axis.f u.p.target u.p.value bud)
+    =^  mutant=(unit (unit *))  gas
+      (edit axis.f u.p.target u.p.value gas)
     ?~  mutant  [%&^~ app]
     ?~  u.mutant  ~&  244  [%|^trace app]
-    =^  oldleaf  bud
-      (frag axis.f u.p.target bud)
+    =^  oldleaf  gas
+      (frag axis.f u.p.target gas)
     ?~  oldleaf  [%&^~ app]
     ?~  u.oldleaf  ~&  248  [%|^trace app]
     =^  holdleaf=(unit phash)  app  (hash u.u.oldleaf)
@@ -305,10 +305,10 @@
       $(f path.f)
     ?:  ?=(%| -.path)    ~&  293  [%|^trace app]
     ?~  p.path           [%&^~ app]
-    =/  result  (scry bud p.ref p.path)
+    =/  result  (scry gas p.ref p.path)
     ?~  product.result
-      [%&^~^~ app(bud bud.result)]
-    [%&^[~ product.result] app(bud bud.result)]
+      [%&^~^~ app(gas gas.result)]
+    [%&^[~ product.result] app(gas gas.result)]
   ==
   ::
   ++  jet
@@ -322,9 +322,9 @@
       ~&  317  [%|^trace app]
     ?~  cost=(~(get by jets) tag)
       ~&  >>  "no jet found"  [%&^~ app]
-    ?:  (lth bud u.cost)  [%&^~ app]
-    :-  (run-jet tag sam u.cost)
-    app(bud (sub bud u.cost))
+    ?:  (lth gas u.cost)  [%&^~ app]
+    :-  (run-jet tag sam `@ud`u.cost)
+    app(gas (sub gas u.cost))
   ::
   ++  run-jet
     |=  [tag=@ sam=* cost=@ud]
@@ -507,38 +507,38 @@
     ==
   ::
   ++  frag
-    |=  [axis=@ noun=* bud=@ud]
+    |=  [axis=@ noun=* gas=@ud]
     ^-  [(unit (unit)) @ud]
-    ?:  =(0 axis)  [`~ bud]
+    ?:  =(0 axis)  [`~ gas]
     |-  ^-  [(unit (unit)) @ud]
-    ?:  =(0 bud)  [~ bud]
-    ?:  =(1 axis)  [``noun (dec bud)]
-    ?@  noun  [`~ (dec bud)]
+    ?:  =(0 gas)  [~ gas]
+    ?:  =(1 axis)  [``noun (dec gas)]
+    ?@  noun  [`~ (dec gas)]
     =/  pick  (cap axis)
     %=  $
       axis  (mas axis)
       noun  ?-(pick %2 -.noun, %3 +.noun)
-      bud   (dec bud)
+      gas   (dec gas)
     ==
   ::
   ++  edit
-    |=  [axis=@ target=* value=* bud=@ud]
+    |=  [axis=@ target=* value=* gas=@ud]
     ^-  [(unit (unit)) @ud]
-    ?:  =(1 axis)  [``value bud]
-    ?@  target  [`~ bud]
-    ?:  =(0 bud)  [~ bud]
+    ?:  =(1 axis)  [``value gas]
+    ?@  target  [`~ gas]
+    ?:  =(0 gas)  [~ gas]
     =/  pick  (cap axis)
-    =^  mutant  bud
+    =^  mutant  gas
       %=  $
         axis    (mas axis)
         target  ?-(pick %2 -.target, %3 +.target)
-        bud     (dec bud)
+        gas     (dec gas)
       ==
-    ?~  mutant  [~ bud]
-    ?~  u.mutant  [`~ bud]
+    ?~  mutant  [~ gas]
+    ?~  u.mutant  [`~ gas]
     ?-  pick
-      %2  [``[u.u.mutant +.target] bud]
-      %3  [``[-.target u.u.mutant] bud]
+      %2  [``[u.u.mutant +.target] gas]
+      %3  [``[-.target u.u.mutant] gas]
     ==
   ::
   ++  hash
@@ -550,21 +550,21 @@
     ?:  test-mode  [`0x1 app]
     =/  mh  (~(get by cax) n)
     ?^  mh
-      ?:  =(bud 0)  [~ app]
-      [mh app(bud (dec bud))]
+      ?:  =(gas 0)  [~ app]
+      [mh app(gas (dec gas))]
     ?@  n
-      ?:  =(bud 0)  [~ app]
+      ?:  =(gas 0)  [~ app]
       =/  h  (hash:pedersen n 0)
       :-  `h
-      app(cax (~(put by cax) n h), bud (dec bud))
+      app(cax (~(put by cax) n h), gas (dec gas))
     =^  hh=(unit phash)  app  $(n -.n)
     ?~  hh  [~ app]
     =^  ht=(unit phash)  app  $(n +.n)
     ?~  ht  [~ app]
     =/  h  (hash:pedersen u.hh u.ht)
-    ?:  =(bud 0)  [~ app]
+    ?:  =(gas 0)  [~ app]
     :-  `h
-    app(cax (~(put by cax) n h), bud (dec bud))
+    app(cax (~(put by cax) n h), gas (dec gas))
   ::
   ++  merk-sibs
     |=  [s=* axis=@]

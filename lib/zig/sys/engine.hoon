@@ -1,5 +1,5 @@
 /-  *zig-engine
-/+  *zink-zink, smart=zig-sys-smart, ethereum, merk
+/+  smart=zig-sys-smart, zink=zink-zink, ethereum, merk
 |_  [library=vase zink-cax=(map * @) test-mode=?]
 ::
 ++  verify-sig
@@ -7,10 +7,10 @@
   ^-  ?
   =/  hash=@
     ?~  eth-hash.txn
-      (sham [shell calldata]:txn)
+      (sham +.txn)
     u.eth-hash.txn
   =?  v.sig.txn  (gte v.sig.txn 27)  (sub v.sig.txn 27)
-  .=  id.from.txn
+  .=  address.caller.txn
   %-  address-from-pub:key:ethereum
   %-  serialize-point:secp256k1:secp:crypto
   %+  ecdsa-raw-recover:secp256k1:secp:crypto
@@ -42,8 +42,8 @@
   =/  gun  (~(mint ut typ) %noun gen)
   [[q.dor [q.dor-sam q.arm-sam]] q.gun]
 ::
-++  mill
-  |_  [miller=caller:smart shard-id=@ux batch=@ud eth-block-height=@ud]
+++  engine
+  |_  [sequencer=caller:smart shard-id=@ux batch=@ud eth-block-height=@ud]
   ::
   ::  +mill-all
   ::
@@ -53,7 +53,7 @@
   ::  accumulated set of diffs. If there is overlap, that call should be discarded or
   ::  pushed into the next parallel "pass", depending on sequencer parameters.
   ::
-  ++  mill-all
+  ++  execute
     |=  [=chain =mempool passes=@ud]
     ^-  [state-transition rejected=memlist]
     |^
@@ -63,9 +63,9 @@
       %+  sort  ~(tap in mempool)
       |=  [a=[@ux txn=transaction:smart] b=[@ux txn=transaction:smart]]
       ::  sort by rate, unless caller is same, in which case order by nonce
-      ?:  =(id.from.txn.a id.from.txn.b)
-        (gth nonce.from.txn.a nonce.from.txn.b)
-      (lth rate.txn.a rate.txn.b)
+      ?:  =(address.caller.txn.a address.caller.txn.b)
+        (gth nonce.caller.txn.a nonce.caller.txn.b)
+      (lth rate.gas.txn.a rate.gas.txn.b)
     ::
     =|  final=state-transition
     =|  reward=@ud
@@ -78,7 +78,7 @@
       :-  final(chain chain)
       %+  turn  pending
       |=  [hash=@ux =transaction:smart]
-      [hash transaction(status.shell %9)]
+      [hash transaction(status %9)]
     ::  otherwise, perform a pass
     =/  [passed=state-transition rejected=memlist]
       (pass chain (flop pending))
@@ -87,7 +87,7 @@
       pending           rejected
       hits.final        (weld hits.passed hits.final)
       events.final      (weld events.passed events.final)
-      burns.final       (uni:big burns.final burns.passed)
+      burned.final      (uni:big burned.final burned.passed)
       processed.final   (weld processed.passed processed.final)
       state-diff.final  (uni:big state-diff.final state-diff.passed)
     ==
@@ -100,9 +100,9 @@
       =|  processed=memlist
       =|  rejected=memlist
       =|  all-diffs=state
-      =|  lis-hits=(list (list hints))
-      =|  all-events=(list events:smart)
-      =|  all-burns=state
+      =|  lis-hits=(list (list hints:zink))
+      =|  all-events=(list contract-event)
+      =|  all-burned=state
       =|  reward=@ud
       |-  ::  TODO: make this a +turn
       ?~  pending
@@ -111,31 +111,30 @@
             processed
             (flop lis-hits)
             all-diffs
-            events
-            all-burns
+            all-events
+            all-burned
         ==
       ::
-      =/  caller-id  id.from.transaction.i.pending
-      ?:  (~(has in callers) caller-id)
+      ?:  (~(has in callers) address.caller.txn.i.pending)
         %=  $
           pending   t.pending
           rejected  [i.pending rejected]
         ==
       ::
-      =/  [fee=@ud [diff=state =nonces] burned=state =errorcode:smart hits=(list hints) =events:smart]
-        (mill chain transaction.i.pending)
+      =/  [fee=@ud [diff=state =nonces] burned=state =errorcode:smart hits=(list hints:zink) events=(list contract-event)]
+        (execute-single chain txn.i.pending)
       =/  diff-and-burned  (uni:big diff burned)
       ?.  ?&  ?=(~ (int:big all-diffs diff-and-burned))
-              ?=(~ (int:big all-burns diff-and-burned))
+              ?=(~ (int:big all-burned diff-and-burned))
           ==
         ?.  =(%0 errorcode)
           ::  invalid transaction -- do not send to next pass,
           ::  but do increment nonce
           %=  $
             pending    t.pending
-            processed  [i.pending(status.transaction errorcode) processed]
+            processed  [i.pending(status.txn errorcode) processed]
             q.chain    nonces
-            callers    (~(put in callers) caller-id)
+            callers    (~(put in callers) address.caller.txn.i.pending)
             reward     (add reward fee)
             lis-hits   [hits lis-hits]
           ==
@@ -150,44 +149,44 @@
       ::
       %=  $
         pending     t.pending
-        processed   [i.pending(status.transaction errorcode) processed]
+        processed   [i.pending(status.txn errorcode) processed]
         q.chain     nonces
         reward      (add reward fee)
         lis-hits    [hits lis-hits]
-        all-events  [events all-events]
-        callers     (~(put in callers) caller-id)
+        all-events  (weld events all-events)
+        callers     (~(put in callers) address.caller.txn.i.pending)
         all-diffs   (uni:big all-diffs diff)
-        all-burns   (uni:big all-burns burned)
+        all-burned  (uni:big all-burned burned)
       ==
     --
   ::
   ::  +mill: processes a single transaction and returns map of modified grains + updated nonce
   ::
-  ++  mill
-    |=  [=chain =transaction:smart]
-    ^-  [fee=@ud ^chain burned=state =errorcode:smart hits=(list hints) =events:smart]
+  ++  execute-single
+    |=  [=chain txn=transaction:smart]
+    ^-  [fee=@ud ^chain burned=state =errorcode:smart hits=(list hints:zink) (list contract-event)]
     ::  validate transaction signature
-    ?.  ?:(!test-mode (verify-sig transaction) %.y)
+    ?.  ?:(!test-mode (verify-sig txn) %.y)
       ~&  >>>  "mill: signature mismatch"
       [0 [~ q.chain] ~ %2 ~ ~]  ::  signed tx doesn't match account
     ::
-    =/  expected-nonce  +((gut:pig q.chain id.from.transaction 0))
-    ?.  =(nonce.from.transaction expected-nonce)
-      ~&  >>>  "mill: expected nonce={<expected-nonce>}, got {<nonce.from.transaction>}"
+    =/  expected-nonce  +((gut:pig q.chain address.caller.txn 0))
+    ?.  =(nonce.caller.txn expected-nonce)
+      ~&  >>>  "mill: expected nonce={<expected-nonce>}, got {<nonce.caller.txn>}"
       [0 [~ q.chain] ~ %3 ~ ~]  ::  bad nonce
     ::
-    ?.  (~(audit tax p.chain) transaction)
+    ?.  (~(audit tax p.chain) txn)
       ~&  >>>  "mill: tx rejected; account balance less than budget"
       [0 [~ q.chain] ~ %4 ~ ~]  ::  can't afford gas
     ::
-    =/  res      (~(work farm p.chain) transaction)
-    =/  fee=@ud  (sub budget.transaction rem.res)
+    =/  res      (~(entry work p.chain) txn)
+    =/  fee=@ud  (sub bud.gas.txn rem.res)
     :+  fee
-      :_  (put:pig q.chain id.from.transaction nonce.from.transaction)
-      ::  charge gas fee by including their designated zigs grain inside the diff
+      :_  (put:pig q.chain address.caller.txn nonce.caller.txn)
+      ::  charge gas fee by including their designated zigs data inside the diff
       ?:  =(0 fee)  ~
-      %+  put:big  (fall diff.res ~)
-      (~(charge tax p.chain) (fall diff.res ~) from.transaction fee)
+      %+  put:big  (fall state-diff.res ~)
+      (~(charge tax p.chain) (fall state-diff.res ~) caller.txn fee)
     [burned errorcode hits events]:res
   ::
   ::  +tax: manage payment for transaction in zigs
@@ -204,204 +203,204 @@
     ::  and appropriately set budget for any zigs transactions
     ::  maximum possible charge is full budget * rate
     ++  audit
-      |=  =transaction:smart
+      |=  txn=transaction:smart
       ^-  ?
-      ?~  zigs=(get:big state zigs.from.transaction)  %.n
-      ?.  =(id.from.transaction holder.p.u.zigs)        %.n
-      ?.  =(zigs-wheat-id:smart lord.p.u.zigs)        %.n
-      ?.  ?=(%& -.u.zigs)                             %.n
-      =/  balance  ;;(@ud -.data.p.u.zigs)
-      (gte balance (mul budget.transaction rate.transaction))
+      ?~  zigs=(get:big state zigs.caller.txn)       %.n
+      ?.  =(address.caller.txn holder.p.u.zigs)      %.n
+      ?.  =(zigs-contract-id:smart source.p.u.zigs)  %.n
+      ?.  ?=(%& -.u.zigs)                            %.n
+      %+  gte  ;;(@ud -.noun.p.u.zigs)
+      (mul bud.gas.txn rate.gas.txn)
     ::  +charge: extract gas fee from caller's zigs balance
     ::  returns a single modified grain to be inserted into a diff
     ::  cannot crash after audit, as long as zigs contract adequately
     ::  validates balance >= budget+amount.
     ++  charge
       |=  [diff=^state payee=caller:smart fee=@ud]
-      ^-  [id:smart grain:smart]
-      =/  zigs=grain:smart
-        ::  find grain in diff, or fall back to full state
+      ^-  [id:smart item:smart]
+      =/  zigs=item:smart
+        ::  find item in diff, or fall back to full state
         ::  got will never crash since +audit proved existence
         %^  gut:big  diff  zigs.payee
         (got:big state zigs.payee)
       ?>  ?=(%& -.zigs)
-      =/  balance  ;;(@ud -.data.p.zigs)
-      =-  [zigs.payee zigs(data.p -)]
-      [(sub balance fee) +.data.p.zigs]
-    ::  +pay: give fees from transactions to miller
+      =/  balance  ;;(@ud -.noun.p.zigs)
+      =-  [zigs.payee zigs(noun.p -)]
+      [(sub balance fee) +.noun.p.zigs]
+    ::  +pay: give fees from transactions to sequencer
     ++  pay
       |=  total=@ud
       ^-  ^state
-      =/  acc=grain:smart
-        %^  gut:big  state  zigs.miller
+      =/  acc=item:smart
+        %^  gut:big  state  zigs.sequencer
         ::  create a new account rice for the sequencer if needed
         =/  =token-account  [total ~ `@ux`'zigs-metadata' 0]
-        =/  =id:smart  (fry-rice:smart zigs-wheat-id:smart id.miller town-id `@`'zigs')
-        [%& 'zigs' %account token-account id zigs-wheat-id:smart id.miller town-id]
+        =/  =id:smart  (hash-data:smart zigs-contract-id:smart address.sequencer shard-id `@`'zigs')
+        [%& id zigs-contract-id:smart address.sequencer shard-id 'zigs' %account token-account]
       ?.  ?=(%& -.acc)  state
-      =/  account  ;;(token-account data.p.acc)
+      =/  account  ;;(token-account noun.p.acc)
       ?.  =(`@ux`'zigs-metadata' metadata.account)  state
       =.  balance.account  (add balance.account total)
-      =.  data.p.acc  account
+      =.  noun.p.acc  account
       (put:big state id.p.acc acc)
     --
   ::
   ::  +farm: execute a call to a contract
   ::
-  ++  farm
+  ++  work
     |_  =state
+    +$  move  (quip call:smart diff:smart)
     ::  +work: take transaction and return diff state, remaining budget,
     ::  and errorcode (0=success)
-    ++  work
+    ++  entry
       |=  =transaction:smart
       ^-  hatchling
-      =/  res  (incubate transaction ~ ~)
+      =/  res  (process transaction ~ ~)
       res(hits (flop hits.res))
     ::  +incubate: fertilize and germinate, then grow
-    ++  incubate
-      |=  [=transaction:smart hits=(list hints) burned=^state]
+    ++  process
+      |=  [txn=transaction:smart hits=(list hints:zink) burned=^state]
       ^-  hatchling
-      =/  from  [id.from.transaction nonce.from.transaction]
-      ::  check for grain burn transaction
-      ?:  &(=(0x0 contract.transaction) =(%burn p.yolk.transaction))
-        (poach transaction)
-      ::  insert budget argument if transaction is %give-ing zigs
-      =?  q.yolk.transaction  &(=(contract.transaction zigs-wheat-id:smart) =(p.yolk.transaction %give))
-        [budget.transaction q.yolk.transaction]
-      ?~  gra=(get:big state contract.transaction)
+      ::  check for grain burn txn
+      ?:  &(=(0x0 contract.txn) =(%burn p.calldata.txn))
+        (exec-burn txn)
+      ::  insert budget argument if txn is %give-ing zigs
+      =?    q.calldata.txn
+          ?&  =(contract.txn zigs-contract-id:smart)
+              =(p.calldata.txn %give)
+          ==
+        [bud.gas.txn q.calldata.txn]
+      ?~  item=(get:big state contract.txn)
         ::  can't find contract to call
-        [~ ~ ~ ~ budget.transaction %5]
-      ?.  ?=(%| -.u.gra)
-        ::  contract id found a rice
-        [~ ~ ~ ~ budget.transaction %5]
-      (grow from p.u.gra transaction hits burned)
+        [~ ~ ~ ~ bud.gas.txn %5]
+      ?.  ?=(%| -.u.item)
+        ::  contract id found data, not pact
+        [~ ~ ~ ~ bud.gas.txn %5]
+      (handle p.u.item txn hits burned)
     ::  +grow: recursively apply any calls stemming from transaction,
     ::  return on rooster or failure
-    ++  grow
-      |=  [from=[=id:smart nonce=@ud] =wheat:smart =transaction:smart hits=(list hints) burned=^state]
+    ++  handle
+      |=  [=pact:smart txn=transaction:smart hits=(list hints:zink) burned=^state]
       ^-  hatchling
       |^
-      =/  =context:smart  [contract.transaction from batch eth-block-height town-id]
-      =+  [hit chick rem err]=(weed budget.transaction context)
-      ?~  chick  [hit^hits ~ ~ ~ rem err]
-      ?:  ?=(%& -.u.chick)
-        ::  rooster result, finished growing
-        ?~  diff=(harvest p.u.chick contract.transaction from.transaction)
-          ::  failed validation
-          [hit^hits ~ ~ ~ rem %7]
-        ::  harvest passed
-        [hit^hits diff burned.p.u.chick crow.p.u.chick rem err]
-      ::  hen result, continuation
-      =|  events=events:smart
+      =/  =context:smart  [contract.txn [- +<]:caller.txn batch eth-block-height shard-id]
+      =+  [hit move rem err]=(exec bud.gas.txn context)
+      ?~  move  [hit^hits ~ ~ ~ rem err]
+      =*  calls  -.u.move
+      =*  diff   +.u.move
+      =|  events=(list contract-event)
       =|  all-diffs=^state
-      =/  all-burns  burned.rooster.p.u.chick
-      =*  next  next.p.u.chick
+      =/  all-burned  burned.diff
       =.  hits  hit^hits
-      =/  last-diff  (harvest rooster.p.u.chick contract.transaction from.transaction)
+      =/  validated-diffs  (validate-diff diff contract.txn caller.txn)
       |-
-      ?~  last-diff
+      ?~  validated-diffs
         ::  diff from last call failed validation
-        [hits ~ ~ ~ rem %7]
-      =.  all-diffs  (dif:big (uni:big all-diffs u.last-diff) all-burns)
-      ?~  next
-        ::  all continuations complete
-        [hits `all-diffs all-burns (weld events crow.rooster.p.u.chick) rem %0]
-      ::  continue continuing
+        [hit^hits ~ ~ ~ rem %7]
+      =.  all-diffs  (dif:big (uni:big all-diffs u.validated-diffs) all-burned)
+      ?~  calls
+        ::  diff-only result, finished calling
+        =-  [hits `all-diffs all-burned - rem %0]
+        %+  weld  events
+        %+  turn  events.diff
+        |=  i=[@tas json]
+        [contract.txn -.caller.txn i]
+      ::  execute continuation calls
       =/  inter=hatchling
-        %+  ~(incubate farm (dif:big (uni:big state all-diffs) all-burns))
-          %=  transaction
-            id.from.shell   contract.transaction
-            contract.shell  contract.i.next
-            budget.shell    rem
-            yolk            yolk.i.next
+        %+  ~(process work (dif:big (uni:big state all-diffs) all-burned))
+          %=  txn
+            bud.gas         rem
+            address.caller  contract.txn
+            contract        contract.i.calls
+            calldata        calldata.i.calls
           ==
-        [hits all-burns]
+        [hits all-burned]
       ?.  =(%0 errorcode.inter)
         [(weld hits.inter hits) ~ ~ ~ rem.inter errorcode.inter]
       %=  $
-        next       t.next
+        calls       t.calls
         rem        rem.inter
-        last-diff  diff.inter
-        all-burns  (uni:big all-burns burned.inter)
+        validated-diffs  state-diff.inter
+        all-burned  (uni:big all-burned burned.inter)
         hits       (weld hits.inter hits)
-        events      (weld events crow.inter)
+          events  (weld events events.inter)
+
       ==
       ::
       ::  +weed: run contract formula with arguments and memory, bounded by bud
       ::
-      ++  weed
-        |=  [budget=@ud =context:smart]
-        ^-  [hints (unit chick:smart) rem=@ud =errorcode:smart]
+      ++  exec
+        |=  [gas=@ud =context:smart]
+        ^-  [hints:zink (unit move) gas=@ud =errorcode:smart]
         ~>  %bout
         |^
-        ?~  cont.wheat   [~ ~ budget %6]
-        =/  dor=vase  (load u.cont.wheat)
-        =/  gun  (ajar dor %write !>(context) !>(yolk.transaction) %$)
+        =/  dor=vase  (load code.pact)
+        =/  gun  (ajar dor %write !>(context) !>(calldata.txn) %$)
         ::
         ::  generate ZK-proof hints with zebra
         ::
-        =/  =book
-          (zebra budget zink-cax search gun test-mode)
+        =/  =book:zink
+          (zebra:zink gas zink-cax search gun test-mode)
         :-  hit.q.book
         ?:  ?=(%| -.p.book)
           ::  error in contract execution
           ~&  >>>  p.book
-          [~ bud.q.book %6]
+          [~ gas.q.book %6]
         ::  chick result
         ?~  p.p.book
-          ~&  >>>  "mill: ran out of gas"
+          ~&  >>>  "engine: ran out of gas"
           [~ 0 %8]
-        [;;((unit chick:smart) p.p.book) bud.q.book %0]
+        [;;((unit move) p.p.book) gas.q.book %0]
         ::
         ++  load
-          |=  cont=[bat=* pay=*]
+          |=  code=[bat=* pay=*]
           ^-  vase
-          =/  payload   .*(q.library pay.cont)
-          =/  cor       .*([q.library payload] bat.cont)
+          =/  payload   .*(q.library pay.code)
+          =/  cor       .*([q.library payload] bat.code)
           [-:!>(*contract:smart) cor]
         ::
+        ::  +search: our chain-state-scry
+        ::  to handle item gets and contract reads
+        ::
         ++  search
-          |=  [bud=@ud pat=^]
+          |=  [gas=@ud pat=^]
           ::  TODO make search return [hints product]
-          ^-  [bud=@ud product=(unit *)]
-          ::  custom scry to handle grain reads and contract reads
-          =/  rem  (sub bud 100)
+          ^-  [gas=@ud product=(unit *)]
+          =/  rem  (sub gas 100)  ::  fixed scry cost
           ?+    +.pat  rem^~
               [%0 %state @ ~]
-            ::  /state/[grain-id]
+            ::  /state/[item-id]
             ?~  id=(slaw %ux -.+.+.+.pat)  rem^~
-            ~&  >>  "looking for grain: {<`@ux`u.id>}"
-            ?~  grain=(get:big state u.id)
-              ~&  >>>  "didn't find it"  rem^~
-            rem^grain
+            ~&  >>  "looking for item: {<`@ux`u.id>}"
+            ?~  item=(get:big state u.id)
+              ~&  >>>  "didn't find it"    rem^~
+            rem^item
           ::
               [%0 %contract @ @ ^]
               ::  /contract/[%noun or %json]/[contract-id]/path/defined/in/contract
-            =/  rem  (sub bud 100)  ::  base cost
+            =/  rem  (sub gas 100)  ::  base cost
             =/  kind  `@tas`-.+.+.+.pat
             ?.  ?=(?(%noun %json) kind)  rem^~
             ?~  id=(slaw %ux -.+.+.+.+.pat)  rem^~
             ::  path includes fee, as it must match fee in contract
             =/  read-path=path  ;;(path +.+.+.+.+.pat)
-            ~&  >>  "looking for contract wheat: {<`@ux`u.id>}"
-            ?~  grain=(get:big state u.id)
+            ~&  >>  "looking for pact: {<`@ux`u.id>}"
+            ?~  item=(get:big state u.id)
               ~&  >>>  "didn't find it"  rem^~
-            ?.  ?=(%| -.u.grain)
-              ~&  >>>  "wasn't wheat"  rem^~
-            ?~  cont.p.u.grain
-              ~&  >>>  "nok was empty"  rem^~
-            =/  dor=vase  (load u.cont.p.u.grain)
-            =/  gun    (ajar dor %read !>(context(me u.id)) !>(read-path) kind)
-            =/  =book  (zebra rem zink-cax search gun test-mode)
+            ?.  ?=(%| -.u.item)
+              ~&  >>>  "wasn't a pact"  rem^~
+            =/  dor=vase  (load code.p.u.item)
+            =/  gun    (ajar dor %read !>(context(this u.id)) !>(read-path) kind)
+            =/  =book:zink  (zebra:zink rem zink-cax search gun test-mode)
             ?:  ?=(%| -.p.book)
               ::  error in contract execution
               ~&  >>>  p.book
-              bud.q.book^~
+              gas.q.book^~
             ::  chick result
             ?~  p.p.book
-              ~&  >>>  "mill: ran out of gas inside read"
-              bud.q.book^~
-            bud.q.book^p.p.book
+              ~&  >>>  "engine: ran out of gas inside read"
+              gas.q.book^~
+            gas.q.book^p.p.book
           ==
         --
       --
@@ -452,11 +451,11 @@
           ::  all burned items must already exist AND
           ::  id in burned map must be equal to id in item AND
           ::  no burned items may also have been changed at same time AND
-          ::  only items that proclaim us lord may be burned AND
+          ::  only items that proclaim us source may be burned AND
           ::  burned cannot contain item used to pay for gas
           ::
           ::  NOTE: you *can* modify a item in-contract before burning it.
-          ::  the shard of a burned item marks the town which can REDEEM it.
+          ::  the shard-id of a burned item marks the town which can REDEEM it.
           ::
           =/  old  (get:big state id)
           ?&  ?=(^ old)
@@ -470,7 +469,7 @@
     ::
     ::  +exec-burn: handle special burn-only transactions, used for manually
     ::  escaping some item from a shard. must be EITHER holder or source to burn.
-    ::  if shard is the same as the source shard, the item is burned permanently.
+    ::  if shard-id is the same as the source shard, the item is burned permanently.
     ::  otherwise, it can be reinstantiated on the specified shard.
     ::
     ++  exec-burn
@@ -486,14 +485,14 @@
       ?.  ?=([id=@ux shard=@ux] q.calldata.txn)      fail
       ::  item must exist in state
       ?~  to-burn=(get:big state id.q.calldata.txn)  fail
-      ::  caller must be lord OR holder
-      ?.  ?|  =(source.p.u.to-burn id.caller.txn)
-              =(holder.p.u.to-burn id.caller.txn)
+      ::  caller must be source OR holder
+      ?.  ?|  =(source.p.u.to-burn address.caller.txn)
+              =(holder.p.u.to-burn address.caller.txn)
           ==                                         fail
       ::  produce hatchling
-      :*  ~  [~ ~]
+      :*  ~  [~ ~]  ::  TODO hints
           (gas:big *^state ~[[id.p.u.to-burn u.to-burn]])
-          ~[[%burn `json`[%s (scot %ux id.p.u.to-burn)]]]
+          ~[[0x0 address.caller.txn %burn `json`[%s (scot %ux id.p.u.to-burn)]]]
           (sub bud.gas.txn (mul fixed-burn-cost rate.gas.txn))
           %0
       ==

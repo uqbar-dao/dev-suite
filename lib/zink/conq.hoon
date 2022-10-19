@@ -139,7 +139,7 @@
   ::  =/  cont  (~(mint ut p:(slop smart-lib payload)) %noun contract-hoon)
   ::  ::
   ::  =/  gun  (~(mint ut p.cont) %noun (ream '~'))
-  ::  =/  =book  (zebra bud cax *granary-scry [q.cont q.gun] %.n)
+  ::  =/  =book  (zebra bud cax *chain-state-scry [q.cont q.gun] %.n)
   ::  ~&  p.book
   ::  cax.q.book
   ::
@@ -148,7 +148,7 @@
   =/  cor  .*([q.smart-lib pay.cont] bat.cont)
   =/  dor  [-:!>(*contract:smart) cor]
   =/  gun  (ajar:mill dor %write !>(*context:smart) !>(*yolk:smart) %$)
-  =/  =book  (zebra bud cax *granary-scry gun %.n)
+  =/  =book  (zebra bud cax *chain-state-scry gun %.n)
   ~&  p.book
   cax.q.book
   ::

@@ -47,7 +47,7 @@
     ::  call with dummy grain
     =/  dummy=grain  +.-:grains.inp
     ::  try to make sneaky grain
-    =.  lord.dummy  zigs-wheat-id
+    =.  lord.dummy  zigs-contract-id
     (result [dummy ~] ~ ~ ~)
   ::
       %changed-issued-overlap
@@ -110,7 +110,7 @@
     ::  call with dummy grain
     =/  dummy=grain  +.-:grains.inp
     ::  try to make sneaky grain
-    =.  lord.dummy  zigs-wheat-id
+    =.  lord.dummy  zigs-contract-id
     (result ~ ~ [dummy ~] ~)
   ::
       %germinate-test

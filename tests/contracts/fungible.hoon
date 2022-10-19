@@ -50,7 +50,7 @@
   ++  holder-4  0xface.face.face.face.face.face.face.face.face.face
   ++  zig-id
     |=  holder=id:smart
-    (fry-rice:smart zigs-wheat-id:smart holder town-id `@`'zigs')
+    (fry-rice:smart zigs-contract-id:smart holder town-id `@`'zigs')
   ++  zig-account
     |=  [holder=id:smart amt=@ud]
     ^-  grain:smart
@@ -58,7 +58,7 @@
     :*  %&  `@`'zigs'  %account
         [amt ~ `@ux`'zigs-metadata-id']
         id
-        zigs-wheat-id:smart
+        zigs-contract-id:smart
         holder
         town-id
     ==
@@ -71,9 +71,9 @@
         `cont
         interface
         types
-        zigs-wheat-id:smart  ::  id
-        zigs-wheat-id:smart  ::  lord
-        zigs-wheat-id:smart  ::  holder
+        zigs-contract-id:smart  ::  id
+        zigs-contract-id:smart  ::  lord
+        zigs-contract-id:smart  ::  holder
         town-id
     ==
   --

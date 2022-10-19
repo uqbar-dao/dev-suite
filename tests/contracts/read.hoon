@@ -39,8 +39,8 @@
         `@`'zigs'
         %account
         [300.000.000 ~ `@ux`'zigs-metadata']
-        (fry-rice:smart zigs-wheat-id:smart pubkey-1 town-id `@`'zigs')
-        zigs-wheat-id:smart
+        (fry-rice:smart zigs-contract-id:smart pubkey-1 town-id `@`'zigs')
+        zigs-contract-id:smart
         pubkey-1
         town-id
     ==

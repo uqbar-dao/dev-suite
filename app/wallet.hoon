@@ -317,7 +317,7 @@
         :+  from.act
           0  ::  we fill in *correct* nonce upon submission
         ::  generate our zigs token account ID
-        (fry-rice:smart zigs-wheat-id:smart from.act town.act `@`'zigs')
+        (fry-rice:smart zigs-contract-id:smart from.act town.act `@`'zigs')
       ::  build yolk of transaction, depending on argument type
       =/  =yolk:smart
         ?-    -.action.act
@@ -326,7 +326,7 @@
           =/  from=asset  (~(got by `book`(~(got by tokens.state) from.act)) grain.action.act)
           ?>  ?=(%token -.from)
           =/  =asset-metadata  (~(got by metadata-store.state) metadata.from)
-          =/  to-id  (fry-rice:smart zigs-wheat-id:smart to.action.act town.act salt.asset-metadata)
+          =/  to-id  (fry-rice:smart zigs-contract-id:smart to.action.act town.act salt.asset-metadata)
           =/  scry-res
             .^  update:ui  %gx
                 /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/indexer/newest/grain/(scot %ux town.act)/(scot %ux to-id)/noun
@@ -345,7 +345,7 @@
           =/  data-hoon  (ream ;;(@t +.action.act))
           =+  gun=(~(mint ut p.smart-lib-vase) %noun data-hoon)
           =/  res=book:zink
-            (zebra:zink 200.000 ~ *granary-scry:zink [q.smart-lib-vase q.gun] %.y)
+            (zebra:zink 200.000 ~ *chain-state-scry:zink [q.smart-lib-vase q.gun] %.y)
           ?.  ?=(%& -.p.res)
             ~|("wallet: failed to compile custom action!" !!)
           =+  noun=(need p.p.res)

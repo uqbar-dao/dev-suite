@@ -71,7 +71,7 @@
 +$  address  @ux            ::  42-char hex address, ETH compatible
 +$  sig      [v=@ r=@ s=@]  ::  ETH compatible ECDSA signature
 ::
-++  zigs-wheat-id  `@ux`'zigs-contract'   ::  hardcoded "native" token contract
+++  zigs-contract-id  `@ux`'zigs-contract'  ::  hardcoded "native" token contract
 ::
 ::  items populate the state.
 ::
@@ -98,7 +98,7 @@
 ::
 +$  pact
   $:  =id  source=id  holder=id  shard=id
-      code=*
+      code=[bat=* pay=*]
       interface=(map @tas json)
       types=(map @tas json)
   ==
