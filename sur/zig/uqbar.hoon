@@ -12,7 +12,7 @@
   ==
 ::
 +$  write
-  $%  [%submit =egg:smart]
+  $%  [%submit =transaction:smart]
       [%receipt egg-hash=@ux ship-sig=[p=@ux q=ship r=life] uqbar-sig=sig:smart]
   ==
 ::

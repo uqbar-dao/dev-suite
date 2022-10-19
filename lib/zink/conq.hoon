@@ -1,4 +1,4 @@
-/+  *zink-zink, smart=zig-sys-smart, mill=zig-mill
+/+  *zink-zink, smart=zig-sys-smart, engine=zig-sys-engine
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  triv-txt        %hoon  /con/trivial/hoon
 |%
@@ -147,7 +147,7 @@
   =/  cont=[bat=* pay=*]  (compile-contract /zig triv-txt)
   =/  cor  .*([q.smart-lib pay.cont] bat.cont)
   =/  dor  [-:!>(*contract:smart) cor]
-  =/  gun  (ajar:mill dor %write !>(*context:smart) !>(*yolk:smart) %$)
+  =/  gun  (ajar:engine dor %write !>(*context:smart) !>(*calldata:smart) %$)
   =/  =book  (zebra bud cax *chain-state-scry gun %.n)
   ~&  p.book
   cax.q.book

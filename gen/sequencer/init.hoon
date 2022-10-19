@@ -16,12 +16,12 @@
 =/  pubkey-1  0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
 =/  pubkey-2  0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
 =/  pubkey-3  0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
-=/  zigs-1  (fry-rice:smart zigs-contract-id:smart pubkey-1 town-id `@`'zigs')
-=/  zigs-2  (fry-rice:smart zigs-contract-id:smart pubkey-2 town-id `@`'zigs')
-=/  zigs-3  (fry-rice:smart zigs-contract-id:smart pubkey-3 town-id `@`'zigs')
+=/  zigs-1  (fry-data:smart zigs-contract-id:smart pubkey-1 town-id `@`'zigs')
+=/  zigs-2  (fry-data:smart zigs-contract-id:smart pubkey-2 town-id `@`'zigs')
+=/  zigs-3  (fry-data:smart zigs-contract-id:smart pubkey-3 town-id `@`'zigs')
 ::
 =/  beef-zigs-grain
-  ^-  grain:smart
+  ^-  item:smart
   :*  %&
       `@`'zigs'
       %account
@@ -32,7 +32,7 @@
       town-id
   ==
 =/  dead-zigs-grain
-  ^-  grain:smart
+  ^-  item:smart
   :*  %&
       `@`'zigs'
       %account
@@ -43,7 +43,7 @@
       town-id
   ==
 =/  cafe-zigs-grain
-  ^-  grain:smart
+  ^-  item:smart
   :*  %&
       `@`'zigs'
       %account
@@ -55,7 +55,7 @@
   ==
 ::
 =/  zigs-metadata
-  ^-  rice:smart
+  ^-  data:smart
   :*  `@`'zigs'
       %token-metadata
       :*  name='UQ| Tokens'
@@ -75,7 +75,7 @@
   ==
 ::  zigs.hoon contract
 =/  zigs-wheat
-  ^-  wheat:smart
+  ^-  pact:smart
   :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] zigs-contract)))
       interface=interface-json:zigs
       types=types-json:zigs
@@ -86,7 +86,7 @@
   ==
 ::  publish.hoon contract
 =/  publish-wheat
-  ^-  wheat:smart
+  ^-  pact:smart
   :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] publish-contract)))
       interface=interface-json:publish
       types=~
@@ -97,12 +97,12 @@
   ==
 ::  nft.hoon contract
 =/  nft-wheat
-  ^-  wheat:smart
+  ^-  pact:smart
   =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] nft-contract)))
   :*  `cont
       interface=interface-json:nft
       types=types-json:nft
-      (fry-wheat:smart 0x0 0x0 town-id `cont)
+      (fry-pact:smart 0x0 0x0 town-id `cont)
       0x0          ::  lord
       0x0          ::  holder
       town-id      ::  town-id
@@ -111,7 +111,7 @@
 :: NFT stuff
 ::
 =/  nft-metadata-rice
-  ^-  rice:smart
+  ^-  data:smart
   :*  salt=`@`'nftsalt'
       label=%metadata
       :*  name='Ziggurat Girls'
@@ -129,9 +129,9 @@
       holder=id:nft-wheat
       town-id
   ==
-=/  nft-1  (fry-rice:smart id:nft-wheat pubkey-1 town-id `@`'nftsalt1')
+=/  nft-1  (fry-data:smart id:nft-wheat pubkey-1 town-id `@`'nftsalt1')
 =/  nft-rice
-  ^-  rice:smart
+  ^-  data:smart
   :*  salt=`@`'nftsalt1'
       label=%nft
       :*  1
@@ -149,12 +149,12 @@
   ==
 ::  fungible.hoon contract
 =/  fungible-wheat
-  ^-  wheat:smart
+  ^-  pact:smart
   =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] fungible-contract)))
   :*  `cont
       interface=interface-json:fungible
       types=types-json:fungible
-      (fry-wheat:smart 0x0 0x0 town-id `cont)
+      (fry-pact:smart 0x0 0x0 town-id `cont)
       0x0          ::  lord
       0x0          ::  holder
       town-id      ::  town-id
@@ -162,8 +162,8 @@
 ::
 =/  fake-granary
   ^-  granary
-  %+  gas:(bi:merk id:smart grain:smart)
-    *(merk:merk id:smart grain:smart)
+  %+  gas:(bi:merk id:smart item:smart)
+    *(merk:merk id:smart item:smart)
   :~  [id.zigs-wheat [%| zigs-wheat]]
       [id.publish-wheat [%| publish-wheat]]
       [id.nft-wheat [%| nft-wheat]]

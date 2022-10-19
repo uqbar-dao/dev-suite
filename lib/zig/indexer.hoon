@@ -139,22 +139,22 @@
     ~
   ::
   ++  transactions
-    |=  transactions=(list [@ux egg:smart])
+    |=  transactions=(list [@ux transaction:smart])
     ^-  json
     :-  %a
     %+  turn  transactions
-    |=  [hash=@ux e=egg:smart]
+    |=  [hash=@ux e=transaction:smart]
     %-  pairs
     :+  [%hash %s (scot %ux hash)]
       [%egg (egg e)]
     ~
   ::
   ++  eggs
-    |=  eggs=(map egg-id=id:smart [@da location=egg-location:ui =egg:smart])
+    |=  eggs=(map egg-id=id:smart [@da location=egg-location:ui =transaction:smart])
     ^-  json
     %-  pairs
     %+  turn  ~(tap by eggs)
-    |=  [=id:smart timestamp=@da location=egg-location:ui e=egg:smart]
+    |=  [=id:smart timestamp=@da location=egg-location:ui e=transaction:smart]
     :-  (scot %ux id)
     %-  pairs
     :^    [%timestamp (sect timestamp)]
@@ -163,7 +163,7 @@
     ~
   ::
   ++  newest-egg
-    |=  [=id:smart timestamp=@da location=egg-location:ui e=egg:smart]
+    |=  [=id:smart timestamp=@da location=egg-location:ui e=transaction:smart]
     ^-  json
     %-  pairs
     :-  [%egg-id %s (scot %ux id)]
@@ -173,7 +173,7 @@
     ~
   ::
   ++  egg
-    |=  =egg:smart
+    |=  =transaction:smart
     ^-  json
     %-  pairs
     :^    [%sig (sig sig.egg)]
@@ -195,7 +195,7 @@
     ==
   ::
   ++  yolk
-    |=  [=yolk:smart contract-id=id:smart]
+    |=  [=calldata:smart contract-id=id:smart]
     ^-  json
     %+  frond  p.yolk
     (get-interface-types-json contract-id %interface yolk)
@@ -233,15 +233,15 @@
     [%s (scot %ux id)]
   ::
   ++  grains
-    |=  grains=(jar grain-id=id:smart [@da location=batch-location:ui =grain:smart])
+    |=  grains=(jar grain-id=id:smart [@da location=batch-location:ui =item:smart])
     ^-  json
     %-  pairs
     %+  turn  ~(tap by grains)
-    |=  [=id:smart gs=(list [@da batch-location:ui grain:smart])]
+    |=  [=id:smart gs=(list [@da batch-location:ui item:smart])]
     :+  (scot %ux id)
       %a
     %+  turn  gs
-    |=  [timestamp=@da location=batch-location:ui g=grain:smart]
+    |=  [timestamp=@da location=batch-location:ui g=item:smart]
     %-  pairs
     :^    [%timestamp (sect timestamp)]
         [%location (batch-location location)]
@@ -249,7 +249,7 @@
     ~
   ::
   ++  newest-grain
-    |=  [=id:smart timestamp=@da location=batch-location:ui g=grain:smart]
+    |=  [=id:smart timestamp=@da location=batch-location:ui g=item:smart]
     ^-  json
     %-  pairs
     :-  [%grain-id %s (scot %ux id)]
@@ -259,7 +259,7 @@
     ~
   ::
   ++  grain
-    |=  =grain:smart
+    |=  =item:smart
     ^-  json
     %-  pairs
     %+  welp
@@ -311,7 +311,7 @@
     %-  pairs
     %+  turn  ~(tap by granary)
     ::  TODO: either print Pedersen hash or don't store it
-    |=  [=id:smart pedersen=@ux g=grain:smart]
+    |=  [=id:smart pedersen=@ux g=item:smart]
     [(scot %ux id) (grain g)]
   ::
   ++  populace

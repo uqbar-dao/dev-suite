@@ -111,7 +111,7 @@
           from=me.action
           ::  take first transaction in wallet pending store and slam it through
           ::  assumes that faucet operator never uses wallet for other things!
-          =-  -.-:~(tap by .^((map @ux [egg:smart supported-actions:w]) %gx -))
+          =-  -.-:~(tap by .^((map @ux [transaction:smart supported-actions:w]) %gx -))
           /(scot %p our.bowl)/wallet/(scot %da now.bowl)/pending-noun/(scot %ux me.action)/noun
           gas
       ==

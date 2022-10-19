@@ -9,7 +9,7 @@
 ::
 ::  constants / dummy info for mill
 ::
-++  big  (bi:merk id:smart grain:smart)  ::  merkle engine for granary
+++  big  (bi:merk id:smart item:smart)  ::  merkle engine for granary
 ++  pig  (bi:merk id:smart @ud)          ::                for populace
 ++  batch-num  1
 ++  town-id    0x2
@@ -22,13 +22,13 @@
     ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun)))
   %.y
 ::
-+$  granary   (merk:merk id:smart grain:smart)
++$  granary   (merk:merk id:smart item:smart)
 +$  mill-result
   [fee=@ud =land burned=granary =errorcode:smart hits=(list hints:zink) =crow:smart]
 ++  gilt
   ::  grains list to granary
-  |=  grz=(list grain:smart)
-  (gas:big *granary (turn grz |=(g=grain:smart [id.p.g g])))
+  |=  grz=(list item:smart)
+  (gas:big *granary (turn grz |=(g=item:smart [id.p.g g])))
 ::
 ::  fake data
 ::
@@ -50,10 +50,10 @@
   ++  holder-4  0xface.face.face.face.face.face.face.face.face.face
   ++  zig-id
     |=  holder=id:smart
-    (fry-rice:smart zigs-contract-id:smart holder town-id `@`'zigs')
+    (fry-data:smart zigs-contract-id:smart holder town-id `@`'zigs')
   ++  zig-account
     |=  [holder=id:smart amt=@ud]
-    ^-  grain:smart
+    ^-  item:smart
     =/  id  (zig-id holder)
     :*  %&  `@`'zigs'  %account
         [amt ~ `@ux`'zigs-metadata-id']
@@ -63,7 +63,7 @@
         town-id
     ==
   ++  wheat
-    ^-  grain:smart
+    ^-  item:smart
     =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] zigs-contract)))
     =/  interface  ~
     =/  types  ~
@@ -82,11 +82,11 @@
 ::
 ::  N.B. owner zigs ids must match the ones generated in `+zig-account`
 ++  fun-account
-  |=  [holder=id:smart amt=@ud meta=grain:smart allowances=(pmap:smart address:smart @ud)]
+  |=  [holder=id:smart amt=@ud meta=item:smart allowances=(pmap:smart address:smart @ud)]
   ::  meta - metadata of the fungible account. defaults to `@ux`'simple' unless provided
-  ^-  grain:smart
+  ^-  item:smart
   ?>  ?=(%& -.meta)
-  =/  id  (fry-rice:smart id.p:fungible-wheat holder town-id salt.p.meta)
+  =/  id  (fry-data:smart id.p:fungible-wheat holder town-id salt.p.meta)
   :*  %&  salt.p.meta  %account
       [amt allowances id.p:meta 0]
       id
@@ -114,7 +114,7 @@
   (fun-account holder-4:zigs 20 token-different ~)
 ::
 ++  fungible-wheat
-  ^-  grain:smart
+  ^-  item:smart
   =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] fungible-contract)))
   =/  interface  ~
   =/  types  ~
@@ -129,7 +129,7 @@
   ==
 ::
 ++  token-simple
-  ^-  grain:smart
+  ^-  item:smart
   =+  deployer=0x0
   =+  sal=`@`'simple-token'
   :*  %&  sal  %metadata
@@ -149,7 +149,7 @@
       town-id
   ==
 ++  token-mintable
-  ^-  grain:smart
+  ^-  item:smart
   =+  deployer=0x0
   =+  sym='STM'
   :*  %&  `@`'simple-token-mintable'  %metadata
@@ -169,7 +169,7 @@
       town-id
   ==
 ++  token-different
-  ^-  grain:smart
+  ^-  item:smart
   =+  deployer=0x0
   =+  sym='DIF'
   :*  %&  `@`'different-token'  %metadata
@@ -189,7 +189,7 @@
       town-id
   ==
 ++  salt-of
-  |=  tok=grain:smart
+  |=  tok=item:smart
   ?>  ?=(%& -.tok)
   salt.p.tok
 ::
@@ -242,12 +242,12 @@
   =/  action  [%set-allowance id:caller-3 10 id.p:account-1]
   =/  shel=shell:smart
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  updated-1=grain:smart
+  =/  updated-1=item:smart
     (fun-account id:caller-1 50 token-simple (malt ~[[id:caller-3 10]]))
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
-    fake-land  `egg:smart`[fake-sig shel action]
-  =/  res=grain:smart  (got:big p.land.milled id.p:account-1)
+    fake-land  `transaction:smart`[fake-sig shel action]
+  =/  res=item:smart  (got:big p.land.milled id.p:account-1)
   =*  correct  updated-1
   (expect-eq !>(correct) !>(res))
 ::
@@ -258,11 +258,11 @@
   =/  action  [%give id:caller-2 30 id.p:account-1 `id.p:account-2]
   =/  shel=shell:smart
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  updated-1=grain:smart  (fun-account id:caller-1 20 token-simple ~)
-  =/  updated-2=grain:smart  (fun-account id:caller-2 80 token-simple ~)
+  =/  updated-1=item:smart  (fun-account id:caller-1 20 token-simple ~)
+  =/  updated-2=item:smart  (fun-account id:caller-2 80 token-simple ~)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
-    fake-land  `egg:smart`[fake-sig shel action]
+    fake-land  `transaction:smart`[fake-sig shel action]
   =/  expected=granary  (gas:big *granary ~[[id.p:updated-1 updated-1] [id.p:updated-2 updated-2]])
   ::  N.B. we use int to filter out any grains whose keys are not in expected,
   ::  but preserve the values of those keys from p.land.milled. this is a recurring pattern
@@ -273,12 +273,12 @@
   =/  action  [%give id:caller-4 30 id.p:account-1 ~]
   =/  shel=shell:smart
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  new-id  (fry-rice:smart id.p:fungible-wheat id:caller-4 town-id (salt-of token-simple))
-  =/  new=grain:smart  (fun-account id:caller-4 30 token-simple ~)
+  =/  new-id  (fry-data:smart id.p:fungible-wheat id:caller-4 town-id (salt-of token-simple))
+  =/  new=item:smart  (fun-account id:caller-4 30 token-simple ~)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
-    fake-land  `egg:smart`[fake-sig shel action]
-  =/  res=grain:smart  (got:big p.land.milled new-id)
+    fake-land  `transaction:smart`[fake-sig shel action]
+  =/  res=item:smart  (got:big p.land.milled new-id)
   =*  correct  new
   (expect-eq !>(correct) !>(res))
 ++  test-give-not-enough
@@ -289,7 +289,7 @@
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
-    fake-land  `egg:smart`[fake-sig shel action]
+    fake-land  `transaction:smart`[fake-sig shel action]
   (expect-eq !>(%6) !>(errorcode.milled))
 ++  test-give-metadata-mismatch
   ^-  tang
@@ -298,7 +298,7 @@
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
-    fake-land  `egg:smart`[fake-sig shel action]
+    fake-land  `transaction:smart`[fake-sig shel action]
   (expect-eq !>(%6) !>(errorcode.milled))
 ::
 :: %take
@@ -310,12 +310,12 @@
   =/  action  [%take id:caller-4 10 id.p:account-3 ~]
   =/  shel=shell:smart
     [caller-4 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  new-id=id:smart  (fry-rice:smart id.p:fungible-wheat id:caller-4 town-id (salt-of token-simple))
-  =/  correct=grain:smart  (fun-account id:caller-4 10 token-simple ~)
+  =/  new-id=id:smart  (fry-data:smart id.p:fungible-wheat id:caller-4 town-id (salt-of token-simple))
+  =/  correct=item:smart  (fun-account id:caller-4 10 token-simple ~)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
-    fake-land  `egg:smart`[fake-sig shel action]
-  =/  res=grain:smart  (got:big p.land.milled new-id)
+    fake-land  `transaction:smart`[fake-sig shel action]
+  =/  res=item:smart  (got:big p.land.milled new-id)
   (expect-eq !>(correct) !>(res))
 ::
 ::  %mint
@@ -329,16 +329,16 @@
     ==
   =/  shel=shell:smart
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  new-simp-meta=grain:smart
+  =/  new-simp-meta=item:smart
     =-  [%& tok(supply.data 160)]
     tok=(husk:smart token-metadata-mold token-mintable ~ ~)
-  =/  updated-1=grain:smart
+  =/  updated-1=item:smart
     (fun-account id:caller-1 100 token-mintable ~)
-  =/  updated-2=grain:smart
+  =/  updated-2=item:smart
     (fun-account id:caller-2 60 token-mintable ~)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
-    fake-land  `egg:smart`[fake-sig shel action]
+    fake-land  `transaction:smart`[fake-sig shel action]
   =/  expected=granary  (gilt ~[new-simp-meta updated-1 updated-2])
   =/  res=granary       (int:big expected p.land.milled)
   (expect-eq !>(expected) !>(res))
@@ -348,12 +348,12 @@
     [%mint id.p:token-mintable ~[[id:caller-3 ~ 50]]]
   =/  shel=shell:smart
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  expected=grain:smart
+  =/  expected=item:smart
     (fun-account id:caller-3 50 token-mintable ~)
   =/  milled=mill-result
     %+  ~(mill mil miller town-id 1)
-    fake-land  `egg:smart`[fake-sig shel action]
-  =/  res=grain:smart  (got:big p.land.milled id.p:expected)
+    fake-land  `transaction:smart`[fake-sig shel action]
+  =/  res=item:smart  (got:big p.land.milled id.p:expected)
   (expect-eq !>(expected) !>(res))
 ::
 ::  %take-with-sig
@@ -368,7 +368,7 @@
 ::  =/  nonce         0
 ::  =/  deadline      (add batch-num 1)
 ::  =/  =typed-message:smart
-::    :-  (fry-rice:smart id.p:fungible-wheat id:caller-1 town-id (salt-of account-1))
+::    :-  (fry-data:smart id.p:fungible-wheat id:caller-1 town-id (salt-of account-1))
 ::    (sham [id:caller-1 to amount nonce deadline])
 ::  =/  sig
 ::    %+  ecdsa-raw-sign:secp256k1:secp:crypto
@@ -379,14 +379,14 @@
 ::  ::  this bad boi guzzles gas like crazy
 ::  =/  shel=shell:smart
 ::    [caller-2 ~ id.p:fungible-wheat rate 999.999.999 town-id 0]
-::  =/  updated-1=grain:smart
+::  =/  updated-1=item:smart
 ::    =-  [%& g(nonce.data 1)]
 ::    g=(husk:smart account:sur:fun (fun-account id:caller-1 20 token-simple ~) ~ ~)
-::  =/  updated-2=grain:smart
+::  =/  updated-2=item:smart
 ::    (fun-account id:caller-2 60 token-simple ~)
 ::  =/  milled=mill-result
 ::    %+  ~(mill mil miller town-id 1)
-::    fake-land  `egg:smart`[fake-sig shel action]
+::    fake-land  `transaction:smart`[fake-sig shel action]
 ::  =/  expected=granary  (gilt ~[updated-1 updated-2])
 ::  =/  res=granary       (int:big expected p.land.milled)
 ::  (expect-eq !>(expected) !>(res))
@@ -398,7 +398,7 @@
 ::  =/  amount  30
 ::  =/  nonce  0
 ::  =/  deadline  (add batch-num 1)
-::  =/  =typed-message  :-  (fry-rice:smart id.p:fungible-wheat id:caller-1 town-id `@`'salt')
+::  =/  =typed-message  :-  (fry-data:smart id.p:fungible-wheat id:caller-1 town-id `@`'salt')
 ::                      (sham [id:caller-1 to amount nonce deadline])
 ::  =/  sig  %+  ecdsa-raw-sign:secp256k1:secp:crypto
 ::             (sham typed-message)
@@ -407,7 +407,7 @@
 ::    [%take-with-sig to account from-account amount nonce deadline sig]
 ::  =/  =cart
 ::    [id.p:fungible-wheat [id:caller-2 0] batch-num town-id] :: cart no longer knows account-2' rice
-::  =/  updated-1=grain:smart
+::  =/  updated-1=item:smart
 ::    :*  %&  `@`'salt'  %account
 ::        `account:sur`[20 ~ `@ux`'simple' 1]
 ::        0x1.beef
@@ -415,8 +415,8 @@
 ::        id:caller-1
 ::        town-id
 ::    ==
-::  =/  new-id  (fry-rice:smart id:caller-2 id.p:fungible-wheat 0x1 `@`'salt')
-::  =/  new=grain:smart
+::  =/  new-id  (fry-data:smart id:caller-2 id.p:fungible-wheat 0x1 `@`'salt')
+::  =/  new=item:smart
 ::    :*  %&  `@`'salt'  %account
 ::        `account:sur`[30 ~ `@ux`'simple' 0]
 ::        new-id
@@ -441,7 +441,7 @@
 ::  ::  XX this test infinite loops because of a problematic tap:in callsite in handling `%deploy`
 ::  ^-  tang
 ::  =/  token-salt  (sham (cat 3 id:caller-1 'TC'))
-::  =/  new-token-metadata=grain:smart
+::  =/  new-token-metadata=item:smart
 ::    :*  %&  token-salt  %metadata
 ::        ^-  token-metadata:sur:fun
 ::        :*  'Test Coin'
@@ -453,12 +453,12 @@
 ::            (silt ~[id:caller-1])
 ::            id:caller-1
 ::        ==
-::        (fry-rice:smart id.p:fungible-wheat id.p:fungible-wheat town-id token-salt)
+::        (fry-data:smart id.p:fungible-wheat id.p:fungible-wheat town-id token-salt)
 ::        id.p:fungible-wheat
 ::        id.p:fungible-wheat
 ::        town-id
 ::    ==
-::  =/  new-account=grain:smart
+::  =/  new-account=item:smart
 ::    (fun-account id:caller-1 900 new-token-metadata ~)
 ::  =/  =action:sur:fun
 ::    [%deploy (silt ~[[id:caller-1 900]]) (silt ~[id:caller-1]) 'Test Coin' 'TC' 0 1.000 %.y]
@@ -466,7 +466,7 @@
 ::    [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
 ::  =/  milled=mill-result
 ::    %+  ~(mill mil miller town-id 1)
-::    fake-land  `egg:smart`[fake-sig shel action]
+::    fake-land  `transaction:smart`[fake-sig shel action]
 ::  =/  expected=granary  (gilt ~[new-account new-token-metadata])
 ::  =/  res=granary       (int:big expected p.land.milled)
 ::  (expect-eq !>(expected) !>(res))

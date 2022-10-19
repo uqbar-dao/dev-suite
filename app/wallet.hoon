@@ -317,16 +317,16 @@
         :+  from.act
           0  ::  we fill in *correct* nonce upon submission
         ::  generate our zigs token account ID
-        (fry-rice:smart zigs-contract-id:smart from.act town.act `@`'zigs')
+        (fry-data:smart zigs-contract-id:smart from.act town.act `@`'zigs')
       ::  build yolk of transaction, depending on argument type
-      =/  =yolk:smart
+      =/  =calldata:smart
         ?-    -.action.act
             %give
           ::  Standard fungible token %give
           =/  from=asset  (~(got by `book`(~(got by tokens.state) from.act)) grain.action.act)
           ?>  ?=(%token -.from)
           =/  =asset-metadata  (~(got by metadata-store.state) metadata.from)
-          =/  to-id  (fry-rice:smart zigs-contract-id:smart to.action.act town.act salt.asset-metadata)
+          =/  to-id  (fry-data:smart zigs-contract-id:smart to.action.act town.act salt.asset-metadata)
           =/  scry-res
             .^  update:ui  %gx
                 /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/indexer/newest/grain/(scot %ux town.act)/(scot %ux to-id)/noun
@@ -352,7 +352,7 @@
           [;;(@tas -.noun) +.noun]
         ::
             %noun
-          ;;(yolk:smart +.action.act)
+          ;;(calldata:smart +.action.act)
         ==
       ::  build *incomplete* shell of transaction
       =/  =shell:smart
@@ -366,7 +366,7 @@
         ==
       ::  generate hash
       =/  hash  (hash-egg shell yolk)
-      =/  =egg:smart  [[0 0 0] shell yolk]
+      =/  =transaction:smart  [[0 0 0] shell yolk]
       ~&  >>  "%wallet: transaction pending with hash {<hash>}"
       ::  add to our pending-store with empty signature
       =/  my-pending
@@ -442,7 +442,7 @@
     =+  our-txs=(~(gut by transaction-store.state) our-id [sent=~ received=~])
     =^  tx-status-cards=(list card)  our-txs
       %^  spin  ~(tap by eggs.update)  our-txs
-      |=  [[hash=@ux [@da =egg-location:ui =egg:smart]] txs=_our-txs]
+      |=  [[hash=@ux [@da =egg-location:ui =transaction:smart]] txs=_our-txs]
       ::  update status code and send to frontend
       ::  following error code spec in sur/wallet
       =/  status  (add 200 `@`status.shell.egg)
@@ -455,7 +455,7 @@
           sent
         ?.  (~(has by sent.txs) hash)  sent.txs
         %+  ~(jab by sent.txs)  hash
-        |=  [p=egg:smart q=supported-actions]
+        |=  [p=transaction:smart q=supported-actions]
         [p(status.shell status) q]
       ::
           ::  TODO update nonce for town if tx was rejected for bad nonce (code 3)
@@ -506,7 +506,7 @@
     =/  pub  (slav %ux i.t.t.path)
     =/  town-id  (slav %ux i.t.t.t.path)
     =/  nonce  (~(gut by (~(gut by nonces.state) pub ~)) town-id 0)
-    =+  (fry-rice:smart `@ux`'zigs-contract' pub town-id `@`'zigs')
+    =+  (fry-data:smart `@ux`'zigs-contract' pub town-id `@`'zigs')
     ``noun+!>(`caller:smart`[pub nonce -])
   ::
       [%book ~]
@@ -532,13 +532,13 @@
       [%transactions @ ~]
     ::  return transaction store for given pubkey
     =/  pub  (slav %ux i.t.t.path)
-    =/  our-txs=[sent=(map @ux [egg:smart supported-actions]) received=(map @ux egg:smart)]
+    =/  our-txs=[sent=(map @ux [transaction:smart supported-actions]) received=(map @ux transaction:smart)]
       (~(gut by transaction-store.state) pub [~ ~])
     ::
     =;  =json  ``json+!>(json)
     %-  pairs:enjs
     %+  turn  ~(tap by sent.our-txs)
-    |=  [hash=@ux [t=egg:smart action=supported-actions]]
+    |=  [hash=@ux [t=transaction:smart action=supported-actions]]
     (parse-transaction:wallet-parsing hash t action)
   ::
       [%signatures ~]
@@ -547,22 +547,22 @@
       [%pending @ ~]
     ::  return pending store for given pubkey
     =/  pub  (slav %ux i.t.t.path)
-    =/  our=(map @ux [egg:smart supported-actions])
+    =/  our=(map @ux [transaction:smart supported-actions])
       (~(gut by pending-store) pub ~)
     ::
     =;  =json  ``json+!>(json)
     %-  pairs:enjs
     %+  turn  ~(tap by our)
-    |=  [hash=@ux [t=egg:smart action=supported-actions]]
+    |=  [hash=@ux [t=transaction:smart action=supported-actions]]
     (parse-transaction:wallet-parsing hash t action)
   ::
       [%pending-noun @ ~]
     ::  return pending store for given pubkey, noun format
     =/  pub  (slav %ux i.t.t.path)
-    =/  our=(map @ux [egg:smart supported-actions])
+    =/  our=(map @ux [transaction:smart supported-actions])
       (~(gut by pending-store) pub ~)
     ::
-    ``noun+!>(`(map @ux [egg:smart supported-actions])`our)
+    ``noun+!>(`(map @ux [transaction:smart supported-actions])`our)
   ==
 ::
 ++  on-leave  on-leave:def

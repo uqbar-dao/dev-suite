@@ -651,7 +651,7 @@
         =*  root     root.update
         ?:  (has-root-already town-id root)  `state
         =/  sequencer-update
-          ^-  (unit [eggs=(list [@ux egg:smart]) =town:seq])
+          ^-  (unit [eggs=(list [@ux transaction:smart]) =town:seq])
           %.  root
           %~  get  by
           %+  ~(gut by sequencer-update-queue)  town-id
@@ -870,10 +870,10 @@
 ::
 ++  combine-egg-updates-to-map
   |=  updates=(list update:ui)
-  ^-  (map id:smart [@da egg-location:ui egg:smart])
+  ^-  (map id:smart [@da egg-location:ui transaction:smart])
   ?~  updates  ~
   %-  %~  gas  by
-      *(map id:smart [@da egg-location:ui egg:smart])
+      *(map id:smart [@da egg-location:ui transaction:smart])
   %-  zing
   %+  turn  updates
   |=  =update:ui
@@ -885,10 +885,10 @@
 ::
 ++  combine-grain-updates-to-jar  ::  TODO: can this clobber?
   |=  updates=(list update:ui)
-  ^-  (jar id:smart [@da batch-location:ui grain:smart])
+  ^-  (jar id:smart [@da batch-location:ui item:smart])
   ?~  updates  ~
   %-  %~  gas  by
-      *(jar id:smart [@da batch-location:ui grain:smart])
+      *(jar id:smart [@da batch-location:ui item:smart])
   %-  zing
   %+  turn  updates
   |=  =update:ui
@@ -913,9 +913,9 @@
     ~
   =/  combined-batch=(map id:smart [@da town-location:ui batch:ui])
     (combine-batch-updates-to-map batch-updates)
-  =/  combined-egg=(map id:smart [@da egg-location:ui egg:smart])
+  =/  combined-egg=(map id:smart [@da egg-location:ui transaction:smart])
     (combine-egg-updates-to-map egg-updates)
-  =/  combined-grain=(jar id:smart [@da batch-location:ui grain:smart])
+  =/  combined-grain=(jar id:smart [@da batch-location:ui item:smart])
     (combine-grain-updates-to-jar grain-updates)
   ?:  ?&  ?=(~ combined-batch)
           ?=(~ combined-egg)
@@ -1106,7 +1106,7 @@
         =*  granary    p.land.batch.u.b
         ?~  grain=(get:big:mill granary grain-id)  ~
         [%newest-grain grain-id timestamp location u.grain]
-      =|  grains=(jar grain-id=id:smart [@da batch-location:ui grain:smart])
+      =|  grains=(jar grain-id=id:smart [@da batch-location:ui item:smart])
       =.  locations  (flop locations)
       |-
       ?~  locations  ?~(grains ~ [%grain grains])
@@ -1150,9 +1150,9 @@
         =*  timestamp  timestamp.u.b
         =*  txs        transactions.batch.u.b
         ?.  (lth egg-num (lent txs))  ~
-        =+  [hash=@ux =egg:smart]=(snag egg-num txs)
+        =+  [hash=@ux =transaction:smart]=(snag egg-num txs)
         [%newest-egg hash timestamp location egg]
-      =|  eggs=(map id:smart [@da egg-location:ui egg:smart])
+      =|  eggs=(map id:smart [@da egg-location:ui transaction:smart])
       |-
       ?~  locations  ?~(eggs ~ [%egg eggs])
       =*  location  i.locations
@@ -1171,7 +1171,7 @@
       =*  timestamp  timestamp.u.b
       =*  txs        transactions.batch.u.b
       ?.  (lth egg-num (lent txs))  $(locations t.locations)
-      =+  [hash=@ux =egg:smart]=(snag egg-num txs)
+      =+  [hash=@ux =transaction:smart]=(snag egg-num txs)
       %=  $
           locations  t.locations
           eggs
@@ -1280,7 +1280,7 @@
             :-  %egg
             %.  ~[+.out +.next-update]
             %~  gas  by
-            *(map id:smart [@da egg-location:ui egg:smart])
+            *(map id:smart [@da egg-location:ui transaction:smart])
           ==
         ::
             %newest-grain
@@ -1344,7 +1344,7 @@
 ::
 ++  consume-batch
   |=  $:  root=@ux
-          eggs=(list [@ux egg:smart])
+          eggs=(list [@ux transaction:smart])
           =town:seq
           timestamp=@da
           should-update-subs=?
@@ -1688,8 +1688,8 @@
         ?~  old-vals=(~(get ja old-grains) id)
           ?~(new-vals out [[id new-vals] out])
         ?:  =(old-vals new-vals)  out
-        =/  old-grains=(set grain:smart)
-          %-  ~(gas in *(set grain:smart))
+        =/  old-grains=(set item:smart)
+          %-  ~(gas in *(set item:smart))
           %+  turn  old-vals
           |=(old-val=grain-update-value:ui grain.old-val)
         =/  filtered-values=(list grain-update-value:ui)
@@ -1707,7 +1707,7 @@
   ++  parse-batch
     |=  $:  root=@ux
             town-id=@ux
-            eggs=(list [@ux egg:smart])
+            eggs=(list [@ux transaction:smart])
             =land:seq
         ==
     ^-  $:  (list [@ux egg-location:ui])
@@ -1731,7 +1731,7 @@
     =|  parsed-grain=(list [@ux batch-location:ui])
     =|  parsed-holder=(list [@ux second-order-location:ui])
     =|  parsed-lord=(list [@ux second-order-location:ui])
-    =/  grains=(list [@ux [@ux grain:smart]])
+    =/  grains=(list [@ux [@ux item:smart]])
       ~(tap by granary)
     |-
     ?~  grains  [parsed-grain parsed-holder parsed-lord]
@@ -1763,7 +1763,7 @@
     ==
   ::
   ++  parse-transactions
-    |=  [root=@ux town-id=@ux txs=(list [@ux egg:smart])]
+    |=  [root=@ux town-id=@ux txs=(list [@ux transaction:smart])]
     ^-  $:  (list [@ux egg-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])

@@ -5,26 +5,26 @@
     --
 |%
 ++  hash-egg
-  |=  [=shell:smart =yolk:smart]
+  |=  [=shell:smart =calldata:smart]
   ^-  @ux
   ::  hash the immutable+unique aspects of a transaction
   `@ux`(sham [shell yolk])
 ::
 ++  tx-update-card
-  |=  [hash=@ux =egg:smart =supported-actions]
+  |=  [hash=@ux =transaction:smart =supported-actions]
   ^-  card
   =+  `wallet-update`[%tx-status hash egg supported-actions]
   [%give %fact ~[/tx-updates] %wallet-update !>(-)]
 ::
 ++  get-sent-history
   |=  [=address:smart our=@p now=@da]
-  ^-  (map @ux [=egg:smart action=supported-actions])
+  ^-  (map @ux [=transaction:smart action=supported-actions])
   =/  txn-history=update:ui
     .^(update:ui %gx /(scot %p our)/indexer/(scot %da now)/from/0x0/(scot %ux address)/noun)
   ?~  txn-history  ~
   ?.  ?=(%egg -.txn-history)  ~
   %-  ~(urn by eggs.txn-history)
-  |=  [hash=@ux upd=[@ * =egg:smart]]
+  |=  [hash=@ux upd=[@ * =transaction:smart]]
   [egg.upd(status.shell (add 200 `@`status.shell.egg.upd)) [%noun yolk.egg.upd]]
 ::
 ++  create-id-subs
@@ -88,7 +88,7 @@
   |=  =update:ui
   ^-  book
   ?>  ?=(%grain -.update)
-  =/  grains-list=(list [@da =batch-location:ui =grain:smart])
+  =/  grains-list=(list [@da =batch-location:ui =item:smart])
     (zing ~(val by grains.update))
   =|  new-book=book
   |-  ^-  book
@@ -152,7 +152,7 @@
   ::  manually import metadata for a token
   =/  scry-res
     .^(update:ui %gx /(scot %p our)/uqbar/(scot %da now)/indexer/newest/grain/(scot %ux town-id)/(scot %ux id)/noun)
-  =/  g=(unit grain:smart)
+  =/  g=(unit item:smart)
     ::  TODO remote scry w/ uqbar.hoon
     ?~  scry-res  ~
     ?.  ?=(%newest-grain -.scry-res)  ~

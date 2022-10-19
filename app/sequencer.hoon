@@ -143,13 +143,13 @@
         ~|("%sequencer: error: got egg while not active" !!)
       =/  received=^basket
         %-  ~(run in eggs.act)
-        |=  =egg:smart
+        |=  =transaction:smart
         [`@ux`(sham [shell yolk]:egg) egg]
       ::  give a "receipt" to sender, with signature they can show
       ::  a counterparty for "business finality"
       :_  state(basket (~(uni in basket) received))
       %+  turn  ~(tap in received)
-      |=  [hash=@ux =egg:smart]
+      |=  [hash=@ux =transaction:smart]
       ^-  card
       =/  usig  (ecdsa-raw-sign:secp256k1:secp:crypto `@uvI`hash (need private-key.state))
       =+  [%uqbar-write !>(`write:uqbar`[%receipt hash (sign:sig our.bowl now.bowl hash) usig])]

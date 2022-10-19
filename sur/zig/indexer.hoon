@@ -49,7 +49,7 @@
 +$  batch-order
   (list id:smart)  ::  0-index -> most recent batch
 +$  batch
-  [transactions=(list [@ux egg:smart]) town:seq]
+  [transactions=(list [@ux transaction:smart]) town:seq]
 +$  newest-batch-by-town
   %+  map  town-id=id:smart
   [batch-id=id:smart timestamp=@da =batch]
@@ -111,9 +111,9 @@
 +$  batch-update-value
   [timestamp=@da location=town-location =batch]
 +$  egg-update-value
-  [timestamp=@da location=egg-location =egg:smart]
+  [timestamp=@da location=egg-location =transaction:smart]
 +$  grain-update-value
-  [timestamp=@da location=batch-location =grain:smart]
+  [timestamp=@da location=batch-location =item:smart]
 ::
 +$  update
   $@  ~
@@ -141,21 +141,21 @@
 ::   $%  [%path-does-not-exist ~]
 ::       [%batches (map batch-id=id:smart [timestamp=@da location=town-location =batch])]
 ::       [%batch-order =batch-order]
-::       [%eggs (map egg-id=id:smart [timestamp=@da location=egg-location =egg:smart])]
-::       [%grains (jar grain-id=id:smart [timestamp=@da location=batch-location =grain:smart])]
+::       [%eggs (map egg-id=id:smart [timestamp=@da location=egg-location =transaction:smart])]
+::       [%grains (jar grain-id=id:smart [timestamp=@da location=batch-location =item:smart])]
 ::       $:  %hashes
 ::           batches=(map batch-id=id:smart [timestamp=@da location=town-location =batch])
-::           eggs=(map egg-id=id:smart [timestamp=@da location=egg-location =egg:smart])
-::           grains=(jar grain-id=id:smart [timestamp=@da location=batch-location =grain:smart])
+::           eggs=(map egg-id=id:smart [timestamp=@da location=egg-location =transaction:smart])
+::           grains=(jar grain-id=id:smart [timestamp=@da location=batch-location =item:smart])
 ::       ==
 ::       [%batch batch-id=id:smart timestamp=@da location=town-location =batch]
 ::       [%newest-batch-id batch-id=id:smart]  ::  keep?
-::       [%egg egg-id=id:smart timestamp=@da location=egg-location =egg:smart]
-::       [%grain grain-id=id:smart timestamp=@da location=batch-location =grain:smart]
+::       [%egg egg-id=id:smart timestamp=@da location=egg-location =transaction:smart]
+::       [%grain grain-id=id:smart timestamp=@da location=batch-location =item:smart]
 ::       $:  %hash
 ::           batch=[batch-id=id:smart timestamp=@da location=town-location =batch]
-::           egg=[egg-id=id:smart timestamp=@da location=egg-location =egg:smart]
-::           grain=[grain-id=id:smart timestamp=@da location=batch-location =grain:smart]
+::           egg=[egg-id=id:smart timestamp=@da location=egg-location =transaction:smart]
+::           grain=[grain-id=id:smart timestamp=@da location=batch-location =item:smart]
 ::       ==
 ::   ==
 --

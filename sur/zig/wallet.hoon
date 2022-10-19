@@ -7,26 +7,26 @@
 ::
 +$  book  (map id:smart asset)
 +$  asset
-  $%  [%token town-id=@ux contract=id:smart metadata=id:smart token-account]
-      [%nft town-id=@ux contract=id:smart metadata=id:smart nft]
-      [%unknown town-id=@ux contract=id:smart *]
+  $%  [%token shard-id=@ux contract=id:smart metadata=id:smart token-account]
+      [%nft shard-id=@ux contract=id:smart metadata=id:smart nft]
+      [%unknown shard-id=@ux contract=id:smart *]
   ==
 ::
 +$  metadata-store  (map id:smart asset-metadata)
 +$  asset-metadata
-  $%  [%token town-id=@ux token-metadata]
-      [%nft town-id=@ux nft-metadata]
+  $%  [%token shard-id=@ux token-metadata]
+      [%nft shard-id=@ux nft-metadata]
   ==
 ::
 +$  transaction-store
   %+  map  address:smart
-  $:  sent=(map @ux [=egg:smart action=supported-actions])
-      received=(map @ux =egg:smart)
+  $:  sent=(map @ux [txn=transaction:smart action=supported-actions])
+      received=(map @ux transaction:smart)
   ==
 ::
 +$  pending-store
   %+  map  address:smart
-  (map @ux [=egg:smart action=supported-actions])
+  (map @ux [txn=transaction:smart action=supported-actions])
 ::
 +$  transaction-status-code
   $%  %100  ::  100: transaction pending in wallet
@@ -53,7 +53,7 @@
 +$  wallet-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
       [%new-metadata metadata=metadata-store]
-      [%tx-status hash=@ux =egg:smart action=supported-actions]
+      [%tx-status hash=@ux txn=transaction:smart action=supported-actions]
   ==
 ::
 ::  received from web interface
@@ -64,10 +64,10 @@
       [%derive-new-address hdpath=tape nick=@t]
       [%delete-address address=@ux]
       [%edit-nickname address=@ux nick=@t]
-      [%sign-typed-message from=id:smart =typed-message:smart]
+      [%sign-typed-message from=address:smart =typed-message:smart]
       [%add-tracked-address address=@ux nick=@t]
       ::  testing and internal
-      [%set-nonce address=@ux town=id:smart new=@ud]
+      [%set-nonce address=@ux shard-id=@ux new=@ud]
       ::
       ::  TX submit pokes
       ::
@@ -94,14 +94,14 @@
       $:  %transaction
           from=address:smart
           contract=id:smart
-          town=id:smart
+          shard-id=@ux
           action=supported-actions
       ==
   ==
 ::
 +$  supported-actions
-  $%  [%give to=address:smart amount=@ud grain=id:smart]
-      [%give-nft to=address:smart grain=id:smart]
+  $%  [%give to=address:smart amount=@ud item-id=id:smart]
+      [%give-nft to=address:smart item-id=id:smart]
       [%text @t]
       [%noun *]
   ==
@@ -115,7 +115,7 @@
       supply=@ud
       cap=(unit @ud)
       mintable=?
-      minters=(pset:smart id:smart)
+      minters=(pset:smart address:smart)
       deployer=id:smart
       salt=@
   ==

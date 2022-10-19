@@ -221,8 +221,8 @@
         %add-to-state
       =/  =project  (~(got by projects) project.act)
       =/  data-text  ;;(@t data.act)
-      =/  =id:smart  (fry-rice:smart lord.act holder.act town-id.act salt.act)
-      =/  =rice:smart
+      =/  =id:smart  (fry-data:smart lord.act holder.act town-id.act salt.act)
+      =/  =data:smart
         =+  (text-to-zebra-noun data-text smart-lib-vase)
         [salt.act label.act - id lord.act holder.act town-id.act]
       ::  take text data input and ream to form data noun
@@ -251,7 +251,7 @@
       =/  test-id  `@ux`(mug now.bowl)
       ::  ream action to form yolk
       =+  (text-to-zebra-noun action.act smart-lib-vase)
-      =/  =yolk:smart  [;;(@tas -.-) +.-]
+      =/  =calldata:smart  [;;(@tas -.-) +.-]
       =/  new-error=@ud  (fall expected-error.act 0)
       ::  put it in the project
       =.  tests.project
@@ -272,8 +272,8 @@
       =/  =project  (~(got by projects) project.act)
       ?~  current=(~(get by tests.project) id.act)
         ~|("%ziggurat: test does not exist" !!)
-      =/  =id:smart  (fry-rice:smart lord.act holder.act town-id.act salt.act)
-      =/  =rice:smart
+      =/  =id:smart  (fry-data:smart lord.act holder.act town-id.act salt.act)
+      =/  =data:smart
         [salt.act label.act data.act id lord.act holder.act town-id.act]
       =/  tex  ;;(@t data.rice)
       =/  new
@@ -305,7 +305,7 @@
       =/  =project  (~(got by projects) project.act)
       ::  ream action to form yolk
       =+  (text-to-zebra-noun action.act smart-lib-vase)
-      =/  =yolk:smart  [;;(@tas -.-) +.-]
+      =/  =calldata:smart  [;;(@tas -.-) +.-]
       =/  new-error
         ?~  expected-error.act  0
         u.expected-error.act
@@ -354,7 +354,7 @@
       =/  =expected-diff
         %-  malt
         %+  turn  ~(tap by p.land.mill-result)
-        |=  [=id:smart [@ux made=grain:smart]]
+        |=  [=id:smart [@ux made=item:smart]]
         =/  expected  (~(get by expected.test) id)
         :-  id
         :+  `made
@@ -381,7 +381,7 @@
         ?&  =(errorcode.mill-result expected-error.test)
         ::
             %+  levy  ~(val by expected-diff)
-            |=  [(unit grain:smart) (unit grain:smart) match=(unit ?)]
+            |=  [(unit item:smart) (unit item:smart) match=(unit ?)]
             ?~  match  %.y
             u.match
         ==
@@ -404,7 +404,7 @@
       ::  note that this doesn't save last-result for each test,
       ::  as results here will not reflect *just this test*
       =/  =project  (~(got by projects) project.act)
-      =/  [eggs=(list [@ux egg:smart]) new-nonce=@ud]
+      =/  [eggs=(list [@ux transaction:smart]) new-nonce=@ud]
         %^  spin  tests.act  user-nonce.project
         |=  [[id=@ux rate=@ud bud=@ud] nonce=@ud]
         =/  =test  (~(got by tests.project) id)

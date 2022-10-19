@@ -82,7 +82,7 @@
   |=([prop=@tas val=@t] [prop [%s val]])
 ::
 ++  parse-transaction
-  |=  [hash=@ux t=egg:smart action=supported-actions]
+  |=  [hash=@ux t=transaction:smart action=supported-actions]
   ^-  [p=@t q=json]
   :-  (scot %ux hash)
   %-  pairs
