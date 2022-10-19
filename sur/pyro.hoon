@@ -41,6 +41,7 @@
 +$  pyro-action
   $%  [%dojo who=@p command=tape]
       [%peek =path]
+      [%remove-ship who=@p]
   ==
 ::
 +$  aqua-effects

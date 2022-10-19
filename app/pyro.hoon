@@ -94,6 +94,7 @@
       ?-    -.act
           %peek
         !!
+      ::
           %dojo
         :_  state
         =-  [%pass /self-poke %agent [our.bowl %pyro] %poke -]~
@@ -108,6 +109,10 @@
           ==
         |=  ue=unix-event
         [%event who.act ue]
+      ::
+          %remove-ship
+        =.  ships.piers  (~(del by ships.piers) who.act)
+        `state
       ==
     --
   ::
@@ -164,8 +169,6 @@
 ::  Represents a single ship's state.
 ::
 ++  pe
-  ::NOTE  if we start needing the fake flag outside of +ahoy and +yaho,
-  ::      probably add it as an argument here.
   |=  who=ship
   =+  (~(gut by ships.piers) who *pier)
   =*  pier-data  -
