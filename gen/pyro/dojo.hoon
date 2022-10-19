@@ -1,7 +1,7 @@
 ::  Usage: :pyro|dojo ~dev "|start %zig %sequencer"
 ::
-/-  aquarium
-=,  aquarium
+/-  pyro
+=,  pyro
 :-  %say
 |=  [* [her=ship command=tape ~] ~]
 :-  %action
