@@ -20,7 +20,7 @@
 /+  *test, smart=zig-sys-smart, seq=zig-sequencer, merk
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
-/*  zigs-contract   %noun  /con/compiled/zigs-2/jam
+/*  zigs-contract   %jam  /con/compiled/zigs-2/jam
 |%
 ::
 ::  constants / dummy info for mill
@@ -98,7 +98,7 @@
     ==
   ++  pact
     ^-  item:smart
-    =/  code  (cue ;;(@ (cue zigs-contract)))
+    =/  code  (cue zigs-contract)
     :*  %|
         zigs-contract-id:smart  ::  id
         zigs-contract-id:smart  ::  source

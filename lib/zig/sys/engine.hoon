@@ -357,10 +357,10 @@
         ++  load
           |=  code=*
           ^-  vase
-          =/  cor  .*(q.library code)
-          ::  =/  payload   .*(q.library +.code)
-          ::  =/  cor       .*([q.library payload] -.code)
-          [-:!>(*contract:smart) cor]
+          :-  -:!>(*contract:smart)
+          =/  minted  (mink [q.library code] ,~)
+          ?.  ?=(%0 -.minted)  +:!>(*contract:smart)
+          product.minted
         ::
         ::  +search: our chain-state-scry
         ::  to handle item gets and contract reads
