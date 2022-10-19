@@ -2,7 +2,7 @@
 ::
 ::  Contract Playground
 ::
-/+  *ziggurat, smart=zig-sys-smart, sequencer,
+/+  *zig-ziggurat, smart=zig-sys-smart, seq=zig-sequencer,
     default-agent, dbug, verb
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
@@ -12,8 +12,8 @@
   $:  %0
       =projects
   ==
-+$  inflated-state-0  [state-0 =mil smart-lib-vase=vase]
-+$  mil  $_  ~(mill mill:sequencer !>(0) *(map * @) %.y)
++$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
++$  eng  $_  ~(engine engine:seq !>(0) *(map * @) %.y)
 --
 ::
 =|  inflated-state-0
@@ -28,23 +28,23 @@
 ::
 ++  on-init
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
-  =/  mil
-    %~  mill  mill:sequencer
+  =/  eng
+    %~  engine  engine:seq
     [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
   :-  ~
   %_    this
       state
-    [[%0 ~] mil smart-lib]
+    [[%0 ~] eng smart-lib]
   ==
 ++  on-save  !>(-.state)
 ++  on-load
   |=  =old=vase
   ::  on-load: pre-cue our compiled smart contract library
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
-  =/  mil
-    %~  mill  mill:sequencer
+  =/  eng
+    %~  engine  engine:seq
     [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
-  `this(state [!<(state-0 old-vase) mil smart-lib])
+  `this(state [!<(state-0 old-vase) eng smart-lib])
 ::
 ++  on-watch
   |=  =path
@@ -110,10 +110,10 @@
             next-contract-id=0xfafa.faf0
             error=~
             state=(starting-state user-address.act)
-            data-texts=(malt ~[[id.p:(designated-zigs-grain user-address.act) '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
+            data-texts=(malt ~[[id.p:(designated-zigs-item user-address.act) '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
             user-address.act
             user-nonce=0
-            mill-batch-num=0
+            batch-num=0
             tests=~
         ==
       ==
@@ -151,10 +151,10 @@
           to-compile.project
         (~(del by to-compile.project) file.act)
       ::
-          p.state.project
+          p.chain.project
         ?~  remove-id=(~(get by to-compile.project) file.act)
-          p.state.project
-        (del:big:mill p.state.project u.remove-id)
+          p.chain.project
+        (del:big:engine p.chain.project u.remove-id)
       ==
       :_  state(projects (~(put by projects) project.act project))
       :+  (make-compile project.act our.bowl)
@@ -190,20 +190,20 @@
         (save-compiled-projects project.act build-results)
       ~&  errors
       =:  errors.project  errors
-          p.state.project
-        %+  gas:big:mill  p.state.project
+          p.chain.project
+        %+  gas:big:engine  p.chain.project
         %+  murn  build-results
         |=  [p=path q=id:smart r=build-result]
         ?:  ?=(%| -.r)  ~
         :+  ~  q
         :*  %|
-            cont=`p.r
+            id=q
+            source=0x0
+            holder=user-address.project
+            shard-id=designated-shard-id
+            code=p.r
             interface=~
             types=~
-            id=q
-            lord=0x0
-            holder=user-address.project
-            town-id=designated-town-id
         ==
       ==
       :-  [(make-read-desk project.act our.bowl) cards]
@@ -220,19 +220,19 @@
     ::
         %add-to-state
       =/  =project  (~(got by projects) project.act)
-      =/  data-text  ;;(@t data.act)
-      =/  =id:smart  (fry-data:smart lord.act holder.act town-id.act salt.act)
+      =/  data-text  ;;(@t noun.act)
+      =/  =id:smart  (hash-data:smart source.act holder.act shard-id.act salt.act)
       =/  =data:smart
         =+  (text-to-zebra-noun data-text smart-lib-vase)
-        [salt.act label.act - id lord.act holder.act town-id.act]
+        [id source.act holder.act shard-id.act salt.act label.act -]
       ::  take text data input and ream to form data noun
       ::  put a new grain in the granary
-      =:  p.state.project
-        %+  put:big:mill  p.state.project
-        [id.rice %&^rice]
+      =:  p.chain.project
+        %+  put:big:engine  p.chain.project
+        [id.data %&^data]
       ::
           data-texts.project
-        (~(put by data-texts.project) id.rice data-text)
+        (~(put by data-texts.project) id.data data-text)
       ==
       :-  (make-project-update project.act project)^~
       state(projects (~(put by projects) project.act project))
@@ -240,8 +240,8 @@
         %delete-from-state
       ::  remove a grain from the granary
       =/  =project  (~(got by projects) project.act)
-      =.  p.state.project
-        (del:big:mill p.state.project id.act)
+      =.  p.chain.project
+        (del:big:engine p.chain.project id.act)
       :-  (make-project-update project.act project)^~
       state(projects (~(put by projects) project.act project))
     ::
@@ -249,7 +249,7 @@
       ::  generate an id for the test
       =/  =project  (~(got by projects) project.act)
       =/  test-id  `@ux`(mug now.bowl)
-      ::  ream action to form yolk
+      ::  ream action to form calldata
       =+  (text-to-zebra-noun action.act smart-lib-vase)
       =/  =calldata:smart  [;;(@tas -.-) +.-]
       =/  new-error=@ud  (fall expected-error.act 0)
@@ -259,7 +259,7 @@
         :*  name.act
             for-contract.act
             action.act
-            yolk
+            calldata
             ~
             new-error
             ~
@@ -268,19 +268,19 @@
       state(projects (~(put by projects) project.act project))
     ::
         %add-test-expectation
-      ::  add/replace expected rice output
+      ::  add/replace expected data output
       =/  =project  (~(got by projects) project.act)
-      ?~  current=(~(get by tests.project) id.act)
+      ?~  current=(~(get by tests.project) test-id.act)
         ~|("%ziggurat: test does not exist" !!)
-      =/  =id:smart  (fry-data:smart lord.act holder.act town-id.act salt.act)
+      =/  =id:smart  (hash-data:smart source.act holder.act shard-id.act salt.act)
       =/  =data:smart
-        [salt.act label.act data.act id lord.act holder.act town-id.act]
-      =/  tex  ;;(@t data.rice)
+        [id source.act holder.act shard-id.act salt.act label.act noun.act]
+      =/  tex  ;;(@t noun.data)
       =/  new
-        =-  [id.rice %&^rice(data -) tex]
+        =-  [id.data %&^data(noun -) tex]
         (text-to-zebra-noun tex smart-lib-vase)
       =.  tests.project
-        %+  ~(put by tests.project)  id.act
+        %+  ~(put by tests.project)  test-id.act
         u.current(expected (~(put by expected.u.current) new), result ~)
       :-  (make-project-update project.act project)^~
       state(projects (~(put by projects) project.act project))
@@ -303,7 +303,7 @@
     ::
         %edit-test
       =/  =project  (~(got by projects) project.act)
-      ::  ream action to form yolk
+      ::  ream action to form calldata
       =+  (text-to-zebra-noun action.act smart-lib-vase)
       =/  =calldata:smart  [;;(@tas -.-) +.-]
       =/  new-error
@@ -316,7 +316,7 @@
           :*  name.act
               for-contract.act
               action.act
-              yolk
+              calldata
               ~
               new-error
               ~
@@ -325,7 +325,7 @@
         :*  name.act
             for-contract.act
             action.act
-            yolk
+            calldata
             expected.u.current
             (fall expected-error.act expected-error.u.current)
             ~
@@ -342,18 +342,18 @@
         :*  caller
             ~
             for-contract.test
-            rate.act  bud.act
-            designated-town-id
+            gas=[rate.act bud.act]
+            designated-shard-id
             status=0
         ==
-      =/  =mill-result:mill
-        %+  %~  mill  mil
-            [caller designated-town-id mill-batch-num.project 0]
-          state.project
-        [[0 0 0] shell action.test]
+      =/  =single-result:engine
+        %+  %~  execute-single  eng
+            [caller designated-shard-id batch-num.project 0]
+          chain.project
+        [[0 0 0] action.test shell]
       =/  =expected-diff
         %-  malt
-        %+  turn  ~(tap by p.land.mill-result)
+        %+  turn  ~(tap by p.chain.single-result)
         |=  [=id:smart [@ux made=item:smart]]
         =/  expected  (~(get by expected.test) id)
         :-  id
@@ -378,7 +378,7 @@
       =/  success
         ?~  expected.test  ~
         :-  ~
-        ?&  =(errorcode.mill-result expected-error.test)
+        ?&  =(errorcode.single-result expected-error.test)
         ::
             %+  levy  ~(val by expected-diff)
             |=  [(unit item:smart) (unit item:smart) match=(unit ?)]
@@ -387,9 +387,9 @@
         ==
       ::
       =/  =test-result
-        :*  fee.mill-result
-            errorcode.mill-result
-            crow.mill-result
+        :*  fee.single-result
+            errorcode.single-result
+            events.single-result
             expected-diff
             success
         ==
@@ -413,17 +413,17 @@
           :*  caller
               ~
               for-contract.test
-              rate  bud
-              designated-town-id
+              gas=[rate bud]
+              designated-shard-id
               status=0
           ==
         :_  +(nonce)
         :-  `@ux`(sham shell action.test)
-        [[0 0 0] shell action.test]
-      =/  [res=state-transition:mill *]
-        %^    %~  mill-all  mil
-              [(designated-caller user-address.project 0) designated-town-id mill-batch-num.project 0]
-            state.project
+        [[0 0 0] action.test shell]
+      =/  [res=state-transition:engine *]
+        %^    %~  execute  eng
+              [(designated-caller user-address.project 0) designated-shard-id batch-num.project 0]
+            chain.project
           (silt eggs)
         256
       :-  (make-multi-test-update project.act res)^~
@@ -471,7 +471,7 @@
       ~&  >  "%ziggurat: deploying contract to {<deploy-location.act>} testnet"
       =/  pok
         :*  %transaction  from=address.act
-            contract=0x1111.1111  town=town-id.act
+            contract=0x1111.1111  town=shard-id.act
             action=[%noun [%deploy upgradable.act .^(noun %ct path.act) ~ ~]]
         ==
       :_  state
@@ -531,7 +531,7 @@
       [%project-state @ ~]
     ?~  project=(~(get by projects) (slav %t i.t.t.path))
       ``json+!>(~)
-    =/  =json  (granary-to-json p.state.u.project data-texts.u.project)
+    =/  =json  (state-to-json p.chain.u.project data-texts.u.project)
     ``json+!>(json)
   ::
       [%project-tests @ ~]

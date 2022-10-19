@@ -23,7 +23,7 @@
   %.y
 ::
 +$  granary   (merk:merk id:smart item:smart)
-+$  mill-result
++$  single-result
   [fee=@ud =land burned=granary =errorcode:smart hits=(list hints:zink) =crow:smart]
 ++  gilt
   ::  grains list to granary
@@ -244,7 +244,7 @@
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  updated-1=item:smart
     (fun-account id:caller-1 50 token-simple (malt ~[[id:caller-3 10]]))
-  =/  milled=mill-result
+  =/  milled=single-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `transaction:smart`[fake-sig shel action]
   =/  res=item:smart  (got:big p.land.milled id.p:account-1)
@@ -260,7 +260,7 @@
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  updated-1=item:smart  (fun-account id:caller-1 20 token-simple ~)
   =/  updated-2=item:smart  (fun-account id:caller-2 80 token-simple ~)
-  =/  milled=mill-result
+  =/  milled=single-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `transaction:smart`[fake-sig shel action]
   =/  expected=granary  (gas:big *granary ~[[id.p:updated-1 updated-1] [id.p:updated-2 updated-2]])
@@ -275,7 +275,7 @@
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  new-id  (fry-data:smart id.p:fungible-wheat id:caller-4 town-id (salt-of token-simple))
   =/  new=item:smart  (fun-account id:caller-4 30 token-simple ~)
-  =/  milled=mill-result
+  =/  milled=single-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `transaction:smart`[fake-sig shel action]
   =/  res=item:smart  (got:big p.land.milled new-id)
@@ -287,7 +287,7 @@
   =/  action  [%give id:caller-2 51 id.p:account-1 `id.p:account-2]
   =/  shel=shell:smart
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  milled=mill-result
+  =/  milled=single-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `transaction:smart`[fake-sig shel action]
   (expect-eq !>(%6) !>(errorcode.milled))
@@ -296,7 +296,7 @@
   =/  action  [%give id:caller-4 10 id.p:account-1 `id.p:account-4-different]
   =/  shel=shell:smart
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
-  =/  milled=mill-result
+  =/  milled=single-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `transaction:smart`[fake-sig shel action]
   (expect-eq !>(%6) !>(errorcode.milled))
@@ -312,7 +312,7 @@
     [caller-4 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  new-id=id:smart  (fry-data:smart id.p:fungible-wheat id:caller-4 town-id (salt-of token-simple))
   =/  correct=item:smart  (fun-account id:caller-4 10 token-simple ~)
-  =/  milled=mill-result
+  =/  milled=single-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `transaction:smart`[fake-sig shel action]
   =/  res=item:smart  (got:big p.land.milled new-id)
@@ -336,7 +336,7 @@
     (fun-account id:caller-1 100 token-mintable ~)
   =/  updated-2=item:smart
     (fun-account id:caller-2 60 token-mintable ~)
-  =/  milled=mill-result
+  =/  milled=single-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `transaction:smart`[fake-sig shel action]
   =/  expected=granary  (gilt ~[new-simp-meta updated-1 updated-2])
@@ -350,7 +350,7 @@
     [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
   =/  expected=item:smart
     (fun-account id:caller-3 50 token-mintable ~)
-  =/  milled=mill-result
+  =/  milled=single-result
     %+  ~(mill mil miller town-id 1)
     fake-land  `transaction:smart`[fake-sig shel action]
   =/  res=item:smart  (got:big p.land.milled id.p:expected)
@@ -384,7 +384,7 @@
 ::    g=(husk:smart account:sur:fun (fun-account id:caller-1 20 token-simple ~) ~ ~)
 ::  =/  updated-2=item:smart
 ::    (fun-account id:caller-2 60 token-simple ~)
-::  =/  milled=mill-result
+::  =/  milled=single-result
 ::    %+  ~(mill mil miller town-id 1)
 ::    fake-land  `transaction:smart`[fake-sig shel action]
 ::  =/  expected=granary  (gilt ~[updated-1 updated-2])
@@ -464,7 +464,7 @@
 ::    [%deploy (silt ~[[id:caller-1 900]]) (silt ~[id:caller-1]) 'Test Coin' 'TC' 0 1.000 %.y]
 ::  =/  shel=shell:smart
 ::    [caller-1 ~ id.p:fungible-wheat rate budget town-id 0]
-::  =/  milled=mill-result
+::  =/  milled=single-result
 ::    %+  ~(mill mil miller town-id 1)
 ::    fake-land  `transaction:smart`[fake-sig shel action]
 ::  =/  expected=granary  (gilt ~[new-account new-token-metadata])

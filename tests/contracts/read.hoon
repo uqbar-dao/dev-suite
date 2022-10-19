@@ -21,7 +21,7 @@
     ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun)))
   %.y
 ::
-+$  mill-result
++$  single-result
   [fee=@ud =land burned=granary =errorcode:smart hits=(list hints:zink) =crow:smart]
 ::
 ::  fake data
@@ -89,7 +89,7 @@
   =/  =calldata:smart  [%whatever ~]
   =/  shel=shell:smart
     [caller-1 ~ id:read-wheat 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id 1)
       fake-land
     `transaction:smart`[fake-sig shel yolk]

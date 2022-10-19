@@ -781,13 +781,17 @@
   ==
 ::
 ++  events-to-json
-  |=  =events:smart
+  |=  events=(list contract-event:engine)
   =,  enjs:format
   ^-  json
-  %-  pairs
+  :-  %a
   %+  turn  events
-  |=  [label=@tas =json]
-  [(scot %tas label) json]
+  |=  [contract=@ux txn=@ux label=@tas =json]
+  %-  pairs
+  :~  ['contract' [%s (scot %ux contract)]]
+      ['txn' [%s (scot %ux txn)]]
+      [(scot %t label) json]
+  ==
 ::
 ++  dir-to-json
   |=  dir=(list path)

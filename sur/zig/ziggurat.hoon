@@ -34,7 +34,7 @@
 +$  test-result
   $:  fee=@ud
       =errorcode:smart
-      =events:smart
+      events=(list contract-event:engine)
       =expected-diff
       success=(unit ?)  ::  does last-result fully match expected?
   ==
@@ -64,7 +64,7 @@
           ::
           [%add-test name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]  ::  name optional
           [%add-test-expectation test-id=@ux salt=@ label=@tas noun=* source=id:smart holder=id:smart shard-id=@ux]
-          [%delete-test-expectation test-id=@ux delete=id:smart]
+          [%delete-test-expectation id=@ux delete=id:smart]
           [%delete-test id=@ux]
           [%edit-test id=@ux name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]
           [%run-test id=@ux rate=@ud bud=@ud]

@@ -334,6 +334,8 @@
         ^-  [hints:zink (unit move) gas=@ud =errorcode:smart]
         ~>  %bout
         |^
+        ~&  >  "context: {<context>}"
+        ~&  >>  "calldata: {<calldata.txn>}"
         =/  dor=vase  (load code.pact)
         =/  gun  (ajar dor %write !>(context) !>(calldata.txn) %$)
         ::
@@ -353,10 +355,11 @@
         [;;((unit move) p.p.book) gas.q.book %0]
         ::
         ++  load
-          |=  code=[bat=* pay=*]
+          |=  code=*
           ^-  vase
-          =/  payload   .*(q.library pay.code)
-          =/  cor       .*([q.library payload] bat.code)
+          =/  cor  .*(q.library code)
+          ::  =/  payload   .*(q.library +.code)
+          ::  =/  cor       .*([q.library payload] -.code)
           [-:!>(*contract:smart) cor]
         ::
         ::  +search: our chain-state-scry

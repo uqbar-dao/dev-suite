@@ -53,12 +53,13 @@
     =/  lib-txt  .^(@t %cx (welp pax /hoon))
     ::  CURRENTLY IGNORING IMPORTS INSIDE LIBRARIES
     +:(parse-pile (trip lib-txt))
-  =/  libraries=hoon  [%clsg braw]
-  =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun libraries)
-  =/  payload=vase  (slap smart-lib libraries)
-  =/  cont  (~(mint ut p:(slop smart-lib payload)) %noun contract-hoon)
+  =/  full=hoon  [%tsgl contract-hoon [%clsg braw]]
+  =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun full)
+  ::  =/  payload=vase  (slap smart-lib libraries)
+  ::  =/  cont  (~(mint ut p:(slop smart-lib payload)) %noun contract-hoon)
   ::
-  [bat=q.cont pay=full-nock]
+  [-.full-nock +.full-nock]
+  ::[bat=q.cont pay=full-nock]
 ::
 ++  compile-trivial
   |=  [hoonlib-txt=@t smartlib-txt=@t]
@@ -144,8 +145,8 @@
   ::  cax.q.book
   ::
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
-  =/  cont=[bat=* pay=*]  (compile-contract /zig triv-txt)
-  =/  cor  .*([q.smart-lib pay.cont] bat.cont)
+  =/  code=[bat=* pay=*]  (compile-contract /zig triv-txt)
+  =/  cor  .*([q.smart-lib pay.code] bat.code)
   =/  dor  [-:!>(*contract:smart) cor]
   =/  gun  (ajar:engine dor %write !>(*context:smart) !>(*calldata:smart) %$)
   =/  =book  (zebra bud cax *chain-state-scry gun %.n)

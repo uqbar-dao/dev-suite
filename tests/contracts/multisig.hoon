@@ -22,7 +22,7 @@
     ;;((map * @) (cue q.q.zink-cax-noun))
   %.y
 ::
-+$  mill-result
++$  single-result
   [fee=@ud =land burned=granary =errorcode:smart hits=(list hints:zink) =crow:smart]
 ::
 ::  fake data
@@ -164,7 +164,7 @@
   =/  =calldata:smart  [%create 1 member-set]
   =/  shel=shell:smart
     [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
@@ -176,7 +176,7 @@
   =/  =calldata:smart  [%create 0 ~]
   =/  shel=shell:smart
     [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id batch-num)
       [(del:big fake-granary id:multisig) fake-populace]
     `transaction:smart`[fake-sig shel yolk]
@@ -189,7 +189,7 @@
   =/  =calldata:smart  [%create 2 ~]
   =/  shel=shell:smart
     [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id batch-num)
       [(del:big fake-granary id:multisig) fake-populace]
     `transaction:smart`[fake-sig shel yolk]
@@ -204,7 +204,7 @@
   =/  =calldata:smart  [%create 4 member-set]
   =/  shel=shell:smart
     [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id batch-num)
       [(del:big fake-granary id:multisig) fake-populace]
     `transaction:smart`[fake-sig shel yolk]
@@ -237,7 +237,7 @@
   =/  =calldata:smart  [%vote id:multisig 0x1 %.y]
   =/  shel=shell:smart
     [caller-3 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
@@ -249,7 +249,7 @@
   =/  =calldata:smart  [%vote id:multisig 0x6789 %.y]
   =/  shel=shell:smart
     [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
@@ -261,7 +261,7 @@
   =/  =calldata:smart  [%vote id:multisig 0x1 %.y]
   =/  shel=shell:smart
     [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
@@ -286,7 +286,7 @@
   =/  =calldata:smart  [%vote id:multisig 0x1 %.n]
   =/  shel=shell:smart
     [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
@@ -348,7 +348,7 @@
     [%propose id:multisig my-proposal]
   =/  shel=shell:smart
     [caller-1 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
@@ -375,7 +375,7 @@
   =/  =calldata:smart  [%propose id:multisig my-proposal]
   =/  shel=shell:smart
     [caller-3 ~ id.p:wheat:multisig 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id batch-num)
       fake-land
     `transaction:smart`[fake-sig shel yolk]

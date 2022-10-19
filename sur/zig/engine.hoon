@@ -12,9 +12,9 @@
 ::
 +$  state-diff  state  ::  state transitions for one batch
 ::
-::  contract events are converted to this -- source is txn hash
+::  contract events are converted to this -- `txn` is txn hash
 ::
-+$  contract-event  [contract=id:smart source=@ux label=@tas =json]
++$  contract-event  [contract=id:smart txn=@ux label=@tas =json]
 ::
 ::  final result of +mill-all
 ::
@@ -40,7 +40,7 @@
 ::
 ::  intermediate result from +mill
 ::
-+$  mill-result
++$  single-result
   $:  fee=@ud
       =chain
       burned=state

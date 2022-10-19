@@ -20,7 +20,7 @@
     ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun)))
   %.y
 ::
-+$  mill-result
++$  single-result
   [fee=@ud =land burned=granary =errorcode:smart hits=(list hints:zink) =crow:smart]
 ::
 ::  fake data
@@ -122,7 +122,7 @@
   =/  =calldata:smart  [%deploy %.y trivial-nok ~ ~]
   =/  shel=shell:smart
     [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id 1)
       [(del:big fake-granary upgradable-id) fake-populace]
     `transaction:smart`[fake-sig shel yolk]
@@ -138,7 +138,7 @@
   =/  =calldata:smart  [%deploy %.n immutable-nok ~ ~]
   =/  shel=shell:smart
     [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id 1)
       [(del:big fake-granary immutable-id) fake-populace]
     `transaction:smart`[fake-sig shel yolk]
@@ -154,7 +154,7 @@
   =/  =calldata:smart  [%upgrade upgradable-id trivial-nok-upgrade]
   =/  shel=shell:smart
     [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id 1)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
@@ -181,7 +181,7 @@
   =/  =calldata:smart  [%upgrade immutable-id trivial-nok-upgrade]
   =/  shel=shell:smart
     [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id 1)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
@@ -192,7 +192,7 @@
   =/  =calldata:smart  [%upgrade immutable-id trivial-nok-upgrade]
   =/  shel=shell:smart
     [caller-2 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
-  =/  res=mill-result
+  =/  res=single-result
     %+  ~(mill mil miller town-id 1)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
