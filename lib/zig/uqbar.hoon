@@ -1,4 +1,4 @@
-/-  *uqbar
+/-  *zig-uqbar
 /+  smart=zig-sys-smart
 |%
 ++  scry

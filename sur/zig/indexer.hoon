@@ -1,47 +1,47 @@
-/-  seq=sequencer
+/-  seq=zig-sequencer
 /+  smart=zig-sys-smart
 ::
 |%
 +$  query-type
   $?  %batch
-      %egg
+      %txn
       %from
-      %grain
-      :: %grain-eggs
+      %item
+      :: %item-txns
       %holder
-      %lord
+      %source
       %to
-      %town
+      %shard
       %hash
   ==
 ::
 +$  query-payload
-  ?(item-hash=@ux [town-id=@ux item-hash=@ux] location)
+  ?(item-hash=@ux [shard-id=@ux item-hash=@ux] location)
 ::
 +$  location
   $?  second-order-location
-      town-location
+      shard-location
       batch-location
-      egg-location
+      txn-location
   ==
 +$  second-order-location  id:smart
-+$  town-location  id:smart
++$  shard-location  id:smart
 +$  batch-location
-  [town-id=id:smart batch-root=id:smart]
-+$  egg-location
-  [town-id=id:smart batch-root=id:smart egg-num=@ud]
+  [shard-id=id:smart batch-root=id:smart]
++$  txn-location
+  [shard-id=id:smart batch-root=id:smart txn-num=@ud]
 ::
 +$  location-index
   (map @ux (jar @ux location))
-+$  batch-index  ::  used for grains
++$  batch-index  ::  used for items
   (map @ux (jar @ux batch-location))
-+$  egg-index  ::  only ever one tx per id; -> (map (map))?
-  (map @ux (jar @ux egg-location))
++$  txn-index  ::  only ever one tx per id; -> (map (map))?
+  (map @ux (jar @ux txn-location))
 +$  second-order-index
   (map @ux (jar @ux second-order-location))
 ::
-+$  batches-by-town
-  (map town-id=id:smart batches-and-order)
++$  batches-by-shard
+  (map shard-id=id:smart batches-and-order)
 +$  batches-and-order
   [=batches =batch-order]
 +$  batches
@@ -49,15 +49,15 @@
 +$  batch-order
   (list id:smart)  ::  0-index -> most recent batch
 +$  batch
-  [transactions=(list [@ux transaction:smart]) town:seq]
-+$  newest-batch-by-town
-  %+  map  town-id=id:smart
+  [transactions=(list [@ux transaction:smart]) shard:seq]
++$  newest-batch-by-shard
+  %+  map  shard-id=id:smart
   [batch-id=id:smart timestamp=@da =batch]
 ::
-+$  town-update-queue
-  (map town-id=@ux (map batch-id=@ux timestamp=@da))
++$  shard-update-queue
+  (map shard-id=@ux (map batch-id=@ux timestamp=@da))
 +$  sequencer-update-queue
-  (map town-id=@ux (map batch-id=@ux batch))
+  (map shard-id=@ux (map batch-id=@ux batch))
 ::
 +$  versioned-state
   $%  base-state-2
@@ -67,41 +67,41 @@
 ::
 +$  base-state-2
   $:  %2
-      =batches-by-town
+      =batches-by-shard
       =capitol:seq
       =sequencer-update-queue
-      =town-update-queue
+      =shard-update-queue
       old-sub-paths=(map path @ux)
       old-sub-updates=(map @ux update)
       catchup-indexer=dock
   ==
 +$  base-state-1
   $:  %1
-      =batches-by-town
+      =batches-by-shard
       =capitol:seq
       =sequencer-update-queue
-      =town-update-queue
+      =shard-update-queue
       old-sub-updates=(map path update)
       catchup-indexer=dock
   ==
 +$  base-state-0
   $:  %0
-      =batches-by-town
+      =batches-by-shard
       =capitol:seq
       =sequencer-update-queue
-      =town-update-queue
+      =shard-update-queue
       old-sub-updates=(map path update)
   ==
 ::
 +$  indices-0
-  $:  =egg-index
+  $:  =txn-index
       from-index=second-order-index
-      grain-index=batch-index
-      :: grain-eggs-index=second-order-index
+      item-index=batch-index
+      :: item-txns-index=second-order-index
       holder-index=second-order-index
-      lord-index=second-order-index
+      source-index=second-order-index
       to-index=second-order-index
-      =newest-batch-by-town
+      =newest-batch-by-shard
   ==
 ::
 +$  inflated-state-2  [base-state-2 indices-0]
@@ -109,10 +109,10 @@
 +$  inflated-state-0  [base-state-0 indices-0]
 ::
 +$  batch-update-value
-  [timestamp=@da location=town-location =batch]
-+$  egg-update-value
-  [timestamp=@da location=egg-location =transaction:smart]
-+$  grain-update-value
+  [timestamp=@da location=shard-location =batch]
++$  txn-update-value
+  [timestamp=@da location=txn-location =transaction:smart]
++$  item-update-value
   [timestamp=@da location=batch-location =item:smart]
 ::
 +$  update
@@ -120,42 +120,42 @@
   $%  [%path-does-not-exist ~]
       [%batch batches=(map batch-id=id:smart batch-update-value)]
       [%batch-order =batch-order]
-      [%egg eggs=(map egg-id=id:smart egg-update-value)]
-      [%grain grains=(jar grain-id=id:smart grain-update-value)]
+      [%txn txns=(map txn-id=id:smart txn-update-value)]
+      [%item items=(jar item-id=id:smart item-update-value)]
       $:  %hash
           batches=(map batch-id=id:smart batch-update-value)
-          eggs=(map egg-id=id:smart egg-update-value)
-          grains=(jar grain-id=id:smart grain-update-value)
+          txns=(map txn-id=id:smart txn-update-value)
+          items=(jar item-id=id:smart item-update-value)
       ==
       [%newest-batch batch-id=id:smart batch-update-value]
       [%newest-batch-order batch-id=id:smart]
-      [%newest-egg egg-id=id:smart egg-update-value]
-      [%newest-grain grain-id=id:smart grain-update-value]
+      [%newest-txn txn-id=id:smart txn-update-value]
+      [%newest-item item-id=id:smart item-update-value]
       ::  %newest-hash type is just %hash, since can have multiple
-      ::  eggs/grains, considering second-order indices
+      ::  txns/items, considering second-order indices
   ==
 ::
 ::  TODO: change update interface to below
 :: +$  update
 ::   $@  ~
 ::   $%  [%path-does-not-exist ~]
-::       [%batches (map batch-id=id:smart [timestamp=@da location=town-location =batch])]
+::       [%batches (map batch-id=id:smart [timestamp=@da location=shard-location =batch])]
 ::       [%batch-order =batch-order]
-::       [%eggs (map egg-id=id:smart [timestamp=@da location=egg-location =transaction:smart])]
-::       [%grains (jar grain-id=id:smart [timestamp=@da location=batch-location =item:smart])]
+::       [%txns (map txn-id=id:smart [timestamp=@da location=txn-location =transaction:smart])]
+::       [%items (jar item-id=id:smart [timestamp=@da location=batch-location =item:smart])]
 ::       $:  %hashes
-::           batches=(map batch-id=id:smart [timestamp=@da location=town-location =batch])
-::           eggs=(map egg-id=id:smart [timestamp=@da location=egg-location =transaction:smart])
-::           grains=(jar grain-id=id:smart [timestamp=@da location=batch-location =item:smart])
+::           batches=(map batch-id=id:smart [timestamp=@da location=shard-location =batch])
+::           txns=(map txn-id=id:smart [timestamp=@da location=txn-location =transaction:smart])
+::           items=(jar item-id=id:smart [timestamp=@da location=batch-location =item:smart])
 ::       ==
-::       [%batch batch-id=id:smart timestamp=@da location=town-location =batch]
+::       [%batch batch-id=id:smart timestamp=@da location=shard-location =batch]
 ::       [%newest-batch-id batch-id=id:smart]  ::  keep?
-::       [%egg egg-id=id:smart timestamp=@da location=egg-location =transaction:smart]
-::       [%grain grain-id=id:smart timestamp=@da location=batch-location =item:smart]
+::       [%txn txn-id=id:smart timestamp=@da location=txn-location =transaction:smart]
+::       [%item item-id=id:smart timestamp=@da location=batch-location =item:smart]
 ::       $:  %hash
-::           batch=[batch-id=id:smart timestamp=@da location=town-location =batch]
-::           egg=[egg-id=id:smart timestamp=@da location=egg-location =transaction:smart]
-::           grain=[grain-id=id:smart timestamp=@da location=batch-location =item:smart]
+::           batch=[batch-id=id:smart timestamp=@da location=shard-location =batch]
+::           txn=[txn-id=id:smart timestamp=@da location=txn-location =transaction:smart]
+::           item=[item-id=id:smart timestamp=@da location=batch-location =item:smart]
 ::       ==
 ::   ==
 --

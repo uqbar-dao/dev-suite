@@ -1,4 +1,4 @@
-/-  *sequencer
+/-  *zig-sequencer
 |%
 ::
 ::  ship signatures
