@@ -6,8 +6,7 @@
 /-  *zig-wallet, ui=zig-indexer
 /+  default-agent, dbug, verb, ethereum, bip32, bip39,
     uqbar=zig-uqbar, ui-lib=zig-indexer, zink=zink-zink,
-    *wallet-util, parsing=wallet-parsing,
-    smart=zig-sys-smart
+    *zig-wallet, smart=zig-sys-smart
 /*  smart-lib  %noun  /lib/zig/sys/smart-lib/noun
 |%
 +$  card  card:agent:gall
