@@ -60,13 +60,11 @@
   (map shard-id=@ux (map batch-id=@ux batch))
 ::
 +$  versioned-state
-  $%  base-state-2
-      base-state-1
-      base-state-0
+  $%  base-state-0
   ==
 ::
-+$  base-state-2
-  $:  %2
++$  base-state-0
+  $:  %0
       =batches-by-shard
       =capitol:seq
       =sequencer-update-queue
@@ -74,23 +72,6 @@
       old-sub-paths=(map path @ux)
       old-sub-updates=(map @ux update)
       catchup-indexer=dock
-  ==
-+$  base-state-1
-  $:  %1
-      =batches-by-shard
-      =capitol:seq
-      =sequencer-update-queue
-      =shard-update-queue
-      old-sub-updates=(map path update)
-      catchup-indexer=dock
-  ==
-+$  base-state-0
-  $:  %0
-      =batches-by-shard
-      =capitol:seq
-      =sequencer-update-queue
-      =shard-update-queue
-      old-sub-updates=(map path update)
   ==
 ::
 +$  indices-0
@@ -104,8 +85,6 @@
       =newest-batch-by-shard
   ==
 ::
-+$  inflated-state-2  [base-state-2 indices-0]
-+$  inflated-state-1  [base-state-1 indices-0]
 +$  inflated-state-0  [base-state-0 indices-0]
 ::
 +$  batch-update-value

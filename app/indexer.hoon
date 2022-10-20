@@ -173,7 +173,7 @@
 +$  card  card:agent:gall
 --
 ::
-=|  inflated-state-2:ui
+=|  inflated-state-0:ui
 =*  state  -
 ::
 %-  agent:dbug
@@ -927,45 +927,15 @@
 ++  set-state-from-vase
   |=  state-vase=vase
   ^-  _state
-  =+  !<(=versioned-state:ui state-vase)
-  ?-    -.versioned-state
+  =+  vs=!<(versioned-state:ui state-vase)
+  ?-    -.vs
       %0
-    ::  TODO: remove hardcode
-    =/  catchup-indexer-host=@p  ~dister-dozzod-bacdun
-    =/  catchup-indexer-dock=dock
-      [catchup-indexer-host %indexer]
     :_  %-  inflate-state
-        ~(tap by batches-by-shard.versioned-state)
-    :*  %2
-        batches-by-shard.versioned-state
-        capitol.versioned-state
-        sequencer-update-queue.versioned-state
-        shard-update-queue.versioned-state
-        ~
-        ~
-        catchup-indexer-dock
-    ==
-  ::
-      %1
-    :_  %-  inflate-state
-        ~(tap by batches-by-shard.versioned-state)
-    :*  %2
-        batches-by-shard.versioned-state
-        capitol.versioned-state
-        sequencer-update-queue.versioned-state
-        shard-update-queue.versioned-state
-        ~
-        ~
-        catchup-indexer.versioned-state
-    ==
-  ::
-      %2
-    :_  %-  inflate-state
-        ~(tap by batches-by-shard.versioned-state)
-    %=  versioned-state
-        old-sub-paths    ~
-        old-sub-updates  ~
-        catchup-indexer  catchup-indexer
+        ~(tap by batches-by-shard.vs)
+    %=  vs
+      old-sub-paths    ~
+      old-sub-updates  ~
+      catchup-indexer  catchup-indexer
     ==
   ==
 ::
