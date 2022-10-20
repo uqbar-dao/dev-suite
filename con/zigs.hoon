@@ -77,10 +77,11 @@
   ==
 ::
 ++  read
-  |_  =path
+  |_  =pith
   ++  json
     ^-  ^json
-    ?+    path  !!
+    ?+    pith  !!
+        ::  #/some/who=@p/@t
         [%get-balance @ ~]
       =+  (need (scry-state (slav %ux i.t.path)))
       =+  (husk account:sur - ~ ~)

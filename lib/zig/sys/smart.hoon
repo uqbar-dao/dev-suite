@@ -173,6 +173,27 @@
 ::
 +$  typed-message  [domain=id message=@]
 ::
+::  typed paths inside contracts
+::  taken from: https://github.com/urbit/urbit/pull/5887
+::  can live here temporarily until these types/parsers
+::  are merged into hoon.hoon
+::
++$  pith  (list iota)                                  ::  typed urbit path
+::                                                     ::
++$  iota                                               ::  typed path segment
+  $~  [%n ~]
+  $@  @tas
+  $%  [%ub @ub]  [%uc @uc]  [%ud @ud]  [%ui @ui]
+      [%ux @ux]  [%uv @uv]  [%uw @uw]
+      [%sb @sb]  [%sc @sc]  [%sd @sd]  [%si @si]
+      [%sx @sx]  [%sv @sv]  [%sw @sw]
+      [%da @da]  [%dr @dr]
+      [%f ?]     [%n ~]
+      [%if @if]  [%is @is]
+      [%t @t]    [%ta @ta]  ::  @tas
+      [%p @p]    [%q @q]
+      [%rs @rs]  [%rd @rd]  [%rh @rh]  [%rq @rq]
+  ==
 --  =<
 ::  ::
 ::  ::  three: formatting (json from zuse/lull)
