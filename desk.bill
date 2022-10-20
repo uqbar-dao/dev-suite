@@ -1,5 +1,7 @@
-:~  %rollup
+:~  %uqbar
+    %rollup
     %sequencer
+    %indexer
     %wallet
     %ziggurat
     %faucet

@@ -3,15 +3,15 @@
 ::  The agent for interacting with Uqbar. Provides read/write layer for userspace agents.
 ::
 /-  spider,
-    ui=indexer,
-    w=wallet
+    ui=zig-indexer,
+    w=zig-wallet
 /+  agentio,
     default-agent,
     dbug,
     verb,
-    s=sequencer,
+    s=zig-sequencer,
     smart=zig-sys-smart,
-    u=uqbar
+    u=zig-uqbar
 |%
 +$  card  card:agent:gall
 +$  state-0
@@ -84,8 +84,8 @@
       ::  must be of the form, e.g.,
       ::   /indexer/[requesting-app-name]/grain/[shard-id]/[grain-id]
       ?.  ?=([%indexer @ @ ^] path)  ~
-      =/  shard-id=id:smart  (slav %ux i.t.t.t.path)
-      (watch-indexer shard-id /[i.path]/[i.t.path] t.t.path)
+      =/  shard=id:smart  (slav %ux i.t.t.t.path)
+      (watch-indexer shard /[i.path]/[i.t.path] t.t.path)
     ==
     ::
     ++  watch-wallet
@@ -96,11 +96,11 @@
       wallet-source  sub-path
     ::
     ++  watch-indexer  ::  TODO: use fallback better?
-      |=  [shard-id=id:smart wire-prefix=wire sub-path=^path]
+      |=  [shard=id:smart wire-prefix=wire sub-path=^path]
       ^-  (list card)
-      ?~  source=(get-best-source:uc shard-id ~ %nu)
+      ?~  source=(get-best-source:uc shard ~ %nu)
         ~&  >>>  "%uqbar: subscription failed:"
-        ~&  >>>  " do not have indexer source for shard {<shard-id>}."
+        ~&  >>>  " do not have indexer source for shard {<shard>}."
         ~&  >>>  " Add indexer source for shard and try again."
         ~
       =/  disambiguator=@ta  (scot %ux (cut 5 [0 1] eny.bowl))
@@ -163,7 +163,7 @@
             [%uqbar-action !>(`action:u`[%ping ~])]
         %=  state
             indexer-sources
-          (~(put ju indexer-sources) shard-id.act source.act)
+          (~(put ju indexer-sources) shard.act source.act)
         ==
       ::
           %remove-source
@@ -173,12 +173,12 @@
         %=  state
             indexer-sources-ping-results
           %^    remove-from-ping-results
-              shard-id.act
+              shard.act
             source.act
           indexer-sources-ping-results
         ::
             indexer-sources
-          (~(del ju indexer-sources) shard-id.act source.act)
+          (~(del ju indexer-sources) shard.act source.act)
         ==
       ::
           %set-sources
@@ -200,27 +200,26 @@
       ==
       ::
       ++  remove-from-ping-results
-        |=  $:  shard-id=id:smart
+        |=  $:  shard=id:smart
                 source=dock
                 =indexer-sources-ping-results:u
             ==
         ^-  indexer-sources-ping-results:u
         =/  old
           %+  ~(gut by indexer-sources-ping-results)
-          shard-id  [~ ~ ~ ~]
+          shard  [~ ~ ~ ~]
         ?:  ?=([~ ~ ~ ~] old)  indexer-sources-ping-results
         %+  ~(put by indexer-sources-ping-results)
-          shard-id
+          shard
         :^    (~(del in previous-up.old) source)
             (~(del in previous-down.old) source)
           (~(del in newest-up.old) source)
         (~(del in newest-down.old) source)
       ::
       ++  set-sources-remove-from-ping-results
-        |=  shards=(list [shard-id=id:smart (set dock)])
+        |=  shards=(list [shard=id:smart (set dock)])
         ^-  indexer-sources-ping-results:u
         ?~  shards  indexer-sources-ping-results
-        =*  shard-id  shard-id.i.shards
         =/  docks=(list dock)  ~(tap in +.i.shards)
         %=  $
             shards  t.shards
@@ -231,7 +230,7 @@
               docks  t.docks
               indexer-sources-ping-results
             %^    remove-from-ping-results
-                shard-id
+                shard.i.shards
               i.docks
             indexer-sources-ping-results
           ==
@@ -245,31 +244,30 @@
       ::
       ::  Each write can optionally create a subscription, which will forward these things:
       ::
-      ::  - a "receipt" from sequencer, which contains a signed hash of the egg
+      ::  - a "receipt" from sequencer, which contains a signed hash of the txn
       ::    (signed by both urbit ID and uqbar address -- enforcing that reputational link)
       ::
-      ::  - once the egg gets submitted in batch to rollup, a card with the status/errorcode
+      ::  - once the txn gets submitted in batch to rollup, a card with the status/errorcode
       ::
-      ::  - a card containing the new nonce of the address submitting the egg
+      ::  - a card containing the new nonce of the address submitting the txn
       ::    (apps can ignore and track on their own, or use this)
       ::
-      ::  To enable status update, uqbar.hoon should subscribe to indexer for that egg
+      ::  To enable status update, uqbar.hoon should subscribe to indexer for that txn
       ::  and unsub when either status is received, or batch is rejected. (TODO how to determine latter?)
       ::
           %submit
         ?>  =(src.bowl our.bowl)
-        =/  shard-id  `@ux`shard-id.shell.egg.write
-        ?~  seq=(~(get by sequencers.state) shard-id)
+        ?~  seq=(~(get by sequencers.state) `@ux`shard.txn.write)
           ~|("%uqbar: no known sequencer for that shard" !!)
-        =/  egg-hash  (scot %ux `@ux`(sham [shell yolk]:egg.write))
+        =/  txn-hash  (scot %ux `@ux`(sham +.txn.write))
         :_  state
-        :+  %+  ~(poke pass:io /submit-transaction/egg-hash)
+        :+  %+  ~(poke pass:io /submit-transaction/txn-hash)
               [q.u.seq %sequencer]
             :-  %sequencer-shard-action
-            !>(`shard-action:s`[%receive (silt ~[egg.write])])
+            !>(`shard-action:s`[%receive (silt ~[txn.write])])
           %+  fact:io
             [%write-result !>(`write-result:u`[%sent ~])]
-          ~[/track/[egg-hash]]
+          ~[/track/[txn-hash]]
         ~
       ::
           %receipt
@@ -278,7 +276,7 @@
         :_  ~
         %+  fact:io
           [%write-result !>(`write-result:u`write)]
-        ~[/track/(scot %ux egg-hash.write)]
+        ~[/track/(scot %ux txn-hash.write)]
       ==
     --
   ::
@@ -335,13 +333,13 @@
         ::
             %thread-done
           ?:  =(*vase q.cage.sign)  `this  ::  thread canceled
-          =*  shard-id  p.u.source
+          =*  shard    p.u.source
           =*  d        q.u.source
           =/  is-last-ping-tid=?  =(0 ~(wyt by ping-tids))
           =.  indexer-sources-ping-results
-            %+  ~(put by indexer-sources-ping-results)  shard-id
+            %+  ~(put by indexer-sources-ping-results)  shard
             =/  [pu=(set dock) pd=(set dock) nu=(set dock) nd=(set dock)]
-              %+  ~(gut by indexer-sources-ping-results)  shard-id
+              %+  ~(gut by indexer-sources-ping-results)  shard
               [~ ~ ~ ~]
             =:  nu  ?:(!<(? q.cage.sign) (~(put in nu) d) nu)
                 nd  ?:(!<(? q.cage.sign) nd (~(put in nd) d))
@@ -400,7 +398,7 @@
           max-ping-time
         =.  indexer-sources-ping-results
           %-  ~(urn by indexer-sources-ping-results)
-          |=  $:  shard-id=id:smart
+          |=  $:  shard=@ux
                   previous-up=(set dock)
                   previous-down=(set dock)
                   newest-up=(set dock)
@@ -418,29 +416,29 @@
         =/  until=@da  (slav %da i.t.wire)
         ?:  (gth until now.bowl)  `this
         =.  indexer-sources-ping-results
-          =/  ping-tids-list=(list [@ta shard-id=id:smart d=dock])
+          =/  ping-tids-list=(list [@ta shard=id:smart d=dock])
             ~(tap by ping-tids)
           |-
           ?~  ping-tids-list
             %-  ~(gas by *_indexer-sources-ping-results)
             %+  turn  ~(tap by indexer-sources-ping-results)
-            |=  $:  shard-id=id:smart
+            |=  $:  shard=id:smart
                     (set dock)
                     (set dock)
                     newest-up=(set dock)
                     newest-down=(set dock)
                 ==
-            [shard-id newest-up newest-down ~ ~]
-          =*  shard-id  shard-id.i.ping-tids-list
-          =*  d        d.i.ping-tids-list
+            [shard newest-up newest-down ~ ~]
+          =*  shard  shard.i.ping-tids-list
+          =*  d      d.i.ping-tids-list
           %=  $
               ping-tids-list  t.ping-tids-list
               indexer-sources-ping-results
             =/  [pu=(set dock) pd=(set dock) nu=(set dock) nd=(set dock)]
               %+  ~(gut by indexer-sources-ping-results)
-              shard-id  [~ ~ ~ ~]
+              shard  [~ ~ ~ ~]
             %+  ~(put by indexer-sources-ping-results)
-            shard-id  [pu pd nu (~(put in nd) d)]
+            shard  [pu pd nu (~(put in nd) d)]
           ==
         :-  %-  zing
             :-  move-downed-subscriptions
@@ -462,7 +460,7 @@
       ^-  (list card)
       %-  zing
       %+  turn  ~(tap by indexer-sources-ping-results)
-      |=  $:  shard-id=id:smart
+      |=  $:  shard=id:smart
               previous-up=(set dock)
               previous-down=(set dock)
               newest-up=(set dock)
@@ -472,7 +470,7 @@
       |=  [[[w=^wire s=ship t=term] a=? p=path] out=(list card)]
       ?.  (~(has in previous-down) [s t])
         out
-      ?~  source=(get-best-source:uc shard-id ~ %nu)  out
+      ?~  source=(get-best-source:uc shard ~ %nu)  out
       :+  (~(leave pass:io w) [s t])
         %+  ~(watch pass:io w)  p.u.source
         ?.(?=(%history (rear p)) p (snip p))
@@ -485,9 +483,9 @@
       =/  all-indexer-sources=(list (pair id:smart dock))
         %-  zing
         %+  turn  ~(tap by indexer-sources)
-        |=  [shard-id=id:smart docks=(set dock)]
+        |=  [shard=id:smart docks=(set dock)]
         %+  turn  ~(tap in docks)
-        |=(d=dock [shard-id d])
+        |=(d=dock [shard d])
       |-
       ?~  all-indexer-sources
         =.  pings-timedout  `(add now.bowl ping-timeout)
@@ -497,14 +495,14 @@
             %~  wait  pass:io
             /ping-timeout/(scot %da u.pings-timedout)
         cards
-      =*  shard-id  p.i.all-indexer-sources
-      =*  d        q.i.all-indexer-sources
+      =*  shard  p.i.all-indexer-sources
+      =*  d      q.i.all-indexer-sources
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
             (scot %uw (sham eny.bowl))
             '-'
-            (scot %ux shard-id)
+            (scot %ux shard)
             '-'
             (scot %p p.d)
         ==
@@ -627,7 +625,7 @@
   `[[s.wex t.wex] p.wex]
 ::
 ++  get-best-source
-  |=  [shard-id=id:smart seen=(list @ud) level=?(%nu %nd %pu %pd %~)]
+  |=  [shard=id:smart seen=(list @ud) level=?(%nu %nd %pu %pd %~)]
   ^-  (unit [p=dock q=(list @ud) r=?(%nu %nd %pu %pd %~)])
   ::  TODO:
   ::   temporary hack to reduce fragility, since the

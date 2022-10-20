@@ -12,7 +12,7 @@
 ::
 ::    Most scry paths accept one or two `@ux` arguments.
 ::    A single argument is interpreted as the hash of the
-::    queried item (e.g., for a `/grain` query, the `grain-id`).
+::    queried item (e.g., for a `/item` query, the `item-id`).
 ::    For two arguments, the first is interpreted as the
 ::    `shard-id` in which to query for the second, the item hash.
 ::    In other words, two arguments restricts the query to
@@ -20,18 +20,18 @@
 ::
 ::    Scry paths may be prepended with a `/newest`, which
 ::    will return results only in the most recent batch.
-::    For example, the history of all grains held by
+::    For example, the history of all items held by
 ::    `0xdead.beef` would be queried using the path
 ::    `/x/holder/0xdead.beef`
-::    while only the most recent state of all grains held
+::    while only the most recent state of all items held
 ::    by `0xdead.beef` would be queried using
 ::    `/x/newest/holder/0xdead.beef`.
 ::
 ::    Scry paths may be prepended with a `/json`, which
 ::    will cause the scry to return JSON rather than an
 ::    `update:ui` and will attempt to mold the `data` in
-::    `grain`s and the `yolk` in `egg`s.
-::    In order to do so it requires the `lord` contracts
+::    `item`s and the `yolk` in `txn`s.
+::    In order to do so it requires the `source` contracts
 ::    have properly filled out `interface` and `types`
 ::    fields, see `lib/jolds.hoon` docstring for the spec
 ::    and `con/lib/*interface-types.hoon`
@@ -47,30 +47,30 @@
 ::    /x/batch-order/[shard-id=@ux]
 ::    /x/batch-order/[shard-id=@ux]/[nth-most-recent=@ud]/[how-many=@ud]:
 ::      The order of batches for a shard, or a subset thereof.
-::    /x/egg/[egg-id=@ux]:
-::    /x/egg/[shard-id=@ux]/[egg-id=@ux]:
-::      Info about egg (transaction) with the given hash.
-::    /x/from/[egg-id=@ux]:
+::    /x/txn/[txn-id=@ux]:
+::    /x/txn/[shard-id=@ux]/[txn-id=@ux]:
+::      Info about txn (transaction) with the given hash.
+::    /x/from/[txn-id=@ux]:
 ::    /x/from/[shard-id=@ux]/[from-id=@ux]:
 ::      History of sender with the given hash.
-::    /x/grain/[grain-id=@ux]:
-::    /x/grain/[shard-id=@ux]/[grain-id=@ux]:
-::      Historical states of grain with given hash.
-::    :: /x/grain-eggs/[grain-id=@ux]:  ::  TODO: reenable
-::    :: /x/grain-eggs/[shard-id=@ux]/[grain-id=@ux]:
-::    ::   Eggs involving grain with given hash.
+::    /x/item/[item-id=@ux]:
+::    /x/item/[shard-id=@ux]/[item-id=@ux]:
+::      Historical states of item with given hash.
+::    :: /x/item-txns/[item-id=@ux]:  ::  TODO: reenable
+::    :: /x/item-txns/[shard-id=@ux]/[item-id=@ux]:
+::    ::   txns involving item with given hash.
 ::    /x/hash/[hash=@ux]:
 ::    /x/hash/[shard-id=@ux]/[hash=@ux]:
 ::      Info about hash (queries all indexes for hash).
 ::    /x/holder/[holder-id=@ux]:
 ::    /x/holder/[shard-id=@ux]/[holder-id=@ux]:
-::      Grains held by id with given hash.
+::      items held by id with given hash.
 ::    /x/id/[id=@ux]:
 ::    /x/id/[shard-id=@ux]/[id=@ux]:
 ::      History of id (queries `from`s and `to`s).
-::    /x/lord/[lord-id=@ux]:
-::    /x/lord/[shard-id=@ux]/[lord-id=@ux]:
-::      Grains ruled by lord with given hash.
+::    /x/source/[source-id=@ux]:
+::    /x/source/[shard-id=@ux]/[source-id=@ux]:
+::      items ruled by source with given hash.
 ::    /x/to/[to-id=@ux]:
 ::    /x/to/[shard-id=@ux]/[to-id=@ux]:
 ::      History of receiver with the given hash.
@@ -95,16 +95,16 @@
 ::    Subscription paths do not send anything on-watch.
 ::    To receive the history on-watch, append `/history`
 ::    to the end of the subscription path.
-::    E.g., `/grain/0xdead.beef` will not receive an
-::    immediate response, while `/grain/0xdead.beef/history`
-::    will immediately receive the history of that grain.
+::    E.g., `/item/0xdead.beef` will not receive an
+::    immediate response, while `/item/0xdead.beef/history`
+::    will immediately receive the history of that item.
 ::
 ::    Subscription paths, similar to scry paths,
 ::    may be prepended with a `/json`, which will cause
 ::    the subscription to return JSON rather than an
 ::    `update:ui` and will attempt to mold the `data` in
-::    `grain`s and the `yolk` in `egg`s.
-::    In order to do so it requires the `lord` contracts
+::    `item`s and the `yolk` in `txn`s.
+::    In order to do so it requires the `source` contracts
 ::    have properly filled out `interface` and `types`
 ::    fields, see `lib/jolds.hoon` docstring for the spec
 ::    and `con/lib/*interface-types.hoon`
@@ -112,29 +112,29 @@
 ::
 ::    /batch-order/[shard-id=@ux]:
 ::      A stream of batch ids.
-::    /grain/[grain-id=@ux]
-::    /grain/[shard-id=@ux]/[grain-id=@ux]:
-::      A stream of changes to given grain.
+::    /item/[item-id=@ux]
+::    /item/[shard-id=@ux]/[item-id=@ux]:
+::      A stream of changes to given item.
 ::    /hash/[@ux]:
 ::      A stream of new activity of given id.
 ::    /holder/[holder-id=@ux]
 ::    /holder/[shard-id=@ux]/[holder-id=@ux]:
 ::      A stream of new activity of given holder.
-::      If a held grain changes holders, the final update
-::      sent for that grain will have the updated holder.
+::      If a held item changes holders, the final update
+::      sent for that item will have the updated holder.
 ::      Thus, applications will need to check the holder
 ::      field and update their state as appropriate when
 ::      it has changed; subsequent updates will not include
-::      that grain.
-::      Reply on-watch is entire history of held grains.
+::      that item.
+::      Reply on-watch is entire history of held items.
 ::    /id/[id=@ux]
 ::    /id/[shard-id=@ux]/[id=@ux]:
 ::      A stream of new transactions of given id:
 ::      specifically transactions where id appears
 ::      in the `from` or `contract` fields.
-::    /lord/[lord-id=@ux]
-::    /lord/[shard-id=@ux]/[lord-id=@ux]:
-::      A stream of new activity of given lord.
+::    /source/[source-id=@ux]
+::    /source/[shard-id=@ux]/[source-id=@ux]:
+::      A stream of new activity of given source.
 ::    /shard/[shard-id=@ux]
 ::    /shard/[shard-id=@ux]/[shard-id=@ux]:
 ::      A stream of each new batch for shard.
@@ -158,15 +158,15 @@
 ::      Subscribe to rollup for new batch roots.
 ::
 ::
-/-  mill,
-    uqbar,
-    seq=sequencer,
-    ui=indexer
+/-  engine=zig-engine,
+    uqbar=zig-uqbar,
+    seq=zig-sequencer,
+    ui=zig-indexer
 /+  agentio,
     dbug,
     default-agent,
     verb,
-    indexer-lib=indexer,
+    indexer-lib=zig-indexer,
     smart=zig-sys-smart
 ::
 |%
@@ -324,9 +324,9 @@
             [%json @ @ @ %history ~]  [%json @ @ @ @ %history ~]
             [%hash @ @ %history ~]    [%hash @ @ @ %history ~]
             [%id @ @ %history ~]      [%id @ @ @ %history ~]
-            [%grain @ @ %history ~]   [%grain @ @ @ %history ~]
+            [%item @ @ %history ~]   [%item @ @ @ %history ~]
             [%holder @ @ %history ~]  [%holder @ @ @ %history ~]
-            [%lord @ @ %history ~]    [%lord @ @ @ %history ~]
+            [%source @ @ %history ~]    [%source @ @ @ %history ~]
             [%shard @ @ %history ~]    [%shard @ @ @ %history ~]
         ==
       :_  this
@@ -353,9 +353,9 @@
             [%json @ @ @ ~]  [%json @ @ @ @ ~]
             [%hash @ @ ~]    [%hash @ @ @ ~]
             [%id @ @ ~]      [%id @ @ @ ~]
-            [%grain @ @ ~]   [%grain @ @ @ ~]
+            [%item @ @ ~]   [%item @ @ @ ~]
             [%holder @ @ ~]  [%holder @ @ @ ~]
-            [%lord @ @ ~]    [%lord @ @ @ ~]
+            [%source @ @ ~]    [%source @ @ @ ~]
             [%shard @ @ ~]    [%shard @ @ @ ~]
         ==
       `this
@@ -366,13 +366,13 @@
     ^-  (quip card _this)
     ?+    path  (on-leave:def path)
         $?  [%batch-order *]
-            [%grain *]
+            [%item *]
             [%hash *]
-            :: [%grain-eggs *]
+            :: [%item-txns *]
             [%holder *]
             [%id *]
             [%json *]
-            [%lord *]
+            [%source *]
             [%shard *]
             [%capitol-updates *]
             [%indexer-bootstrap ~]
@@ -421,12 +421,12 @@
       (get-ids u.query-payload only-newest)
     ::
         $?  [%batch @ ~]       [%batch @ @ ~]
-            [%egg @ ~]         [%egg @ @ ~]
+            [%txn @ ~]         [%txn @ @ ~]
             [%from @ ~]        [%from @ @ ~]
-            [%grain @ ~]       [%grain @ @ ~]
-            :: [%grain-eggs @ ~]  [%grain-eggs @ @ ~]
+            [%item @ ~]       [%item @ @ ~]
+            :: [%item-txns @ ~]  [%item-txns @ @ ~]
             [%holder @ ~]      [%holder @ @ ~]
-            [%lord @ ~]        [%lord @ @ ~]
+            [%source @ ~]        [%source @ @ ~]
             [%to @ ~]          [%to @ @ ~]
             [%shard @ ~]        [%shard @ @ ~]
         ==
@@ -522,12 +522,12 @@
             shard-update-queue       ~
             old-sub-paths           ~
             old-sub-updates         ~
-            egg-index               ~
+            txn-index               ~
             from-index              ~
-            grain-index             ~
-            :: grain-eggs-index        ~
+            item-index             ~
+            :: item-txns-index        ~
             holder-index            ~
-            lord-index              ~
+            source-index              ~
             to-index                ~
             newest-batch-by-shard    ~
         ==
@@ -581,7 +581,7 @@
         =*  shard-id  shard-id.hall.update
         =*  root     root.update
         ?:  (has-root-already shard-id root)  `state
-        ?.  =(root (sham land.update))       `state
+        ?.  =(root (sham chain.update))       `state
         =/  timestamp=(unit @da)
           %.  root
           %~  get  by
@@ -596,13 +596,13 @@
                 %+  ~(gut by sequencer-update-queue)  shard-id
                 *(map @ux batch:ui)
               root
-            [transactions.update [land.update hall.update]]
+            [transactions.update [chain.update hall.update]]
           ==
         =^  cards  state
           %:  consume-batch:ic
               root
               transactions.update
-              [land.update hall.update]
+              [chain.update hall.update]
               u.timestamp
               %.y
           ==
@@ -647,11 +647,11 @@
         (indexer-catchup-path shard-id root)
       ::
           %new-peer-root
-        =*  shard-id  shard-id.update
+        =*  shard-id  shard.update
         =*  root     root.update
         ?:  (has-root-already shard-id root)  `state
         =/  sequencer-update
-          ^-  (unit [eggs=(list [@ux transaction:smart]) =shard:seq])
+          ^-  (unit [txns=(list [@ux transaction:smart]) =shard:seq])
           %.  root
           %~  get  by
           %+  ~(gut by sequencer-update-queue)  shard-id
@@ -669,7 +669,7 @@
         =^  cards  state
           %:  consume-batch:ic
               root
-              eggs.u.sequencer-update
+              txns.u.sequencer-update
               shard.u.sequencer-update
               timestamp.update
               %.y
@@ -823,35 +823,35 @@
   ?.  =(expected-root batch-id.u.b)               ~
   `u.b
 ::
-++  combine-egg-updates
+++  combine-txn-updates
   |=  updates=(list update:ui)
   ^-  update:ui
-  ?~  update=(combine-egg-updates-to-map updates)  ~
-  [%egg update]
+  ?~  update=(combine-txn-updates-to-map updates)  ~
+  [%txn update]
 ::
 ++  get-ids
   |=  [qp=query-payload:ui only-newest=?]
   ^-  update:ui
   =/  from=update:ui  (serve-update %from qp only-newest %.n)
   =/  to=update:ui    (serve-update %to qp only-newest %.n)
-  (combine-egg-updates ~[from to])
+  (combine-txn-updates ~[from to])
 ::
 ++  get-hashes
   |=  [qp=query-payload:ui only-newest=? should-filter=?]
   ^-  update:ui
   =*  options  [only-newest should-filter]
   =/  batch=update:ui   (serve-update %batch qp options)
-  =/  egg=update:ui     (serve-update %egg qp options)
+  =/  txn=update:ui     (serve-update %txn qp options)
   =/  from=update:ui    (serve-update %from qp options)
-  =/  grain=update:ui   (serve-update %grain qp options)
+  =/  item=update:ui   (serve-update %item qp options)
   =/  holder=update:ui  (serve-update %holder qp options)
-  =/  lord=update:ui    (serve-update %lord qp options)
+  =/  source=update:ui    (serve-update %source qp options)
   =/  to=update:ui      (serve-update %to qp options)
   =/  shard=update:ui    (serve-update %shard qp options)
-  :: =/  grain-eggs=update:ui
-  ::   (serve-update %grain-eggs qp only-newest)
-  %^  combine-updates  ~[batch shard]  ~[egg from to]
-  ~[grain holder lord]
+  :: =/  item-txns=update:ui
+  ::   (serve-update %item-txns qp only-newest)
+  %^  combine-updates  ~[batch shard]  ~[txn from to]
+  ~[item holder source]
 ::
 ++  combine-batch-updates-to-map
   |=  updates=(list update:ui)
@@ -868,22 +868,22 @@
     [+.update]~
   ~(tap by batches.update)
 ::
-++  combine-egg-updates-to-map
+++  combine-txn-updates-to-map
   |=  updates=(list update:ui)
-  ^-  (map id:smart [@da egg-location:ui transaction:smart])
+  ^-  (map id:smart [@da txn-location:ui transaction:smart])
   ?~  updates  ~
   %-  %~  gas  by
-      *(map id:smart [@da egg-location:ui transaction:smart])
+      *(map id:smart [@da txn-location:ui transaction:smart])
   %-  zing
   %+  turn  updates
   |=  =update:ui
   ?~  update  ~
-  ?.  ?=(%egg -.update)
-    ?.  ?=(%newest-egg -.update)  ~
+  ?.  ?=(%txn -.update)
+    ?.  ?=(%newest-txn -.update)  ~
     [+.update]~
-  ~(tap by eggs.update)
+  ~(tap by txns.update)
 ::
-++  combine-grain-updates-to-jar  ::  TODO: can this clobber?
+++  combine-item-updates-to-jar  ::  TODO: can this clobber?
   |=  updates=(list update:ui)
   ^-  (jar id:smart [@da batch-location:ui item:smart])
   ?~  updates  ~
@@ -893,36 +893,36 @@
   %+  turn  updates
   |=  =update:ui
   ?~  update  ~
-  ?.  ?=(%grain -.update)
-    ?.  ?=(%newest-grain -.update)  ~
+  ?.  ?=(%item -.update)
+    ?.  ?=(%newest-item -.update)  ~
     :_  ~
-    :-  grain-id.update
-    [timestamp.update location.update grain.update]~
-  ~(tap by grains.update)
+    :-  item-id.update
+    [timestamp.update location.update item.update]~
+  ~(tap by items.update)
 ::
 ++  combine-updates
   |=  $:  batch-updates=(list update:ui)
-          egg-updates=(list update:ui)
-          grain-updates=(list update:ui)
+          txn-updates=(list update:ui)
+          item-updates=(list update:ui)
       ==
   ^-  update:ui
   ?:  ?&  ?=(~ batch-updates)
-          ?=(~ egg-updates)
-          ?=(~ grain-updates)
+          ?=(~ txn-updates)
+          ?=(~ item-updates)
       ==
     ~
   =/  combined-batch=(map id:smart [@da shard-location:ui batch:ui])
     (combine-batch-updates-to-map batch-updates)
-  =/  combined-egg=(map id:smart [@da egg-location:ui transaction:smart])
-    (combine-egg-updates-to-map egg-updates)
-  =/  combined-grain=(jar id:smart [@da batch-location:ui item:smart])
-    (combine-grain-updates-to-jar grain-updates)
+  =/  combined-txn=(map id:smart [@da txn-location:ui transaction:smart])
+    (combine-txn-updates-to-map txn-updates)
+  =/  combined-item=(jar id:smart [@da batch-location:ui item:smart])
+    (combine-item-updates-to-jar item-updates)
   ?:  ?&  ?=(~ combined-batch)
-          ?=(~ combined-egg)
-          ?=(~ combined-grain)
+          ?=(~ combined-txn)
+          ?=(~ combined-item)
       ==
     ~
-  [%hash combined-batch combined-egg combined-grain]
+  [%hash combined-batch combined-txn combined-item]
 ::
 ++  set-state-from-vase
   |=  state-vase=vase
@@ -1019,8 +1019,8 @@
       %batch
     get-batch-update
   ::
-      :: ?(%egg %from %grain %grain-eggs %holder %lord %to)
-      ?(%egg %from %grain %holder %lord %to)
+      :: ?(%txn %from %item %item-txns %holder %source %to)
+      ?(%txn %from %item %holder %source %to)
     get-from-index
   ::
       %shard
@@ -1075,19 +1075,19 @@
     =/  locations=(list location:ui)  get-locations
     |^
     ?+    query-type  ~
-        %grain
-      get-grain
+        %item
+      get-item
     ::
-        %egg
-      get-egg
+        %txn
+      get-txn
     ::
-        :: ?(%from %grain-eggs %holder %lord %to)
-        ?(%from %holder %lord %to)
+        :: ?(%from %item-txns %holder %source %to)
+        ?(%from %holder %source %to)
       get-second-order
     ==
     ::
-    ++  get-grain
-      =/  grain-id=id:smart
+    ++  get-item
+      =/  item-id=id:smart
         ?:  ?=([@ @] query-payload)  +.query-payload
         query-payload
       ?:  only-newest  ::  TODO: DRY
@@ -1099,17 +1099,17 @@
         ?~  b=(get-appropriate-batch shard-id batch-root)  ~
         ?.  |(!only-newest =(batch-root batch-id.u.b))
           ::  TODO: remove this check if we never see this log
-          ~&  >>>  "%indexer: unexpected batch root (grain)"
+          ~&  >>>  "%indexer: unexpected batch root (item)"
           ~&  >>>  "br, bid: {<batch-root>} {<batch-id.u.b>}"
           ~
         =*  timestamp  timestamp.u.b
-        =*  granary    p.land.batch.u.b
-        ?~  grain=(get:big:mill granary grain-id)  ~
-        [%newest-grain grain-id timestamp location u.grain]
-      =|  grains=(jar grain-id=id:smart [@da batch-location:ui item:smart])
+        =*  state    p.chain.batch.u.b
+        ?~  item=(get:big:engine state item-id)  ~
+        [%newest-item item-id timestamp location u.item]
+      =|  items=(jar item-id=id:smart [@da batch-location:ui item:smart])
       =.  locations  (flop locations)
       |-
-      ?~  locations  ?~(grains ~ [%grain grains])
+      ?~  locations  ?~(items ~ [%item items])
       =*  location  i.locations
       ?.  ?=(batch-location:ui location)
         $(locations t.locations)
@@ -1119,120 +1119,120 @@
         $(locations t.locations)
       ?.  |(!only-newest =(batch-root batch-id.u.b))
         ::  TODO: remove this check if we never see this log
-        ~&  >>>  "%indexer: unexpected batch root (grain)"
+        ~&  >>>  "%indexer: unexpected batch root (item)"
         ~&  >>>  "br, bid: {<batch-root>} {<batch-id.u.b>}"
         $(locations t.locations)
       =*  timestamp  timestamp.u.b
-      =*  granary    p.land.batch.u.b
-      ?~  grain=(get:big:mill granary grain-id)
+      =*  state    p.chain.batch.u.b
+      ?~  item=(get:big:engine state item-id)
         $(locations t.locations)
       %=  $
           locations  t.locations
-          grains
-        %+  ~(add ja grains)  grain-id
-        [timestamp location u.grain]
+          items
+        %+  ~(add ja items)  item-id
+        [timestamp location u.item]
       ==
     ::
-    ++  get-egg
+    ++  get-txn
       ?:  only-newest  ::  TODO: DRY
         ?~  locations  ~
         =*  location  i.locations
-        ?.  ?=(egg-location:ui location)  ~
+        ?.  ?=(txn-location:ui location)  ~
         =*  shard-id     shard-id.location
         =*  batch-root  batch-root.location
-        =*  egg-num     egg-num.location
+        =*  txn-num     txn-num.location
         ?~  b=(get-appropriate-batch shard-id batch-root)  ~
         ?.  |(!only-newest =(batch-root batch-id.u.b))
           ::  happens for second-order only-newest queries that
-          ::   resolve to eggs because get-locations does not
+          ::   resolve to txns because get-locations does not
           ::   guarantee they are in the newest batch
           ~
         =*  timestamp  timestamp.u.b
         =*  txs        transactions.batch.u.b
-        ?.  (lth egg-num (lent txs))  ~
-        =+  [hash=@ux =transaction:smart]=(snag egg-num txs)
-        [%newest-egg hash timestamp location egg]
-      =|  eggs=(map id:smart [@da egg-location:ui transaction:smart])
+        ?.  (lth txn-num (lent txs))  ~
+        =+  [hash=@ux txn=transaction:smart]=(snag txn-num txs)
+        [%newest-txn hash timestamp location txn]
+      =|  txns=(map id:smart [@da txn-location:ui transaction:smart])
       |-
-      ?~  locations  ?~(eggs ~ [%egg eggs])
+      ?~  locations  ?~(txns ~ [%txn txns])
       =*  location  i.locations
-      ?.  ?=(egg-location:ui location)
+      ?.  ?=(txn-location:ui location)
         $(locations t.locations)
       =*  shard-id     shard-id.location
       =*  batch-root  batch-root.location
-      =*  egg-num     egg-num.location
+      =*  txn-num     txn-num.location
       ?~  b=(get-appropriate-batch shard-id batch-root)
         $(locations t.locations)
       ?.  |(!only-newest =(batch-root batch-id.u.b))
         ::  happens for second-order only-newest queries that
-        ::   resolve to eggs because get-locations does not
+        ::   resolve to txns because get-locations does not
         ::   guarantee they are in the newest batch
         $(locations t.locations)
       =*  timestamp  timestamp.u.b
       =*  txs        transactions.batch.u.b
-      ?.  (lth egg-num (lent txs))  $(locations t.locations)
-      =+  [hash=@ux =transaction:smart]=(snag egg-num txs)
+      ?.  (lth txn-num (lent txs))  $(locations t.locations)
+      =+  [hash=@ux txn=transaction:smart]=(snag txn-num txs)
       %=  $
           locations  t.locations
-          eggs
-        (~(put by eggs) hash [timestamp location egg])
+          txns
+        (~(put by txns) hash [timestamp location txn])
       ==
     ::
     ++  get-second-order
-      =/  first-order-type=?(%egg %grain)
-        ?:  |(?=(%holder query-type) ?=(%lord query-type))
-          %grain
-        %egg
+      =/  first-order-type=?(%txn %item)
+        ?:  |(?=(%holder query-type) ?=(%source query-type))
+          %item
+        %txn
       |^
       =/  =update:ui  create-update
       ?~  update  ~
       ?+    -.update  ~|("indexer: get-second-order unexpected return type" !!)
-          %newest-egg  update
-          %egg         update
+          %newest-txn  update
+          %txn         update
       ::
-          %newest-grain
+          %newest-item
         ?.  should-filter  update
-        ?.((is-grain-hit +.+.update) ~ update)
+        ?.((is-item-hit +.+.update) ~ update)
       ::
-          %grain
+          %item
         %=  update
-            grains
-          ?.  should-filter  grains.update
-          (filter-grains grains.update)
+            items
+          ?.  should-filter  items.update
+          (filter-items items.update)
         ==
       ==
       ::
-      ++  is-grain-hit
-        |=  value=grain-update-value:ui
+      ++  is-item-hit
+        |=  value=item-update-value:ui
         ^-  ?
         =/  query-hash=id:smart
           ?:  ?=(@ query-payload)  query-payload
           ?>  ?=([@ @] query-payload)
           +.query-payload
-        =*  holder  holder.p.grain.value
-        =*  lord    lord.p.grain.value
+        =*  holder  holder.p.item.value
+        =*  source    source.p.item.value
         ?|  &(?=(%holder query-type) =(query-hash holder))
-            &(?=(%lord query-type) =(query-hash lord))
+            &(?=(%source query-type) =(query-hash source))
         ==
       ::
-      ++  filter-grains  ::  TODO: generalize w/ `+diff-update-grains`
-        |=  grains=(jar id:smart grain-update-value:ui)
-        ^-  (jar id:smart grain-update-value:ui)
+      ++  filter-items  ::  TODO: generalize w/ `+diff-update-items`
+        |=  items=(jar id:smart item-update-value:ui)
+        ^-  (jar id:smart item-update-value:ui)
         %-  %~  gas  by
-            *(map id:smart (list grain-update-value:ui))
-        %+  roll  ~(tap by grains)
-        |=  $:  [grain-id=id:smart values=(list grain-update-value:ui)]
-                out=(list [id:smart (list grain-update-value:ui)])
+            *(map id:smart (list item-update-value:ui))
+        %+  roll  ~(tap by items)
+        |=  $:  [item-id=id:smart values=(list item-update-value:ui)]
+                out=(list [id:smart (list item-update-value:ui)])
             ==
-        =/  filtered-values=(list grain-update-value:ui)
+        =/  filtered-values=(list item-update-value:ui)
           %+  roll  values
-          |=  $:  =grain-update-value:ui
-                  inner-out=(list grain-update-value:ui)
+          |=  $:  =item-update-value:ui
+                  inner-out=(list item-update-value:ui)
               ==
-          ?.  (is-grain-hit grain-update-value)  inner-out
-          [grain-update-value inner-out]
+          ?.  (is-item-hit item-update-value)  inner-out
+          [item-update-value inner-out]
         ?~  filtered-values  out
-        [[grain-id (flop filtered-values)] out]
+        [[item-id (flop filtered-values)] out]
       ::
       ++  create-update
         ^-  update:ui
@@ -1248,56 +1248,56 @@
         ?~  next-update  out
         ?~  out          next-update
         ?+    -.out  ~|("indexer: get-second-order unexpected update type {<-.out>}" !!)
-            %egg
-          ?.  ?=(?(%egg %newest-egg) -.next-update)  out
+            %txn
+          ?.  ?=(?(%txn %newest-txn) -.next-update)  out
           %=  out
-              eggs
-            ?:  ?=(%egg -.next-update)
-              (~(uni by eggs.out) eggs.next-update)
-            ?>  ?=(%newest-egg -.next-update)
-            (~(put by eggs.out) +.next-update)
+              txns
+            ?:  ?=(%txn -.next-update)
+              (~(uni by txns.out) txns.next-update)
+            ?>  ?=(%newest-txn -.next-update)
+            (~(put by txns.out) +.next-update)
           ==
         ::
-            %grain
-          ?.  ?=(?(%grain %newest-grain) -.next-update)  out
+            %item
+          ?.  ?=(?(%item %newest-item) -.next-update)  out
           %=  out
-              grains
-            ?:  ?=(%grain -.next-update)
-              (~(uni by grains.out) grains.next-update)  ::  TODO: can this clobber?
-            ?>  ?=(%newest-grain -.next-update)
-            (~(add ja grains.out) +.next-update)
+              items
+            ?:  ?=(%item -.next-update)
+              (~(uni by items.out) items.next-update)  ::  TODO: can this clobber?
+            ?>  ?=(%newest-item -.next-update)
+            (~(add ja items.out) +.next-update)
           ==
         ::
-            %newest-egg
+            %newest-txn
           ?+    -.next-update  out
-              %egg
+              %txn
             %=  next-update
-                eggs
-              (~(put by eggs.next-update) +.out)
+                txns
+              (~(put by txns.next-update) +.out)
             ==
           ::
-              %newest-egg
-            :-  %egg
+              %newest-txn
+            :-  %txn
             %.  ~[+.out +.next-update]
             %~  gas  by
-            *(map id:smart [@da egg-location:ui transaction:smart])
+            *(map id:smart [@da txn-location:ui transaction:smart])
           ==
         ::
-            %newest-grain
+            %newest-item
           ?+    -.next-update  out
-              %grain
+              %item
             %=  next-update
-                grains
-              (~(add ja grains.next-update) +.out)  ::  TODO: ordering?
+                items
+              (~(add ja items.next-update) +.out)  ::  TODO: ordering?
             ==
           ::
-              %newest-grain
-            :-  %grain
+              %newest-item
+            :-  %item
             %.  +.next-update
             %~  add  ja
             %.  +.out
             %~  add  ja
-            *(jar id:smart grain-update-value:ui)
+            *(jar id:smart item-update-value:ui)
           ==
         ==
       --
@@ -1306,21 +1306,21 @@
   ++  get-locations
     |^  ^-  (list location:ui)
     ?+  query-type  ~|("indexer: get-locations unexpected query-type {<query-type>}" !!)
-      %egg         (get-by-get-ja egg-index only-newest)
+      %txn         (get-by-get-ja txn-index only-newest)
       %from        (get-by-get-ja from-index %.n)
-      %grain       (get-by-get-ja grain-index only-newest)
-      :: %grain-eggs  (get-by-get-ja grain-eggs-index %.n)
+      %item       (get-by-get-ja item-index only-newest)
+      :: %item-txns  (get-by-get-ja item-txns-index %.n)
       %holder      (get-by-get-ja holder-index %.n)
-      %lord        (get-by-get-ja lord-index %.n)
+      %source        (get-by-get-ja source-index %.n)
       %to          (get-by-get-ja to-index %.n)
     ==
     ::  always set `only-newest` false for
     ::   second-order indices or will
-    ::   throw away unique eggs/grains.
-    ::   Concretely, egg/grain indices hold historical
+    ::   throw away unique txns/items.
+    ::   Concretely, txn/item indices hold historical
     ::   state for a given hash, while second-order
-    ::   indices hold different eggs/grains that hash
-    ::   has appeared in (e.g. different grains with a
+    ::   indices hold different txns/items that hash
+    ::   has appeared in (e.g. different items with a
     ::   given holder).
     ::
     ++  get-by-get-ja
@@ -1344,21 +1344,21 @@
 ::
 ++  consume-batch
   |=  $:  root=@ux
-          eggs=(list [@ux transaction:smart])
+          txns=(list [@ux transaction:smart])
           =shard:seq
           timestamp=@da
           should-update-subs=?
       ==
   =*  shard-id  shard-id.hall.shard
   |^  ^-  (quip card _state)
-  =+  ^=  [egg from grain holder lord to]
-      (parse-batch root shard-id eggs land.shard)
-  =:  egg-index         (gas-ja-egg egg-index egg shard-id)
+  =+  ^=  [txn from item holder source to]
+      (parse-batch root shard-id txns chain.shard)
+  =:  txn-index         (gas-ja-txn txn-index txn shard-id)
       from-index        (gas-ja-second-order from-index from shard-id)
-      grain-index       (gas-ja-batch grain-index grain shard-id)
-      ::  grain-eggs-index  (gas-ja-second-order grain-eggs-index grain-eggs shard-id)
+      item-index       (gas-ja-batch item-index item shard-id)
+      ::  item-txns-index  (gas-ja-second-order item-txns-index item-txns shard-id)
       holder-index      (gas-ja-second-order holder-index holder shard-id)
-      lord-index        (gas-ja-second-order lord-index lord shard-id)
+      source-index        (gas-ja-second-order source-index source shard-id)
       to-index          (gas-ja-second-order to-index to shard-id)
       newest-batch-by-shard
     ::  only update newest-batch-by-shard with newer batches
@@ -1369,15 +1369,15 @@
         timestamp
       newest-batch-by-shard
     %+  ~(put by newest-batch-by-shard)  shard-id
-    [root timestamp eggs shard]
+    [root timestamp txns shard]
   ::
       batches-by-shard
     %+  ~(put by batches-by-shard)  shard-id
     ?~  b=(~(get by batches-by-shard) shard-id)
       :_  ~[root]
-      (malt ~[[root [timestamp eggs shard]]])
+      (malt ~[[root [timestamp txns shard]]])
     :_  [root batch-order.u.b]
-    (~(put by batches.u.b) root [timestamp eggs shard])
+    (~(put by batches.u.b) root [timestamp txns shard])
   ==
   ?.  should-update-subs  [~ state]
   =/  all-sub-cards  make-all-sub-cards
@@ -1392,13 +1392,13 @@
     (~(gas by *(map @ux update:ui)) updates.all-sub-cards)
   ==
   ::
-  ++  gas-ja-egg
-    |=  $:  index=egg-index:ui
-            new=(list [hash=@ux location=egg-location:ui])
+  ++  gas-ja-txn
+    |=  $:  index=txn-index:ui
+            new=(list [hash=@ux location=txn-location:ui])
             shard-id=id:smart
         ==
     %+  ~(put by index)  shard-id
-    =/  shard-index=(jar @ux egg-location:ui)
+    =/  shard-index=(jar @ux txn-location:ui)
       ?~(ti=(~(get by index) shard-id) ~ u.ti)
     |-
     ?~  new  shard-index
@@ -1447,7 +1447,7 @@
     |=  [ship sub-path=path]
     ^-  (unit [@tas path])
     ?~  sub-path  ~
-    ?.  ?=  ?(%batch-order %grain %hash %holder %id %json %lord %shard)
+    ?.  ?=  ?(%batch-order %item %hash %holder %id %json %source %shard)
         i.sub-path
       ~
     `[`@tas`i.sub-path t.sub-path]
@@ -1463,12 +1463,12 @@
       %+  roll
         ^-  (list ?(%batch-order %id %json query-type:ui))
         :~  %batch-order
-            %grain
+            %item
             %hash
             %holder
             %id
             %json
-            %lord
+            %source
             %shard
         ==
       |=  $:  query-type=?(%batch-order %id %json query-type:ui)
@@ -1512,7 +1512,7 @@
             %holder
           (serve-update query-type payload %.y %.n)
         ::
-            ?(%grain %lord %shard)
+            ?(%item %source %shard)
           (serve-update query-type payload %.y %.y)
         ==
       ?~  update  out
@@ -1568,40 +1568,40 @@
         ?~  batch-order.new  ~
         ?:(=(i.batch-order.old i.batch-order.new) ~ new)
       ::
-          %egg
-        ?>  ?=(%egg -.new)
-        ?~  diff=(diff-update-maps eggs.old eggs.new)  ~
-        [%egg diff]
+          %txn
+        ?>  ?=(%txn -.new)
+        ?~  diff=(diff-update-maps txns.old txns.new)  ~
+        [%txn diff]
       ::
-          %grain
-        ?>  ?=(%grain -.new)
-        ?~  diff=(diff-update-grains grains.old grains.new)
+          %item
+        ?>  ?=(%item -.new)
+        ?~  diff=(diff-update-items items.old items.new)
           ~
-        :-  %grain
+        :-  %item
         ?.  ?=(%holder query-type)  diff
-        (filter-holder-held-in-last-batch diff grains.old)
+        (filter-holder-held-in-last-batch diff items.old)
       ::
           %hash
         ?>  ?=(%hash -.new)
         =/  batch-diff=(map id:smart batch-update-value:ui)
           (diff-update-maps batches.old batches.new)
-        =/  egg-diff=(map id:smart egg-update-value:ui)
-          (diff-update-maps eggs.old eggs.new)
-        =/  grain-diff=(jar id:smart grain-update-value:ui)
-          (diff-update-grains grains.old grains.new)
-        =.  grain-diff
-        ?.  ?=(%holder query-type)  grain-diff
-        %+  filter-holder-held-in-last-batch  grain-diff
-        grains.old
+        =/  txn-diff=(map id:smart txn-update-value:ui)
+          (diff-update-maps txns.old txns.new)
+        =/  item-diff=(jar id:smart item-update-value:ui)
+          (diff-update-items items.old items.new)
+        =.  item-diff
+        ?.  ?=(%holder query-type)  item-diff
+        %+  filter-holder-held-in-last-batch  item-diff
+        items.old
         ?:  ?&  ?=(~ batch-diff)
-                ?=(~ egg-diff)
-                ?=(~ grain-diff)
+                ?=(~ txn-diff)
+                ?=(~ item-diff)
             ==
           ~
         :^    %hash
             batches=batch-diff
-          eggs=egg-diff
-        grains=grain-diff
+          txns=txn-diff
+        items=item-diff
       ::
           %newest-batch-order
         ?>  ?=(%newest-batch-order -.new)
@@ -1613,23 +1613,23 @@
         ?~  diff=(diff-update-value +.+.old +.+.new)  ~
         [%newest-batch batch-id.new u.diff]
       ::
-          %newest-egg
-        ?>  ?=(%newest-egg -.new)
-        ?:  =(egg-id.old egg-id.new)                  ~
+          %newest-txn
+        ?>  ?=(%newest-txn -.new)
+        ?:  =(txn-id.old txn-id.new)                  ~
         ?~  diff=(diff-update-value +.+.old +.+.new)  ~
-        [%newest-egg egg-id.new u.diff]
+        [%newest-txn txn-id.new u.diff]
       ::
-          %newest-grain
-        ?>  ?=(%newest-grain -.new)
+          %newest-item
+        ?>  ?=(%newest-item -.new)
         ?~  diff=(diff-update-value +.+.old +.+.new)  ~
-        [%newest-grain grain-id.new u.diff]
+        [%newest-item item-id.new u.diff]
       ==
       ::
       ++  filter-holder-held-in-last-batch
-        |=  $:  diff-grains=(jar id:smart grain-update-value:ui)
-                old-grains=(jar id:smart grain-update-value:ui)
+        |=  $:  diff-items=(jar id:smart item-update-value:ui)
+                old-items=(jar id:smart item-update-value:ui)
             ==
-        ^-  (jar id:smart grain-update-value:ui)
+        ^-  (jar id:smart item-update-value:ui)
         =/  holder-id=id:smart
           %+  slav  %ux
           ?:  ?=  ?([%holder @ ~] [%holder @ %no-init ~])
@@ -1639,17 +1639,17 @@
               sub-path
           i.t.t.sub-path
         %-  %~  gas  by
-            *(map id:smart (list grain-update-value:ui))
-        %+  roll  ~(tap by diff-grains)
-        |=  $:  [=id:smart diff-vals=(list grain-update-value:ui)]
-                out=(list [id:smart (list grain-update-value:ui)])
+            *(map id:smart (list item-update-value:ui))
+        %+  roll  ~(tap by diff-items)
+        |=  $:  [=id:smart diff-vals=(list item-update-value:ui)]
+                out=(list [id:smart (list item-update-value:ui)])
             ==
-        ?~  old-vals=(~(get ja old-grains) id)
+        ?~  old-vals=(~(get ja old-items) id)
           [[id diff-vals] out]
         ~|  "expected newest"
         ?>  =(1 (lent diff-vals))
         ?>  =(1 (lent old-vals))
-        ?.  =(holder-id holder.p.grain.i.old-vals)  out
+        ?.  =(holder-id holder.p.item.i.old-vals)  out
         [[id diff-vals] out]
       ::
       ++  diff-update-value
@@ -1674,30 +1674,30 @@
         ?~  diff=(diff-update-value u.old-val new-val)  out
         [[id new-val] out]
       ::
-      ++  diff-update-grains  ::  TODO: generalize w/ `+filter-grains`
-        |=  $:  old-grains=(jar id:smart grain-update-value:ui)
-                new-grains=(jar id:smart grain-update-value:ui)
+      ++  diff-update-items  ::  TODO: generalize w/ `+filter-items`
+        |=  $:  old-items=(jar id:smart item-update-value:ui)
+                new-items=(jar id:smart item-update-value:ui)
             ==
-        ^-  (jar id:smart grain-update-value:ui)
+        ^-  (jar id:smart item-update-value:ui)
         %-  %~  gas  by
-            *(map id:smart (list grain-update-value:ui))
-        %+  roll  ~(tap by new-grains)
-        |=  $:  [=id:smart new-vals=(list grain-update-value:ui)]
-                out=(list [id:smart (list grain-update-value:ui)])
+            *(map id:smart (list item-update-value:ui))
+        %+  roll  ~(tap by new-items)
+        |=  $:  [=id:smart new-vals=(list item-update-value:ui)]
+                out=(list [id:smart (list item-update-value:ui)])
             ==
-        ?~  old-vals=(~(get ja old-grains) id)
+        ?~  old-vals=(~(get ja old-items) id)
           ?~(new-vals out [[id new-vals] out])
         ?:  =(old-vals new-vals)  out
-        =/  old-grains=(set item:smart)
+        =/  old-items=(set item:smart)
           %-  ~(gas in *(set item:smart))
           %+  turn  old-vals
-          |=(old-val=grain-update-value:ui grain.old-val)
-        =/  filtered-values=(list grain-update-value:ui)
+          |=(old-val=item-update-value:ui item.old-val)
+        =/  filtered-values=(list item-update-value:ui)
           %+  roll  new-vals
-          |=  $:  new-val=grain-update-value:ui
-                  inner-out=(list grain-update-value:ui)
+          |=  $:  new-val=item-update-value:ui
+                  inner-out=(list item-update-value:ui)
               ==
-          ?:  (~(has in old-grains) grain.new-val)  inner-out
+          ?:  (~(has in old-items) item.new-val)  inner-out
           [new-val inner-out]
         ?~  filtered-values  out
         [[id (flop filtered-values)] out]
@@ -1707,98 +1707,97 @@
   ++  parse-batch
     |=  $:  root=@ux
             shard-id=@ux
-            eggs=(list [@ux transaction:smart])
-            =land:seq
+            txns=(list [@ux transaction:smart])
+            =chain:seq
         ==
-    ^-  $:  (list [@ux egg-location:ui])
+    ^-  $:  (list [@ux txn-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux batch-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
         ==
-    =*  granary  p.land
-    =+  [grain holder lord]=(parse-granary root shard-id granary)
-    =+  [egg from to]=(parse-transactions root shard-id eggs)
-    [egg from grain holder lord to]
+    =+  [item holder source]=(parse-state root shard-id p.chain)
+    =+  [txn from to]=(parse-transactions root shard-id txns)
+    [txn from item holder source to]
   ::
-  ++  parse-granary
-    |=  [root=@ux shard-id=@ux =granary:seq]
+  ++  parse-state
+    |=  [root=@ux shard-id=@ux =state:seq]
     ^-  $:  (list [@ux batch-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
         ==
-    =|  parsed-grain=(list [@ux batch-location:ui])
+    =|  parsed-item=(list [@ux batch-location:ui])
     =|  parsed-holder=(list [@ux second-order-location:ui])
-    =|  parsed-lord=(list [@ux second-order-location:ui])
-    =/  grains=(list [@ux [@ux item:smart]])
-      ~(tap by granary)
+    =|  parsed-source=(list [@ux second-order-location:ui])
+    =/  items=(list [@ux [@ux item:smart]])
+      ~(tap by state)
     |-
-    ?~  grains  [parsed-grain parsed-holder parsed-lord]
-    =*  grain-id   id.p.+.+.i.grains
-    =*  holder-id  holder.p.+.+.i.grains
-    =*  lord-id    lord.p.+.+.i.grains
+    ?~  items  [parsed-item parsed-holder parsed-source]
+    =*  item-id   id.p.+.+.i.items
+    =*  holder-id  holder.p.+.+.i.items
+    =*  source-id    source.p.+.+.i.items
     %=  $
-        grains         t.grains
+        items         t.items
     ::
         parsed-holder
       ?:  %+  exists-in-index  shard-id
-          [holder-id grain-id holder-index]
+          [holder-id item-id holder-index]
         parsed-holder
-      [[holder-id grain-id] parsed-holder]
+      [[holder-id item-id] parsed-holder]
     ::
-        parsed-lord
+        parsed-source
       ?:  %+  exists-in-index  shard-id
-          [lord-id grain-id lord-index]
-        parsed-lord
-      [[lord-id grain-id] parsed-lord]
+          [source-id item-id source-index]
+        parsed-source
+      [[source-id item-id] parsed-source]
     ::
-        parsed-grain
+        parsed-item
       ?:  %+  exists-in-index  shard-id
-          [grain-id [shard-id root] grain-index]
-        parsed-grain
-      :_  parsed-grain
-      :-  grain-id
+          [item-id [shard-id root] item-index]
+        parsed-item
+      :_  parsed-item
+      :-  item-id
       [shard-id root]
     ==
   ::
   ++  parse-transactions
     |=  [root=@ux shard-id=@ux txs=(list [@ux transaction:smart])]
-    ^-  $:  (list [@ux egg-location:ui])
+    ^-  $:  (list [@ux txn-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
         ==
-    =|  parsed-egg=(list [@ux egg-location:ui])
+    =|  parsed-txn=(list [@ux txn-location:ui])
     =|  parsed-from=(list [@ux second-order-location:ui])
     =|  parsed-to=(list [@ux second-order-location:ui])
-    =/  egg-num=@ud  0
+    =/  txn-num=@ud  0
     |-
-    ?~  txs  [parsed-egg parsed-from parsed-to]
-    =*  egg-hash     -.i.txs
-    =*  egg          +.i.txs
-    =*  contract     contract.shell.egg
-    =*  from         id.from.shell.egg
-    =/  =egg-location:ui  [shard-id root egg-num]
+    ?~  txs  [parsed-txn parsed-from parsed-to]
+    =*  txn-hash     -.i.txs
+    =*  txn          +.i.txs
+    =*  contract     contract.txn
+    =*  from         address.caller.txn
+    =/  =txn-location:ui  [shard-id root txn-num]
     %=  $
-        egg-num      +(egg-num)
+        txn-num      +(txn-num)
         txs          t.txs
-        parsed-egg
+        parsed-txn
       ?:  %+  exists-in-index  shard-id
-          [egg-hash egg-location egg-index]
-        parsed-egg
-      [[egg-hash egg-location] parsed-egg]
+          [txn-hash txn-location txn-index]
+        parsed-txn
+      [[txn-hash txn-location] parsed-txn]
     ::
         parsed-from
       ?:  %+  exists-in-index  shard-id
-          [from egg-hash from-index]
+          [from txn-hash from-index]
         parsed-from
-      [[from egg-hash] parsed-from]
+      [[from txn-hash] parsed-from]
     ::
         parsed-to
       ?:  %+  exists-in-index  shard-id
-          [contract egg-hash to-index]
+          [contract txn-hash to-index]
         parsed-to
-      [[contract egg-hash] parsed-to]
+      [[contract txn-hash] parsed-to]
     ==
   ::
   ++  exists-in-index
