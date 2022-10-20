@@ -1,4 +1,4 @@
-/-  *aquarium, spider
+/-  *pyro, spider
 /+  libstrand=strand, *strandio, util=py-util
 =,  strand=strand:libstrand
 |%
@@ -7,12 +7,6 @@
   =/  m  (strand ,~)
   ^-  form:m
   (poke-our %pyro %aqua-events !>(events))
-::
-++  send-azimuth-action
-  |=  =azimuth-action
-  =/  m  (strand ,~)
-  ^-  form:m
-  (poke-our %pyro %azimuth-action !>(azimuth-action))
 ::
 ++  take-unix-effect
   =/  m  (strand ,[ship unix-effect])
@@ -23,11 +17,6 @@
 ::
 ++  start-simple
   (start-test %aqua-ames %aqua-behn %aqua-dill %aqua-eyre ~)
-::
-++  start-azimuth
-  =/  m  (strand ,~)
-  ^-  form:m
-  ;<(~ bind:m start-simple init)
 ::
 ++  end
   (end-test %aqua-ames %aqua-behn %aqua-dill %aqua-eyre ~)
@@ -88,32 +77,12 @@
   ^-  form:m
   (pure:m ~)
 ::
-::
-++  init
-  =/  m  (strand ,~)
-  ^-  form:m
-  (send-azimuth-action %init-azimuth ~)
-::
-++  spawn
-  |=  =ship
-  ~&  >  "spawning {<ship>}"
-  =/  m  (strand ,~)
-  ^-  form:m
-  (send-azimuth-action %spawn ship)
-::
-++  breach
-  |=  =ship
-  ~&  >  "breaching {<ship>}"
-  =/  m  (strand ,~)
-  ^-  form:m
-  (send-azimuth-action %breach ship)
-::
 ++  init-ship
-  |=  [=ship fake=?]
+  |=  =ship
   =/  m  (strand ,~)
   ^-  form:m
   ~&  >  "starting {<ship>}"
-  ;<  ~  bind:m  (send-events (init:util ship fake))
+  ;<  ~  bind:m  (send-events (init:util ship))
   (check-ship-booted ship)
 ::
 ++  check-ship-booted

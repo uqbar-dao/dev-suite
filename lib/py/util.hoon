@@ -1,6 +1,6 @@
 ::  Utility functions for constructing tests
 ::
-/-  *aquarium
+/-  *pyro
 |%
 ::
 ::  Turn [ship (list unix-event)] into (list ph-event)
@@ -15,9 +15,9 @@
 ::  Start a ship (low-level; prefer +raw-ship)
 ::
 ++  init
-  |=  [who=ship fake=?]
+  |=  who=ship
   ^-  (list aqua-event)
-  [%init-ship who fake]~
+  [%init-ship who]~
 ::
 ::  Send dojo command
 ::
@@ -68,6 +68,7 @@
       |=  =blit:dill
       ?.  ?=(%lin -.blit)
         |
+      ::  prints all ship output to the dojo ~&  >  (tufa p.blit) 
       !=(~ (find what p.blit))
   ==
 ::

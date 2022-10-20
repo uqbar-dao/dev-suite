@@ -1,10 +1,11 @@
-::  An ~~inferno~~ of virtual ships.  Put in some fish and watch them!
+::  An ~~inferno~~ of virtual ships.  Put in some fish and watch them die!
 ::
 ::  usage:
-::  |start %pyro
+::  |start %zig %pyro
 ::  :pyro +solid %base %zig
 ::  swap files is NOT working
-::  :pyro &aqua-events [%init-ship ~dev %.y]~
+::  :pyro &aqua-events [%init-ship ~dev %.y]~  OR  :pyro|init ~dev
+::  :pyro &action [%dojo ~dev "(add 2 2)"]     OR  :pyro|dojo ~dev "(add 2 2)"
 ::
 ::  Then try stuff:
 ::  XX :aqua [%init ~[~bud ~dev]]
@@ -16,9 +17,9 @@
 ::  XX :aqua [%file ~[~bud ~dev] %/sys/vane]
 ::  XX :aqua [%pause-events ~[~bud ~dev]]
 ::
-::  We get ++unix-event and ++pill from /-aquarium
+::  We get ++unix-event and ++pill from /-pyro
 ::
-/-  *aquarium, *pyro
+/-  *pyro
 /+  pill, default-agent, naive, dbug, verb
 =,  pill-lib=pill
 =>  $~  |%
@@ -30,7 +31,7 @@
           pil=$>(%pill pill)  ::  the boot sequence a new fakeship will use
           assembled=*
           tym=@da  ::  a fake time, starting at *@da and manually ticked up
-          fresh-piers=(map [=ship fake=?] [=pier boths=(list unix-both)])
+          fresh-piers=(map =ship [=pier boths=(list unix-both)])
           fleet-snaps=(map term fleet)
           piers=fleet
       ==
@@ -38,7 +39,7 @@
     ::
     +$  pill  pill:pill-lib
     ::
-    +$  fleet  [ships=(map ship pier)]
+    +$  fleet  (map ship pier)
     +$  pier
       $:  snap=*
           event-log=(list unix-timed-event)
@@ -84,7 +85,6 @@
         %pill         (poke-pill:ac !<(pill vase))
         %noun         (poke-noun:ac !<(* vase))
         %action       (handle-action !<(pyro-action vase))
-        ::  %azimuth-action
       ==
     [cards this]
     ::
@@ -94,6 +94,7 @@
       ?-    -.act
           %peek
         !!
+      ::
           %dojo
         :_  state
         =-  [%pass /self-poke %agent [our.bowl %pyro] %poke -]~
@@ -108,6 +109,10 @@
           ==
         |=  ue=unix-event
         [%event who.act ue]
+      ::
+          %remove-ship
+        =.  piers  (~(del by piers) who.act)
+        `state
       ==
     --
   ::
@@ -126,7 +131,25 @@
       !!
     `this
   ::
-  ++  on-peek   peek:ac
+  ++  on-peek
+    |=  =path
+    ^-  (unit (unit cage))
+    ?+  path  ~
+        [%x %fleet-snap @ ~]  ``noun+!>((~(has by fleet-snaps) i.t.t.path))
+        [%x %fleets ~]        ``noun+!>((turn ~(tap by fleet-snaps) head))
+        [%x %ships ~]         ``noun+!>((turn ~(tap by piers) head))
+        [%x %pill ~]          ``pill+!>(pil)
+        [%x %i @ @ @ @ @ *]
+      ::   ship | scry path
+      ::          care, ship, desk, time, path
+      ::  scry into running virtual ships
+      =/  who  (slav %p i.t.t.path)
+      =/  pier  (~(get by piers) who)
+      ?~  pier
+        ~
+      :^  ~  ~  %noun  !>
+      (peek:(pe who) t.t.t.path)
+    ==
   ++  on-leave  on-leave:def
   ++  on-agent  on-agent:def
   ++  on-arvo   on-arvo:def
@@ -146,10 +169,8 @@
 ::  Represents a single ship's state.
 ::
 ++  pe
-  ::NOTE  if we start needing the fake flag outside of +ahoy and +yaho,
-  ::      probably add it as an argument here.
   |=  who=ship
-  =+  (~(gut by ships.piers) who *pier)
+  =+  (~(gut by piers) who *pier)
   =*  pier-data  -
   |%
   ::
@@ -157,7 +178,7 @@
   ::
   ++  abet-pe
     ^+  this
-    =.  ships.piers  (~(put by ships.piers) who pier-data)
+    =.  piers  (~(put by piers) who pier-data)
     this
   ::
   ::  Initialize new ship
@@ -171,17 +192,15 @@
   ::  store post-pill ship for later re-use
   ::
   ++  ahoy
-    |=  fake=?
-    =?  fresh-piers  !(~(has by fresh-piers) [who fake])
-      %+  ~(put by fresh-piers)  [who fake]
+    =?  fresh-piers  !(~(has by fresh-piers) who)
+      %+  ~(put by fresh-piers)  who
       [pier-data (~(get ja unix-boths) who)]
     ..ahoy
   ::
   ::  restore post-pill ship for re-use
   ::
   ++  yaho
-    |=  fake=?
-    =/  fresh  (~(got by fresh-piers) [who fake])
+    =/  fresh  (~(got by fresh-piers) who)
     =.  pier-data  pier.fresh
     =.  boths.fresh  (flop boths.fresh)
     |-
@@ -395,7 +414,7 @@
 ++  plow-all
   |-  ^+  this
   =/  who
-    =/  pers  ~(tap by ships.piers)
+    =/  pers  ~(tap by piers)
     |-  ^-  (unit ship)
     ?~  pers
       ~
@@ -517,12 +536,10 @@
   ?-  -.ae
   ::
       %init-ship
-    ?:  &(fake.ae (~(has by fresh-piers) [who fake]:ae))
+    ?:  (~(has by fresh-piers) who:ae)
       ~&  [%aqua %cached-init +.ae]
-      =.  this  abet-pe:(yaho fake):[ae (pe who.ae)]
-      ?:  fake.ae  (pe who.ae)
-      ::  %pyro only handles fake ships
-      !!
+      =.  this  abet-pe:yaho:[ae (pe who.ae)]
+      (pe who.ae)
     =.  this  abet-pe:(publish-effect:(pe who.ae) [/ %sleep ~])
     =/  initted
       =<  plow
@@ -547,9 +564,7 @@
         ::
         :_  ~
         :^  /d/term/1  %boot  &
-        ?:  fake.ae
-          [%fake who.ae]
-        !!  ::  %pyro only handles fakeships
+        [%fake who.ae]
         ::
         userspace-ova.pil  :: load os
         ::
@@ -559,14 +574,11 @@
             [/e/http-server/0v1n.2m9vh %live 8.080 `8.445]
             [/a/newt/0v1n.2m9vh %born ~]
             [/d/term/1 %hail ~]
-          ::
-            ?:  fake.ae  ~
-            =+  [%raw-poke %noun %refresh-rate ~s30]
-            [/g/aqua/reduce-refresh-rate %deal [. .]:who.ae %azimuth -]~
+            ~
         ==
       ==
     =.  this
-      abet-pe:(ahoy fake):[ae initted]
+      abet-pe:ahoy:[ae initted]
     (pe who.ae)
   ::
       %pause-events
@@ -574,7 +586,7 @@
   ::
       %snap-ships
     =.  this
-      %+  turn-ships  (turn ~(tap by ships.piers) head)
+      %+  turn-ships  (turn ~(tap by piers) head)
       |=  [who=ship thus=_this]
       =.  this  thus
       (publish-effect:(pe who) [/ %kill ~])
@@ -584,7 +596,7 @@
       %+  murn  hers.ae
       |=  her=ship
       ^-  (unit (pair ship pier))
-      =+  per=(~(get by ships.piers) her)
+      =+  per=(~(get by piers) her)
       ?~  per
         ~
       `[her u.per]
@@ -594,14 +606,14 @@
   ::
       %restore-snap
     =.  this
-      %+  turn-ships  (turn ~(tap by ships.piers) head)
+      %+  turn-ships  (turn ~(tap by piers) head)
       |=  [who=ship thus=_this]
       =.  this  thus
       (publish-effect:(pe who) [/ %kill ~])
     =.  piers  (~(got by fleet-snaps) lab.ae)
     ::  =.  this   start-azimuth-timer
     =.  this
-      %+  turn-ships  (turn ~(tap by ships.piers) head)
+      %+  turn-ships  (turn ~(tap by piers) head)
       |=  [who=ship thus=_this]
       =.  this  thus
       (publish-effect:(pe who) [/ %restore ~])
@@ -649,25 +661,6 @@
 ::
 ::  Check whether we have a snapshot
 ::
-++  peek
-  |=  =path
-  ^-  (unit (unit cage))
-  ?+  path  ~
-      [%x %fleet-snap @ ~]  ``noun+!>((~(has by fleet-snaps) i.t.t.path))
-      [%x %fleets ~]        ``noun+!>((turn ~(tap by fleet-snaps) head))
-      [%x %ships ~]         ``noun+!>((turn ~(tap by ships.piers) head))
-      [%x %pill ~]          ``pill+!>(pil)
-      [%x %i @ @ @ @ @ *]
-    ::   ship | scry path
-    ::          care, ship, desk, time, path
-    ::  scry into running virtual ships
-    =/  who  (slav %p i.t.t.path)
-    =/  pier  (~(get by ships.piers) who)
-    ?~  pier
-      ~
-    :^  ~  ~  %noun  !>
-    (peek:(pe who) t.t.t.path)
-  ==
 ::
 ::  Trivial scry for mock
 ::

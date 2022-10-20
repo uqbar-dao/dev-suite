@@ -1,8 +1,8 @@
 :: Start a pyro ship
 ::
-/-  aquarium
-=,  aquarium
+/-  pyro
+=,  pyro
 :-  %say
 |=  [* [her=ship ~] ~]
 :-  %aqua-events
-[%init-ship her &]~
+[%init-ship her]~
