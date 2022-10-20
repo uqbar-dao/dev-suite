@@ -1,4 +1,4 @@
-/-  *uqbar
+/-  *zig-uqbar
 :-  %say
 |=  [[now=@da eny=@uvJ bek=beak] [shard-id=@ux indexers=(list @p) ~] ~]
 :-  %uqbar-action

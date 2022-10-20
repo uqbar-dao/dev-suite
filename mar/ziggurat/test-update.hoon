@@ -1,4 +1,4 @@
-/+  *ziggurat
+/+  *zig-ziggurat
 =,  enjs:format
 |_  upd=test-update
 ++  grab

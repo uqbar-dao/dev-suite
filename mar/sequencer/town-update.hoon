@@ -1,4 +1,4 @@
-/-  seq=sequencer
+/-  seq=zig-sequencer
 ::
 |_  =shard-update:seq
 ++  grab

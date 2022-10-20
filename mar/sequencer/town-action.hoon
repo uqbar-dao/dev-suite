@@ -1,9 +1,9 @@
-/-  sequencer
+/-  seq=zig-sequencer
 ::
-|_  =shard-action:sequencer
+|_  =shard-action:seq
 ++  grab
   |%
-  ++  noun  shard-action:sequencer
+  ++  noun  shard-action:seq
   --
 ::
 ++  grow

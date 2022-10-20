@@ -1,4 +1,4 @@
-/-  *wallet
+/-  *zig-wallet
 =,  dejs:format
 |_  act=wallet-poke
 ++  grab

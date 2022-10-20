@@ -1,13 +1,13 @@
-/-  *sequencer
+/-  *zig-sequencer
 /+  ethereum, merk, smart=zig-sys-smart
 /=  fungible  /con/lib/fungible-interface-types
 /=  nft  /con/lib/nft-interface-types
 /=  publish  /con/lib/publish-interface-types
 /=  zigs  /con/lib/zigs-interface-types
-/*  fungible-contract  %noun  /con/compiled/fungible/noun
-/*  nft-contract       %noun  /con/compiled/nft/noun
-/*  publish-contract   %noun  /con/compiled/publish/noun
-/*  zigs-contract      %noun  /con/compiled/zigs/noun
+/*  fungible-contract  %jam  /con/compiled/fungible/jam
+/*  nft-contract       %jam  /con/compiled/nft/jam
+/*  publish-contract   %jam  /con/compiled/publish/jam
+/*  zigs-contract      %jam  /con/compiled/zigs/jam
 :-  %say
 |=  [[now=@da eny=@uvJ bek=beak] [rollup-host=@p shard-id=@ux private-key=@ux ~] ~]
 ::  one hundred million testnet zigs, now and forever
@@ -16,47 +16,51 @@
 =/  pubkey-1  0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
 =/  pubkey-2  0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
 =/  pubkey-3  0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
-=/  zigs-1  (fry-data:smart zigs-contract-id:smart pubkey-1 shard-id `@`'zigs')
-=/  zigs-2  (fry-data:smart zigs-contract-id:smart pubkey-2 shard-id `@`'zigs')
-=/  zigs-3  (fry-data:smart zigs-contract-id:smart pubkey-3 shard-id `@`'zigs')
+=/  zigs-1  (hash-data:smart zigs-contract-id:smart pubkey-1 shard-id `@`'zigs')
+=/  zigs-2  (hash-data:smart zigs-contract-id:smart pubkey-2 shard-id `@`'zigs')
+=/  zigs-3  (hash-data:smart zigs-contract-id:smart pubkey-3 shard-id `@`'zigs')
 ::
-=/  beef-zigs-grain
+=/  beef-zigs-item
   ^-  item:smart
   :*  %&
-      `@`'zigs'
-      %account
-      [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
       zigs-1
       zigs-contract-id:smart
       pubkey-1
       shard-id
-  ==
-=/  dead-zigs-grain
-  ^-  item:smart
-  :*  %&
       `@`'zigs'
       %account
-      [200.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
+      [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
+  ==
+=/  dead-zigs-item
+  ^-  item:smart
+  :*  %&
       zigs-2
       zigs-contract-id:smart
       pubkey-2
       shard-id
-  ==
-=/  cafe-zigs-grain
-  ^-  item:smart
-  :*  %&
       `@`'zigs'
       %account
-      [100.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
+      [200.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
+  ==
+=/  cafe-zigs-item
+  ^-  item:smart
+  :*  %&
       zigs-3
       zigs-contract-id:smart
       pubkey-3
       shard-id
+      `@`'zigs'
+      %account
+      [100.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
   ==
 ::
 =/  zigs-metadata
   ^-  data:smart
-  :*  `@`'zigs'
+  :*  `@ux`'zigs-metadata'
+      zigs-contract-id:smart
+      zigs-contract-id:smart
+      shard-id
+      `@`'zigs'
       %token-metadata
       :*  name='UQ| Tokens'
           symbol='ZIG'
@@ -68,51 +72,51 @@
           deployer=0x0
           salt=`@`'zigs'
       ==
-      `@ux`'zigs-metadata'
-      zigs-contract-id:smart
-      zigs-contract-id:smart
-      shard-id
   ==
 ::  zigs.hoon contract
-=/  zigs-wheat
+=/  zigs-pact
   ^-  pact:smart
-  :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] zigs-contract)))
+  :*  zigs-contract-id:smart  ::  id
+      zigs-contract-id:smart  ::  source
+      zigs-contract-id:smart  ::  holder
+      shard-id                ::  shard-id
+      [- +]:(cue zigs-contract)
       interface=interface-json:zigs
       types=types-json:zigs
-      zigs-contract-id:smart  ::  id
-      zigs-contract-id:smart  ::  lord
-      zigs-contract-id:smart  ::  holder
-      shard-id              ::  shard-id
   ==
 ::  publish.hoon contract
-=/  publish-wheat
+=/  publish-pact
   ^-  pact:smart
-  :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] publish-contract)))
+  :*  0x1111.1111  ::  id
+      0x0          ::  source
+      0x0          ::  holder
+      shard-id     ::  shard-id
+      [- +]:(cue publish-contract)
       interface=interface-json:publish
       types=~
-      0x1111.1111  ::  id
-      0x0          ::  lord
-      0x0          ::  holder
-      shard-id      ::  shard-id
   ==
 ::  nft.hoon contract
-=/  nft-wheat
+=/  nft-pact
   ^-  pact:smart
-  =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] nft-contract)))
-  :*  `cont
+  =/  code  (cue nft-contract)
+  :*  (hash-pact:smart 0x0 0x0 shard-id code)
+      0x0          ::  source
+      0x0          ::  holder
+      shard-id     ::  shard-id
+      [- +]:code
       interface=interface-json:nft
       types=types-json:nft
-      (fry-pact:smart 0x0 0x0 shard-id `cont)
-      0x0          ::  lord
-      0x0          ::  holder
-      shard-id      ::  shard-id
   ==
 ::
 :: NFT stuff
 ::
-=/  nft-metadata-rice
+=/  nft-metadata-data
   ^-  data:smart
-  :*  salt=`@`'nftsalt'
+  :*  id=`@ux`'nft-metadata'
+      source=id:nft-pact
+      holder=id:nft-pact
+      shard-id
+      salt=`@`'nftsalt'
       label=%metadata
       :*  name='Ziggurat Girls'
           symbol='GOODART'
@@ -124,55 +128,51 @@
           deployer=pubkey-1
           salt=`@`'nftsalt'
       ==
-      id=`@ux`'nft-metadata'
-      lord=id:nft-wheat
-      holder=id:nft-wheat
-      shard-id
   ==
-=/  nft-1  (fry-data:smart id:nft-wheat pubkey-1 shard-id `@`'nftsalt1')
-=/  nft-rice
+=/  nft-1  (hash-data:smart id:nft-pact pubkey-1 shard-id `@`'nftsalt1')
+=/  nft-data
   ^-  data:smart
-  :*  salt=`@`'nftsalt1'
+  :*  nft-1
+      id:nft-pact
+      pubkey-1
+      shard-id
+      salt=`@`'nftsalt1'
       label=%nft
       :*  1
           'ipfs://QmUbFVTm113tJEuJ4hZY2Hush4Urzx7PBVmQGjv1dXdSV9'
-          id:nft-metadata-rice
+          id:nft-metadata-data
           ~
           %-  ~(gas py:smart *(pmap:smart @tas @t))
           `(list [@tas @t])`~[[%hat 'pyramid'] [%eyes 'big'] [%mouth 'smile']]
           %.y
       ==
-      nft-1
-      id:nft-wheat
-      pubkey-1
-      shard-id
   ==
 ::  fungible.hoon contract
-=/  fungible-wheat
+=/  fungible-pact
   ^-  pact:smart
-  =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] fungible-contract)))
-  :*  `cont
-      interface=interface-json:fungible
-      types=types-json:fungible
-      (fry-pact:smart 0x0 0x0 shard-id `cont)
-      0x0          ::  lord
+  =/  code  (cue fungible-contract)
+  :*  (hash-pact:smart 0x0 0x0 shard-id code)
+      0x0          ::  source
       0x0          ::  holder
       shard-id      ::  shard-id
+      [- +]:code
+      interface=interface-json:fungible
+      types=types-json:fungible
   ==
 ::
-=/  fake-granary
-  ^-  granary
+=/  fake-state
+  ^-  state
   %+  gas:(bi:merk id:smart item:smart)
     *(merk:merk id:smart item:smart)
-  :~  [id.zigs-wheat [%| zigs-wheat]]
-      [id.publish-wheat [%| publish-wheat]]
-      [id.nft-wheat [%| nft-wheat]]
-      [id.fungible-wheat [%| fungible-wheat]]
-      [zigs-1 beef-zigs-grain]
-      [zigs-2 dead-zigs-grain]
-      [zigs-3 cafe-zigs-grain]
-      [nft-1 [%& nft-rice]]
-      [id.nft-metadata-rice [%& nft-metadata-rice]]
+  :~  [id.zigs-pact [%| zigs-pact]]
+      [id.publish-pact [%| publish-pact]]
+      [id.nft-pact [%| nft-pact]]
+      [id.fungible-pact [%| fungible-pact]]
+      [zigs-1 beef-zigs-item]
+      [zigs-2 dead-zigs-item]
+      [zigs-3 cafe-zigs-item]
+      [nft-1 [%& nft-data]]
+      [id.nft-metadata-data [%& nft-metadata-data]]
       [id.zigs-metadata [%& zigs-metadata]]
   ==
 ::
@@ -183,6 +183,6 @@
     (address-from-prv:key:ethereum private-key)
     private-key
     shard-id
-    `[fake-granary *populace]
+    `[fake-state ~]
     [%full-publish ~]
 ==

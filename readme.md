@@ -14,7 +14,6 @@ It contains code for the Gall apps required to simulate the ZK rollup to Ethereu
 * [Compiling Contracts and the Standard Library](#compiling-contracts-and-the-standard-library)
 * [Deploying Contracts to a Running Testnet](#deploying-contracts-to-a-running-testnet)
 * [Glossary](#glossary)
-* [Appendix: Wallet Usage for Frontend Devs](#appendix-wallet-usage-for-frontend-devs)
 
 
 ## Project Structure
@@ -40,18 +39,7 @@ In the future, with remote scry, users will not need to run their own `%indexer`
 
 ## Initial Installation
 
-1. Clone and build the custom Urbit runtime with Pedersen jets, and set env var `URBIT_BIN` to point to the resulting binary.
-   Sequencers must use the Pedersen-jetted binary to run contracts at reasonable speed.
-   Building requires the Nix package manager, see [installation instructions](https://nixos.org/download.html).
-   ```bash
-   mkdir ~/git && cd ~/git  # Replace with your chosen directory.
-
-   git clone -b mb/local-jet git@github.com:martyr-binbex/urbit.git urbit-jet
-   cd urbit-jet
-   nix-build -A urbit
-   export URBIT_BIN=$(realpath ./result/bin/urbit)
-   ```
-2. Clone the official Urbit repository and add this repository as a submodule.
+1. Clone the official Urbit repository and add this repository as a submodule.
    This structure is necessary to resolve symbolic links to other desks like `base-dev` and `garden-dev`.
    ```bash
    cd ~/git  # Replace with your chosen directory.
@@ -60,28 +48,28 @@ In the future, with remote scry, users will not need to run their own `%indexer`
    cd urbit/pkg
    git submodule add git@github.com:uqbar-dao/ziggurat.git ziggurat
    ```
-3. Boot a development fakeship:
+2. Boot a development fakeship:
    ```bash
-   $URBIT_BIN -F zod
+   urbit -F zod
    ```
-4. In the Dojo of the fakeship, set up a `%zig` desk, where we will copy the files in this repo:
+3. In the Dojo of the fakeship, set up a `%zig` desk, where we will copy the files in this repo:
    ```hoon
    |merge %zig our %base
    |mount %zig
    ```
-5. In a new terminal, copy the files from this repo into the `%zig` desk:
+4. In a new terminal, copy the files from this repo into the `%zig` desk:
    ```bash
    cd ~/git/urbit/pkg  # Replace with your chosen directory.
 
    rm -rf zod/zig/*
    cp -RL ziggurat/* zod/zig/
    ```
-6. In the Dojo of the fakeship, commit the copied files and install.
+5. In the Dojo of the fakeship, commit the copied files and install.
    ```hoon
    |commit %zig
    |install our %zig
    ```
-7. Run tests, if desired, in the Dojo.
+6. Run tests, if desired, in the Dojo.
    ```hoon
    ::  Run all tests.
    -test ~[/=zig=/tests]
@@ -106,7 +94,7 @@ After [initial installation](#initial-installation), start the `%rollup`, initia
 :indexer &set-sequencer [our %sequencer]
 :indexer &set-rollup [our %rollup]
 :uqbar|set-sources 0x0 ~[our]
-:uqbar &wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
+:wallet &wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
 ```
 
 
@@ -356,7 +344,7 @@ Or a `rice` of the `nft` `wheat` might be a particular `nft` with certain charac
 
 ### `shard`
 
-A `shard` is a shard.
+A segment of chain-state within the Uqbar rollup.
 A `%sequencer` runs a `shard`, receiving transactions from users, executing them, and then sending the updated state to the `%rollup`.
 
 
@@ -365,52 +353,3 @@ A `%sequencer` runs a `shard`, receiving transactions from users, executing them
 A `wheat` is a piece of code: it is a contract.
 For example, the `zigs` contract that governs the base rollup tokens is a `wheat`, and the `nft` contract that enables NFTs to be held and sent is another.
 
-
-## Appendix: Wallet Usage for Frontend Devs
-
-```hoon
-::  JSON object of accounts, keyed by address, containing private key, nickname, and nonces:
-.^(json %gx /=wallet=/accounts/noun)
-
-::  JSON object of known assets (rice), keyed by address, then by rice address:
-.^(json %gx /=wallet=/book/json)
-
-::  JSON object of token metadata we're aware of:
-.^(json %gx /=wallet=/token-metadata/json)
-
-::  Seed phrase and password (todo separate these)
-.^(json %gx /=wallet=/seed/json)
-```
-
-### JSON-enabled wallet pokes
-
-```
-{import-seed: {mnemonic: "12-24 word phrase", password: "password", nick: "nickname for the first address in this wallet"}}
-{generate-hot-wallet: {password: "password", nick: "nickname"}}
-# leave hdpath empty ("") to let wallet auto-increment from 0 on main path
-{derive-new-address: {hdpath: "m/44'/60'/0'/0/0", nick: "nickname"}}
-
-# use this to save a hardware wallet account
-{add-tracked-address: {address: "0x1234.5678" nick: "nickname"}}
-{delete-address: {address: "0x1234.5678"}}
-{edit-nickname: {address: "0x1234.5678", nick: "nickname"}}
-
-# use this to sign a pending transaction with hardware wallet
-{submit-signed: {from: "0x1234", hash: "0x5678", eth-hash: "0xeeee", gas: {rate: 1, bud: 100000}, sig: {v: 123, r: 456, s: 789}}}
-
-# can submit token and nft sends in special formatting, and custom transactions via hoon string
-# send some token
-# the FROM is your address
-# the CONTRACT is the lord of the account grain
-# the TO inside ACTION is the address of person you're sending to
-# the GRAIN inside ACTION is your account grain's ID
-{transaction: {from: "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70", contract: "0x74.6361.7274.6e6f.632d.7367.697a", shard: "0x0", action: {give: {to: "0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de", amount: 123456, grain: "0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6"}}}}
-}
-
-# custom transaction
-{transaction: {from: "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70", contract: "0x74.6361.7274.6e6f.632d.7367.697a", shard: "0x0", action: {text: "[%this %is %some %hoon]"}}}
-}
-
-# use this poke to sign a pending transaction with HOT wallet
-{submit: {from: "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70", hash: "0x5678", gas: {rate: 1, bud: 100000}}}
-```
