@@ -85,7 +85,7 @@ To develop this repo or new contracts, it is convenient to start with a fakeship
 First, make sure the fakeship you're using is in the [whitelist](https://github.com/uqbar-dao/ziggurat/blob/master/lib/rollup.hoon).
 
 Uqbar provides a generator to set up a fakeship testnet for local development.
-That generator, used as a poke to the `%sequencer` app as `:sequencer|init`, populates a new shard with some [`grain`](#grain)s: [`wheat`](#wheat) (contract code) and [`rice`](#rice) (contract data).
+That generator, used as a poke to the `%sequencer` app as `:sequencer|init`, populates a new shard with some [`item`](#item)s: [`pact`](#pact) (contract code) and [`data`](#data) (contract data).
 Specifically, contracts for zigs tokens, NFTs, and publishing new contracts are pre-deployed.
 After [initial installation](#initial-installation), start the `%rollup`, initialize the `%sequencer`, set up the `%uqbar` read-write interface, and configure the `%wallet` to point to some [pre-set assets](#accounts-initialized-by-init-script), minted in the `:sequencer|init` poke:
 ```hoon
@@ -94,7 +94,7 @@ After [initial installation](#initial-installation), start the `%rollup`, initia
 :indexer &set-sequencer [our %sequencer]
 :indexer &set-rollup [our %rollup]
 :uqbar|set-sources 0x0 ~[our]
-:wallet &wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
+:uqbar &wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
 ```
 
 
@@ -108,10 +108,10 @@ First, create a pending transaction.
 The `%wallet` will send the transaction hash on a subscription wire as well as print it in the Dojo.
 ```hoon
 ::  Send zigs tokens.
-:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a shard=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 grain=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
+:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a shard=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
 
 ::  Send an NFT.
-:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0xc9fb.6b1b.e8b2.7b73.65e4.700f.9665.24c8.9388.2cde.fadd.c422.eb9a.3624.ca5d.014d shard=0x0 action=[%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de grain=0x7b61.8ce0.26ec.f2b9.3bc9.5800.ba7f.164e.89ba.817b.e0d9.5cfd.96bc.c12a.5c29.00a1]]
+:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0xc9fb.6b1b.e8b2.7b73.65e4.700f.9665.24c8.9388.2cde.fadd.c422.eb9a.3624.ca5d.014d shard=0x0 action=[%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de item=0x7b61.8ce0.26ec.f2b9.3bc9.5800.ba7f.164e.89ba.817b.e0d9.5cfd.96bc.c12a.5c29.00a1]]
 
 ::  Use the custom transaction interface to send zigs tokens.
 :uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a shard=0x0 action=[%noun [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]]]
@@ -179,11 +179,11 @@ When routed through `%uqbar`, as below, `/indexer` must be prepended to the path
    ::  Query all fields for the given hash.
    .^(update:ui %gx /=uqbar=/indexer/hash/0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70/noun)
 
-   ::  Query for the history of the given grain.
-   .^(update:ui %gx /=uqbar=/indexer/grain/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun)
+   ::  Query for the history of the given item.
+   .^(update:ui %gx /=uqbar=/indexer/item/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun)
 
-   ::  Query for the current state of the given grain.
-   .^(update:ui %gx /=uqbar=/indexer/newest/grain/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun)
+   ::  Query for the current state of the given item.
+   .^(update:ui %gx /=uqbar=/indexer/newest/item/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun)
    ```
 
 2. Scrying from outside Urbit using the HTTP API.
@@ -194,11 +194,11 @@ When routed through `%uqbar`, as below, `/indexer` must be prepended to the path
    # Query all fields for the given hash.
    curl --cookie "$ZOD_COOKIE" localhost:8080/~/scry/uqbar/indexer/hash/0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70.json | jq
 
-   # Query for the history of the given grain.
-   curl --cookie "$ZOD_COOKIE" localhost:8080/~/scry/uqbar/indexer/grain/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6.json | jq
+   # Query for the history of the given item.
+   curl --cookie "$ZOD_COOKIE" localhost:8080/~/scry/uqbar/indexer/item/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6.json | jq
 
-   # Query for the current state of the given grain.
-   curl --cookie "$ZOD_COOKIE" localhost:8080/~/scry/uqbar/indexer/newest/grain/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6.json | jq
+   # Query for the current state of the given item.
+   curl --cookie "$ZOD_COOKIE" localhost:8080/~/scry/uqbar/indexer/newest/item/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6.json | jq
    ```
 
 ### Accounts initialized by init script
@@ -207,23 +207,23 @@ Below are listed the seed phrases, encryption passwords, and key pairs initializ
 Note in that section we make use of the first of these accounts to set up the `%wallet` (and `%sequencer`) on `~zod`.
 
 ```hoon
-::  Account holding a rice with 300 zigs.
+::  Account holding a data with 300 zigs.
 ::  Seed, password, private key, public key:
 uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove
 squid
 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608
 0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
 
-::  Account holding a rice with 200 zigs:
+::  Account holding a data with 200 zigs:
 ::  Seed, password, private key, public key:
 post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney
 squid
 0x38b7.e413.7f0d.9d05.ae1e.382d.debd.cc79.3f3a.6be3.912b.1eea.33e2.dd94.bd1c.d330
 0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
 
-::  Account holding a rice with 100 zigs:
+::  Account holding a data with 100 zigs:
 ::  Seed, password, private key, public key:
-flee alter erode parrot turkey harvest pass combine casual interest receive album coyote shrug envelope turtle broken purity wear else fluid egg theme buyer
+flee alter erode parrot turkey harvest pass combine casual interest receive album coyote shrug envelope turtle broken purity wear else fluid transaction theme buyer
 squid
 0x3163.45c7.9265.36bd.6a32.d317.87c0.c961.8df2.8d91.4c07.1a04.b929.baf6.cfd2.b4e8
 0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
@@ -302,7 +302,7 @@ In general, replace `zigs` with the name of any other contract.
 ## Deploying Contracts to a Running Testnet
 
 Contracts are deployed using the `publish` contract found in this repo at `con/publish.hoon`.
-The `publish` contract is usually deployed on `shard`s in the `wheat` with ID `0x1111.1111`.
+The `publish` contract is usually deployed on `shard`s in the `pact` with ID `0x1111.1111`.
 For example, to deploy the `multisig` contract, first [compile it](#compiling-contracts-and-the-standard-library).
 Then place it at `con/compiled/multisig.noun`.
 To deploy on shard `0x0`, in the Dojo:
@@ -317,39 +317,36 @@ To deploy on shard `0x0`, in the Dojo:
 ## Glossary
 
 ### `batch`
-A `batch` is analogous to a block in a blockchain.
+A `batch` in a rollup is analogous to a block in a blockchain.
 `batch`es have a definite order, and are produced by a `%sequencer` for a given `shard`.
-It is called `batch` here to call
 
 
-### `egg`
+### `transaction`
 
-An `egg` is a transaction.
-It consists of two parts, a `shell` and a `yolk`.
-The `shell` is the same for all `egg`s, and contains information about who the transaction is from, what contract it called, what gas budget was allocated and so on.
-The `yolk` has a form that depends on the contract `wheat`.
-
-
-### `grain`
-
-A `grain` is either a piece of data (a `rice`) or a piece of code (a `wheat`).
+A transaction consists of three parts, a signature, calldata, and a `shell`.
+The `shell` is the same for all `transaction`s, and contains information about who the transaction is from, what contract it called, what gas budget was allocated and so on.
+`calldata` is a `(pair @tas noun)` that has a form depending on the target contract.
 
 
-### `rice`
+### `item`
 
-A `rice` is a piece of data associated with a specific `wheat` that is `lord` over it.
-For example, a `rice` of the `zigs` `wheat` might be an `account`, holding some number of tokens.
-Or a `rice` of the `nft` `wheat` might be a particular `nft` with certain characteristics.
+An `item` is either a piece of data (a `data`) or a piece of code (a `pact`).
+
+
+### `data`
+
+A `data` is a piece of data associated with a specific `pact` that is `lord` over it.
+For example, a `data` of the `zigs` `pact` might be an `account`, holding some number of tokens.
+Or a `data` of the `nft` `pact` might be a particular `nft` with certain characteristics.
+
+
+### `pact`
+
+A `pact` is a piece of code: it is a contract.
+For example, the `zigs` contract that governs the base rollup tokens is a `pact`, and the `nft` contract that enables NFTs to be held and sent is another.
 
 
 ### `shard`
 
 A segment of chain-state within the Uqbar rollup.
 A `%sequencer` runs a `shard`, receiving transactions from users, executing them, and then sending the updated state to the `%rollup`.
-
-
-### `wheat`
-
-A `wheat` is a piece of code: it is a contract.
-For example, the `zigs` contract that governs the base rollup tokens is a `wheat`, and the `nft` contract that enables NFTs to be held and sent is another.
-

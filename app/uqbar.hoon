@@ -41,8 +41,7 @@
   +*  this        .
       def         ~(. (default-agent this %|) bowl)
       io          ~(. agentio bowl)
-      uqbar-core  +>
-      uc          ~(. uqbar-core bowl)
+      uc          ~(. +> bowl)
   ::
   ++  on-init
     ^-  (quip card _this)
@@ -52,7 +51,7 @@
         max-ping-time         ~h2   ::   Spam risk?
         ping-time-fast-delay  ~s5
         ping-timeout          ~s30
-        wallet-source         %wallet
+        wallet-source         %wallet  ::  name of locally-installed wallet app
     ==
   ::
   ++  on-save  !>(state)
@@ -120,8 +119,7 @@
       ?+    mark  ~|("%uqbar: rejecting erroneous poke" !!)
           %uqbar-action  (handle-action !<(action:u vase))
           %uqbar-write   (handle-write !<(write:u vase))
-          %wallet-poke
-        (handle-wallet-poke !<(wallet-poke:w vase))
+          %wallet-poke   (handle-wallet-poke !<(wallet-poke:w vase))
       ==
     [cards this]
     ::
@@ -241,21 +239,9 @@
       |=  =write:u
       ^-  (quip card _state)
       ?-    -.write
-      ::
-      ::  Each write can optionally create a subscription, which will forward these things:
-      ::
-      ::  - a "receipt" from sequencer, which contains a signed hash of the txn
-      ::    (signed by both urbit ID and uqbar address -- enforcing that reputational link)
-      ::
-      ::  - once the txn gets submitted in batch to rollup, a card with the status/errorcode
-      ::
-      ::  - a card containing the new nonce of the address submitting the txn
-      ::    (apps can ignore and track on their own, or use this)
-      ::
-      ::  To enable status update, uqbar.hoon should subscribe to indexer for that txn
-      ::  and unsub when either status is received, or batch is rejected. (TODO how to determine latter?)
-      ::
           %submit
+        ::  forward a transaction to sequencer we're tracking
+        ::  for the specified shard
         ?>  =(src.bowl our.bowl)
         ?~  seq=(~(get by sequencers.state) `@ux`shard.txn.write)
           ~|("%uqbar: no known sequencer for that shard" !!)
@@ -271,7 +257,7 @@
         ~
       ::
           %receipt
-        ::  forward to local watchers
+        ::  forward to local watchers, usually wallet
         :_  state
         :_  ~
         %+  fact:io
@@ -581,6 +567,8 @@
     --
   ++  on-fail   on-fail:def
   --
+::
+::  uqbar-core
 ::
 |_  =bowl:gall
 +*  io  ~(. agentio bowl)
