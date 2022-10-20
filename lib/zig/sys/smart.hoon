@@ -31,13 +31,14 @@
 ++  scry-state
   |=  =id
   ;;  (unit item)
-  .*(0 [%12 [%0 1] [%1 /state/(scot %ux id)]])
+  .*  0
+  [%12 [%0 1] [%1 `pith`[%state [%ux id] ~]]]
 ::
 ++  scry-contract
-  |=  [=id =path]
+  |=  [=id pit=pith]
   ;;  (unit *)
   .*  0
-  [%12 [%0 1] [%1 (weld /contract/noun/(scot %ux id) path)]]
+  [%12 [%0 1] [%1 (weld `pith`[%contract %noun [%ux id] ~] pit)]]
 ::
 ::  +fry: standard hashing functions for items
 ::
@@ -123,7 +124,7 @@
     (quip call diff)
   ::
   ++  read
-    ^|  |_  path
+    ^|  |_  pith
     ++  json
       *^json
     ++  noun

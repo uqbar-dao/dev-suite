@@ -81,9 +81,8 @@
   ++  json
     ^-  ^json
     ?+    pith  !!
-        ::  #/some/who=@p/@t
-        [%get-balance @ ~]
-      =+  (need (scry-state (slav %ux i.t.path)))
+        [%get-balance [%ux @ux] ~]
+      =+  (need (scry-state +.i.t.pith))
       =+  (husk account:sur - ~ ~)
       `^json`[%n (scot %ud balance.noun.-)]
     ==
