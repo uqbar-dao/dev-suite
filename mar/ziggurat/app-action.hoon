@@ -22,6 +22,7 @@
           [%save-file (ot ~[[%file pa] [%text so]])]
           [%delete-file (ot ~[[%file pa]])]
           [%publish-app parse-docket]
+          [%approve-cors-domain (ot ~[[%domain so]])]
       ==
     ::
     ++  parse-docket

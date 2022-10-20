@@ -90,6 +90,7 @@
           [%delete-file file=path]
           ::
           [%read-desk ~]
+          [%approve-cors-domain domain=@t]
           ::
           [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
       ==

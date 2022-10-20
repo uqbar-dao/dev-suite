@@ -499,6 +499,19 @@
         /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)
       :-  (make-app-update project.act app-project)^~
       state(projects (~(put by projects) project.act %|^app-project))
+    ::
+        %approve-cors-domain
+      ::  for internal use -- required to download github repo zips on frontend
+      :_  state
+      :_  ~
+      :*  %pass 
+          /helm-wire 
+          %agent 
+          [our.bowl %hood] 
+          %poke 
+          %helm-cors-approve 
+          !>(domain.act)
+      ==
     ==
   --
 ::
