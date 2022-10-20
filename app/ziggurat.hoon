@@ -439,11 +439,15 @@
         %save-file
       :_  state
       :~  =-  [%pass /save-wire %arvo %c -]
-          ?+  (rear file.act)  [%info `@tas`project.act %& [file.act %ins %hoon !>(text.act)]~]  :: assume hoon as the default file type
-            %ship  [%info `@tas`project.act %& [file.act %ins %ship !>(;;(@p q:(slap !>(~) (ream text.act))))]~]
-            %bill  [%info `@tas`project.act %& [file.act %ins %bill !>(;;((list @tas) q:(slap !>(~) (ream text.act))))]~]
-            %kelvin  [%info `@tas`project.act %& [file.act %ins %kelvin !>(;;([@tas @ud] q:(slap !>(~) (ream text.act))))]~]
-            %docket-0  [%info `@tas`project.act %& [file.act %ins %docket-0 !>((need (from-clauses:mime:dock ;;((list clause:dock) q:(slap !>(~) (ream text.act))))))]~]
+          =/  reamed-text  q:(slap !>(~) (ream text.act))
+          :^  %info  `@tas`project.act  %&
+          :_  ~  :+  file.act  %ins
+          ?+  (rear file.act)  [%hoon !>(text.act)]  :: assume hoon as the default file type
+            %ship  [%ship !>(;;(@p reamed-text))]
+            %bill  [%bill !>(;;((list @tas) reamed-text))]
+            %kelvin  [%kelvin !>(;;([@tas @ud] reamed-text))]
+            %docket-0  =-  [%docket-0 !>((need (from-clauses:mime:dock -)))]
+                      ;;((list clause:dock) reamed-text)
           ==
           =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
           [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
