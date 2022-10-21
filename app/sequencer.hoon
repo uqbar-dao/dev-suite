@@ -3,8 +3,9 @@
 ::  Agent for managing a single UQ| shard. Publishes diffs to rollup.hoon
 ::  Accepts transactions and batches them periodically as moves to shard.
 ::
+/-  uqbar=zig-uqbar
 /+  default-agent, dbug, verb,
-    *zig-sequencer, *zig-rollup, uqbar=zig-uqbar,
+    *zig-sequencer, *zig-rollup,
     zink=zink-zink, sig=zig-sig
 ::  Choose which library smart contracts are executed against here
 ::

@@ -3,6 +3,7 @@
 ::  The agent for interacting with Uqbar. Provides read/write layer for userspace agents.
 ::
 /-  spider,
+    u=zig-uqbar,
     ui=zig-indexer,
     w=zig-wallet
 /+  agentio,
@@ -10,8 +11,7 @@
     dbug,
     verb,
     s=zig-sequencer,
-    smart=zig-sys-smart,
-    u=zig-uqbar
+    smart=zig-sys-smart
 |%
 +$  card  card:agent:gall
 +$  state-0

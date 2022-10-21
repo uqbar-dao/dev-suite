@@ -3,9 +3,9 @@
 ::  UQ| wallet agent. Stores private key and facilitates signing
 ::  transactions, holding nonce values, and keeping track of owned data.
 ::
-/-  *zig-wallet, ui=zig-indexer
+/-  *zig-wallet, ui=zig-indexer, uqbar=zig-uqbar
 /+  default-agent, dbug, verb, ethereum, bip32, bip39,
-    uqbar=zig-uqbar, ui-lib=zig-indexer, zink=zink-zink,
+    ui-lib=zig-indexer, zink=zink-zink,
     *zig-wallet, smart=zig-sys-smart
 /*  smart-lib  %noun  /lib/zig/sys/smart-lib/noun
 |%
