@@ -93,8 +93,8 @@
 ++  compute-multiword
   |=  [jolds=(list json) data=*]
   ^-  json
-  ?~  jolds  [%s (crip (noah !>(data)))]
-  ?>  ?=(%s -.i.jolds)
+  ?~  jolds             [%s (crip (noah !>(data)))]
+  ?.  ?=(%s -.i.jolds)  [%s (crip (noah !>(data)))]
   %.  [t.jolds data]
   ?+  p.i.jolds  |=(* [%s (crip (noah !>(data)))])
     %list  compute-list
