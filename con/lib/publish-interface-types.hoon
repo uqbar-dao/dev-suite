@@ -12,7 +12,7 @@
     [
       {"mutable": "?"},
       {
-        "cont": [
+        "code": [
           {"bat": "*"},
           {"pay": "*"}
         ]
@@ -28,7 +28,7 @@
     [
       {"to-update": "ux"},
       {
-        "new-nok": [
+        "new-code": [
           {"bat": "*"},
           {"pay": "*"}
         ]
