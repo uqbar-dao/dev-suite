@@ -50,7 +50,7 @@
 ::    /x/txn/[txn-id=@ux]:
 ::    /x/txn/[shard-id=@ux]/[txn-id=@ux]:
 ::      Info about txn (transaction) with the given hash.
-::    /x/from/[txn-id=@ux]:
+::    /x/from/[from-id=@ux]:
 ::    /x/from/[shard-id=@ux]/[from-id=@ux]:
 ::      History of sender with the given hash.
 ::    /x/item/[item-id=@ux]:
@@ -324,10 +324,10 @@
             [%json @ @ @ %history ~]  [%json @ @ @ @ %history ~]
             [%hash @ @ %history ~]    [%hash @ @ @ %history ~]
             [%id @ @ %history ~]      [%id @ @ @ %history ~]
-            [%item @ @ %history ~]   [%item @ @ @ %history ~]
+            [%item @ @ %history ~]    [%item @ @ @ %history ~]
             [%holder @ @ %history ~]  [%holder @ @ @ %history ~]
-            [%source @ @ %history ~]    [%source @ @ @ %history ~]
-            [%shard @ @ %history ~]    [%shard @ @ @ %history ~]
+            [%source @ @ %history ~]  [%source @ @ @ %history ~]
+            [%shard @ @ %history ~]   [%shard @ @ @ %history ~]
         ==
       :_  this
       :_  ~
@@ -353,10 +353,10 @@
             [%json @ @ @ ~]  [%json @ @ @ @ ~]
             [%hash @ @ ~]    [%hash @ @ @ ~]
             [%id @ @ ~]      [%id @ @ @ ~]
-            [%item @ @ ~]   [%item @ @ @ ~]
+            [%item @ @ ~]    [%item @ @ @ ~]
             [%holder @ @ ~]  [%holder @ @ @ ~]
-            [%source @ @ ~]    [%source @ @ @ ~]
-            [%shard @ @ ~]    [%shard @ @ @ ~]
+            [%source @ @ ~]  [%source @ @ @ ~]
+            [%shard @ @ ~]   [%shard @ @ @ ~]
         ==
       `this
     ==
@@ -423,12 +423,12 @@
         $?  [%batch @ ~]       [%batch @ @ ~]
             [%txn @ ~]         [%txn @ @ ~]
             [%from @ ~]        [%from @ @ ~]
-            [%item @ ~]       [%item @ @ ~]
-            :: [%item-txns @ ~]  [%item-txns @ @ ~]
+            [%item @ ~]        [%item @ @ ~]
+            :: [%item-txns @ ~]   [%item-txns @ @ ~]
             [%holder @ ~]      [%holder @ @ ~]
-            [%source @ ~]        [%source @ @ ~]
+            [%source @ ~]      [%source @ @ ~]
             [%to @ ~]          [%to @ @ ~]
-            [%shard @ ~]        [%shard @ @ ~]
+            [%shard @ ~]       [%shard @ @ ~]
         ==
       =/  =query-type:ui  ;;(query-type:ui i.args)
       =/  query-payload=(unit query-payload:ui)
@@ -516,27 +516,27 @@
         ::   automagically `+on-load`, but not here.
         ::   If don't do this, can get bad state starting
         ::   up a new indexer.
-        =:  batches-by-shard         ~
+        =:  batches-by-shard        ~
             capitol                 ~
             sequencer-update-queue  ~
-            shard-update-queue       ~
+            shard-update-queue      ~
             old-sub-paths           ~
             old-sub-updates         ~
             txn-index               ~
             from-index              ~
-            item-index             ~
-            :: item-txns-index        ~
+            item-index              ~
+            :: item-txns-index         ~
             holder-index            ~
-            source-index              ~
+            source-index            ~
             to-index                ~
-            newest-batch-by-shard    ~
+            newest-batch-by-shard   ~
         ==
         `this(state (set-state-from-vase q.cage.sign))
       ==
     ::
         [%indexer-catchup-update @ @ ~]
       =/  shard-id=id:smart  (slav %ux i.t.wire)
-      =/  root=id:smart     (slav %ux i.t.t.wire)
+      =/  root=id:smart      (slav %ux i.t.t.wire)
       ?+    -.sign  (on-agent:def wire sign)
           %fact
         :-  ~
@@ -813,14 +813,14 @@
   |=  [shard-id=id:smart batch-root=id:smart]
   ^-  (unit [batch-id=id:smart timestamp=@da =batch:ui])
   ?~  bs=(~(get by batches-by-shard) shard-id)  ~
-  ?~  b=(~(get by batches.u.bs) batch-root)   ~
+  ?~  b=(~(get by batches.u.bs) batch-root)     ~
   `[batch-root u.b]
 ::
 ++  get-newest-batch
   |=  [shard-id=id:smart expected-root=id:smart]
   ^-  (unit [batch-id=id:smart timestamp=@da =batch:ui])
   ?~  b=(~(get by newest-batch-by-shard) shard-id)  ~
-  ?.  =(expected-root batch-id.u.b)               ~
+  ?.  =(expected-root batch-id.u.b)                 ~
   `u.b
 ::
 ++  combine-txn-updates
@@ -843,11 +843,11 @@
   =/  batch=update:ui   (serve-update %batch qp options)
   =/  txn=update:ui     (serve-update %txn qp options)
   =/  from=update:ui    (serve-update %from qp options)
-  =/  item=update:ui   (serve-update %item qp options)
+  =/  item=update:ui    (serve-update %item qp options)
   =/  holder=update:ui  (serve-update %holder qp options)
-  =/  source=update:ui    (serve-update %source qp options)
+  =/  source=update:ui  (serve-update %source qp options)
   =/  to=update:ui      (serve-update %to qp options)
-  =/  shard=update:ui    (serve-update %shard qp options)
+  =/  shard=update:ui   (serve-update %shard qp options)
   :: =/  item-txns=update:ui
   ::   (serve-update %item-txns qp only-newest)
   %^  combine-updates  ~[batch shard]  ~[txn from to]
@@ -927,7 +927,7 @@
 ++  set-state-from-vase
   |=  state-vase=vase
   ^-  _state
-  =+  vs=!<(versioned-state:ui state-vase)
+  =+  !<(vs=versioned-state:ui state-vase)
   ?-    -.vs
       %0
     :_  %-  inflate-state
@@ -1278,10 +1278,10 @@
     ?+  query-type  ~|("indexer: get-locations unexpected query-type {<query-type>}" !!)
       %txn         (get-by-get-ja txn-index only-newest)
       %from        (get-by-get-ja from-index %.n)
-      %item       (get-by-get-ja item-index only-newest)
-      :: %item-txns  (get-by-get-ja item-txns-index %.n)
+      %item        (get-by-get-ja item-index only-newest)
+      :: %item-txns   (get-by-get-ja item-txns-index %.n)
       %holder      (get-by-get-ja holder-index %.n)
-      %source        (get-by-get-ja source-index %.n)
+      %source      (get-by-get-ja source-index %.n)
       %to          (get-by-get-ja to-index %.n)
     ==
     ::  always set `only-newest` false for
@@ -1298,8 +1298,8 @@
       ^-  (list location:ui)
       ?:  ?=([@ @] query-payload)
         =*  shard-id    -.query-payload
-        =*  item-hash  +.query-payload
-        ?~  shard-index=(~(get by index) shard-id)      ~
+        =*  item-hash   +.query-payload
+        ?~  shard-index=(~(get by index) shard-id)     ~
         ?~  items=(~(get ja u.shard-index) item-hash)  ~
         ?:(only-newest ~[i.items] items)
       ?.  ?=(@ query-payload)  ~
@@ -1323,13 +1323,13 @@
   |^  ^-  (quip card _state)
   =+  ^=  [txn from item holder source to]
       (parse-batch root shard-id txns chain.shard)
-  =:  txn-index         (gas-ja-txn txn-index txn shard-id)
-      from-index        (gas-ja-second-order from-index from shard-id)
+  =:  txn-index        (gas-ja-txn txn-index txn shard-id)
+      from-index       (gas-ja-second-order from-index from shard-id)
       item-index       (gas-ja-batch item-index item shard-id)
-      ::  item-txns-index  (gas-ja-second-order item-txns-index item-txns shard-id)
-      holder-index      (gas-ja-second-order holder-index holder shard-id)
-      source-index        (gas-ja-second-order source-index source shard-id)
-      to-index          (gas-ja-second-order to-index to shard-id)
+      :: item-txns-index  (gas-ja-second-order item-txns-index item-txns shard-id)
+      holder-index     (gas-ja-second-order holder-index holder shard-id)
+      source-index     (gas-ja-second-order source-index source shard-id)
+      to-index         (gas-ja-second-order to-index to shard-id)
       newest-batch-by-shard
     ::  only update newest-batch-by-shard with newer batches
     ?:  %+  gth

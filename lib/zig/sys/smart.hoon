@@ -39,7 +39,7 @@
   .*  0
   [%12 [%0 1] [%1 (weld /contract/noun/(scot %ux id) path)]]
 ::
-::  +fry: standard hashing functions for items
+::  +hash: standard hashing functions for items
 ::
 ++  hash-pact
   |=  [source=id holder=id shard=id code=*]

@@ -307,9 +307,9 @@ For example, to deploy the `multisig` contract, first [compile it](#compiling-co
 Then place it at `con/compiled/multisig.noun`.
 To deploy on shard `0x0`, in the Dojo:
 ```hoon
-=contract-path /=zig=/con/compiled/multisig/noun
-=contract-noun .^(* %cx contract-path)
-=contract ;;([bat=* pay=*] contract-noun)
+=contract-path /=zig=/con/compiled/multisig/jam
+=contract-jam .^(@ %cx contract-path)
+=contract [- +]:(cue contract-jam)
 :uqbar &wallet-poke [%transaction from=[youraddress] contract=0x1111.1111 shard=0x0 action=[%noun [%deploy mutable=%.n cont=contract interface=~ types=~]]]
 ```
 
