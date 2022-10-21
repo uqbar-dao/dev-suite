@@ -13,8 +13,8 @@
 ::      Change state of %faucet app.
 ::
 ::
-/-  f=faucet,
-    w=wallet
+/-  f=zig-faucet,
+    w=zig-wallet
 /+  agentio,
     dbug,
     default-agent,
@@ -72,8 +72,8 @@
         ?:  =(%earl (clan:title src))
           (sein:title our now src)
         src
-      ?~  town-info=(~(get by town-infos) town-id.action)
-        ~|("%faucet: invalid town. Valid towns: {<~(key by town-infos)>}" !!)
+      ?~  shard-info=(~(get by shard-infos) shard-id.action)
+        ~|("%faucet: invalid shard. Valid shards: {<~(key by shard-infos)>}" !!)
       =/  [unlock=@da count=@ud]
         (~(gut by on-timeout) par [*@da 0])
       ?:  (gth unlock now)
@@ -85,19 +85,19 @@
             [until ?:((gte count 12) count +(count))]
           ==
       :+  =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]
-          :-  %zig-wallet-poke
+          :-  %wallet-poke
           !>  ^-  wallet-poke:w
           :*  %transaction
-              from=address.u.town-info
-              contract=zigs-wheat.u.town-info
-              town=town-id.action
+              from=address.u.shard-info
+              contract=zigs-contract.u.shard-info
+              shard=shard-id.action
               :^    %give
                   to=address.action
                 amount=volume
-              grain=zigs-rice.u.town-info
+              grain=zigs-account.u.shard-info
           ==
         =-  [%pass /self-poke %agent [our.bowl %faucet] %poke -]
-        [%faucet-action !>(`action:f`[%confirm address.u.town-info])]
+        [%faucet-action !>(`action:f`[%confirm address.u.shard-info])]
       ~
     ::
         %confirm
@@ -105,13 +105,13 @@
       ::  make faucet auto-complete transaction in wallet
       :_  this
       =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]~
-      :-  %zig-wallet-poke
+      :-  %wallet-poke
       !>  ^-  wallet-poke:w
       :*  %submit
           from=me.action
           ::  take first transaction in wallet pending store and slam it through
           ::  assumes that faucet operator never uses wallet for other things!
-          =-  -.-:~(tap by .^((map @ux [egg:smart supported-actions:w]) %gx -))
+          =-  -.-:~(tap by .^((map @ux [transaction:smart supported-actions:w]) %gx -))
           /(scot %p our.bowl)/wallet/(scot %da now.bowl)/pending-noun/(scot %ux me.action)/noun
           gas
       ==
@@ -127,11 +127,11 @@
         %edit-timeout-duration
       `this(timeout-duration timeout-duration.c)
     ::
-        %put-town
+        %put-shard
       :-  ~
       %=  this
-          town-infos
-        (~(put by town-infos) town-id.c town-info.c)
+          shard-infos
+        (~(put by shard-infos) shard-id.c shard-info.c)
       ==
     ==
   --

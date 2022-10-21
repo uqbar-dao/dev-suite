@@ -8,7 +8,7 @@
 ::  :*  0x9999
 ::      0xeeee.eeee
 ::      holder-1:zigs
-::      town-id
+::      shard-id
 ::      [%& `@`'some-salt' %some-label ['some' 'random' 'data']]
 ::  ==
 ::
@@ -18,10 +18,10 @@
   |=  inp=embryo
   ^-  chick
   =/  grain-id=id
-    (fry-rice me.cart id.from.cart town-id.cart 'salt')
+    (fry-rice me.cart id.from.cart shard-id.cart 'salt')
   =/  new-grain=grain
     =+  [%& 'salt' %label 'data']
-    [grain-id me.cart id.from.cart town-id.cart -]
+    [grain-id me.cart id.from.cart shard-id.cart -]
   ?+    -.action.inp  !!
       %change-nonexistent
     (result [new-grain ~] ~ ~ ~)
@@ -47,7 +47,7 @@
     ::  call with dummy grain
     =/  dummy=grain  +.-:grains.inp
     ::  try to make sneaky grain
-    =.  lord.dummy  zigs-wheat-id
+    =.  lord.dummy  zigs-contract-id
     (result [dummy ~] ~ ~ ~)
   ::
       %changed-issued-overlap
@@ -110,7 +110,7 @@
     ::  call with dummy grain
     =/  dummy=grain  +.-:grains.inp
     ::  try to make sneaky grain
-    =.  lord.dummy  zigs-wheat-id
+    =.  lord.dummy  zigs-contract-id
     (result ~ ~ [dummy ~] ~)
   ::
       %germinate-test

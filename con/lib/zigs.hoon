@@ -1,12 +1,12 @@
 ::  [UQ| DAO]
 ::  zigs.hoon v1.0
 ::
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 |%
 ++  sur
   |%
   +$  token-metadata
-    ::  will be automatically inserted into town state
+    ::  will be automatically inserted into shard state
     ::  at instantiation, along with this contract
     ::  hardcoded values included to match token standard
     $:  name=@t
