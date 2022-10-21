@@ -383,7 +383,6 @@
           ::
               [%0 %contract ?(%noun %json) [%ux @ux] ^]
             ::  /contract/[%noun or %json]/[contract-id]/pith/in/contract
-            =/  rem  (sub gas 100)  ::  base cost
             =/  kind                      -.+.+.+.pit
             =/  contract-id=id:smart  +.-.+.+.+.+.pit
             ::  pith includes fee, as it must match fee in contract
