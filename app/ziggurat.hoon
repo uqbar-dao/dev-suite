@@ -3,7 +3,7 @@
 ::  Contract Playground
 ::
 /+  *ziggurat, smart=zig-sys-smart, sequencer,
-    default-agent, dbug, verb
+    default-agent, dbug, verb, dock=docket
 /*  smart-lib-noun  %noun  /con/compiled/smart-lib/noun
 /*  zink-cax-noun   %noun  /con/compiled/hash-cache/noun
 ::
@@ -439,7 +439,16 @@
         %save-file
       :_  state
       :~  =-  [%pass /save-wire %arvo %c -]
-          [%info `@tas`project.act %& [file.act %ins %hoon !>(text.act)]~]
+          =/  reamed-text  q:(slap !>(~) (ream text.act))
+          :^  %info  `@tas`project.act  %&
+          :_  ~  :+  file.act  %ins
+          ?+  (rear file.act)  [%hoon !>(text.act)]  :: assume hoon as the default file type
+            %ship  [%ship !>(;;(@p reamed-text))]
+            %bill  [%bill !>(;;((list @tas) reamed-text))]
+            %kelvin  [%kelvin !>(;;([@tas @ud] reamed-text))]
+            %docket-0  =-  [%docket-0 !>((need (from-clauses:mime:dock -)))]
+                      ;;((list clause:dock) reamed-text)
+          ==
           =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
           [%ziggurat-app-action !>(`app-action`project.act^[%read-desk ~])]
       ==
@@ -586,8 +595,15 @@
     =/  pat=^path  `^path`t.t.t.path
     =/  pre  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
     ~&  >  (weld pre pat)
-    =/  res  .^(@t %cx (weld pre pat))
-    ``json+!>(`json`[%s res])
+    :^  ~  ~  %json  !>
+    ^-  json
+    :-  %s
+    ?+  (rear pat)  .^(@t %cx (weld pre pat)) :: assume hoon as the default file type
+      %kelvin  (crip ~(ram re (cain !>(.^([@tas @ud] %cx (weld pre pat))))))
+      %ship  (crip ~(ram re (cain !>(.^(@p %cx (weld pre pat))))))
+      %bill  (crip ~(ram re (cain !>(.^((list @tas) %cx (weld pre pat))))))
+      %docket-0  (crip (spit-docket:mime:dock .^(docket:dock %cx (weld pre pat))))
+    ==
   ==
 ::
 ++  on-leave  on-leave:def
