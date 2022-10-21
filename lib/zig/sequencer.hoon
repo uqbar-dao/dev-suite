@@ -1,22 +1,22 @@
-/-  *sequencer
-/+  mill=zig-mill
+/-  *zig-sequencer
+/+  engine=zig-sys-engine
 |%
 ++  transition-state
-  |=  [old=(unit town) proposed=[num=@ud =carton =land diff-hash=@ux root=@ux]]
-  ^-  (unit town)
+  |=  [old=(unit shard) proposed=[num=@ud =memlist:engine =chain:engine diff-hash=@ux root=@ux]]
+  ^-  (unit shard)
   ?~  old  old
   :-  ~
   %=  u.old
     batch-num.hall         num.proposed
-    land                   land.proposed
+    chain                  chain.proposed
     latest-diff-hash.hall  diff-hash.proposed
     roots.hall             (snoc roots.hall.u.old root.proposed)
   ==
 ::
 ++  read-grain
-  |=  [=path =granary]
+  |=  [=path =state]
   ^-  (unit (unit cage))
   ?>  ?=([%grain @ ~] path)
   =/  id  (slav %ux i.t.path)
-  ``noun+!>((get:big:mill granary id))
+  ``noun+!>((get:big:engine state id))
 --

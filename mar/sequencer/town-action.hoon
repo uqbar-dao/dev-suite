@@ -1,14 +1,14 @@
 /-  seq=zig-sequencer
 ::
-|_  =rollup-update:seq
+|_  =shard-action:seq
 ++  grab
   |%
-  ++  noun  rollup-update:seq
+  ++  noun  shard-action:seq
   --
 ::
 ++  grow
   |%
-  ++  noun  rollup-update
+  ++  noun  shard-action
   --
 ::
 ++  grad  %noun

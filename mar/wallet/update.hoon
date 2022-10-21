@@ -1,4 +1,4 @@
-/-  *wallet
+/-  *zig-wallet
 /+  *wallet-parsing
 =,  enjs:format
 |_  upd=wallet-update

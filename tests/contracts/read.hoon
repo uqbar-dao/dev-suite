@@ -11,9 +11,9 @@
 ::
 ::  constants / dummy info for mill
 ::
-++  big  (bi:merk id:smart grain:smart)  ::  merkle engine for granary
+++  big  (bi:merk id:smart item:smart)  ::  merkle engine for granary
 ++  pig  (bi:merk id:smart @ud)          ::                for populace
-++  town-id   0x0
+++  shard-id   0x0
 ++  fake-sig  [0 0 0]
 ++  mil
   %~  mill  mill
@@ -21,7 +21,7 @@
     ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun)))
   %.y
 ::
-+$  mill-result
++$  single-result
   [fee=@ud =land burned=granary =errorcode:smart hits=(list hints:zink) =crow:smart]
 ::
 ::  fake data
@@ -34,43 +34,43 @@
 ++  zigs
   |%
   ++  account-1
-    ^-  grain:smart
+    ^-  item:smart
     :*  %&
         `@`'zigs'
         %account
         [300.000.000 ~ `@ux`'zigs-metadata']
-        (fry-rice:smart zigs-wheat-id:smart pubkey-1 town-id `@`'zigs')
-        zigs-wheat-id:smart
+        (fry-data:smart zigs-contract-id:smart pubkey-1 shard-id `@`'zigs')
+        zigs-contract-id:smart
         pubkey-1
-        town-id
+        shard-id
     ==
   --
 ::
 ++  read-wheat
-  ^-  wheat:smart
+  ^-  pact:smart
   :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] trivial-read-contract)))
       interface=~
       types=~
       0x5678  ::  id
       0x5678  ::  lord
       0x5678  ::  holder
-      town-id  ::  town-id
+      shard-id  ::  shard-id
   ==
 ::
 ++  read-source-wheat
-  ^-  wheat:smart
+  ^-  pact:smart
   :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] trivial-read-source-contract)))
       interface=~
       types=~
       0x1234  ::  id
       0x1234  ::  lord
       0x1234  ::  holder
-      town-id   ::  town-id
+      shard-id   ::  shard-id
   ==
 ::
 ++  fake-granary
   ^-  granary
-  %+  gas:big  *(merk:merk id:smart grain:smart)
+  %+  gas:big  *(merk:merk id:smart item:smart)
   :~  [id:read-wheat [%| read-wheat]]
       [id:read-source-wheat [%| read-source-wheat]]
       [id.p:account-1:zigs account-1:zigs]
@@ -86,13 +86,13 @@
 ::  begin tests
 ::
 ++  test-read
-  =/  =yolk:smart  [%whatever ~]
+  =/  =calldata:smart  [%whatever ~]
   =/  shel=shell:smart
-    [caller-1 ~ id:read-wheat 1 1.000.000 town-id 0]
-  =/  res=mill-result
-    %+  ~(mill mil miller town-id 1)
+    [caller-1 ~ id:read-wheat 1 1.000.000 shard-id 0]
+  =/  res=single-result
+    %+  ~(mill mil miller shard-id 1)
       fake-land
-    `egg:smart`[fake-sig shel yolk]
+    `transaction:smart`[fake-sig shel yolk]
   ::
   ~&  >  "crow: {<crow.res>}"
   ;:  weld

@@ -1,4 +1,4 @@
-/-  *wallet
+/-  *zig-wallet
 =,  dejs:format
 |_  act=wallet-poke
 ++  grab
@@ -47,7 +47,7 @@
       %-  ot
       :~  [%from (se %ux)]
           [%contract (se %ux)]
-          [%town (se %ux)]
+          [%shard (se %ux)]
           [%action parse-action]
       ==
     ++  parse-action

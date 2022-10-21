@@ -1,9 +1,9 @@
-/-  uqbar
+/-  u=zig-uqbar
 ::
-|_  =write:uqbar
+|_  =write:u
 ++  grab
   |%
-  ++  noun  write:uqbar
+  ++  noun  write:u
   --
 ::
 ++  grow
