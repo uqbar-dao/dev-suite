@@ -55,7 +55,7 @@
     '''
     [
       {"to": "ux"},
-      {"grain-id": "ux"}
+      {"item-id": "ux"}
     ]
     '''
   ::
@@ -64,7 +64,7 @@
     '''
     [
       {"to": "ux"},
-      {"grain-id": "ux"}
+      {"item-id": "ux"}
     ]
     '''
   ::
@@ -75,7 +75,7 @@
       {
         "items": [
           {"who": "ux"},
-          {"grain": "ux"},
+          {"item": "ux"},
           {"allowed": "?"}
         ]
       }
