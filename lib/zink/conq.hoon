@@ -53,7 +53,10 @@
     =/  lib-txt  .^(@t %cx (welp pax /hoon))
     ::  CURRENTLY IGNORING IMPORTS INSIDE LIBRARIES
     +:(parse-pile (trip lib-txt))
-  =/  full=hoon  [%tsgl contract-hoon [%clsg braw]]
+  =/  full=hoon
+    ?:  =(~ braw)
+      contract-hoon
+    [%tsgl contract-hoon [%clsg braw]]
   =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun full)
   ::  =/  payload=vase  (slap smart-lib libraries)
   ::  =/  cont  (~(mint ut p:(slop smart-lib payload)) %noun contract-hoon)

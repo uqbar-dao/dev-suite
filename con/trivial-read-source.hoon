@@ -1,14 +1,15 @@
-|_  =cart
+/+  *zig-sys-smart
+|_  =context
 ++  write
   |=  *
-  ^-  chick
-  [%& ~ ~ ~ ~]
+  ^-  (quip call diff)
+  `[~ ~ ~ ~]
 ++  read
-  |_  =path
+  |_  =pith
   ++  json
     ~
   ++  noun
-    ?+    path  !!
+    ?+    pith  !!
         [%read-me ~]
       %hellofriend
     ::

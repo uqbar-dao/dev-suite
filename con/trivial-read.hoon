@@ -1,12 +1,13 @@
-|_  =cart
+/+  *zig-sys-smart
+|_  =context
 ++  write
   |=  *
-  ^-  chick
+  ^-  (quip call diff)
   =/  got-it=(unit *)
     (scry-contract 0x1234 /read-me)
-  [%& ~ ~ ~ `crow`[[;;(@tas (need got-it)) ~] ~]]
+  `[~ ~ ~ [[;;(@tas (need got-it)) ~] ~]]
 ++  read
-  |_  =path
+  |_  =pith
   ++  json
     ~
   ++  noun

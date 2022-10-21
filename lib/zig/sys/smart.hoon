@@ -141,7 +141,8 @@
       =events
   ==
 +$  call  [contract=id shard=id =calldata]
-+$  events  (list [@tas json])
++$  event   (pair @tas json)
++$  events  (list event)
 ::
 ::  transaction types
 ::
