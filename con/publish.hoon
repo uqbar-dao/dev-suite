@@ -4,35 +4,36 @@
 ::  for other smart contracts. Automatically (?) inserted
 ::  on any shard that wishes to allow contract production.
 ::
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 /=  pub  /con/lib/publish
-|_  =cart
+=,  pub
+|_  =context
 ++  write
-  |=  act=action:pub
-  ^-  chick
+  |=  act=action
+  ^-  (quip call diff)
   ?-    -.act
       %deploy
-    =/  lord=id  ?:(mutable.act me.cart 0x0)
-    =/  contract=grain
+    =/  source=id  ?:(mutable.act this.context 0x0)
+    =/  pact=item
       :*  %|
-          `cont.act
+          (hash-pact source id.caller.context shard.context code.act)
+          source
+          id.caller.context
+          shard.context
+          code.act
           interface.act
           types.act
-          (fry-wheat lord id.from.cart shard-id.cart `cont.act)
-          lord
-          id.from.cart
-          shard-id.cart
       ==
-    (result ~ [contract ~] ~ ~)
+    `(result ~ [pact ~] ~ ~)
   ::
       %upgrade
-    ::  we must be lord to upgrade
-    =/  contract  (need (scry-granary to-upgrade.act))
-    ?>  ?&  ?=(%| -.contract)
-            =(lord.p.contract me.cart)
+    ::  we must be source to upgrade
+    =/  pact  (need (scry-state to-upgrade.act))
+    ?>  ?&  ?=(%| -.pact)
+            =(this.context source.p.pact)
         ==
-    =.  cont.p.contract  `new-nok.act
-    (result [contract ~] ~ ~ ~)
+    =.  code.p.pact  new-code.act
+    `(result [pact ~] ~ ~ ~)
   ==
 ::
 ++  read
