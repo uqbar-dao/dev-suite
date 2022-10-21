@@ -111,7 +111,7 @@ The `%wallet` will send the transaction hash on a subscription wire as well as p
 :uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a shard=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
 
 ::  Send an NFT.
-:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0xc9fb.6b1b.e8b2.7b73.65e4.700f.9665.24c8.9388.2cde.fadd.c422.eb9a.3624.ca5d.014d shard=0x0 action=[%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de item=0x7b61.8ce0.26ec.f2b9.3bc9.5800.ba7f.164e.89ba.817b.e0d9.5cfd.96bc.c12a.5c29.00a1]]
+:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x262.52d2.70eb.2e71.d48e.c5c6.1572.c8a9.1a71.2e55.9eaf.af54.d9c0.e3f8.39a5.152a shard=0x0 action=[%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de item=0xe61e.c76e.eec9.db7a.5318.c9b1.4896.ed09.d798.2ee0.a79e.9b39.2937.6598.20aa.e239]]
 
 ::  Use the custom transaction interface to send zigs tokens.
 :uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a shard=0x0 action=[%noun [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]]]
