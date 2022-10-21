@@ -16,8 +16,6 @@
   =/  interface-types=(map @tas json)  get-interface-types
   ?~  interface-type=(~(get by interface-types) label)
     [%s (crip (noah !>(noun)))]
-  ~&  u.interface-type
-  ~&  noun
   (jold-full-tuple-to-object:jold u.interface-type noun)
   ::
   ++  get-interface-types
