@@ -32,6 +32,18 @@
       {"nonce": "ud"}
     ]
     '''
+  ::
+  ++  approval-cord
+    ^-  cord
+    '''
+    [
+      {"from": "ux"},
+      {"to": "ux"},
+      {"amount": "ud"},
+      {"nonce": "ud"},
+      {"deadline": "ud"}
+    ]
+    '''
   --
 ++  interface-json
   |^  ^-  (map @tas json)
@@ -75,7 +87,7 @@
       {"to-account": ["unit", "ux"]},
       {"amount": "ud"},
       {"nonce": "ud"},
-      {"deadline": "da"},
+      {"deadline": "ud"},
       {
         "sig": [
           {"v": "ux"},

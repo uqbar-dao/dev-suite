@@ -4,19 +4,20 @@
 ::  lib/fungible. Any new token that wishes to use this standard
 ::  without any changes can be issued through this contract.
 ::
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 /=  fungible  /con/lib/fungible
-|_  =cart
+=,  fungible
+|_  =context
 ++  write
-  |=  act=action:sur:fungible
-  ^-  chick
-  ?-    -.act
-    %give           (give:lib:fungible cart act)
-    %take           (take:lib:fungible cart act)
-    %take-with-sig  (take-with-sig:lib:fungible cart act)
-    %set-allowance  (set-allowance:lib:fungible cart act)
-    %mint           (mint:lib:fungible cart act)
-    %deploy         (deploy:lib:fungible cart act)
+  |=  act=action:sur
+  ^-  (quip call diff)
+  ?-  -.act
+    %give           (give:lib context act)
+    %take           (take:lib context act)
+    %take-with-sig  (take-with-sig:lib context act)
+    %set-allowance  (set-allowance:lib context act)
+    %mint           (mint:lib context act)
+    %deploy         (deploy:lib context act)
   ==
 ::
 ++  read
@@ -25,12 +26,12 @@
     ^-  ^json
     ?+    path  !!
         [%inspect @ ~]
-      ?~  g=(scry-granary (slav %ux i.t.path))  ~
-      ?.  ?=(%& -.u.g)  ~
-      ?^  acc=((soft account:sur:fungible) data.p.u.g)
-        (account:enjs:lib:fungible u.acc)
-      ?^  meta=((soft token-metadata:sur:fungible) data.p.u.g)
-        (metadata:enjs:lib:fungible u.meta)
+      ?~  i=(scry-state (slav %ux i.t.path))  ~
+      ?.  ?=(%& -.u.i)  ~
+      ?^  acc=((soft account:sur) noun.p.u.i)
+        (account:enjs:lib u.acc)
+      ?^  meta=((soft token-metadata:sur) noun.p.u.i)
+        (metadata:enjs:lib u.meta)
       ~
     ==
   ::
