@@ -16,46 +16,26 @@
   [%give %fact ~[/tx-updates] %wallet-update !>(-)]
 ::
 ++  get-sent-history
-  |=  [=address:smart our=@p now=@da]
-  ^-  (map @ux [=transaction:smart action=supported-actions])
+  |=  [=address:smart newest=? our=@p now=@da]
+  ^-  (map @ux [transaction:smart supported-actions])
   =/  txn-history=update:ui
-    ::  TODO scry uqbar not indexer
-    .^(update:ui %gx /(scot %p our)/indexer/(scot %da now)/from/0x0/(scot %ux address)/noun)
+    .^  update:ui
+        %gx
+        %+  weld  /(scot %p our)/indexer/(scot %da now)
+        %+  weld  ?.  newest  /  /newest
+        /from/0x0/(scot %ux address)/noun
+    ==
   ?~  txn-history  ~
   ?.  ?=(%txn -.txn-history)  ~
   %-  ~(urn by txns.txn-history)
-  |=  [@ux @ * txn=transaction:smart]
-  [txn(status (add 200 `@`status.txn)) [%noun calldata.txn]]
-::
-++  create-id-subs
-  |=  [pubkeys=(set @ux) our=@p]
-  ^-  (list card)
-  %+  turn  ~(tap in pubkeys)
-  |=  k=@ux
-  =/  w=wire  /id/0x0/(scot %ux k)
-  =-  [%pass w %agent [our %uqbar] %watch -]
-  /indexer/wallet/id/0x0/(scot %ux k)/history  ::  TODO: remove hardcode; replace %wallet with [dap.bowl]?
-::
-++  clear-id-sub
-  |=  [id=@ux our=@p]
-  ^-  (list card)
-  =+  /indexer/wallet/id/0x0/(scot %ux id)
-  [%pass - %agent [our %uqbar] %leave ~]~
-::
-++  clear-all-id-subs
-  |=  wex=boat:gall
-  ^-  (list card)
-  %+  murn  ~(tap by wex)
-  |=  [[=wire =ship =term] *]
-  ^-  (unit card)
-  ?.  ?=([%indexer %wallet %id *] wire)  ~
-  `[%pass wire %agent [ship term] %leave ~]
+  |=  [hash=@ux upd=[@ * txn=transaction:smart]]
+  [txn.upd(status (add 200 `@`status.txn.upd)) [%noun calldata.txn.upd]]
 ::
 ++  watch-for-batches
   |=  [our=@p shard=@ux]
   ^-  (list card)
   =-  [%pass /new-batch %agent [our %uqbar] %watch -]~
-  /indexer/wallet/batch-order/(scot %ux shard)/history
+  /indexer/wallet/batch-order/(scot %ux shard)
 ::
 ++  make-tokens
   |=  [addrs=(list address:smart) our=@p now=@da]
@@ -164,6 +144,63 @@
     %token  `[%token shard ;;(token-metadata noun.p.u.g)]
     %nft    `[%nft shard ;;(nft-metadata noun.p.u.g)]
   ==
+::
+++  get-tracked-account-sent-txs
+  |=  [accounts=(list @ux) our=@p now=@da]
+  ^-  (map @ux (list [@ux transaction:smart supported-actions]))
+  =|  sents=(map @ux (list [@ux transaction:smart supported-actions]))
+  |-
+  ?~  accounts  sents
+  =*  account   i.accounts
+  =*  rest      t.accounts
+  =/  sent=(map @ux [transaction:smart supported-actions])
+    (get-sent-history account %.y our now)
+  %=  $
+      accounts  rest
+      sents     (~(put by sents) account ~(tap by sent))
+  ==
+::
+++  make-cards-update-state-tracked-accounts
+  |=  [=transaction-store our=@p now=@da]
+  ^-  [(list card) ^transaction-store]
+  =/  accounts=(list @ux)  ~(tap in ~(key by transaction-store))
+  =/  txs=(map @ux (list [@ux transaction:smart supported-actions]))
+    (get-tracked-account-sent-txs accounts our now)
+  =^  cardss=(list (list card))  transaction-store
+    %^  spin  ~(tap by txs)  transaction-store
+    |=  [[account-id=@ux account-txs=(list [tx-id=@ux txn=transaction:smart action=supported-actions])] txs=^transaction-store]
+    =|  account-cards=(list card)
+    =/  old-account-txs
+      (~(gut by txs) account-id [sent=~ received=~])
+    =/  processed-account-txs=(map @ux [txn=transaction:smart action=supported-actions])
+      sent.old-account-txs
+    |-
+    ?~   account-txs
+      :-  account-cards
+      %+  ~(put by txs)  account-id
+      %=  old-account-txs
+          sent
+        (~(uni by sent.old-account-txs) processed-account-txs)
+      ==
+    =*  tx-id   tx-id.i.account-txs
+    =*  txn     txn.i.account-txs
+    =*  action  action.i.account-txs
+    %=  $
+        account-txs  t.account-txs
+        processed-account-txs
+      ?.  (~(has by processed-account-txs) tx-id)
+        processed-account-txs
+      (~(put by processed-account-txs) tx-id [txn action])
+    ::
+        account-cards
+      :_  account-cards
+      ?~  this-tx=(~(get by processed-account-txs) tx-id)
+        %^  tx-update-card   tx-id
+          txn(status (sub status.txn 200))
+        [%noun (crip (noah !>(calldata.txn)))]
+      (tx-update-card tx-id txn action.u.this-tx)
+    ==
+  [(zing cardss) transaction-store]
 ::
 ::  JSON parsing utils
 ::
