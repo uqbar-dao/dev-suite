@@ -10,11 +10,8 @@
     ~
   ++  noun
     ?+    pith  !!
-        [%read-me ~]
+        [%read-me-for-free ~]
       %hellofriend
-    ::
-        [%pay-to-read-me ~]
-      %hellogoodfriend
     ==
   --
 --

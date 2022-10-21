@@ -79,7 +79,7 @@
 ::  begin tests
 ::
 ++  test-read
-  =/  =calldata:smart  [%whatever ~]
+  =/  =calldata:smart  [%read-me-for-free ~]
   =/  shel=shell:smart
     [caller-1 ~ id:read-pact [1 1.000.000] shard-id %0]
   =/  res=single-result:engine
