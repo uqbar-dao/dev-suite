@@ -12,11 +12,8 @@
 ::
 +$  state-diff  state  ::  state transitions for one batch
 ::
-::  contract events are converted to this -- `txn` is txn hash
-::
-+$  contract-event  [contract=id:smart txn=@ux label=@tas =json]
-::
-::  final result of +mill-all
+::  The engine, at the top level, takes in a chain-state and mempool
+::  and produces the resulting state-transition, shown below
 ::
 +$  state-transition
   $:  =chain
@@ -48,4 +45,8 @@
       hits=(list hints:zink)
       events=(list contract-event)
   ==
+::
+::  contract events are converted to this -- `txn` is txn hash
+::
++$  contract-event  [contract=id:smart txn=@ux label=@tas =json]
 --
