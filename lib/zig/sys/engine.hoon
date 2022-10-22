@@ -366,34 +366,35 @@
         ::  to handle item gets and contract reads
         ::
         ++  search
-          |=  [gas=@ud pat=^]
-          ::  TODO make search return [hints product]
+          |=  [gas=@ud pit=^]
+          ::  TODO make search return hints
           ^-  [gas=@ud product=(unit *)]
           =/  rem  (sub gas 100)  ::  fixed scry cost
-          ?+    +.pat  rem^~
-              [%0 %state @ ~]
+          ?+    +.pit  rem^~
+            ::  TODO when typed paths are included in core:
+            ::  convert these matching types to good syntax
+              [%0 %state [%ux @ux] ~]
             ::  /state/[item-id]
-            ?~  id=(slaw %ux -.+.+.+.pat)  rem^~
-            ~&  >>  "looking for item: {<`@ux`u.id>}"
-            ?~  item=(get:big state u.id)
-              ~&  >>>  "didn't find it"    rem^~
+            =/  item-id=id:smart  +.-.+.+.+.pit
+            ~&  >>  "looking for item: {<item-id>}"
+            ?~  item=(get:big state item-id)
+              ~&  >>>  "didn't find it"  rem^~
             rem^item
           ::
-              [%0 %contract @ @ ^]
-              ::  /contract/[%noun or %json]/[contract-id]/path/defined/in/contract
-            =/  rem  (sub gas 100)  ::  base cost
-            =/  kind  `@tas`-.+.+.+.pat
-            ?.  ?=(?(%noun %json) kind)  rem^~
-            ?~  id=(slaw %ux -.+.+.+.+.pat)  rem^~
-            ::  path includes fee, as it must match fee in contract
-            =/  read-path=path  ;;(path +.+.+.+.+.pat)
-            ~&  >>  "looking for pact: {<`@ux`u.id>}"
-            ?~  item=(get:big state u.id)
+              [%0 %contract ?(%noun %json) [%ux @ux] ^]
+            ::  /contract/[%noun or %json]/[contract-id]/pith/in/contract
+            =/  kind                      -.+.+.+.pit
+            =/  contract-id=id:smart  +.-.+.+.+.+.pit
+            ::  pith includes fee, as it must match fee in contract
+            =/  read-pith=pith:smart  ;;(pith:smart +.+.+.+.+.pit)
+            ~&  >>  "looking for pact: {<contract-id>}"
+            ?~  item=(get:big state contract-id)
               ~&  >>>  "didn't find it"  rem^~
             ?.  ?=(%| -.u.item)
               ~&  >>>  "wasn't a pact"  rem^~
             =/  dor=vase  (load code.p.u.item)
-            =/  gun    (ajar dor %read !>(context(this u.id)) !>(read-path) kind)
+            =/  gun
+              (ajar dor %read !>(context(this contract-id)) !>(read-pith) kind)
             =/  =book:zink  (zebra:zink rem zink-cax search gun test-mode)
             ?:  ?=(%| -.p.book)
               ::  error in contract execution
