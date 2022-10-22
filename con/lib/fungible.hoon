@@ -1,5 +1,5 @@
-::  UQ| fungible token standard v0.2
-::  last updated: 2022/08/20
+::  UQ| fungible token standard v0.3
+::  last updated: 2022/10/22
 ::
 ::  Basic fungible token standard. This standard defines an account
 ::  model, where each address that owns tokens holds one `data` containing
@@ -17,7 +17,7 @@
 ::  between addresses and accounts.
 ::
 ::  Note that a token is classified not by its issuing contract address
-::  (the "lord"), but rather its metadata item address. The issuing
+::  (the "source"), but rather its metadata item address. The issuing
 ::  contract is potentially generic, as any contract can import this
 ::  full library and allow %deploy transactions. The token send logic
 ::  used here therefore asserts that sends are performed to accounts
@@ -280,6 +280,8 @@
   ::
   ++  deploy
     |=  [=context act=deploy:sur]
+    ::  make salt unique by including deployer + their input
+    =/  salt  (cat 3 salt.act id.caller.context)
     ::  create new metadata item
     =/  =token-metadata:sur
       :*  name.act
@@ -290,10 +292,10 @@
           ?~(minters.act %.n %.y)
           minters.act
           deployer=id.caller.context
-          salt.act
+          salt
       ==
     =/  metadata-id
-      (hash-data this.context this.context shard.context salt.act)
+      (hash-data this.context this.context shard.context salt)
     ::  issue metadata item and mint
     ::  for initial distribution, if any
     =|  issued=(list item)
@@ -302,7 +304,7 @@
       ::  finished minting
       =/  metadata-data
         :*  metadata-id  this.context  this.context  shard.context
-            salt.act
+            salt
             %token-metadata
             token-metadata
         ==
