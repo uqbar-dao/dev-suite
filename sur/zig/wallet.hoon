@@ -7,15 +7,15 @@
 ::
 +$  book  (map id:smart asset)
 +$  asset
-  $%  [%token shard=@ux contract=id:smart metadata=id:smart token-account]
-      [%nft shard=@ux contract=id:smart metadata=id:smart nft]
-      [%unknown shard=@ux contract=id:smart *]
+  $%  [%token town=@ux contract=id:smart metadata=id:smart token-account]
+      [%nft town=@ux contract=id:smart metadata=id:smart nft]
+      [%unknown town=@ux contract=id:smart *]
   ==
 ::
 +$  metadata-store  (map id:smart asset-metadata)
 +$  asset-metadata
-  $%  [%token shard=@ux token-metadata]
-      [%nft shard=@ux nft-metadata]
+  $%  [%token town=@ux token-metadata]
+      [%nft town=@ux nft-metadata]
   ==
 ::
 +$  transaction-store
@@ -67,7 +67,7 @@
       [%sign-typed-message from=address:smart =typed-message:smart]
       [%add-tracked-address address=@ux nick=@t]
       ::  testing and internal
-      [%set-nonce address=@ux shard=@ux new=@ud]
+      [%set-nonce address=@ux town=@ux new=@ud]
       ::
       ::  TX submit pokes
       ::
@@ -94,7 +94,7 @@
       $:  %transaction
           from=address:smart
           contract=id:smart
-          shard=@ux
+          town=@ux
           action=supported-actions
       ==
   ==

@@ -20,7 +20,7 @@
       keys=(map address:smart [priv=(unit @ux) nick=@t])
       ::  we track the nonce of each address we're handling
       ::  TODO: introduce a poke to check nonce from chain and re-align
-      nonces=(map address:smart (map shard=@ux nonce=@ud))
+      nonces=(map address:smart (map town=@ux nonce=@ud))
       ::  signatures tracks any signed calls we've made
       signatures=(list [=typed-message:smart =sig:smart])
       ::  tokens tracked for each address we're handling
@@ -104,7 +104,7 @@
       ::  get txn history for this new address
       =/  sent  (get-sent-history addr %.n [our now]:bowl)
       ::  sub to batch updates
-      :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove shard-id hardcode
+      :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
       ::  clear all existing state, except for public keys imported from HW wallets
       ::  TODO save nonces/tokens from HW wallets too
       ::  for now treat this as a nuke of the wallet
@@ -128,7 +128,7 @@
       ::  get txn history for this new address
       =/  sent  (get-sent-history addr %.n [our now]:bowl)
       ::  sub to batch updates
-      :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove shard-id hardcode
+      :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
       ::  clear all existing state, except for public keys imported from HW wallets
       ::  TODO save nonces/tokens from HW wallets too
       ::  for now treat this as a nuke of the wallet
@@ -197,7 +197,7 @@
     ::
         %set-nonce  ::  for testing/debugging
       =+  acc=(~(gut by nonces.state) address.act ~)
-      `state(nonces (~(put by nonces) address.act (~(put by acc) shard.act new.act)))
+      `state(nonces (~(put by nonces) address.act (~(put by acc) town.act new.act)))
     ::
         %submit-signed
       ::  sign a pending transaction from an attached hardware wallet
@@ -208,7 +208,7 @@
       =*  txn  txn.u.found
       ::  get our nonce
       =/  our-nonces  (~(gut by nonces.state) from.act ~)
-      =/  nonce=@ud   (~(gut by our-nonces) shard.txn 0)
+      =/  nonce=@ud   (~(gut by our-nonces) town.txn 0)
       ::  update txn with sig, nonce, and gas
       =:  sig.txn               sig.act
           nonce.caller.txn  +(nonce)
@@ -235,7 +235,7 @@
             (~(put by transaction-store) from.act our-txns)
           ::
               nonces
-            (~(put by nonces) from.act (~(put by our-nonces) shard.txn +(nonce)))
+            (~(put by nonces) from.act (~(put by our-nonces) town.txn +(nonce)))
           ==
       :~  (tx-update-card hash txn action.u.found)
           :*  %pass  /submit-tx/(scot %ux hash)
@@ -256,7 +256,7 @@
       =*  txn  txn.u.found
       ::  get our nonce
       =/  our-nonces  (~(gut by nonces.state) from.act ~)
-      =/  nonce=@ud   (~(gut by our-nonces) shard.txn 0)
+      =/  nonce=@ud   (~(gut by our-nonces) town.txn 0)
       ::  update txn with sig, nonce, and gas
       =:  rate.gas.txn        rate.gas.act
           nonce.caller.txn  +(nonce)
@@ -287,7 +287,7 @@
             (~(put by transaction-store) from.act our-txns)
           ::
               nonces
-            (~(put by nonces) from.act (~(put by our-nonces) shard.txn +(nonce)))
+            (~(put by nonces) from.act (~(put by our-nonces) town.txn +(nonce)))
           ==
       :~  (tx-update-card hash txn action.u.found)
           :*  %pass  /submit-tx/(scot %ux hash)
@@ -315,7 +315,7 @@
         :+  from.act
           0  ::  we fill in *correct* nonce upon submission
         ::  generate our zigs token account ID
-        (hash-data:smart zigs-contract-id:smart from.act shard.act `@`'zigs')
+        (hash-data:smart zigs-contract-id:smart from.act town.act `@`'zigs')
       ::  build calldata of transaction, depending on argument type
       =/  =calldata:smart
         ?-    -.action.act
@@ -324,10 +324,10 @@
           =/  from=asset  (~(got by `book`(~(got by tokens.state) from.act)) item.action.act)
           ?>  ?=(%token -.from)
           =/  =asset-metadata  (~(got by metadata-store.state) metadata.from)
-          =/  to-id  (hash-data:smart zigs-contract-id:smart to.action.act shard.act salt.asset-metadata)
+          =/  to-id  (hash-data:smart zigs-contract-id:smart to.action.act town.act salt.asset-metadata)
           =/  scry-res
             .^  update:ui  %gx
-                /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/indexer/newest/item/(scot %ux shard.act)/(scot %ux to-id)/noun
+                /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/indexer/newest/item/(scot %ux town.act)/(scot %ux to-id)/noun
             ==
           =+  ?~  scry-res  ~
               ?.  ?=(%newest-item -.scry-res)  ~
@@ -358,7 +358,7 @@
             eth-hash=~
             to=contract.act
             gas=[rate=0 bud=0]
-            shard.act
+            town.act
             status=%100
         ==
       ::  generate hash
@@ -425,10 +425,10 @@
           nonces
         ?:  =(status.txn.this-tx %101)
           nonces
-        ::  dec nonce on this shard, tx was rejected
+        ::  dec nonce on this town, tx was rejected
         %+  ~(put by nonces)  from
         %+  ~(jab by (~(got by nonces) from))
-          shard.txn.this-tx
+          town.txn.this-tx
         |=(n=@ud (dec n))
       ==
     `this
@@ -462,20 +462,20 @@
         :-  'nonces'
         %-  pairs:enjs
         %+  turn  ~(tap by (~(gut by nonces.state) pub ~))
-        |=  [shard=@ux nonce=@ud]
-        [(scot %ux shard) (numb:enjs nonce)]
+        |=  [town=@ux nonce=@ud]
+        [(scot %ux town) (numb:enjs nonce)]
     ==
   ::
       [%keys ~]
     ``noun+!>(~(key by keys.state))
   ::
       [%account @ @ ~]
-    ::  returns our account for the pubkey and shard ID given
+    ::  returns our account for the pubkey and town ID given
     ::  for validator & sequencer use, to run mill
     =/  pub  (slav %ux i.t.t.path)
-    =/  shard  (slav %ux i.t.t.t.path)
-    =/  nonce  (~(gut by (~(gut by nonces.state) pub ~)) shard 0)
-    =+  (hash-data:smart `@ux`'zigs-contract' pub shard `@`'zigs')
+    =/  town  (slav %ux i.t.t.t.path)
+    =/  nonce  (~(gut by (~(gut by nonces.state) pub ~)) town 0)
+    =+  (hash-data:smart `@ux`'zigs-contract' pub town `@`'zigs')
     ``noun+!>(`caller:smart`[pub nonce -])
   ::
       [%book ~]

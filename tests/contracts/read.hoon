@@ -1,28 +1,25 @@
 ::
 ::  Test of contract scry reads
 ::
-/-  zink
-/+  *test, smart=zig-sys-smart, *sequencer, merk
+/-  zink, engine=zig-engine
+/+  *test, smart=zig-sys-smart, *zig-sequencer, merk
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
-/*  trivial-read-contract  %noun  /con/compiled/trivial-read/noun
-/*  trivial-read-source-contract  %noun  /con/compiled/trivial-read-source/noun
+/*  trivial-read-contract  %jam  /con/compiled/trivial-read/jam
+/*  trivial-read-source-contract  %jam  /con/compiled/trivial-read-source/jam
 |%
 ::
 ::  constants / dummy info for mill
 ::
-++  big  (bi:merk id:smart item:smart)  ::  merkle engine for granary
-++  pig  (bi:merk id:smart @ud)          ::                for populace
-++  shard-id   0x0
+++  big  (bi:merk id:smart item:smart)  ::  merkle engine for state
+++  pig  (bi:merk id:smart @ud)         ::                for nonces
+++  town-id   0x0
 ++  fake-sig  [0 0 0]
-++  mil
-  %~  mill  mill
+++  eng
+  %~  engine  engine
   :+    ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
     ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun)))
   %.y
-::
-+$  single-result
-  [fee=@ud =land burned=granary =errorcode:smart hits=(list hints:zink) =crow:smart]
 ::
 ::  fake data
 ::
@@ -36,65 +33,61 @@
   ++  account-1
     ^-  item:smart
     :*  %&
+        (hash-data:smart zigs-contract-id:smart pubkey-1 town-id `@`'zigs')
+        zigs-contract-id:smart
+        pubkey-1
+        town-id
         `@`'zigs'
         %account
         [300.000.000 ~ `@ux`'zigs-metadata']
-        (fry-data:smart zigs-contract-id:smart pubkey-1 shard-id `@`'zigs')
-        zigs-contract-id:smart
-        pubkey-1
-        shard-id
     ==
   --
 ::
-++  read-wheat
+++  read-pact
   ^-  pact:smart
-  :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] trivial-read-contract)))
-      interface=~
-      types=~
-      0x5678  ::  id
+  :*  0x5678  ::  id
       0x5678  ::  lord
       0x5678  ::  holder
-      shard-id  ::  shard-id
-  ==
-::
-++  read-source-wheat
-  ^-  pact:smart
-  :*  `;;([bat=* pay=*] (cue +.+:;;([* * @] trivial-read-source-contract)))
+      town-id
+      [- +]:(cue trivial-read-contract)
       interface=~
       types=~
-      0x1234  ::  id
-      0x1234  ::  lord
-      0x1234  ::  holder
-      shard-id   ::  shard-id
   ==
 ::
-++  fake-granary
-  ^-  granary
+++  read-source-pact
+  ^-  pact:smart
+  :*  0x1234  ::  id
+      0x1234  ::  lord
+      0x1234  ::  holder
+      town-id
+      [- +]:(cue trivial-read-source-contract)
+      interface=~
+      types=~
+  ==
+::
+++  fake-state
+  ^-  state
   %+  gas:big  *(merk:merk id:smart item:smart)
-  :~  [id:read-wheat [%| read-wheat]]
-      [id:read-source-wheat [%| read-source-wheat]]
+  :~  [id:read-pact [%| read-pact]]
+      [id:read-source-pact [%| read-source-pact]]
       [id.p:account-1:zigs account-1:zigs]
   ==
-++  fake-populace
-  ^-  populace
-  %+  gas:pig  *(merk:merk id:smart @ud)
-  ~[[id:caller-1 0]]
-++  fake-land
-  ^-  land
-  [fake-granary fake-populace]
+++  fake-chain
+  ^-  chain
+  [fake-state ~]
 ::
 ::  begin tests
 ::
 ++  test-read
-  =/  =calldata:smart  [%whatever ~]
+  =/  =calldata:smart  [%read-me-for-free ~]
   =/  shel=shell:smart
-    [caller-1 ~ id:read-wheat 1 1.000.000 shard-id 0]
-  =/  res=single-result
-    %+  ~(mill mil miller shard-id 1)
-      fake-land
-    `transaction:smart`[fake-sig shel yolk]
+    [caller-1 ~ id:read-pact [1 1.000.000] town-id %0]
+  =/  res=single-result:engine
+    %+  ~(run-single eng miller town-id 1 0)
+      fake-chain
+    `transaction:smart`[fake-sig calldata shel]
   ::
-  ~&  >  "crow: {<crow.res>}"
+  ~&  >  "events: {<events.res>}"
   ;:  weld
   ::  assert that our call went through
     %+  expect-eq

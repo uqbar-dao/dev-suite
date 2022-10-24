@@ -25,9 +25,9 @@
     =.  balance.noun.giver  (sub balance.noun.giver amount.act)
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (hash-data this.context to.act shard.context salt.giver)
+      =/  =id  (hash-data this.context to.act town.context salt.giver)
       =+  [amount.act ~ metadata.noun.giver 0]
-      =+  receiver=[id this.context to.act shard.context salt.giver %account -]
+      =+  receiver=[id this.context to.act town.context salt.giver %account -]
       `(result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
     =+  (need (scry-state u.to-account.act))
@@ -51,9 +51,9 @@
     ==
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (hash-data this.context to.act shard.context salt.giver)
+      =/  =id  (hash-data this.context to.act town.context salt.giver)
       =+  [amount.act ~ metadata.noun.giver 0]
-      =+  receiver=[id this.context to.act shard.context salt.giver %account -]
+      =+  receiver=[id this.context to.act town.context salt.giver %account -]
       `(result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
     =+  (need (scry-state u.to-account.act))
@@ -77,12 +77,12 @@
   ==
 ::
 ++  read
-  |_  =path
+  |_  =pith
   ++  json
     ^-  ^json
-    ?+    path  !!
-        [%get-balance @ ~]
-      =+  (need (scry-state (slav %ux i.t.path)))
+    ?+    pith  !!
+        [%get-balance [%ux @ux] ~]
+      =+  (need (scry-state +.i.t.pith))
       =+  (husk account:sur - ~ ~)
       `^json`[%n (scot %ud balance.noun.-)]
     ==

@@ -43,7 +43,7 @@
   [[q.dor [q.dor-sam q.arm-sam]] q.gun]
 ::
 ++  engine
-  |_  [sequencer=caller:smart shard-id=@ux batch=@ud eth-block-height=@ud]
+  |_  [sequencer=caller:smart town-id=@ux batch=@ud eth-block-height=@ud]
   ::
   ::  +mill-all
   ::
@@ -235,8 +235,8 @@
         %^  gut:big  state  zigs.sequencer
         ::  create a new account rice for the sequencer if needed
         =/  =token-account  [total ~ `@ux`'zigs-metadata' 0]
-        =/  =id:smart  (hash-data:smart zigs-contract-id:smart address.sequencer shard-id `@`'zigs')
-        [%& id zigs-contract-id:smart address.sequencer shard-id 'zigs' %account token-account]
+        =/  =id:smart  (hash-data:smart zigs-contract-id:smart address.sequencer town-id `@`'zigs')
+        [%& id zigs-contract-id:smart address.sequencer town-id 'zigs' %account token-account]
       ?.  ?=(%& -.acc)  state
       =/  account  ;;(token-account noun.p.acc)
       ?.  =(`@ux`'zigs-metadata' metadata.account)  state
@@ -283,7 +283,7 @@
       |=  [=pact:smart txn=transaction:smart hits=(list hints:zink) burned=^state]
       ^-  hatchling
       |^
-      =/  =context:smart  [contract.txn [- +<]:caller.txn batch eth-block-height shard-id]
+      =/  =context:smart  [contract.txn [- +<]:caller.txn batch eth-block-height town-id]
       =+  [hit move rem err]=(exec bud.gas.txn context)
       ?~  move  [hit^hits ~ ~ ~ rem err]
       =*  calls  -.u.move
@@ -355,45 +355,48 @@
         [;;((unit move) p.p.book) gas.q.book %0]
         ::
         ++  load
-          |=  code=*
+          |=  code=[bat=* pay=*]
           ^-  vase
           :-  -:!>(*contract:smart)
-          =/  minted  (mink [q.library code] ,~)
-          ?.  ?=(%0 -.minted)  +:!>(*contract:smart)
-          product.minted
+          =/  payload  (mink [q.library pay.code] ,~)
+          ?.  ?=(%0 -.payload)  +:!>(*contract:smart)
+          =/  cor  (mink [[q.library product.payload] bat.code] ,~)
+          ?.  ?=(%0 -.cor)  +:!>(*contract:smart)
+          product.cor
         ::
         ::  +search: our chain-state-scry
         ::  to handle item gets and contract reads
         ::
         ++  search
-          |=  [gas=@ud pat=^]
-          ::  TODO make search return [hints product]
+          |=  [gas=@ud pit=^]
+          ::  TODO make search return hints
           ^-  [gas=@ud product=(unit *)]
           =/  rem  (sub gas 100)  ::  fixed scry cost
-          ?+    +.pat  rem^~
-              [%0 %state @ ~]
+          ?+    +.pit  rem^~
+            ::  TODO when typed paths are included in core:
+            ::  convert these matching types to good syntax
+              [%0 %state [%ux @ux] ~]
             ::  /state/[item-id]
-            ?~  id=(slaw %ux -.+.+.+.pat)  rem^~
-            ~&  >>  "looking for item: {<`@ux`u.id>}"
-            ?~  item=(get:big state u.id)
-              ~&  >>>  "didn't find it"    rem^~
+            =/  item-id=id:smart  +.-.+.+.+.pit
+            ~&  >>  "looking for item: {<item-id>}"
+            ?~  item=(get:big state item-id)
+              ~&  >>>  "didn't find it"  rem^~
             rem^item
           ::
-              [%0 %contract @ @ ^]
-              ::  /contract/[%noun or %json]/[contract-id]/path/defined/in/contract
-            =/  rem  (sub gas 100)  ::  base cost
-            =/  kind  `@tas`-.+.+.+.pat
-            ?.  ?=(?(%noun %json) kind)  rem^~
-            ?~  id=(slaw %ux -.+.+.+.+.pat)  rem^~
-            ::  path includes fee, as it must match fee in contract
-            =/  read-path=path  ;;(path +.+.+.+.+.pat)
-            ~&  >>  "looking for pact: {<`@ux`u.id>}"
-            ?~  item=(get:big state u.id)
+              [%0 %contract ?(%noun %json) [%ux @ux] ^]
+            ::  /contract/[%noun or %json]/[contract-id]/pith/in/contract
+            =/  kind                      -.+.+.+.pit
+            =/  contract-id=id:smart  +.-.+.+.+.+.pit
+            ::  pith includes fee, as it must match fee in contract
+            =/  read-pith=pith:smart  ;;(pith:smart +.+.+.+.+.pit)
+            ~&  >>  "looking for pact: {<contract-id>}"
+            ?~  item=(get:big state contract-id)
               ~&  >>>  "didn't find it"  rem^~
             ?.  ?=(%| -.u.item)
               ~&  >>>  "wasn't a pact"  rem^~
             =/  dor=vase  (load code.p.u.item)
-            =/  gun    (ajar dor %read !>(context(this u.id)) !>(read-path) kind)
+            =/  gun
+              (ajar dor %read !>(context(this contract-id)) !>(read-pith) kind)
             =/  =book:zink  (zebra:zink rem zink-cax search gun test-mode)
             ?:  ?=(%| -.p.book)
               ::  error in contract execution
@@ -445,8 +448,8 @@
               |(=(source source.p.item) =(0x0 source.p.item))
               !(has:big state id.p.item)
               ?:  ?=(%| -.item)
-                =(id (hash-pact:smart source holder.p.item shard.p.item code.p.item))
-              =(id (hash-data:smart source holder.p.item shard.p.item salt.p.item))
+                =(id (hash-pact:smart source holder.p.item town.p.item code.p.item))
+              =(id (hash-data:smart source holder.p.item town.p.item salt.p.item))
           ==
         ::
           %-  ~(all in burned.diff)
@@ -458,7 +461,7 @@
           ::  burned cannot contain item used to pay for gas
           ::
           ::  NOTE: you *can* modify a item in-contract before burning it.
-          ::  the shard-id of a burned item marks the shard which can REDEEM it.
+          ::  the town-id of a burned item marks the town which can REDEEM it.
           ::
           =/  old  (get:big state id)
           ?&  ?=(^ old)
@@ -471,9 +474,9 @@
       ==
     ::
     ::  +exec-burn: handle special burn-only transactions, used for manually
-    ::  escaping some item from a shard. must be EITHER holder or source to burn.
-    ::  if shard-id is the same as the source shard, the item is burned permanently.
-    ::  otherwise, it can be reinstantiated on the specified shard.
+    ::  escaping some item from a town. must be EITHER holder or source to burn.
+    ::  if town-id is the same as the source town, the item is burned permanently.
+    ::  otherwise, it can be reinstantiated on the specified town.
     ::
     ++  exec-burn
       |=  txn=transaction:smart
@@ -484,8 +487,8 @@
       ::  charge fixed cost for failed transactions too
       ::  TODO should do this everywhere that we can inside +farm
       =/  fail  [~ ~ ~ ~ (sub bud.gas.txn fixed-burn-cost) %6]
-      ::  argument for %burn must be a grain ID and shard ID
-      ?.  ?=([id=@ux shard=@ux] q.calldata.txn)      fail
+      ::  argument for %burn must be a grain ID and town ID
+      ?.  ?=([id=@ux town=@ux] q.calldata.txn)      fail
       ::  item must exist in state
       ?~  to-burn=(get:big state id.q.calldata.txn)  fail
       ::  caller must be source OR holder

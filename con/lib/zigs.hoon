@@ -6,7 +6,7 @@
 ++  sur
   |%
   +$  token-metadata
-    ::  will be automatically inserted into shard state
+    ::  will be automatically inserted into town state
     ::  at instantiation, along with this contract
     ::  hardcoded values included to match token standard
     $:  name=@t

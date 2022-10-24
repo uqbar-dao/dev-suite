@@ -1,7 +1,7 @@
 ::  sequencer [UQ| DAO]
 ::
-::  Agent for managing a single UQ| shard. Publishes diffs to rollup.hoon
-::  Accepts transactions and batches them periodically as moves to shard.
+::  Agent for managing a single UQ| town. Publishes diffs to rollup.hoon
+::  Accepts transactions and batches them periodically as moves to town.
 ::
 /-  uqbar=zig-uqbar
 /+  default-agent, dbug, verb,
@@ -17,9 +17,9 @@
   $:  %0
       rollup=(unit ship)  ::  replace in future with ETH/starknet contract address
       private-key=(unit @ux)
-      shard=(unit shard)  ::  state
+      town=(unit town)  ::  state
       =mempool
-      peer-roots=(map shard=@ux root=@ux)  ::  track updates from rollup
+      peer-roots=(map town=@ux root=@ux)  ::  track updates from rollup
       proposed-batch=(unit [num=@ud =memlist =chain diff-hash=@ux root=@ux])
       status=?(%available %off)
   ==
@@ -62,40 +62,40 @@
   ?.  ?=([%indexer %updates ~] path)
     ~|("%sequencer: rejecting %watch on bad path" !!)
   ::  handle indexer watches here -- send latest state
-  ?~  shard  `this
+  ?~  town  `this
   :_  this
   =-  [%give %fact ~ %sequencer-indexer-update -]~
-  !>(`indexer-update`[%update (rear roots.hall.u.shard) ~ u.shard])
+  !>(`indexer-update`[%update (rear roots.hall.u.town) ~ u.town])
 ::
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
   |^
-  ?.  ?=(%sequencer-shard-action mark)
+  ?.  ?=(%sequencer-town-action mark)
     ~|("%sequencer: error: got erroneous %poke" !!)
   ?>  (allowed-participant [src our now]:bowl)
   =^  cards  state
-    (handle-poke !<(shard-action vase))
+    (handle-poke !<(town-action vase))
   [cards this]
   ::
   ++  handle-poke
-    |=  act=shard-action
+    |=  act=town-action
     ^-  (quip card _state)
     ?-    -.act
     ::
-    ::  shard administration
+    ::  town administration
     ::
         %init
       ?>  =(src.bowl our.bowl)
       ?.  =(%off status.state)
         ~|("%sequencer: already active" !!)
-      ::  poke rollup ship with params of new shard
+      ::  poke rollup ship with params of new town
       ::  (will be rejected if id is taken)
       =/  =chain  ?~(starting-state.act [~ ~] u.starting-state.act)
       =/  new-root  `@ux`(sham chain)
-      =/  =^shard
+      =/  =^town
         :-  chain
-        :*  shard-id.act
+        :*  town-id.act
             batch-num=0
             [address.act our.bowl]
             mode.act
@@ -107,19 +107,19 @@
       :_  %=  state
             rollup       `rollup-host.act
             private-key  `private-key.act
-            shard         `shard
+            town         `town
             status        %available
-            proposed-batch  `[0 ~ chain.shard 0x0 new-root]
+            proposed-batch  `[0 ~ chain.town 0x0 new-root]
           ==
       :~  [%pass /sub-rollup %agent [rollup-host.act %rollup] %watch /peer-root-updates]
-          =+  [%rollup-action !>([%launch-shard address.act sig shard])]
+          =+  [%rollup-action !>([%launch-town address.act sig town])]
           [%pass /batch-submit/(scot %ux new-root) %agent [rollup-host.act %rollup] %poke -]
       ==
     ::
         %clear-state
       ?>  =(src.bowl our.bowl)
       ~&  >>  "sequencer: wiping state"
-      `state(rollup ~, private-key ~, shard ~, mempool ~, peer-roots ~, status %off)
+      `state(rollup ~, private-key ~, town ~, mempool ~, peer-roots ~, status %off)
     ::
     ::  handle bridged assets from rollup
     ::
@@ -128,9 +128,9 @@
       ?>  =(src.bowl (need rollup.state))
       ?.  =(%available status.state)
         ~|("%sequencer: error: got asset while not active" !!)
-      ?~  shard.state  !!
+      ?~  town.state  !!
       ~&  >>  "%sequencer: received assets from rollup: {<assets.act>}"
-      `state(shard `u.shard(p.chain (uni:big:engine p.chain.u.shard.state assets.act)))
+      `state(town `u.town(p.chain (uni:big:engine p.chain.u.town.state assets.act)))
     ::
     ::  transactions
     ::
@@ -169,32 +169,32 @@
       ?>  =(src.bowl our.bowl)
       ?.  =(%available status.state)
         ~|("%sequencer: error: got poke while not active" !!)
-      ?~  shard.state
+      ?~  town.state
         ~|("%sequencer: error: no state" !!)
       ?~  rollup.state
         ~|("%sequencer: error: no known rollup host" !!)
       ?~  mempool.state
         ~|("%sequencer: no transactions to include in batch" !!)
-      =*  shard  u.shard.state
-      ?:  ?=(%committee -.mode.hall.shard)
+      =*  town  u.town.state
+      ?:  ?=(%committee -.mode.hall.town)
         ::  TODO data-availability committee
         ::
         ~|("%sequencer: error: DAC not implemented" !!)
       ::  publish full diff data
       ::
       ::  1. produce diff and new state with engine
-      =/  batch-num  batch-num.hall.shard
-      =/  addr  p.sequencer.hall.shard
-      =+  /(scot %p our.bowl)/wallet/(scot %da now.bowl)/account/(scot %ux addr)/(scot %ux shard-id.hall.shard)/noun
+      =/  batch-num  batch-num.hall.town
+      =/  addr  p.sequencer.hall.town
+      =+  /(scot %p our.bowl)/wallet/(scot %da now.bowl)/account/(scot %ux addr)/(scot %ux town-id.hall.town)/noun
       =+  .^(caller:smart %gx -)
       =/  [new=state-transition rejected=memlist]
-        %^    ~(run eng - shard-id.hall.shard batch-num eth-block-height.act)
-            chain.shard
+        %^    ~(run eng - town-id.hall.town batch-num eth-block-height.act)
+            chain.town
           mempool.state
         256  ::  number of parallel "passes"
       =/  new-root       `@ux`(sham chain.new)
       =/  diff-hash      `@ux`(sham ~[state-diff.new])
-      =/  new-batch-num  +(batch-num.hall.shard)
+      =/  new-batch-num  +(batch-num.hall.town)
       ::  2. generate our signature
       ::  (address sig, that is)
       ?~  private-key.state
@@ -212,9 +212,9 @@
       !>  :-  %receive-batch
           :-  addr
           ^-  batch
-          :*  shard-id.hall.shard
+          :*  town-id.hall.town
               new-batch-num
-              mode.hall.shard
+              mode.hall.town
               ~[state-diff.new]
               diff-hash
               new-root
@@ -236,11 +236,11 @@
         ~&  >>  "%sequencer: batch approved by rollup"
         ?~  proposed-batch
           ~|("%sequencer: error: received batch approval without proposed batch" !!)
-        =/  new-shard=(unit ^shard)
-          (transition-state shard u.proposed-batch)
-        :_  this(shard new-shard, proposed-batch ~, mempool ~)
+        =/  new-town=(unit ^town)
+          (transition-state town u.proposed-batch)
+        :_  this(town new-town, proposed-batch ~, mempool ~)
         =-  [%give %fact ~[/indexer/updates] %sequencer-indexer-update -]~
-        !>(`indexer-update`[%update root.u.proposed-batch memlist.u.proposed-batch (need new-shard)])
+        !>(`indexer-update`[%update root.u.proposed-batch memlist.u.proposed-batch (need new-town)])
       ::  TODO manage rejected moves here
       ~&  >>>  "%sequencer: our move was rejected by rollup!"
       ~&  u.p.sign
@@ -253,7 +253,7 @@
       [%pass wire %agent [src.bowl %rollup] %watch (snip `path`wire)]~
     ?.  ?=(%fact -.sign)  `this
     =^  cards  state
-      (update-fact !<(shard-update q.cage.sign))
+      (update-fact !<(town-update q.cage.sign))
     [cards this]
   ::
       [%thread @ ~]
@@ -269,27 +269,27 @@
         ~&  >  "eth-block-height: {<height>}"
         :_  this
         =-  [%pass /perform %agent [our.bowl %sequencer] %poke -]~
-        [%sequencer-shard-action !>(`shard-action`[%perform-batch height])]
+        [%sequencer-town-action !>(`town-action`[%perform-batch height])]
       ==
     ==
   ::
   ==
   ::
   ++  update-fact
-    |=  upd=shard-update
+    |=  upd=town-update
     ^-  (quip card _state)
     ?-    -.upd
         %new-peer-root
       ::  update our local map
-      `state(peer-roots (~(put by peer-roots.state) shard.upd root.upd))
+      `state(peer-roots (~(put by peer-roots.state) town.upd root.upd))
     ::
         %new-sequencer
-      ::  check if we have been kicked off our shard
+      ::  check if we have been kicked off our town
       ::  this is in place for later..  TODO expand this functionality
-      ?~  shard.state                          `state
-      ?.  =(shard.upd shard-id.hall.u.shard)  `state
+      ?~  town.state                          `state
+      ?.  =(town.upd town-id.hall.u.town)  `state
       ?:  =(who.upd our.bowl)                 `state
-      ~&  >>>  "%sequencer: we've been kicked out of shard!"
+      ~&  >>>  "%sequencer: we've been kicked out of town!"
       `state
     ==
   --
@@ -307,9 +307,9 @@
       [%status ~]
     ``noun+!>(status)
   ::
-      [%shard-id ~]
-    ?~  shard  ``noun+!>(~)
-    ``noun+!>(`shard-id.hall.u.shard)
+      [%town-id ~]
+    ?~  town  ``noun+!>(~)
+    ``noun+!>(`town-id.hall.u.town)
   ::
       [%mempool-size ~]
     ::  returns number of transactions in mempool
@@ -320,15 +320,15 @@
       [%has @ ~]
     ::  see if grain exists in state
     =/  id  (slav %ux i.t.t.path)
-    ?~  shard  [~ ~]
-    ``noun+!>((~(has by p.chain.u.shard) id))
+    ?~  town  [~ ~]
+    ``noun+!>((~(has by p.chain.u.town) id))
   ::
       [%get-action @ @ ~]
     ::  return lump interface from contract on-chain
     =/  id   (slav %ux i.t.t.path)
     =/  act  (slav %tas i.t.t.t.path)
-    ?~  shard  [~ ~]
-    ?~  g=(get:big p.chain.u.shard id)
+    ?~  town  [~ ~]
+    ?~  g=(get:big p.chain.u.town id)
       ::  contract not found in state
       ``noun+!>(~)
     ?.  ?=(%| -.u.g)
@@ -343,8 +343,8 @@
     ::  return lump rice type from contract on-chain
     =/  id     (slav %ux i.t.t.path)
     =/  label  (slav %tas i.t.t.t.path)
-    ?~  shard  [~ ~]
-    ?~  g=(get:big p.chain.u.shard id)
+    ?~  town  [~ ~]
+    ?~  g=(get:big p.chain.u.town id)
       ::  contract not found in state
       ``noun+!>(~)
     ?.  ?=(%| -.u.g)
@@ -356,8 +356,8 @@
     ``noun+!>(u.typ)
   ::
       [%grain @ ~]
-    ?~  shard  [~ ~]
-    (read-grain t.path p.chain.u.shard)
+    ?~  town  [~ ~]
+    (read-grain t.path p.chain.u.town)
   ==
 ::
 ++  on-leave  on-leave:def

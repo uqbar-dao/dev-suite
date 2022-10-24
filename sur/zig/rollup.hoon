@@ -7,8 +7,8 @@
 |%
 +$  action
   $%  [%activate ~]
-      [%launch-shard from=address:smart =sig:smart shard]
-      [%bridge-assets shard-id=id:smart assets=state]
+      [%launch-town from=address:smart =sig:smart town]
+      [%bridge-assets town-id=id:smart assets=state]
       [%receive-batch from=address:smart batch]
   ==
 --

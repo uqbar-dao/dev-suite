@@ -1,9 +1,9 @@
 ::
 ::  Tests for lib/zig/mill.hoon
-::  Basic goal: construct a simple shard / helix state
+::  Basic goal: construct a simple town / helix state
 ::  and manipulate it with some calls to our zigs contract.
 ::  Mill should handle clearing a mempool populated by
-::  calls and return an updated shard. The zigs contract
+::  calls and return an updated town. The zigs contract
 ::  should manage transactions properly so this is testing
 ::  the arms of that contract as well.
 ::
@@ -16,18 +16,17 @@
 ::  * (test all constraints in contract: balance, gas, +give, etc)
 ::  * executing multiple calls with +mill-all
 ::
-/-  zink
 /+  *test, smart=zig-sys-smart, seq=zig-sequencer, merk
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
-/*  zigs-contract   %jam  /con/compiled/zigs-2/jam
+/*  zigs-contract   %jam  /con/compiled/zigs/jam
 |%
 ::
 ::  constants / dummy info for mill
 ::
 ++  big  (bi:merk id:smart item:smart)  ::  merkle engine for granary
-++  pig  (bi:merk id:smart @ud)          ::                for populace
-++  shard-id    0x0
+++  pig  (bi:merk id:smart @ud)         ::                for populace
+++  town-id    0x0
 ++  set-fee    7
 ++  fake-sig   [0 0 0]
 ++  eng
@@ -55,10 +54,10 @@
   ++  sequencer-account
     ^-  item:smart
     :*  %&
-        (hash-data:smart zigs-contract-id:smart 0x24c.23b9.8535.cd5a.0645.5486.69fb.afbf.095e.fcc0 shard-id `@`'zigs')
+        (hash-data:smart zigs-contract-id:smart 0x24c.23b9.8535.cd5a.0645.5486.69fb.afbf.095e.fcc0 town-id `@`'zigs')
         zigs-contract-id:smart
         0x24c.23b9.8535.cd5a.0645.5486.69fb.afbf.095e.fcc0
-        shard-id
+        town-id
         `@`'zigs'
         %account
         [1.000.000 ~ `@ux`'zigs-metadata' 0]
@@ -66,10 +65,10 @@
   ++  account-1
     ^-  item:smart
     :*  %&
-        (hash-data:smart zigs-contract-id:smart holder-1 shard-id `@`'zigs')
+        (hash-data:smart zigs-contract-id:smart holder-1 town-id `@`'zigs')
         zigs-contract-id:smart
         holder-1
-        shard-id
+        town-id
         `@`'zigs'
         %account
         [300.000.000 ~ `@ux`'zigs-metadata' 0]
@@ -77,10 +76,10 @@
   ++  account-2
     ^-  item:smart
     :*  %&
-        (hash-data:smart zigs-contract-id:smart holder-2 shard-id `@`'zigs')
+        (hash-data:smart zigs-contract-id:smart holder-2 town-id `@`'zigs')
         zigs-contract-id:smart
         holder-2
-        shard-id
+        town-id
         `@`'zigs'
         %account
         [200.000 ~ `@ux`'zigs-metadata' 0]
@@ -88,10 +87,10 @@
   ++  account-3
     ^-  item:smart
     :*  %&
-        (hash-data:smart zigs-contract-id:smart holder-3 shard-id `@`'zigs')
+        (hash-data:smart zigs-contract-id:smart holder-3 town-id `@`'zigs')
         zigs-contract-id:smart
         holder-3
-        shard-id
+        town-id
         `@`'zigs'
         %account
         [100.000 ~ `@ux`'zigs-metadata' 0]
@@ -103,7 +102,7 @@
         zigs-contract-id:smart  ::  id
         zigs-contract-id:smart  ::  source
         zigs-contract-id:smart  ::  holder
-        shard-id
+        town-id
         [-.code +.code]
         ~
         ~
@@ -119,7 +118,7 @@
 ::        0xdada.dada  ::  id
 ::        0xdada.dada  ::  source
 ::        0xdada.dada  ::  holder
-::        shard-id
+::        town-id
 ::        code
 ::        interface
 ::        types
@@ -137,7 +136,7 @@
 ::        0xcafe.cafe  ::  id
 ::        0xcafe.cafe  ::  source
 ::        0xcafe.cafe  ::  holder
-::        shard-id
+::        town-id
 ::    ==
 ::  ++  temp-grain
 ::    ^-  item:smart
@@ -148,7 +147,7 @@
 ::        0x1111.2222.3333
 ::        0xcafe.cafe
 ::        `@ux`123.456.789
-::        shard-id
+::        town-id
 ::    ==
 ::
 ++  fake-state
@@ -171,9 +170,9 @@
 ++  test-engine-zigs-give
   =/  =calldata:smart  [%give holder-2:zigs 1.000 id.p:account-1:zigs `id.p:account-2:zigs]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:pact:zigs [1 1.000.000] shard-id 0]
+    [caller-1 ~ id.p:pact:zigs [1 1.000.000] town-id 0]
   =/  res=single-result:seq
-    %+  ~(run-single eng sequencer shard-id batch=1 eth-block-height=0)
+    %+  ~(run-single eng sequencer town-id batch=1 eth-block-height=0)
     fake-chain  [fake-sig calldata shel]
   ~&  >  "output: {<events.res>}"
   ~&  >  "fee: {<fee.res>}"
@@ -187,9 +186,9 @@
 ::  ++  test-mill-trivial-scry
 ::    =/  =calldata:smart  [%find id.p:account-1:zigs]
 ::    =/  shel=shell:smart
-::      [caller-1 ~ id.p:scry-pact 1 1.000.000 shard-id 0]
+::      [caller-1 ~ id.p:scry-pact 1 1.000.000 town-id 0]
 ::    =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
-::      %+  ~(mill mil sequencer shard-id 1)
+::      %+  ~(mill mil sequencer town-id 1)
 ::      fake-land  `transaction:smart`[fake-sig shel yolk]
 ::    ~&  >  "output: {<crow.res>}"
 ::    ~&  >  "fee: {<fee.res>}"
@@ -199,12 +198,12 @@
 ::    !>(errorcode.res)
 ::  ::
 ::  ++  test-mill-simple-burn
-::    ::               id of grain to burn, destination shard id
+::    ::               id of grain to burn, destination town id
 ::    =/  =calldata:smart  [%burn id.p:account-1:zigs 0x2]
 ::    =/  shel=shell:smart
-::      [caller-1 ~ 0x0 1 1.000.000 shard-id 0]
+::      [caller-1 ~ 0x0 1 1.000.000 town-id 0]
 ::    =/  res=[fee=@ud =land burned=granary =errorcode:smart hits=(list) =crow:smart]
-::      %+  ~(mill mil sequencer shard-id 1)
+::      %+  ~(mill mil sequencer town-id 1)
 ::      fake-land  `transaction:smart`[fake-sig shel yolk]
 ::    ~&  >  "output: {<crow.res>}"
 ::    ~&  >  "fee: {<fee.res>}"
