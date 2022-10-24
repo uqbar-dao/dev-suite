@@ -78,57 +78,14 @@
   ++  on-poke
     |=  [=mark =vase]
     ^-  step:agent:gall
-    |^
     =^  cards  state
       ?+  mark  ~|([%aqua-bad-mark mark] !!)
         %aqua-events  (poke-aqua-events:ac !<((list aqua-event) vase))
         %pill         (poke-pill:ac !<(pill vase))
         %noun         (poke-noun:ac !<(* vase))
-        %action       (handle-action !<(pyro-action vase))
+        %action       (poke-action:ac our.bowl !<(pyro-action vase))
       ==
     [cards this]
-    ::
-    ++  handle-action
-      |=  act=pyro-action
-      ^-  (quip card:agent:gall _state)
-      ?-    -.act
-          %peek
-        !!
-      ::
-          %dojo
-        :_  state
-        =-  [%pass /self-poke %agent [our.bowl %pyro] %poke -]~
-        :-  %aqua-events  !>
-        ^-  (list aqua-event)
-        %+  turn
-          ^-  (list unix-event)
-          :~  [/d/term/1 %belt %ctl `@c`%e]
-              [/d/term/1 %belt %ctl `@c`%u]
-              [/d/term/1 %belt %txt ((list @c) ;;(tape command.act))]
-              [/d/term/1 %belt %ret ~]
-          ==
-        |=  ue=unix-event
-        [%event who.act ue]
-      ::
-          %remove-ship
-        =.  piers  (~(del by piers) who.act)
-        `state
-      ::
-          %insert-files
-        :_  state
-        =-  [%pass /self-poke %agent [our.bowl %pyro] %poke -]~
-        :-  %aqua-events  !>
-        ^-  (list aqua-event)
-        %+  turn
-          ^-  (list unix-event)
-          =-  [/c/sync/0v1n.2m9vh %into des.act | -]~
-          %+  turn  files.act
-          |=  [=path txt=@t]
-          [path ~ /text/plain (as-octs:mimes:html txt)]
-        |=  ue=unix-event
-        [%event who.act ue]
-      ==
-    --
   ::
   ++  on-watch
     |=  =path
@@ -640,6 +597,51 @@
       raw-event=[who.ae ue.ae]
     (push-events:(pe who.ae) [ue.ae]~)
   ==
+::
+++  poke-action
+  |=  [our=ship act=pyro-action]
+  ^-  (quip card:agent:gall _state)
+  |^
+  ?-    -.act
+      %dojo
+    :_  state
+    %-  send-events
+    ^-  (list aqua-event)
+    %+  turn
+      ^-  (list unix-event)
+      :~  [/d/term/1 %belt %ctl `@c`%e]
+          [/d/term/1 %belt %ctl `@c`%u]
+          [/d/term/1 %belt %txt ((list @c) ;;(tape command.act))]
+          [/d/term/1 %belt %ret ~]
+      ==
+    |=  ue=unix-event
+    [%event who.act ue]
+  ::
+      %remove-ship
+    =.  piers  (~(del by piers) who.act)
+    `state
+  ::
+      %insert-files
+    :_  state
+    %-  send-events
+    ^-  (list aqua-event)
+    %+  turn
+      ^-  (list unix-event)
+      =-  [/c/sync/0v1n.2m9vh %into des.act | -]~
+      %+  turn  files.act
+      |=  [=path txt=@t]
+      [path ~ /text/plain (as-octs:mimes:html txt)]
+    |=  ue=unix-event
+    [%event who.act ue]
+  ::  %touch-file
+  ::  %start-app/%poke-app
+  ==
+  ++  send-events
+    |=  events=(list aqua-event)
+    ^-  (list card:agent:gall)
+    =+  [%aqua-events !>(events)]
+    [%pass /self-poke %agent [our %pyro] %poke -]~
+  --
 ::
 ::  Run a callback function against a list of ships, aggregating state
 ::  and plowing all ships at the end.
