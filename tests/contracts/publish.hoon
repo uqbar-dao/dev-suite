@@ -12,7 +12,7 @@
 ::
 ++  big  (bi:merk id:smart item:smart)  ::  merkle engine for granary
 ++  pig  (bi:merk id:smart @ud)          ::                for populace
-++  shard-id   0x0
+++  town-id   0x0
 ++  fake-sig  [0 0 0]
 ++  mil
   %~  mill  mill
@@ -36,7 +36,7 @@
   |%
   ++  make-id
     |=  holder=id:smart
-    (fry-data:smart zigs-contract-id:smart holder shard-id `@`'zigs')
+    (fry-data:smart zigs-contract-id:smart holder town-id `@`'zigs')
   ++  make-account
     |=  [holder=id:smart amt=@ud]
     ^-  item:smart
@@ -45,7 +45,7 @@
         (make-id holder)
         zigs-contract-id:smart
         holder
-        shard-id
+        town-id
     ==
   --
 ::
@@ -57,7 +57,7 @@
   [bat=[8 [1 0 [0 0] 0 0] [1 [8 [1 0] [1 [1 0] 1 0] 0 1] 8 [1 0] [1 8 [8 [9 2.398 0 16.127] 9 2 10 [6 7 [0 3] 1 100] 0 2] 1 0 0 0 0 0] 0 1] 0 1] pay=[1 0]]
 ::
 ++  upgradable-id
-  (fry-pact:smart id.p:publish-wheat id:caller-1 shard-id `trivial-nok)
+  (fry-pact:smart id.p:publish-wheat id:caller-1 town-id `trivial-nok)
 ++  upgradable
   ^-  item:smart
   :*  %|
@@ -67,11 +67,11 @@
         upgradable-id
         id.p:publish-wheat
         id:caller-1
-        shard-id
+        town-id
   ==
 ::
 ++  immutable-id
-  (fry-pact:smart 0x0 id:caller-1 shard-id `immutable-nok)
+  (fry-pact:smart 0x0 id:caller-1 town-id `immutable-nok)
 ++  immutable
   ^-  item:smart
   :*  %|
@@ -81,7 +81,7 @@
       immutable-id
       0x0
       id:caller-1
-      shard-id
+      town-id
   ==
 ::
 ++  publish-wheat
@@ -94,7 +94,7 @@
       0xdada.dada  ::  id
       0xdada.dada  ::  lord
       0xdada.dada  ::  holder
-      shard-id
+      town-id
   ==
 ::
 ++  fake-granary
@@ -121,9 +121,9 @@
 ++  test-deploy
   =/  =calldata:smart  [%deploy %.y trivial-nok ~ ~]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:publish-wheat 1 1.000.000 shard-id 0]
+    [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller shard-id 1)
+    %+  ~(mill mil miller town-id 1)
       [(del:big fake-granary upgradable-id) fake-populace]
     `transaction:smart`[fake-sig shel yolk]
   ::
@@ -137,9 +137,9 @@
 ++  test-deploy-immutable
   =/  =calldata:smart  [%deploy %.n immutable-nok ~ ~]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:publish-wheat 1 1.000.000 shard-id 0]
+    [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller shard-id 1)
+    %+  ~(mill mil miller town-id 1)
       [(del:big fake-granary immutable-id) fake-populace]
     `transaction:smart`[fake-sig shel yolk]
   ::
@@ -153,9 +153,9 @@
 ++  test-upgrade
   =/  =calldata:smart  [%upgrade upgradable-id trivial-nok-upgrade]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:publish-wheat 1 1.000.000 shard-id 0]
+    [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller shard-id 1)
+    %+  ~(mill mil miller town-id 1)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
   ::
@@ -168,7 +168,7 @@
         upgradable-id
         id.p:publish-wheat
         id:caller-1
-        shard-id
+        town-id
     ==
   ;:  weld
   ::  assert that our call went through
@@ -180,9 +180,9 @@
 ++  test-upgrade-immutable
   =/  =calldata:smart  [%upgrade immutable-id trivial-nok-upgrade]
   =/  shel=shell:smart
-    [caller-1 ~ id.p:publish-wheat 1 1.000.000 shard-id 0]
+    [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller shard-id 1)
+    %+  ~(mill mil miller town-id 1)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
   ::  assert that our call failed
@@ -191,9 +191,9 @@
 ++  test-upgrade-not-holder
   =/  =calldata:smart  [%upgrade immutable-id trivial-nok-upgrade]
   =/  shel=shell:smart
-    [caller-2 ~ id.p:publish-wheat 1 1.000.000 shard-id 0]
+    [caller-2 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
   =/  res=single-result
-    %+  ~(mill mil miller shard-id 1)
+    %+  ~(mill mil miller town-id 1)
       fake-land
     `transaction:smart`[fake-sig shel yolk]
   ::  assert that our call failed

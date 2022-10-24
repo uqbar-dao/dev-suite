@@ -2,8 +2,8 @@
 /+  engine=zig-sys-engine
 |%
 ++  transition-state
-  |=  [old=(unit shard) proposed=[num=@ud =memlist:engine =chain:engine diff-hash=@ux root=@ux]]
-  ^-  (unit shard)
+  |=  [old=(unit town) proposed=[num=@ud =memlist:engine =chain:engine diff-hash=@ux root=@ux]]
+  ^-  (unit town)
   ?~  old  old
   :-  ~
   %=  u.old

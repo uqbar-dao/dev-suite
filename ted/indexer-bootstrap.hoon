@@ -19,7 +19,7 @@
 =/  m  (strand ,vase)
 ^-  form:m
 =/  arg-mold
-  $:  shard-id=@ux
+  $:  town-id=@ux
       indexer-ship=ship
       sequencer-ship=ship
       rollup-ship=ship
@@ -27,10 +27,10 @@
 =/  args  !<((unit arg-mold) arg)
 ?~  args
   ~&  >>>  "Usage:"
-  ~&  >>>  "-zig!indexer-bootstrap shard-id indexer-ship sequencer-ship rollup-ship"
+  ~&  >>>  "-zig!indexer-bootstrap town-id indexer-ship sequencer-ship rollup-ship"
   (pure:m !>(~))
 ::
-=*  shard-id         shard-id.u.args
+=*  town-id         town-id.u.args
 =*  indexer-ship    indexer-ship.u.args
 =*  sequencer-ship  sequencer-ship.u.args
 =*  rollup-ship     rollup-ship.u.args
@@ -47,7 +47,7 @@
 ::
 ;<  batch-order=(list @ux)  bind:m
   %+  scry  (list @ux)
-  /gx/indexer/batch-order/(scot %ux shard-id)/noun
+  /gx/indexer/batch-order/(scot %ux town-id)/noun
 ~&  >  "indexer now has batch-order: {<batch-order>}"
 ~&  >  "subscribing to %sequencer at {<sequencer-ship>}..."
 ;<  ~  bind:m
@@ -60,6 +60,6 @@
 ~&  >  "setting %uqbar source to our %indexer..."
 ;<  ~  bind:m
   %^  poke-our  %uqbar  %uqbar-action
-  !>(`action:uqbar`[%set-sources [shard-id [indexer-ship]~]~])
+  !>(`action:uqbar`[%set-sources [town-id [indexer-ship]~]~])
 ~&  >  "done"
 (pure:m !>(~))

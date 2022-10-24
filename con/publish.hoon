@@ -2,7 +2,7 @@
 ::
 ::  Smart contract that processes deployment and upgrades
 ::  for other smart contracts. Automatically (?) inserted
-::  on any shard that wishes to allow contract production.
+::  on any town that wishes to allow contract production.
 ::
 /+  *zig-sys-smart
 /=  pub  /con/lib/publish
@@ -16,10 +16,10 @@
     =/  source=id  ?:(mutable.act this.context 0x0)
     =/  pact=item
       :*  %|
-          (hash-pact source id.caller.context shard.context code.act)
+          (hash-pact source id.caller.context town.context code.act)
           source
           id.caller.context
-          shard.context
+          town.context
           code.act
           interface.act
           types.act

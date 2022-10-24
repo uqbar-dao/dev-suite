@@ -4,9 +4,9 @@
 ::  pokes
 ::
 +$  action
-  $%  [%set-sources shards=(list [shard=id:smart (set dock)])]
-      [%add-source shard=id:smart source=dock]
-      [%remove-source shard=id:smart source=dock]
+  $%  [%set-sources towns=(list [town=id:smart (set dock)])]
+      [%add-source town=id:smart source=dock]
+      [%remove-source town=id:smart source=dock]
       [%set-wallet-source app-name=@tas]  ::  to plug in a third-party wallet app
       [%ping ~]
   ==

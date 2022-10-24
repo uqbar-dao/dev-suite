@@ -42,7 +42,7 @@
           [%id (se %ux)]
           [%lord (se %ux)]
           [%holder (se %ux)]
-          [%shard-id (se %ux)]
+          [%town-id (se %ux)]
       ==
     ::
     ++  parse-rice-without-id
@@ -52,7 +52,7 @@
           [%data so]
           [%lord (se %ux)]
           [%holder (se %ux)]
-          [%shard-id (se %ux)]
+          [%town-id (se %ux)]
       ==
     ::
     ++  parse-test
@@ -68,7 +68,7 @@
           [%rate ni]
           [%bud ni]
           [%deploy-location (se %tas)]
-          [%shard-id (se %ux)]
+          [%town-id (se %ux)]
           [%upgradable bo]
       ==
     --

@@ -59,7 +59,7 @@
   :_  this
   :~  [%pass /batch-timer %arvo %b %wait wait]
       =-  [%pass /seq-poke %agent [our.bowl %sequencer] %poke -]
-      [%sequencer-shard-action !>(`shard-action:seq`[%trigger-batch ~])]
+      [%sequencer-town-action !>(`town-action:seq`[%trigger-batch ~])]
   ==
 ::
 ++  on-init   `this(state [%0 %.n 1])

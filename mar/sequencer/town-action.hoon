@@ -1,14 +1,14 @@
 /-  seq=zig-sequencer
 ::
-|_  =shard-action:seq
+|_  =town-action:seq
 ++  grab
   |%
-  ++  noun  shard-action:seq
+  ++  noun  town-action:seq
   --
 ::
 ++  grow
   |%
-  ++  noun  shard-action
+  ++  noun  town-action
   --
 ::
 ++  grad  %noun
