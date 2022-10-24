@@ -21,12 +21,12 @@
   ==
 ::
 ++  read
-  |_  =path
+  |_  =pith
   ++  json
     ^-  ^json
-    ?+    path  !!
-        [%inspect @ ~]
-      ?~  i=(scry-state (slav %ux i.t.path))  ~
+    ?+    pith  !!
+        [%inspect [%ux @ux] ~]
+      ?~  i=(scry-state +.i.t.pith)  ~
       ?.  ?=(%& -.u.i)  ~
       ?^  acc=((soft account:sur) noun.p.u.i)
         (account:enjs:lib u.acc)

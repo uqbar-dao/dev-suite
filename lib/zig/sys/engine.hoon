@@ -355,12 +355,14 @@
         [;;((unit move) p.p.book) gas.q.book %0]
         ::
         ++  load
-          |=  code=*
+          |=  code=[bat=* pay=*]
           ^-  vase
           :-  -:!>(*contract:smart)
-          =/  minted  (mink [q.library code] ,~)
-          ?.  ?=(%0 -.minted)  +:!>(*contract:smart)
-          product.minted
+          =/  payload  (mink [q.library pay.code] ,~)
+          ?.  ?=(%0 -.payload)  +:!>(*contract:smart)
+          =/  cor  (mink [[q.library product.payload] bat.code] ,~)
+          ?.  ?=(%0 -.cor)  +:!>(*contract:smart)
+          product.cor
         ::
         ::  +search: our chain-state-scry
         ::  to handle item gets and contract reads

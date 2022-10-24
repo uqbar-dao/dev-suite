@@ -44,7 +44,8 @@
   ::  generate initial subject containing uHoon
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   ::  compose libraries against uHoon subject
-  =/  braw=(list hoon)
+  =/  libraries=hoon
+    :-  %clsg
     %+  turn  raw
     |=  [face=term =path]
     =/  pax  (weld desk path)
@@ -53,16 +54,13 @@
     =/  lib-txt  .^(@t %cx (welp pax /hoon))
     ::  CURRENTLY IGNORING IMPORTS INSIDE LIBRARIES
     +:(parse-pile (trip lib-txt))
-  =/  full=hoon
-    ?:  =(~ braw)
-      contract-hoon
-    [%tsgl contract-hoon [%clsg braw]]
-  =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun full)
-  ::  =/  payload=vase  (slap smart-lib libraries)
-  ::  =/  cont  (~(mint ut p:(slop smart-lib payload)) %noun contract-hoon)
+  =/  pay=*  q:(~(mint ut p.smart-lib) %noun libraries)
+  =/  payload=vase  (slap smart-lib libraries)
+  =/  cont
+    %+  ~(mint ut p:(slop smart-lib payload))
+    %noun  contract-hoon
   ::
-  [-.full-nock +.full-nock]
-  ::[bat=q.cont pay=full-nock]
+  [bat=q.cont pay]
 ::
 ++  compile-trivial
   |=  [hoonlib-txt=@t smartlib-txt=@t]
