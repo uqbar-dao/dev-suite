@@ -279,7 +279,7 @@
         ==
       ::  wheat
       :~  [%is-data %b %|]
-          [%cont (numb (jam code.p.item))]
+          [%cont (numb 0)]
           [%interface (tas-to-json interface.p.item)]
           [%types (tas-to-json types.p.item)]
       ==
