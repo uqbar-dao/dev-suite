@@ -1,7 +1,7 @@
 ::  rollup [UQ| DAO]
 ::
 ::  Agent that simulates a rollup contract on another chain.
-::  Receives state transitions (moves) for shards, verifies them,
+::  Receives state transitions (moves) for towns, verifies them,
 ::  and allows sequencer ships to continue processing batches.
 ::
 /+  default-agent, dbug, verb, ethereum,
@@ -39,7 +39,7 @@
     ~|("%rollup: error: got watch while not active" !!)
   ::  open: anyone can watch rollup
   ::  ?>  (allowed-participant [src our now]:bowl)
-  ::  give new subscribers recent root from every shard
+  ::  give new subscribers recent root from every town
   ::
   ?+    path  !!
       [%capitol-updates ~]
@@ -55,7 +55,7 @@
     ::  send bunted @da here as placeholder/null time.
     ::  may in future have canonical batch times
     =-  [%give %fact ~ -]
-    [%sequencer-rollup-update !>(`shard-update`[%new-peer-root id (rear roots.hall) *@da])]
+    [%sequencer-rollup-update !>(`town-update`[%new-peer-root id (rear roots.hall) *@da])]
   ==
 ::
 ++  on-poke
@@ -77,15 +77,15 @@
         %activate
       `state(status %available)
     ::
-        %launch-shard
+        %launch-town
       ::  create new hall
-      ?<  (~(has by capitol) shard-id.hall.act)
-      ::  TODO remove starting-state from init and populate new shards via
-      ::  assets from other shards
-      =+  (~(put by capitol) shard-id.hall.act hall.act)
+      ?<  (~(has by capitol) town-id.hall.act)
+      ::  TODO remove starting-state from init and populate new towns via
+      ::  assets from other towns
+      =+  (~(put by capitol) town-id.hall.act hall.act)
       :_  state(capitol -)
       :~  =-  [%give %fact ~[/peer-root-updates] %sequencer-rollup-update -]
-          !>(`shard-update`[%new-peer-root shard-id.hall.act (rear roots.hall.act) now.bowl])
+          !>(`town-update`[%new-peer-root town-id.hall.act (rear roots.hall.act) now.bowl])
       ::
           =-  [%give %fact ~[/capitol-updates] %sequencer-rollup-update -]
           !>(`capitol-update`[%new-capitol -])
@@ -93,16 +93,16 @@
     ::
         %bridge-assets
       ::  for simulation purposes
-      ?~  hall=(~(get by capitol.state) shard-id.act)  !!
+      ?~  hall=(~(get by capitol.state) town-id.act)  !!
       :_  state
-      =+  [%shard-action !>([%receive-assets assets.act])]
+      =+  [%town-action !>([%receive-assets assets.act])]
       [%pass /bridge %agent [q.sequencer.u.hall %sequencer] %poke -]~
     ::
         %receive-batch
-      ?~  hall=(~(get by capitol.state) shard-id.act)
-        ~|("%rollup: rejecting batch; shard not found" !!)
+      ?~  hall=(~(get by capitol.state) town-id.act)
+        ~|("%rollup: rejecting batch; town not found" !!)
       ?.  =([from.act src.bowl] sequencer.u.hall)
-        ~|("%rollup: rejecting batch; sequencer doesn't match shard" !!)
+        ~|("%rollup: rejecting batch; sequencer doesn't match town" !!)
       =/  recovered
         %-  address-from-pub:key:ethereum
         %-  serialize-point:secp256k1:secp:crypto
@@ -112,7 +112,7 @@
         ~|("%rollup: rejecting batch; sequencer signature not valid" !!)
       ?.  =(diff-hash.act (sham state-diffs.act))
         ~|("%rollup: rejecting batch; diff hash not valid" !!)
-      ::  check that other shard state roots are up-to-date
+      ::  check that other town state roots are up-to-date
       ::  recent-enough is a variable here that can be adjusted
       =/  recent-enough  2
       ?.  %+  levy
@@ -137,10 +137,10 @@
             latest-diff-hash  diff-hash.act
             roots  (snoc roots.u.hall new-root.act)
           ==
-      =+  (~(put by capitol) shard-id.act -)
+      =+  (~(put by capitol) town-id.act -)
       :_  state(capitol -)
       :~  =-  [%give %fact ~[/peer-root-updates] %sequencer-rollup-update -]
-          !>(`shard-update`[%new-peer-root shard-id.act new-root.act now.bowl])
+          !>(`town-update`[%new-peer-root town-id.act new-root.act now.bowl])
       ::
           =-  [%give %fact ~[/capitol-updates] %sequencer-rollup-update -]
           !>(`capitol-update`[%new-capitol -])

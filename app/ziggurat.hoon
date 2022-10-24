@@ -200,7 +200,7 @@
             id=q
             source=0x0
             holder=user-address.project
-            shard-id=designated-shard-id
+            town-id=designated-town-id
             code=p.r
             interface=~
             types=~
@@ -221,10 +221,10 @@
         %add-to-state
       =/  =project  (~(got by projects) project.act)
       =/  data-text  ;;(@t noun.act)
-      =/  =id:smart  (hash-data:smart source.act holder.act shard-id.act salt.act)
+      =/  =id:smart  (hash-data:smart source.act holder.act town-id.act salt.act)
       =/  =data:smart
         =+  (text-to-zebra-noun data-text smart-lib-vase)
-        [id source.act holder.act shard-id.act salt.act label.act -]
+        [id source.act holder.act town-id.act salt.act label.act -]
       ::  take text data input and ream to form data noun
       ::  put a new grain in the granary
       =:  p.chain.project
@@ -272,9 +272,9 @@
       =/  =project  (~(got by projects) project.act)
       ?~  current=(~(get by tests.project) test-id.act)
         ~|("%ziggurat: test does not exist" !!)
-      =/  =id:smart  (hash-data:smart source.act holder.act shard-id.act salt.act)
+      =/  =id:smart  (hash-data:smart source.act holder.act town-id.act salt.act)
       =/  =data:smart
-        [id source.act holder.act shard-id.act salt.act label.act noun.act]
+        [id source.act holder.act town-id.act salt.act label.act noun.act]
       =/  tex  ;;(@t noun.data)
       =/  new
         =-  [id.data %&^data(noun -) tex]
@@ -343,12 +343,12 @@
             ~
             for-contract.test
             gas=[rate.act bud.act]
-            designated-shard-id
+            designated-town-id
             status=0
         ==
       =/  =single-result:engine
         %+  %~  run-single  eng
-            [caller designated-shard-id batch-num.project 0]
+            [caller designated-town-id batch-num.project 0]
           chain.project
         [[0 0 0] action.test shell]
       =/  =expected-diff
@@ -414,7 +414,7 @@
               ~
               for-contract.test
               gas=[rate bud]
-              designated-shard-id
+              designated-town-id
               status=0
           ==
         :_  +(nonce)
@@ -422,7 +422,7 @@
         [[0 0 0] action.test shell]
       =/  [res=state-transition:engine *]
         %^    %~  run  eng
-              [(designated-caller user-address.project 0) designated-shard-id batch-num.project 0]
+              [(designated-caller user-address.project 0) designated-town-id batch-num.project 0]
             chain.project
           (silt eggs)
         256
@@ -462,7 +462,7 @@
     ::
         %deploy-contract
       ::  this will call %wallet agent with a custom constructed %publish call
-      ::  will fail if chosen testnet+shard combo doesn't exist or doesn't have
+      ::  will fail if chosen testnet+town combo doesn't exist or doesn't have
       ::  the publish.hoon contract deployed.
       ::
       =/  =project  (~(got by projects) project.act)
@@ -471,7 +471,7 @@
       ~&  >  "%ziggurat: deploying contract to {<deploy-location.act>} testnet"
       =/  pok
         :*  %transaction  from=address.act
-            contract=0x1111.1111  shard=shard-id.act
+            contract=0x1111.1111  town=town-id.act
             action=[%noun [%deploy upgradable.act .^(noun %ct path.act) ~ ~]]
         ==
       :_  state

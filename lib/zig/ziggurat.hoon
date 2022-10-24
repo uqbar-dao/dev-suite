@@ -10,7 +10,7 @@
   |=  [=address:smart nonce=@ud]
   ^-  caller:smart
   [address nonce id.p:(designated-zigs-item address)]
-++  designated-shard-id  0x0
+++  designated-town-id  0x0
 ::  we set the designated caller to have 300 zigs
 ++  designated-zigs-item
   |=  =address:smart
@@ -19,12 +19,12 @@
       %:  hash-data:smart
           zigs-contract-id:smart
           address
-          designated-shard-id
+          designated-town-id
           `@`'zigs'
       ==
       zigs-contract-id:smart
       address
-      designated-shard-id
+      designated-town-id
       `@`'zigs'
       %account
       [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
@@ -232,7 +232,7 @@
     %:  hash-data:smart
         source.meta-rice
         user-address.current
-        designated-shard-id
+        designated-town-id
         salt.metadata
     ==
   =/  dead-beef-account
@@ -240,7 +240,7 @@
     :*  dead-beef-account-id
         source.meta-rice
         user-address.current
-        designated-shard-id
+        designated-town-id
         salt.metadata
         %account
         [200 ~ id.meta-rice 0]
@@ -249,7 +249,7 @@
     %:  hash-data:smart
         source.meta-rice
         0xcafe.babe
-        designated-shard-id
+        designated-town-id
         salt.metadata
     ==
   =/  cafe-babe-account
@@ -257,7 +257,7 @@
     :*  cafe-babe-account-id
         source.meta-rice
         0xcafe.babe
-        designated-shard-id
+        designated-town-id
         salt.metadata
         %account
         [100 ~ id.meta-rice 0]
@@ -266,7 +266,7 @@
     %:  hash-data:smart
         source.meta-rice
         0xcafe.d00d
-        designated-shard-id
+        designated-town-id
         salt.metadata
     ==
   =/  cafe-d00d-account
@@ -274,7 +274,7 @@
     :*  cafe-d00d-account-id
         source.meta-rice
         0xcafe.d00d
-        designated-shard-id
+        designated-town-id
         salt.metadata
         %account
         [100 (make-pmap:smart ~[[0xdead.beef 50]]) id.meta-rice 0]
@@ -441,7 +441,7 @@
     %:  hash-data:smart
         source.meta-rice
         user-address.current
-        designated-shard-id
+        designated-town-id
         (cat 3 salt.metadata (scot %ud 1))
     ==
   =/  nft-1
@@ -449,7 +449,7 @@
     :*  nft-1-id
         source.meta-rice
         user-address.current
-        designated-shard-id
+        designated-town-id
         (cat 3 salt.metadata (scot %ud 1))
         %nft
         [1 'https://image.link' id.meta-rice ~ props &]
@@ -465,7 +465,7 @@
     %:  hash-data:smart
         source.meta-rice
         0xcafe.babe
-        designated-shard-id
+        designated-town-id
         (cat 3 salt.metadata (scot %ud 2))
     ==
   =/  nft-2
@@ -473,7 +473,7 @@
     :*  nft-2-id
         source.meta-rice
         0xcafe.babe
-        designated-shard-id
+        designated-town-id
         (cat 3 salt.metadata (scot %ud 2))
         %nft
         [2 'https://image.link' id.meta-rice ~ props &]
@@ -546,7 +546,7 @@
     %:  hash-data:smart
         source.meta-rice
         user-address.current
-        designated-shard-id
+        designated-town-id
         (cat 3 salt.metadata (scot %ud 3))
     ==
   =/  nft-3
@@ -554,7 +554,7 @@
     :*  nft-3-id
         source.meta-rice
         user-address.current
-        designated-shard-id
+        designated-town-id
         (cat 3 salt.metadata (scot %ud 3))
         %nft
         [3 'https://image.link' id.meta-rice ~ props &]
@@ -683,7 +683,7 @@
   %+  welp
     :~  ['source' %s (scot %ux source.p.item)]
         ['holder' %s (scot %ux holder.p.item)]
-        ['shard' %s (scot %ux shard.p.item)]
+        ['town' %s (scot %ux town.p.item)]
     ==
   ?.  ?=(%& -.item)
     ['contract' %b %.y]~

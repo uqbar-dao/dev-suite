@@ -31,14 +31,14 @@
     ::  must have at least one member
     ?>  ?=(^ members.act)
     ::  no salt -- this contract creates a single grain.
-    =/  =id  (fry-rice me.cart me.cart shard-id.cart 0)
+    =/  =id  (fry-rice me.cart me.cart town-id.cart 0)
     =/  =grain
       :*  %&  0  %multisig
           [members.act threshold.act ~]
           id
           lord=me.cart
           holder=me.cart
-          shard-id.cart
+          town-id.cart
       ==
     (result ~ grain^~ ~ ~)
   ::  all other calls require multisig ID in action
@@ -86,7 +86,7 @@
     ::  this multisig -- this is so other multisigs
     ::  can't change each others' properties
     ?>  %+  levy  calls.act
-        |=  [to=id shard=id =yolk]
+        |=  [to=id town=id =yolk]
         ?.  =(to me.cart)  %.y
         ?.  ?=(?(%add-member %remove-member %set-threshold) p.yolk)  %.y
         =(-.q.yolk multisig.act)

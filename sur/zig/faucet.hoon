@@ -2,7 +2,7 @@
 ::
 |%
 +$  action
-  $%  [%open shard-id=id:smart =address:smart]
+  $%  [%open town-id=id:smart =address:smart]
       [%confirm me=address:smart]
   ==
 ::
@@ -10,7 +10,7 @@
   $%  [%edit-gas gas=[rate=@ud budget=@ud]]
       [%edit-volume volume=@ud]
       [%edit-timeout-duration timeout-duration=@dr]
-      [%put-shard shard-id=id:smart =shard-info]
+      [%put-town town-id=id:smart =town-info]
   ==
 ::
 +$  versioned-state
@@ -19,14 +19,14 @@
 ::
 +$  state-0
   $:  %0
-      shard-infos=(map id:smart shard-info)
+      town-infos=(map id:smart town-info)
       gas=[rate=@ud budget=@ud]
       on-timeout=(map @p [unlock=@da count=@ud])
       timeout-duration=@dr
       volume=@ud
   ==
 ::
-+$  shard-info
++$  town-info
   $:  =address:smart
       zigs-account=id:smart
       zigs-contract=id:smart

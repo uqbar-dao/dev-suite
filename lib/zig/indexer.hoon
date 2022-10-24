@@ -83,18 +83,18 @@
       (frond %newest-item (newest-item +.update))
     ==
   ::
-  ++  shard-location
-    |=  =shard-location:ui
+  ++  town-location
+    |=  =town-location:ui
     ^-  json
     %-  pairs
-    :-  [%shard-id %s (scot %ux shard-location)]
+    :-  [%town-id %s (scot %ux town-location)]
     ~
   ::
   ++  batch-location
     |=  =batch-location:ui
     ^-  json
     %-  pairs
-    :+  [%shard-id %s (scot %ux shard-id.batch-location)]
+    :+  [%town-id %s (scot %ux town-id.batch-location)]
       [%batch-root %s (scot %ux batch-root.batch-location)]
     ~
   ::
@@ -102,31 +102,31 @@
     |=  =txn-location:ui
     ^-  json
     %-  pairs
-    :^    [%shard-id %s (scot %ux shard-id.txn-location)]
+    :^    [%town-id %s (scot %ux town-id.txn-location)]
         [%batch-root %s (scot %ux batch-root.txn-location)]
       [%txn-num (numb txn-num.txn-location)]
     ~
   ::
   ++  batches
-    |=  batches=(map batch-id=id:smart [@da shard-location:ui batch:ui])
+    |=  batches=(map batch-id=id:smart [@da town-location:ui batch:ui])
     ^-  json
     %-  pairs
     %+  turn  ~(tap by batches)
-    |=  [=id:smart timestamp=@da location=shard-location:ui b=batch:ui]
+    |=  [=id:smart timestamp=@da location=town-location:ui b=batch:ui]
     :-  (scot %ux id)
     %-  pairs
     :^    [%timestamp (sect timestamp)]
-        [%location (shard-location location)]
+        [%location (town-location location)]
       [%batch (batch b)]
     ~
   ::
   ++  newest-batch
-    |=  [=id:smart timestamp=@da location=shard-location:ui b=batch:ui]
+    |=  [=id:smart timestamp=@da location=town-location:ui b=batch:ui]
     ^-  json
     %-  pairs
     :-  [%batch-id %s (scot %ux id)]
     :^    [%timestamp (sect timestamp)]
-        [%location (shard-location location)]
+        [%location (town-location location)]
       [%batch (batch b)]
     ~
   ::
@@ -135,7 +135,7 @@
     ^-  json
     %-  pairs
     :+  [%transactions (transactions transactions.batch)]
-      [%shard (shard +.batch)]
+      [%town (town +.batch)]
     ~
   ::
   ++  transactions
@@ -190,7 +190,7 @@
         [%contract %s (scot %ux contract.shell)]
         [%rate (numb rate.gas.shell)]
         [%budget (numb bud.gas.shell)]
-        [%shard-id %s (scot %ux shard.shell)]
+        [%town-id %s (scot %ux town.shell)]
         [%status (numb status.shell)]
     ==
   ::
@@ -286,15 +286,15 @@
     :~  [%id %s (scot %ux id.p.item)]
         [%source %s (scot %ux source.p.item)]
         [%holder %s (scot %ux holder.p.item)]
-        [%shard %s (scot %ux shard.p.item)]
+        [%town %s (scot %ux town.p.item)]
     ==
   ::
-  ++  shard
-    |=  =shard:seq
+  ++  town
+    |=  =town:seq
     ^-  json
     %-  pairs
-    :+  [%chain (chain chain.shard)]
-      [%hall (hall hall.shard)]
+    :+  [%chain (chain chain.town)]
+      [%hall (hall hall.town)]
     ~
   ::
   ++  chain
@@ -327,7 +327,7 @@
     |=  =hall:seq
     ^-  json
     %-  pairs
-    :~  [%shard-id %s (scot %ux shard-id.hall)]
+    :~  [%town-id %s (scot %ux town-id.hall)]
         [%sequencer (sequencer sequencer.hall)]
         [%mode (mode mode.hall)]
         [%latest-diff-hash %s (scot %ux latest-diff-hash.hall)]

@@ -72,8 +72,8 @@
         ?:  =(%earl (clan:title src))
           (sein:title our now src)
         src
-      ?~  shard-info=(~(get by shard-infos) shard-id.action)
-        ~|("%faucet: invalid shard. Valid shards: {<~(key by shard-infos)>}" !!)
+      ?~  town-info=(~(get by town-infos) town-id.action)
+        ~|("%faucet: invalid town. Valid towns: {<~(key by town-infos)>}" !!)
       =/  [unlock=@da count=@ud]
         (~(gut by on-timeout) par [*@da 0])
       ?:  (gth unlock now)
@@ -88,16 +88,16 @@
           :-  %wallet-poke
           !>  ^-  wallet-poke:w
           :*  %transaction
-              from=address.u.shard-info
-              contract=zigs-contract.u.shard-info
-              shard=shard-id.action
+              from=address.u.town-info
+              contract=zigs-contract.u.town-info
+              town=town-id.action
               :^    %give
                   to=address.action
                 amount=volume
-              grain=zigs-account.u.shard-info
+              grain=zigs-account.u.town-info
           ==
         =-  [%pass /self-poke %agent [our.bowl %faucet] %poke -]
-        [%faucet-action !>(`action:f`[%confirm address.u.shard-info])]
+        [%faucet-action !>(`action:f`[%confirm address.u.town-info])]
       ~
     ::
         %confirm
@@ -127,11 +127,11 @@
         %edit-timeout-duration
       `this(timeout-duration timeout-duration.c)
     ::
-        %put-shard
+        %put-town
       :-  ~
       %=  this
-          shard-infos
-        (~(put by shard-infos) shard-id.c shard-info.c)
+          town-infos
+        (~(put by town-infos) town-id.c town-info.c)
       ==
     ==
   --

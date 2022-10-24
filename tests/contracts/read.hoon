@@ -13,7 +13,7 @@
 ::
 ++  big  (bi:merk id:smart item:smart)  ::  merkle engine for state
 ++  pig  (bi:merk id:smart @ud)         ::                for nonces
-++  shard-id   0x0
+++  town-id   0x0
 ++  fake-sig  [0 0 0]
 ++  eng
   %~  engine  engine
@@ -33,10 +33,10 @@
   ++  account-1
     ^-  item:smart
     :*  %&
-        (hash-data:smart zigs-contract-id:smart pubkey-1 shard-id `@`'zigs')
+        (hash-data:smart zigs-contract-id:smart pubkey-1 town-id `@`'zigs')
         zigs-contract-id:smart
         pubkey-1
-        shard-id
+        town-id
         `@`'zigs'
         %account
         [300.000.000 ~ `@ux`'zigs-metadata']
@@ -48,7 +48,7 @@
   :*  0x5678  ::  id
       0x5678  ::  lord
       0x5678  ::  holder
-      shard-id
+      town-id
       [- +]:(cue trivial-read-contract)
       interface=~
       types=~
@@ -59,7 +59,7 @@
   :*  0x1234  ::  id
       0x1234  ::  lord
       0x1234  ::  holder
-      shard-id
+      town-id
       [- +]:(cue trivial-read-source-contract)
       interface=~
       types=~
@@ -81,9 +81,9 @@
 ++  test-read
   =/  =calldata:smart  [%read-me-for-free ~]
   =/  shel=shell:smart
-    [caller-1 ~ id:read-pact [1 1.000.000] shard-id %0]
+    [caller-1 ~ id:read-pact [1 1.000.000] town-id %0]
   =/  res=single-result:engine
-    %+  ~(run-single eng miller shard-id 1 0)
+    %+  ~(run-single eng miller town-id 1 0)
       fake-chain
     `transaction:smart`[fake-sig calldata shel]
   ::

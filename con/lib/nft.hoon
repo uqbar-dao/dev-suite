@@ -166,11 +166,11 @@
     ::  unique salt for each item in collection
     =*  m  i.mints.act
     =/  salt    (cat 3 salt.meta (scot %ud next-item-id))
-    =/  new-id  (hash-data this.context to.m shard.context salt)
+    =/  new-id  (hash-data this.context to.m town.context salt)
     ::  properties must match those in metadata spec!
     ?>  =(properties.noun.meta ~(key py properties.m))
     =/  nft-noun  [next-item-id uri.m id.meta ~ properties.m transferrable.m]
-    =/  =data     [new-id this.context to.m shard.context salt %nft nft-noun]
+    =/  =data     [new-id this.context to.m town.context salt %nft nft-noun]
     %=  $
       mints.act     t.mints.act
       next-item-id  +(next-item-id)
@@ -193,13 +193,13 @@
           id.caller.context
           salt.act
       ==
-    =/  =id    (hash-data this.context this.context shard.context salt.act)
-    =/  =data  [id this.context this.context shard.context salt.act %metadata metadata]
+    =/  =id    (hash-data this.context this.context town.context salt.act)
+    =/  =data  [id this.context this.context town.context salt.act %metadata metadata]
     ?~  initial-distribution.act
       `(result ~ [[%& data] ~] ~ ~)
     ::  perform optional mint
     =/  next  [%mint id initial-distribution.act]
-    :-  [this.context shard.context next]^~
+    :-  [this.context town.context next]^~
     (result ~ [[%& data] ~] ~ ~)
   ::
   ::

@@ -130,9 +130,9 @@
     =.  balance.noun.giver  (sub balance.noun.giver amount.act)
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (hash-data this.context to.act shard.context salt.giver)
+      =/  =id  (hash-data this.context to.act town.context salt.giver)
       =+  [amount.act ~ metadata.noun.giver 0]
-      =+  receiver=[id this.context to.act shard.context salt.giver %account -]
+      =+  receiver=[id this.context to.act town.context salt.giver %account -]
       `(result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
     =+  (need (scry-state u.to-account.act))
@@ -160,9 +160,9 @@
     ==
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (hash-data this.context to.act shard.context salt.giver)
+      =/  =id  (hash-data this.context to.act town.context salt.giver)
       =+  [amount.act ~ metadata.noun.giver 0]
-      =+  receiver=[id this.context to.act shard.context salt.giver %account -]
+      =+  receiver=[id this.context to.act town.context salt.giver %account -]
       `(result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
     =+  (need (scry-state u.to-account.act))
@@ -186,7 +186,7 @@
     =/  giver=account:sur  noun:(husk account:sur giv `this.context ~)
     ::  reconstruct the typed message and hash
     =/  =typed-message
-      :-  (hash-data this.context holder.p.giv shard.context salt.p.giv)
+      :-  (hash-data this.context holder.p.giv town.context salt.p.giv)
       (sham [holder.p.giv to.act amount.act nonce.act deadline.act])
     =/  signed-hash  (sham typed-message)
     ::  recover the address from the message and signature
@@ -208,9 +208,9 @@
     ?~  to-account.act
     ::  create new `data` for reciever and add it to state
       ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (hash-data this.context to.act shard.context salt.p.giv)
+      =/  =id  (hash-data this.context to.act town.context salt.p.giv)
       =+  [amount.act ~ metadata.giver 0]
-      =+  rec=[id this.context to.act shard.context salt.p.giv %account -]
+      =+  rec=[id this.context to.act town.context salt.p.giv %account -]
       `(result [giv ~] [%&^rec ~] ~ ~)
     ::  direct send
     =/  rec=item  (need (scry-state u.to-account.act))
@@ -259,9 +259,9 @@
         (gte u.cap.noun.meta new-supply)
     ?~  account.m
       ::  create new account for receiver
-      =/  =id  (hash-data this.context to.m shard.context salt.noun.meta)
+      =/  =id  (hash-data this.context to.m town.context salt.noun.meta)
       =+  [amount.m ~ token.act 0]
-      =+  rec=[id this.context to.m shard.context salt.noun.meta %account -]
+      =+  rec=[id this.context to.m town.context salt.noun.meta %account -]
       %=  $
         mints.act         t.mints.act
         supply.noun.meta  new-supply
@@ -294,7 +294,7 @@
           salt
       ==
     =/  metadata-id
-      (hash-data this.context this.context shard.context salt)
+      (hash-data this.context this.context town.context salt)
     ::  issue metadata item and mint
     ::  for initial distribution, if any
     =|  issued=(list item)
@@ -302,7 +302,7 @@
     ?~  initial-distribution.act
       ::  finished minting
       =/  metadata-data
-        :*  metadata-id  this.context  this.context  shard.context
+        :*  metadata-id  this.context  this.context  town.context
             salt
             %token-metadata
             token-metadata
@@ -313,9 +313,9 @@
     ?>  ?~  cap.token-metadata  %.y
         (gte u.cap.token-metadata new-supply)
     ::  create new account for receiver
-    =/  =id  (hash-data this.context to.m shard.context salt.token-metadata)
+    =/  =id  (hash-data this.context to.m town.context salt.token-metadata)
     =+  [amount.m ~ metadata-id 0]
-    =+  rec=[id this.context to.m shard.context salt.token-metadata %account -]
+    =+  rec=[id this.context to.m town.context salt.token-metadata %account -]
     %=  $
       supply.token-metadata     new-supply
       issued                    [%&^rec issued]

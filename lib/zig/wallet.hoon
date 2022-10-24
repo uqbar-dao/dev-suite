@@ -52,10 +52,10 @@
   `[%pass wire %agent [ship term] %leave ~]
 ::
 ++  watch-for-batches
-  |=  [our=@p shard=@ux]
+  |=  [our=@p town=@ux]
   ^-  (list card)
   =-  [%pass /new-batch %agent [our %uqbar] %watch -]~
-  /indexer/wallet/batch-order/(scot %ux shard)/history
+  /indexer/wallet/batch-order/(scot %ux town)/history
 ::
 ++  make-tokens
   |=  [addrs=(list address:smart) our=@p now=@da]
@@ -71,9 +71,9 @@
     =/  single=asset
       ?.  ?=(%& -.item.upd)
         ::  handle contract asset
-        [%unknown shard.p.item.upd source.p.item.upd ~]
+        [%unknown town.p.item.upd source.p.item.upd ~]
       ::  determine type token/nft/unknown
-      (discover-asset-mold shard.p.item.upd source.p.item.upd noun.p.item.upd)
+      (discover-asset-mold town.p.item.upd source.p.item.upd noun.p.item.upd)
       %=  $
         addrs  t.addrs
         new  (~(put by new) i.addrs (malt ~[[id.p.item.upd single]]))
@@ -96,24 +96,24 @@
   =/  =asset
     ?.  ?=(%& -.item)
       ::  handle contract asset
-      [%unknown shard.p.item source.p.item ~]
+      [%unknown town.p.item source.p.item ~]
     ::  determine type token/nft/unknown and store in book
-    (discover-asset-mold shard.p.item source.p.item noun.p.item)
+    (discover-asset-mold town.p.item source.p.item noun.p.item)
   %=  $
     items-list  t.items-list
     new-book  (~(put by new-book) id.p.item asset)
   ==
 ::
 ++  discover-asset-mold
-  |=  [shard=@ux contract=@ux data=*]
+  |=  [town=@ux contract=@ux data=*]
   ^-  asset
   =+  tok=((soft token-account) data)
   ?^  tok
-    [%token shard contract metadata.u.tok u.tok]
+    [%token town contract metadata.u.tok u.tok]
   =+  nft=((soft nft) data)
   ?^  nft
-    [%nft shard contract metadata.u.nft u.nft]
-  [%unknown shard contract data]
+    [%nft town contract metadata.u.nft u.nft]
+  [%unknown town contract data]
 ::
 ++  update-metadata-store
   |=  [tokens=(map address:smart book) =metadata-store our=@p now=@da]
@@ -132,7 +132,7 @@
       ::  (sub to indexer for the metadata item id, update our store on update)
       $(book t.book)
     ::  scry indexer for metadata item and store it
-    ?~  meta=(fetch-metadata -.asset shard.asset metadata.asset our now)
+    ?~  meta=(fetch-metadata -.asset town.asset metadata.asset our now)
       ::  couldn't find it
       $(book t.book)
     %=  $
@@ -146,11 +146,11 @@
   ==
 ::
 ++  fetch-metadata
-  |=  [token-type=@tas shard=@ux =id:smart our=ship now=time]
+  |=  [token-type=@tas town=@ux =id:smart our=ship now=time]
   ^-  (unit asset-metadata)
   ::  manually import metadata for a token
   =/  scry-res
-    .^(update:ui %gx /(scot %p our)/uqbar/(scot %da now)/indexer/newest/item/(scot %ux shard)/(scot %ux id)/noun)
+    .^(update:ui %gx /(scot %p our)/uqbar/(scot %da now)/indexer/newest/item/(scot %ux town)/(scot %ux id)/noun)
   =/  g=(unit item:smart)
     ::  TODO remote scry w/ uqbar.hoon
     ?~  scry-res  ~
@@ -161,8 +161,8 @@
     ~
   ?.  ?=(%& -.u.g)  ~
   ?+  token-type  ~
-    %token  `[%token shard ;;(token-metadata noun.p.u.g)]
-    %nft    `[%nft shard ;;(nft-metadata noun.p.u.g)]
+    %token  `[%token town ;;(token-metadata noun.p.u.g)]
+    %nft    `[%nft town ;;(nft-metadata noun.p.u.g)]
   ==
 ::
 ::  JSON parsing utils
@@ -176,7 +176,7 @@
   :-  (scot %ux id)
   %-  pairs
   :~  ['id' [%s (scot %ux id)]]
-      ['shard' [%s (scot %ux shard.asset)]]
+      ['town' [%s (scot %ux town.asset)]]
       ['contract' [%s (scot %ux contract.asset)]]
       ['token_type' [%s (scot %tas -.asset)]]
       :-  'data'
@@ -207,7 +207,7 @@
   :-  (scot %ux id)
   %-  pairs
   :~  ['id' [%s (scot %ux id)]]
-      ['shard' [%s (scot %ux shard.m)]]
+      ['town' [%s (scot %ux town.m)]]
       ['token_type' [%s (scot %tas -.m)]]
       :-  'data'
       %-  pairs
@@ -259,7 +259,7 @@
       ['contract' [%s (scot %ux contract.t)]]
       ['rate' (numb rate.gas.t)]
       ['budget' (numb bud.gas.t)]
-      ['shard' [%s (scot %ux shard.t)]]
+      ['town' [%s (scot %ux town.t)]]
       ['status' (numb status.t)]
       :-  'action'
       %-  frond
