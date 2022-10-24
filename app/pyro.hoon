@@ -21,6 +21,7 @@
 ::
 /-  *pyro
 /+  pill, default-agent, naive, dbug, verb
+/*  cached-pill  %noun  /lib/py/pill/pill
 =,  pill-lib=pill
 =>  $~  |%
     +$  versioned-state
@@ -59,7 +60,9 @@
       aqua-core  +>
       ac         ~(. aqua-core bowl)
       def        ~(. (default-agent this %|) bowl)
-  ++  on-init  `this
+  ++  on-init
+    :_  this
+    [%pass / %agent [our.bowl %pyro] %poke %pill !>(cached-pill)]~
   ++  on-save  !>(state)
   ++  on-load
     |=  old-vase=vase
