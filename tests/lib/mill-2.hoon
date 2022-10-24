@@ -16,17 +16,16 @@
 ::  * (test all constraints in contract: balance, gas, +give, etc)
 ::  * executing multiple calls with +mill-all
 ::
-/-  zink
 /+  *test, smart=zig-sys-smart, seq=zig-sequencer, merk
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
-/*  zigs-contract   %jam  /con/compiled/zigs-2/jam
+/*  zigs-contract   %jam  /con/compiled/zigs/jam
 |%
 ::
 ::  constants / dummy info for mill
 ::
 ++  big  (bi:merk id:smart item:smart)  ::  merkle engine for granary
-++  pig  (bi:merk id:smart @ud)          ::                for populace
+++  pig  (bi:merk id:smart @ud)         ::                for populace
 ++  shard-id    0x0
 ++  set-fee    7
 ++  fake-sig   [0 0 0]

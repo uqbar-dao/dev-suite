@@ -179,8 +179,8 @@
     |=  [=context act=take-with-sig:sur]
     ^-  (quip call diff)
     ::  %take-with-sig allows for gasless approvals for transferring tokens
-    ::  the giver must sign the from-account id and the typed +$approve struct above
-    ::  and the taker will pass in the signature to take the tokens
+    ::  the giver must sign the from-account id and the typed +$approve struct
+    ::  above, and the taker will pass in the signature to take the tokens
     =/  giv=item  (need (scry-state from-account.act))
     ?>  ?=(%& -.giv)
     =/  giver=account:sur  noun:(husk account:sur giv `this.context ~)
@@ -196,30 +196,29 @@
       (ecdsa-raw-recover:secp256k1:secp:crypto signed-hash sig.act)
     ::  assert the signature is valid
     ?>  =(recovered-address holder.p.giv)
-    :: TODO need to figure out how to implement the deadline since now.context no longer exists
+    ::  TODO need to figure out how to implement
+    ::  the deadline since now.context no longer exists
     ?>  (lte batch.context deadline.act)
     ?>  (gte balance.giver amount.act)
+    =.  noun.p.giv
+      %=  giver
+        balance  (sub balance.giver amount.act)
+        nonce  .+(nonce.giver)
+      ==
     ?~  to-account.act
     ::  create new `data` for reciever and add it to state
-      =+  (hash-data to.act this.context shard.context salt.p.giv)
-      =/  new=item
-        [%& - this.context to.act shard.context salt.p.giv %account [amount.act ~ metadata.giver 0]]
-      ::  continuation call: %take to `data` found in book
-      =/  =action:sur  [%take-with-sig to.act id.p.giv `id.p.new amount.act nonce.act deadline.act sig.act]
-      :-  [this.context shard.context action]~
-      (result [new ~] ~ ~ ~)
+      ::  if receiver doesn't have an account, try to produce one for them
+      =/  =id  (hash-data this.context to.act shard.context salt.p.giv)
+      =+  [amount.act ~ metadata.giver 0]
+      =+  rec=[id this.context to.act shard.context salt.p.giv %account -]
+      `(result [giv ~] [%&^rec ~] ~ ~)
     ::  direct send
     =/  rec=item  (need (scry-state u.to-account.act))
     =/  receiver  noun:(husk account:sur rec `this.context `to.act)
     ?>  ?=(%& -.rec)
     ?>  =(metadata.receiver metadata.giver)
-    =:  noun.p.rec  receiver(balance (add balance.receiver amount.act))
-        noun.p.giv
-      %=  giver
-        balance  (sub balance.giver amount.act)
-        nonce  .+(nonce.giver)
-      ==
-    ==
+    =.  noun.p.rec
+      receiver(balance (add balance.receiver amount.act))
     `(result [giv rec ~] ~ ~ ~)
   ::
   ++  set-allowance
@@ -262,20 +261,20 @@
       ::  create new account for receiver
       =/  =id  (hash-data this.context to.m shard.context salt.noun.meta)
       =+  [amount.m ~ token.act 0]
-      =+  receiver=[id this.context to.m shard.context salt.noun.meta %account -]
+      =+  rec=[id this.context to.m shard.context salt.noun.meta %account -]
       %=  $
         mints.act         t.mints.act
         supply.noun.meta  new-supply
-        issued            [%&^receiver issued]
+        issued            [%&^rec issued]
       ==
     ::  find and modify existing receiver account
     =+  (need (scry-state u.account.m))
-    =/  receiver  (husk account:sur - `this.context `to.m)
-    =.  balance.noun.receiver  (add balance.noun.receiver amount.m)
+    =/  rec  (husk account:sur - `this.context `to.m)
+    =.  balance.noun.rec  (add balance.noun.rec amount.m)
     %=  $
       mints.act         t.mints.act
       supply.noun.meta  new-supply
-      changed           [%&^receiver changed]
+      changed           [%&^rec changed]
     ==
   ::
   ++  deploy
@@ -316,10 +315,10 @@
     ::  create new account for receiver
     =/  =id  (hash-data this.context to.m shard.context salt.token-metadata)
     =+  [amount.m ~ metadata-id 0]
-    =+  receiver=[id this.context to.m shard.context salt.token-metadata %account -]
+    =+  rec=[id this.context to.m shard.context salt.token-metadata %account -]
     %=  $
       supply.token-metadata     new-supply
-      issued                    [%&^receiver issued]
+      issued                    [%&^rec issued]
       initial-distribution.act  t.initial-distribution.act
     ==
   ::
