@@ -69,8 +69,6 @@
       =capitol:seq
       =sequencer-update-queue
       =town-update-queue
-      old-sub-paths=(map path @ux)
-      old-sub-updates=(map @ux update)
       catchup-indexer=dock
   ==
 ::

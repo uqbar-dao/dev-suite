@@ -76,15 +76,21 @@
         %wallet
       ::  must be of the form, e.g.,
       ::   /wallet/[requesting-app-name]/[*-updates]
-      ?.  ?=([%wallet @ @ ~] path)  ~
+      ?.  ?=([%wallet @ @ ~] path)  ~  ::  TODO: kick
       (watch-wallet /[i.path]/[i.t.path] t.t.path)
     ::
         %indexer
       ::  must be of the form, e.g.,
-      ::   /indexer/[requesting-app-name]/grain/[town-id]/[grain-id]
-      ?.  ?=([%indexer @ @ ^] path)  ~
-      =/  town=id:smart  (slav %ux i.t.t.t.path)
-      (watch-indexer town /[i.path]/[i.t.path] t.t.path)
+      ::   /indexer/[requesting-app-name]/batch-order/[town-id]
+      ::   or
+      ::   /indexer/[requesting-app-name]/json/batch-order/[town-id]
+      ?.  ?=([%indexer @ @ *] path)  ~  ::  TODO: kick
+      =/  town-id=id:smart              ::  TODO: generalize?
+        ?:  ?=([%indexer @ @ @ ~] path)
+          (slav %ux i.t.t.t.path)
+        ?>  ?=([%indexer @ %json @ @ ~] path)
+        (slav %ux i.t.t.t.t.path)
+      (watch-indexer town-id /[i.path]/[i.t.path] t.t.path)
     ==
     ::
     ++  watch-wallet
@@ -102,13 +108,9 @@
         ~&  >>>  " do not have indexer source for town {<town>}."
         ~&  >>>  " Add indexer source for town and try again."
         ~
-      =/  disambiguator=@ta  (scot %ux (cut 5 [0 1] eny.bowl))
       :_  ~
       %+  ~(watch pass:io (weld wire-prefix sub-path))
-        p.u.source
-      ?.  ?=(%history (rear sub-path))
-        (snoc sub-path disambiguator)
-      (snoc (snoc (snip sub-path) disambiguator) %history)
+      p.u.source  sub-path
     --
   ::
   ++  on-poke
@@ -180,8 +182,7 @@
         ==
       ::
           %set-sources
-        =/  p=path
-          /capitol-updates/[(scot %ux (cut 5 [0 1] eny.bowl))]
+        =/  p=path  /capitol-updates
         :-  :-  %-  ~(poke-self pass:io /ping-action-poke)
                 [%uqbar-action !>(`action:u`[%ping ~])]
             %+  murn  towns.act

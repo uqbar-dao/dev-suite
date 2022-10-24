@@ -102,11 +102,9 @@
       =+  core=(from-seed:bip32 [64 seed])
       =+  addr=(address-from-prv:key:ethereum private-key:core)
       ::  get txn history for this new address
-      =/  sent  (get-sent-history addr [our now]:bowl)
+      =/  sent  (get-sent-history addr %.n [our now]:bowl)
       ::  sub to batch updates
-      :-  %+  weld  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
-          %+  weld  (clear-all-id-subs wex.bowl)
-          (create-id-subs (silt ~[addr]) our.bowl)
+      :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
       ::  clear all existing state, except for public keys imported from HW wallets
       ::  TODO save nonces/tokens from HW wallets too
       ::  for now treat this as a nuke of the wallet
@@ -128,11 +126,9 @@
       =+  core=(from-seed:bip32 [64 (to-seed:bip39 mnem (trip password.act))])
       =+  addr=(address-from-prv:key:ethereum private-key:core)
       ::  get txn history for this new address
-      =/  sent  (get-sent-history addr [our now]:bowl)
+      =/  sent  (get-sent-history addr %.n [our now]:bowl)
       ::  sub to batch updates
-      :-  %+  weld  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
-          %+  weld  (clear-all-id-subs wex.bowl)
-          (create-id-subs (silt ~[addr]) our.bowl)
+      :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
       ::  clear all existing state, except for public keys imported from HW wallets
       ::  TODO save nonces/tokens from HW wallets too
       ::  for now treat this as a nuke of the wallet
@@ -156,8 +152,8 @@
         (weld "m/44'/60'/0'/0/" (scow %ud address-index.seed.state))
       =+  addr=(address-from-prv:key:ethereum prv:core)
       ::  get txn history for this new address
-      =/  sent  (get-sent-history addr [our now]:bowl)
-      :-  (create-id-subs (silt ~[addr]) our.bowl)
+      =/  sent  (get-sent-history addr %.n [our now]:bowl)
+      :-  ~
       %=  state
         seed  seed(address-index +(address-index.seed))
         keys  (~(put by keys) addr [`prv:core nick.act])
@@ -166,8 +162,8 @@
     ::
         %add-tracked-address
       ::  get txn history for this new address
-      =/  sent  (get-sent-history address.act [our now]:bowl)
-      :-  (create-id-subs (silt ~[address.act]) our.bowl)
+      =/  sent  (get-sent-history address.act %.n [our now]:bowl)
+      :-  ~
       %=  state
         keys  (~(put by keys) address.act [~ nick.act])
         transaction-store  (~(put by transaction-store) address.act [sent ~])
@@ -175,7 +171,8 @@
     ::
         %delete-address
       ::  can recover by re-deriving same path
-      :-  (clear-id-sub address.act our.bowl)
+      :: :-  (clear-id-sub address.act our.bowl)
+      :-  ~
       %=  state
         keys    (~(del by keys) address.act)
         nonces  (~(del by nonces) address.act)
@@ -387,16 +384,22 @@
     ?:  ?=(%kick -.sign)
       :_  this  ::  attempt to re-sub
       (watch-for-batches our.bowl 0x0)
-    ::  new batch -- scry to indexer for latest tokens and nfts held
+    ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
+    ::  get latest tokens and nfts held
     =/  addrs=(list address:smart)  ~(tap in ~(key by keys))
     =/  new-tokens
       (make-tokens addrs [our now]:bowl)
     =/  new-metadata
       (update-metadata-store new-tokens metadata-store [our now]:bowl)
+    ::  get latest tracked transactions
+    =^  cards=(list card)  transaction-store
+      %+  make-cards-update-state-tracked-accounts
+      transaction-store  [our now]:bowl
+    ::
     :_  this(tokens new-tokens, metadata-store new-metadata)
-    :~  [%give %fact ~[/book-updates] %wallet-update !>(`wallet-update`[%new-book new-tokens])]
-        [%give %fact ~[/metadata-updates] %wallet-update !>(`wallet-update`[%new-metadata new-metadata])]
-    ==
+    :+  [%give %fact ~[/book-updates] %wallet-update !>(`wallet-update`[%new-book new-tokens])]
+      [%give %fact ~[/metadata-updates] %wallet-update !>(`wallet-update`[%new-metadata new-metadata])]
+    cards
   ::
       [%submit-tx @ @ ~]
     ::  check to see if our tx was received by sequencer
@@ -429,40 +432,6 @@
         |=(n=@ud (dec n))
       ==
     `this
-  ::
-      ?([%id @ ~] [%id @ @ ~])
-    ::  update to a transaction from a tracked account
-    ?:  ?=(%watch-ack -.sign)  (on-agent:def wire sign)
-    ?.  ?=(%fact -.sign)       (on-agent:def wire sign)
-    ?.  ?=(%indexer-update p.cage.sign)  (on-agent:def wire sign)
-    =/  =update:ui  !<(=update:ui q.cage.sign)
-    ?~  update             `this
-    ?.  ?=(%txn -.update)  `this
-    =/  our-id=@ux  ?:(?=([@ @ ~] wire) (slav %ux i.t.wire) (slav %ux i.t.t.wire))
-    =+  our-txs=(~(gut by transaction-store.state) our-id [sent=~ received=~])
-    =^  tx-status-cards=(list card)  our-txs
-      %^  spin  ~(tap by txns.update)  our-txs
-      |=  [[hash=@ux [@da =txn-location:ui txn=transaction:smart]] txs=_our-txs]
-      ::  update status code and send to frontend
-      ::  following error code spec in sur/wallet
-      =/  status  (add 200 `@`status.txn)
-      ?>  ?=(transaction-status-code status)
-      ^-  [card _our-txs]
-      :-  ?~  this-tx=(~(get by sent.txs) hash)
-            (tx-update-card hash txn [%noun (crip (noah !>(calldata.txn)))])
-          (tx-update-card hash txn(status status) action.u.this-tx)
-      %=    txs
-          sent
-        ?.  (~(has by sent.txs) hash)  sent.txs
-        %+  ~(jab by sent.txs)  hash
-        |=  [p=transaction:smart q=supported-actions]
-        [p(status status) q]
-      ::
-          ::  TODO update nonce for town if tx was rejected for bad nonce (code 3)
-          ::  or for lack of budget (code 4)
-      ==
-    :-  tx-status-cards
-    this(transaction-store (~(put by transaction-store) our-id our-txs))
   ==
 ::
 ++  on-arvo  on-arvo:def
