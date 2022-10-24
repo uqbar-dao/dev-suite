@@ -1328,7 +1328,7 @@
   ++  make-sub-cards
     ^-  (list card)
     =/  update-path=path
-      /batch-order/(scot %ux shard-id)
+      /batch-order/(scot %ux town-id)
     ?~  (find [update-path]~ (turn ~(val by sup.bowl) |=([@ p=path] p)))
       ~
     :_  ~

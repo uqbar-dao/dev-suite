@@ -90,7 +90,7 @@
           (slav %ux i.t.t.t.path)
         ?>  ?=([%indexer @ %json @ @ ~] path)
         (slav %ux i.t.t.t.t.path)
-      (watch-indexer shard-id /[i.path]/[i.t.path] t.t.path)
+      (watch-indexer town-id /[i.path]/[i.t.path] t.t.path)
     ==
     ::
     ++  watch-wallet
