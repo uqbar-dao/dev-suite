@@ -195,7 +195,7 @@
     |_  =state
     +$  token-account
       $:  balance=@ud
-          allowances=(map sender=id:smart @ud)
+          allowances=(pmap:smart sender=id:smart @ud)
           metadata=id:smart
           nonce=@ud
       ==
