@@ -4,8 +4,9 @@
 ::  |start %zig %pyro
 ::  :pyro +solid %base %zig
 ::  swap files is NOT working
-::  :pyro &aqua-events [%init-ship ~dev %.y]~  OR  :pyro|init ~dev
+::  :pyro &aqua-events [%init-ship ~dev]~  OR  :pyro|init ~dev
 ::  :pyro &action [%dojo ~dev "(add 2 2)"]     OR  :pyro|dojo ~dev "(add 2 2)"
+::  +zig!pyro/scry ~dev %sequencer /status/noun
 ::
 ::  Then try stuff:
 ::  XX :aqua [%init ~[~bud ~dev]]
