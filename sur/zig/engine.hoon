@@ -24,6 +24,22 @@
       burned=state
   ==
 ::
++$  state-transition-2
+  $:  =chain
+      processed=memlist
+      modified=state
+      burned=state
+      events=(list contract-event)
+  ==
+::
++$  output
+  $:  gas=@ud
+      =errorcode:smart
+      modified=state
+      burned=state
+      =events:smart
+  ==
+::
 ::  intermediate result in +farm
 ::
 +$  hatchling
