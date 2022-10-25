@@ -20,33 +20,40 @@
     |-
     ?~  pending
       ::  finished with execution: pay accumulated
-      ::  TODO pay tax
       ::  gas to sequencer, then return result
-      state-transition
+      state-transition(p.chain (~(pay tax p.chain) gas-reward))
     ::  execute a single transaction and integrate the diff
-    =/  =output  ~(intake eng chain.state-transition txn.i.pending)
+    =*  tx  txn.i.pending
+    =/  =output  ~(intake eng chain.state-transition tx)
+    =/  priced-gas  (mul gas.output rate.gas.tx)
     %=  $
       pending     t.pending
-      gas-reward  (add gas-reward gas.output)
+      gas-reward  (add gas-reward priced-gas)
         state-transition
-      %=  state-transition
-        modified   (uni:big modified.state-transition modified.output)
-        burned     (uni:big burned.state-transition burned.output)
-        processed  [i.pending(status.txn errorcode.output) processed.state-transition]
+      %=    state-transition
+        modified  (uni:big modified.state-transition modified.output)
+        burned    (uni:big burned.state-transition burned.output)
+      ::
+          processed
+        [i.pending(status.txn errorcode.output) processed.state-transition]
       ::
           events
         %+  weld  events.state-transition
         %+  turn  events.output
         |=  i=[@tas json]
-        [contract.txn.i.pending address.caller.txn.i.pending i]
+        [contract.tx address.caller.tx i]
       ::
           p.chain
-        ::  TODO charge gas here
-        (dif:big (uni:big p.chain.state-transition modified.output) burned.output)
+        ::  charge gas here
+        %.  [caller.tx priced-gas]
+        %~  charge  tax
+        %+  dif:big
+          (uni:big p.chain.state-transition modified.output)
+        burned.output
       ::
           q.chain
         ?:  ?=(?(%1 %2) errorcode.output)  q.chain.state-transition
-        (put:pig q.chain.state-transition [address nonce]:caller.txn.i.pending)
+        (put:pig q.chain.state-transition [address nonce]:caller.tx)
       ==
     ==
   ::
@@ -101,6 +108,7 @@
       =/  =context:smart
         [contract.tx [- +<]:caller.tx batch-num eth-block-height town-id]
       =/  [mov=(unit move) gas=@ud =errorcode:smart]
+        ::  combust returns amount of gas *remaining*
         (combust code.p.u.pac context calldata.tx bud.gas.tx)
       ::
       ?~  mov  (exhaust gas errorcode ~)
@@ -131,10 +139,10 @@
         ::
             tx
           %=  tx
-            bud.gas  gas
+            bud.gas         gas
             address.caller  contract.tx
-            contract  contract.i.calls
-            calldata  calldata.i.calls
+            contract        contract.i.calls
+            calldata        calldata.i.calls
           ==
         ==
       ::
@@ -151,7 +159,8 @@
     ++  exhaust
       |=  [gas=@ud =errorcode:smart dif=(unit diff:smart)]
       ^-  output
-      :+  gas
+      ::  output returns amount of gas *spent*
+      :+  (sub bud.gas.tx gas)
         errorcode
       ?~  dif  [~ ~ ~]
       :+  (uni:big changed.u.dif issued.u.dif)
@@ -159,7 +168,7 @@
       events.u.dif
     ::
     ++  combust
-      |=  [code=[bat=* pay=*] =context:smart =calldata:smart gas=@ud]
+      |=  [code=[bat=* pay=*] =context:smart =calldata:smart bud=@ud]
       ^-  [(unit move) gas=@ud =errorcode:smart]
       ~>  %bout
       |^
@@ -170,7 +179,7 @@
       ::  generate ZK-proof hints with zebra
       ::
       =/  =book:zink
-        (zebra:zink gas zink-cax search gun hints-on)
+        (zebra:zink bud zink-cax search gun hints-on)
       ?:  ?=(%| -.p.book)
         ::  error in contract execution
         ~&  >>>  p.book
@@ -322,19 +331,16 @@
       %+  gte  ;;(@ud -.noun.p.u.zigs)
       (mul bud.gas.tx rate.gas.tx)
     ::  +charge: extract gas fee from caller's zigs balance
-    ::  returns a single modified item to be inserted into a diff
-    ::  cannot crash after audit, as long as zigs contract adequately
-    ::  validates balance >= budget+amount.
+    ::  cannot crash after audit, as long as zigs contract
+    ::  adequately validates balance >= budget+amount.
     ++  charge
-      |=  [diff=^state payee=caller:smart fee=@ud]
-      ^-  [id:smart item:smart]
-      =/  zigs=item:smart
-        ::  find item in diff, or fall back to full state
-        ::  got will never crash since +audit proved existence
-        %^  gut:big  diff  zigs.payee
-        (got:big state zigs.payee)
+      |=  [payee=caller:smart fee=@ud]
+      ^-  ^state
+      ?:  =(0 fee)  state
+      =/  zigs=item:smart  (got:big state zigs.payee)
       ?>  ?=(%& -.zigs)
       =/  balance  ;;(@ud -.noun.p.zigs)
+      %+  put:big  state
       =-  [zigs.payee zigs(noun.p -)]
       [(sub balance fee) +.noun.p.zigs]
     ::  +pay: give fees from transactions to sequencer
