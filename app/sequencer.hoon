@@ -321,6 +321,14 @@
     ?~  town  [~ ~]
     ``noun+!>((~(has by p.chain.u.town) id))
   ::
+      [%all-data ~]
+    ?~  town  [~ ~]
+    =-  ``noun+!>(-)
+    %+  murn  ~(tap in p.chain.u.town)
+    |=  [=id:smart @ =item:smart]
+    ?.  ?=(%& -.item)  ~
+    `item
+  ::
       [%get-action @ @ ~]
     ::  return lump interface from contract on-chain
     =/  id   (slav %ux i.t.t.path)

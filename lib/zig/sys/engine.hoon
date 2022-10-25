@@ -21,7 +21,7 @@
     ?~  pending
       ::  finished with execution:
       ::  pay accumulated gas to sequencer
-      ?~  paid=(~(pay tax p.chain) gas-reward)
+      ?~  paid=(~(pay tax p.chain.st) gas-reward)
         st
       %=  st
         p.chain   (put:big p.chain.st u.paid)
@@ -29,7 +29,6 @@
       ==
     ::  execute a single transaction and integrate the diff
     =*  tx  txn.i.pending
-    ~&  >  "eng: processing tx {<tx>}"
     =/  =output  ~(intake eng chain.st tx hash.i.pending)
     =/  priced-gas  (mul gas.output rate.gas.tx)
     ~&  >  "gas cost: {<priced-gas>}"
@@ -125,6 +124,8 @@
       ?~  mov  (exhaust gas errorcode ~)
       =*  calls  -.u.mov
       =*  diff   +.u.mov
+      ?.  (clean diff contract.tx zigs.caller.tx)
+        (exhaust gas %7 ~)
       =/  all-diffs   (uni:big changed.diff issued.diff)
       =/  all-burns   burned.diff
       =/  all-events=(list contract-event)
@@ -132,8 +133,6 @@
         |=  i=[@tas json]
         [contract.tx tx-hash i]
       |-  ::  INNER recursion point for continuations
-      ?.  (clean diff contract.tx zigs.caller.tx)
-        (exhaust gas %7 ~)
       ?~  calls
         ::  diff-only result, finished calling
         (exhaust gas %0 `[all-diffs all-burns all-events])
@@ -164,7 +163,7 @@
         (exhaust gas.inter errorcode.inter ~)
       %=  $
         calls       t.calls
-        gas         gas.inter
+        gas         (sub gas gas.inter)
         all-diffs   (uni:big all-diffs modified.inter)
         all-burns   (uni:big all-burns burned.inter)
         all-events  (weld all-events events.inter)
