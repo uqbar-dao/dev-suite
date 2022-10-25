@@ -78,7 +78,7 @@
 ::
 +$  caller  [=id nonce=@ud zigs=id]
 ::
-+$  typed-message  [domain=id message=@]  ::  message should be typed according to some mold specified by the wheat
++$  typed-message  [domain=id type-hash=@ message=@]  ::  message should be typed according to some mold specified by the wheat
 ::
 ::  grains populate the state.
 ::

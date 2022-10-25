@@ -199,6 +199,15 @@
       [who.act town-id.cart [%on-push id.from.cart amount.act calldata.act]]~
     (result [%&^account ~] ~ ~ ~)
   ::
+  ++  pull-type-hash
+    %-  sham
+    $:  from=id
+        to=address
+        amount=@ud
+        nonce=@ud
+        deadline=@ud
+    ==
+  ::
   ++  pull
     |=  [=cart act=pull:sur]
     ^-  chick
@@ -210,8 +219,9 @@
     ::  this will fail if amount > balance, as desired
     =.  balance.data.giver  (sub balance.data.giver amount.act)
     ::  reconstruct the hash of the typed message and hash
-    =+  %+  sham
-          (fry-rice me.cart holder.giver town-id.cart salt.giver)
+    =+  %^    sham
+            (fry-rice me.cart holder.giver town-id.cart salt.giver)
+          pull-type-hash
         (sham [holder.giver to.act amount.act nonce.act deadline.act])
     ::  recover the address from the message and signature
     =+  %-  address-from-pub
