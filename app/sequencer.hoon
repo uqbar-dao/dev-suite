@@ -24,7 +24,7 @@
       status=?(%available %off)
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
-+$  eng  $_  ~(engine engine !>(0) *(map * @) %.y)
++$  eng  $_  ~(engine engine !>(0) *(map * @) %.y %.n)  ::  sigs on, hints off
 --
 ::
 =|  inflated-state-0
@@ -40,7 +40,8 @@
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =-  `this(state [[%0 ~ ~ ~ ~ ~ ~ %off] - smart-lib])
   %~  engine  engine
-  [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
+    ::  sigs on, hints off
+  [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y %.n]
 ::
 ++  on-save  !>(-.state)
 ++  on-load
@@ -49,7 +50,8 @@
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  eng
     %~  engine  engine
-    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
+      ::  sigs on, hints off
+    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y %.n]
   `this(state [!<(state-0 old-vase) eng smart-lib])
 ::
 ++  on-watch
@@ -187,13 +189,11 @@
       =/  addr  p.sequencer.hall.town
       =+  /(scot %p our.bowl)/wallet/(scot %da now.bowl)/account/(scot %ux addr)/(scot %ux town-id.hall.town)/noun
       =+  .^(caller:smart %gx -)
-      =/  [new=state-transition rejected=memlist]
-        %^    ~(run eng - town-id.hall.town batch-num eth-block-height.act)
-            chain.town
-          mempool.state
-        256  ::  number of parallel "passes"
+      =/  new=state-transition
+        %+  ~(run eng - town-id.hall.town batch-num eth-block-height.act)
+        chain.town  mempool.state
       =/  new-root       `@ux`(sham chain.new)
-      =/  diff-hash      `@ux`(sham ~[state-diff.new])
+      =/  diff-hash      `@ux`(sham ~[modified.new])
       =/  new-batch-num  +(batch-num.hall.town)
       ::  2. generate our signature
       ::  (address sig, that is)
@@ -202,9 +202,7 @@
       =/  sig
         (ecdsa-raw-sign:secp256k1:secp:crypto `@uvI`new-root u.private-key.state)
       ::  3. poke rollup
-      ::  return rejected (not enough passes to cover them) to our mempool
       :_  %=  state
-            mempool  (silt rejected)
             proposed-batch  `[new-batch-num processed.new chain.new diff-hash new-root]
           ==
       =-  [%pass /batch-submit/(scot %ux new-root) %agent [u.rollup.state %rollup] %poke -]~
@@ -215,7 +213,7 @@
           :*  town-id.hall.town
               new-batch-num
               mode.hall.town
-              ~[state-diff.new]
+              ~[modified.new]
               diff-hash
               new-root
               chain.new

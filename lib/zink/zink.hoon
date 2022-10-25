@@ -351,9 +351,10 @@
     ?:  ?=(%mean tag)
       ::  this is a crash..
       ~&  317  [%|^trace app]
-    ~&  "looking for jet: {<`@tas`tag>}"
+    ::  ~&  "looking for jet: {<`@tas`tag>}"
     ?~  cost=(~(get by jets) tag)
-      ~&  >>  "no jet found"  [%&^~ app]
+      ::  ~&  >>  "no jet found"
+      [%&^~ app]
     ?:  (lth gas u.cost)  [%&^~ app]
     :-  (run-jet tag sam `@ud`u.cost)
     app(gas (sub gas u.cost))

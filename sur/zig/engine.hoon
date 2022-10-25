@@ -18,15 +18,6 @@
 +$  state-transition
   $:  =chain
       processed=memlist
-      hits=(list (list hints:zink))
-      =state-diff
-      events=(list contract-event)
-      burned=state
-  ==
-::
-+$  state-transition-2
-  $:  =chain
-      processed=memlist
       modified=state
       burned=state
       events=(list contract-event)
@@ -37,28 +28,6 @@
       =errorcode:smart
       modified=state
       burned=state
-      =events:smart
-  ==
-::
-::  intermediate result in +farm
-::
-+$  hatchling
-  $:  hits=(list hints:zink)
-      state-diff=(unit state)
-      burned=state
-      events=(list contract-event)
-      rem=@ud
-      =errorcode:smart
-  ==
-::
-::  intermediate result from +mill
-::
-+$  single-result
-  $:  fee=@ud
-      =chain
-      burned=state
-      =errorcode:smart
-      hits=(list hints:zink)
       events=(list contract-event)
   ==
 ::
