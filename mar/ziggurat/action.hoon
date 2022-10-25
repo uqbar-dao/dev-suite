@@ -1,13 +1,13 @@
 /-  *zig-ziggurat
 =,  dejs:format
-|_  act=app-action
+|_  act=action
 ++  grab
   |%
-  ++  noun  app-action
+  ++  noun  action
   ++  json
     |=  jon=^json
-    ^-  app-action
-    %-  app-action
+    ^-  action
+    %-  action
     |^
     (guh jon)
     ++  guh
@@ -17,7 +17,7 @@
       ==
     ++  process
       %-  of
-      :~  [%new-app-project ul]
+      :~  [%new-project ul]
           [%delete-project ul]
           [%save-file (ot ~[[%file pa] [%text so]])]
           [%delete-file (ot ~[[%file pa]])]

@@ -11,25 +11,25 @@
       %holder
       %source
       %to
-      %shard
+      %town
       %hash
   ==
 ::
 +$  query-payload
-  ?(item-hash=@ux [shard-id=@ux item-hash=@ux] location)
+  ?(item-hash=@ux [town-id=@ux item-hash=@ux] location)
 ::
 +$  location
   $?  second-order-location
-      shard-location
+      town-location
       batch-location
       txn-location
   ==
 +$  second-order-location  id:smart
-+$  shard-location  id:smart
++$  town-location  id:smart
 +$  batch-location
-  [shard-id=id:smart batch-root=id:smart]
+  [town-id=id:smart batch-root=id:smart]
 +$  txn-location
-  [shard-id=id:smart batch-root=id:smart txn-num=@ud]
+  [town-id=id:smart batch-root=id:smart txn-num=@ud]
 ::
 +$  location-index
   (map @ux (jar @ux location))
@@ -40,8 +40,8 @@
 +$  second-order-index
   (map @ux (jar @ux second-order-location))
 ::
-+$  batches-by-shard
-  (map shard-id=id:smart batches-and-order)
++$  batches-by-town
+  (map town-id=id:smart batches-and-order)
 +$  batches-and-order
   [=batches =batch-order]
 +$  batches
@@ -49,15 +49,15 @@
 +$  batch-order
   (list id:smart)  ::  0-index -> most recent batch
 +$  batch
-  [transactions=(list [@ux transaction:smart]) shard:seq]
-+$  newest-batch-by-shard
-  %+  map  shard-id=id:smart
+  [transactions=(list [@ux transaction:smart]) town:seq]
++$  newest-batch-by-town
+  %+  map  town-id=id:smart
   [batch-id=id:smart timestamp=@da =batch]
 ::
-+$  shard-update-queue
-  (map shard-id=@ux (map batch-id=@ux timestamp=@da))
++$  town-update-queue
+  (map town-id=@ux (map batch-id=@ux timestamp=@da))
 +$  sequencer-update-queue
-  (map shard-id=@ux (map batch-id=@ux batch))
+  (map town-id=@ux (map batch-id=@ux batch))
 ::
 +$  versioned-state
   $%  base-state-0
@@ -65,12 +65,10 @@
 ::
 +$  base-state-0
   $:  %0
-      =batches-by-shard
+      =batches-by-town
       =capitol:seq
       =sequencer-update-queue
-      =shard-update-queue
-      old-sub-paths=(map path @ux)
-      old-sub-updates=(map @ux update)
+      =town-update-queue
       catchup-indexer=dock
   ==
 ::
@@ -82,13 +80,13 @@
       holder-index=second-order-index
       source-index=second-order-index
       to-index=second-order-index
-      =newest-batch-by-shard
+      =newest-batch-by-town
   ==
 ::
 +$  inflated-state-0  [base-state-0 indices-0]
 ::
 +$  batch-update-value
-  [timestamp=@da location=shard-location =batch]
+  [timestamp=@da location=town-location =batch]
 +$  txn-update-value
   [timestamp=@da location=txn-location =transaction:smart]
 +$  item-update-value
@@ -118,21 +116,21 @@
 :: +$  update
 ::   $@  ~
 ::   $%  [%path-does-not-exist ~]
-::       [%batches (map batch-id=id:smart [timestamp=@da location=shard-location =batch])]
+::       [%batches (map batch-id=id:smart [timestamp=@da location=town-location =batch])]
 ::       [%batch-order =batch-order]
 ::       [%txns (map txn-id=id:smart [timestamp=@da location=txn-location =transaction:smart])]
 ::       [%items (jar item-id=id:smart [timestamp=@da location=batch-location =item:smart])]
 ::       $:  %hashes
-::           batches=(map batch-id=id:smart [timestamp=@da location=shard-location =batch])
+::           batches=(map batch-id=id:smart [timestamp=@da location=town-location =batch])
 ::           txns=(map txn-id=id:smart [timestamp=@da location=txn-location =transaction:smart])
 ::           items=(jar item-id=id:smart [timestamp=@da location=batch-location =item:smart])
 ::       ==
-::       [%batch batch-id=id:smart timestamp=@da location=shard-location =batch]
+::       [%batch batch-id=id:smart timestamp=@da location=town-location =batch]
 ::       [%newest-batch-id batch-id=id:smart]  ::  keep?
 ::       [%txn txn-id=id:smart timestamp=@da location=txn-location =transaction:smart]
 ::       [%item item-id=id:smart timestamp=@da location=batch-location =item:smart]
 ::       $:  %hash
-::           batch=[batch-id=id:smart timestamp=@da location=shard-location =batch]
+::           batch=[batch-id=id:smart timestamp=@da location=town-location =batch]
 ::           txn=[txn-id=id:smart timestamp=@da location=txn-location =transaction:smart]
 ::           item=[item-id=id:smart timestamp=@da location=batch-location =item:smart]
 ::       ==
