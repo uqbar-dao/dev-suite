@@ -165,8 +165,8 @@
       %=  $
         calls       t.calls
         gas         gas.inter
-        all-diffs   modified.inter
-        all-burns   burned.inter
+        all-diffs   (uni:big all-diffs modified.inter)
+        all-burns   (uni:big all-burns burned.inter)
         all-events  (weld all-events events.inter)
       ==
     ::

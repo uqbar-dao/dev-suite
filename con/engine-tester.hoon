@@ -100,6 +100,47 @@
     =+  i=(need (scry-state dummy.act))
     =.  source.p.i  zigs-contract-id
     `(result ~ ~ [i ~] ~)
+  ::
+  ::  actions for testing continuation calls
+  ::
+      [%exit ~]
+    `[~ ~ ~ [%exit-event ~]~]
+  ::
+      [%simple-self-call ~]
+    :_  (result ~ ~ ~ [%entry-event ~]~)
+    [this.context town.context [%exit ~]]~
+  ::
+      [%triple-self-call ~]
+    :_  (result ~ ~ ~ [%triple-event ~]~)
+    :~  [this.context town.context [%simple-self-call ~]]
+        [this.context town.context [%simple-self-call ~]]
+        [this.context town.context [%simple-self-call ~]]
+    ==
+  ::
+      [%modify-and-call dummy=id]
+    =+  i=(need (scry-state dummy.act))
+    ?>  ?=(%& -.i)
+    =.  noun.p.i  'my new noun!'
+    :_  (result [i ~] ~ ~ ~)
+    [this.context town.context [%read-modified dummy.act]]~
+  ::
+      [%read-modified dummy=id]
+    =+  i=(need (scry-state dummy.act))
+    ?>  ?=(%& -.i)
+    =/  event  [%i-read s+;;(@t noun.p.i)]
+    `(result ~ ~ ~ event^~)
+  ::
+      [%just-modify dummy=id]
+    =+  i=(need (scry-state dummy.act))
+    ?>  ?=(%& -.i)
+    =.  noun.p.i  'my new noun!'
+    `(result [i ~] ~ ~ ~)
+  ::
+      [%modify-and-read-separately dummy=id]
+    :_  (result ~ ~ ~ ~)
+    :~  [this.context town.context [%just-modify dummy.act]]
+        [this.context town.context [%read-modified dummy.act]]
+    ==
   ==
 ::
 ++  read

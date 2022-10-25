@@ -542,7 +542,104 @@
 ::  such that those calls can issue calls of their own, and state/
 ::  gas/events/modified/burned are properly updated at each step
 ::
-
+++  test-vz-simple-self-call
+  =/  =calldata:smart       [%simple-self-call ~]
+  =/  =shell:smart  [caller-1 ~ id.p:pact:engine-tester [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx `@ux`(sham +.tx)]
+  ~&  >  "gas spent: {<gas.output>}"
+  ;:  weld
+    (expect-eq !>(%0) !>(errorcode.output))
+    (expect-eq !>(~) !>(modified.output))
+    (expect-eq !>(~) !>(burned.output))
+  ::
+    %+  expect-eq
+      !>
+      :~  [id.p:pact:engine-tester `@ux`(sham +.tx) [%entry-event ~]]
+          [id.p:pact:engine-tester `@ux`(sham +.tx) [%exit-event ~]]
+      ==
+    !>(events.output)
+  ==
+::
+++  test-vy-triple-self-call
+  =/  =calldata:smart       [%triple-self-call ~]
+  =/  =shell:smart  [caller-1 ~ id.p:pact:engine-tester [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx `@ux`(sham +.tx)]
+  ~&  >  "gas spent: {<gas.output>}"
+  ;:  weld
+    (expect-eq !>(%0) !>(errorcode.output))
+    (expect-eq !>(~) !>(modified.output))
+    (expect-eq !>(~) !>(burned.output))
+  ::
+    %+  expect-eq
+      !>
+      :~  [id.p:pact:engine-tester `@ux`(sham +.tx) [%triple-event ~]]
+          [id.p:pact:engine-tester `@ux`(sham +.tx) [%entry-event ~]]
+          [id.p:pact:engine-tester `@ux`(sham +.tx) [%exit-event ~]]
+          [id.p:pact:engine-tester `@ux`(sham +.tx) [%entry-event ~]]
+          [id.p:pact:engine-tester `@ux`(sham +.tx) [%exit-event ~]]
+          [id.p:pact:engine-tester `@ux`(sham +.tx) [%entry-event ~]]
+          [id.p:pact:engine-tester `@ux`(sham +.tx) [%exit-event ~]]
+      ==
+    !>(events.output)
+  ==
+::
+++  test-vx-modify-and-call
+  =/  =calldata:smart       [%modify-and-call id.p:dummy-data:engine-tester]
+  =/  =shell:smart  [caller-1 ~ id.p:pact:engine-tester [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx `@ux`(sham +.tx)]
+  ~&  >  "gas spent: {<gas.output>}"
+  ;:  weld
+    (expect-eq !>(%0) !>(errorcode.output))
+    (expect-eq !>(~) !>(burned.output))
+  ::
+    %+  expect-eq
+      =/  dd=data:smart  ;;(data:smart p:dummy-data:engine-tester)
+      !>  %+  gas:big  *(merk:merk id:smart item:smart)
+          ~[[id.dd %&^dd(noun 'my new noun!')]]
+    !>(modified.output)
+  ::
+    %+  expect-eq
+      !>
+      ~[[id.p:pact:engine-tester `@ux`(sham +.tx) [%i-read s+'my new noun!']]]
+    !>(events.output)
+  ==
+::
+++  test-vw-modify-and-read-separately
+  =/  =calldata:smart       [%modify-and-read-separately id.p:dummy-data:engine-tester]
+  =/  =shell:smart  [caller-1 ~ id.p:pact:engine-tester [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx `@ux`(sham +.tx)]
+  ~&  >  "gas spent: {<gas.output>}"
+  ;:  weld
+    (expect-eq !>(%0) !>(errorcode.output))
+    (expect-eq !>(~) !>(burned.output))
+  ::
+    %+  expect-eq
+      =/  dd=data:smart  ;;(data:smart p:dummy-data:engine-tester)
+      !>  %+  gas:big  *(merk:merk id:smart item:smart)
+          ~[[id.dd %&^dd(noun 'my new noun!')]]
+    !>(modified.output)
+  ::
+    %+  expect-eq
+      !>
+      ~[[id.p:pact:engine-tester `@ux`(sham +.tx) [%i-read s+'my new noun!']]]
+    !>(events.output)
+  ==
 ::
 ::  tests for full engine +run, with multiple transactions in mempool
 ::  assert that transactions are ordered properly by rate and nonce,
