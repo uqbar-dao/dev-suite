@@ -59,11 +59,11 @@
           [%compile-contracts ~]  ::  alterations to project files call %compile-contracts which calls %read-desk which sends a project update; TODO: skip compile when no change?
           [%read-desk ~]
           ::
-          [%add-to-state salt=@ label=@tas noun=* source=id:smart holder=id:smart town-id=@ux]
+          [%add-to-state source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
           [%delete-from-state =id:smart]
           ::
           [%add-test name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]  ::  name optional
-          [%add-test-expectation test-id=@ux salt=@ label=@tas noun=* source=id:smart holder=id:smart town-id=@ux]
+          [%add-test-expectation test-id=@ux source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
           [%delete-test-expectation id=@ux delete=id:smart]
           [%delete-test id=@ux]
           [%edit-test id=@ux name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]

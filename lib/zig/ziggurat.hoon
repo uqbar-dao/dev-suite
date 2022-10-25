@@ -186,7 +186,7 @@
     |=  [face=term =path]
     ^-  hoon
     :+  %ktts  face
-    (rain path .^(@t %cx (welp desk (welp path /hoon))))
+    +:(parse-pile:conq (trip .^(@t %cx (welp desk (welp path /hoon)))))
   ::
   ++  build-libs  ::  third
     |=  braw=(list hoon)
@@ -537,7 +537,7 @@
         (trip (scot %ux user-address.current))
         " uri='https://image.link' "
         props-tape
-        " transferrable=&] ~]"
+        " transferrable=%.y] ~]"
     ==
   =/  yolk-3=calldata:smart
     =-  [;;(@tas -.-) +.-]
