@@ -541,14 +541,20 @@
     =/  =json  (tests-to-json tests.u.project)
     ``json+!>(json)
   ::
+      [%file-exists @ ^]
+    =/  des=@ta    i.t.t.path
+    =/  pat=^path  `^path`t.t.t.path
+    =/  pre=^path  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
+    =/  res        .^(? %cu (weld pre pat))
+    ``json+!>(`json`[%b res])
+  ::
   ::  APP-PROJECT JSON
   ::
       [%read-file @ ^]
-    =/  des  (slav %tas i.t.t.path)
+    =/  des=@ta    i.t.t.path
     =/  pat=^path  `^path`t.t.t.path
-    =/  pre  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
-    ~&  >  (weld pre pat)
-    =/  res  .^(@t %cx (weld pre pat))
+    =/  pre=^path  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
+    =/  res        .^(@t %cx (weld pre pat))
     ``json+!>(`json`[%s res])
   ==
 ::
