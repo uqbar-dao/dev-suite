@@ -14,12 +14,15 @@
   +$  multisig-state
     $:  members=(pset address)
         threshold=@ud
+        executed=(list @ux)
         pending=(pmap @ux proposal)
     ==
   ::
   +$  action
     $%  ::  called once to initialize multisig
         [%create threshold=@ud members=(pset address)]
+        ::
+        [%execute multisig=id sigs=(pset sig) calls=(list [to=id town=id =yolk]) deadline=@ud]
         ::
         [%vote multisig=id proposal-hash=@ux aye=?]
         [%propose multisig=id calls=(list [to=id town=id =yolk])]
@@ -33,5 +36,15 @@
 ::
 ++  lib
   |%
+  ++  type-hash-execute
+    :: TODO  gas price
+    ::       gas limit
+    ::       refund receiver
+    %-  sham
+    $:  multisig=id
+        calls=(list [to=id town=id =yolk])
+        nonce=@ud
+        deadline=@ud
+    ==
   --
 --

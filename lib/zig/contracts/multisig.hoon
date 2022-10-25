@@ -34,7 +34,7 @@
     =/  =id  (fry-rice me.cart me.cart town-id.cart 0)
     =/  =grain
       :*  %&  0  %multisig
-          [members.act threshold.act ~]
+          [members.act threshold.act ~ ~]
           id
           lord=me.cart
           holder=me.cart
@@ -45,6 +45,28 @@
   =+  (need (scry multisig.act))
   =/  multisig  (husk multisig-state:sur - `me.cart ~)
   ?-    -.act
+      %execute
+    =/  typed-message-hash=@ux
+      ^-  @
+      %^    sham  ::  XX use sham or shag? unclear - I'm using sham in fungible.hoon
+          (fry-rice me.cart me.cart town-id.cart 0)
+        type-hash-execute:lib
+      (sham [multisig.act calls.act (lent executed.data.multisig) deadline.act])
+    ::  assert threshold has been met
+    ?>  (gte ~(wyt pn sigs.act) threshold.data.multisig)
+    ::  assert signatures are correct
+    ?>  %+  levy  ~(tap pn sigs.act)
+        |=  =sig
+        %-  ~(has in members.data.multisig)
+        %-  address-from-pub
+        %-  serialize-point:secp256k1:secp:crypto
+        (ecdsa-raw-recover:secp256k1:secp:crypto typed-message-hash sig)
+    ::  add to call history
+    =.  executed.data.multisig  [typed-message-hash executed.data.multisig]
+    ::  create continuation calls
+    %+  continuation  calls.act
+    (result [%&^multisig]^~ ~ ~ ~)
+    ::
       %vote
     ::  register a vote on a pending proposal
     ::  caller must be in the multisig
