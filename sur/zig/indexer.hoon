@@ -135,4 +135,12 @@
 ::           item=[item-id=id:smart timestamp=@da location=batch-location =item:smart]
 ::       ==
 ::   ==
+::
++$  consume-batch-args
+  $:  root=id:smart
+      txns=(list [@ux transaction:smart])
+      =town:seq
+      timestamp=@da
+      should-update-subs=?
+  ==
 --
