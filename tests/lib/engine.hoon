@@ -769,7 +769,24 @@
 ::
 ::  tests for running out of gas
 ::
-
+++  test-rz-out-of-gas
+  ::  this call takes about 16k gas, make sure to update
+  ::  here if the gas calculation changes
+  =/  =calldata:smart
+    [%give address:caller-2:zigs 1.000 id.p:account-1:zigs `id.p:account-2:zigs]
+  =/  =shell:smart  [caller-1 ~ id.p:pact:zigs [1 1.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
+  ;:  weld
+    (expect-eq !>(%8) !>(errorcode.output))
+    (expect-eq !>(1.000) !>(gas.output))
+    (expect-eq !>(~) !>(burned.output))
+    (expect-eq !>(~) !>(modified.output))
+    (expect-eq !>(~) !>(events.output))
+  ==
 ::
 ::  tests for execution of malformed contract nock
 ::
