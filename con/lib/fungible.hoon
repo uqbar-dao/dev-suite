@@ -102,7 +102,7 @@
         to-account=(unit id)
         amount=@ud
         nonce=@ud
-        deadline=@ud :: how to implement without now.cart?
+        deadline=@ud
         =sig
     ==
   +$  set-allowance
@@ -233,8 +233,8 @@
     ::  assert nonce is valid
     =+  (~(gut by nonces.noun.giver) to.act 0)
     ?>  .=(nonce.act -)
-    ::  assert deadline is valid :: XX TODO implement deadline; now.context is gone  
-    ?>  (lte batch.context deadline.act)
+    ::  assert deadline is valid
+    ?>  (gte eth-block.context deadline.act)
     ?~  to-account.act
     ::  create new `data` for reciever and add it to state
       ::  if receiver doesn't have an account, try to produce one for them
