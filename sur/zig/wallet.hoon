@@ -10,39 +10,6 @@
       [%unknown town=@ux contract=id:smart *]
   ==
 ::
-+$  state-0
-  $:  %0
-      ::  wallet holds a single seed at once
-      ::  address-index notes where we are in derivation path
-      seed=[mnem=@t pass=@t address-index=@ud]
-      ::  many keys can be derived or imported
-      ::  if the private key is ~, that means it's a hardware wallet import
-      keys=(map address:smart [priv=(unit @ux) nick=@t])
-      ::  we track the nonce of each address we're handling
-      ::  TODO: introduce a poke to check nonce from chain and re-align
-      nonces=(map address:smart (map town=@ux nonce=@ud))
-      ::  signatures tracks any signed calls we've made
-      signatures=(list [=typed-message:smart =sig:smart])
-      ::  tokens tracked for each address we're handling
-      tokens=(map address:smart =book-0)
-      ::  metadata for tokens we track
-      =metadata-store
-      ::  transactions we've sent and received
-      =transaction-store
-      ::  transactions we've been asked to sign, keyed by hash
-      =pending-store
-  ==
-::
-::  book: the primary map of assets that we track
-::  supports fungibles and NFTs
-::
-+$  book-0  (map id:smart asset-0)
-+$  asset-0
-  $%  [%token town-id=@ux contract=id:smart metadata=id:smart token-account-0]
-      [%nft town-id=@ux contract=id:smart metadata=id:smart nft]
-      [%unknown town-id=@ux contract=id:smart *]
-  ==
-::
 +$  metadata-store  (map id:smart asset-metadata)
 +$  asset-metadata
   $%  [%token town=@ux token-metadata]

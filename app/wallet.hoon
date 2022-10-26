@@ -10,12 +10,8 @@
 /*  smart-lib  %noun  /lib/zig/sys/smart-lib/noun
 |%
 +$  card  card:agent:gall
-+$  versioned-state
-  $%  state-0
-      state-1
-  ==
-+$  state-1
-  $:  %1
++$  state-0
+  $:  %0
       ::  wallet holds a single seed at once
       ::  address-index notes where we are in derivation path
       seed=[mnem=@t pass=@t address-index=@ud]
@@ -28,19 +24,17 @@
       ::  signatures tracks any signed calls we've made
       signatures=(list [=typed-message:smart =sig:smart])
       ::  tokens tracked for each address we're handling
-      tokens-old=(map address:smart =book-0)
+      tokens=(map address:smart =book)
       ::  metadata for tokens we track
       =metadata-store
       ::  transactions we've sent and received
       =transaction-store
       ::  transactions we've been asked to sign, keyed by hash
       =pending-store
-      ::  new type of fungible tokens we track
-      tokens=(map address:smart =book)
   ==
 --
 ::
-=|  state-1
+=|  state-0
 =*  state  -
 ::
 %-  agent:dbug
@@ -50,34 +44,14 @@
 +*  this  .
     def   ~(. (default-agent this %|) bowl)
 ::
-++  on-init  `this(state [%1 ['' '' 0] ~ ~ ~ ~ ~ ~ ~ ~])
+++  on-init  `this(state [%0 ['' '' 0] ~ ~ ~ ~ ~ ~ ~])
 ::
 ++  on-save  !>(state)
 ++  on-load
   |=  =old=vase
   ^-  (quip card _this)
-  =+  !<(old=versioned-state old-vase)
-  ?-  -.old
-    %0  
-  :-  ~
-  %=  this
-      state
-    :: XX is there a more concise way to say this? Just append a ~
-    :*  %1
-        seed.old
-        keys.old
-        nonces.old
-        signatures.old
-        tokens.old
-        metadata-store.old
-        transaction-store.old
-        pending-store.old
-        ~
-    ==
-  ==
-  ::
-    %1  `this(state old)
-  ==
+  =/  old-state  !<(state-0 old-vase)
+  `this(state old-state)
 ::
 ++  on-watch
   |=  =path
