@@ -56,9 +56,9 @@
 ::    /x/item/[item-id=@ux]:
 ::    /x/item/[town-id=@ux]/[item-id=@ux]:
 ::      Historical states of item with given hash.
-::    :: /x/item-transactions/[item-id=@ux]:  ::  TODO: reenable
-::    :: /x/item-transactions/[town-id=@ux]/[item-id=@ux]:
-::    ::   Transactions involving item with given hash.
+::    /x/item-transactions/[item-id=@ux]:
+::    /x/item-transactions/[town-id=@ux]/[item-id=@ux]:
+::      Transactions involving item with given hash.
 ::    /x/hash/[hash=@ux]:
 ::    /x/hash/[town-id=@ux]/[hash=@ux]:
 ::      Info about hash (queries all indexes for hash).
@@ -374,8 +374,8 @@
             [%transaction @ ~]  [%transaction @ @ ~]
             [%from @ ~]         [%from @ @ ~]
             [%item @ ~]         [%item @ @ ~]
-            :: [%item-transactions @ ~]
-            :: [%item-transactions @ @ ~]
+            [%item-transactions @ ~]
+            [%item-transactions @ @ ~]
             [%holder @ ~]       [%holder @ @ ~]
             [%source @ ~]       [%source @ @ ~]
             [%to @ ~]           [%to @ @ ~]
@@ -474,7 +474,7 @@
             transaction-index        ~
             from-index               ~
             item-index               ~
-            :: item-transactions-index  ~
+            item-transactions-index  ~
             holder-index             ~
             source-index             ~
             to-index                 ~
@@ -791,9 +791,10 @@
   =/  town=update:ui    (serve-update %town qp options)
   =/  transaction=update:ui
     (serve-update %transaction qp options)
-  :: =/  item-transactions=update:ui
-  ::   (serve-update %item-transactions qp options)
-  %^  combine-updates  ~[batch town]  ~[transaction from to]
+  =/  item-transactions=update:ui
+    (serve-update %item-transactions qp options)
+  %^  combine-updates  ~[batch town]
+    ~[transaction from to item-transactions]
   ~[item holder source]
 ::
 ++  combine-batch-updates-to-map
@@ -928,8 +929,7 @@
       %batch
     get-batch-update
   ::
-      :: ?(%transaction %from %item %item-transactions %holder %source %to)
-      ?(%transaction %from %item %holder %source %to)
+      ?(%transaction %from %item %item-transactions %holder %source %to)
     get-from-index
   ::
       %town
@@ -986,8 +986,7 @@
     ?+    query-type  ~
         %item         get-item
         %transaction  get-transaction
-        :: ?(%from %item-transactions %holder %source %to)
-        ?(%from %holder %source %to)
+        ?(%from %item-transactions %holder %source %to)
       get-second-order
     ==
     ::
@@ -1226,8 +1225,8 @@
         %transaction
       (get-by-get-ja transaction-index only-newest)
     ::
-      ::   %item-transactions
-      :: (get-by-get-ja item-transactions-index %.n)
+        %item-transactions
+      (get-by-get-ja item-transactions-index %.n)
     ==
     ::  always set `only-newest` false for
     ::   second-order indices or will
@@ -1266,7 +1265,7 @@
       ==
   =*  town-id  town-id.hall.town
   |^  ^-  (quip card _state)
-  =+  ^=  [transaction from item holder source to]
+  =+  ^=  [transaction from item holder source to item-transaction]
       (parse-batch batch-id town-id transactions chain.town)
   =:  item-index  (gas-ja-batch item-index item town-id)
       to-index    (gas-ja-second-order to-index to town-id)
@@ -1283,9 +1282,9 @@
     %^  gas-ja-transaction  transaction-index  transaction
     town-id
   ::
-    ::   item-transactions-index
-    :: %^  gas-ja-second-order  item-transactions-index
-    :: item-transactions  town-id
+      item-transactions-index
+    %^  gas-ja-second-order  item-transactions-index
+    item-transaction  town-id
   ::
       newest-batch-by-town
     ::  only update newest-batch-by-town with newer batches
@@ -1381,13 +1380,15 @@
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
+            (list [@ux second-order-location:ui])
         ==
     =+  [item holder source]=(parse-state batch-id town-id p.chain)
-    =+  [transaction from to]=(parse-transactions batch-id town-id transactions)
-    [transaction from item holder source to]
+    =+  ^=  [transaction from to item-transactions]
+        (parse-transactions batch-id town-id transactions)
+    [transaction from item holder source to item-transactions]
   ::
   ++  parse-state
-    |=  [batch-id=@ux town-id=@ux =state:seq]
+    |=  [batch-id=@ux town-id=@ux =state:eng]
     ^-  $:  (list [@ux batch-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
@@ -1395,15 +1396,15 @@
     =|  parsed-item=(list [@ux batch-location:ui])
     =|  parsed-holder=(list [@ux second-order-location:ui])
     =|  parsed-source=(list [@ux second-order-location:ui])
-    =/  items=(list [@ux [@ux item:smart]])
+    =/  items=(list [@ux [@ux =item:smart]])
       ~(tap by state)
     |-
     ?~  items  [parsed-item parsed-holder parsed-source]
-    =*  item-id   id.p.+.+.i.items
-    =*  holder-id  holder.p.+.+.i.items
-    =*  source-id    source.p.+.+.i.items
+    =*  item-id    id.p.item.i.items
+    =*  holder-id  holder.p.item.i.items
+    =*  source-id  source.p.item.i.items
     %=  $
-        items         t.items
+        items  t.items
     ::
         parsed-holder
       ?:  %+  exists-in-index  town-id
@@ -1431,17 +1432,26 @@
     ^-  $:  (list [@ux transaction-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
+            (list [@ux second-order-location:ui])
         ==
     =|  parsed-transaction=(list [@ux transaction-location:ui])
     =|  parsed-from=(list [@ux second-order-location:ui])
     =|  parsed-to=(list [@ux second-order-location:ui])
+    =|  parsed-item-transactions=(list [@ux second-order-location:ui])
     =/  transaction-num=@ud  0
     |-
-    ?~  txs  [parsed-transaction parsed-from parsed-to]
-    =*  transaction-hash  tx-hash.i.txs
-    =*  transaction       tx.i.txs
-    =*  contract          contract.transaction
-    =*  from              address.caller.transaction
+    ?~  txs
+      :^  parsed-transaction  parsed-from  parsed-to
+      parsed-item-transactions
+    =*  transaction-id  tx-hash.i.txs
+    =*  transaction     tx.i.txs
+    =*  contract        contract.transaction
+    =*  from            address.caller.transaction
+    =*  modified        modified.output.i.txs
+    =*  burned          burned.output.i.txs
+    =/  item-ids=(list id:smart)
+      %~  tap  in
+      (~(uni in (key:big:eng modified)) (key:big:eng burned))
     =/  =transaction-location:ui
       [town-id batch-id transaction-num]
     %=  $
@@ -1449,23 +1459,36 @@
         txs              t.txs
         parsed-transaction
       ?:  %+  exists-in-index  town-id
-          :+  transaction-hash  transaction-location
+          :+  transaction-id  transaction-location
           transaction-index
         parsed-transaction
-      :-  [transaction-hash transaction-location]
+      :-  [transaction-id transaction-location]
       parsed-transaction
     ::
         parsed-from
       ?:  %+  exists-in-index  town-id
-          [from transaction-hash from-index]
+          [from transaction-id from-index]
         parsed-from
-      [[from transaction-hash] parsed-from]
+      [[from transaction-id] parsed-from]
     ::
         parsed-to
       ?:  %+  exists-in-index  town-id
-          [contract transaction-hash to-index]
+          [contract transaction-id to-index]
         parsed-to
-      [[contract transaction-hash] parsed-to]
+      [[contract transaction-id] parsed-to]
+    ::
+        parsed-item-transactions
+      |-
+      ?~  item-ids  parsed-item-transactions
+      =*  item-id  i.item-ids
+      ?:  %+  exists-in-index  town-id
+          [item-id transaction-id item-transactions-index]
+        $(item-ids t.item-ids)
+      %=  $
+          item-ids  t.item-ids
+          parsed-item-transactions
+        [[item-id transaction-id] parsed-item-transactions]
+      ==
     ==
   ::
   ++  exists-in-index
