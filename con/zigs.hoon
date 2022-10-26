@@ -26,7 +26,7 @@
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (hash-data this.context to.act town.context salt.giver)
-      =+  [amount.act ~ metadata.noun.giver 0]
+      =+  [amount.act ~ metadata.noun.giver ~]
       =+  receiver=[id this.context to.act town.context salt.giver %account -]
       `(result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
@@ -52,7 +52,7 @@
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (hash-data this.context to.act town.context salt.giver)
-      =+  [amount.act ~ metadata.noun.giver 0]
+      =+  [amount.act ~ metadata.noun.giver ~]
       =+  receiver=[id this.context to.act town.context salt.giver %account -]
       `(result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address

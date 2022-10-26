@@ -195,9 +195,9 @@
     |_  =state
     +$  token-account
       $:  balance=@ud
-          allowances=(pmap:smart sender=id:smart @ud)
+          allowances=(pmap:smart sender=address:smart @ud)
           metadata=id:smart
-          nonce=@ud
+          nonces=(pmap:smart taker=address:smart @ud)
       ==
     ::  +audit: evaluate whether a caller can afford gas,
     ::  and appropriately set budget for any zigs transactions
@@ -234,7 +234,7 @@
       =/  acc=item:smart
         %^  gut:big  state  zigs.sequencer
         ::  create a new account rice for the sequencer if needed
-        =/  =token-account  [total ~ `@ux`'zigs-metadata' 0]
+        =/  =token-account  [total ~ `@ux`'zigs-metadata' ~]
         =/  =id:smart  (hash-data:smart zigs-contract-id:smart address.sequencer town-id `@`'zigs')
         [%& id zigs-contract-id:smart address.sequencer town-id 'zigs' %account token-account]
       ?.  ?=(%& -.acc)  state
