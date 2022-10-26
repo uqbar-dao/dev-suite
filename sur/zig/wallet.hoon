@@ -2,7 +2,9 @@
 |%
 +$  signature   [p=@ux q=ship r=life]
 ::
-::  state -1 fields
+::  book: the primary map of assets that we track
+::  supports fungibles and NFTs
+::
 +$  book  (map id:smart asset)
 +$  asset
   $%  [%token town=@ux contract=id:smart metadata=id:smart token-account]
@@ -123,13 +125,6 @@
       allowances=(pmap:smart sender=address:smart @ud)
       metadata=id:smart
       nonces=(pmap:smart taker=address:smart @ud)
-  ==
-::
-+$  token-account-0
-  $:  balance=@ud
-      allowances=(pmap:smart sender=id:smart @ud)
-      metadata=id:smart
-      nonce=@ud
   ==
 ::
 ::  hardcoded molds comporting to account-NFT standard
