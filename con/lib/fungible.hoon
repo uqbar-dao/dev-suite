@@ -50,7 +50,7 @@
     $:  balance=@ud                    ::  the amount of tokens someone has
         allowances=(pmap address @ud)  ::  a map of pubkeys they've permitted to spend their tokens and how much
         metadata=id                    ::  address of the `data` holding this token's metadata
-        nonce=@ud                      ::  necessary for gasless approves
+        nonces=(pmap address @ud)      ::  necessary for gasless approves
     ==
   ::
   +$  approval
@@ -67,7 +67,8 @@
   +$  action
     $%  give
         take
-        take-with-sig
+        push
+        pull
         set-allowance
         mint
         deploy
@@ -87,8 +88,15 @@
         from-account=id
         to-account=(unit id)
     ==
-  +$  take-with-sig
-    $:  %take-with-sig
+  +$  push
+    $:  %push
+        who=address
+        amount=@ud
+        account=id
+        calldata=*
+    ==
+  +$  pull
+    $:  %pull
         to=address
         from-account=id
         to-account=(unit id)
@@ -131,7 +139,7 @@
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (hash-data this.context to.act town.context salt.giver)
-      =+  [amount.act ~ metadata.noun.giver 0]
+      =+  [amount.act ~ metadata.noun.giver ~]
       =+  receiver=[id this.context to.act town.context salt.giver %account -]
       `(result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
@@ -161,7 +169,7 @@
     ?~  to-account.act
       ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (hash-data this.context to.act town.context salt.giver)
-      =+  [amount.act ~ metadata.noun.giver 0]
+      =+  [amount.act ~ metadata.noun.giver ~]
       =+  receiver=[id this.context to.act town.context salt.giver %account -]
       `(result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
@@ -175,50 +183,72 @@
     ::  return the result: two changed items
     `(result [%&^giver %&^receiver ~] ~ ~ ~)
   ::
-  ++  take-with-sig
-    |=  [=context act=take-with-sig:sur]
+  ++  push
+    |=  [=context act=push:sur]
     ^-  (quip call diff)
-    ::  %take-with-sig allows for gasless approvals for transferring tokens
+    ::  This is an implementation of the approveAndCall psuedo-standard for ERC20 tokens.
+    ::  In a single transaction you can approve a max spend and call a function, saving
+    ::  an extra transaction. For any contract that wants to implement this, the wheat
+    ::  must have an %on-push arm implemented as [%on-push from=id amount=id calldata=*]
+    ?>  !=(who.act id.caller.context)
+    =+  (need (scry-state account.act))
+    =/  account  (husk account:sur - `this.context `id.caller.context)
+    =.  allowances.noun.account
+      (~(put py allowances.noun.account) who.act amount.act)
+    :_  (result [%&^account ~] ~ ~ ~)
+    [who.act town.context [%on-push id.caller.context amount.act calldata.act]]~
+    
+  ::
+  ++  pull-type-hash
+    %-  sham
+    $:  from=id
+        to=address
+        amount=@ud
+        nonce=@ud
+        deadline=@ud
+    ==
+  ::
+  ++  pull
+    |=  [=context act=pull:sur]
+    ^-  (quip call diff)
+    ::  %pull allows for gasless approvals for transferring tokens
     ::  the giver must sign the from-account id and the typed +$approve struct
     ::  above, and the taker will pass in the signature to take the tokens
     =/  giv=item  (need (scry-state from-account.act))
     ?>  ?=(%& -.giv)
-    =/  giver=account:sur  noun:(husk account:sur giv `this.context ~)
-    ::  reconstruct the typed message and hash
-    =/  =typed-message
-      :-  (hash-data this.context holder.p.giv town.context salt.p.giv)
-      (sham [holder.p.giv to.act amount.act nonce.act deadline.act])
-    =/  signed-hash  (sham typed-message)
+    =/  giver  (husk account:sur giv `this.context ~)
+    ::  this will fail if amount > balance, as desired
+    =.  balance.noun.giver  (sub balance.noun.giver amount.act)
+    ::  reconstruct the hash of the typed message and hash
+    =+  %^    sham
+            (hash-data this.context holder.giver town.context salt.giver)
+          pull-type-hash
+        (sham [holder.giver to.act amount.act nonce.act deadline.act])
     ::  recover the address from the message and signature
-    =/  recovered-address
-      %-  address-from-pub
-      %-  serialize-point:secp256k1:secp:crypto
-      (ecdsa-raw-recover:secp256k1:secp:crypto signed-hash sig.act)
+    =+  %-  address-from-pub
+        %-  serialize-point:secp256k1:secp:crypto
+        (ecdsa-raw-recover:secp256k1:secp:crypto - sig.act)
     ::  assert the signature is valid
-    ?>  =(recovered-address holder.p.giv)
-    ::  TODO need to figure out how to implement
-    ::  the deadline since now.context no longer exists
-    ?>  (lte batch.context deadline.act)
-    ?>  (gte balance.giver amount.act)
-    =.  noun.p.giv
-      %=  giver
-        balance  (sub balance.giver amount.act)
-        nonce  .+(nonce.giver)
-      ==
+    ?>  =(- holder.giver)
+    ::  assert nonce is valid
+    =+  (~(gut by nonces.noun.giver) to.act 0)
+    ?>  .=(nonce.act -)
+    ::  assert deadline is valid
+    ?>  (lte eth-block.context deadline.act)
     ?~  to-account.act
     ::  create new `data` for reciever and add it to state
       ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (hash-data this.context to.act town.context salt.p.giv)
-      =+  [amount.act ~ metadata.giver 0]
+      =+  [amount.act ~ metadata.noun.giver 0]
       =+  rec=[id this.context to.act town.context salt.p.giv %account -]
       `(result [giv ~] [%&^rec ~] ~ ~)
     ::  direct send
     =/  rec=item  (need (scry-state u.to-account.act))
-    =/  receiver  noun:(husk account:sur rec `this.context `to.act)
+    =/  receiver  (husk account:sur rec `this.context `to.act)
     ?>  ?=(%& -.rec)
-    ?>  =(metadata.receiver metadata.giver)
+    ?>  =(metadata.noun.receiver metadata.noun.giver)
     =.  noun.p.rec
-      receiver(balance (add balance.receiver amount.act))
+      receiver(balance.noun (add balance.noun.receiver amount.act))
     `(result [giv rec ~] ~ ~ ~)
   ::
   ++  set-allowance
@@ -332,9 +362,9 @@
       ^-  json
       %-  pairs
       :~  ['balance' (numb balance.a)]
-          ['allowances' (allowances allowances.a)]
+          ['allowances' (pmap-addr-to-ud allowances.a)]
           ['metadata' %s (scot %ux metadata.a)]
-          ['nonce' (numb nonce.a)]
+          ['nonces' (pmap-addr-to-ud nonces.a)]
       ==
     ::
     ++  metadata
@@ -352,7 +382,7 @@
           ['salt' (numb salt.md)]
       ==
     ::
-    ++  allowances
+    ++  pmap-addr-to-ud
       |=  al=(pmap address @ud)
       ^-  json
       %-  pairs

@@ -122,9 +122,9 @@
 ::
 +$  token-account
   $:  balance=@ud
-      allowances=(pmap:smart sender=id:smart @ud)
+      allowances=(pmap:smart sender=address:smart @ud)
       metadata=id:smart
-      nonce=@ud
+      nonces=(pmap:smart taker=address:smart @ud)
   ==
 ::
 ::  hardcoded molds comporting to account-NFT standard

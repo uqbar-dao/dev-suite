@@ -14,7 +14,8 @@
   ?-  -.act
     %give           (give:lib context act)
     %take           (take:lib context act)
-    %take-with-sig  (take-with-sig:lib context act)
+    %pull           (pull:lib context act)
+    %push           (push:lib context act)
     %set-allowance  (set-allowance:lib context act)
     %mint           (mint:lib context act)
     %deploy         (deploy:lib context act)
