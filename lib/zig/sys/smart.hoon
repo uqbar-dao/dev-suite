@@ -74,9 +74,6 @@
 ::
 ++  zigs-contract-id  `@ux`'zigs-contract'  ::  hardcoded "native" token contract
 ::
-::  EIP-712 mold for offchain data signing
-+$  typed-message  [domain=id type-hash=@ message=@]
-::
 ::  items populate the state.
 ::
 ::  they can only be modified by their source, which must be
@@ -176,7 +173,8 @@
       %9  ::  9: was not parallel / superceded by another txn in batch
   ==
 ::
-+$  typed-message  [domain=id message=@]
+::  EIP-712 mold for offchain data signing
++$  typed-message  [domain=id type-hash=@ message=@]
 ::
 ::  typed paths inside contracts
 ::  taken from: https://github.com/urbit/urbit/pull/5887

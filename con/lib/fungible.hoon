@@ -190,13 +190,13 @@
     ::  In a single transaction you can approve a max spend and call a function, saving
     ::  an extra transaction. For any contract that wants to implement this, the wheat
     ::  must have an %on-push arm implemented as [%on-push from=id amount=id calldata=*]
-    ?>  !=(who.act id.from.context)
-    =+  (need (scry account.act))
-    =/  account  (husk account:sur - `me.context `id.from.context)
-    =.  allowances.data.account
-      (~(put py allowances.data.account) who.act amount.act)
+    ?>  !=(who.act id.caller.context)
+    =+  (need (scry-state account.act))
+    =/  account  (husk account:sur - `this.context `id.caller.context)
+    =.  allowances.noun.account
+      (~(put py allowances.noun.account) who.act amount.act)
     :_  (result [%&^account ~] ~ ~ ~)
-    [who.act town-id.context [%on-push id.from.context amount.act calldata.act]]~
+    [who.act town.context [%on-push id.caller.context amount.act calldata.act]]~
     
   ::
   ++  pull-type-hash
@@ -216,12 +216,12 @@
     ::  and the taker will pass in the signature to take the tokens
     =/  giv=item  (need (scry-state from-account.act))
     ?>  ?=(%& -.giv)
-    =/  giver=account:sur  noun:(husk account:sur giv `this.context ~)
+    =/  giver  (husk account:sur giv `this.context ~)
     ::  this will fail if amount > balance, as desired
-    =.  balance.data.giver  (sub balance.data.giver amount.act)
+    =.  balance.noun.giver  (sub balance.noun.giver amount.act)
     ::  reconstruct the hash of the typed message and hash
     =+  %^    sham
-            (fry-rice me.context holder.giver town-id.context salt.giver)
+            (hash-data this.context holder.giver town.context salt.giver)
           pull-type-hash
         (sham [holder.giver to.act amount.act nonce.act deadline.act])
     ::  recover the address from the message and signature
@@ -230,25 +230,25 @@
         (ecdsa-raw-recover:secp256k1:secp:crypto - sig.act)
     ::  assert the signature is valid
     ?>  =(- holder.giver)
-    :: assert nonce is valid
-    =+  (~(get by nonces.data.giver) to.act)
-    ?>  .=  nonce.act
-        +((~(gut by nonces.data.giver) to.act 0))
-    ?>  (lte batch.context deadline.act) :: TODO implement deadline; now.context is gone
+    ::  assert nonce is valid
+    =+  (~(gut by nonces.noun.giver) to.act 0)
+    ?>  .=(nonce.act -)
+    ::  assert deadline is valid :: XX TODO implement deadline; now.context is gone  
+    ?>  (lte batch.context deadline.act)
     ?~  to-account.act
     ::  create new `data` for reciever and add it to state
       ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (hash-data this.context to.act town.context salt.p.giv)
-      =+  [amount.act ~ metadata.giver 0]
+      =+  [amount.act ~ metadata.noun.giver 0]
       =+  rec=[id this.context to.act town.context salt.p.giv %account -]
       `(result [giv ~] [%&^rec ~] ~ ~)
     ::  direct send
     =/  rec=item  (need (scry-state u.to-account.act))
-    =/  receiver  noun:(husk account:sur rec `this.context `to.act)
+    =/  receiver  (husk account:sur rec `this.context `to.act)
     ?>  ?=(%& -.rec)
-    ?>  =(metadata.receiver metadata.giver)
+    ?>  =(metadata.noun.receiver metadata.noun.giver)
     =.  noun.p.rec
-      receiver(balance (add balance.receiver amount.act))
+      receiver(balance.noun (add balance.noun.receiver amount.act))
     `(result [giv rec ~] ~ ~ ~)
   ::
   ++  set-allowance
