@@ -212,8 +212,8 @@
     |=  [=context act=pull:sur]
     ^-  (quip call diff)
     ::  %pull allows for gasless approvals for transferring tokens
-    ::  the giver must sign the from-account id and the typed +$approve struct above
-    ::  and the taker will pass in the signature to take the tokens
+    ::  the giver must sign the from-account id and the typed +$approve struct
+    ::  above, and the taker will pass in the signature to take the tokens
     =/  giv=item  (need (scry-state from-account.act))
     ?>  ?=(%& -.giv)
     =/  giver  (husk account:sur giv `this.context ~)
