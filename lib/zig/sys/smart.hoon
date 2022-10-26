@@ -162,15 +162,15 @@
 ::
 +$  errorcode
   $%  %0  ::  0: successfully performed
-      %1  ::  1: submitted with raw id / no account info
-      %2  ::  2: bad signature
-      %3  ::  3: incorrect nonce
-      %4  ::  4: lack zigs to fulfill budget
-      %5  ::  5: couldn't find contract
+      %1  ::  1: bad signature
+      %2  ::  2: incorrect nonce
+      %3  ::  3: lack zigs to fulfill budget
+      %4  ::  4: couldn't find contract
+      %5  ::  5: data was under contract ID
       %6  ::  6: crash in contract execution
-      %7  ::  7: validation of changed/issued/burned rice failed
+      %7  ::  7: validation of diff failed
       %8  ::  8: ran out of gas while executing
-      %9  ::  9: was not parallel / superceded by another txn in batch
+      %9  ::  9: dedicated burn transaction failed
   ==
 ::
 +$  typed-message  [domain=id message=@]

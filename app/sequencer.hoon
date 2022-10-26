@@ -6,7 +6,8 @@
 /-  uqbar=zig-uqbar
 /+  default-agent, dbug, verb,
     *zig-sequencer, *zig-rollup,
-    zink=zink-zink, sig=zig-sig
+    zink=zink-zink, sig=zig-sig,
+    engine=zig-sys-engine
 ::  Choose which library smart contracts are executed against here
 ::
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
@@ -20,11 +21,11 @@
       town=(unit town)  ::  state
       =mempool
       peer-roots=(map town=@ux root=@ux)  ::  track updates from rollup
-      proposed-batch=(unit [num=@ud =memlist =chain diff-hash=@ux root=@ux])
+      proposed-batch=(unit [num=@ud =processed-txs =chain diff-hash=@ux root=@ux])
       status=?(%available %off)
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
-+$  eng  $_  ~(engine engine !>(0) *(map * @) %.y)
++$  eng  $_  ~(engine engine !>(0) *(map * @) %.y %.n)  ::  sigs on, hints off
 --
 ::
 =|  inflated-state-0
@@ -40,7 +41,8 @@
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =-  `this(state [[%0 ~ ~ ~ ~ ~ ~ %off] - smart-lib])
   %~  engine  engine
-  [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
+    ::  sigs on, hints off
+  [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y %.n]
 ::
 ++  on-save  !>(-.state)
 ++  on-load
@@ -49,7 +51,8 @@
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  eng
     %~  engine  engine
-    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
+      ::  sigs on, hints off
+    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y %.n]
   `this(state [!<(state-0 old-vase) eng smart-lib])
 ::
 ++  on-watch
@@ -187,13 +190,11 @@
       =/  addr  p.sequencer.hall.town
       =+  /(scot %p our.bowl)/wallet/(scot %da now.bowl)/account/(scot %ux addr)/(scot %ux town-id.hall.town)/noun
       =+  .^(caller:smart %gx -)
-      =/  [new=state-transition rejected=memlist]
-        %^    ~(run eng - town-id.hall.town batch-num eth-block-height.act)
-            chain.town
-          mempool.state
-        256  ::  number of parallel "passes"
+      =/  new=state-transition
+        %+  ~(run eng - town-id.hall.town batch-num eth-block-height.act)
+        chain.town  mempool.state
       =/  new-root       `@ux`(sham chain.new)
-      =/  diff-hash      `@ux`(sham ~[state-diff.new])
+      =/  diff-hash      `@ux`(sham ~[modified.new])
       =/  new-batch-num  +(batch-num.hall.town)
       ::  2. generate our signature
       ::  (address sig, that is)
@@ -202,9 +203,7 @@
       =/  sig
         (ecdsa-raw-sign:secp256k1:secp:crypto `@uvI`new-root u.private-key.state)
       ::  3. poke rollup
-      ::  return rejected (not enough passes to cover them) to our mempool
       :_  %=  state
-            mempool  (silt rejected)
             proposed-batch  `[new-batch-num processed.new chain.new diff-hash new-root]
           ==
       =-  [%pass /batch-submit/(scot %ux new-root) %agent [u.rollup.state %rollup] %poke -]~
@@ -215,7 +214,7 @@
           :*  town-id.hall.town
               new-batch-num
               mode.hall.town
-              ~[state-diff.new]
+              ~[modified.new]
               diff-hash
               new-root
               chain.new
@@ -240,7 +239,10 @@
           (transition-state town u.proposed-batch)
         :_  this(town new-town, proposed-batch ~, mempool ~)
         =-  [%give %fact ~[/indexer/updates] %sequencer-indexer-update -]~
-        !>(`indexer-update`[%update root.u.proposed-batch memlist.u.proposed-batch (need new-town)])
+        =/  transactions
+          ::  ~hosted-fornet remove this when ready!
+          (turn processed-txs.u.proposed-batch |=([h=@ux t=transaction:smart *] h^t))
+        !>(`indexer-update`[%update root.u.proposed-batch transactions (need new-town)])
       ::  TODO manage rejected moves here
       ~&  >>>  "%sequencer: our move was rejected by rollup!"
       ~&  u.p.sign
@@ -322,6 +324,14 @@
     =/  id  (slav %ux i.t.t.path)
     ?~  town  [~ ~]
     ``noun+!>((~(has by p.chain.u.town) id))
+  ::
+      [%all-data ~]
+    ?~  town  [~ ~]
+    =-  ``noun+!>(-)
+    %+  murn  ~(tap in p.chain.u.town)
+    |=  [=id:smart @ =item:smart]
+    ?.  ?=(%& -.item)  ~
+    `item
   ::
       [%get-action @ @ ~]
     ::  return lump interface from contract on-chain

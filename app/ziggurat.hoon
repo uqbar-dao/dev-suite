@@ -2,7 +2,8 @@
 ::
 ::  Contract Playground
 ::
-/+  *zig-ziggurat, smart=zig-sys-smart, seq=zig-sequencer,
+/+  *zig-ziggurat, smart=zig-sys-smart,
+    engine=zig-sys-engine, seq=zig-sequencer,
     default-agent, dbug, verb
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
@@ -13,7 +14,7 @@
       =projects
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
-+$  eng  $_  ~(engine engine:seq !>(0) *(map * @) %.y)
++$  eng  $_  ~(engine engine:engine !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
 --
 ::
 =|  inflated-state-0
@@ -29,8 +30,9 @@
 ++  on-init
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  eng
-    %~  engine  engine:seq
-    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
+    %~  engine  engine:engine
+    ::  sigs off, hints off
+    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.n %.n]
   :-  ~
   %_    this
       state
@@ -42,8 +44,9 @@
   ::  on-load: pre-cue our compiled smart contract library
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  eng
-    %~  engine  engine:seq
-    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.y]
+    %~  engine  engine:engine
+    ::  sigs off, hints off
+    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.n %.n]
   `this(state [!<(state-0 old-vase) eng smart-lib])
 ::
 ++  on-watch
@@ -346,14 +349,13 @@
             designated-town-id
             status=0
         ==
-      =/  =single-result:engine
-        %+  %~  run-single  eng
-            [caller designated-town-id batch-num.project 0]
-          chain.project
-        [[0 0 0] action.test shell]
+      =/  =output:engine
+        %~  intake  %~  eng  eng
+          [caller designated-town-id batch-num.project eth-block-height=0]
+        [chain.project [[0 0 0] action.test shell]]
       =/  =expected-diff
         %-  malt
-        %+  turn  ~(tap by p.chain.single-result)
+        %+  turn  ~(tap by modified.output)
         |=  [=id:smart [@ux made=item:smart]]
         =/  expected  (~(get by expected.test) id)
         :-  id
@@ -378,7 +380,7 @@
       =/  success
         ?~  expected.test  ~
         :-  ~
-        ?&  =(errorcode.single-result expected-error.test)
+        ?&  =(errorcode.output expected-error.test)
         ::
             %+  levy  ~(val by expected-diff)
             |=  [(unit item:smart) (unit item:smart) match=(unit ?)]
@@ -387,9 +389,9 @@
         ==
       ::
       =/  =test-result
-        :*  fee.single-result
-            errorcode.single-result
-            events.single-result
+        :*  gas.output
+            errorcode.output
+            events.output
             expected-diff
             success
         ==
@@ -420,12 +422,10 @@
         :_  +(nonce)
         :-  `@ux`(sham shell action.test)
         [[0 0 0] action.test shell]
-      =/  [res=state-transition:engine *]
-        %^    %~  run  eng
-              [(designated-caller user-address.project 0) designated-town-id batch-num.project 0]
-            chain.project
-          (silt eggs)
-        256
+      =/  res=state-transition:engine
+        %+  %~  run  eng
+            [(designated-caller user-address.project 0) designated-town-id batch-num.project 0]
+        chain.project  (silt eggs)
       :-  (make-multi-test-update project.act res)^~
       state(projects (~(put by projects) project.act project))
     ::
