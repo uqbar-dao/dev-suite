@@ -55,7 +55,7 @@
         ?=(~ errors.p)
         errors.p
         chain.p
-        noun-data-texts.p
+        noun-texts.p
         tests.p
     ==
   :^  %give  %fact  ~[path]
@@ -382,8 +382,8 @@
       tests
     (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
   ::
-      noun-data-texts
-    %-  ~(uni by noun-data-texts.current)
+      noun-texts
+    %-  ~(uni by noun-texts.current)
     %-  ~(gas by *(map id:smart @t))
     :~  [id.meta-rice ;;(@t noun.meta-rice)]
         [dead-beef-account-id '[balance=200 allowances=~ metadata=0xdada.dada nonce=0]']
@@ -589,8 +589,8 @@
       tests
     (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
   ::
-      noun-data-texts
-    %-  ~(uni by noun-data-texts.current)
+      noun-texts
+    %-  ~(uni by noun-texts.current)
     %-  ~(gas by *(map id:smart @t))
     :~  [id.meta-rice ;;(@t noun.meta-rice)]
         ::  [1 'https://image.link' id.meta-rice ~ props &]
@@ -704,12 +704,12 @@
       ['to_compile' (to-compile-to-json to-compile.p)]
       ['next_contract_id' %s (scot %ux next-contract-id.p)]
       ['errors' (errors-to-json errors.p)]
-      ['state' (state-to-json p.chain.p noun-data-texts.p)]
+      ['state' (state-to-json p.chain.p noun-texts.p)]
       ['tests' (tests-to-json tests.p)]
   ==
 ::
 ++  state-to-json
-  |=  [=state:engine noun-data-texts=(map id:smart @t)]
+  |=  [=state:engine noun-texts=(map id:smart @t)]
   ::
   ::  ignoring/not printing nonces for now.
   ::
@@ -720,7 +720,7 @@
   |=  [=id:smart merk=@ux =item:smart]
   ::  ignore contract nock -- just print metadata
   :-  (scot %ux id)
-  (item-to-json item (~(gut by noun-data-texts) id ''))
+  (item-to-json item (~(gut by noun-texts) id ''))
 ::
 ++  tests-to-json
   |=  =tests

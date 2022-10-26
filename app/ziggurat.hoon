@@ -110,7 +110,7 @@
             next-contract-id=0xfafa.faf0
             error=~
             state=(starting-state user-address.act)
-            noun-data-texts=(malt ~[[id.p:(designated-zigs-item user-address.act) '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
+            noun-texts=(malt ~[[id.p:(designated-zigs-item user-address.act) '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
             user-address.act
             user-nonce=0
             batch-num=0
@@ -231,8 +231,8 @@
         %+  put:big:engine  p.chain.project
         [id.data %&^data]
       ::
-          noun-data-texts.project
-        (~(put by noun-data-texts.project) id.data data-text)
+          noun-texts.project
+        (~(put by noun-texts.project) id.data data-text)
       ==
       :-  (make-project-update project.act project)^~
       state(projects (~(put by projects) project.act project))
@@ -531,7 +531,7 @@
       [%project-state @ ~]
     ?~  project=(~(get by projects) i.t.t.path)
       ``json+!>(~)
-    =/  =json  (state-to-json p.chain.u.project noun-data-texts.u.project)
+    =/  =json  (state-to-json p.chain.u.project noun-texts.u.project)
     ``json+!>(json)
   ::
       [%project-tests @ ~]
