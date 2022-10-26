@@ -786,10 +786,9 @@
   ^-  json
   :-  %a
   %+  turn  events
-  |=  [contract=@ux txn=@ux label=@tas =json]
+  |=  [contract=@ux label=@tas =json]
   %-  pairs
   :~  ['contract' [%s (scot %ux contract)]]
-      ['txn' [%s (scot %ux txn)]]
       [(scot %t label) json]
   ==
 ::

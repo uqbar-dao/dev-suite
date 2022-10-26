@@ -6,7 +6,8 @@
 /-  uqbar=zig-uqbar
 /+  default-agent, dbug, verb,
     *zig-sequencer, *zig-rollup,
-    zink=zink-zink, sig=zig-sig
+    zink=zink-zink, sig=zig-sig,
+    engine=zig-sys-engine
 ::  Choose which library smart contracts are executed against here
 ::
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
@@ -20,7 +21,7 @@
       town=(unit town)  ::  state
       =mempool
       peer-roots=(map town=@ux root=@ux)  ::  track updates from rollup
-      proposed-batch=(unit [num=@ud =memlist =chain diff-hash=@ux root=@ux])
+      proposed-batch=(unit [num=@ud =processed-txs =chain diff-hash=@ux root=@ux])
       status=?(%available %off)
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
@@ -238,7 +239,7 @@
           (transition-state town u.proposed-batch)
         :_  this(town new-town, proposed-batch ~, mempool ~)
         =-  [%give %fact ~[/indexer/updates] %sequencer-indexer-update -]~
-        !>(`indexer-update`[%update root.u.proposed-batch memlist.u.proposed-batch (need new-town)])
+        !>(`indexer-update`[%update root.u.proposed-batch processed-txs.u.proposed-batch (need new-town)])
       ::  TODO manage rejected moves here
       ~&  >>>  "%sequencer: our move was rejected by rollup!"
       ~&  u.p.sign

@@ -28,8 +28,8 @@
         modified  (put:big modified.st u.paid)
       ==
     ::  execute a single transaction and integrate the diff
-    =*  tx  txn.i.pending
-    =/  =output  ~(intake eng chain.st tx hash.i.pending)
+    =*  tx  tx.i.pending
+    =/  =output  ~(intake eng chain.st tx)
     =/  priced-gas  (mul gas.output rate.gas.tx)
     ~&  >  "gas cost: {<priced-gas>}"
     %=  $
@@ -39,10 +39,12 @@
       %=    st
         modified  (uni:big modified.st modified.output)
         burned    (uni:big burned.st burned.output)
-        events    (weld events.st events.output)
       ::
           processed
-        [i.pending(status.txn errorcode.output) processed.st]
+        :_  processed.st
+        :+  hash.i.pending
+          tx.i.pending(status errorcode.output)
+        output
       ::
           p.chain
         ::  charge gas here
@@ -61,7 +63,7 @@
   ::  inner handler for processing each transaction
   ::  intake -> combust -> power -> exhaust
   ++  eng
-    |_  [=chain tx=transaction:smart tx-hash=@ux]
+    |_  [=chain tx=transaction:smart]
     +$  move  (quip call:smart diff:smart)
     ::
     ++  intake
@@ -82,8 +84,8 @@
       ::
       |-  ::  recursion point for calls
       ::
-      ::  check for special burn txns,
-      ::  insert budget special for zigs txns,
+      ::  check for special burn txs,
+      ::  insert budget special for zigs txs,
       ::  get pact from chain state,
       ::
       ?:  &(=(0x0 contract.tx) =(%burn p.calldata.tx))
@@ -131,7 +133,7 @@
       =/  all-events=(list contract-event)
         %+  turn  events.diff
         |=  i=[@tas json]
-        [contract.tx tx-hash i]
+        [contract.tx i]
       |-  ::  INNER recursion point for continuations
       ?~  calls
         ::  diff-only result, finished calling
@@ -387,26 +389,26 @@
   |=  =mempool
   ^-  memlist
   %+  sort  ~(tap in mempool)
-  |=  [a=[@ux txn=transaction:smart] b=[@ux txn=transaction:smart]]
-  ?:  =(address.caller.txn.a address.caller.txn.b)
-    (lth nonce.caller.txn.a nonce.caller.txn.b)
-  (gth rate.gas.txn.a rate.gas.txn.b)
+  |=  [a=[@ux tx=transaction:smart] b=[@ux tx=transaction:smart]]
+  ?:  =(address.caller.tx.a address.caller.tx.b)
+    (lth nonce.caller.tx.a nonce.caller.tx.b)
+  (gth rate.gas.tx.a rate.gas.tx.b)
 ::
 ::  utilities
 ::
 ++  verify-sig
-  |=  txn=transaction:smart
+  |=  tx=transaction:smart
   ^-  ?
   =/  hash=@
-    ?~  eth-hash.txn
-      (sham +.txn)
-    u.eth-hash.txn
-  =?  v.sig.txn  (gte v.sig.txn 27)  (sub v.sig.txn 27)
-  .=  address.caller.txn
+    ?~  eth-hash.tx
+      (sham +.tx)
+    u.eth-hash.tx
+  =?  v.sig.tx  (gte v.sig.tx 27)  (sub v.sig.tx 27)
+  .=  address.caller.tx
   %-  address-from-pub:key:ethereum
   %-  serialize-point:secp256k1:secp:crypto
   %+  ecdsa-raw-recover:secp256k1:secp:crypto
-  hash  sig.txn
+  hash  sig.tx
 ::
 ++  shut                                               ::  slam a door
   |=  [dor=vase arm=@tas dor-sam=vase arm-sam=vase inner-arm=@tas]

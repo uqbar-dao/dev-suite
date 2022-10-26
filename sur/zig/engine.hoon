@@ -7,8 +7,9 @@
 +$  nonces  (merk:smart address:smart @ud)
 +$  chain   (pair state nonces)
 ::
-+$  mempool  (set [hash=@ux txn=transaction:smart])   ::  transaction mempool
-+$  memlist  (list [hash=@ux txn=transaction:smart])  ::  sorted mempool
++$  mempool  (set [hash=@ux tx=transaction:smart])   ::  transaction mempool
++$  memlist  (list [hash=@ux tx=transaction:smart])  ::  sorted mempool
++$  processed-txs  (list [tx-hash=@ux tx=transaction:smart =output])
 ::
 +$  state-diff  state  ::  state transitions for one batch
 ::
@@ -17,10 +18,9 @@
 ::
 +$  state-transition
   $:  =chain
-      processed=memlist
       modified=state
       burned=state
-      events=(list contract-event)
+      processed=processed-txs
   ==
 ::
 +$  output
@@ -33,5 +33,5 @@
 ::
 ::  contract events are converted to this -- `txn` is txn hash
 ::
-+$  contract-event  [contract=id:smart txn=@ux label=@tas =json]
++$  contract-event  [contract=id:smart label=@tas =json]
 --
