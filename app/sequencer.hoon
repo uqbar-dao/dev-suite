@@ -141,7 +141,7 @@
       ?.  =(%available status.state)
         ~|("%sequencer: error: got transaction while not active" !!)
       =/  received=^mempool
-        %-  ~(run in txns.act)
+        %-  ~(run in txs.act)
         |=  t=transaction:smart
         [`@ux`(sham +.t) t]
       ::  give a "receipt" to sender, with signature they can show

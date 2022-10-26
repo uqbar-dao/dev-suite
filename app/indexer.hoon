@@ -30,7 +30,7 @@
 ::    Scry paths may be prepended with a `/json`, which
 ::    will cause the scry to return JSON rather than an
 ::    `update:ui` and will attempt to mold the `data` in
-::    `item`s and the `yolk` in `txn`s.
+::    `item`s and the `noun` in `transaction`s.
 ::    In order to do so it requires the `source` contracts
 ::    have properly filled out `interface` and `types`
 ::    fields, see `lib/jolds.hoon` docstring for the spec
@@ -47,18 +47,18 @@
 ::    /x/batch-order/[town-id=@ux]
 ::    /x/batch-order/[town-id=@ux]/[nth-most-recent=@ud]/[how-many=@ud]:
 ::      The order of batches for a town, or a subset thereof.
-::    /x/txn/[txn-id=@ux]:
-::    /x/txn/[town-id=@ux]/[txn-id=@ux]:
-::      Info about txn (transaction) with the given hash.
+::    /x/transaction/[transaction-id=@ux]:
+::    /x/transaction/[town-id=@ux]/[transaction-id=@ux]:
+::      Info about transaction with the given hash.
 ::    /x/from/[from-id=@ux]:
 ::    /x/from/[town-id=@ux]/[from-id=@ux]:
 ::      History of sender with the given hash.
 ::    /x/item/[item-id=@ux]:
 ::    /x/item/[town-id=@ux]/[item-id=@ux]:
 ::      Historical states of item with given hash.
-::    :: /x/item-txns/[item-id=@ux]:  ::  TODO: reenable
-::    :: /x/item-txns/[town-id=@ux]/[item-id=@ux]:
-::    ::   txns involving item with given hash.
+::    :: /x/item-transactions/[item-id=@ux]:  ::  TODO: reenable
+::    :: /x/item-transactions/[town-id=@ux]/[item-id=@ux]:
+::    ::   Transactions involving item with given hash.
 ::    /x/hash/[hash=@ux]:
 ::    /x/hash/[town-id=@ux]/[hash=@ux]:
 ::      Info about hash (queries all indexes for hash).
@@ -368,15 +368,16 @@
       ?~  query-payload  [%path-does-not-exist ~]
       (get-ids u.query-payload only-newest)
     ::
-        $?  [%batch @ ~]       [%batch @ @ ~]
-            [%txn @ ~]         [%txn @ @ ~]
-            [%from @ ~]        [%from @ @ ~]
-            [%item @ ~]        [%item @ @ ~]
-            :: [%item-txns @ ~]   [%item-txns @ @ ~]
-            [%holder @ ~]      [%holder @ @ ~]
-            [%source @ ~]      [%source @ @ ~]
-            [%to @ ~]          [%to @ @ ~]
-            [%town @ ~]       [%town @ @ ~]
+        $?  [%batch @ ~]        [%batch @ @ ~]
+            [%transaction @ ~]  [%transaction @ @ ~]
+            [%from @ ~]         [%from @ @ ~]
+            [%item @ ~]         [%item @ @ ~]
+            :: [%item-transactions @ ~]
+            :: [%item-transactions @ @ ~]
+            [%holder @ ~]       [%holder @ @ ~]
+            [%source @ ~]       [%source @ @ ~]
+            [%to @ ~]           [%to @ @ ~]
+            [%town @ ~]         [%town @ @ ~]
         ==
       =/  =query-type:ui  ;;(query-type:ui i.args)
       =/  query-payload=(unit query-payload:ui)
@@ -464,18 +465,18 @@
         ::   automagically `+on-load`, but not here.
         ::   If don't do this, can get bad state starting
         ::   up a new indexer.
-        =:  batches-by-town         ~
-            capitol                 ~
-            sequencer-update-queue  ~
-            town-update-queue       ~
-            txn-index               ~
-            from-index              ~
-            item-index              ~
-            :: item-txns-index         ~
-            holder-index            ~
-            source-index            ~
-            to-index                ~
-            newest-batch-by-town    ~
+        =:  batches-by-town          ~
+            capitol                  ~
+            sequencer-update-queue   ~
+            town-update-queue        ~
+            transaction-index        ~
+            from-index               ~
+            item-index               ~
+            :: item-transactions-index  ~
+            holder-index             ~
+            source-index             ~
+            to-index                 ~
+            newest-batch-by-town     ~
         ==
         `this(state (set-state-from-vase q.cage.sign))
       ==
@@ -761,34 +762,35 @@
   ?.  =(expected-root batch-id.u.b)                 ~
   `u.b
 ::
-++  combine-txn-updates
+++  combine-transaction-updates
   |=  updates=(list update:ui)
   ^-  update:ui
-  ?~  update=(combine-txn-updates-to-map updates)  ~
-  [%txn update]
+  ?~  txs=(combine-transaction-updates-to-map updates)  ~
+  [%transaction txs]
 ::
 ++  get-ids
   |=  [qp=query-payload:ui only-newest=?]
   ^-  update:ui
   =/  from=update:ui  (serve-update %from qp only-newest %.n)
   =/  to=update:ui    (serve-update %to qp only-newest %.n)
-  (combine-txn-updates ~[from to])
+  (combine-transaction-updates ~[from to])
 ::
 ++  get-hashes
   |=  [qp=query-payload:ui only-newest=? should-filter=?]
   ^-  update:ui
   =*  options  [only-newest should-filter]
   =/  batch=update:ui   (serve-update %batch qp options)
-  =/  txn=update:ui     (serve-update %txn qp options)
   =/  from=update:ui    (serve-update %from qp options)
   =/  item=update:ui    (serve-update %item qp options)
   =/  holder=update:ui  (serve-update %holder qp options)
   =/  source=update:ui  (serve-update %source qp options)
   =/  to=update:ui      (serve-update %to qp options)
-  =/  town=update:ui   (serve-update %town qp options)
-  :: =/  item-txns=update:ui
-  ::   (serve-update %item-txns qp only-newest)
-  %^  combine-updates  ~[batch town]  ~[txn from to]
+  =/  town=update:ui    (serve-update %town qp options)
+  =/  transaction=update:ui
+    (serve-update %transaction qp options)
+  :: =/  item-transactions=update:ui
+  ::   (serve-update %item-transactions qp options)
+  %^  combine-updates  ~[batch town]  ~[transaction from to]
   ~[item holder source]
 ::
 ++  combine-batch-updates-to-map
@@ -806,20 +808,20 @@
     [+.update]~
   ~(tap by batches.update)
 ::
-++  combine-txn-updates-to-map
+++  combine-transaction-updates-to-map
   |=  updates=(list update:ui)
-  ^-  (map id:smart txn-update-value:ui)
+  ^-  (map id:smart transaction-update-value:ui)
   ?~  updates  ~
   %-  %~  gas  by
-      *(map id:smart txn-update-value:ui)
+      *(map id:smart transaction-update-value:ui)
   %-  zing
   %+  turn  updates
   |=  =update:ui
   ?~  update  ~
-  ?.  ?=(%txn -.update)
-    ?.  ?=(%newest-txn -.update)  ~
+  ?.  ?=(%transaction -.update)
+    ?.  ?=(%newest-transaction -.update)  ~
     [+.update]~
-  ~(tap by txns.update)
+  ~(tap by transactions.update)
 ::
 ++  combine-item-updates-to-jar  ::  TODO: can this clobber?
   |=  updates=(list update:ui)
@@ -840,27 +842,27 @@
 ::
 ++  combine-updates
   |=  $:  batch-updates=(list update:ui)
-          txn-updates=(list update:ui)
+          transaction-updates=(list update:ui)
           item-updates=(list update:ui)
       ==
   ^-  update:ui
   ?:  ?&  ?=(~ batch-updates)
-          ?=(~ txn-updates)
+          ?=(~ transaction-updates)
           ?=(~ item-updates)
       ==
     ~
   =/  combined-batch=(map id:smart batch-update-value:ui)
     (combine-batch-updates-to-map batch-updates)
-  =/  combined-txn=(map id:smart txn-update-value:ui)
-    (combine-txn-updates-to-map txn-updates)
+  =/  combined-transaction=(map id:smart transaction-update-value:ui)
+    (combine-transaction-updates-to-map transaction-updates)
   =/  combined-item=(jar id:smart item-update-value:ui)
     (combine-item-updates-to-jar item-updates)
   ?:  ?&  ?=(~ combined-batch)
-          ?=(~ combined-txn)
+          ?=(~ combined-transaction)
           ?=(~ combined-item)
       ==
     ~
-  [%hash combined-batch combined-txn combined-item]
+  [%hash combined-batch combined-transaction combined-item]
 ::
 ++  set-state-from-vase
   |=  state-vase=vase
@@ -923,8 +925,8 @@
       %batch
     get-batch-update
   ::
-      :: ?(%txn %from %item %item-txns %holder %source %to)
-      ?(%txn %from %item %holder %source %to)
+      :: ?(%transaction %from %item %item-transactions %holder %source %to)
+      ?(%transaction %from %item %holder %source %to)
     get-from-index
   ::
       %town
@@ -979,13 +981,9 @@
     =/  locations=(list location:ui)  get-locations
     |^
     ?+    query-type  ~
-        %item
-      get-item
-    ::
-        %txn
-      get-txn
-    ::
-        :: ?(%from %item-txns %holder %source %to)
+        %item         get-item
+        %transaction  get-transaction
+        :: ?(%from %item-transactions %holder %source %to)
         ?(%from %holder %source %to)
       get-second-order
     ==
@@ -1037,62 +1035,71 @@
         [timestamp location u.item]
       ==
     ::
-    ++  get-txn
+    ++  get-transaction
       ?:  only-newest  ::  TODO: DRY
         ?~  locations  ~
         =*  location  i.locations
-        ?.  ?=(txn-location:ui location)  ~
-        =*  town-id     town-id.location
-        =*  batch-root  batch-root.location
-        =*  txn-num     txn-num.location
+        ?.  ?=(transaction-location:ui location)  ~
+        =*  town-id             town-id.location
+        =*  batch-root          batch-root.location
+        =*  transaction-num     transaction-num.location
         ?~  b=(get-appropriate-batch town-id batch-root)  ~
         ?.  |(!only-newest =(batch-root batch-id.u.b))
           ::  happens for second-order only-newest queries that
-          ::   resolve to txns because get-locations does not
+          ::   resolve to transactions because get-locations does not
           ::   guarantee they are in the newest batch
           ~
         =*  timestamp  timestamp.u.b
         =*  txs        transactions.batch.u.b
-        ?.  (lth txn-num (lent txs))  ~
-        =+  [hash=@ux txn=transaction:smart =output:eng]=(snag txn-num txs)
-        [%newest-txn hash timestamp location txn output]
-      =|  txns=(map id:smart txn-update-value:ui)
+        ?.  (lth transaction-num (lent txs))  ~
+        =+  [hash=@ux =transaction:smart =output:eng]=(snag transaction-num txs)
+        :*  %newest-transaction
+            hash
+            timestamp
+            location
+            transaction
+            output
+        ==
+      =|  transactions=(map id:smart transaction-update-value:ui)
       |-
-      ?~  locations  ?~(txns ~ [%txn txns])
+      ?~  locations
+        ?~(transactions ~ [%transaction transactions])
       =*  location  i.locations
-      ?.  ?=(txn-location:ui location)
+      ?.  ?=(transaction-location:ui location)
         $(locations t.locations)
-      =*  town-id     town-id.location
-      =*  batch-root  batch-root.location
-      =*  txn-num     txn-num.location
+      =*  town-id             town-id.location
+      =*  batch-root          batch-root.location
+      =*  transaction-num     transaction-num.location
       ?~  b=(get-appropriate-batch town-id batch-root)
         $(locations t.locations)
       ?.  |(!only-newest =(batch-root batch-id.u.b))
         ::  happens for second-order only-newest queries that
-        ::   resolve to txns because get-locations does not
+        ::   resolve to transactions because get-locations does not
         ::   guarantee they are in the newest batch
         $(locations t.locations)
       =*  timestamp  timestamp.u.b
       =*  txs        transactions.batch.u.b
-      ?.  (lth txn-num (lent txs))  $(locations t.locations)
-      =+  [hash=@ux txn=transaction:smart =output:eng]=(snag txn-num txs)
+      ?.  (lth transaction-num (lent txs))
+        $(locations t.locations)
+      =+  [hash=@ux =transaction:smart =output:eng]=(snag transaction-num txs)
       %=  $
           locations  t.locations
-          txns
-        (~(put by txns) hash [timestamp location txn output])
+          transactions
+        %+  ~(put by transactions)  hash
+        [timestamp location transaction output]
       ==
     ::
     ++  get-second-order
-      =/  first-order-type=?(%txn %item)
+      =/  first-order-type=?(%transaction %item)
         ?:  |(?=(%holder query-type) ?=(%source query-type))
           %item
-        %txn
+        %transaction
       |^
       =/  =update:ui  create-update
       ?~  update  ~
       ?+    -.update  ~|("indexer: get-second-order unexpected return type" !!)
-          %newest-txn  update
-          %txn         update
+          %newest-transaction  update
+          %transaction         update
       ::
           %newest-item
         ?.  should-filter  update
@@ -1152,13 +1159,13 @@
         ?~  next-update  out
         ?~  out          next-update
         ?+    -.out  ~|("indexer: get-second-order unexpected update type {<-.out>}" !!)
-            %txn
-          ?.  ?=(?(%txn %newest-txn) -.next-update)  out
+            %transaction
+          ?.  ?=(?(%transaction %newest-transaction) -.next-update)  out
           %=  out
-              txns
-            ?:  ?=(%txn -.next-update)
-              (~(uni by txns.out) txns.next-update)
-            (~(put by txns.out) +.next-update)
+              transactions
+            ?:  ?=(%transaction -.next-update)
+              (~(uni by transactions.out) transactions.next-update)
+            (~(put by transactions.out) +.next-update)
           ==
         ::
             %item
@@ -1170,19 +1177,19 @@
             (~(add ja items.out) +.next-update)
           ==
         ::
-            %newest-txn
+            %newest-transaction
           ?+    -.next-update  out
-              %txn
+              %transaction
             %=  next-update
-                txns
-              (~(put by txns.next-update) +.out)
+                transactions
+              (~(put by transactions.next-update) +.out)
             ==
           ::
-              %newest-txn
-            :-  %txn
+              %newest-transaction
+            :-  %transaction
             %.  ~[+.out +.next-update]
             %~  gas  by
-            *(map id:smart txn-update-value:ui)
+            *(map id:smart transaction-update-value:ui)
           ==
         ::
             %newest-item
@@ -1207,21 +1214,24 @@
   ::
   ++  get-locations
     |^  ^-  (list location:ui)
-    ?+  query-type  ~|("indexer: get-locations unexpected query-type {<query-type>}" !!)
-      %txn         (get-by-get-ja txn-index only-newest)
-      %from        (get-by-get-ja from-index %.n)
-      %item        (get-by-get-ja item-index only-newest)
-      :: %item-txns   (get-by-get-ja item-txns-index %.n)
-      %holder      (get-by-get-ja holder-index %.n)
-      %source      (get-by-get-ja source-index %.n)
-      %to          (get-by-get-ja to-index %.n)
+    ?+    query-type  ~|("indexer: get-locations unexpected query-type {<query-type>}" !!)
+        %from    (get-by-get-ja from-index %.n)
+        %item    (get-by-get-ja item-index only-newest)
+        %holder  (get-by-get-ja holder-index %.n)
+        %source  (get-by-get-ja source-index %.n)
+        %to      (get-by-get-ja to-index %.n)
+        %transaction
+      (get-by-get-ja transaction-index only-newest)
+    ::
+      ::   %item-transactions
+      :: (get-by-get-ja item-transactions-index %.n)
     ==
     ::  always set `only-newest` false for
     ::   second-order indices or will
-    ::   throw away unique txns/items.
-    ::   Concretely, txn/item indices hold historical
+    ::   throw away unique transactions/items.
+    ::   Concretely, transaction/item indices hold historical
     ::   state for a given hash, while second-order
-    ::   indices hold different txns/items that hash
+    ::   indices hold different transactions/items that hash
     ::   has appeared in (e.g. different items with a
     ::   given holder).
     ::
@@ -1246,22 +1256,34 @@
 ::
 ++  consume-batch
   |=  $:  root=@ux
-          txns=processed-txs:eng
+          transactions=processed-txs:eng
           =town:seq
           timestamp=@da
           should-update-subs=?
       ==
   =*  town-id  town-id.hall.town
   |^  ^-  (quip card _state)
-  =+  ^=  [txn from item holder source to]
-      (parse-batch root town-id txns chain.town)
-  =:  txn-index        (gas-ja-txn txn-index txn town-id)
-      from-index       (gas-ja-second-order from-index from town-id)
-      item-index       (gas-ja-batch item-index item town-id)
-      :: item-txns-index  (gas-ja-second-order item-txns-index item-txns town-id)
-      holder-index     (gas-ja-second-order holder-index holder town-id)
-      source-index     (gas-ja-second-order source-index source town-id)
-      to-index         (gas-ja-second-order to-index to town-id)
+  =+  ^=  [transaction from item holder source to]
+      (parse-batch root town-id transactions chain.town)
+  =:  item-index  (gas-ja-batch item-index item town-id)
+      to-index    (gas-ja-second-order to-index to town-id)
+      from-index
+    (gas-ja-second-order from-index from town-id)
+  ::
+      holder-index
+    (gas-ja-second-order holder-index holder town-id)
+  ::
+      source-index
+    (gas-ja-second-order source-index source town-id)
+  ::
+      transaction-index
+    %^  gas-ja-transaction  transaction-index  transaction
+    town-id
+  ::
+    ::   item-transactions-index
+    :: %^  gas-ja-second-order  item-transactions-index
+    :: item-transactions  town-id
+  ::
       newest-batch-by-town
     ::  only update newest-batch-by-town with newer batches
     ?:  %+  gth
@@ -1271,27 +1293,27 @@
         timestamp
       newest-batch-by-town
     %+  ~(put by newest-batch-by-town)  town-id
-    [root timestamp txns town]
+    [root timestamp transactions town]
   ::
       batches-by-town
     %+  ~(put by batches-by-town)  town-id
     ?~  b=(~(get by batches-by-town) town-id)
       :_  ~[root]
-      (malt ~[[root [timestamp txns town]]])
+      (malt ~[[root [timestamp transactions town]]])
     :_  [root batch-order.u.b]
-    (~(put by batches.u.b) root [timestamp txns town])
+    (~(put by batches.u.b) root [timestamp transactions town])
   ==
   ::
   :_  state
   ?.(should-update-subs ~ make-sub-cards)
   ::
-  ++  gas-ja-txn
-    |=  $:  index=txn-index:ui
-            new=(list [hash=@ux location=txn-location:ui])
+  ++  gas-ja-transaction
+    |=  $:  index=transaction-index:ui
+            new=(list [hash=@ux location=transaction-location:ui])
             town-id=id:smart
         ==
     %+  ~(put by index)  town-id
-    =/  town-index=(jar @ux txn-location:ui)
+    =/  town-index=(jar @ux transaction-location:ui)
       ?~(ti=(~(get by index) town-id) ~ u.ti)
     |-
     ?~  new  town-index
@@ -1347,10 +1369,10 @@
   ++  parse-batch
     |=  $:  root=@ux
             town-id=@ux
-            txns=processed-txs:eng
+            transactions=processed-txs:eng
             =chain:seq
         ==
-    ^-  $:  (list [@ux txn-location:ui])
+    ^-  $:  (list [@ux transaction-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux batch-location:ui])
             (list [@ux second-order-location:ui])
@@ -1358,8 +1380,8 @@
             (list [@ux second-order-location:ui])
         ==
     =+  [item holder source]=(parse-state root town-id p.chain)
-    =+  [txn from to]=(parse-transactions root town-id txns)
-    [txn from item holder source to]
+    =+  [transaction from to]=(parse-transactions root town-id transactions)
+    [transaction from item holder source to]
   ::
   ++  parse-state
     |=  [root=@ux town-id=@ux =state:seq]
@@ -1403,41 +1425,44 @@
   ::
   ++  parse-transactions
     |=  [root=@ux town-id=@ux txs=processed-txs:eng]
-    ^-  $:  (list [@ux txn-location:ui])
+    ^-  $:  (list [@ux transaction-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
         ==
-    =|  parsed-txn=(list [@ux txn-location:ui])
+    =|  parsed-transaction=(list [@ux transaction-location:ui])
     =|  parsed-from=(list [@ux second-order-location:ui])
     =|  parsed-to=(list [@ux second-order-location:ui])
-    =/  txn-num=@ud  0
+    =/  transaction-num=@ud  0
     |-
-    ?~  txs  [parsed-txn parsed-from parsed-to]
-    =*  txn-hash  tx-hash.i.txs
-    =*  txn       tx.i.txs
-    =*  contract  contract.txn
-    =*  from      address.caller.txn
-    =/  =txn-location:ui  [town-id root txn-num]
+    ?~  txs  [parsed-transaction parsed-from parsed-to]
+    =*  transaction-hash  tx-hash.i.txs
+    =*  transaction       tx.i.txs
+    =*  contract          contract.transaction
+    =*  from              address.caller.transaction
+    =/  =transaction-location:ui
+      [town-id root transaction-num]
     %=  $
-        txn-num  +(txn-num)
-        txs      t.txs
-        parsed-txn
+        transaction-num  +(transaction-num)
+        txs              t.txs
+        parsed-transaction
       ?:  %+  exists-in-index  town-id
-          [txn-hash txn-location txn-index]
-        parsed-txn
-      [[txn-hash txn-location] parsed-txn]
+          :+  transaction-hash  transaction-location
+          transaction-index
+        parsed-transaction
+      :-  [transaction-hash transaction-location]
+      parsed-transaction
     ::
         parsed-from
       ?:  %+  exists-in-index  town-id
-          [from txn-hash from-index]
+          [from transaction-hash from-index]
         parsed-from
-      [[from txn-hash] parsed-from]
+      [[from transaction-hash] parsed-from]
     ::
         parsed-to
       ?:  %+  exists-in-index  town-id
-          [contract txn-hash to-index]
+          [contract transaction-hash to-index]
         parsed-to
-      [[contract txn-hash] parsed-to]
+      [[contract transaction-hash] parsed-to]
     ==
   ::
   ++  exists-in-index

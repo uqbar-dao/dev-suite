@@ -56,8 +56,8 @@
         %batch-order
       (frond %batch-order (batch-order batch-order.update))
     ::
-        %txn
-      (frond %txn (txns txns.update))
+        %transaction
+      (frond %transaction (transactions transactions.update))
     ::
         %item
       (frond %item (items items.update))
@@ -66,7 +66,7 @@
       %+  frond  %hash
       %-  pairs
       :^    [%batches (batches batches.update)]
-          [%txns (txns txns.update)]
+          [%transactions (transactions transactions.update)]
         [%items (items items.update)]
       ~
     ::
@@ -77,8 +77,8 @@
       %+  frond  %newest-batch-order
       (frond %batch-id %s (scot %ux batch-id.update))
     ::
-        %newest-txn
-      (frond %newest-txn (newest-txn +.update))
+        %newest-transaction
+      (frond %newest-transaction (newest-transaction +.update))
     ::
         %newest-item
       (frond %newest-item (newest-item +.update))
@@ -99,13 +99,13 @@
       [%batch-root %s (scot %ux batch-root.batch-location)]
     ~
   ::
-  ++  txn-location
-    |=  =txn-location:ui
+  ++  transaction-location
+    |=  location=transaction-location:ui
     ^-  json
     %-  pairs
-    :^    [%town-id %s (scot %ux town-id.txn-location)]
-        [%batch-root %s (scot %ux batch-root.txn-location)]
-      [%txn-num (numb txn-num.txn-location)]
+    :^    [%town-id %s (scot %ux town-id.location)]
+        [%batch-root %s (scot %ux batch-root.location)]
+      [%transaction-num (numb transaction-num.location)]
     ~
   ::
   ++  batches
@@ -135,64 +135,64 @@
     |=  =batch:ui
     ^-  json
     %-  pairs
-    :+  [%transactions (transactions transactions.batch)]
+    :+  [%transactions (processed-txs transactions.batch)]
       [%town (town +.batch)]
     ~
   ::
-  ++  transactions
-    |=  transactions=processed-txs:eng
+  ++  processed-txs
+    |=  =processed-txs:eng
     ^-  json
     :-  %a
-    %+  turn  transactions
+    %+  turn  processed-txs
     |=  [hash=@ux t=transaction:smart o=output:eng]
     %-  pairs
     :^    [%hash %s (scot %ux hash)]
-        [%txn (txn t)]
+        [%transaction (transaction t)]
       [%output (output o)]
     ~
   ::
-  ++  txns
-    |=  txns=(map txn-id=id:smart txn-update-value:ui)
+  ++  transactions
+    |=  transactions=(map transaction-id=id:smart transaction-update-value:ui)
     ^-  json
     %-  pairs
-    %+  turn  ~(tap by txns)
+    %+  turn  ~(tap by transactions)
     |=  $:  =id:smart
             timestamp=@da
-            location=txn-location:ui
+            location=transaction-location:ui
             t=transaction:smart
             o=output:eng
         ==
     :-  (scot %ux id)
     %-  pairs
     :~  [%timestamp (sect timestamp)]
-        [%location (txn-location location)]
-        [%txn (txn t)]
+        [%location (transaction-location location)]
+        [%transaction (transaction t)]
         [%output (output o)]
     ==
   ::
-  ++  newest-txn
+  ++  newest-transaction
     |=  $:  =id:smart
             timestamp=@da
-            location=txn-location:ui
+            location=transaction-location:ui
             t=transaction:smart
             o=output:eng
         ==
     ^-  json
     %-  pairs
-    :~  [%txn-id %s (scot %ux id)]
+    :~  [%transaction-id %s (scot %ux id)]
         [%timestamp (sect timestamp)]
-        [%location (txn-location location)]
-        [%txn (txn t)]
+        [%location (transaction-location location)]
+        [%transaction (transaction t)]
         [%output (output o)]
     ==
   ::
-  ++  txn
-    |=  txn=transaction:smart
+  ++  transaction
+    |=  =transaction:smart
     ^-  json
     %-  pairs
-    :^    [%sig (sig sig.txn)]
-        [%shell (shell +.+.txn)]
-      [%calldata (calldata calldata.txn contract.txn)]
+    :^    [%sig (sig sig.transaction)]
+        [%shell (shell +.+.transaction)]
+      [%calldata (calldata [calldata contract]:transaction)]
     ~
   ::
   ++  output

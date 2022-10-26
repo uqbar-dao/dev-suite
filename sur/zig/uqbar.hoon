@@ -12,15 +12,15 @@
   ==
 ::
 +$  write
-  $%  [%submit txn=transaction:smart]
-      [%receipt txn-hash=@ux ship-sig=[p=@ux q=ship r=life] uqbar-sig=sig:smart]
+  $%  [%submit =transaction:smart]
+      [%receipt transaction-hash=@ux ship-sig=[p=@ux q=ship r=life] uqbar-sig=sig:smart]
   ==
 ::
 ::  updates
 ::
 +$  write-result
   $%  [%sent ~]
-      [%receipt txn-hash=@ux ship-sig=[p=@ux q=ship r=life] uqbar-sig=sig:smart]
+      [%receipt transaction-hash=@ux ship-sig=[p=@ux q=ship r=life] uqbar-sig=sig:smart]
       [%rejected =ship]
       [%executed result=errorcode:smart]
       [%nonce value=@ud]

@@ -31,7 +31,7 @@
       events=(list contract-event)
   ==
 ::
-::  contract events are converted to this -- `txn` is txn hash
+::  contract events are converted to this
 ::
 +$  contract-event  [contract=id:smart label=@tas =json]
 --

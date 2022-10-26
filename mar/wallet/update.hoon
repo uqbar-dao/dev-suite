@@ -29,7 +29,8 @@
     ::
         %tx-status
       %-  frond
-      (parse-transaction:parsing hash.upd txn.upd action.upd)
+      %^  parse-transaction:parsing  hash.upd
+      transaction.upd  action.upd
     ==
   --
 ++  grad  %noun
