@@ -1,4 +1,5 @@
-/-  seq=zig-sequencer
+/-  eng=zig-engine,
+    seq=zig-sequencer
 /+  smart=zig-sys-smart
 ::
 |%
@@ -49,7 +50,7 @@
 +$  batch-order
   (list id:smart)  ::  0-index -> most recent batch
 +$  batch
-  [transactions=(list [@ux transaction:smart]) town:seq]
+  [transactions=processed-txs:eng town:seq]
 +$  newest-batch-by-town
   %+  map  town-id=id:smart
   [batch-id=id:smart timestamp=@da =batch]
@@ -88,7 +89,11 @@
 +$  batch-update-value
   [timestamp=@da location=town-location =batch]
 +$  txn-update-value
-  [timestamp=@da location=txn-location =transaction:smart]
+  $:  timestamp=@da
+      location=txn-location
+      =transaction:smart
+      =output:eng
+  ==
 +$  item-update-value
   [timestamp=@da location=batch-location =item:smart]
 ::
@@ -138,7 +143,7 @@
 ::
 +$  consume-batch-args
   $:  root=id:smart
-      txns=(list [@ux transaction:smart])
+      transactions=processed-txs:eng
       =town:seq
       timestamp=@da
       should-update-subs=?

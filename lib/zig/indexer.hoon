@@ -1,5 +1,6 @@
-/-  ui=zig-indexer,
-    seq=zig-sequencer
+/-  eng=zig-engine,
+    seq=zig-sequencer,
+    ui=zig-indexer
 /+  jold=zig-jold,
     smart=zig-sys-smart
 ::
@@ -108,7 +109,7 @@
     ~
   ::
   ++  batches
-    |=  batches=(map batch-id=id:smart [@da town-location:ui batch:ui])
+    |=  batches=(map batch-id=id:smart batch-update-value:ui)
     ^-  json
     %-  pairs
     %+  turn  ~(tap by batches)
@@ -139,38 +140,51 @@
     ~
   ::
   ++  transactions
-    |=  transactions=(list [@ux transaction:smart])
+    |=  transactions=processed-txs:eng
     ^-  json
     :-  %a
     %+  turn  transactions
-    |=  [hash=@ux e=transaction:smart]
+    |=  [hash=@ux t=transaction:smart o=output:eng]
     %-  pairs
-    :+  [%hash %s (scot %ux hash)]
-      [%txn (txn e)]
+    :^    [%hash %s (scot %ux hash)]
+        [%txn (txn t)]
+      [%output (output o)]
     ~
   ::
   ++  txns
-    |=  txns=(map txn-id=id:smart [@da location=txn-location:ui =transaction:smart])
+    |=  txns=(map txn-id=id:smart txn-update-value:ui)
     ^-  json
     %-  pairs
     %+  turn  ~(tap by txns)
-    |=  [=id:smart timestamp=@da location=txn-location:ui e=transaction:smart]
+    |=  $:  =id:smart
+            timestamp=@da
+            location=txn-location:ui
+            t=transaction:smart
+            o=output:eng
+        ==
     :-  (scot %ux id)
     %-  pairs
-    :^    [%timestamp (sect timestamp)]
+    :~  [%timestamp (sect timestamp)]
         [%location (txn-location location)]
-      [%txn (txn e)]
-    ~
+        [%txn (txn t)]
+        [%output (output o)]
+    ==
   ::
   ++  newest-txn
-    |=  [=id:smart timestamp=@da location=txn-location:ui e=transaction:smart]
+    |=  $:  =id:smart
+            timestamp=@da
+            location=txn-location:ui
+            t=transaction:smart
+            o=output:eng
+        ==
     ^-  json
     %-  pairs
-    :-  [%txn-id %s (scot %ux id)]
-    :^    [%timestamp (sect timestamp)]
+    :~  [%txn-id %s (scot %ux id)]
+        [%timestamp (sect timestamp)]
         [%location (txn-location location)]
-      [%txn (txn e)]
-    ~
+        [%txn (txn t)]
+        [%output (output o)]
+    ==
   ::
   ++  txn
     |=  txn=transaction:smart
@@ -179,6 +193,35 @@
     :^    [%sig (sig sig.txn)]
         [%shell (shell +.+.txn)]
       [%calldata (calldata calldata.txn contract.txn)]
+    ~
+  ::
+  ++  output
+    |=  =output:eng
+    ^-  json
+    %-  pairs
+    :~  [%gas (numb gas.output)]
+        [%errorcode (numb errorcode.output)]
+        :: [%errorcode %s errorcode.output]
+        [%modified (state modified.output)]
+        [%burned (state burned.output)]
+        [%events (events events.output)]
+    ==
+  ::
+  ++  events
+    |=  events=(list contract-event:eng)
+    ^-  json
+    :-  %a
+    %+  turn  events
+    |=  e=contract-event:eng
+    (event e)
+  ::
+  ++  event
+    |=  event=contract-event:eng
+    ^-  json
+    %-  pairs
+    :^    [%contract %s (scot %ux contract.event)]
+        [%label %s label.event]
+      [%json json.event]
     ~
   ::
   ++  shell
@@ -298,7 +341,7 @@
     ~
   ::
   ++  chain
-    |=  =chain:seq
+    |=  =chain:eng
     ^-  json
     %-  pairs
     :+  [%state (state p.chain)]
@@ -306,13 +349,13 @@
     ~
   ::
   ++  state
-    |=  =state:seq
+    |=  =state:eng
     ^-  json
     %-  pairs
     %+  turn  ~(tap by state)
     ::  TODO: either print Pedersen hash or don't store it
-    |=  [=id:smart pedersen=@ux g=item:smart]
-    [(scot %ux id) (item g)]
+    |=  [=id:smart pedersen=@ux i=item:smart]
+    [(scot %ux id) (item i)]
   ::
   ++  nonces
     |=  =nonces:seq

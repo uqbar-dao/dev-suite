@@ -93,7 +93,6 @@ After [initial installation](#initial-installation), start the `%rollup`, initia
 :sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608
 :indexer &set-sequencer [our %sequencer]
 :indexer &set-rollup [our %rollup]
-:uqbar|set-sources 0x0 ~[our]
 :uqbar &wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
 ```
 
@@ -242,7 +241,6 @@ The following two examples assume `~zod` is the host:
 :indexer &set-sequencer [~zod %sequencer]
 :indexer &set-rollup [~zod %rollup]
 :indexer &indexer-bootstrap [~zod %indexer]
-:uqbar|set-sources 0x0 ~[our]
 ```
 In this example, not all the hosts need be the same ship.
 To give a specific example, `~zod` might be running the `%rollup`, while `~bus` runs the `%sequencer` for town `0x0` and also the `%indexer`.
