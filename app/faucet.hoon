@@ -13,8 +13,8 @@
 ::      Change state of %faucet app.
 ::
 ::
-/-  f=faucet,
-    w=wallet
+/-  f=zig-faucet,
+    w=zig-wallet
 /+  agentio,
     dbug,
     default-agent,
@@ -65,27 +65,36 @@
     ^-  (quip card _this)
     ?-    -.action
         %open
-      =*  src  src.bowl
+      =,  bowl
+      ?:  =(%pawn (clan:title src))
+        ~|("%faucet: comets cannot use the faucet! get a planet!" !!)
+      =/  par
+        ?:  =(%earl (clan:title src))
+          (sein:title our now src)
+        src
       ?~  town-info=(~(get by town-infos) town-id.action)
         ~|("%faucet: invalid town. Valid towns: {<~(key by town-infos)>}" !!)
-      ?^  timeout-done=(~(get by on-timeout) src)
-        ~|("%faucet: must wait until after {<u.timeout-done>} to acquire more zigs." !!)
-      =/  until=@da  (add now.bowl timeout-duration)
-      :_  this(on-timeout (~(put by on-timeout) src until))
-      :^    %.  until
-            %~  wait  pass:io
-            /done/(scot %p src)/(scot %da until)
-          =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]
-          :-  %zig-wallet-poke
+      =/  [unlock=@da count=@ud]
+        (~(gut by on-timeout) par [*@da 0])
+      ?:  (gth unlock now)
+        ~|("%faucet: must wait until after {<unlock>} to acquire more zigs." !!)
+      =/  until=@da  (add now.bowl (mul timeout-duration (pow 2 count)))
+      :_  %=    this
+              on-timeout
+            %+  ~(put by on-timeout)  par
+            [until ?:((gte count 12) count +(count))]
+          ==
+      :+  =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]
+          :-  %wallet-poke
           !>  ^-  wallet-poke:w
           :*  %transaction
               from=address.u.town-info
-              contract=zigs-wheat.u.town-info
+              contract=zigs-contract.u.town-info
               town=town-id.action
               :^    %give
                   to=address.action
                 amount=volume
-              grain=zigs-rice.u.town-info
+              grain=zigs-account.u.town-info
           ==
         =-  [%pass /self-poke %agent [our.bowl %faucet] %poke -]
         [%faucet-action !>(`action:f`[%confirm address.u.town-info])]
@@ -96,13 +105,13 @@
       ::  make faucet auto-complete transaction in wallet
       :_  this
       =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]~
-      :-  %zig-wallet-poke
+      :-  %wallet-poke
       !>  ^-  wallet-poke:w
       :*  %submit
           from=me.action
           ::  take first transaction in wallet pending store and slam it through
           ::  assumes that faucet operator never uses wallet for other things!
-          =-  -.-:~(tap by .^((map @ux [egg:smart supported-actions:w]) %gx -))
+          =-  -.-:~(tap by .^((map @ux [transaction:smart supported-actions:w]) %gx -))
           /(scot %p our.bowl)/wallet/(scot %da now.bowl)/pending-noun/(scot %ux me.action)/noun
           gas
       ==
@@ -127,20 +136,7 @@
     ==
   --
 ::
-++  on-arvo
-  |=  [=wire =sign-arvo:agent:gall]
-  ^-  (quip card _this)
-  ?+    wire  (on-arvo:def wire sign-arvo)
-      [%done @ @ ~]
-    ?+    sign-arvo  (on-arvo:def wire sign-arvo)
-        [%behn %wake *]
-      =/  who=@p     (slav %p i.t.wire)
-      =/  until=@da  (slav %da i.t.t.wire)
-      ?:  (gth until now.bowl)  `this
-      `this(on-timeout (~(del by on-timeout) who))
-    ==
-  ==
-::
+++  on-arvo  on-arvo:def
 ++  on-watch  on-watch:def
 ++  on-leave  on-leave:def
 ++  on-peek   on-peek:def

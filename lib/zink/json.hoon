@@ -1,4 +1,4 @@
-/-  *zink
+/-  *zig-zink
 |%
 ++  enjs
   |%

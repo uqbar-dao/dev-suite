@@ -1,7 +1,10 @@
-:~  %ziggurat
-    %sequencer
+:~  %uqbar
     %rollup
-    %uqbar
+    %sequencer
     %indexer
     %wallet
+    %ziggurat
+    %faucet
+    %batcher-interval
+    %batcher-threshold
 ==

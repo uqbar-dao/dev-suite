@@ -1,4 +1,4 @@
-/-  seq=sequencer
+/-  seq=zig-sequencer
 ::
 |_  =rollup-update:seq
 ++  grab

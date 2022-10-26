@@ -4,7 +4,8 @@
 ::  Receives state transitions (moves) for towns, verifies them,
 ::  and allows sequencer ships to continue processing batches.
 ::
-/+  *sequencer, *rollup, ethereum, mill=zig-mill, default-agent, dbug, verb
+/+  default-agent, dbug, verb, ethereum,
+    *zig-sequencer, *zig-rollup, eng=zig-sys-engine
 |%
 +$  card  card:agent:gall
 +$  state-0
@@ -49,7 +50,7 @@
       [%peer-root-updates ~]
     :_  this
     %+  turn  ~(tap by capitol)
-    |=  [=id:smart =hall:sequencer]
+    |=  [=id:smart =hall]
     ^-  card
     ::  send bunted @da here as placeholder/null time.
     ::  may in future have canonical batch times
