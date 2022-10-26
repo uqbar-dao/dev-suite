@@ -79,7 +79,7 @@
 ::
 ::  items populate the state.
 ::
-::  they can only be modified by their lord, which must be
+::  they can only be modified by their source, which must be
 ::  a contract. the role of a holder is determined by the
 ::  specific rules of the contract, usually implying some
 ::  form of ownership.
