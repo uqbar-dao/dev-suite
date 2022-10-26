@@ -51,6 +51,7 @@
   =/  =path  /project/[project-name]
   =/  update=project-update
     :*  dir.p
+        user-files.p
         ?=(~ errors.p)
         errors.p
         chain.p

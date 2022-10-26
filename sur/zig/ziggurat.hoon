@@ -86,6 +86,7 @@
 ::
 +$  project-update
   $:  dir=(list path)
+      user-files=(set path)
       compiled=?
       errors=(list [path @t])
       =chain:engine
