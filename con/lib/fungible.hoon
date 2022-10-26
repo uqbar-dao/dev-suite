@@ -234,7 +234,7 @@
     =+  (~(gut by nonces.noun.giver) to.act 0)
     ?>  .=(nonce.act -)
     ::  assert deadline is valid
-    ?>  (gte eth-block.context deadline.act)
+    ?>  (lte eth-block.context deadline.act)
     ?~  to-account.act
     ::  create new `data` for reciever and add it to state
       ::  if receiver doesn't have an account, try to produce one for them

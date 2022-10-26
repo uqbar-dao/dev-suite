@@ -46,18 +46,19 @@
   =/  multisig  (husk multisig-state:sur - `me.cart ~)
   ?-    -.act
       %execute
-    ::  XX this will not work for an evil set unless we fix apt:pn
-    ::  ~(apt pn `(set)`[1 [1 ~ ~] [1 ~ ~]]) is %.y
+    ::  assert sigs aren't duplicated
     ?>  ~(apt pn sigs.act)
+    ::  assert threshold has been met
+    ?>  (gte ~(wyt pn sigs.act) threshold.data.multisig)
+    ::  assert deadline is valid
+    ?>  (lte eth-block.context deadline.act)
+    ::  assert signatures are correct
     =/  typed-message-hash=@ux
       ^-  @
       %^    sham  ::  XX use sham or shag? unclear - I'm using sham in fungible.hoon
           (fry-rice me.cart me.cart town-id.cart 0)
         type-hash-execute:lib
       (sham [multisig.act calls.act (lent executed.data.multisig) deadline.act])
-    ::  assert threshold has been met
-    ?>  (gte ~(wyt pn sigs.act) threshold.data.multisig)
-    ::  assert signatures are correct
     ?>  %+  levy  ~(tap pn sigs.act)
         |=  =sig
         %-  ~(has in members.data.multisig)
