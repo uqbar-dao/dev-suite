@@ -214,8 +214,9 @@
     ::  %pull allows for gasless approvals for transferring tokens
     ::  the giver must sign the from-account id and the typed +$approve struct above
     ::  and the taker will pass in the signature to take the tokens
-    =+  (need (scry from-account.act))
-    =/  giver  (husk account:sur - `me.context `id.from.context)
+    =/  giv=item  (need (scry-state from-account.act))
+    ?>  ?=(%& -.giv)
+    =/  giver=account:sur  noun:(husk account:sur giv `this.context ~)
     ::  this will fail if amount > balance, as desired
     =.  balance.data.giver  (sub balance.data.giver amount.act)
     ::  reconstruct the hash of the typed message and hash
@@ -236,6 +237,7 @@
     ?>  (lte batch.context deadline.act) :: TODO implement deadline; now.context is gone
     ?~  to-account.act
     ::  create new `data` for reciever and add it to state
+      ::  if receiver doesn't have an account, try to produce one for them
       =/  =id  (hash-data this.context to.act town.context salt.p.giv)
       =+  [amount.act ~ metadata.giver 0]
       =+  rec=[id this.context to.act town.context salt.p.giv %account -]
