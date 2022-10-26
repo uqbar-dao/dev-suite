@@ -49,7 +49,7 @@
   +$  account
     $:  balance=@ud                    ::  the amount of tokens someone has
         allowances=(pmap address @ud)  ::  a map of pubkeys they've permitted to spend their tokens and how much
-        metadata=id                    ::  address of the rice holding this token's metadata
+        metadata=id                    ::  address of the `data` holding this token's metadata
         nonces=(pmap address @ud)      ::  necessary for gasless approves
     ==
   ::

@@ -74,11 +74,10 @@
 ::
 ++  zigs-contract-id  `@ux`'zigs-contract'  ::  hardcoded "native" token contract
 ::
+::  EIP-712 mold for offchain data signing
++$  typed-message  [domain=id type-hash=@ message=@]
+::
 ::  items populate the state.
-::
-+$  typed-message  [domain=id type-hash=@ message=@]  ::  message should be typed according to some mold specified by the wheat
-::
-::  grains populate the state.
 ::
 ::  they can only be modified by their lord, which must be
 ::  a contract. the role of a holder is determined by the
