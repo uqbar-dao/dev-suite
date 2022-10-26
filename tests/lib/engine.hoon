@@ -166,7 +166,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ::  assert that our call went through
   (expect-eq !>(%0) !>(errorcode.output))
 ::
@@ -187,7 +187,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ::  assert that our call failed
   ;:  weld
     (expect-eq !>(%9) !>(errorcode.output))
@@ -203,7 +203,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ::  assert that our call went through
   ;:  weld
     (expect-eq !>(%0) !>(errorcode.output))
@@ -218,7 +218,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -237,7 +237,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -254,7 +254,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -271,7 +271,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -288,7 +288,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -305,7 +305,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -322,7 +322,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -339,7 +339,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -356,7 +356,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -373,7 +373,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -390,7 +390,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -407,7 +407,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -424,7 +424,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -441,7 +441,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -458,7 +458,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -475,7 +475,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -492,7 +492,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -509,7 +509,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -526,7 +526,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ::  assert that our call failed validation
   ;:  weld
@@ -549,7 +549,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ;:  weld
     (expect-eq !>(%0) !>(errorcode.output))
@@ -571,7 +571,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ;:  weld
     (expect-eq !>(%0) !>(errorcode.output))
@@ -598,7 +598,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ;:  weld
     (expect-eq !>(%0) !>(errorcode.output))
@@ -623,7 +623,7 @@
   =/  =output
     %~  intake  %~  eng  eng
       [sequencer town-id batch=1 eth-block-height=0]
-    [fake-chain tx `@ux`(sham +.tx)]
+    [fake-chain tx]
   ~&  >  "gas spent: {<gas.output>}"
   ;:  weld
     (expect-eq !>(%0) !>(errorcode.output))

@@ -70,5 +70,5 @@
 ::  indexer must verify root is posted to rollup before verifying new state
 ::  pair of [transactions town] is batch from sur/indexer.hoon
 +$  indexer-update
-  [%update root=@ux txs=processed-txs town]
+  [%update root=@ux transactions=(list [@ux transaction:smart]) town]
 --

@@ -2,7 +2,8 @@
 ::
 ::  Contract Playground
 ::
-/+  *zig-ziggurat, smart=zig-sys-smart, seq=zig-sequencer,
+/+  *zig-ziggurat, smart=zig-sys-smart,
+    engine=zig-sys-engine, seq=zig-sequencer,
     default-agent, dbug, verb
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
@@ -13,7 +14,7 @@
       =projects
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
-+$  eng  $_  ~(engine engine:seq !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
++$  eng  $_  ~(engine engine:engine !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
 --
 ::
 =|  inflated-state-0
@@ -29,7 +30,7 @@
 ++  on-init
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  eng
-    %~  engine  engine:seq
+    %~  engine  engine:engine
     ::  sigs off, hints off
     [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.n %.n]
   :-  ~
@@ -43,7 +44,7 @@
   ::  on-load: pre-cue our compiled smart contract library
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  eng
-    %~  engine  engine:seq
+    %~  engine  engine:engine
     ::  sigs off, hints off
     [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.n %.n]
   `this(state [!<(state-0 old-vase) eng smart-lib])
@@ -351,7 +352,7 @@
       =/  =output:engine
         %~  intake  %~  eng  eng
           [caller designated-town-id batch-num.project eth-block-height=0]
-        [chain.project [[0 0 0] action.test shell] `@ux`(sham [action.test shell])]
+        [chain.project [[0 0 0] action.test shell]]
       =/  =expected-diff
         %-  malt
         %+  turn  ~(tap by modified.output)

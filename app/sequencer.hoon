@@ -239,7 +239,10 @@
           (transition-state town u.proposed-batch)
         :_  this(town new-town, proposed-batch ~, mempool ~)
         =-  [%give %fact ~[/indexer/updates] %sequencer-indexer-update -]~
-        !>(`indexer-update`[%update root.u.proposed-batch processed-txs.u.proposed-batch (need new-town)])
+        =/  transactions
+          ::  ~hosted-fornet remove this when ready!
+          (turn processed-txs.u.proposed-batch |=([h=@ux t=transaction:smart *] h^t))
+        !>(`indexer-update`[%update root.u.proposed-batch transactions (need new-town)])
       ::  TODO manage rejected moves here
       ~&  >>>  "%sequencer: our move was rejected by rollup!"
       ~&  u.p.sign
