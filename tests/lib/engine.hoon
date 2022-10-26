@@ -34,7 +34,7 @@
   [address-2 1 id.p:account-2:zigs]
 ++  address-3  0xa2f8.28f2.75a3.28e1.3ba1.25b6.0066.c4ea.399d.88c7
 ++  caller-3  ^-  caller:smart
-  [address-3 1 id.p:account-3:zigs]
+  [address-3 6 id.p:account-3:zigs]
 ::
 ++  zigs
   |%
@@ -147,9 +147,14 @@
       [id.p:pact pact]:engine-tester
       [id.p:dummy-data dummy-data]:engine-tester
   ==
+++  fake-nonces
+  ^-  nonces
+  %+  gas:pig  *(merk:merk address:smart @ud)
+  :~  [address-3 5]
+  ==
 ++  fake-chain
   ^-  chain
-  [fake-state ~]
+  [fake-state fake-nonces]
 ::
 ::  begin single-transaction tests
 ::  calls +intake in eng core, examines single-transaction *output*
@@ -558,8 +563,8 @@
   ::
     %+  expect-eq
       !>
-      :~  [id.p:pact:engine-tester `@ux`(sham +.tx) [%entry-event ~]]
-          [id.p:pact:engine-tester `@ux`(sham +.tx) [%exit-event ~]]
+      :~  [id.p:pact:engine-tester [%entry-event ~]]
+          [id.p:pact:engine-tester [%exit-event ~]]
       ==
     !>(events.output)
   ==
@@ -580,19 +585,19 @@
   ::
     %+  expect-eq
       !>
-      :~  [id.p:pact:engine-tester `@ux`(sham +.tx) [%triple-event ~]]
-          [id.p:pact:engine-tester `@ux`(sham +.tx) [%entry-event ~]]
-          [id.p:pact:engine-tester `@ux`(sham +.tx) [%exit-event ~]]
-          [id.p:pact:engine-tester `@ux`(sham +.tx) [%entry-event ~]]
-          [id.p:pact:engine-tester `@ux`(sham +.tx) [%exit-event ~]]
-          [id.p:pact:engine-tester `@ux`(sham +.tx) [%entry-event ~]]
-          [id.p:pact:engine-tester `@ux`(sham +.tx) [%exit-event ~]]
+      :~  [id.p:pact:engine-tester [%triple-event ~]]
+          [id.p:pact:engine-tester [%entry-event ~]]
+          [id.p:pact:engine-tester [%exit-event ~]]
+          [id.p:pact:engine-tester [%entry-event ~]]
+          [id.p:pact:engine-tester [%exit-event ~]]
+          [id.p:pact:engine-tester [%entry-event ~]]
+          [id.p:pact:engine-tester [%exit-event ~]]
       ==
     !>(events.output)
   ==
 ::
 ++  test-vx-modify-and-call
-  =/  =calldata:smart       [%modify-and-call id.p:dummy-data:engine-tester]
+  =/  =calldata:smart  [%modify-and-call id.p:dummy-data:engine-tester]
   =/  =shell:smart  [caller-1 ~ id.p:pact:engine-tester [1 1.000.000] town-id 0]
   =/  tx=transaction:smart  [fake-sig calldata shell]
   =/  =output
@@ -612,12 +617,12 @@
   ::
     %+  expect-eq
       !>
-      ~[[id.p:pact:engine-tester `@ux`(sham +.tx) [%i-read s+'my new noun!']]]
+      ~[[id.p:pact:engine-tester [%i-read s+'my new noun!']]]
     !>(events.output)
   ==
 ::
 ++  test-vw-modify-and-read-separately
-  =/  =calldata:smart       [%modify-and-read-separately id.p:dummy-data:engine-tester]
+  =/  =calldata:smart  [%modify-and-read-separately id.p:dummy-data:engine-tester]
   =/  =shell:smart  [caller-1 ~ id.p:pact:engine-tester [1 1.000.000] town-id 0]
   =/  tx=transaction:smart  [fake-sig calldata shell]
   =/  =output
@@ -636,10 +641,139 @@
     !>(modified.output)
   ::
     %+  expect-eq
-      !>
-      ~[[id.p:pact:engine-tester `@ux`(sham +.tx) [%i-read s+'my new noun!']]]
+      !>(~[[id.p:pact:engine-tester [%i-read s+'my new noun!']]])
     !>(events.output)
   ==
+::
+::  tests for transaction nonces
+::
+++  test-uz-nonce-too-high
+  =/  =calldata:smart  [%just-modify id.p:dummy-data:engine-tester]
+  =/  caller  caller-1
+  =/  =shell:smart  [caller(nonce 2) ~ id.p:pact:engine-tester [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
+  ;:  weld
+    (expect-eq !>(%2) !>(errorcode.output))
+    (expect-eq !>(0) !>(gas.output))
+    (expect-eq !>(~) !>(burned.output))
+    (expect-eq !>(~) !>(modified.output))
+    (expect-eq !>(~) !>(events.output))
+  ==
+::
+++  test-uy-nonce-too-low
+  =/  =calldata:smart  [%just-modify id.p:dummy-data:engine-tester]
+  =/  caller  caller-3
+  =/  =shell:smart  [caller(nonce 5) ~ id.p:pact:engine-tester [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
+  ;:  weld
+    (expect-eq !>(%2) !>(errorcode.output))
+    (expect-eq !>(0) !>(gas.output))
+    (expect-eq !>(~) !>(burned.output))
+    (expect-eq !>(~) !>(modified.output))
+    (expect-eq !>(~) !>(events.output))
+  ==
+::
+::  tests for gas audit
+::
+++  test-tz-gas-too-high
+  =/  =calldata:smart  [%just-modify id.p:dummy-data:engine-tester]
+  =/  =shell:smart  [caller-1 ~ id.p:pact:engine-tester [1 500.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
+  ;:  weld
+    (expect-eq !>(%3) !>(errorcode.output))
+    (expect-eq !>(0) !>(gas.output))
+    (expect-eq !>(~) !>(burned.output))
+    (expect-eq !>(~) !>(modified.output))
+    (expect-eq !>(~) !>(events.output))
+  ==
+::
+++  test-ty-gas-account-missing
+  =/  =calldata:smart  [%just-modify id.p:dummy-data:engine-tester]
+  =/  caller  caller-1
+  =/  =shell:smart  [caller(zigs 0xabcd) ~ id.p:pact:engine-tester [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
+  ;:  weld
+    (expect-eq !>(%3) !>(errorcode.output))
+    (expect-eq !>(0) !>(gas.output))
+    (expect-eq !>(~) !>(burned.output))
+    (expect-eq !>(~) !>(modified.output))
+    (expect-eq !>(~) !>(events.output))
+  ==
+::
+++  test-tx-gas-account-not-mine
+  =/  =calldata:smart  [%just-modify id.p:dummy-data:engine-tester]
+  =/  caller  caller-1
+  =/  =shell:smart  [caller(zigs id.p:account-2:zigs) ~ id.p:pact:engine-tester [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
+  ;:  weld
+    (expect-eq !>(%3) !>(errorcode.output))
+    (expect-eq !>(0) !>(gas.output))
+    (expect-eq !>(~) !>(burned.output))
+    (expect-eq !>(~) !>(modified.output))
+    (expect-eq !>(~) !>(events.output))
+  ==
+::
+::  tests for call to data / missing contract
+::
+++  test-sz-call-missing-pact
+  =/  =calldata:smart  [%some-call ~]
+  =/  =shell:smart  [caller-1 ~ 0xdead.beef [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
+  ;:  weld
+    (expect-eq !>(%4) !>(errorcode.output))
+    (expect-eq !>(0) !>(gas.output))
+    (expect-eq !>(~) !>(burned.output))
+    (expect-eq !>(~) !>(modified.output))
+    (expect-eq !>(~) !>(events.output))
+  ==
+::
+++  test-sy-call-data-not-pact
+  =/  =calldata:smart  [%some-call ~]
+  =/  =shell:smart  [caller-1 ~ id.p:account-2:zigs [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
+  ;:  weld
+    (expect-eq !>(%5) !>(errorcode.output))
+    (expect-eq !>(0) !>(gas.output))
+    (expect-eq !>(~) !>(burned.output))
+    (expect-eq !>(~) !>(modified.output))
+    (expect-eq !>(~) !>(events.output))
+  ==
+::
+::  tests for running out of gas
+::
+
+::
+::  tests for execution of malformed contract nock
+::
+
 ::
 ::  tests for full engine +run, with multiple transactions in mempool
 ::  assert that transactions are ordered properly by rate and nonce,

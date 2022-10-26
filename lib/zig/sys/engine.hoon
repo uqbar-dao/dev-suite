@@ -68,6 +68,7 @@
     ::
     ++  intake
       ^-  output
+      ~>  %bout
       ::  validate transaction signature,
       ::  validate nonce,
       ::  assert caller can afford gas budget,
@@ -186,7 +187,6 @@
     ++  combust
       |=  [code=[bat=* pay=*] =context:smart =calldata:smart bud=@ud]
       ^-  [(unit move) gas=@ud =errorcode:smart]
-      ~>  %bout
       |^
       ~&  >  "context: {<context>}"
       ~&  >>  "calldata: {<calldata>}"
