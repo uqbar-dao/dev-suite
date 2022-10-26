@@ -235,20 +235,19 @@
         +((~(gut by nonces.data.giver) to.act 0))
     ?>  (lte batch.context deadline.act) :: TODO implement deadline; now.context is gone
     ?~  to-account.act
-    ::  create new rice for reciever and add it to state
-      =/  =id  (fry-rice to.act me.context town-id.context salt.giver)
-      =+  [amount.act ~ metadata.data.giver ~]
-      =+  receiver=[salt.giver %account - id me.context to.act town-id.context]
-      (result [%&^giver ~] [%&^receiver ~] ~ ~)
+    ::  create new `data` for reciever and add it to state
+      =/  =id  (hash-data this.context to.act town.context salt.p.giv)
+      =+  [amount.act ~ metadata.giver 0]
+      =+  rec=[id this.context to.act town.context salt.p.giv %account -]
+      `(result [giv ~] [%&^rec ~] ~ ~)
     ::  direct send
-    =/  rec=item  (need (scry u.to-account.act))
-    =/  receiver   data:(husk account:sur rec `me.context `to.act)
+    =/  rec=item  (need (scry-state u.to-account.act))
+    =/  receiver  noun:(husk account:sur rec `this.context `to.act)
     ?>  ?=(%& -.rec)
-    ?>  =(metadata.receiver metadata.data.giver)
-    =:  data.p.rec  receiver(balance (add balance.receiver amount.act))
-        nonces.data.giver  (~(put py nonces.data.giver) to.act +(nonce.act))
-    ==
-    (result [%&^giver rec ~] ~ ~ ~)
+    ?>  =(metadata.receiver metadata.giver)
+    =.  noun.p.rec
+      receiver(balance (add balance.receiver amount.act))
+    `(result [giv rec ~] ~ ~ ~)
   ::
   ++  set-allowance
     |=  [=context act=set-allowance:sur]
