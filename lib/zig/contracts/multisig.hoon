@@ -46,6 +46,9 @@
   =/  multisig  (husk multisig-state:sur - `me.cart ~)
   ?-    -.act
       %execute
+    ::  XX this will not work for an evil set unless we fix apt:pn
+    ::  ~(apt pn `(set)`[1 [1 ~ ~] [1 ~ ~]]) is %.y
+    ?>  ~(apt pn sigs.act)
     =/  typed-message-hash=@ux
       ^-  @
       %^    sham  ::  XX use sham or shag? unclear - I'm using sham in fungible.hoon
@@ -158,6 +161,8 @@
     ++  json
       ~
     ++  noun
+      ::  XX make an ++is-valid-bundle of signatures. This lets you use gasless
+      ::  multisignatures. Fairly certain it is safe...
       ~
     --
 --
