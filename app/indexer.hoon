@@ -108,7 +108,7 @@
 ::      Subscribe to sequencer for new batches.
 ::
 ::    %set-rollup:
-::      Subscribe to rollup for new batch roots.
+::      Subscribe to rollup for new batch-idss.
 ::
 ::
 /-  eng=zig-engine,
@@ -223,28 +223,29 @@
       indexer-bootstrap-path
     ::
         %indexer-catchup
-      =+  !<([=dock town=id:smart root=id:smart] vase)
+      =+  !<([=dock town=id:smart batch-id=id:smart] vase)
       :_  this(catchup-indexer dock)
       %^    set-watch-target:ic
-          (indexer-catchup-wire town root)
+          (indexer-catchup-wire town batch-id)
         dock
-      (indexer-catchup-path town root)
+      (indexer-catchup-path town batch-id)
     ::
         %consume-batch
       =+  !<(args=consume-batch-args:ui vase)
-      =*  town-id  town-id:hall:town:args
+      =*  town-id   town-id.hall.town.args
+      =*  batch-id  batch-id.args
       =^  cards  state
         (consume-batch:ic args)
       :-  cards
       %=  this
           sequencer-update-queue
         %+  ~(put by sequencer-update-queue)  town-id
-        %.  root
+        %.  batch-id
         ~(del by (~(gut by sequencer-update-queue) town-id ~))
       ::
           town-update-queue
         %+  ~(put by town-update-queue)  town-id
-        %.  root
+        %.  batch-id
         ~(del by (~(gut by town-update-queue) town-id ~))
       ==
     ==
@@ -266,8 +267,8 @@
       !>(`versioned-state:ui`-.state)
     ::
         [%indexer-catchup @ @ ~]
-      =/  town-id=id:smart  (slav %ux i.t.path)
-      =/  root=id:smart     (slav %ux i.t.t.path)
+      =/  town-id=id:smart   (slav %ux i.t.path)
+      =/  batch-id=id:smart  (slav %ux i.t.t.path)
       =/  [=batches:ui =batch-order:ui]
         (~(gut by batches-by-town) town-id [~ ~])
       =.  batch-order  (flop batch-order)
@@ -277,7 +278,8 @@
       !>  ^-  [batches:ui batch-order:ui]
       |-
       ?~  batch-order  [*batches:ui *batch-order:ui]
-      ?:  =(root i.batch-order)  [batches (flop batch-order)]
+      ?:  =(batch-id i.batch-order)
+        [batches (flop batch-order)]
       %=  $
           batches      (~(del by batches) i.batch-order)
           batch-order  t.batch-order
@@ -482,8 +484,8 @@
       ==
     ::
         [%indexer-catchup-update @ @ ~]
-      =/  town-id=id:smart  (slav %ux i.t.wire)
-      =/  root=id:smart      (slav %ux i.t.t.wire)
+      =/  town-id=id:smart   (slav %ux i.t.wire)
+      =/  batch-id=id:smart  (slav %ux i.t.t.wire)
       ?+    -.sign  (on-agent:def wire sign)
           %fact
         :-  ~
@@ -496,12 +498,12 @@
             %+  ~(put by batches-by-town)  town-id
             [batches batch-order]
           ==
-        =/  root-index=@ud
-          ?~(i=(find ~[root] q.u.old) 0 +(u.i))
+        =/  batch-id-index=@ud
+          ?~(i=(find ~[batch-id] q.u.old) 0 +(u.i))
         =.  batches-by-town
           %+  ~(put by batches-by-town)  town-id
           :-  (~(uni by p.u.old) batches)
-          (weld batch-order (slag root-index q.u.old))
+          (weld batch-order (slag batch-id-index q.u.old))
         %=  this
             sequencer-update-queue  ~
             town-update-queue       ~
@@ -512,25 +514,25 @@
       ==
     ==
     ::
-    ++  has-root-already
-      |=  [town-id=id:smart root=id:smart]
+    ++  has-batch-id-already
+      |=  [town-id=id:smart batch-id=id:smart]
       ^-  ?
       =/  [=batches:ui *]
         %+  %~  gut  by  batches-by-town
         town-id  [*batches:ui *batches-by-town:ui]
-      (~(has by batches) root)
+      (~(has by batches) batch-id)
     ::
     ++  consume-sequencer-update
       |=  update=indexer-update:seq
       ^-  (quip card _state)
       ?-    -.update
           %update
-        =*  town-id  town-id.hall.update
-        =*  root     root.update
-        ?:  (has-root-already town-id root)  `state
-        ?.  =(root (sham chain.update))      `state
+        =*  town-id   town-id.hall.update
+        =*  batch-id  root.update
+        ?:  (has-batch-id-already town-id batch-id)  `state
+        ?.  =(batch-id (sham chain.update))          `state
         =/  timestamp=(unit @da)
-          %.  root
+          %.  batch-id
           %~  get  by
           %+  ~(gut by town-update-queue)  town-id
           *(map @ux @da)
@@ -542,7 +544,7 @@
             %+  %~  put  by
                 %+  ~(gut by sequencer-update-queue)  town-id
                 *(map @ux batch:ui)
-              root
+              batch-id
             [transactions.update [chain.update hall.update]]
           ==
         :_  state
@@ -550,7 +552,7 @@
         %-  ~(poke-self pass:io /consume-batch-poke)
         :-  %consume-batch
         !>  ^-  consume-batch-args:ui
-        :*  root
+        :*  batch-id
             transactions.update
             [chain.update hall.update]
             u.timestamp
@@ -575,27 +577,27 @@
             ~
         ?:  (only-missing-newest capitol.update)  ~
         %+  murn  ~(val by capitol.update)
-        |=  [town-id=id:smart @ [@ @] [@ *] @ roots=(list @ux)]
+        |=  [town-id=id:smart @ [@ @] [@ *] @ batch-ids=(list @ux)]
         =/  [* =batch-order:ui]
           %+  ~(gut by batches-by-town)  town-id
           [~ batch-order=~]
         =/  needed-list=(list id:smart)
-          (find-needed-batches roots batch-order)
+          (find-needed-batches batch-ids batch-order)
         ?~  needed-list  ~
-        =*  root  i.needed-list
+        =*  batch-id  i.needed-list
         :-  ~
         %^    watch-target:ic
-            (indexer-catchup-wire town-id root)
+            (indexer-catchup-wire town-id batch-id)
           catchup-indexer
-        (indexer-catchup-path town-id root)
+        (indexer-catchup-path town-id batch-id)
       ::
           %new-peer-root
-        =*  town-id  town.update
-        =*  root     root.update
-        ?:  (has-root-already town-id root)  `state
+        =*  town-id   town.update
+        =*  batch-id  root.update
+        ?:  (has-batch-id-already town-id batch-id)  `state
         =/  sequencer-update
           ^-  (unit [transactions=processed-txs:eng =town:seq])
-          %.  root
+          %.  batch-id
           %~  get  by
           %+  ~(gut by sequencer-update-queue)  town-id
           *(map @ux batch:ui)
@@ -607,14 +609,14 @@
             %+  %~  put  by
                 %+  ~(gut by town-update-queue)  town-id
                 *(map batch-id=@ux timestamp=@da)
-            root  timestamp.update
+            batch-id  timestamp.update
           ==
         :_  state
         :_  ~
         %-  ~(poke-self pass:io /consume-batch-poke)
         :-  %consume-batch
         !>  ^-  consume-batch-args:ui
-        :*  root
+        :*  batch-id
             transactions.u.sequencer-update
             town.u.sequencer-update
             timestamp.update
@@ -648,14 +650,14 @@
         |-
         ?~  town-ids  %.y
         =*  town-id  i.town-ids
-        =/  old-roots=batch-order:ui
+        =/  old-batch-ids=batch-order:ui
           roots:(~(gut by capitol) town-id *hall:seq)
-        =/  new-roots=batch-order:ui
+        =/  new-batch-ids=batch-order:ui
           roots:(~(gut by new-capitol) town-id *hall:seq)
-        ?~  old-roots  $(town-ids t.town-ids)
-        ?~  new-roots  %.n
-        =/  l-old=@ud  (lent old-roots)
-        =/  l-new=@ud  (lent new-roots)
+        ?~  old-batch-ids  $(town-ids t.town-ids)
+        ?~  new-batch-ids  %.n
+        =/  l-old=@ud  (lent old-batch-ids)
+        =/  l-new=@ud  (lent new-batch-ids)
         ?.  |(=(l-old l-new) =(l-old (dec l-new)))  %.n
         $(town-ids t.town-ids)
       --
@@ -686,9 +688,10 @@
   /indexer-bootstrap-update
 ::
 ++  indexer-catchup-wire
-  |=  [town-id=id:smart root=id:smart]
+  |=  [town-id=id:smart batch-id=id:smart]
   ^-  wire
-  /indexer-catchup-update/(scot %ux town-id)/(scot %ux root)
+  :-  %indexer-catchup-update
+  /(scot %ux town-id)/(scot %ux batch-id)
 ::
 ++  rollup-capitol-path
   ^-  path
@@ -707,9 +710,9 @@
   /indexer-bootstrap
 ::
 ++  indexer-catchup-path
-  |=  [town-id=id:smart root=id:smart]
+  |=  [town-id=id:smart batch-id=id:smart]
   ^-  path
-  /indexer-catchup/(scot %ux town-id)/(scot %ux root)
+  /indexer-catchup/(scot %ux town-id)/(scot %ux batch-id)
 ::
 ++  watch-target
   |=  [w=wire d=dock p=path]
@@ -749,17 +752,17 @@
   [s.wex t.wex]
 ::
 ++  get-batch
-  |=  [town-id=id:smart batch-root=id:smart]
+  |=  [town-id=id:smart batch-id=id:smart]
   ^-  (unit [batch-id=id:smart timestamp=@da =batch:ui])
   ?~  bs=(~(get by batches-by-town) town-id)  ~
-  ?~  b=(~(get by batches.u.bs) batch-root)     ~
-  `[batch-root u.b]
+  ?~  b=(~(get by batches.u.bs) batch-id)     ~
+  `[batch-id u.b]
 ::
 ++  get-newest-batch
-  |=  [town-id=id:smart expected-root=id:smart]
+  |=  [town-id=id:smart expected-id=id:smart]
   ^-  (unit [batch-id=id:smart timestamp=@da =batch:ui])
   ?~  b=(~(get by newest-batch-by-town) town-id)  ~
-  ?.  =(expected-root batch-id.u.b)                 ~
+  ?.  =(expected-id batch-id.u.b)                 ~
   `u.b
 ::
 ++  combine-transaction-updates
@@ -881,7 +884,7 @@
   =|  temporary-state=_state
   |^
   ?~  batches-by-town-list  +.temporary-state
-  =/  batches-list=(list [root=@ux timestamp=@da =batch:ui])
+  =/  batches-list=(list [batch-id=@ux timestamp=@da =batch:ui])
     %+  murn  (flop batch-order.i.batches-by-town-list)
     |=  =id:smart
     ?~  batch=(~(get by batches.i.batches-by-town-list) id)
@@ -893,13 +896,13 @@
   ==
   ::
   ++  inflate-town
-    |=  batches-list=(list [root=@ux timestamp=@da =batch:ui])
+    |=  batches-list=(list [batch-id=@ux timestamp=@da =batch:ui])
     ^-  _state
     |-
     ?~  batches-list  temporary-state
     =^  cards  temporary-state  ::  throw away cards (empty)
       %:  consume-batch(state temporary-state)
-          root.i.batches-list
+          batch-id.i.batches-list
           transactions.batch.i.batches-list
           +.batch.i.batches-list
           timestamp.i.batches-list
@@ -996,13 +999,13 @@
         ?~  locations  ~
         =*  location  i.locations
         ?.  ?=(batch-location:ui location)  ~
-        =*  town-id     town-id.location
-        =*  batch-root  batch-root.location
-        ?~  b=(get-appropriate-batch town-id batch-root)  ~
-        ?.  |(!only-newest =(batch-root batch-id.u.b))
+        =*  town-id   town-id.location
+        =*  batch-id  batch-id.location
+        ?~  b=(get-appropriate-batch town-id batch-id)  ~
+        ?.  |(!only-newest =(batch-id batch-id.u.b))
           ::  TODO: remove this check if we never see this log
-          ~&  >>>  "%indexer: unexpected batch root (item)"
-          ~&  >>>  "br, bid: {<batch-root>} {<batch-id.u.b>}"
+          ~&  >>>  "%indexer: unexpected batch-id (newest-item)"
+          ~&  >>>  "expected, got: {<batch-id>} {<batch-id.u.b>}"
           ~
         =*  timestamp  timestamp.u.b
         =*  state    p.chain.batch.u.b
@@ -1016,13 +1019,13 @@
       ?.  ?=(batch-location:ui location)
         $(locations t.locations)
       =*  town-id     town-id.location
-      =*  batch-root  batch-root.location
-      ?~  b=(get-appropriate-batch town-id batch-root)
+      =*  batch-id    batch-id.location
+      ?~  b=(get-appropriate-batch town-id batch-id)
         $(locations t.locations)
-      ?.  |(!only-newest =(batch-root batch-id.u.b))
+      ?.  |(!only-newest =(batch-id batch-id.u.b))
         ::  TODO: remove this check if we never see this log
-        ~&  >>>  "%indexer: unexpected batch root (item)"
-        ~&  >>>  "br, bid: {<batch-root>} {<batch-id.u.b>}"
+        ~&  >>>  "%indexer: unexpected batch-id (item)"
+        ~&  >>>  "expected, got: {<batch-id>} {<batch-id.u.b>}"
         $(locations t.locations)
       =*  timestamp  timestamp.u.b
       =*  state    p.chain.batch.u.b
@@ -1040,11 +1043,11 @@
         ?~  locations  ~
         =*  location  i.locations
         ?.  ?=(transaction-location:ui location)  ~
-        =*  town-id             town-id.location
-        =*  batch-root          batch-root.location
-        =*  transaction-num     transaction-num.location
-        ?~  b=(get-appropriate-batch town-id batch-root)  ~
-        ?.  |(!only-newest =(batch-root batch-id.u.b))
+        =*  town-id          town-id.location
+        =*  batch-id         batch-id.location
+        =*  transaction-num  transaction-num.location
+        ?~  b=(get-appropriate-batch town-id batch-id)  ~
+        ?.  |(!only-newest =(batch-id batch-id.u.b))
           ::  happens for second-order only-newest queries that
           ::   resolve to transactions because get-locations does not
           ::   guarantee they are in the newest batch
@@ -1067,12 +1070,12 @@
       =*  location  i.locations
       ?.  ?=(transaction-location:ui location)
         $(locations t.locations)
-      =*  town-id             town-id.location
-      =*  batch-root          batch-root.location
-      =*  transaction-num     transaction-num.location
-      ?~  b=(get-appropriate-batch town-id batch-root)
+      =*  town-id          town-id.location
+      =*  batch-id         batch-id.location
+      =*  transaction-num  transaction-num.location
+      ?~  b=(get-appropriate-batch town-id batch-id)
         $(locations t.locations)
-      ?.  |(!only-newest =(batch-root batch-id.u.b))
+      ?.  |(!only-newest =(batch-id batch-id.u.b))
         ::  happens for second-order only-newest queries that
         ::   resolve to transactions because get-locations does not
         ::   guarantee they are in the newest batch
@@ -1255,7 +1258,7 @@
   --
 ::
 ++  consume-batch
-  |=  $:  root=@ux
+  |=  $:  batch-id=@ux
           transactions=processed-txs:eng
           =town:seq
           timestamp=@da
@@ -1264,7 +1267,7 @@
   =*  town-id  town-id.hall.town
   |^  ^-  (quip card _state)
   =+  ^=  [transaction from item holder source to]
-      (parse-batch root town-id transactions chain.town)
+      (parse-batch batch-id town-id transactions chain.town)
   =:  item-index  (gas-ja-batch item-index item town-id)
       to-index    (gas-ja-second-order to-index to town-id)
       from-index
@@ -1293,15 +1296,15 @@
         timestamp
       newest-batch-by-town
     %+  ~(put by newest-batch-by-town)  town-id
-    [root timestamp transactions town]
+    [batch-id timestamp transactions town]
   ::
       batches-by-town
     %+  ~(put by batches-by-town)  town-id
     ?~  b=(~(get by batches-by-town) town-id)
-      :_  ~[root]
-      (malt ~[[root [timestamp transactions town]]])
-    :_  [root batch-order.u.b]
-    (~(put by batches.u.b) root [timestamp transactions town])
+      :_  ~[batch-id]
+      (malt ~[[batch-id [timestamp transactions town]]])
+    :_  [batch-id batch-order.u.b]
+    (~(put by batches.u.b) batch-id [timestamp transactions town])
   ==
   ::
   :_  state
@@ -1364,10 +1367,10 @@
     :_  ~
     %-  fact:io
     :_  ~[update-path]
-    [%indexer-update !>(`update:ui`[%batch-order ~[root]])]
+    [%indexer-update !>(`update:ui`[%batch-order ~[batch-id]])]
   ::
   ++  parse-batch
-    |=  $:  root=@ux
+    |=  $:  batch-id=@ux
             town-id=@ux
             transactions=processed-txs:eng
             =chain:seq
@@ -1379,12 +1382,12 @@
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
         ==
-    =+  [item holder source]=(parse-state root town-id p.chain)
-    =+  [transaction from to]=(parse-transactions root town-id transactions)
+    =+  [item holder source]=(parse-state batch-id town-id p.chain)
+    =+  [transaction from to]=(parse-transactions batch-id town-id transactions)
     [transaction from item holder source to]
   ::
   ++  parse-state
-    |=  [root=@ux town-id=@ux =state:seq]
+    |=  [batch-id=@ux town-id=@ux =state:seq]
     ^-  $:  (list [@ux batch-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
@@ -1416,15 +1419,15 @@
     ::
         parsed-item
       ?:  %+  exists-in-index  town-id
-          [item-id [town-id root] item-index]
+          [item-id [town-id batch-id] item-index]
         parsed-item
       :_  parsed-item
       :-  item-id
-      [town-id root]
+      [town-id batch-id]
     ==
   ::
   ++  parse-transactions
-    |=  [root=@ux town-id=@ux txs=processed-txs:eng]
+    |=  [batch-id=@ux town-id=@ux txs=processed-txs:eng]
     ^-  $:  (list [@ux transaction-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
@@ -1440,7 +1443,7 @@
     =*  contract          contract.transaction
     =*  from              address.caller.transaction
     =/  =transaction-location:ui
-      [town-id root transaction-num]
+      [town-id batch-id transaction-num]
     %=  $
         transaction-num  +(transaction-num)
         txs              t.txs

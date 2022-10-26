@@ -96,7 +96,7 @@
     ^-  json
     %-  pairs
     :+  [%town-id %s (scot %ux town-id.batch-location)]
-      [%batch-root %s (scot %ux batch-root.batch-location)]
+      [%batch-id %s (scot %ux batch-id.batch-location)]
     ~
   ::
   ++  transaction-location
@@ -104,7 +104,7 @@
     ^-  json
     %-  pairs
     :^    [%town-id %s (scot %ux town-id.location)]
-        [%batch-root %s (scot %ux batch-root.location)]
+        [%batch-id %s (scot %ux batch-id.location)]
       [%transaction-num (numb transaction-num.location)]
     ~
   ::
@@ -435,8 +435,8 @@
     ^-  json
     :-  %a
     %+  turn  batch-order
-    |=  batch-root=id:smart
-    [%s (scot %ux batch-root)]
+    |=  batch-id=id:smart
+    [%s (scot %ux batch-id)]
   ::
   ++  tas-to-json
     |=  mapping=(map @tas json)

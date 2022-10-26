@@ -28,9 +28,9 @@
 +$  second-order-location  id:smart
 +$  town-location  id:smart
 +$  batch-location
-  [town-id=id:smart batch-root=id:smart]
+  [town-id=id:smart batch-id=id:smart]
 +$  transaction-location
-  [town-id=id:smart batch-root=id:smart transaction-num=@ud]
+  [town-id=id:smart batch-id=id:smart transaction-num=@ud]
 ::
 +$  location-index
   (map @ux (jar @ux location))
@@ -118,7 +118,7 @@
   ==
 ::
 +$  consume-batch-args
-  $:  root=id:smart
+  $:  batch-id=id:smart
       transactions=processed-txs:eng
       =town:seq
       timestamp=@da
