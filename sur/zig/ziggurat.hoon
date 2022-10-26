@@ -11,7 +11,7 @@
       next-contract-id=id:smart
       errors=(list [path @t])
       =chain:engine
-      data-texts=(map id:smart @t)  ::  holds rice data that got ream'd
+      noun-data-texts=(map id:smart @t)  ::  holds `noun.data` that got ream'd
       user-address=address:smart
       user-nonce=@ud
       batch-num=@ud
@@ -89,7 +89,7 @@
       compiled=?
       errors=(list [path @t])
       =chain:engine
-      data-texts=(map id:smart @t)
+      noun-data-texts=(map id:smart @t)
       =tests
   ==
 ::
