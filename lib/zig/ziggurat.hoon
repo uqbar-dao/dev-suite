@@ -51,10 +51,11 @@
   =/  =path  /project/[project-name]
   =/  update=project-update
     :*  dir.p
+        user-files.p
         ?=(~ errors.p)
         errors.p
         chain.p
-        data-texts.p
+        noun-texts.p
         tests.p
     ==
   :^  %give  %fact  ~[path]
@@ -186,7 +187,7 @@
     |=  [face=term =path]
     ^-  hoon
     :+  %ktts  face
-    (rain path .^(@t %cx (welp desk (welp path /hoon))))
+    +:(parse-pile:conq (trip .^(@t %cx (welp desk (welp path /hoon)))))
   ::
   ++  build-libs  ::  third
     |=  braw=(list hoon)
@@ -381,8 +382,8 @@
       tests
     (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
   ::
-      data-texts
-    %-  ~(uni by data-texts.current)
+      noun-texts
+    %-  ~(uni by noun-texts.current)
     %-  ~(gas by *(map id:smart @t))
     :~  [id.meta-rice ;;(@t noun.meta-rice)]
         [dead-beef-account-id '[balance=200 allowances=~ metadata=0xdada.dada nonce=0]']
@@ -537,7 +538,7 @@
         (trip (scot %ux user-address.current))
         " uri='https://image.link' "
         props-tape
-        " transferrable=&] ~]"
+        " transferrable=%.y] ~]"
     ==
   =/  yolk-3=calldata:smart
     =-  [;;(@tas -.-) +.-]
@@ -588,8 +589,8 @@
       tests
     (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
   ::
-      data-texts
-    %-  ~(uni by data-texts.current)
+      noun-texts
+    %-  ~(uni by noun-texts.current)
     %-  ~(gas by *(map id:smart @t))
     :~  [id.meta-rice ;;(@t noun.meta-rice)]
         ::  [1 'https://image.link' id.meta-rice ~ props &]
@@ -681,16 +682,16 @@
   ^-  json
   %-  pairs
   %+  welp
-    :~  ['source' %s (scot %ux source.p.item)]
+    :~  ['is-pact' %b ?=(%| -.item)]
+        ['source' %s (scot %ux source.p.item)]
         ['holder' %s (scot %ux holder.p.item)]
         ['town' %s (scot %ux town.p.item)]
     ==
-  ?.  ?=(%& -.item)
-    ['contract' %b %.y]~
+  ?:  ?=(%| -.item)  ~
   :~  ['salt' (numb salt.p.item)]
       ['label' %s (scot %tas label.p.item)]
-      ['data_text' %s tex]
-      ['data' %s (crip (noah !>(noun.p.item)))]
+      ['noun_text' %s tex]
+      ['noun' %s (crip (noah !>(noun.p.item)))]  ::  TODO: remove?
   ==
 ::
 ++  project-to-json
@@ -703,12 +704,12 @@
       ['to_compile' (to-compile-to-json to-compile.p)]
       ['next_contract_id' %s (scot %ux next-contract-id.p)]
       ['errors' (errors-to-json errors.p)]
-      ['state' (state-to-json p.chain.p data-texts.p)]
+      ['state' (state-to-json p.chain.p noun-texts.p)]
       ['tests' (tests-to-json tests.p)]
   ==
 ::
 ++  state-to-json
-  |=  [=state:engine data-texts=(map id:smart @t)]
+  |=  [=state:engine noun-texts=(map id:smart @t)]
   ::
   ::  ignoring/not printing nonces for now.
   ::
@@ -719,8 +720,7 @@
   |=  [=id:smart merk=@ux =item:smart]
   ::  ignore contract nock -- just print metadata
   :-  (scot %ux id)
-  %+  item-to-json  item
-  ?~(t=(~(get by data-texts) id) '' u.t)
+  (item-to-json item (~(gut by noun-texts) id ''))
 ::
 ++  tests-to-json
   |=  =tests
@@ -739,7 +739,7 @@
   :~  ['name' %s ?~(name.test '' u.name.test)]
       ['for_contract' %s (scot %ux for-contract.test)]  ::  TODO: to contract path?
       ['action_text' %s action-text.test]
-      ['action' %s (crip (noah !>(action.test)))]
+      ['action' %s (crip (noah !>(action.test)))]  ::  TODO: remove?
       ['expected' (expected-to-json expected.test)]
       ['expected_error' ?~(expected-error.test n+'0' (numb expected-error.test))]
       ['result' ?~(result.test ~ (test-result-to-json u.result.test))]
@@ -826,4 +826,14 @@
   :+  ['path' (path p)]
     ['error' %s error]
   ~
+::
+++  user-files-to-json
+  |=  user-files=(set path)
+  ^-  json
+  =/  user-files-list=(list path)  ~(tap in user-files)
+  ?~  user-files-list  ~
+  %+  frond:enjs:format  %user-files
+  :-  %a
+  %+  turn  user-files-list
+  |=([p=path] (path:enjs:format p))
 --
