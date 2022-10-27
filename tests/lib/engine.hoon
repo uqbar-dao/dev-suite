@@ -865,7 +865,6 @@
         [sequencer town-id batch=1 eth-block-height=0]
       fake-chain
     mempool
-  ~&  modified.st
   ;:  weld
     (expect-eq !>(4) !>((lent processed.st)))
     (expect-eq !>(%0) !>(status.tx:(snag 0 processed.st)))
