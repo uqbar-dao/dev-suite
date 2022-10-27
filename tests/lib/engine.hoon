@@ -59,7 +59,7 @@
         town-id
         `@`'zigs'
         %account
-        [1.000.000 ~ `@ux`'zigs-metadata' 0]
+        [1.000.000 ~ `@ux`'zigs-metadata' ~]
     ==
   ++  account-1
     ^-  item:smart
@@ -70,7 +70,7 @@
         town-id
         `@`'zigs'
         %account
-        [300.000.000 ~ `@ux`'zigs-metadata' 0]
+        [300.000.000 ~ `@ux`'zigs-metadata' ~]
     ==
   ++  account-2
     ^-  item:smart
@@ -81,7 +81,7 @@
         town-id
         `@`'zigs'
         %account
-        [200.000 ~ `@ux`'zigs-metadata' 0]
+        [200.000 ~ `@ux`'zigs-metadata' ~]
     ==
   ++  account-3
     ^-  item:smart
@@ -92,7 +92,7 @@
         town-id
         `@`'zigs'
         %account
-        [100.000 ~ `@ux`'zigs-metadata' 0]
+        [100.000 ~ `@ux`'zigs-metadata' ~]
     ==
   --
 ::

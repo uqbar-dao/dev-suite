@@ -24,7 +24,7 @@
     $:  balance=@ud
         allowances=(pmap address @ud)
         metadata=id
-        nonce=@ud
+        nonces=(pmap address @ud)
     ==
   ::
   +$  action

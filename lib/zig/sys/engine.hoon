@@ -324,9 +324,9 @@
     ::  store a copy of the zigs account mold used in zigs.hoon
     +$  token-account
       $:  balance=@ud
-          allowances=(pmap:smart sender=id:smart @ud)
+          allowances=(pmap:smart sender=address:smart @ud)
           metadata=id:smart
-          nonce=@ud
+          nonces=(pmap:smart taker=address:smart @ud)
       ==
     ::  +audit: evaluate whether a caller can afford gas
     ::  maximum possible charge is full budget * rate
@@ -365,7 +365,7 @@
           %-  hash-data:smart
           [zc address.sequencer town-id `@`'zigs']
         :-  ~  :-  id
-        =+  [total ~ `@ux`'zigs-metadata' 0]
+        =+  [total ~ `@ux`'zigs-metadata' ~]
         [%& id zc address.sequencer town-id `@`'zigs' %account -]
       ?.  ?=(%& -.u.acc)  ~
       =/  account  ;;(token-account noun.p.u.acc)

@@ -173,7 +173,8 @@
       %9  ::  9: dedicated burn transaction failed
   ==
 ::
-+$  typed-message  [domain=id message=@]
+::  EIP-712 mold for offchain data signing
++$  typed-message  [domain=id type-hash=@ message=@]
 ::
 ::  typed paths inside contracts
 ::  taken from: https://github.com/urbit/urbit/pull/5887
@@ -573,10 +574,10 @@
     =|  [l=(unit) r=(unit)]
     |.  ^-  ?
     ?~  a   &
-    ?&  ?~(l & (sore n.a u.l))
-        ?~(r & (sore u.r n.a))
-        ?~(l.a & ?&((sure n.a n.l.a) $(a l.a, l `n.a)))
-        ?~(r.a & ?&((sure n.a n.r.a) $(a r.a, r `n.a)))
+    ?&  ?~(l & &((sore n.a u.l) !=(n.a u.l)))
+        ?~(r & &((sore u.r n.a) !=(u.r n.a)))
+        ?~(l.a & ?&((sure n.a n.l.a) !=(n.a n.l.a) $(a l.a, l `n.a)))
+        ?~(r.a & ?&((sure n.a n.r.a) !=(n.a n.r.a) $(a r.a, r `n.a)))
     ==
   ::
   ++  bif                                               ::  splits a by b
