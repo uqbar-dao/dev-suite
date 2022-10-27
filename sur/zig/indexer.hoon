@@ -8,7 +8,7 @@
       %transaction
       %from
       %item
-      :: %item-transactions
+      %item-transactions
       %holder
       %source
       %to
@@ -17,7 +17,7 @@
   ==
 ::
 +$  query-payload
-  ?(item-hash=@ux [town-id=@ux item-hash=@ux] location)
+  ?(item-id=@ux [town-id=@ux item-id=@ux] location)
 ::
 +$  location
   $?  second-order-location
@@ -77,7 +77,7 @@
   $:  =transaction-index
       from-index=second-order-index
       item-index=batch-index
-      :: item-transactions-index=second-order-index
+      item-transactions-index=second-order-index
       holder-index=second-order-index
       source-index=second-order-index
       to-index=second-order-index
