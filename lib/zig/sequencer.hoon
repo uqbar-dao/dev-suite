@@ -1,8 +1,7 @@
 /-  *zig-sequencer
-/+  engine=zig-sys-engine
 |%
 ++  transition-state
-  |=  [old=(unit town) proposed=[num=@ud =memlist:engine =chain:engine diff-hash=@ux root=@ux]]
+  |=  [old=(unit town) proposed=[num=@ud =processed-txs =chain diff-hash=@ux root=@ux]]
   ^-  (unit town)
   ?~  old  old
   :-  ~
@@ -18,5 +17,5 @@
   ^-  (unit (unit cage))
   ?>  ?=([%grain @ ~] path)
   =/  id  (slav %ux i.t.path)
-  ``noun+!>((get:big:engine state id))
+  ``noun+!>((get:big state id))
 --

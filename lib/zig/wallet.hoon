@@ -7,7 +7,7 @@
 ++  hash-txn
   |=  [=calldata:smart =shell:smart]
   ::  hash the immutable+unique aspects of a transaction
-  `@ux`(sham [shell calldata])
+  `@ux`(sham [calldata shell])
 ::
 ++  tx-update-card
   |=  in=[@ux transaction:smart supported-actions]
