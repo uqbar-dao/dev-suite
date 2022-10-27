@@ -102,7 +102,8 @@
               [%pass /mount-wire %arvo %c mount-task]
               [%pass /save-wire %arvo %c bill-task]
               [%pass /save-wire %arvo %c deletions-task]
-              (make-read-desk project.act our.bowl)
+              =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
+              [%ziggurat-action !>(`action`project.act^[%read-desk ~])]
           ==
       %=  state
           projects
@@ -429,6 +430,9 @@
       :-  (make-multi-test-update project.act res)^~
       state(projects (~(put by projects) project.act project))
     ::
+        %deploy-contract  ::  TODO
+      !!
+    ::
         %publish-app  :: TODO
       ::  [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
       ::  should assert that desk.bill contains only our agent name,
@@ -459,24 +463,6 @@
         =-  [%pass /treaty-wire %agent [our.bowl %treaty] %poke -]
         [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
       ~
-    ::
-        %deploy-contract
-      ::  this will call %wallet agent with a custom constructed %publish call
-      ::  will fail if chosen testnet+town combo doesn't exist or doesn't have
-      ::  the publish.hoon contract deployed.
-      ::
-      =/  =project  (~(got by projects) project.act)
-      ?^  errors.project
-        ~|("%ziggurat: please save a build without errors before deployment" !!)
-      ~&  >  "%ziggurat: deploying contract to {<deploy-location.act>} testnet"
-      =/  pok
-        :*  %transaction  from=address.act
-            contract=0x1111.1111  town=town-id.act
-            action=[%noun [%deploy upgradable.act .^(noun %ct path.act) ~ ~]]
-        ==
-      :_  state
-      =+  [%wallet-poke !>(`wallet-poke:wallet`pok)]
-      [%pass /uqbar-poke %agent [our.bowl %uqbar] %poke -]~
     ==
   --
 ::
@@ -557,9 +543,16 @@
       [%read-file @ ^]
     =/  des=@ta    i.t.t.path
     =/  pat=^path  `^path`t.t.t.path
-    =/  pre=^path  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
-    =/  res        .^(@t %cx (weld pre pat))
-    ``json+!>(`json`[%s res])
+    =/  pre  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
+    :^  ~  ~  %json  !>
+    ^-  json
+    :-  %s
+    ?+  (rear pat)  .^(@t %cx (weld pre pat)) :: assume hoon as the default file type
+      %kelvin  (crip ~(ram re (cain !>(.^([@tas @ud] %cx (weld pre pat))))))
+      %ship  (crip ~(ram re (cain !>(.^(@p %cx (weld pre pat))))))
+      %bill  (crip ~(ram re (cain !>(.^((list @tas) %cx (weld pre pat))))))
+      %docket-0  (crip (spit-docket:mime:dock .^(docket:dock %cx (weld pre pat))))
+    ==
   ==
 ::
 ++  on-leave  on-leave:def

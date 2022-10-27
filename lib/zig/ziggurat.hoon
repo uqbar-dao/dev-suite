@@ -1,5 +1,5 @@
 /-  *zig-ziggurat
-/+  conq=zink-conq, zink=zink-zink
+/+  conq=zink-conq, zink=zink-zink, dock=docket
 |%
 ::
 ::  set parameters for our local test environment
@@ -93,8 +93,21 @@
 ++  make-save-hoon
   |=  [project=@t file=path text=@t]
   ^-  card
+  =/  file-type  (rear file)
   =-  [%pass /save-wire %arvo %c -]
-  [%info `@tas`project %& [file %ins %hoon !>(`@t`text)]~]
+  :^  %info  `@tas`project  %&
+  :_  ~  :+  file  %ins
+  ?:  =(%hoon file-type)
+    [%hoon !>(`@t`text)]
+  =/  reamed-text  q:(slap !>(~) (ream text))
+  ?+  file-type  [%hoon !>(`@t`text)]  :: assume hoon as the default file type
+    %ship    [%ship !>(;;(@p reamed-text))]
+    %bill    [%bill !>(;;((list @tas) reamed-text))]
+    %kelvin  [%kelvin !>(;;([@tas @ud] reamed-text))]
+      %docket-0
+    =-  [%docket-0 !>((need (from-clauses:mime:dock -)))]
+    ;;((list clause:dock) reamed-text)
+  ==
 ::
 ++  text-to-zebra-noun
   |=  [tex=@t smart-lib=vase]
@@ -105,6 +118,9 @@
     (zebra:zink 200.000 ~ *chain-state-scry:zink [q.smart-lib q.gun] %.y)
   ~|  "ziggurat: failed to compile custom data!"
   ?.  ?=(%& -.p.res)  !!
+  ~&  >>  "size: {<(met 3 (jam p.p.res))>}"
+  ?:  (gth (met 3 (jam p.p.res)) 5.000)
+    ~|("ziggurat: custom data noun too large, likely using a mold" !!)
   ~|  "ziggurat: result of custom data compile was ~"
   (need p.p.res)
 ::
