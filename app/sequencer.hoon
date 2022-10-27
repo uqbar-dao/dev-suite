@@ -103,7 +103,7 @@
             [address.act our.bowl]
             mode.act
             0x0
-            [new-root]~
+            ~
         ==
       =/  sig
         (ecdsa-raw-sign:secp256k1:secp:crypto `@uvI`new-root private-key.act)

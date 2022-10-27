@@ -82,10 +82,19 @@
       ?<  (~(has by capitol) town-id.hall.act)
       ::  TODO remove starting-state from init and populate new towns via
       ::  assets from other towns
-      =+  (~(put by capitol) town-id.hall.act hall.act)
+      =/  first-root  `@ux`(sham chain.act)
+      ::  assert signature matches
+      =/  recovered
+        %-  address-from-pub:key:ethereum
+        %-  serialize-point:secp256k1:secp:crypto
+        %+  ecdsa-raw-recover:secp256k1:secp:crypto
+        first-root  sig.act
+      ?.  =(from.act recovered)
+        ~|("%rollup: rejecting new town; sequencer signature not valid" !!)
+      =+  (~(put by capitol) town-id.hall.act hall.act(roots ~[first-root]))
       :_  state(capitol -)
       :~  =-  [%give %fact ~[/peer-root-updates] %sequencer-rollup-update -]
-          !>(`town-update`[%new-peer-root town-id.hall.act (rear roots.hall.act) now.bowl])
+          !>(`town-update`[%new-peer-root town-id.hall.act first-root now.bowl])
       ::
           =-  [%give %fact ~[/capitol-updates] %sequencer-rollup-update -]
           !>(`capitol-update`[%new-capitol -])
