@@ -5,10 +5,10 @@
 |%
 +$  query-type
   $?  %batch
-      %txn
+      %transaction
       %from
       %item
-      :: %item-txns
+      :: %item-transactions
       %holder
       %source
       %to
@@ -23,21 +23,21 @@
   $?  second-order-location
       town-location
       batch-location
-      txn-location
+      transaction-location
   ==
 +$  second-order-location  id:smart
 +$  town-location  id:smart
 +$  batch-location
-  [town-id=id:smart batch-root=id:smart]
-+$  txn-location
-  [town-id=id:smart batch-root=id:smart txn-num=@ud]
+  [town-id=id:smart batch-id=id:smart]
++$  transaction-location
+  [town-id=id:smart batch-id=id:smart transaction-num=@ud]
 ::
 +$  location-index
   (map @ux (jar @ux location))
 +$  batch-index  ::  used for items
   (map @ux (jar @ux batch-location))
-+$  txn-index  ::  only ever one tx per id; -> (map (map))?
-  (map @ux (jar @ux txn-location))
++$  transaction-index  ::  only ever one tx per id; -> (map (map))?
+  (map @ux (jar @ux transaction-location))
 +$  second-order-index
   (map @ux (jar @ux second-order-location))
 ::
@@ -74,10 +74,10 @@
   ==
 ::
 +$  indices-0
-  $:  =txn-index
+  $:  =transaction-index
       from-index=second-order-index
       item-index=batch-index
-      :: item-txns-index=second-order-index
+      :: item-transactions-index=second-order-index
       holder-index=second-order-index
       source-index=second-order-index
       to-index=second-order-index
@@ -88,9 +88,9 @@
 ::
 +$  batch-update-value
   [timestamp=@da location=town-location =batch]
-+$  txn-update-value
++$  transaction-update-value
   $:  timestamp=@da
-      location=txn-location
+      location=transaction-location
       =transaction:smart
       =output:eng
   ==
@@ -102,47 +102,23 @@
   $%  [%path-does-not-exist ~]
       [%batch batches=(map batch-id=id:smart batch-update-value)]
       [%batch-order =batch-order]
-      [%txn txns=(map txn-id=id:smart txn-update-value)]
+      [%transaction transactions=(map transaction-id=id:smart transaction-update-value)]
       [%item items=(jar item-id=id:smart item-update-value)]
       $:  %hash
           batches=(map batch-id=id:smart batch-update-value)
-          txns=(map txn-id=id:smart txn-update-value)
+          transactions=(map transaction-id=id:smart transaction-update-value)
           items=(jar item-id=id:smart item-update-value)
       ==
       [%newest-batch batch-id=id:smart batch-update-value]
       [%newest-batch-order batch-id=id:smart]
-      [%newest-txn txn-id=id:smart txn-update-value]
+      [%newest-transaction transaction-id=id:smart transaction-update-value]
       [%newest-item item-id=id:smart item-update-value]
       ::  %newest-hash type is just %hash, since can have multiple
-      ::  txns/items, considering second-order indices
+      ::  transactions/items, considering second-order indices
   ==
 ::
-::  TODO: change update interface to below
-:: +$  update
-::   $@  ~
-::   $%  [%path-does-not-exist ~]
-::       [%batches (map batch-id=id:smart [timestamp=@da location=town-location =batch])]
-::       [%batch-order =batch-order]
-::       [%txns (map txn-id=id:smart [timestamp=@da location=txn-location =transaction:smart])]
-::       [%items (jar item-id=id:smart [timestamp=@da location=batch-location =item:smart])]
-::       $:  %hashes
-::           batches=(map batch-id=id:smart [timestamp=@da location=town-location =batch])
-::           txns=(map txn-id=id:smart [timestamp=@da location=txn-location =transaction:smart])
-::           items=(jar item-id=id:smart [timestamp=@da location=batch-location =item:smart])
-::       ==
-::       [%batch batch-id=id:smart timestamp=@da location=town-location =batch]
-::       [%newest-batch-id batch-id=id:smart]  ::  keep?
-::       [%txn txn-id=id:smart timestamp=@da location=txn-location =transaction:smart]
-::       [%item item-id=id:smart timestamp=@da location=batch-location =item:smart]
-::       $:  %hash
-::           batch=[batch-id=id:smart timestamp=@da location=town-location =batch]
-::           txn=[txn-id=id:smart timestamp=@da location=txn-location =transaction:smart]
-::           item=[item-id=id:smart timestamp=@da location=batch-location =item:smart]
-::       ==
-::   ==
-::
 +$  consume-batch-args
-  $:  root=id:smart
+  $:  batch-id=id:smart
       transactions=processed-txs:eng
       =town:seq
       timestamp=@da

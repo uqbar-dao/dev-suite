@@ -4,7 +4,7 @@
     +$  card  card:agent:gall
     --
 |%
-++  hash-txn
+++  hash-transaction
   |=  [=calldata:smart =shell:smart]
   ::  hash the immutable+unique aspects of a transaction
   `@ux`(sham [calldata shell])
@@ -18,18 +18,18 @@
 ++  get-sent-history
   |=  [=address:smart newest=? our=@p now=@da]
   ^-  (map @ux [transaction:smart supported-actions])
-  =/  txn-history=update:ui
+  =/  transaction-history=update:ui
     .^  update:ui
         %gx
         %+  weld  /(scot %p our)/indexer/(scot %da now)
         %+  weld  ?.  newest  /  /newest
         /from/0x0/(scot %ux address)/noun
     ==
-  ?~  txn-history  ~
-  ?.  ?=(%txn -.txn-history)  ~
-  %-  ~(urn by txns.txn-history)
-  |=  [hash=@ux upd=[@ * txn=transaction:smart *]]  ::  if desired, where to add output:eng
-  [txn.upd(status (add 200 `@`status.txn.upd)) [%noun calldata.txn.upd]]
+  ?~  transaction-history  ~
+  ?.  ?=(%transaction -.transaction-history)  ~
+  %-  ~(urn by transactions.transaction-history)
+  |=  [hash=@ux @ * =transaction:smart *]  ::  if desired, where to add output:eng
+  [transaction(status (add 200 `@`status.transaction)) [%noun calldata.transaction]]
 ::
 ++  watch-for-batches
   |=  [our=@p town=@ux]
@@ -168,11 +168,11 @@
     (get-tracked-account-sent-txs accounts our now)
   =^  cardss=(list (list card))  transaction-store
     %^  spin  ~(tap by txs)  transaction-store
-    |=  [[account-id=@ux account-txs=(list [tx-id=@ux txn=transaction:smart action=supported-actions])] txs=^transaction-store]
+    |=  [[account-id=@ux account-txs=(list [tx-id=@ux =transaction:smart action=supported-actions])] txs=^transaction-store]
     =|  account-cards=(list card)
     =/  old-account-txs
       (~(gut by txs) account-id [sent=~ received=~])
-    =/  processed-account-txs=(map @ux [txn=transaction:smart action=supported-actions])
+    =/  processed-account-txs=(map @ux [=transaction:smart action=supported-actions])
       sent.old-account-txs
     |-
     ?~   account-txs
@@ -183,22 +183,22 @@
         (~(uni by sent.old-account-txs) processed-account-txs)
       ==
     =*  tx-id   tx-id.i.account-txs
-    =*  txn     txn.i.account-txs
+    =*  tx      transaction.i.account-txs
     =*  action  action.i.account-txs
     %=  $
         account-txs  t.account-txs
         processed-account-txs
       ?.  (~(has by processed-account-txs) tx-id)
         processed-account-txs
-      (~(put by processed-account-txs) tx-id [txn action])
+      (~(put by processed-account-txs) tx-id [tx action])
     ::
         account-cards
       :_  account-cards
       ?~  this-tx=(~(get by processed-account-txs) tx-id)
         %^  tx-update-card   tx-id
-          txn(status (sub status.txn 200))
-        [%noun (crip (noah !>(calldata.txn)))]
-      (tx-update-card tx-id txn action.u.this-tx)
+          tx(status (sub status.tx 200))
+        [%noun (crip (noah !>(calldata.tx)))]
+      (tx-update-card tx-id tx action.u.this-tx)
     ==
   [(zing cardss) transaction-store]
 ::

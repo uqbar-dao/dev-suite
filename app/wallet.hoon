@@ -101,7 +101,7 @@
       =+  seed=(to-seed:bip39 (trip mnemonic.act) (trip password.act))
       =+  core=(from-seed:bip32 [64 seed])
       =+  addr=(address-from-prv:key:ethereum private-key:core)
-      ::  get txn history for this new address
+      ::  get transaction history for this new address
       =/  sent  (get-sent-history addr %.n [our now]:bowl)
       ::  sub to batch updates
       :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
@@ -125,7 +125,7 @@
       =+  mnem=(from-entropy:bip39 [32 eny.bowl])
       =+  core=(from-seed:bip32 [64 (to-seed:bip39 mnem (trip password.act))])
       =+  addr=(address-from-prv:key:ethereum private-key:core)
-      ::  get txn history for this new address
+      ::  get transaction history for this new address
       =/  sent  (get-sent-history addr %.n [our now]:bowl)
       ::  sub to batch updates
       :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
@@ -151,7 +151,7 @@
         ?:  !=("" hdpath.act)  hdpath.act
         (weld "m/44'/60'/0'/0/" (scow %ud address-index.seed.state))
       =+  addr=(address-from-prv:key:ethereum prv:core)
-      ::  get txn history for this new address
+      ::  get transaction history for this new address
       =/  sent  (get-sent-history addr %.n [our now]:bowl)
       :-  ~
       %=  state
@@ -161,7 +161,7 @@
       ==
     ::
         %add-tracked-address
-      ::  get txn history for this new address
+      ::  get transaction history for this new address
       =/  sent  (get-sent-history address.act %.n [our now]:bowl)
       :-  ~
       %=  state
@@ -205,26 +205,26 @@
       =/  my-pending  (~(got by pending-store) from.act)
       ?~  found=(~(get by my-pending) hash.act)
         ~|("%wallet: can't find pending transaction with that hash" !!)
-      =*  txn  txn.u.found
+      =*  tx  transaction.u.found
       ::  get our nonce
       =/  our-nonces  (~(gut by nonces.state) from.act ~)
-      =/  nonce=@ud   (~(gut by our-nonces) town.txn 0)
-      ::  update txn with sig, nonce, and gas
-      =:  sig.txn               sig.act
-          nonce.caller.txn  +(nonce)
-          rate.gas.txn        rate.gas.act
-          bud.gas.txn      bud.gas.act
-          eth-hash.txn    `eth-hash.act
-          status.txn      %101
+      =/  nonce=@ud   (~(gut by our-nonces) town.tx 0)
+      ::  update tx with sig, nonce, and gas
+      =:  sig.tx           sig.act
+          nonce.caller.tx  +(nonce)
+          rate.gas.tx      rate.gas.act
+          bud.gas.tx       bud.gas.act
+          eth-hash.tx      `eth-hash.act
+          status.tx        %101
       ==
-      ::  update hash of txn with new values
-      =/  hash  (hash-txn +.txn)
+      ::  update hash of tx with new values
+      =/  hash  (hash-transaction +.tx)
       ::  update our transaction-store
-      =/  our-txns
+      =/  our-transactions
         ?~  o=(~(get by transaction-store) from.act)
-          [(malt ~[[hash [txn action.u.found]]]) ~]
-        u.o(sent (~(put by sent.u.o) hash [txn action.u.found]))
-      ~&  >>  "%wallet: submitting externally-signed txn"
+          [(malt ~[[hash [tx action.u.found]]]) ~]
+        u.o(sent (~(put by sent.u.o) hash [tx action.u.found]))
+      ~&  >>  "%wallet: submitting externally-signed transaction"
       ~&  >>  "with signature {<v.sig.act^r.sig.act^s.sig.act>}"
       ::  update stores
       :_  %=    state
@@ -232,16 +232,16 @@
             (~(put by pending-store) from.act (~(del by my-pending) hash.act))
           ::
               transaction-store
-            (~(put by transaction-store) from.act our-txns)
+            (~(put by transaction-store) from.act our-transactions)
           ::
               nonces
-            (~(put by nonces) from.act (~(put by our-nonces) town.txn +(nonce)))
+            (~(put by nonces) from.act (~(put by our-nonces) town.tx +(nonce)))
           ==
-      :~  (tx-update-card hash txn action.u.found)
+      :~  (tx-update-card hash tx action.u.found)
           :*  %pass  /submit-tx/(scot %ux hash)
               %agent  [our.bowl %uqbar]
               %poke  %uqbar-write
-              !>(`write:uqbar`[%submit txn])
+              !>(`write:uqbar`[%submit tx])
           ==
       ==
     ::
@@ -253,54 +253,54 @@
         ~|("%wallet: can't find pending transaction with that hash" !!)
       ?~  keypair=(~(get by keys.state) from.act)
         ~|("%wallet: don't have knowledge of that address" !!)
-      =*  txn  txn.u.found
+      =*  tx  transaction.u.found
       ::  get our nonce
       =/  our-nonces  (~(gut by nonces.state) from.act ~)
-      =/  nonce=@ud   (~(gut by our-nonces) town.txn 0)
-      ::  update txn with sig, nonce, and gas
-      =:  rate.gas.txn        rate.gas.act
-          nonce.caller.txn  +(nonce)
-          bud.gas.txn      bud.gas.act
-          status.txn      %101
+      =/  nonce=@ud   (~(gut by our-nonces) town.tx 0)
+      ::  update tx with sig, nonce, and gas
+      =:  rate.gas.tx      rate.gas.act
+          nonce.caller.tx  +(nonce)
+          bud.gas.tx       bud.gas.act
+          status.tx        %101
       ==
-      ::  update hash of txn with new values
-      =/  hash  (hash-txn +.txn)
+      ::  update hash of tx with new values
+      =/  hash  (hash-transaction +.tx)
       ::  produce our signature
-      =.  sig.txn
+      =.  sig.tx
         ?~  priv.u.keypair
           ~|("%wallet: don't have private key for that address" !!)
         %+  ecdsa-raw-sign:secp256k1:secp:crypto
         `@uvI`hash  u.priv.u.keypair
       ::  update our transaction-store
-      =/  our-txns
+      =/  our-txs
         ?~  o=(~(get by transaction-store) from.act)
-          [(malt ~[[hash [txn action.u.found]]]) ~]
-        u.o(sent (~(put by sent.u.o) hash [txn action.u.found]))
-      ~&  >>  "%wallet: submitting signed txn"
-      ~&  >>  "with signature {<v.sig.txn^r.sig.txn^s.sig.txn>}"
+          [(malt ~[[hash [tx action.u.found]]]) ~]
+        u.o(sent (~(put by sent.u.o) hash [tx action.u.found]))
+      ~&  >>  "%wallet: submitting signed transaction"
+      ~&  >>  "with signature {<v.sig.tx^r.sig.tx^s.sig.tx>}"
       ::  update stores
       :_  %=    state
               pending-store
             (~(put by pending-store) from.act (~(del by my-pending) hash.act))
           ::
               transaction-store
-            (~(put by transaction-store) from.act our-txns)
+            (~(put by transaction-store) from.act our-txs)
           ::
               nonces
-            (~(put by nonces) from.act (~(put by our-nonces) town.txn +(nonce)))
+            (~(put by nonces) from.act (~(put by our-nonces) town.tx +(nonce)))
           ==
-      :~  (tx-update-card hash txn action.u.found)
+      :~  (tx-update-card hash tx action.u.found)
           :*  %pass  /submit-tx/(scot %ux hash)
               %agent  [our.bowl %uqbar]
               %poke  %uqbar-write
-              !>(`write:uqbar`[%submit txn])
+              !>(`write:uqbar`[%submit tx])
           ==
       ==
     ::
         %delete-pending
       ~|  "%wallet: no pending transactions from that address"
       =/  my-pending  (~(got by pending-store) from.act)
-      ?~  txn=(~(get by my-pending) hash.act)
+      ?.  (~(has by my-pending) hash.act)
         ~|("%wallet: can't find pending transaction with that hash" !!)
       ::  remove without signing
       :-  ~
@@ -362,14 +362,14 @@
             status=%100
         ==
       ::  generate hash
-      =/  hash  (hash-txn [calldata shell])
-      =/  txn=transaction:smart  [[0 0 0] calldata shell]
+      =/  hash  (hash-transaction [calldata shell])
+      =/  =transaction:smart  [[0 0 0] calldata shell]
       ~&  >>  "%wallet: transaction pending with hash {<hash>}"
       ::  add to our pending-store with empty signature
       =/  my-pending
         %+  ~(put by (~(gut by pending-store) from.act ~))
-        hash  [txn action.act]
-      :-  (tx-update-card hash txn action.act)^~
+        hash  [transaction action.act]
+      :-  (tx-update-card hash transaction action.act)^~
       %=  state
         pending-store  (~(put by pending-store) from.act my-pending)
       ==
@@ -412,23 +412,23 @@
         ?~  p.sign
           ::  got it
           ~&  >>  "wallet: tx was received by sequencer"
-          this-tx(status.txn %101)
+          this-tx(status.transaction %101)
         ::  failed
         ~&  >>>  "wallet: tx was rejected by sequencer"
-        this-tx(status.txn %103)
-      :-  ~[(tx-update-card hash txn.this-tx action.this-tx)]
+        this-tx(status.transaction %103)
+      :-  ~[(tx-update-card hash transaction.this-tx action.this-tx)]
       %=    this
           transaction-store
         %-  ~(put by transaction-store)
         [from our-txs(sent (~(put by sent.our-txs) hash this-tx))]
       ::
           nonces
-        ?:  =(status.txn.this-tx %101)
+        ?:  =(status.transaction.this-tx %101)
           nonces
         ::  dec nonce on this town, tx was rejected
         %+  ~(put by nonces)  from
         %+  ~(jab by (~(got by nonces) from))
-          town.txn.this-tx
+          town.transaction.this-tx
         |=(n=@ud (dec n))
       ==
     `this

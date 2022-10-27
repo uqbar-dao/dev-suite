@@ -20,13 +20,13 @@
 ::
 +$  transaction-store
   %+  map  address:smart
-  $:  sent=(map @ux [txn=transaction:smart action=supported-actions])
+  $:  sent=(map @ux [=transaction:smart action=supported-actions])
       received=(map @ux transaction:smart)
   ==
 ::
 +$  pending-store
   %+  map  address:smart
-  (map @ux [txn=transaction:smart action=supported-actions])
+  (map @ux [=transaction:smart action=supported-actions])
 ::
 +$  transaction-status-code
   $%  %100  ::  100: transaction pending in wallet
@@ -53,7 +53,7 @@
 +$  wallet-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
       [%new-metadata metadata=metadata-store]
-      [%tx-status hash=@ux txn=transaction:smart action=supported-actions]
+      [%tx-status hash=@ux =transaction:smart action=supported-actions]
   ==
 ::
 ::  received from web interface

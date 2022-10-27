@@ -244,17 +244,20 @@
         ::  forward a transaction to sequencer we're tracking
         ::  for the specified town
         ?>  =(src.bowl our.bowl)
-        ?~  seq=(~(get by sequencers.state) `@ux`town.txn.write)
+        ?~  seq=(~(get by sequencers.state) `@ux`town.transaction.write)
           ~|("%uqbar: no known sequencer for that town" !!)
-        =/  txn-hash  (scot %ux `@ux`(sham +.txn.write))
+        =/  transaction-hash
+          (scot %ux `@ux`(sham +.transaction.write))
         :_  state
-        :+  %+  ~(poke pass:io /submit-transaction/txn-hash)
+        :+  %+  %~  poke  pass:io
+                /submit-transaction/[transaction-hash]
               [q.u.seq %sequencer]
             :-  %sequencer-town-action
-            !>(`town-action:s`[%receive (silt ~[txn.write])])
+            !>  ^-  town-action:s
+            [%receive (silt ~[transaction.write])]
           %+  fact:io
             [%write-result !>(`write-result:u`[%sent ~])]
-          ~[/track/[txn-hash]]
+          ~[/track/[transaction-hash]]
         ~
       ::
           %receipt
@@ -263,7 +266,7 @@
         :_  ~
         %+  fact:io
           [%write-result !>(`write-result:u`write)]
-        ~[/track/(scot %ux txn-hash.write)]
+        ~[/track/(scot %ux transaction-hash.write)]
       ==
     --
   ::

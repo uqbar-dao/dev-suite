@@ -51,7 +51,7 @@
       [%clear-state ~]
       ::  transactions
       [%receive-assets assets=state]
-      [%receive txns=(set transaction:smart)]
+      [%receive txs=(set transaction:smart)]
       ::  batching
       [%trigger-batch ~]
       [%perform-batch eth-block-height=@ud]
