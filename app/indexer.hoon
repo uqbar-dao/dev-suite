@@ -229,6 +229,24 @@
           (indexer-catchup-wire town root)
         dock
       (indexer-catchup-path town root)
+    ::
+        %consume-batch
+      =+  !<(args=consume-batch-args:ui vase)
+      =*  town-id  town-id:hall:town:args
+      =^  cards  state
+        (consume-batch:ic args)
+      :-  cards
+      %=  this
+          sequencer-update-queue
+        %+  ~(put by sequencer-update-queue)  town-id
+        %.  root
+        ~(del by (~(gut by sequencer-update-queue) town-id ~))
+      ::
+          town-update-queue
+        %+  ~(put by town-update-queue)  town-id
+        %.  root
+        ~(del by (~(gut by town-update-queue) town-id ~))
+      ==
     ==
   ::
   ++  on-watch
@@ -509,7 +527,7 @@
         =*  town-id  town-id.hall.update
         =*  root     root.update
         ?:  (has-root-already town-id root)  `state
-        ?.  =(root (sham chain.update))       `state
+        ?.  =(root (sham chain.update))      `state
         =/  timestamp=(unit @da)
           %.  root
           %~  get  by
@@ -526,20 +544,16 @@
               root
             [transactions.update [chain.update hall.update]]
           ==
-        =^  cards  state
-          %:  consume-batch:ic
-              root
-              transactions.update
-              [chain.update hall.update]
-              u.timestamp
-              %.y
-          ==
-        :-  cards
-        %=  state
-            town-update-queue
-          %+  ~(put by town-update-queue)  town-id
-          %.  root
-          ~(del by (~(got by town-update-queue) town-id))
+        :_  state
+        :_  ~
+        %-  ~(poke-self pass:io /consume-batch-poke)
+        :-  %consume-batch
+        !>  ^-  consume-batch-args:ui
+        :*  root
+            transactions.update
+            [chain.update hall.update]
+            u.timestamp
+            %.y
         ==
       ==
     ::
@@ -594,20 +608,16 @@
                 *(map batch-id=@ux timestamp=@da)
             root  timestamp.update
           ==
-        =^  cards  state
-          %:  consume-batch:ic
-              root
-              txns.u.sequencer-update
-              town.u.sequencer-update
-              timestamp.update
-              %.y
-          ==
-        :-  cards
-        %=  state
-            sequencer-update-queue
-          %+  ~(jab by sequencer-update-queue)  town-id
-          |=  queue=(map @ux batch:ui)
-          (~(del by queue) root)
+        :_  state
+        :_  ~
+        %-  ~(poke-self pass:io /consume-batch-poke)
+        :-  %consume-batch
+        !>  ^-  consume-batch-args:ui
+        :*  root
+            txns.u.sequencer-update
+            town.u.sequencer-update
+            timestamp.update
+            %.y
         ==
       ==
       ::
