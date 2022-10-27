@@ -830,7 +830,7 @@
 ++  user-files-to-json
   |=  user-files=(set path)
   ^-  json
-  =/  user-files-list=(list path)  ~(tap by user-files)
+  =/  user-files-list=(list path)  ~(tap in user-files)
   ?~  user-files-list  ~
   %+  frond:enjs:format  %user-files
   :-  %a
