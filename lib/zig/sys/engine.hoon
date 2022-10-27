@@ -30,7 +30,8 @@
     =*  tx  tx.i.pending
     =/  =output  ~(intake eng chain.st tx)
     =/  priced-gas  (mul gas.output rate.gas.tx)
-    =.  modified.output
+    =?  modified.output  (gth priced-gas 0)
+      %+  put:big  modified.output
       %+  ~(charge tax p.chain.st)
         modified.output
       [caller.tx priced-gas]
@@ -343,15 +344,13 @@
     ::  adequately validates balance >= budget+amount.
     ++  charge
       |=  [modified=^state payee=caller:smart fee=@ud]
-      ^-  ^state
-      ?:  =(0 fee)  state
+      ^-  [id:smart item:smart]
       ::  if zigs are in modified, use that, otherwise get from state
       =/  zigs=item:smart
         ?^  hav=(get:big modified zigs.payee)  u.hav
         (got:big state zigs.payee)
       ?>  ?=(%& -.zigs)
       =/  balance  ;;(@ud -.noun.p.zigs)
-      %+  put:big  state
       =-  [zigs.payee zigs(noun.p -)]
       [(sub balance fee) +.noun.p.zigs]
     ::  +pay: give fees from transactions to sequencer

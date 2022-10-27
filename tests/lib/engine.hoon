@@ -796,5 +796,83 @@
 ::  assert that transactions are ordered properly by rate and nonce,
 ::  and that serial exeuction is performed correctly with proper final state
 ::
-
+++  test-pz-run
+  =/  =mempool
+    %-  silt
+    :~  :^  0x0  fake-sig
+          [%give address:caller-2:zigs 1.000 id.p:account-1:zigs `id.p:account-2:zigs]
+        [caller-1 ~ id.p:pact:zigs [1 100.000] town-id 0]
+        :^  0x0  fake-sig
+          [%give address:caller-1:zigs 1.000 id.p:account-2:zigs `id.p:account-1:zigs]
+        [caller-2 ~ id.p:pact:zigs [1 100.000] town-id 0]
+    ==
+  =/  st=state-transition
+    %+  %~  run  eng
+        [sequencer town-id batch=1 eth-block-height=0]
+      fake-chain
+    mempool
+  ;:  weld
+    (expect-eq !>(2) !>((lent processed.st)))
+    (expect-eq !>(%0) !>(status.tx:(snag 0 processed.st)))
+    (expect-eq !>(%0) !>(status.tx:(snag 1 processed.st)))
+    (expect-eq !>(~) !>(burned.st))
+    (expect-eq !>(3) !>(~(wyt by modified.st)))
+  ==
+::
+++  test-py-run-same-caller
+  =/  caller  caller-1
+  =/  =mempool
+    %-  silt
+    :~  :^  0x0  fake-sig
+          [%give address:caller-2:zigs 1.000 id.p:account-1:zigs `id.p:account-2:zigs]
+        [caller ~ id.p:pact:zigs [1 100.000] town-id 0]
+        :^  0x0  fake-sig
+          [%give address:caller-2:zigs 1.000 id.p:account-1:zigs `id.p:account-2:zigs]
+        [caller(nonce 2) ~ id.p:pact:zigs [1 100.000] town-id 0]
+    ==
+  =/  st=state-transition
+    %+  %~  run  eng
+        [sequencer town-id batch=1 eth-block-height=0]
+      fake-chain
+    mempool
+  ;:  weld
+    (expect-eq !>(2) !>((lent processed.st)))
+    (expect-eq !>(%0) !>(status.tx:(snag 0 processed.st)))
+    (expect-eq !>(%0) !>(status.tx:(snag 1 processed.st)))
+    (expect-eq !>(~) !>(burned.st))
+    (expect-eq !>(3) !>(~(wyt by modified.st)))
+  ==
+::
+++  test-py-run-same-caller-different-rates
+  =/  caller  caller-1
+  =/  =mempool
+    %-  silt
+    :~  :^  0x0  fake-sig
+          [%give address:caller-2:zigs 1.000 id.p:account-1:zigs `id.p:account-2:zigs]
+        [caller ~ id.p:pact:zigs [1 100.000] town-id 0]
+        :^  0x0  fake-sig
+          [%give address:caller-2:zigs 1.000 id.p:account-1:zigs `id.p:account-2:zigs]
+        [caller(nonce 2) ~ id.p:pact:zigs [2 100.000] town-id 0]
+        :^  0x0  fake-sig
+          [%give address:caller-2:zigs 1.000 id.p:account-1:zigs `id.p:account-2:zigs]
+        [caller(nonce 3) ~ id.p:pact:zigs [4 100.000] town-id 0]
+        :^  0x0  fake-sig
+          [%give address:caller-2:zigs 1.000 id.p:account-1:zigs `id.p:account-2:zigs]
+        [caller(nonce 4) ~ id.p:pact:zigs [3 100.000] town-id 0]
+    ==
+  =/  st=state-transition
+    %+  %~  run  eng
+        [sequencer town-id batch=1 eth-block-height=0]
+      fake-chain
+    mempool
+  ~&  modified.st
+  ;:  weld
+    (expect-eq !>(4) !>((lent processed.st)))
+    (expect-eq !>(%0) !>(status.tx:(snag 0 processed.st)))
+    (expect-eq !>(%0) !>(status.tx:(snag 1 processed.st)))
+    (expect-eq !>(%0) !>(status.tx:(snag 2 processed.st)))
+    (expect-eq !>(%0) !>(status.tx:(snag 3 processed.st)))
+    (expect-eq !>(~) !>(burned.st))
+    (expect-eq !>(3) !>(~(wyt by modified.st)))
+  ==
 --
