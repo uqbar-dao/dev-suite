@@ -111,7 +111,7 @@
 ::      Subscribe to rollup for new batch roots.
 ::
 ::
-/-  engine=zig-engine,
+/-  eng=zig-engine,
     uqbar=zig-uqbar,
     seq=zig-sequencer,
     ui=zig-indexer
@@ -593,7 +593,7 @@
         =*  root     root.update
         ?:  (has-root-already town-id root)  `state
         =/  sequencer-update
-          ^-  (unit [txns=(list [@ux transaction:smart]) =town:seq])
+          ^-  (unit [transactions=processed-txs:eng =town:seq])
           %.  root
           %~  get  by
           %+  ~(gut by sequencer-update-queue)  town-id
@@ -614,7 +614,7 @@
         :-  %consume-batch
         !>  ^-  consume-batch-args:ui
         :*  root
-            txns.u.sequencer-update
+            transactions.u.sequencer-update
             town.u.sequencer-update
             timestamp.update
             %.y
@@ -793,10 +793,10 @@
 ::
 ++  combine-batch-updates-to-map
   |=  updates=(list update:ui)
-  ^-  (map id:smart [@da town-location:ui batch:ui])
+  ^-  (map id:smart batch-update-value:ui)
   ?~  updates  ~
   %-  %~  gas  by
-      *(map id:smart [@da town-location:ui batch:ui])
+      *(map id:smart batch-update-value:ui)
   %-  zing
   %+  turn  updates
   |=  =update:ui
@@ -808,10 +808,10 @@
 ::
 ++  combine-txn-updates-to-map
   |=  updates=(list update:ui)
-  ^-  (map id:smart [@da txn-location:ui transaction:smart])
+  ^-  (map id:smart txn-update-value:ui)
   ?~  updates  ~
   %-  %~  gas  by
-      *(map id:smart [@da txn-location:ui transaction:smart])
+      *(map id:smart txn-update-value:ui)
   %-  zing
   %+  turn  updates
   |=  =update:ui
@@ -823,10 +823,10 @@
 ::
 ++  combine-item-updates-to-jar  ::  TODO: can this clobber?
   |=  updates=(list update:ui)
-  ^-  (jar id:smart [@da batch-location:ui item:smart])
+  ^-  (jar id:smart item-update-value:ui)
   ?~  updates  ~
   %-  %~  gas  by
-      *(jar id:smart [@da batch-location:ui item:smart])
+      *(jar id:smart item-update-value:ui)
   %-  zing
   %+  turn  updates
   |=  =update:ui
@@ -849,11 +849,11 @@
           ?=(~ item-updates)
       ==
     ~
-  =/  combined-batch=(map id:smart [@da town-location:ui batch:ui])
+  =/  combined-batch=(map id:smart batch-update-value:ui)
     (combine-batch-updates-to-map batch-updates)
-  =/  combined-txn=(map id:smart [@da txn-location:ui transaction:smart])
+  =/  combined-txn=(map id:smart txn-update-value:ui)
     (combine-txn-updates-to-map txn-updates)
-  =/  combined-item=(jar id:smart [@da batch-location:ui item:smart])
+  =/  combined-item=(jar id:smart item-update-value:ui)
     (combine-item-updates-to-jar item-updates)
   ?:  ?&  ?=(~ combined-batch)
           ?=(~ combined-txn)
@@ -1008,9 +1008,9 @@
           ~
         =*  timestamp  timestamp.u.b
         =*  state    p.chain.batch.u.b
-        ?~  item=(get:big:engine state item-id)  ~
+        ?~  item=(get:big:eng state item-id)  ~
         [%newest-item item-id timestamp location u.item]
-      =|  items=(jar item-id=id:smart [@da batch-location:ui item:smart])
+      =|  items=(jar item-id=id:smart item-update-value:ui)
       =.  locations  (flop locations)
       |-
       ?~  locations  ?~(items ~ [%item items])
@@ -1028,7 +1028,7 @@
         $(locations t.locations)
       =*  timestamp  timestamp.u.b
       =*  state    p.chain.batch.u.b
-      ?~  item=(get:big:engine state item-id)
+      ?~  item=(get:big:eng state item-id)
         $(locations t.locations)
       %=  $
           locations  t.locations
@@ -1054,9 +1054,9 @@
         =*  timestamp  timestamp.u.b
         =*  txs        transactions.batch.u.b
         ?.  (lth txn-num (lent txs))  ~
-        =+  [hash=@ux txn=transaction:smart]=(snag txn-num txs)
-        [%newest-txn hash timestamp location txn]
-      =|  txns=(map id:smart [@da txn-location:ui transaction:smart])
+        =+  [hash=@ux txn=transaction:smart =output:eng]=(snag txn-num txs)
+        [%newest-txn hash timestamp location txn output]
+      =|  txns=(map id:smart txn-update-value:ui)
       |-
       ?~  locations  ?~(txns ~ [%txn txns])
       =*  location  i.locations
@@ -1075,11 +1075,11 @@
       =*  timestamp  timestamp.u.b
       =*  txs        transactions.batch.u.b
       ?.  (lth txn-num (lent txs))  $(locations t.locations)
-      =+  [hash=@ux txn=transaction:smart]=(snag txn-num txs)
+      =+  [hash=@ux txn=transaction:smart =output:eng]=(snag txn-num txs)
       %=  $
           locations  t.locations
           txns
-        (~(put by txns) hash [timestamp location txn])
+        (~(put by txns) hash [timestamp location txn output])
       ==
     ::
     ++  get-second-order
@@ -1158,7 +1158,6 @@
               txns
             ?:  ?=(%txn -.next-update)
               (~(uni by txns.out) txns.next-update)
-            ?>  ?=(%newest-txn -.next-update)
             (~(put by txns.out) +.next-update)
           ==
         ::
@@ -1168,7 +1167,6 @@
               items
             ?:  ?=(%item -.next-update)
               (~(uni by items.out) items.next-update)  ::  TODO: can this clobber?
-            ?>  ?=(%newest-item -.next-update)
             (~(add ja items.out) +.next-update)
           ==
         ::
@@ -1184,7 +1182,7 @@
             :-  %txn
             %.  ~[+.out +.next-update]
             %~  gas  by
-            *(map id:smart [@da txn-location:ui transaction:smart])
+            *(map id:smart txn-update-value:ui)
           ==
         ::
             %newest-item
@@ -1248,7 +1246,7 @@
 ::
 ++  consume-batch
   |=  $:  root=@ux
-          txns=(list [@ux transaction:smart])
+          txns=processed-txs:eng
           =town:seq
           timestamp=@da
           should-update-subs=?
@@ -1349,7 +1347,7 @@
   ++  parse-batch
     |=  $:  root=@ux
             town-id=@ux
-            txns=(list [@ux transaction:smart])
+            txns=processed-txs:eng
             =chain:seq
         ==
     ^-  $:  (list [@ux txn-location:ui])
@@ -1404,7 +1402,7 @@
     ==
   ::
   ++  parse-transactions
-    |=  [root=@ux town-id=@ux txs=(list [@ux transaction:smart])]
+    |=  [root=@ux town-id=@ux txs=processed-txs:eng]
     ^-  $:  (list [@ux txn-location:ui])
             (list [@ux second-order-location:ui])
             (list [@ux second-order-location:ui])
@@ -1415,14 +1413,14 @@
     =/  txn-num=@ud  0
     |-
     ?~  txs  [parsed-txn parsed-from parsed-to]
-    =*  txn-hash     -.i.txs
-    =*  txn          +.i.txs
-    =*  contract     contract.txn
-    =*  from         address.caller.txn
+    =*  txn-hash  tx-hash.i.txs
+    =*  txn       tx.i.txs
+    =*  contract  contract.txn
+    =*  from      address.caller.txn
     =/  =txn-location:ui  [town-id root txn-num]
     %=  $
-        txn-num      +(txn-num)
-        txs          t.txs
+        txn-num  +(txn-num)
+        txs      t.txs
         parsed-txn
       ?:  %+  exists-in-index  town-id
           [txn-hash txn-location txn-index]

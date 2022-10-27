@@ -28,7 +28,7 @@
   ?~  txn-history  ~
   ?.  ?=(%txn -.txn-history)  ~
   %-  ~(urn by txns.txn-history)
-  |=  [hash=@ux upd=[@ * txn=transaction:smart]]
+  |=  [hash=@ux upd=[@ * txn=transaction:smart *]]  ::  if desired, where to add output:eng
   [txn.upd(status (add 200 `@`status.txn.upd)) [%noun calldata.txn.upd]]
 ::
 ++  watch-for-batches
