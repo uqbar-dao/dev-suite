@@ -15,7 +15,7 @@
         ['user_files' (user-files-to-json user-files.upd)]
         ['compiled' [%b compiled.upd]]
         ['errors' (errors-to-json errors.upd)]
-        ['state' (state-to-json p.chain.upd data-texts.upd)]
+        ['state' (state-to-json p.chain.upd noun-texts.upd)]
         ['tests' (tests-to-json tests.upd)]
     ==
   --

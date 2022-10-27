@@ -220,10 +220,10 @@
     ::
         %add-to-state
       =/  =project  (~(got by projects) project.act)
-      =/  data-text  ;;(@t noun.act)
+      =/  noun-text  ;;(@t noun.act)
       =/  =id:smart  (hash-data:smart source.act holder.act town-id.act salt.act)
       =/  =data:smart
-        =+  (text-to-zebra-noun data-text smart-lib-vase)
+        =+  (text-to-zebra-noun noun-text smart-lib-vase)
         [id source.act holder.act town-id.act salt.act label.act -]
       ::  take text data input and ream to form data noun
       ::  put a new grain in the granary
@@ -232,7 +232,7 @@
         [id.data %&^data]
       ::
           noun-texts.project
-        (~(put by noun-texts.project) id.data data-text)
+        (~(put by noun-texts.project) id.data noun-text)
       ==
       :-  (make-project-update project.act project)^~
       state(projects (~(put by projects) project.act project))
