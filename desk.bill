@@ -4,7 +4,5 @@
     %indexer
     %wallet
     %ziggurat
-    %faucet
-    %batcher-interval
-    %batcher-threshold
+    %pyro
 ==
