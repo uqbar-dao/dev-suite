@@ -1,5 +1,8 @@
 /-  *zig-ziggurat
-/+  conq=zink-conq, zink=zink-zink, dock=docket
+/+  conq=zink-conq,
+    dock=docket,
+    pyio=py-io,
+    zink=zink-zink
 |%
 ::
 ::  set parameters for our local test environment
