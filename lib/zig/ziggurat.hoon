@@ -232,400 +232,400 @@
 ::
 ::  project states for templates
 ::
-++  fungible-template-project
-  |=  [current=project meta-rice=data:smart smart-lib-vase=vase]
-  ^-  project
-  ::  make fungible accounts and tests
-  =/  metadata
-    ;;  $:  name=@t
-            symbol=@t
-            decimals=@ud
-            supply=@ud
-            cap=(unit @ud)
-            mintable=?
-            minters=(pset:smart address:smart)
-            deployer=address:smart
-            salt=@
-        ==
-    (text-to-zebra-noun ;;(@t noun.meta-rice) smart-lib-vase)
-  =/  dead-beef-account-id
-    %:  hash-data:smart
-        source.meta-rice
-        user-address.current
-        designated-town-id
-        salt.metadata
-    ==
-  =/  dead-beef-account
-    ^-  data:smart
-    :*  dead-beef-account-id
-        source.meta-rice
-        user-address.current
-        designated-town-id
-        salt.metadata
-        %account
-        [200 ~ id.meta-rice 0]
-    ==
-  =/  cafe-babe-account-id
-    %:  hash-data:smart
-        source.meta-rice
-        0xcafe.babe
-        designated-town-id
-        salt.metadata
-    ==
-  =/  cafe-babe-account
-    ^-  data:smart
-    :*  cafe-babe-account-id
-        source.meta-rice
-        0xcafe.babe
-        designated-town-id
-        salt.metadata
-        %account
-        [100 ~ id.meta-rice 0]
-    ==
-  =/  cafe-d00d-account-id
-    %:  hash-data:smart
-        source.meta-rice
-        0xcafe.d00d
-        designated-town-id
-        salt.metadata
-    ==
-  =/  cafe-d00d-account
-    ^-  data:smart
-    :*  cafe-d00d-account-id
-        source.meta-rice
-        0xcafe.d00d
-        designated-town-id
-        salt.metadata
-        %account
-        [100 (make-pmap:smart ~[[0xdead.beef 50]]) id.meta-rice 0]
-    ==
-  =/  action-1=@t
-    %-  crip
-    %-  zing
-    :~  "[%give to=0xcafe.babe amount=30 from-account="
-        (trip (scot %ux dead-beef-account-id))
-        " to-account=`"
-        (trip (scot %ux cafe-babe-account-id))
-        "]"
-    ==
-  =/  yolk-1=calldata:smart
-    =-  [;;(@tas -.-) +.-]
-    q:(slap smart-lib-vase (ream action-1))
-  =/  test-1=test
-    =/  data-1
-      '[balance=170 allowances=~ metadata=0xdada.dada nonce=0]'
-    =/  data-2
-      '[balance=130 allowances=~ metadata=0xdada.dada nonce=0]'
-    :*  `'test-give'
-        next-contract-id.current
-        action-1
-        yolk-1
-        %-  malt
-        :~  :+  dead-beef-account-id
-              %&^dead-beef-account(noun q:(slap smart-lib-vase (ream data-1)))
-            data-1
-            :+  cafe-babe-account-id
-              %&^cafe-babe-account(noun q:(slap smart-lib-vase (ream data-2)))
-            data-2
-        ==
-        %0
-        ~
-    ==
-  =/  action-2=@t
-    %-  crip
-    %-  zing
-    :~  "[%take to=0xcafe.babe amount=50 from-account="
-        (trip (scot %ux cafe-d00d-account-id))
-        " to-account=`"
-        (trip (scot %ux cafe-babe-account-id))
-        "]"
-    ==
-  =/  yolk-2=calldata:smart
-    =-  [;;(@tas -.-) +.-]
-    q:(slap smart-lib-vase (ream action-2))
-  =/  test-2=test
-    =/  data-1
-      '[balance=50 allowances=(make-pmap ~[[0xdead.beef 0]]) metadata=0xdada.dada nonce=0]'
-    =/  data-2
-      '[balance=150 allowances=~ metadata=0xdada.dada nonce=0]'
-    :*  `'test-take'
-        next-contract-id.current
-        action-2
-        yolk-2
-        %-  malt
-        :~  :+  cafe-d00d-account-id
-              %&^cafe-d00d-account(noun (text-to-zebra-noun data-1 smart-lib-vase))
-            data-1
-            :+  cafe-babe-account-id
-              %&^cafe-babe-account(noun q:(slap smart-lib-vase (ream data-2)))
-            data-2
-        ==
-        %0
-        ~
-    ==
-  =/  action-3=@t
-    %-  crip
-    %-  zing
-    :~  "[%set-allowance who=0xcafe.babe amount=100 account="
-        (trip (scot %ux dead-beef-account-id))
-        "]"
-    ==
-  =/  yolk-3=calldata:smart
-    =-  [;;(@tas -.-) +.-]
-    q:(slap smart-lib-vase (ream action-3))
-  =/  test-3=test
-    =/  data-1
-      '[balance=200 allowances=(make-pmap ~[[0xcafe.babe 100]]) metadata=0xdada.dada nonce=0]'
-    :*  `'test-set-allowance'
-        next-contract-id.current
-        action-3
-        yolk-3
-        %-  malt
-        :~  :+  dead-beef-account-id
-              %&^dead-beef-account(noun (text-to-zebra-noun data-1 smart-lib-vase))
-            data-1
-        ==
-        %0
-        ~
-    ==
-  =/  fungible-contract-path=path  /con/fungible/hoon
-  %=  current
-      next-contract-id  (add next-contract-id.current 1)
-      user-files
-    (~(put in user-files.current) fungible-contract-path)
-  ::
-      to-compile
-    %+  ~(put by to-compile.current)  fungible-contract-path
-    next-contract-id.current
-  ::
-      tests
-    (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
-  ::
-      noun-texts
-    %-  ~(uni by noun-texts.current)
-    %-  ~(gas by *(map id:smart @t))
-    :~  [id.meta-rice ;;(@t noun.meta-rice)]
-        [dead-beef-account-id '[balance=200 allowances=~ metadata=0xdada.dada nonce=0]']
-        [cafe-babe-account-id '[balance=100 allowances=~ metadata=0xdada.dada nonce=0]']
-        [cafe-d00d-account-id '[balance=100 allowances=(make-pmap ~[[0xdead.beef 50]]) metadata=0xdada.dada nonce=0]']
-    ==
-  ::
-      p.chain
-    =-  (uni:big:engine p.chain.current -)
-    %+  gas:big:engine  *state:engine
-    :~  [id.meta-rice %&^meta-rice(noun metadata)]
-        [dead-beef-account-id %&^dead-beef-account]
-        [cafe-babe-account-id %&^cafe-babe-account]
-        [cafe-d00d-account-id %&^cafe-d00d-account]
-    ==
-  ==
-++  nft-template-project
-  |=  [current=project meta-rice=data:smart smart-lib-vase=vase]
-  ^-  project
-  ::  make fungible accounts and tests
-  =/  metadata
-    ;;  $:  name=@t
-            symbol=@t
-            properties=(pset:smart @tas)
-            supply=@ud
-            cap=(unit @ud)
-            mintable=?
-            minters=(pset:smart address:smart)
-            deployer=address:smart
-            salt=@
-        ==
-    (text-to-zebra-noun ;;(@t noun.meta-rice) smart-lib-vase)
-  ::
-  =/  props
-    %-  ~(gas py:smart *(map @tas @t))
-    %+  turn  ~(tap pn:smart properties.metadata)
-    |=  prop=@tas
-    [prop 'random_attribute']
-  =/  props-tape=tape
-    %-  zing
-    :~  "properties=(make-pmap `(list [@tas @t])`~["
-        ^-  tape
-        %-  snip
-        ^-  tape
-        %-  zing
-        %+  turn  ~(tap pn:smart properties.metadata)
-        |=  prop=@tas
-        %-  zing
-        :~  "[%"  (trip (scot %tas prop))
-            " 'random_attribute'] "
-        ==
-        "])"
-    ==
-  ::
-  =/  nft-1-id
-    %:  hash-data:smart
-        source.meta-rice
-        user-address.current
-        designated-town-id
-        (cat 3 salt.metadata (scot %ud 1))
-    ==
-  =/  nft-1
-    ^-  data:smart
-    :*  nft-1-id
-        source.meta-rice
-        user-address.current
-        designated-town-id
-        (cat 3 salt.metadata (scot %ud 1))
-        %nft
-        [1 'https://image.link' id.meta-rice ~ props &]
-    ==
-  =/  nft-1-text=@t
-    %-  crip
-    %-  zing
-    :~  "[id=1 uri='https://image.link' metadata=0xdada.dada allowances=~ "
-        props-tape
-        " transferrable=%.y]"
-    ==
-  =/  nft-2-id
-    %:  hash-data:smart
-        source.meta-rice
-        0xcafe.babe
-        designated-town-id
-        (cat 3 salt.metadata (scot %ud 2))
-    ==
-  =/  nft-2
-    ^-  data:smart
-    :*  nft-2-id
-        source.meta-rice
-        0xcafe.babe
-        designated-town-id
-        (cat 3 salt.metadata (scot %ud 2))
-        %nft
-        [2 'https://image.link' id.meta-rice ~ props &]
-    ==
-  =/  nft-2-text=@t
-    %-  crip
-    %-  zing
-    :~  "[id=2 uri='https://image.link' metadata=0xdada.dada allowances=~ "
-        props-tape
-        " transferrable=%.y]"
-    ==
-  ::
-  =/  action-1=@t
-    %-  crip
-    %-  zing
-    :~  "[%give to=0xcafe.babe item-id="
-        (trip (scot %ux nft-1-id))
-        "]"
-    ==
-  =/  yolk-1=calldata:smart
-    =-  [;;(@tas -.-) +.-]
-    q:(slap smart-lib-vase (ream action-1))
-  =/  test-1=test
-    :*  `'test-give'
-        next-contract-id.current
-        action-1
-        yolk-1
-        %-  malt
-        :~  :+  nft-1-id
-              %&^nft-1(holder 0xcafe.babe)
-            nft-1-text
-        ==
-        %0
-        ~
-    ==
-  ::
-  =/  action-2=@t
-    %-  crip
-    %-  zing
-    :~  "[%give to=0xcafe.babe item-id="
-        (trip (scot %ux nft-2-id))
-        "]"
-    ==
-  =/  yolk-2=calldata:smart
-    =-  [;;(@tas -.-) +.-]
-    q:(slap smart-lib-vase (ream action-2))
-  =/  test-2=test
-    :*  `'test-give-dont-have'
-        next-contract-id.current
-        action-2
-        yolk-2
-        ~
-        %6
-        ~
-    ==
-  ::
-  =/  action-3=@t
-    %-  crip
-    %-  zing
-    :~  "[%mint token=0xdada.dada mints=[to="
-        (trip (scot %ux user-address.current))
-        " uri='https://image.link' "
-        props-tape
-        " transferrable=%.y] ~]"
-    ==
-  =/  yolk-3=calldata:smart
-    =-  [;;(@tas -.-) +.-]
-    (text-to-zebra-noun action-3 smart-lib-vase)
-  =/  nft-3-id
-    %:  hash-data:smart
-        source.meta-rice
-        user-address.current
-        designated-town-id
-        (cat 3 salt.metadata (scot %ud 3))
-    ==
-  =/  nft-3
-    ^-  data:smart
-    :*  nft-3-id
-        source.meta-rice
-        user-address.current
-        designated-town-id
-        (cat 3 salt.metadata (scot %ud 3))
-        %nft
-        [3 'https://image.link' id.meta-rice ~ props &]
-    ==
-  =/  nft-3-text=@t
-    %-  crip
-    %-  zing
-    :~  "[id=3 uri='https://image.link' metadata=0xdada.dada allowances=~ "
-        props-tape
-        " transferrable=%.y]"
-    ==
-  =/  test-3=test
-    :*  `'test-mint'
-        next-contract-id.current
-        action-3
-        yolk-3
-        (malt ~[[nft-3-id [%&^nft-3 nft-3-text]]])
-        %0
-        ~
-    ==
-  =/  nft-contract-path=path  /con/nft/hoon
-  %=  current
-      next-contract-id  (add next-contract-id.current 1)
-      user-files
-    (~(put in user-files.current) nft-contract-path)
-  ::
-      to-compile
-    %+  ~(put by to-compile.current)  nft-contract-path
-    next-contract-id.current
-  ::
-      tests
-    (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
-  ::
-      noun-texts
-    %-  ~(uni by noun-texts.current)
-    %-  ~(gas by *(map id:smart @t))
-    :~  [id.meta-rice ;;(@t noun.meta-rice)]
-        ::  [1 'https://image.link' id.meta-rice ~ props &]
-        [nft-1-id nft-1-text]
-    ::
-        [nft-2-id nft-2-text]
-    ==
-  ::
-      p.chain
-    =-  (uni:big:engine p.chain.current -)
-    %+  gas:big:engine  *state:engine
-    :~  [id.meta-rice %&^meta-rice(noun metadata)]
-        [nft-1-id %&^nft-1]
-        [nft-2-id %&^nft-2]
-    ==
-  ==
+:: ++  fungible-template-project
+::   |=  [current=project meta-rice=data:smart smart-lib-vase=vase]
+::   ^-  project
+::   ::  make fungible accounts and tests
+::   =/  metadata
+::     ;;  $:  name=@t
+::             symbol=@t
+::             decimals=@ud
+::             supply=@ud
+::             cap=(unit @ud)
+::             mintable=?
+::             minters=(pset:smart address:smart)
+::             deployer=address:smart
+::             salt=@
+::         ==
+::     (text-to-zebra-noun ;;(@t noun.meta-rice) smart-lib-vase)
+::   =/  dead-beef-account-id
+::     %:  hash-data:smart
+::         source.meta-rice
+::         user-address.current
+::         designated-town-id
+::         salt.metadata
+::     ==
+::   =/  dead-beef-account
+::     ^-  data:smart
+::     :*  dead-beef-account-id
+::         source.meta-rice
+::         user-address.current
+::         designated-town-id
+::         salt.metadata
+::         %account
+::         [200 ~ id.meta-rice 0]
+::     ==
+::   =/  cafe-babe-account-id
+::     %:  hash-data:smart
+::         source.meta-rice
+::         0xcafe.babe
+::         designated-town-id
+::         salt.metadata
+::     ==
+::   =/  cafe-babe-account
+::     ^-  data:smart
+::     :*  cafe-babe-account-id
+::         source.meta-rice
+::         0xcafe.babe
+::         designated-town-id
+::         salt.metadata
+::         %account
+::         [100 ~ id.meta-rice 0]
+::     ==
+::   =/  cafe-d00d-account-id
+::     %:  hash-data:smart
+::         source.meta-rice
+::         0xcafe.d00d
+::         designated-town-id
+::         salt.metadata
+::     ==
+::   =/  cafe-d00d-account
+::     ^-  data:smart
+::     :*  cafe-d00d-account-id
+::         source.meta-rice
+::         0xcafe.d00d
+::         designated-town-id
+::         salt.metadata
+::         %account
+::         [100 (make-pmap:smart ~[[0xdead.beef 50]]) id.meta-rice 0]
+::     ==
+::   =/  action-1=@t
+::     %-  crip
+::     %-  zing
+::     :~  "[%give to=0xcafe.babe amount=30 from-account="
+::         (trip (scot %ux dead-beef-account-id))
+::         " to-account=`"
+::         (trip (scot %ux cafe-babe-account-id))
+::         "]"
+::     ==
+::   =/  yolk-1=calldata:smart
+::     =-  [;;(@tas -.-) +.-]
+::     q:(slap smart-lib-vase (ream action-1))
+::   =/  test-1=test
+::     =/  data-1
+::       '[balance=170 allowances=~ metadata=0xdada.dada nonce=0]'
+::     =/  data-2
+::       '[balance=130 allowances=~ metadata=0xdada.dada nonce=0]'
+::     :*  `'test-give'
+::         next-contract-id.current
+::         action-1
+::         yolk-1
+::         %-  malt
+::         :~  :+  dead-beef-account-id
+::               %&^dead-beef-account(noun q:(slap smart-lib-vase (ream data-1)))
+::             data-1
+::             :+  cafe-babe-account-id
+::               %&^cafe-babe-account(noun q:(slap smart-lib-vase (ream data-2)))
+::             data-2
+::         ==
+::         %0
+::         ~
+::     ==
+::   =/  action-2=@t
+::     %-  crip
+::     %-  zing
+::     :~  "[%take to=0xcafe.babe amount=50 from-account="
+::         (trip (scot %ux cafe-d00d-account-id))
+::         " to-account=`"
+::         (trip (scot %ux cafe-babe-account-id))
+::         "]"
+::     ==
+::   =/  yolk-2=calldata:smart
+::     =-  [;;(@tas -.-) +.-]
+::     q:(slap smart-lib-vase (ream action-2))
+::   =/  test-2=test
+::     =/  data-1
+::       '[balance=50 allowances=(make-pmap ~[[0xdead.beef 0]]) metadata=0xdada.dada nonce=0]'
+::     =/  data-2
+::       '[balance=150 allowances=~ metadata=0xdada.dada nonce=0]'
+::     :*  `'test-take'
+::         next-contract-id.current
+::         action-2
+::         yolk-2
+::         %-  malt
+::         :~  :+  cafe-d00d-account-id
+::               %&^cafe-d00d-account(noun (text-to-zebra-noun data-1 smart-lib-vase))
+::             data-1
+::             :+  cafe-babe-account-id
+::               %&^cafe-babe-account(noun q:(slap smart-lib-vase (ream data-2)))
+::             data-2
+::         ==
+::         %0
+::         ~
+::     ==
+::   =/  action-3=@t
+::     %-  crip
+::     %-  zing
+::     :~  "[%set-allowance who=0xcafe.babe amount=100 account="
+::         (trip (scot %ux dead-beef-account-id))
+::         "]"
+::     ==
+::   =/  yolk-3=calldata:smart
+::     =-  [;;(@tas -.-) +.-]
+::     q:(slap smart-lib-vase (ream action-3))
+::   =/  test-3=test
+::     =/  data-1
+::       '[balance=200 allowances=(make-pmap ~[[0xcafe.babe 100]]) metadata=0xdada.dada nonce=0]'
+::     :*  `'test-set-allowance'
+::         next-contract-id.current
+::         action-3
+::         yolk-3
+::         %-  malt
+::         :~  :+  dead-beef-account-id
+::               %&^dead-beef-account(noun (text-to-zebra-noun data-1 smart-lib-vase))
+::             data-1
+::         ==
+::         %0
+::         ~
+::     ==
+::   =/  fungible-contract-path=path  /con/fungible/hoon
+::   %=  current
+::       next-contract-id  (add next-contract-id.current 1)
+::       user-files
+::     (~(put in user-files.current) fungible-contract-path)
+::   ::
+::       to-compile
+::     %+  ~(put by to-compile.current)  fungible-contract-path
+::     next-contract-id.current
+::   ::
+::       tests
+::     (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
+::   ::
+::       noun-texts
+::     %-  ~(uni by noun-texts.current)
+::     %-  ~(gas by *(map id:smart @t))
+::     :~  [id.meta-rice ;;(@t noun.meta-rice)]
+::         [dead-beef-account-id '[balance=200 allowances=~ metadata=0xdada.dada nonce=0]']
+::         [cafe-babe-account-id '[balance=100 allowances=~ metadata=0xdada.dada nonce=0]']
+::         [cafe-d00d-account-id '[balance=100 allowances=(make-pmap ~[[0xdead.beef 50]]) metadata=0xdada.dada nonce=0]']
+::     ==
+::   ::
+::       p.chain
+::     =-  (uni:big:engine p.chain.current -)
+::     %+  gas:big:engine  *state:engine
+::     :~  [id.meta-rice %&^meta-rice(noun metadata)]
+::         [dead-beef-account-id %&^dead-beef-account]
+::         [cafe-babe-account-id %&^cafe-babe-account]
+::         [cafe-d00d-account-id %&^cafe-d00d-account]
+::     ==
+::   ==
+:: ++  nft-template-project
+::   |=  [current=project meta-rice=data:smart smart-lib-vase=vase]
+::   ^-  project
+::   ::  make fungible accounts and tests
+::   =/  metadata
+::     ;;  $:  name=@t
+::             symbol=@t
+::             properties=(pset:smart @tas)
+::             supply=@ud
+::             cap=(unit @ud)
+::             mintable=?
+::             minters=(pset:smart address:smart)
+::             deployer=address:smart
+::             salt=@
+::         ==
+::     (text-to-zebra-noun ;;(@t noun.meta-rice) smart-lib-vase)
+::   ::
+::   =/  props
+::     %-  ~(gas py:smart *(map @tas @t))
+::     %+  turn  ~(tap pn:smart properties.metadata)
+::     |=  prop=@tas
+::     [prop 'random_attribute']
+::   =/  props-tape=tape
+::     %-  zing
+::     :~  "properties=(make-pmap `(list [@tas @t])`~["
+::         ^-  tape
+::         %-  snip
+::         ^-  tape
+::         %-  zing
+::         %+  turn  ~(tap pn:smart properties.metadata)
+::         |=  prop=@tas
+::         %-  zing
+::         :~  "[%"  (trip (scot %tas prop))
+::             " 'random_attribute'] "
+::         ==
+::         "])"
+::     ==
+::   ::
+::   =/  nft-1-id
+::     %:  hash-data:smart
+::         source.meta-rice
+::         user-address.current
+::         designated-town-id
+::         (cat 3 salt.metadata (scot %ud 1))
+::     ==
+::   =/  nft-1
+::     ^-  data:smart
+::     :*  nft-1-id
+::         source.meta-rice
+::         user-address.current
+::         designated-town-id
+::         (cat 3 salt.metadata (scot %ud 1))
+::         %nft
+::         [1 'https://image.link' id.meta-rice ~ props &]
+::     ==
+::   =/  nft-1-text=@t
+::     %-  crip
+::     %-  zing
+::     :~  "[id=1 uri='https://image.link' metadata=0xdada.dada allowances=~ "
+::         props-tape
+::         " transferrable=%.y]"
+::     ==
+::   =/  nft-2-id
+::     %:  hash-data:smart
+::         source.meta-rice
+::         0xcafe.babe
+::         designated-town-id
+::         (cat 3 salt.metadata (scot %ud 2))
+::     ==
+::   =/  nft-2
+::     ^-  data:smart
+::     :*  nft-2-id
+::         source.meta-rice
+::         0xcafe.babe
+::         designated-town-id
+::         (cat 3 salt.metadata (scot %ud 2))
+::         %nft
+::         [2 'https://image.link' id.meta-rice ~ props &]
+::     ==
+::   =/  nft-2-text=@t
+::     %-  crip
+::     %-  zing
+::     :~  "[id=2 uri='https://image.link' metadata=0xdada.dada allowances=~ "
+::         props-tape
+::         " transferrable=%.y]"
+::     ==
+::   ::
+::   =/  action-1=@t
+::     %-  crip
+::     %-  zing
+::     :~  "[%give to=0xcafe.babe item-id="
+::         (trip (scot %ux nft-1-id))
+::         "]"
+::     ==
+::   =/  yolk-1=calldata:smart
+::     =-  [;;(@tas -.-) +.-]
+::     q:(slap smart-lib-vase (ream action-1))
+::   =/  test-1=test
+::     :*  `'test-give'
+::         next-contract-id.current
+::         action-1
+::         yolk-1
+::         %-  malt
+::         :~  :+  nft-1-id
+::               %&^nft-1(holder 0xcafe.babe)
+::             nft-1-text
+::         ==
+::         %0
+::         ~
+::     ==
+::   ::
+::   =/  action-2=@t
+::     %-  crip
+::     %-  zing
+::     :~  "[%give to=0xcafe.babe item-id="
+::         (trip (scot %ux nft-2-id))
+::         "]"
+::     ==
+::   =/  yolk-2=calldata:smart
+::     =-  [;;(@tas -.-) +.-]
+::     q:(slap smart-lib-vase (ream action-2))
+::   =/  test-2=test
+::     :*  `'test-give-dont-have'
+::         next-contract-id.current
+::         action-2
+::         yolk-2
+::         ~
+::         %6
+::         ~
+::     ==
+::   ::
+::   =/  action-3=@t
+::     %-  crip
+::     %-  zing
+::     :~  "[%mint token=0xdada.dada mints=[to="
+::         (trip (scot %ux user-address.current))
+::         " uri='https://image.link' "
+::         props-tape
+::         " transferrable=%.y] ~]"
+::     ==
+::   =/  yolk-3=calldata:smart
+::     =-  [;;(@tas -.-) +.-]
+::     (text-to-zebra-noun action-3 smart-lib-vase)
+::   =/  nft-3-id
+::     %:  hash-data:smart
+::         source.meta-rice
+::         user-address.current
+::         designated-town-id
+::         (cat 3 salt.metadata (scot %ud 3))
+::     ==
+::   =/  nft-3
+::     ^-  data:smart
+::     :*  nft-3-id
+::         source.meta-rice
+::         user-address.current
+::         designated-town-id
+::         (cat 3 salt.metadata (scot %ud 3))
+::         %nft
+::         [3 'https://image.link' id.meta-rice ~ props &]
+::     ==
+::   =/  nft-3-text=@t
+::     %-  crip
+::     %-  zing
+::     :~  "[id=3 uri='https://image.link' metadata=0xdada.dada allowances=~ "
+::         props-tape
+::         " transferrable=%.y]"
+::     ==
+::   =/  test-3=test
+::     :*  `'test-mint'
+::         next-contract-id.current
+::         action-3
+::         yolk-3
+::         (malt ~[[nft-3-id [%&^nft-3 nft-3-text]]])
+::         %0
+::         ~
+::     ==
+::   =/  nft-contract-path=path  /con/nft/hoon
+::   %=  current
+::       next-contract-id  (add next-contract-id.current 1)
+::       user-files
+::     (~(put in user-files.current) nft-contract-path)
+::   ::
+::       to-compile
+::     %+  ~(put by to-compile.current)  nft-contract-path
+::     next-contract-id.current
+::   ::
+::       tests
+::     (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
+::   ::
+::       noun-texts
+::     %-  ~(uni by noun-texts.current)
+::     %-  ~(gas by *(map id:smart @t))
+::     :~  [id.meta-rice ;;(@t noun.meta-rice)]
+::         ::  [1 'https://image.link' id.meta-rice ~ props &]
+::         [nft-1-id nft-1-text]
+::     ::
+::         [nft-2-id nft-2-text]
+::     ==
+::   ::
+::       p.chain
+::     =-  (uni:big:engine p.chain.current -)
+::     %+  gas:big:engine  *state:engine
+::     :~  [id.meta-rice %&^meta-rice(noun metadata)]
+::         [nft-1-id %&^nft-1]
+::         [nft-2-id %&^nft-2]
+::     ==
+::   ==
 ::
 ::  files we delete from zig desk to make new gall desk
 ::
@@ -724,7 +724,7 @@
       ['next_contract_id' %s (scot %ux next-contract-id.p)]
       ['errors' (errors-to-json errors.p)]
       ['state' (state-to-json p.chain.p noun-texts.p)]
-      ['tests' (tests-to-json tests.p)]
+      :: ['tests' (tests-to-json tests.p)]  :: TODO
   ==
 ::
 ++  state-to-json
@@ -741,28 +741,28 @@
   :-  (scot %ux id)
   (item-to-json item (~(gut by noun-texts) id ''))
 ::
-++  tests-to-json
-  |=  =tests
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  %+  turn  ~(tap by tests)
-  |=  [id=@ux =test]
-  [(scot %ux id) (test-to-json test)]
-::
-++  test-to-json
-  |=  =test
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['name' %s ?~(name.test '' u.name.test)]
-      ['for_contract' %s (scot %ux for-contract.test)]  ::  TODO: to contract path?
-      ['action_text' %s action-text.test]
-      ['action' %s (crip (noah !>(action.test)))]  ::  TODO: remove?
-      ['expected' (expected-to-json expected.test)]
-      ['expected_error' ?~(expected-error.test n+'0' (numb expected-error.test))]
-      ['result' ?~(result.test ~ (test-result-to-json u.result.test))]
-  ==
+:: ++  tests-to-json  :: TODO
+::   |=  =tests
+::   =,  enjs:format
+::   ^-  json
+::   %-  pairs
+::   %+  turn  ~(tap by tests)
+::   |=  [id=@ux =test]
+::   [(scot %ux id) (test-to-json test)]
+:: ::
+:: ++  test-to-json
+::   |=  =test
+::   =,  enjs:format
+::   ^-  json
+::   %-  pairs
+::   :~  ['name' %s ?~(name.test '' u.name.test)]
+::       ['for_contract' %s (scot %ux for-contract.test)]  ::  TODO: to contract path?
+::       ['action_text' %s action-text.test]
+::       ['action' %s (crip (noah !>(action.test)))]  ::  TODO: remove?
+::       ['expected' (expected-to-json expected.test)]
+::       ['expected_error' ?~(expected-error.test n+'0' (numb expected-error.test))]
+::       ['result' ?~(result.test ~ (test-result-to-json u.result.test))]
+::   ==
 ::
 ++  expected-to-json
   |=  m=(map id:smart [item:smart @t])
@@ -773,17 +773,17 @@
   |=  [=id:smart =item:smart tex=@t]
   [(scot %ux id) (item-to-json item tex)]
 ::
-++  test-result-to-json
-  |=  t=test-result
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['fee' (numb fee.t)]
-      ['errorcode' (numb errorcode.t)]
-      ['events' (events-to-json events.t)]
-      ['items' (expected-diff-to-json expected-diff.t)]
-      ['success' ?~(success.t ~ [%b u.success.t])]
-  ==
+:: ++  test-result-to-json  :: TODO
+::   |=  t=test-result
+::   =,  enjs:format
+::   ^-  json
+::   %-  pairs
+::   :~  ['fee' (numb fee.t)]
+::       ['errorcode' (numb errorcode.t)]
+::       ['events' (events-to-json events.t)]
+::       ['items' (expected-diff-to-json expected-diff.t)]
+::       ['success' ?~(success.t ~ [%b u.success.t])]
+::   ==
 ::
 ++  expected-diff-to-json
   |=  m=expected-diff
