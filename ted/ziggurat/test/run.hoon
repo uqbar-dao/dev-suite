@@ -9,9 +9,7 @@
 =/  m  (strand ,vase)
 |^  ted
 ::
-+$  arg-mold
-  $:  =test-steps:zig
-  ==
++$  arg-mold  test-steps:zig
 ::
 ++  send-pyro-scry
   |=  payload=scry-payload
