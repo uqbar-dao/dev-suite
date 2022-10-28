@@ -23,23 +23,51 @@
 +$  tests  (map @ux test)
 +$  test
   $:  name=(unit @t)  ::  optional
-      for-contract=id:smart
-      action-text=@t
-      action=calldata:smart
-      expected=(map id:smart [item:smart @t])
-      expected-error=@ud  ::  bad, but we can't get term literals :/
-      result=(unit test-result)
+      =test-steps
+      results=(unit test-results)
   ==
+::   $:  name=(unit @t)  ::  optional
+::       for-contract=id:smart
+::       action-text=@t
+::       action=calldata:smart
+::       expected=(map id:smart [item:smart @t])
+::       expected-error=@ud  ::  bad, but we can't get term literals :/
+::       result=(unit test-result)
+::   ==
+:: ::
+:: +$  test-result
+::   $:  fee=@ud
+::       =errorcode:smart
+::       events=(list contract-event:engine)
+::       =expected-diff
+::       success=(unit ?)  ::  does last-result fully match expected?
+::   ==
 ::
-+$  test-result
-  $:  fee=@ud
-      =errorcode:smart
-      events=(list contract-event:engine)
-      =expected-diff
-      success=(unit ?)  ::  does last-result fully match expected?
-  ==
 +$  expected-diff
   (map id:smart [made=(unit item:smart) expected=(unit item:smart) match=(unit ?)])
+::
++$  test-steps  (list test-step)
++$  test-step   ?(test-read test-write)
++$  test-read-step
+  :: $%  [%scry scry-payload expected=cage]
+  ::     [%read-subscription expected=cage timeout=@dr]  ::  not sure if need timeout: if want to not block so can handle out-of-order when multiple subscriptions are being passed around, may need it. Ideally wouldn't need.
+  $%  [%scry payload=scry-payload expected=@t]
+      [%read-subscription payload=sub-read-payload expected=@t timeout=@dr]  ::  not sure if need timeout: if want to not block so can handle out-of-order when multiple subscriptions are being passed around, may need it. Ideally wouldn't need.
+      [%wait until=@dr]
+  ==
++$  test-write-step
+  $%  [%poke payload=poke-payload expected=(list test-read-step)]
+      :: [%subscribe expected-on-watch=(unit cage) expected=(list test-read-step)]
+      [%subscribe payload=sub-payload expected=(list test-read-step)]
+  ==
++$  poke-payload  [who=@p app=@tas payload=cage]
++$  scry-payload  [who=@p =mold care=@tas app=@tas p=path]
++$  sub-payload  [who=@p app=@tas p=path]
+::
++$  test-results  (list test-result)
++$  test-result  (list [success=? expected=@t result=@t])
+  :: %+  each  [success=? expected=@t result=@t]
+  :: (list [success=? expected=@t result=@t])
 ::
 +$  template  ?(%fungible %nft %blank)
 ::
