@@ -12,7 +12,7 @@
 +$  arg-mold  test-steps:zig
 ::
 ++  send-pyro-scry
-  |=  payload=scry-payload
+  |=  [payload=scry-payload:zig expected=@t]
   =/  m  (strand ,vase)
   ^-  form:m
   ;<  scry-noun=noun  bind:m
@@ -21,6 +21,27 @@
   =/  scry-molded  ;;(mold.payload scry-noun)
   ?~  scry-molded  (pure:m !>(`~`~))
   (pure:m !>(`mold`u.scry-molded))
+:: ::
+:: ++  send-pyro-poke
+::   |=  payload=poke-payload:zig
+::   =/  m  (strand ,~)
+::   ^-  form:m
+::   %+  dojo:pyio  who.payload
+::   ;:  weld
+::       ":"
+::       (trip app.payload)
+::       " &"
+::       (trip p.cage.payload)
+::       " "
+::       (noah q.cage.payload)
+::   ==
+::
+++  send-pyro-dojo
+  |=  payload=dojo-payload:zig
+  =/  m  (strand ,~)
+  ^-  form:m
+  %+  dojo:pyio  who.payload
+  (trip payload.payload)
 ::
 ++  send-pyro-poke
   |=  payload=poke-payload:zig
@@ -31,9 +52,9 @@
       ":"
       (trip app.payload)
       " &"
-      (trip p.cage.payload)
+      (trip mark.payload)
       " "
-      (noah q.cage.payload)
+      (trip payload.payload)
   ==
 ::
 ++  run-steps
@@ -48,6 +69,11 @@
     ;<  ~  bind:m  (sleep until.test-step)
     ~
     :: [%| ~]
+  ::
+      %dojo
+    ;<  ~  bind:m  (send-pyro-dojo payload.test-step)
+    ;<  trs=test-results:zig  bind:m  (run-steps expected)
+    trs
   ::
       %poke
     ;<  ~  bind:m  (send-pyro-poke payload.test-step)
