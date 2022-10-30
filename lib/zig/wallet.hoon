@@ -145,21 +145,6 @@
     %nft    `[%nft town ;;(nft-metadata noun.p.u.g)]
   ==
 ::
-++  get-tracked-account-sent-txs
-  |=  [accounts=(list @ux) our=@p now=@da]
-  ^-  (map @ux (list [@ux transaction:smart supported-actions]))
-  =|  sents=(map @ux (list [@ux transaction:smart supported-actions]))
-  |-
-  ?~  accounts  sents
-  =*  account   i.accounts
-  =*  rest      t.accounts
-  =/  sent=(map @ux [transaction:smart supported-actions])
-    (get-sent-history account %.y our now)
-  %=  $
-      accounts  rest
-      sents     (~(put by sents) account ~(tap by sent))
-  ==
-::
 ::  JSON parsing utils
 ::
 ++  parsing
