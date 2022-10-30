@@ -160,48 +160,6 @@
       sents     (~(put by sents) account ~(tap by sent))
   ==
 ::
-++  make-cards-update-state-tracked-accounts
-  |=  [=transaction-store our=@p now=@da]
-  ^-  [(list card) ^transaction-store]
-  =/  accounts=(list @ux)  ~(tap in ~(key by transaction-store))
-  =/  txs=(map @ux (list [@ux transaction:smart supported-actions]))
-    (get-tracked-account-sent-txs accounts our now)
-  =^  cardss=(list (list card))  transaction-store
-    %^  spin  ~(tap by txs)  transaction-store
-    |=  [[account-id=@ux account-txs=(list [tx-id=@ux =transaction:smart action=supported-actions])] txs=^transaction-store]
-    =|  account-cards=(list card)
-    =/  old-account-txs
-      (~(gut by txs) account-id [sent=~ received=~])
-    =/  processed-account-txs=(map @ux [=transaction:smart action=supported-actions])
-      sent.old-account-txs
-    |-
-    ?~   account-txs
-      :-  account-cards
-      %+  ~(put by txs)  account-id
-      %=  old-account-txs
-          sent
-        (~(uni by sent.old-account-txs) processed-account-txs)
-      ==
-    =*  tx-id   tx-id.i.account-txs
-    =*  tx      transaction.i.account-txs
-    =*  action  action.i.account-txs
-    %=  $
-        account-txs  t.account-txs
-        processed-account-txs
-      ?.  (~(has by processed-account-txs) tx-id)
-        processed-account-txs
-      (~(put by processed-account-txs) tx-id [tx action])
-    ::
-        account-cards
-      :_  account-cards
-      ?~  this-tx=(~(get by processed-account-txs) tx-id)
-        %^  tx-update-card   tx-id
-          tx(status (sub status.tx 200))
-        [%noun (crip (noah !>(calldata.tx)))]
-      (tx-update-card tx-id tx action.u.this-tx)
-    ==
-  [(zing cardss) transaction-store]
-::
 ::  JSON parsing utils
 ::
 ++  parsing

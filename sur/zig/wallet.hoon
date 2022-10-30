@@ -18,11 +18,12 @@
       [%nft town=@ux nft-metadata]
   ==
 ::
++$  unfinished-transaction-store
+  (list [hash=@ux tx=transaction:smart action=supported-actions])
+::
 +$  transaction-store
   %+  map  address:smart
-  $:  sent=(map @ux [=transaction:smart action=supported-actions])
-      received=(map @ux transaction:smart)
-  ==
+  (map @ux [=transaction:smart action=supported-actions])
 ::
 +$  pending-store
   %+  map  address:smart
