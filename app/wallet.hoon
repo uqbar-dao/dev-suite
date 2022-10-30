@@ -105,6 +105,7 @@
       =+  addr=(address-from-prv:key:ethereum private-key:core)
       ::  get transaction history for this new address
       =/  sent  (get-sent-history addr %.n [our now]:bowl)
+      =/  tokens  (make-tokens ~[addr] [our now]:bowl)
       ::  sub to batch updates
       :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
       ::  clear all existing state, except for public keys imported from HW wallets
@@ -113,8 +114,8 @@
       %=  state
         nonces             ~
         signatures         ~
-        tokens             ~
-        metadata-store     ~
+        tokens             tokens
+        metadata-store     (update-metadata-store tokens ~ [our now]:bowl)
         pending-store      ~
         seed  [mnemonic.act password.act 0]
         unfinished-transaction-store  ~
@@ -130,6 +131,7 @@
       =+  addr=(address-from-prv:key:ethereum private-key:core)
       ::  get transaction history for this new address
       =/  sent  (get-sent-history addr %.n [our now]:bowl)
+      =/  tokens  (make-tokens ~[addr] [our now]:bowl)
       ::  sub to batch updates
       :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
       ::  clear all existing state, except for public keys imported from HW wallets
@@ -138,8 +140,8 @@
       %=  state
         nonces             ~
         signatures         ~
-        tokens             ~
-        metadata-store     ~
+        tokens             tokens
+        metadata-store     (update-metadata-store tokens ~ [our now]:bowl)
         pending-store      ~
         seed  [(crip mnem) password.act 0]
         unfinished-transaction-store  ~
@@ -389,7 +391,7 @@
     ::  update status, then insert in tx-store mapping
     ::  and build an update card with its new status.
     =|  cards=(list card)
-    =|  still-looking=_unfinished-transaction-store
+    =|  still-looking=(list [hash=@ux tx=transaction:smart action=supported-actions])
     =*  unfinished  unfinished-transaction-store
     |-
     ?~  unfinished
@@ -405,26 +407,24 @@
       .^  update:ui
           %gx
           %+  weld  /(scot %p our.bowl)/uqbar/(scot %da now.bowl)
-          /indexer/newest/transaction/(scot %ux hash.i.unfinished)/noun
+          /indexer/transaction/(scot %ux hash.i.unfinished)/noun
       ==
-    ::  this is very unpleasant
-    ?~  tx-latest
-      ~&  >>  "%wallet: couldn't find transaction hash for update"
-      $(unfinished t.unfinished, still-looking [i.unfinished still-looking])
-    ?.  ?=(%transaction -.tx-latest)
-      ~&  >>  "%wallet: couldn't find transaction hash for update"
-      $(unfinished t.unfinished, still-looking [i.unfinished still-looking])
-    ?~  found=(~(get by transactions.tx-latest) hash.i.unfinished)
-      ~&  >>  "%wallet: couldn't find transaction hash for update"
+    ::  this is unpleasant
+    ?.  ?&  ?=(^ tx-latest)
+            ?=(%transaction -.tx-latest)
+        ==
+      ~&  >>  "%wallet: couldn't find transaction hash for update(3)"
       $(unfinished t.unfinished, still-looking [i.unfinished still-looking])
     ::  put latest version of tx into transaction-store
-    =/  updated  [hash.i.unfinished transaction.u.found action.i.unfinished]
+    =/  updated
+      =+  (~(got by transactions.tx-latest) hash.i.unfinished)
+      [hash.i.unfinished transaction.- action.i.unfinished output.-]
     %=  $
       unfinished  t.unfinished
-      cards       [(tx-update-card updated) cards]
+      cards       [(finished-tx-update-card updated) cards]
         transaction-store
       %+  ~(jab by transaction-store)  address.caller.tx.i.unfinished
-      |=  m=(map @ux [=transaction:smart action=supported-actions])
+      |=  m=(map @ux [transaction:smart supported-actions output:eng])
       (~(put by m) updated)
     ==
   ::
@@ -515,7 +515,7 @@
     %-  pairs:enjs
     %+  turn  ~(tap by book)
     |=  [=id:smart =asset]
-    (parse-asset:parsing id asset)
+    (asset:parsing id asset)
   ::
       [%token-metadata ~]
     =;  =json  ``json+!>(json)
@@ -523,19 +523,18 @@
     %-  pairs:enjs
     %+  turn  ~(tap by metadata-store.state)
     |=  [=id:smart d=asset-metadata]
-    (parse-metadata:parsing id d)
+    (metadata:parsing id d)
   ::
       [%transactions @ ~]
     ::  return transaction store for given pubkey
     =/  pub  (slav %ux i.t.t.path)
-    =/  our-txs=(map @ux [transaction:smart supported-actions])
+    =/  our-txs=(map @ux [transaction:smart supported-actions output:eng])
       (~(gut by transaction-store.state) pub ~)
     ::
     =;  =json  ``json+!>(json)
     %-  pairs:enjs
     %+  turn  ~(tap by our-txs)
-    |=  [hash=@ux [t=transaction:smart action=supported-actions]]
-    (parse-transaction:parsing hash t action)
+    transaction-with-output:parsing
   ::
       [%signatures ~]
     ``noun+!>(signatures.state)
@@ -549,8 +548,7 @@
     =;  =json  ``json+!>(json)
     %-  pairs:enjs
     %+  turn  ~(tap by our)
-    |=  [hash=@ux [t=transaction:smart action=supported-actions]]
-    (parse-transaction:parsing hash t action)
+    transaction-no-output:parsing
   ::
       [%pending-noun @ ~]
     ::  return pending store for given pubkey, noun format

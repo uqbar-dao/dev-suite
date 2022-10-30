@@ -1,3 +1,4 @@
+/-  eng=zig-engine
 /+  smart=zig-sys-smart
 |%
 +$  signature   [p=@ux q=ship r=life]
@@ -23,7 +24,7 @@
 ::
 +$  transaction-store
   %+  map  address:smart
-  (map @ux [=transaction:smart action=supported-actions])
+  (map @ux [=transaction:smart action=supported-actions =output:eng])
 ::
 +$  pending-store
   %+  map  address:smart
@@ -54,6 +55,7 @@
 +$  wallet-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
       [%new-metadata metadata=metadata-store]
+      [%finished-tx hash=@ux =transaction:smart action=supported-actions =output:eng]
       [%tx-status hash=@ux =transaction:smart action=supported-actions]
   ==
 ::

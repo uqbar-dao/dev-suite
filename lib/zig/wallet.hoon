@@ -15,9 +15,15 @@
   =+  `wallet-update`[%tx-status in]
   [%give %fact ~[/tx-updates] %wallet-update !>(-)]
 ::
+++  finished-tx-update-card
+  |=  in=[@ux transaction:smart supported-actions output:eng]
+  ^-  card
+  =+  `wallet-update`[%finished-tx in]
+  [%give %fact ~[/tx-updates] %wallet-update !>(-)]
+::
 ++  get-sent-history
   |=  [=address:smart newest=? our=@p now=@da]
-  ^-  (map @ux [transaction:smart supported-actions])
+  ^-  (map @ux [transaction:smart supported-actions output:eng])
   =/  transaction-history=update:ui
     .^  update:ui
         %gx
@@ -28,8 +34,10 @@
   ?~  transaction-history  ~
   ?.  ?=(%transaction -.transaction-history)  ~
   %-  ~(urn by transactions.transaction-history)
-  |=  [hash=@ux @ * =transaction:smart *]  ::  if desired, where to add output:eng
-  [transaction(status (add 200 `@`status.transaction)) [%noun calldata.transaction]]
+  |=  [hash=@ux @ * =transaction:smart =output:eng]
+  :+  transaction(status (add 200 `@`status.transaction))
+    [%noun calldata.transaction]
+  output
 ::
 ++  watch-for-batches
   |=  [our=@p town=@ux]
@@ -150,8 +158,8 @@
 ++  parsing
   =,  enjs:format
   |%
-  ++  parse-asset
-    |=  [=id:smart =asset]
+  ++  asset
+    |=  [=id:smart =^asset]
     ^-  [p=@t q=json]
     :-  (scot %ux id)
     %-  pairs
@@ -181,7 +189,7 @@
         ==
     ==
   ::
-  ++  parse-metadata
+  ++  metadata
     |=  [=id:smart m=asset-metadata]
     ^-  [p=@t q=json]
     :-  (scot %ux id)
@@ -229,10 +237,22 @@
     %+  turn  ~(tap by p)
     |=([prop=@tas val=@t] [prop [%s val]])
   ::
-  ++  parse-transaction
-    |=  [hash=@ux t=transaction:smart action=supported-actions]
-    ^-  [p=@t q=json]
+  ++  transaction-with-output
+    |=  [hash=@ux t=transaction:smart action=supported-actions o=output:eng]
     :-  (scot %ux hash)
+    %-  pairs
+    :~  ['transaction' (transaction t action)]
+        ['output' (output o)]
+    ==
+  ::
+  ++  transaction-no-output
+    |=  [hash=@ux t=transaction:smart action=supported-actions]
+    :-  (scot %ux hash)
+    (transaction t action)
+  ::
+  ++  transaction
+    |=  [t=transaction:smart action=supported-actions]
+    ^-  json
     %-  pairs
     :~  ['from' [%s (scot %ux address.caller.t)]]
         ['nonce' (numb nonce.caller.t)]
@@ -263,6 +283,15 @@
             %noun
           ~[['custom' [%s (crip (noah !>(+.action)))]]]
         ==
+    ==
+  ::
+  ++  output
+    |=  o=output:eng
+    ^-  json
+    %-  pairs
+    :~  ['gas' [%s (scot %ud gas.o)]]
+        ['errorcode' (numb errorcode.o)]
+        ::  XX add when merging parsing libraries
     ==
   --
 --
