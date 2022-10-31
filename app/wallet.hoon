@@ -27,7 +27,9 @@
       tokens=(map address:smart =book)
       ::  metadata for tokens we track
       =metadata-store
-      ::  transactions we've sent and received
+      ::  transactions we've sent that haven't been finalized by sequencer
+      =unfinished-transaction-store
+      ::  finished transactions we've sent
       =transaction-store
       ::  transactions we've been asked to sign, keyed by hash
       =pending-store
@@ -44,7 +46,7 @@
 +*  this  .
     def   ~(. (default-agent this %|) bowl)
 ::
-++  on-init  `this(state [%0 ['' '' 0] ~ ~ ~ ~ ~ ~ ~])
+++  on-init  `this(state [%0 ['' '' 0] ~ ~ ~ ~ ~ ~ ~ ~])
 ::
 ++  on-save  !>(state)
 ++  on-load
@@ -103,6 +105,7 @@
       =+  addr=(address-from-prv:key:ethereum private-key:core)
       ::  get transaction history for this new address
       =/  sent  (get-sent-history addr %.n [our now]:bowl)
+      =/  tokens  (make-tokens ~[addr] [our now]:bowl)
       ::  sub to batch updates
       :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
       ::  clear all existing state, except for public keys imported from HW wallets
@@ -111,11 +114,12 @@
       %=  state
         nonces             ~
         signatures         ~
-        tokens             ~
-        metadata-store     ~
+        tokens             tokens
+        metadata-store     (update-metadata-store tokens ~ [our now]:bowl)
         pending-store      ~
         seed  [mnemonic.act password.act 0]
-        transaction-store  [[addr [sent ~]] ~ ~]
+        unfinished-transaction-store  ~
+        transaction-store  [[addr sent] ~ ~]
         keys  (~(put by *(map address:smart [(unit @ux) @t])) addr [`private-key:core nick.act])
       ==
     ::
@@ -127,6 +131,7 @@
       =+  addr=(address-from-prv:key:ethereum private-key:core)
       ::  get transaction history for this new address
       =/  sent  (get-sent-history addr %.n [our now]:bowl)
+      =/  tokens  (make-tokens ~[addr] [our now]:bowl)
       ::  sub to batch updates
       :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
       ::  clear all existing state, except for public keys imported from HW wallets
@@ -135,11 +140,12 @@
       %=  state
         nonces             ~
         signatures         ~
-        tokens             ~
-        metadata-store     ~
+        tokens             tokens
+        metadata-store     (update-metadata-store tokens ~ [our now]:bowl)
         pending-store      ~
         seed  [(crip mnem) password.act 0]
-        transaction-store  [[addr [sent ~]] ~ ~]
+        unfinished-transaction-store  ~
+        transaction-store  [[addr sent] ~ ~]
         keys  (~(put by *(map address:smart [(unit @ux) @t])) addr [`private-key:core nick.act])
       ==
     ::
@@ -157,7 +163,7 @@
       %=  state
         seed  seed(address-index +(address-index.seed))
         keys  (~(put by keys) addr [`prv:core nick.act])
-        transaction-store  (~(put by transaction-store) addr [sent ~])
+        transaction-store  (~(put by transaction-store) addr sent)
       ==
     ::
         %add-tracked-address
@@ -166,7 +172,7 @@
       :-  ~
       %=  state
         keys  (~(put by keys) address.act [~ nick.act])
-        transaction-store  (~(put by transaction-store) address.act [sent ~])
+        transaction-store  (~(put by transaction-store) address.act sent)
       ==
     ::
         %delete-address
@@ -219,11 +225,6 @@
       ==
       ::  update hash of tx with new values
       =/  hash  (hash-transaction +.tx)
-      ::  update our transaction-store
-      =/  our-transactions
-        ?~  o=(~(get by transaction-store) from.act)
-          [(malt ~[[hash [tx action.u.found]]]) ~]
-        u.o(sent (~(put by sent.u.o) hash [tx action.u.found]))
       ~&  >>  "%wallet: submitting externally-signed transaction"
       ~&  >>  "with signature {<v.sig.act^r.sig.act^s.sig.act>}"
       ::  update stores
@@ -231,8 +232,8 @@
               pending-store
             (~(put by pending-store) from.act (~(del by my-pending) hash.act))
           ::
-              transaction-store
-            (~(put by transaction-store) from.act our-transactions)
+              unfinished-transaction-store
+            [[hash tx action.u.found] unfinished-transaction-store]
           ::
               nonces
             (~(put by nonces) from.act (~(put by our-nonces) town.tx +(nonce)))
@@ -271,11 +272,6 @@
           ~|("%wallet: don't have private key for that address" !!)
         %+  ecdsa-raw-sign:secp256k1:secp:crypto
         `@uvI`hash  u.priv.u.keypair
-      ::  update our transaction-store
-      =/  our-txs
-        ?~  o=(~(get by transaction-store) from.act)
-          [(malt ~[[hash [tx action.u.found]]]) ~]
-        u.o(sent (~(put by sent.u.o) hash [tx action.u.found]))
       ~&  >>  "%wallet: submitting signed transaction"
       ~&  >>  "with signature {<v.sig.tx^r.sig.tx^s.sig.tx>}"
       ::  update stores
@@ -283,8 +279,8 @@
               pending-store
             (~(put by pending-store) from.act (~(del by my-pending) hash.act))
           ::
-              transaction-store
-            (~(put by transaction-store) from.act our-txs)
+              unfinished-transaction-store
+            [[hash tx action.u.found] unfinished-transaction-store]
           ::
               nonces
             (~(put by nonces) from.act (~(put by our-nonces) town.tx +(nonce)))
@@ -391,15 +387,46 @@
       (make-tokens addrs [our now]:bowl)
     =/  new-metadata
       (update-metadata-store new-tokens metadata-store [our now]:bowl)
-    ::  get latest tracked transactions
-    =^  cards=(list card)  transaction-store
-      %+  make-cards-update-state-tracked-accounts
-      transaction-store  [our now]:bowl
-    ::
-    :_  this(tokens new-tokens, metadata-store new-metadata)
-    :+  [%give %fact ~[/book-updates] %wallet-update !>(`wallet-update`[%new-book new-tokens])]
-      [%give %fact ~[/metadata-updates] %wallet-update !>(`wallet-update`[%new-metadata new-metadata])]
-    cards
+    ::  for each of unfinished, scry uqbar for status
+    ::  update status, then insert in tx-store mapping
+    ::  and build an update card with its new status.
+    =|  cards=(list card)
+    =|  still-looking=(list [hash=@ux tx=transaction:smart action=supported-actions])
+    =*  unfinished  unfinished-transaction-store
+    |-
+    ?~  unfinished
+      :_  %=  this
+            tokens  new-tokens
+            metadata-store  new-metadata
+            unfinished-transaction-store  still-looking
+          ==
+      :+  [%give %fact ~[/book-updates] %wallet-update !>(`wallet-update`[%new-book new-tokens])]
+        [%give %fact ~[/metadata-updates] %wallet-update !>(`wallet-update`[%new-metadata new-metadata])]
+      cards
+    =/  tx-latest=update:ui
+      .^  update:ui
+          %gx
+          %+  weld  /(scot %p our.bowl)/uqbar/(scot %da now.bowl)
+          /indexer/transaction/(scot %ux hash.i.unfinished)/noun
+      ==
+    ::  this is unpleasant
+    ?.  ?&  ?=(^ tx-latest)
+            ?=(%transaction -.tx-latest)
+        ==
+      ~&  >>  "%wallet: couldn't find transaction hash for update(3)"
+      $(unfinished t.unfinished, still-looking [i.unfinished still-looking])
+    ::  put latest version of tx into transaction-store
+    =/  updated
+      =+  (~(got by transactions.tx-latest) hash.i.unfinished)
+      [hash.i.unfinished transaction.- action.i.unfinished output.-]
+    %=  $
+      unfinished  t.unfinished
+      cards       [(finished-tx-update-card updated) cards]
+        transaction-store
+      %+  ~(jab by transaction-store)  address.caller.tx.i.unfinished
+      |=  m=(map @ux [transaction:smart supported-actions output:eng])
+      (~(put by m) updated)
+    ==
   ::
       [%submit-tx @ @ ~]
     ::  check to see if our tx was received by sequencer
@@ -407,7 +434,7 @@
     =/  hash=@ux  (slav %ux i.t.t.wire)
     ?:  ?=(%poke-ack -.sign)
       =/  our-txs  (~(got by transaction-store) from)
-      =/  this-tx  (~(got by sent.our-txs) hash)
+      =/  this-tx  (~(got by our-txs) hash)
       =.  this-tx
         ?~  p.sign
           ::  got it
@@ -420,7 +447,7 @@
       %=    this
           transaction-store
         %-  ~(put by transaction-store)
-        [from our-txs(sent (~(put by sent.our-txs) hash this-tx))]
+        [from (~(put by our-txs) hash this-tx)]
       ::
           nonces
         ?:  =(status.transaction.this-tx %101)
@@ -488,7 +515,7 @@
     %-  pairs:enjs
     %+  turn  ~(tap by book)
     |=  [=id:smart =asset]
-    (parse-asset:parsing id asset)
+    (asset:parsing id asset)
   ::
       [%token-metadata ~]
     =;  =json  ``json+!>(json)
@@ -496,19 +523,18 @@
     %-  pairs:enjs
     %+  turn  ~(tap by metadata-store.state)
     |=  [=id:smart d=asset-metadata]
-    (parse-metadata:parsing id d)
+    (metadata:parsing id d)
   ::
       [%transactions @ ~]
     ::  return transaction store for given pubkey
     =/  pub  (slav %ux i.t.t.path)
-    =/  our-txs=[sent=(map @ux [transaction:smart supported-actions]) received=(map @ux transaction:smart)]
-      (~(gut by transaction-store.state) pub [~ ~])
+    =/  our-txs=(map @ux [transaction:smart supported-actions output:eng])
+      (~(gut by transaction-store.state) pub ~)
     ::
     =;  =json  ``json+!>(json)
     %-  pairs:enjs
-    %+  turn  ~(tap by sent.our-txs)
-    |=  [hash=@ux [t=transaction:smart action=supported-actions]]
-    (parse-transaction:parsing hash t action)
+    %+  turn  ~(tap by our-txs)
+    transaction-with-output:parsing
   ::
       [%signatures ~]
     ``noun+!>(signatures.state)
@@ -522,8 +548,7 @@
     =;  =json  ``json+!>(json)
     %-  pairs:enjs
     %+  turn  ~(tap by our)
-    |=  [hash=@ux [t=transaction:smart action=supported-actions]]
-    (parse-transaction:parsing hash t action)
+    transaction-no-output:parsing
   ::
       [%pending-noun @ ~]
     ::  return pending store for given pubkey, noun format

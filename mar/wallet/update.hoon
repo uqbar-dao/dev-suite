@@ -19,18 +19,21 @@
       %-  pairs
       %+  turn  ~(tap by book)
       |=  [=id:smart =asset]
-      (parse-asset:parsing id asset)
+      (asset:parsing id asset)
     ::
         %new-metadata
       %-  pairs
       %+  turn  ~(tap by metadata.upd)
       |=  [=id:smart d=asset-metadata]
-      (parse-metadata:parsing id d)
+      (metadata:parsing id d)
     ::
         %tx-status
       %-  frond
-      %^  parse-transaction:parsing  hash.upd
-      transaction.upd  action.upd
+      (transaction-no-output:parsing +.upd)
+    ::
+        %finished-tx
+      %-  frond
+      (transaction-with-output:parsing +.upd)
     ==
   --
 ++  grad  %noun
