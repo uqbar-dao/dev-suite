@@ -38,16 +38,16 @@
       ::
       ::  200-class refers to codes that come from a completed, processed transaction
       ::  informed by egg status codes in smart.hoon
-      %200  ::  0: successfully performed
-      %201  ::  1: submitted with raw id / no account info
-      %202  ::  2: bad signature
-      %203  ::  3: incorrect nonce
-      %204  ::  4: lack zigs to fulfill budget
-      %205  ::  5: couldn't find contract
-      %206  ::  6: crash in contract execution
-      %207  ::  7: validation of changed/issued/burned rice failed
-      %208  ::  8: ran out of gas while executing
-      %209  ::  9: was not parallel / superceded by another egg in batch
+      %200  ::  200: successfully performed
+      %201  ::  201: bad signature
+      %202  ::  202: incorrect nonce
+      %203  ::  203: lack zigs to fulfill budget
+      %204  ::  204: couldn't find contract
+      %205  ::  205: data was under contract ID
+      %206  ::  206: crash in contract execution
+      %207  ::  207: validation of diff failed
+      %208  ::  208: ran out of gas while executing
+      %209  ::  209: dedicated burn transaction failed
   ==
 ::
 ::  sent to web interface
