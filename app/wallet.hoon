@@ -525,16 +525,23 @@
     |=  [=id:smart d=asset-metadata]
     (metadata:parsing id d)
   ::
-      [%transactions @ ~]
-    ::  return transaction store for given pubkey
-    =/  pub  (slav %ux i.t.t.path)
-    =/  our-txs=(map @ux [transaction:smart supported-actions output:eng])
-      (~(gut by transaction-store.state) pub ~)
-    ::
+      [%transactions ~]
+    ::  return transaction store for given pubkey (includes unfinished)
+    ::  =/  our-txs=(map @ux [transaction:smart supported-actions output:eng])
     =;  =json  ``json+!>(json)
     %-  pairs:enjs
-    %+  turn  ~(tap by our-txs)
-    transaction-with-output:parsing
+    :~  :-  'unfinished'
+        %-  pairs:enjs
+        %+  turn  unfinished-transaction-store.state
+        transaction-no-output:parsing
+        :-  'finished'
+        %-  pairs:enjs
+        %+  turn  ~(tap by transaction-store.state)
+        |=  [a=@ux m=(map @ux [transaction:smart supported-actions output:eng])]
+        :-  (scot %ux a)
+        %-  pairs:enjs
+        (turn ~(tap by m) transaction-with-output:parsing)
+    ==
   ::
       [%signatures ~]
     ``noun+!>(signatures.state)
