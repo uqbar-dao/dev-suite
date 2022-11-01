@@ -34,6 +34,7 @@
 +$  test-step   $%(test-read-step test-write-step)
 +$  test-read-step
   $%  [%scry payload=scry-payload expected=@t]
+      :: [%dbug payload=dbug-payload expected=@t]  :: TODO
       [%read-subscription payload=read-sub-payload expected=@t timeout=@dr]  ::  not sure if need timeout: if want to not block so can handle out-of-order when multiple subscriptions are being passed around, may need it. Ideally wouldn't need.
       [%wait until=@dr]
   ==
@@ -42,15 +43,16 @@
       [%poke payload=poke-payload expected=(list test-read-step)]
       [%subscribe payload=sub-payload expected=(list test-read-step)]
   ==
-+$  scry-payload  [who=@p =mold care=@tas app=@tas p=path]
-+$  read-sub-payload  [who=@p =mold care=@tas app=@tas p=path]  :: TODO
+:: +$  dbug-payload  [who=@p app=@tas %state/bowl/???] :: TODO
++$  scry-payload  [who=@p =mold care=@tas app=@tas =path]
++$  read-sub-payload  [who=@p =mold care=@tas app=@tas =path]  :: TODO
 :: +$  poke-payload  [who=@p app=@tas payload=cage]
 +$  dojo-payload  [who=@p payload=@t]
 +$  poke-payload  [who=@p app=@tas mark=@tas payload=@t]
 +$  sub-payload  [who=@p app=@tas p=path]
 ::
 +$  test-results  (list test-result)
-+$  test-result  (list [success=? expected=@t result=@t])
++$  test-result   (list [success=? expected=@t result=@t])
   :: %+  each  [success=? expected=@t result=@t]
   :: (list [success=? expected=@t result=@t])
 ::
