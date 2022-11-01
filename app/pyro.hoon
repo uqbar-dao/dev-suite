@@ -47,6 +47,7 @@
           event-log=(list unix-timed-event)
           next-events=(qeu unix-event)
           processing-events=?
+          scry-time=@da
       ==
     --
 ::
@@ -220,6 +221,7 @@
       %-  (slog >%aqua-crash< >guest=who< p.poke-result)
       $
     =.  snap  +.p.poke-result
+    =.  scry-time  tym
     =.  ..abet-pe  (publish-event tym ue)
     =.  ..abet-pe
       ~|  ova=-.p.poke-result
@@ -239,7 +241,7 @@
     ::  validate path
     ?>  ?=([@ @ @ @ *] pax)
     ::  alter timestamp to match %pyro fake-time
-    =.  i.t.t.t.pax  (scot %da tym)
+    =.  i.t.t.t.pax  (scot %da scry-time)
     ~&  >>  `path`pax
     ::  execute scry
     =/  pek  (slum scry [[~ ~] & pax])
