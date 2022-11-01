@@ -76,11 +76,14 @@
       ?+    p.cage.sign  (on-agent:def wire sign)
           %aqua-effect
         =/  meme  !<(aqua-effect:pyro q.cage.sign)
-        ~&  >>  -.q.q.cage.sign :: ship
+        :: ~&  >>  -.q.q.cage.sign :: ship
         ?>  ?=(%blit -.q.ufs.meme)
-        =/  jon  (turn p.q.ufs.meme blit-to-json)
-        ~&  >  jon
-        `this
+        =*  blits  p.q.ufs.meme
+        |-
+        ?~  blits  `this
+        ?.  ?=(%lin -.i.blits)  $(blits t.blits)
+        ~&  (tufa p.i.blits)
+        $(blits t.blits)
       ==
     ==
   ==
