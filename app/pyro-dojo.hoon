@@ -1,16 +1,16 @@
+::  %pyro-dojo
+::  |start %zig %pyro-dojo
+::  prints all fake-ship dojo outputs to your terminal
+::
+::::
+  ::
 /-  pyro
 /+  default-agent, dbug
 /$  blit-to-json  %blit  %json
 |%
-+$  versioned-state
-  $%  state-0
-  ==
-+$  state-0  [%0 ~]
 +$  card  card:agent:gall
 --
 %-  agent:dbug
-=|  state-0
-=*  state  -
 ^-  agent:gall
 |_  =bowl:gall
 +*  this  .
@@ -18,19 +18,11 @@
 ::
 ++  on-init
   ^-  (quip card _this)
-  `this
+  :_  this
+  [%pass /dojo-outputs %agent [our.bowl %pyro] %watch /effect/blit]~
 ::
-++  on-save
-  ^-  vase
-  !>(state)
-::
-++  on-load
-  |=  old-state=vase
-  ^-  (quip card _this)
-  =/  old  !<(versioned-state old-state)
-  ?-  -.old
-    %0  `this(state old)
-  ==
+++  on-save  on-save:def
+++  on-load  on-load:def
 ::
 ++  on-poke
   |=  [=mark =vase]
@@ -42,11 +34,11 @@
     ?-    -.action
         %sub
       :_  this
-      :~  [%pass /meme %agent [our.bowl %pyro] %watch /effect/blit]
+      :~  [%pass /dojo-outputs %agent [our.bowl %pyro] %watch /effect/blit]
       ==
         %unsub
       :_  this
-      :~  [%pass /meme %agent [our.bowl %pyro] %leave ~]
+      :~  [%pass /dojo-outputs %agent [our.bowl %pyro] %leave ~]
       ==
     ==
   ==
@@ -59,7 +51,7 @@
   |=  [=wire =sign:agent:gall]
   ^-  (quip card _this)
   ?+    wire  (on-agent:def wire sign)
-      [%meme ~]
+      [%dojo-outputs ~]
     ?+    -.sign  (on-agent:def wire sign)
         %watch-ack
       ?~  p.sign
@@ -69,20 +61,19 @@
         %kick
       %-  (slog '%pyro-sub: Got kick, resubscribing...' ~)
       :_  this
-      :~  [%pass /meme %agent [src.bowl %pyro] %watch /effect/blit]
+      :~  [%pass /dojo-outputs %agent [src.bowl %pyro] %watch /effect/blit]
       ==
     ::
         %fact
       ?+    p.cage.sign  (on-agent:def wire sign)
           %aqua-effect
-        =/  meme  !<(aqua-effect:pyro q.cage.sign)
-        :: ~&  >>  -.q.q.cage.sign :: ship
-        ?>  ?=(%blit -.q.ufs.meme)
-        =*  blits  p.q.ufs.meme
+        =/  mblt  !<(aqua-effect:pyro q.cage.sign)
+        ?>  ?=(%blit -.q.ufs.mblt)
+        =*  blits  p.q.ufs.mblt
         |-
         ?~  blits  `this
         ?.  ?=(%lin -.i.blits)  $(blits t.blits)
-        ~&  (tufa p.i.blits)
+        ~&  >  (tufa p.i.blits)
         $(blits t.blits)
       ==
     ==
