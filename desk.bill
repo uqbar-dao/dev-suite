@@ -3,8 +3,6 @@
     %sequencer
     %indexer
     %wallet
+    %pyro
     %ziggurat
-    %faucet
-    %batcher-interval
-    %batcher-threshold
 ==
