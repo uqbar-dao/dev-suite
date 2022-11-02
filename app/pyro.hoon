@@ -3,7 +3,7 @@
 ::  usage:
 ::  |start %zig %pyro
 ::  :pyro +solid %base %zig
-::  swap files is NOT working
+::  swap files is NOT working - maybe it is? you have to restart your ships to see the changes
 ::  :pyro &aqua-events [%init-ship ~dev]~  OR  :pyro|init ~dev
 ::  :pyro &action [%dojo ~dev "(add 2 2)"]     OR  :pyro|dojo ~dev "(add 2 2)"
 ::  +zig!pyro/scry ~dev %sequencer /status/noun
@@ -564,7 +564,7 @@
       %+  turn-ships  (turn ~(tap by piers) head)
       |=  [who=ship thus=_this]
       =.  this  thus
-      (publish-effect:(pe who) [/ %kill ~])
+      ..abet-pe:(pe who)
     =.  fleet-snaps
       %+  ~(put by fleet-snaps)  lab.ae
       %-  malt
@@ -575,24 +575,22 @@
       ?~  per
         ~
       `[her u.per]
-    ::  =.  this   stop-azimuth-timer
-    =.  piers  *fleet
-    (pe -.hers.ae)
+    (pe -.hers.ae) :: XX this is hacky. Works but w/e
   ::
       %restore-snap
+    :: XX  we should only be killing only the ships in the snapshot
     =.  this
       %+  turn-ships  (turn ~(tap by piers) head)
       |=  [who=ship thus=_this]
       =.  this  thus
       (publish-effect:(pe who) [/ %kill ~])
     =.  piers  (~(got by fleet-snaps) lab.ae)
-    ::  =.  this   start-azimuth-timer
     =.  this
       %+  turn-ships  (turn ~(tap by piers) head)
       |=  [who=ship thus=_this]
       =.  this  thus
       (publish-effect:(pe who) [/ %restore ~])
-    (pe ~bud)  ::  XX why ~bud?  need an example
+    (pe ~bud)  ::  XX why ~bud?  need an example - shouldn't be bud LOL
   ::
       %event
     ~?  &(aqua-debug=| !?=(?(%belt %hear) -.q.ue.ae))
