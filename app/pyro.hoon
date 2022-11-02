@@ -110,19 +110,24 @@
   ++  on-peek
     |=  =path
     ^-  (unit (unit cage))
-    ?+  path  ~
+    ?+    path  ~
         [%x %fleet-snap @ ~]  ``noun+!>((~(has by fleet-snaps) i.t.t.path))
-        [%x %fleets ~]        ``noun+!>((turn ~(tap by fleet-snaps) head))
-        [%x %ships ~]         ``noun+!>((turn ~(tap by piers) head))
+        [%x %fleets ~]        ``noun+!>(~(key by fleet-snaps))
+        [%x %ships ~]         ``noun+!>(~(key by piers))
         [%x %pill ~]          ``pill+!>(pil)
+        [%x %events ~]
+      :^  ~  ~  %noun
+      !>
+      %-  ~(run by piers)
+      |=  p=pier
+      [(lent event-log.p) ~(wyt in next-events.p)]
+    ::
         [%x %i @ @ @ @ @ *]
       ::   ship | scry path
       ::          care, ship, desk, time, path
       ::  scry into running virtual ships
       =/  who  (slav %p i.t.t.path)
-      =/  pier  (~(get by piers) who)
-      ?~  pier
-        ~
+      ?.  (~(has by piers) who)  ~
       :^  ~  ~  %noun  !>
       (peek:(pe who) t.t.t.path)
     ==

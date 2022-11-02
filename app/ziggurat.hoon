@@ -258,7 +258,8 @@
         %add-test
       ::  generate an id for the test
       =/  =project  (~(got by projects) project.act)
-      =/  test-id  `@ux`(mug now.bowl)
+      :: =/  test-id  `@ux`(mug now.bowl)
+      =/  test-id=@ux  `@ux`(sham test-steps.act)
       =.  tests.project
         %+  ~(put by tests.project)  test-id
         [name.act test-steps.act ~]

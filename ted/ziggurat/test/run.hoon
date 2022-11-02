@@ -4,8 +4,9 @@
     pyio=py-io
 ::
 =*  strand  strand:spider
-=*  scry    scry:strandio
-=*  sleep   sleep:strandio
+=*  poke-our  poke-our:strandio
+=*  scry      scry:strandio
+=*  sleep     sleep:strandio
 ::
 =/  m  (strand ,vase)
 |^  ted
@@ -119,6 +120,11 @@
     (pure:m !>(~))
   =*  test-steps  u.args
   ::
+  ;<  ~  bind:m  start-simple:pyio
+  ;<  ~  bind:m  (init-ship:pyio ~nec)
+  ;<  ~  bind:m  (init-ship:pyio ~bud)
+  ;<  ~  bind:m  (send-hi:pyio ~nec ~bud)
   ;<  =test-results:zig  bind:m  (run-steps test-steps)
+  :: ;<  ~  bind:m  end:pyio
   (pure:m !>(`test-results:zig`test-results))
 --
