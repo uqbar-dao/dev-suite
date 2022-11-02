@@ -28,7 +28,7 @@
 ::
 +$  town-info
   $:  =address:smart
-      zigs-rice=id:smart
-      zigs-wheat=id:smart
+      zigs-account=id:smart
+      zigs-contract=id:smart
   ==
 --

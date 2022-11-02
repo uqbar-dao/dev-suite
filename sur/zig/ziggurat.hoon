@@ -1,4 +1,4 @@
-/-  mill, docket, wallet
+/-  engine=zig-engine, docket, wallet=zig-wallet
 /+  smart=zig-sys-smart
 |%
 +$  card  card:agent:gall
@@ -10,11 +10,11 @@
       to-compile=(map path id:smart)  ::  compile these contracts with these id's
       next-contract-id=id:smart
       errors=(list [path @t])
-      state=land:mill
-      data-texts=(map id:smart @t)  ::  holds rice data that got ream'd
+      =chain:engine
+      noun-texts=(map id:smart @t)  ::  holds `noun.data` that got ream'd
       user-address=address:smart
       user-nonce=@ud
-      mill-batch-num=@ud
+      batch-num=@ud
       =tests
   ==
 ::
@@ -25,8 +25,8 @@
   $:  name=(unit @t)  ::  optional
       for-contract=id:smart
       action-text=@t
-      action=yolk:smart
-      expected=(map id:smart [grain:smart @t])
+      action=calldata:smart
+      expected=(map id:smart [item:smart @t])
       expected-error=@ud  ::  bad, but we can't get term literals :/
       result=(unit test-result)
   ==
@@ -34,12 +34,12 @@
 +$  test-result
   $:  fee=@ud
       =errorcode:smart
-      =crow:smart
+      events=(list contract-event:engine)
       =expected-diff
       success=(unit ?)  ::  does last-result fully match expected?
   ==
 +$  expected-diff
-  (map id:smart [made=(unit grain:smart) expected=(unit grain:smart) match=(unit ?)])
+  (map id:smart [made=(unit item:smart) expected=(unit item:smart) match=(unit ?)])
 ::
 +$  template  ?(%fungible %nft %blank)
 ::
@@ -49,7 +49,7 @@
 +$  action
   $:  project=@t
       $%  [%new-project user-address=address:smart]
-          [%populate-template =template metadata=rice:smart]
+          [%populate-template =template metadata=data:smart]
           [%delete-project ~]
       ::
           [%save-file file=path text=@t]  ::  generates new file or overwrites existing
@@ -59,11 +59,11 @@
           [%compile-contracts ~]  ::  alterations to project files call %compile-contracts which calls %read-desk which sends a project update; TODO: skip compile when no change?
           [%read-desk ~]
           ::
-          [%add-to-state salt=@ label=@tas data=* lord=id:smart holder=id:smart town-id=id:smart]
+          [%add-to-state source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
           [%delete-from-state =id:smart]
           ::
           [%add-test name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]  ::  name optional
-          [%add-test-expectation id=@ux salt=@ label=@tas data=* lord=id:smart holder=id:smart town-id=id:smart]
+          [%add-test-expectation test-id=@ux source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
           [%delete-test-expectation id=@ux delete=id:smart]
           [%delete-test id=@ux]
           [%edit-test id=@ux name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]
@@ -86,13 +86,14 @@
 ::
 +$  project-update
   $:  dir=(list path)
+      user-files=(set path)
       compiled=?
       errors=(list [path @t])
-      state=land:mill
-      data-texts=(map id:smart @t)
+      =chain:engine
+      noun-texts=(map id:smart @t)
       =tests
   ==
 ::
 +$  test-update
-  [%result state-transition:mill]
+  [%result state-transition:engine]
 --

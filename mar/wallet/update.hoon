@@ -1,5 +1,5 @@
-/-  *wallet
-/+  *wallet-parsing
+/-  *zig-wallet
+/+  *zig-wallet
 =,  enjs:format
 |_  upd=wallet-update
 ++  grab
@@ -19,17 +19,21 @@
       %-  pairs
       %+  turn  ~(tap by book)
       |=  [=id:smart =asset]
-      (parse-asset id asset)
+      (asset:parsing id asset)
     ::
         %new-metadata
       %-  pairs
       %+  turn  ~(tap by metadata.upd)
       |=  [=id:smart d=asset-metadata]
-      (parse-metadata id d)
+      (metadata:parsing id d)
     ::
         %tx-status
       %-  frond
-      (parse-transaction hash.upd egg.upd action.upd)
+      (transaction-no-output:parsing +.upd)
+    ::
+        %finished-tx
+      %-  frond
+      (transaction-with-output:parsing +.upd)
     ==
   --
 ++  grad  %noun

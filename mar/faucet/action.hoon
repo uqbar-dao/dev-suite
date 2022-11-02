@@ -1,4 +1,4 @@
-/-  f=faucet
+/-  f=zig-faucet
 ::
 |_  =action:f
 ++  grab

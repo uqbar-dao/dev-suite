@@ -1,6 +1,7 @@
-/-  ui=indexer,
-    seq=sequencer
-/+  jold,
+/-  eng=zig-engine,
+    seq=zig-sequencer,
+    ui=zig-indexer
+/+  jold=zig-jold,
     smart=zig-sys-smart
 ::
 |_  =bowl:gall
@@ -8,15 +9,15 @@
   |=  $:  contract-id=id:smart
           return=?(%interface %types)
           label=@tas
-          data=*
+          noun=*
       ==
   |^  ^-  json
   ?:  =(*bowl:gall bowl)
-    [%s (crip (noah !>(data)))]
+    [%s (crip (noah !>(noun)))]
   =/  interface-types=(map @tas json)  get-interface-types
   ?~  interface-type=(~(get by interface-types) label)
-    [%s (crip (noah !>(data)))]
-  (jold-full-tuple-to-object:jold u.interface-type data)
+    [%s (crip (noah !>(noun)))]
+  (jold-full-tuple-to-object:jold u.interface-type noun)
   ::
   ++  get-interface-types
     ^-  (map @tas json)
@@ -25,12 +26,12 @@
           %gx
           %-  zing
           :+  /(scot %p our.bowl)/indexer/(scot %da now.bowl)
-            /newest/grain/(scot %ux contract-id)/noun
+            /newest/item/(scot %ux contract-id)/noun
           ~
       ==
-    ?~  update                      ~
-    ?.  ?=(%newest-grain -.update)  ~
-    =*  contract  grain.update
+    ?~  update                     ~
+    ?.  ?=(%newest-item -.update)  ~
+    =*  contract  item.update
     ?.  ?=(%| -.contract)  ~
     ?-  return
       %interface  interface.p.contract
@@ -55,18 +56,18 @@
         %batch-order
       (frond %batch-order (batch-order batch-order.update))
     ::
-        %egg
-      (frond %egg (eggs eggs.update))
+        %transaction
+      (frond %transaction (transactions transactions.update))
     ::
-        %grain
-      (frond %grain (grains grains.update))
+        %item
+      (frond %item (items items.update))
     ::
         %hash
       %+  frond  %hash
       %-  pairs
       :^    [%batches (batches batches.update)]
-          [%eggs (eggs eggs.update)]
-        [%grains (grains grains.update)]
+          [%transactions (transactions transactions.update)]
+        [%items (items items.update)]
       ~
     ::
         %newest-batch
@@ -76,11 +77,11 @@
       %+  frond  %newest-batch-order
       (frond %batch-id %s (scot %ux batch-id.update))
     ::
-        %newest-egg
-      (frond %newest-egg (newest-egg +.update))
+        %newest-transaction
+      (frond %newest-transaction (newest-transaction +.update))
     ::
-        %newest-grain
-      (frond %newest-grain (newest-grain +.update))
+        %newest-item
+      (frond %newest-item (newest-item +.update))
     ==
   ::
   ++  town-location
@@ -95,20 +96,20 @@
     ^-  json
     %-  pairs
     :+  [%town-id %s (scot %ux town-id.batch-location)]
-      [%batch-root %s (scot %ux batch-root.batch-location)]
+      [%batch-id %s (scot %ux batch-id.batch-location)]
     ~
   ::
-  ++  egg-location
-    |=  =egg-location:ui
+  ++  transaction-location
+    |=  location=transaction-location:ui
     ^-  json
     %-  pairs
-    :^    [%town-id %s (scot %ux town-id.egg-location)]
-        [%batch-root %s (scot %ux batch-root.egg-location)]
-      [%egg-num (numb egg-num.egg-location)]
+    :^    [%town-id %s (scot %ux town-id.location)]
+        [%batch-id %s (scot %ux batch-id.location)]
+      [%transaction-num (numb transaction-num.location)]
     ~
   ::
   ++  batches
-    |=  batches=(map batch-id=id:smart [@da town-location:ui batch:ui])
+    |=  batches=(map batch-id=id:smart batch-update-value:ui)
     ^-  json
     %-  pairs
     %+  turn  ~(tap by batches)
@@ -134,77 +135,119 @@
     |=  =batch:ui
     ^-  json
     %-  pairs
-    :+  [%transactions (transactions transactions.batch)]
+    :+  [%transactions (processed-txs transactions.batch)]
       [%town (town +.batch)]
     ~
   ::
-  ++  transactions
-    |=  transactions=(list [@ux egg:smart])
+  ++  processed-txs
+    |=  =processed-txs:eng
     ^-  json
     :-  %a
-    %+  turn  transactions
-    |=  [hash=@ux e=egg:smart]
+    %+  turn  processed-txs
+    |=  [hash=@ux t=transaction:smart o=output:eng]
     %-  pairs
-    :+  [%hash %s (scot %ux hash)]
-      [%egg (egg e)]
+    :^    [%hash %s (scot %ux hash)]
+        [%transaction (transaction t)]
+      [%output (output o)]
     ~
   ::
-  ++  eggs
-    |=  eggs=(map egg-id=id:smart [@da location=egg-location:ui =egg:smart])
+  ++  transactions
+    |=  transactions=(map transaction-id=id:smart transaction-update-value:ui)
     ^-  json
     %-  pairs
-    %+  turn  ~(tap by eggs)
-    |=  [=id:smart timestamp=@da location=egg-location:ui e=egg:smart]
+    %+  turn  ~(tap by transactions)
+    |=  $:  =id:smart
+            timestamp=@da
+            location=transaction-location:ui
+            t=transaction:smart
+            o=output:eng
+        ==
     :-  (scot %ux id)
     %-  pairs
-    :^    [%timestamp (sect timestamp)]
-        [%location (egg-location location)]
-      [%egg (egg e)]
-    ~
+    :~  [%timestamp (sect timestamp)]
+        [%location (transaction-location location)]
+        [%transaction (transaction t)]
+        [%output (output o)]
+    ==
   ::
-  ++  newest-egg
-    |=  [=id:smart timestamp=@da location=egg-location:ui e=egg:smart]
+  ++  newest-transaction
+    |=  $:  =id:smart
+            timestamp=@da
+            location=transaction-location:ui
+            t=transaction:smart
+            o=output:eng
+        ==
     ^-  json
     %-  pairs
-    :-  [%egg-id %s (scot %ux id)]
-    :^    [%timestamp (sect timestamp)]
-        [%location (egg-location location)]
-      [%egg (egg e)]
-    ~
+    :~  [%transaction-id %s (scot %ux id)]
+        [%timestamp (sect timestamp)]
+        [%location (transaction-location location)]
+        [%transaction (transaction t)]
+        [%output (output o)]
+    ==
   ::
-  ++  egg
-    |=  =egg:smart
+  ++  transaction
+    |=  =transaction:smart
     ^-  json
     %-  pairs
-    :^    [%sig (sig sig.egg)]
-        [%shell (shell shell.egg)]
-      [%yolk (yolk yolk.egg contract.shell.egg)]
+    :^    [%sig (sig sig.transaction)]
+        [%shell (shell +.+.transaction)]
+      [%calldata (calldata [calldata contract]:transaction)]
+    ~
+  ::
+  ++  output
+    |=  =output:eng
+    ^-  json
+    %-  pairs
+    :~  [%gas (numb gas.output)]
+        [%errorcode (numb errorcode.output)]
+        :: [%errorcode %s errorcode.output]
+        [%modified (state modified.output)]
+        [%burned (state burned.output)]
+        [%events (events events.output)]
+    ==
+  ::
+  ++  events
+    |=  events=(list contract-event:eng)
+    ^-  json
+    :-  %a
+    %+  turn  events
+    |=  e=contract-event:eng
+    (event e)
+  ::
+  ++  event
+    |=  event=contract-event:eng
+    ^-  json
+    %-  pairs
+    :^    [%contract %s (scot %ux contract.event)]
+        [%label %s label.event]
+      [%json json.event]
     ~
   ::
   ++  shell
     |=  =shell:smart
     ^-  json
     %-  pairs
-    :~  [%from (caller from.shell)]
+    :~  [%caller (caller caller.shell)]
         [%eth-hash (eth-hash eth-hash.shell)]
         [%contract %s (scot %ux contract.shell)]
-        [%rate (numb rate.shell)]
-        [%budget (numb budget.shell)]
-        [%town-id %s (scot %ux town-id.shell)]
+        [%rate (numb rate.gas.shell)]
+        [%budget (numb bud.gas.shell)]
+        [%town-id %s (scot %ux town.shell)]
         [%status (numb status.shell)]
     ==
   ::
-  ++  yolk
-    |=  [=yolk:smart contract-id=id:smart]
+  ++  calldata
+    |=  [=calldata:smart contract-id=id:smart]
     ^-  json
-    %+  frond  p.yolk
-    (get-interface-types-json contract-id %interface yolk)
+    %+  frond  p.calldata
+    (get-interface-types-json contract-id %interface calldata)
   ::
   ++  caller
     |=  =caller:smart
     ^-  json
     %-  pairs
-    :^    [%id %s (scot %ux id.caller)]
+    :^    [%id %s (scot %ux address.caller)]
         [%nonce (numb nonce.caller)]
       [%zigs %s (scot %ux zigs.caller)]
     ~
@@ -232,93 +275,93 @@
     |=  =id:smart
     [%s (scot %ux id)]
   ::
-  ++  grains
-    |=  grains=(jar grain-id=id:smart [@da location=batch-location:ui =grain:smart])
+  ++  items
+    |=  items=(jar item-id=id:smart [@da location=batch-location:ui =item:smart])
     ^-  json
     %-  pairs
-    %+  turn  ~(tap by grains)
-    |=  [=id:smart gs=(list [@da batch-location:ui grain:smart])]
+    %+  turn  ~(tap by items)
+    |=  [=id:smart gs=(list [@da batch-location:ui item:smart])]
     :+  (scot %ux id)
       %a
     %+  turn  gs
-    |=  [timestamp=@da location=batch-location:ui g=grain:smart]
+    |=  [timestamp=@da location=batch-location:ui g=item:smart]
     %-  pairs
     :^    [%timestamp (sect timestamp)]
         [%location (batch-location location)]
-      [%grain (grain g)]
+      [%item (item g)]
     ~
   ::
-  ++  newest-grain
-    |=  [=id:smart timestamp=@da location=batch-location:ui g=grain:smart]
+  ++  newest-item
+    |=  [=id:smart timestamp=@da location=batch-location:ui g=item:smart]
     ^-  json
     %-  pairs
-    :-  [%grain-id %s (scot %ux id)]
+    :-  [%item-id %s (scot %ux id)]
     :^    [%timestamp (sect timestamp)]
         [%location (batch-location location)]
-      [%grain (grain g)]
+      [%item (item g)]
     ~
   ::
-  ++  grain
-    |=  =grain:smart
+  ++  item
+    |=  =item:smart
     ^-  json
     %-  pairs
     %+  welp
-      ?:  ?=(%& -.grain)
-        ::  rice
-        :~  [%is-rice %b %&]
-            [%salt (numb salt.p.grain)]
-            [%label %s `@ta`label.p.grain]
-            :-  %data
-            %+  frond  label.p.grain
+      ?:  ?=(%& -.item)
+        ::  data
+        :~  [%is-data %b %&]
+            [%salt (numb salt.p.item)]
+            [%label %s `@ta`label.p.item]
+            :-  %noun
+            %+  frond  label.p.item
             %:  get-interface-types-json
-                lord.p.grain
+                source.p.item
                 %types
-                label.p.grain
-                data.p.grain
+                label.p.item
+                noun.p.item
             ==
         ==
       ::  wheat
-      :~  [%is-rice %b %|]
-          [%cont (numb (jam cont.p.grain))]
-          [%interface (tas-to-json interface.p.grain)]
-          [%types (tas-to-json types.p.grain)]
+      :~  [%is-data %b %|]
+          [%cont (numb 0)]
+          [%interface (tas-to-json interface.p.item)]
+          [%types (tas-to-json types.p.item)]
       ==
-    :~  [%id %s (scot %ux id.p.grain)]
-        [%lord %s (scot %ux lord.p.grain)]
-        [%holder %s (scot %ux holder.p.grain)]
-        [%town-id %s (scot %ux town-id.p.grain)]
+    :~  [%id %s (scot %ux id.p.item)]
+        [%source %s (scot %ux source.p.item)]
+        [%holder %s (scot %ux holder.p.item)]
+        [%town %s (scot %ux town.p.item)]
     ==
   ::
   ++  town
     |=  =town:seq
     ^-  json
     %-  pairs
-    :+  [%land (land land.town)]
+    :+  [%chain (chain chain.town)]
       [%hall (hall hall.town)]
     ~
   ::
-  ++  land
-    |=  =land:seq
+  ++  chain
+    |=  =chain:eng
     ^-  json
     %-  pairs
-    :+  [%granary (granary p.land)]
-      [%populace (populace q.land)]
+    :+  [%state (state p.chain)]
+      [%nonces (nonces q.chain)]
     ~
   ::
-  ++  granary
-    |=  =granary:seq
+  ++  state
+    |=  =state:eng
     ^-  json
     %-  pairs
-    %+  turn  ~(tap by granary)
+    %+  turn  ~(tap by state)
     ::  TODO: either print Pedersen hash or don't store it
-    |=  [=id:smart pedersen=@ux g=grain:smart]
-    [(scot %ux id) (grain g)]
+    |=  [=id:smart pedersen=@ux i=item:smart]
+    [(scot %ux id) (item i)]
   ::
-  ++  populace
-    |=  =populace:seq
+  ++  nonces
+    |=  =nonces:seq
     ^-  json
     %-  pairs
-    %+  turn  ~(tap by populace)
+    %+  turn  ~(tap by nonces)
     ::  TODO: either print Pedersen hash or don't store it
     |=  [=id:smart pedersen=@ux nonce=@ud]
     [(scot %ux id) (numb nonce)]
@@ -392,8 +435,8 @@
     ^-  json
     :-  %a
     %+  turn  batch-order
-    |=  batch-root=id:smart
-    [%s (scot %ux batch-root)]
+    |=  batch-id=id:smart
+    [%s (scot %ux batch-id)]
   ::
   ++  tas-to-json
     |=  mapping=(map @tas json)

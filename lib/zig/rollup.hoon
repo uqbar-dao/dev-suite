@@ -1,4 +1,4 @@
-/-  *rollup
+/-  *zig-rollup
 |%
 ::
 ::  +allowed-participant: grades whether a ship is permitted to participate

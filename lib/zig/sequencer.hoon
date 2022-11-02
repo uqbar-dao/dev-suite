@@ -1,22 +1,21 @@
-/-  *sequencer
-/+  mill=zig-mill
+/-  *zig-sequencer
 |%
 ++  transition-state
-  |=  [old=(unit town) proposed=[num=@ud =carton =land diff-hash=@ux root=@ux]]
+  |=  [old=(unit town) proposed=[num=@ud =processed-txs =chain diff-hash=@ux root=@ux]]
   ^-  (unit town)
   ?~  old  old
   :-  ~
   %=  u.old
     batch-num.hall         num.proposed
-    land                   land.proposed
+    chain                  chain.proposed
     latest-diff-hash.hall  diff-hash.proposed
     roots.hall             (snoc roots.hall.u.old root.proposed)
   ==
 ::
 ++  read-grain
-  |=  [=path =granary]
+  |=  [=path =state]
   ^-  (unit (unit cage))
   ?>  ?=([%grain @ ~] path)
   =/  id  (slav %ux i.t.path)
-  ``noun+!>((get:big:mill granary id))
+  ``noun+!>((get:big state id))
 --

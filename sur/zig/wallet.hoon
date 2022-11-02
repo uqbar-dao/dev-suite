@@ -1,3 +1,4 @@
+/-  eng=zig-engine
 /+  smart=zig-sys-smart
 |%
 +$  signature   [p=@ux q=ship r=life]
@@ -7,26 +8,27 @@
 ::
 +$  book  (map id:smart asset)
 +$  asset
-  $%  [%token town-id=@ux contract=id:smart metadata=id:smart token-account]
-      [%nft town-id=@ux contract=id:smart metadata=id:smart nft]
-      [%unknown town-id=@ux contract=id:smart *]
+  $%  [%token town=@ux contract=id:smart metadata=id:smart token-account]
+      [%nft town=@ux contract=id:smart metadata=id:smart nft]
+      [%unknown town=@ux contract=id:smart *]
   ==
 ::
 +$  metadata-store  (map id:smart asset-metadata)
 +$  asset-metadata
-  $%  [%token town-id=@ux token-metadata]
-      [%nft town-id=@ux nft-metadata]
+  $%  [%token town=@ux token-metadata]
+      [%nft town=@ux nft-metadata]
   ==
+::
++$  unfinished-transaction-store
+  (list [hash=@ux tx=transaction:smart action=supported-actions])
 ::
 +$  transaction-store
   %+  map  address:smart
-  $:  sent=(map @ux [=egg:smart action=supported-actions])
-      received=(map @ux =egg:smart)
-  ==
+  (map @ux [=transaction:smart action=supported-actions =output:eng])
 ::
 +$  pending-store
   %+  map  address:smart
-  (map @ux [=egg:smart action=supported-actions])
+  (map @ux [=transaction:smart action=supported-actions])
 ::
 +$  transaction-status-code
   $%  %100  ::  100: transaction pending in wallet
@@ -36,16 +38,16 @@
       ::
       ::  200-class refers to codes that come from a completed, processed transaction
       ::  informed by egg status codes in smart.hoon
-      %200  ::  0: successfully performed
-      %201  ::  1: submitted with raw id / no account info
-      %202  ::  2: bad signature
-      %203  ::  3: incorrect nonce
-      %204  ::  4: lack zigs to fulfill budget
-      %205  ::  5: couldn't find contract
-      %206  ::  6: crash in contract execution
-      %207  ::  7: validation of changed/issued/burned rice failed
-      %208  ::  8: ran out of gas while executing
-      %209  ::  9: was not parallel / superceded by another egg in batch
+      %200  ::  200: successfully performed
+      %201  ::  201: bad signature
+      %202  ::  202: incorrect nonce
+      %203  ::  203: lack zigs to fulfill budget
+      %204  ::  204: couldn't find contract
+      %205  ::  205: data was under contract ID
+      %206  ::  206: crash in contract execution
+      %207  ::  207: validation of diff failed
+      %208  ::  208: ran out of gas while executing
+      %209  ::  209: dedicated burn transaction failed
   ==
 ::
 ::  sent to web interface
@@ -53,7 +55,8 @@
 +$  wallet-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
       [%new-metadata metadata=metadata-store]
-      [%tx-status hash=@ux =egg:smart action=supported-actions]
+      [%finished-tx hash=@ux =transaction:smart action=supported-actions =output:eng]
+      [%tx-status hash=@ux =transaction:smart action=supported-actions]
   ==
 ::
 ::  received from web interface
@@ -64,10 +67,10 @@
       [%derive-new-address hdpath=tape nick=@t]
       [%delete-address address=@ux]
       [%edit-nickname address=@ux nick=@t]
-      [%sign-typed-message from=id:smart =typed-message:smart]
+      [%sign-typed-message from=address:smart =typed-message:smart]
       [%add-tracked-address address=@ux nick=@t]
       ::  testing and internal
-      [%set-nonce address=@ux town=id:smart new=@ud]
+      [%set-nonce address=@ux town=@ux new=@ud]
       ::
       ::  TX submit pokes
       ::
@@ -94,14 +97,14 @@
       $:  %transaction
           from=address:smart
           contract=id:smart
-          town=id:smart
+          town=@ux
           action=supported-actions
       ==
   ==
 ::
 +$  supported-actions
-  $%  [%give to=address:smart amount=@ud grain=id:smart]
-      [%give-nft to=address:smart grain=id:smart]
+  $%  [%give to=address:smart amount=@ud item=id:smart]
+      [%give-nft to=address:smart item=id:smart]
       [%text @t]
       [%noun *]
   ==
@@ -115,16 +118,16 @@
       supply=@ud
       cap=(unit @ud)
       mintable=?
-      minters=(pset:smart id:smart)
+      minters=(pset:smart address:smart)
       deployer=id:smart
       salt=@
   ==
 ::
 +$  token-account
   $:  balance=@ud
-      allowances=(pmap:smart sender=id:smart @ud)
+      allowances=(pmap:smart sender=address:smart @ud)
       metadata=id:smart
-      nonce=@ud
+      nonces=(pmap:smart taker=address:smart @ud)
   ==
 ::
 ::  hardcoded molds comporting to account-NFT standard

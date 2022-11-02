@@ -1,4 +1,4 @@
-/+  *zink-zink, smart=zig-sys-smart, mill=zig-mill
+/+  *zink-zink, smart=zig-sys-smart, engine=zig-sys-engine
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  triv-txt        %hoon  /con/trivial/hoon
 |%
@@ -44,7 +44,8 @@
   ::  generate initial subject containing uHoon
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   ::  compose libraries against uHoon subject
-  =/  braw=(list hoon)
+  =/  libraries=hoon
+    :-  %clsg
     %+  turn  raw
     |=  [face=term =path]
     =/  pax  (weld desk path)
@@ -53,12 +54,13 @@
     =/  lib-txt  .^(@t %cx (welp pax /hoon))
     ::  CURRENTLY IGNORING IMPORTS INSIDE LIBRARIES
     +:(parse-pile (trip lib-txt))
-  =/  libraries=hoon  [%clsg braw]
-  =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun libraries)
+  =/  pay=*  q:(~(mint ut p.smart-lib) %noun libraries)
   =/  payload=vase  (slap smart-lib libraries)
-  =/  cont  (~(mint ut p:(slop smart-lib payload)) %noun contract-hoon)
+  =/  cont
+    %+  ~(mint ut p:(slop smart-lib payload))
+    %noun  contract-hoon
   ::
-  [bat=q.cont pay=full-nock]
+  [bat=q.cont pay]
 ::
 ++  compile-trivial
   |=  [hoonlib-txt=@t smartlib-txt=@t]
@@ -139,16 +141,16 @@
   ::  =/  cont  (~(mint ut p:(slop smart-lib payload)) %noun contract-hoon)
   ::  ::
   ::  =/  gun  (~(mint ut p.cont) %noun (ream '~'))
-  ::  =/  =book  (zebra bud cax *granary-scry [q.cont q.gun] %.n)
+  ::  =/  =book  (zebra bud cax *chain-state-scry [q.cont q.gun] %.n)
   ::  ~&  p.book
   ::  cax.q.book
   ::
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
-  =/  cont=[bat=* pay=*]  (compile-contract /zig triv-txt)
-  =/  cor  .*([q.smart-lib pay.cont] bat.cont)
+  =/  code=[bat=* pay=*]  (compile-contract /zig triv-txt)
+  =/  cor  .*([q.smart-lib pay.code] bat.code)
   =/  dor  [-:!>(*contract:smart) cor]
-  =/  gun  (ajar:mill dor %write !>(*context:smart) !>(*yolk:smart) %$)
-  =/  =book  (zebra bud cax *granary-scry gun %.n)
+  =/  gun  (ajar:engine dor %write !>(*context:smart) !>(*calldata:smart) %$)
+  =/  =book  (zebra bud cax *chain-state-scry gun %.n)
   ~&  p.book
   cax.q.book
   ::

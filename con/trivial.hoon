@@ -1,12 +1,16 @@
-|_  =cart
+::  trivial.hoon [UQ| DAO]
+/+  *zig-sys-smart
+|_  =context
 ++  write
-  |=  *
-  ^-  chick
-  [%& ~ ~ ~ ~]
+  |=  act=*
+  ^-  (quip call diff)
+  `[~ ~ ~ ~]
+::
 ++  read
-  |_  =path
+  |_  =pith
   ++  json
     ~
+  ::
   ++  noun
     ~
   --

@@ -13,8 +13,8 @@
 ::      Change state of %faucet app.
 ::
 ::
-/-  f=faucet,
-    w=wallet
+/-  f=zig-faucet,
+    w=zig-wallet
 /+  agentio,
     dbug,
     default-agent,
@@ -85,16 +85,16 @@
             [until ?:((gte count 12) count +(count))]
           ==
       :+  =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]
-          :-  %zig-wallet-poke
+          :-  %wallet-poke
           !>  ^-  wallet-poke:w
           :*  %transaction
               from=address.u.town-info
-              contract=zigs-wheat.u.town-info
+              contract=zigs-contract.u.town-info
               town=town-id.action
               :^    %give
                   to=address.action
                 amount=volume
-              grain=zigs-rice.u.town-info
+              grain=zigs-account.u.town-info
           ==
         =-  [%pass /self-poke %agent [our.bowl %faucet] %poke -]
         [%faucet-action !>(`action:f`[%confirm address.u.town-info])]
@@ -105,13 +105,13 @@
       ::  make faucet auto-complete transaction in wallet
       :_  this
       =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]~
-      :-  %zig-wallet-poke
+      :-  %wallet-poke
       !>  ^-  wallet-poke:w
       :*  %submit
           from=me.action
           ::  take first transaction in wallet pending store and slam it through
           ::  assumes that faucet operator never uses wallet for other things!
-          =-  -.-:~(tap by .^((map @ux [egg:smart supported-actions:w]) %gx -))
+          =-  -.-:~(tap by .^((map @ux [transaction:smart supported-actions:w]) %gx -))
           /(scot %p our.bowl)/wallet/(scot %da now.bowl)/pending-noun/(scot %ux me.action)/noun
           gas
       ==

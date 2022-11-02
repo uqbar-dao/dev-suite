@@ -6,141 +6,184 @@
 ::::::                                         ::::  ::  ::::::  ::  ::  ::  ::
 =<
 |%
-++  big  (bi id grain)  ::  merkle engine for granary
+::  merkle engine for chain-state
+++  big  (bi id item)
 ::
 ::  +husk: check provenance and fit data to mold
 ::
-::  this arm takes in a grain, a mold, and optional lord and holder
-::  metadata. if lord or holder given, the rice is asserted to have
-::  that property. the grain is also asserted to *be* rice, and we
-::  return the rice with the data inside asserted into the mold given.
+::  this arm takes in an item, a mold, and optional source and holder
+::  metadata. if source or holder given, the data is asserted to have
+::  that property. the item is also asserted to *be* data, and we
+::  return the data with the noun inside asserted into the mold given.
 ::
 ++  husk
-  |*  [typ=mold =grain lord=(unit address) holder=(unit address)]
-  ?>  ?&  ?~(lord %.y =(lord.p.grain u.lord))
-          ?~(holder %.y =(holder.p.grain u.holder))
-          ?=(%& -.grain)
+  |*  [typ=mold =item source=(unit address) holder=(unit address)]
+  ?>  ?&  ?~(source %.y =(source.p.item u.source))
+          ?~(holder %.y =(holder.p.item u.holder))
+          ?=(%& -.item)
       ==
-  p.grain(data ;;(typ data.p.grain))
+  p.item(noun ;;(typ noun.p.item))
 ::
-::  +scry: scry wrapper
+::  scry wrappers
+::  +scry-state is used to grab an item from chain state
+::  +scry-contract is used to call a contract's +read arm (for nouns)
 ::
-++  scry-granary
+++  scry-state
   |=  =id
-  ;;  (unit grain)
-  .*(0 [%12 [%0 1] [%1 /granary/(scot %ux id)]])
+  ;;  (unit item)
+  .*  0
+  [%12 [%0 1] [%1 `pith`[%state [%ux id] ~]]]
 ::
 ++  scry-contract
-  |=  [=id =path]
+  |=  [=id pit=pith]
   ;;  (unit *)
   .*  0
-  [%12 [%0 1] [%1 (weld /contract/noun/(scot %ux id) path)]]
+  [%12 [%0 1] [%1 (weld `pith`[%contract %noun [%ux id] ~] pit)]]
 ::
-::  +fry: standard hashing functions for rice and wheat grains
+::  +hash: standard hashing functions for items
 ::
-++  fry-wheat
-  |=  [lord=id holder=id town=id cont=(unit [bat=* pay=*])]
+++  hash-pact
+  |=  [source=id holder=id town=id code=*]
   ^-  id
-  ^-  @ux
-  %-  shax
-  :((cury cat 3) town lord holder (sham cont))
+  ^-  @ux  %-  shax
+  :((cury cat 3) town source holder (sham code))
 ::
-++  fry-rice
-  |=  [lord=id holder=id town=id salt=@]
+++  hash-data
+  |=  [source=id holder=id town=id salt=@]
   ^-  id
-  ^-  @ux
-  %-  shax
-  :((cury cat 3) town lord holder salt)
+  ^-  @ux  %-  shax
+  :((cury cat 3) town source holder salt)
 ::
-::  +result: generate a chick containing a final result
+::  +result: generate a diff
 ::
 ++  result
-  |=  [changed=(list grain) issued=(list grain) burned=(list grain) =crow]
-  ^-  chick
-  :-  %&
-  :^    (gas:big *(merk id grain) (turn changed |=(=grain [id.p.grain grain])))
-      (gas:big *(merk id grain) (turn issued |=(=grain [id.p.grain grain])))
-    (gas:big *(merk id grain) (turn burned |=(=grain [id.p.grain grain])))
-  crow
-::
-::  +continuation: generate a chick containing an intermediate result
-::  and a list of next calls
-::
-++  continuation
-  |=  [next=(list [to=id town-id=id =yolk]) rooster=chick]
-  ^-  chick
-  ?>  ?=(%& -.rooster)
-  [%| next p.rooster]
+  |=  [changed=(list item) issued=(list item) burned=(list item) =events]
+  ^-  diff
+  :^    (gas:big *(merk id item) (turn changed |=(=item [id.p.item item])))
+      (gas:big *(merk id item) (turn issued |=(=item [id.p.item item])))
+    (gas:big *(merk id item) (turn burned |=(=item [id.p.item item])))
+  events
 --  =<
 ::  ::
 ::  ::  four: contract types
 ::::::
 |%
-+$  id       @ux            ::  pubkey
++$  id       @ux            ::  hash pointing to some item
 +$  address  @ux            ::  42-char hex address, ETH compatible
 +$  sig      [v=@ r=@ s=@]  ::  ETH compatible ECDSA signature
 ::
-++  zigs-wheat-id  `@ux`'zigs-contract'   ::  hardcoded "native" token contract
+++  zigs-contract-id  `@ux`'zigs-contract'  ::  hardcoded "native" token contract
 ::
-+$  caller  [=id nonce=@ud zigs=id]
+::  items populate the state.
 ::
-::  message should be typed according to some mold specified by the wheat
-::
-+$  typed-message  [domain=id message=@]
-::
-::  grains populate the state.
-::
-::  they can only be modified by their lord, which must be
+::  they can only be modified by their source, which must be
 ::  a contract. the role of a holder is determined by the
 ::  specific rules of the contract, usually implying some
 ::  form of ownership.
 ::
-::  a grain holds either rice (data) or wheat (functions).
+::  an item holds either some data or a contract.
 ::
-+$  grain  (each rice wheat)
-::  metadata stored in all grains
-+$  bran   [=id lord=id holder=id town-id=id]
++$  item  (each data pact)
 ::
 ::  each piece of data includes a contract-defined salt and label
-::  salt is for hashing, to be combined with lord/holder/town for
+::  salt is for hashing, to be combined with source/holder/town for
 ::  a unique rice ID without needing to jam data. label matches
-::  types defined in contract wheat and allows apps to find a type
+::  types defined in pact and allows apps to find a type
 ::  representation for the contained data.
 ::
-+$  rice   [salt=@ label=@tas data=* bran]
++$  data
+  $:  =id  source=id  holder=id  town=id
+      salt=@  label=@tas
+      noun=*
+  ==
 ::
-::  contract contains itself and every imported library in pay
-::
-+$  wheat
-  $:  cont=(unit [bat=* pay=*])
++$  pact
+  $:  =id  source=id  holder=id  town=id
+      code=[bat=* pay=*]
       interface=(map @tas json)
       types=(map @tas json)
-      bran
   ==
 ::
-::  labeled "restricted types" that define contract actions and rice data
+::  context: state context fed into contract
 ::
-+$  lumps  (map @tas lump)
-::
-::  lump: restricted type
-::  published inside wheat to share representation of action and rice nouns
-::  allows outside users to create vases to wrap around data and use
-::
-+$  lump
-  %+  pair  @tas
-  $~  *iota
-  $%  iota
-      [%set lump]
-      [%list lump]
-      [%unit u=lump]
-      [%map lump lump]
-      [%fork (set iota)]
-      [%pair p=lump q=lump]
-      [%trel p=lump q=lump r=lump]
-      [%qual p=lump q=lump r=lump s=lump]
++$  context
+  $:  this=id                 ::  ID of current contract
+      caller=[=id nonce=@ud]  ::  information about caller
+      batch=@ud
+      eth-block=@ud
+      town=id
   ==
 ::
-+$  iota                                                ::  typed path segment
+::  smart contract definition
+::
++$  contract
+  $_  ^|
+  |_  context
+  ++  write
+    |~  *
+    (quip call diff)
+  ::
+  ++  read
+    ^|  |_  pith
+    ++  json
+      *^json
+    ++  noun
+      *^noun
+    --
+  --
+::
+::  contract output types
+::
++$  diff
+  $:  changed=(merk id item)
+      issued=(merk id item)
+      burned=(merk id item)
+      =events
+  ==
++$  call  [contract=id town=id =calldata]
++$  event   (pair @tas json)
++$  events  (list event)
+::
+::  transaction types
+::
++$  transaction  [=sig =calldata shell]
++$  caller  [=address nonce=@ud zigs=id]
++$  calldata  (pair @tas *)
++$  shell
+  $:  =caller  ::  contains address, nonce, and zigs account
+      eth-hash=(unit @)  ::  if signed with eth wallet, use verify signature
+      contract=id
+      gas=[rate=@ud bud=@ud]
+      town=id
+      status=@ud  ::  error code
+  ==
+::
+::  transaction error codes
+::
++$  errorcode
+  $%  %0  ::  0: successfully performed
+      %1  ::  1: bad signature
+      %2  ::  2: incorrect nonce
+      %3  ::  3: lack zigs to fulfill budget
+      %4  ::  4: couldn't find contract
+      %5  ::  5: data was under contract ID
+      %6  ::  6: crash in contract execution
+      %7  ::  7: validation of diff failed
+      %8  ::  8: ran out of gas while executing
+      %9  ::  9: dedicated burn transaction failed
+  ==
+::
+::  EIP-712 mold for offchain data signing
++$  typed-message  [domain=id type-hash=@ message=@]
+::
+::  typed paths inside contracts
+::  taken from: https://github.com/urbit/urbit/pull/5887
+::  can live here temporarily until these types/parsers
+::  are merged into hoon.hoon
+::
++$  pith  (list iota)                                  ::  typed urbit path
+::                                                     ::
++$  iota                                               ::  typed path segment
   $~  [%n ~]
   $@  @tas
   $%  [%ub @ub]  [%uc @uc]  [%ud @ud]  [%ui @ui]
@@ -153,82 +196,6 @@
       [%t @t]    [%ta @ta]  ::  @tas
       [%p @p]    [%q @q]
       [%rs @rs]  [%rd @rd]  [%rh @rh]  [%rq @rq]
-      ::  contract types
-      [%address @ux]  [%grain @ux]
-  ==
-::
-::  context: state context fed into contract
-::
-+$  context
-  $:  me=id
-      from=[=id nonce=@ud]
-      batch=@ud
-      eth-block=@ud
-      town-id=id
-  ==
-::
-::  contract result types
-::
-+$  chick    (each rooster hen)
-::
-+$  rooster
-  [changed=(merk id grain) issued=(merk id grain) burned=(merk id grain) =crow]
-::
-+$  hen
-  [next=(list [contract=id town-id=id =yolk]) =rooster]
-::
-+$  crow     (list [@tas json])
-::
-::  smart contract definition
-::
-+$  contract
-  $_  ^|
-  |_  context
-  ++  write
-    |~  *
-    chick
-  ::
-  ++  read
-    ^|  |_  path
-    ++  json
-      *^json
-    ++  noun
-      *^noun
-    --
-  --
-::
-::  transaction type, fed into contract
-::
-+$  egg     [=sig =shell =yolk]
-::
-::  @tas label should match to one in contract's interface
-::  yolk becomes the noun fed into contract write arm
-::
-+$  yolk    (pair @tas *)
-+$  shell
-  $:  from=caller
-      ::  if transaction signed with eth wallet, use this to verify signature
-      eth-hash=(unit @)
-      contract=id
-      rate=@ud
-      budget=@ud
-      town-id=id
-      status=@ud  ::  error code
-  ==
-::
-::  egg error codes
-::
-+$  errorcode
-  $%  %0  ::  0: successfully performed
-      %1  ::  1: submitted with raw id / no account info
-      %2  ::  2: bad signature
-      %3  ::  3: incorrect nonce
-      %4  ::  4: lack zigs to fulfill budget
-      %5  ::  5: couldn't find contract
-      %6  ::  6: crash in contract execution
-      %7  ::  7: validation of changed/issued/burned rice failed
-      %8  ::  8: ran out of gas while executing
-      %9  ::  9: was not parallel / superceded by another egg in batch
   ==
 --  =<
 ::  ::
@@ -607,10 +574,10 @@
     =|  [l=(unit) r=(unit)]
     |.  ^-  ?
     ?~  a   &
-    ?&  ?~(l & (sore n.a u.l))
-        ?~(r & (sore u.r n.a))
-        ?~(l.a & ?&((sure n.a n.l.a) $(a l.a, l `n.a)))
-        ?~(r.a & ?&((sure n.a n.r.a) $(a r.a, r `n.a)))
+    ?&  ?~(l & &((sore n.a u.l) !=(n.a u.l)))
+        ?~(r & &((sore u.r n.a) !=(u.r n.a)))
+        ?~(l.a & ?&((sure n.a n.l.a) !=(n.a n.l.a) $(a l.a, l `n.a)))
+        ?~(r.a & ?&((sure n.a n.r.a) !=(n.a n.r.a) $(a r.a, r `n.a)))
     ==
   ::
   ++  bif                                               ::  splits a by b

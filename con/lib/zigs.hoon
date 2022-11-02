@@ -1,7 +1,7 @@
 ::  [UQ| DAO]
 ::  zigs.hoon v1.0
 ::
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 |%
 ++  sur
   |%
@@ -24,7 +24,7 @@
     $:  balance=@ud
         allowances=(pmap address @ud)
         metadata=id
-        nonce=@ud
+        nonces=(pmap address @ud)
     ==
   ::
   +$  action

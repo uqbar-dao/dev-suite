@@ -1,4 +1,4 @@
-/-  *ziggurat
+/-  *zig-ziggurat
 =,  dejs:format
 |_  act=contract-action
 ++  grab

@@ -1,9 +1,9 @@
-/-  sequencer
+/-  seq=zig-sequencer
 ::
-|_  =town-action:sequencer
+|_  =town-action:seq
 ++  grab
   |%
-  ++  noun  town-action:sequencer
+  ++  noun  town-action:seq
   --
 ::
 ++  grow
