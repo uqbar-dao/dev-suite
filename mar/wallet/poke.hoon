@@ -60,12 +60,12 @@
       %-  ot
       :~  [%to (se %ux)]
           [%amount ni]
-          [%grain (se %ux)]
+          [%item (se %ux)]
       ==
     ++  parse-nft
       %-  ot
       :~  [%to (se %ux)]
-          [%grain (se %ux)]
+          [%item (se %ux)]
       ==
     --
   --

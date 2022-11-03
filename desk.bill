@@ -3,6 +3,7 @@
     %sequencer
     %indexer
     %wallet
+    %pyro
     %ziggurat
     %pyro
 ==

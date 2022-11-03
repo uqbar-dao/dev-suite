@@ -17,6 +17,7 @@
 +$  state-0
   $:  %0
       =projects
+      test-master=[tid=@ta is-ready=?]
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
 +$  eng  $_  ~(engine engine:engine !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
@@ -41,7 +42,7 @@
   :-  ~
   %_    this
       state
-    [[%0 ~] eng smart-lib]
+    [[%0 ~ ['' %.n]] eng smart-lib]
   ==
 ++  on-save  !>(-.state)
 ++  on-load
@@ -58,6 +59,7 @@
   |=  =path
   ^-  (quip card _this)
   ?+    path  !!
+      [%pyro-done ~]  `this
       [%project @ ~]
     ::  serve updates about state of a given project
     =/  name=@t  `@t`i.t.path
@@ -258,7 +260,8 @@
         %add-test
       ::  generate an id for the test
       =/  =project  (~(got by projects) project.act)
-      =/  test-id  `@ux`(mug now.bowl)
+      :: =/  test-id  `@ux`(mug now.bowl)
+      =/  test-id=@ux  `@ux`(sham test-steps.act)
       =.  tests.project
         %+  ~(put by tests.project)  test-id
         [name.act test-steps.act ~]
@@ -304,6 +307,16 @@
       :: state(projects (~(put by projects) project.act project))
     ::
         %run-test
+      ?.  is-ready.test-master
+        ::  delay until test-master is-ready
+        :_  state
+        :_  ~
+        :^    %pass
+            %+  weld
+              /delay-test/[project.act]/(scot %ux id.act)
+            /(scot %ud rate.act)/(scot %ud bud.act)
+          %arvo
+        [%b %wait (add now.bowl ~s1)]
       =/  =project  (~(got by projects) project.act)
       =/  =test     (~(got by tests.project) id.act)
       =/  tid=@ta
@@ -356,6 +369,41 @@
       ::   chain.project  (silt eggs)
       :: :-  (make-multi-test-update project.act res)^~
       :: state(projects (~(put by projects) project.act project))
+    ::
+        %start-test-master
+      ?.  =('' tid.test-master)
+        ~|("%ziggurat: stop current test-master before starting new one" !!)
+      =/  =project  (~(got by projects) project.act)
+      =/  tid=@ta
+        %+  rap  3
+        :~  'ted-'
+            project.act
+            '-pyro-vanes-'
+            (scot %uw (sham eny.bowl))
+        ==
+      =/  =start-args:spider
+        :-  ~
+        :^  `tid  byk.bowl(r da+now.bowl)
+          %ziggurat-test-master
+        !>  ^-  (unit [@t (list @p)])
+        ?^  ships.act  [~ project.act u.ships.act]
+        [~ project.act ~[~nec ~bud]]
+        :: [~ project.act ~[~nec ~bud ~wes]]
+      :_  state(test-master [tid %.n])
+      :_  ~
+      :^  %pass  /pyro-vanes  %agent
+      [[our.bowl %spider] %poke %spider-start !>(start-args)]
+    ::
+        %ready-test-master
+      ?:  =('' tid.test-master)
+        ~|("%ziggurat: start-test-master before signaling ready" !!)
+      `state(is-ready.test-master %.y)
+    ::
+        %stop-test-master
+      :_  state(test-master ['' %.n])
+      :+  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
+        [%give %kick [/pyro-done]~ ~]
+      ~
     ::
         %deploy-contract  ::  TODO
       !!
@@ -436,6 +484,30 @@
     ~&  >>>  "failed to make new desk"
     `this
   ::
+      [%delay-test @ @ @ @ ~]
+    ?+    sign-arvo  (on-arvo:def wire sign-arvo)
+        [%behn %wake *]
+      ?^  error.sign-arvo
+        ~|("%ziggurat: %delay-test error: {<u.error.sign-arvo>}" !!)
+      ~&  %delay-test
+      :_  this
+      :_  ~
+      ?.  is-ready.test-master
+        ::  delay until test-master is-ready
+        [%pass wire %arvo [%b %wait (add now.bowl ~s1)]]
+      =*  project  i.t.wire
+      =*  id       (slav %ux i.t.t.wire)
+      =*  rate     (slav %ud i.t.t.t.wire)
+      =*  bud      (slav %ud i.t.t.t.t.wire)
+      :*  %pass
+          /self-wire
+          %agent
+          [our.bowl %ziggurat]
+          %poke
+          %ziggurat-action
+          !>(`action`project^[%run-test id rate bud])
+      ==
+    ==
   ==
 ::
 ++  on-peek

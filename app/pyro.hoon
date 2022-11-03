@@ -47,6 +47,7 @@
           event-log=(list unix-timed-event)
           next-events=(qeu unix-event)
           processing-events=?
+          scry-time=@da
       ==
     --
 ::
@@ -114,6 +115,13 @@
         [%x %fleets ~]        ``noun+!>((turn ~(tap by fleet-snaps) head))
         [%x %ships ~]         ``noun+!>((turn ~(tap by piers) head))
         [%x %pill ~]          ``pill+!>(pil)
+    ::
+        [%x %events ~]
+      :^  ~  ~  %noun
+      !>
+      %-  ~(run by piers)
+      |=  p=pier
+      [(lent event-log.p) ~(wyt in next-events.p)]
     ::
         [%x %fleet-ships @ ~]
       =+  sips=(~(get by fleet-snaps) i.t.t.path)
@@ -225,6 +233,7 @@
       %-  (slog >%aqua-crash< >guest=who< p.poke-result)
       $
     =.  snap  +.p.poke-result
+    =.  scry-time  tym
     =.  ..abet-pe  (publish-event tym ue)
     =.  ..abet-pe
       ~|  ova=-.p.poke-result
@@ -244,7 +253,7 @@
     ::  validate path
     ?>  ?=([@ @ @ @ *] pax)
     ::  alter timestamp to match %pyro fake-time
-    =.  i.t.t.t.pax  (scot %da tym)
+    =.  i.t.t.t.pax  (scot %da scry-time)
     ~&  >>  `path`pax
     ::  execute scry
     =/  pek  (slum scry [[~ ~] & pax])

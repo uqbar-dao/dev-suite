@@ -3,9 +3,10 @@
 /+  strandio,
     pyio=py-io
 ::
-=*  strand  strand:spider
-=*  scry    scry:strandio
-=*  sleep   sleep:strandio
+=*  strand     strand:spider
+=*  scry       scry:strandio
+=*  sleep      sleep:strandio
+=*  watch-our  watch-our:strandio
 ::
 =/  m  (strand ,vase)
 |^  ted
@@ -119,6 +120,7 @@
     (pure:m !>(~))
   =*  test-steps  u.args
   ::
+  ;<  ~  bind:m  (watch-our /effect %pyro /effect)
   ;<  =test-results:zig  bind:m  (run-steps test-steps)
   (pure:m !>(`test-results:zig`test-results))
 --
