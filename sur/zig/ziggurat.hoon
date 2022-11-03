@@ -83,6 +83,10 @@
           [%run-test id=@ux rate=@ud bud=@ud]
           [%run-tests tests=(list [id=@ux rate=@ud bud=@ud])]  :: each one run with same gas
           ::
+          [%start-test-master ships=(unit (list @p))]
+          [%ready-test-master ~]
+          [%stop-test-master ~]
+          ::
           [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
           $:  %deploy-contract
               =path
