@@ -543,13 +543,13 @@
         ::
         userspace-ova.pil  :: load os
         ::
-        :*  [/b/behn/0v1n.2m9vh %born ~]
+        ::  XX start vanes - does this actually start the vanes?
+        :~  [/b/behn/0v1n.2m9vh %born ~]
             [/i/http-client/0v1n.2m9vh %born ~]
             [/e/http-server/0v1n.2m9vh %born ~]
             [/e/http-server/0v1n.2m9vh %live 8.080 `8.445]
             [/a/newt/0v1n.2m9vh %born ~]
             [/d/term/1 %hail ~]
-            ~
         ==
       ==
     =.  this
@@ -578,9 +578,11 @@
     (pe -.hers.ae) :: XX this is hacky. Works but w/e
   ::
       %restore-snap
-    :: XX  we should only be killing only the ships in the snapshot
+    =/  to-kill  :: only kill ships in the snapshot
+      %-  ~(int in ~(key by piers))
+      ~(key by (~(got by fleet-snaps) lab.ae))
     =.  this
-      %+  turn-ships  (turn ~(tap by piers) head)
+      %+  turn-ships  ~(tap in to-kill)
       |=  [who=ship thus=_this]
       =.  this  thus
       (publish-effect:(pe who) [/ %kill ~])
@@ -590,7 +592,7 @@
       |=  [who=ship thus=_this]
       =.  this  thus
       (publish-effect:(pe who) [/ %restore ~])
-    (pe ~bud)  ::  XX why ~bud?  need an example - shouldn't be bud LOL
+    (pe -:to-kill)
   ::
       %event
     ~?  &(aqua-debug=| !?=(?(%belt %hear) -.q.ue.ae))
