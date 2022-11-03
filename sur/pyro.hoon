@@ -33,8 +33,6 @@
 +$  aqua-event
   $%  [%init-ship who=ship]
       [%pause-events who=ship]
-      [%snap-ships lab=term hers=(list ship)]
-      [%restore-snap lab=term]
       [%event who=ship ue=unix-event]
   ==
 ::
@@ -42,6 +40,9 @@
   $%  [%dojo who=@p command=tape]
       [%remove-ship who=@p]
       [%insert-files who=@p des=desk files=(list [=path txt=@t])]
+      [%snap-ships lab=term hers=(list ship)]
+      [%restore-snap lab=term]
+      [%clear-snap lab=term]
   ==
 ::
 +$  aqua-effects

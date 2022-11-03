@@ -114,6 +114,9 @@
         [%x %fleets ~]        ``noun+!>((turn ~(tap by fleet-snaps) head))
         [%x %ships ~]         ``noun+!>((turn ~(tap by piers) head))
         [%x %pill ~]          ``pill+!>(pil)
+        [%x %fleet-ships @ ~]
+          =+  sips=(~(get by fleet-snaps) i.t.t.path)
+          ?~  sips  ~  ``noun+!>(~(key by u.sips))
         [%x %i @ @ @ @ @ *]
       ::   ship | scry path
       ::          care, ship, desk, time, path
@@ -559,41 +562,6 @@
       %pause-events
     stop-processing-events:(pe who.ae)
   ::
-      %snap-ships
-    =.  this
-      %+  turn-ships  (turn ~(tap by piers) head)
-      |=  [who=ship thus=_this]
-      =.  this  thus
-      ..abet-pe:(pe who)
-    =.  fleet-snaps
-      %+  ~(put by fleet-snaps)  lab.ae
-      %-  malt
-      %+  murn  hers.ae
-      |=  her=ship
-      ^-  (unit (pair ship pier))
-      =+  per=(~(get by piers) her)
-      ?~  per
-        ~
-      `[her u.per]
-    (pe -.hers.ae) :: XX this is hacky. Works but w/e
-  ::
-      %restore-snap
-    =/  to-kill  :: only kill ships in the snapshot
-      %-  ~(int in ~(key by piers))
-      ~(key by (~(got by fleet-snaps) lab.ae))
-    =.  this
-      %+  turn-ships  ~(tap in to-kill)
-      |=  [who=ship thus=_this]
-      =.  this  thus
-      (publish-effect:(pe who) [/ %kill ~])
-    =.  piers  (~(got by fleet-snaps) lab.ae)
-    =.  this
-      %+  turn-ships  (turn ~(tap by piers) head)
-      |=  [who=ship thus=_this]
-      =.  this  thus
-      (publish-effect:(pe who) [/ %restore ~])
-    (pe -:to-kill)
-  ::
       %event
     ~?  &(aqua-debug=| !?=(?(%belt %hear) -.q.ue.ae))
       raw-event=[who.ae -.q.ue.ae]
@@ -637,6 +605,45 @@
       [path ~ /text/plain (as-octs:mimes:html txt)]
     |=  ue=unix-event
     [%event who.act ue]
+  ::
+      %snap-ships
+    =.  this
+      %+  turn-ships  (turn ~(tap by piers) head)
+      |=  [who=ship thus=_this]
+      =.  this  thus
+      ..abet-pe:(pe who)
+    =.  fleet-snaps
+      %+  ~(put by fleet-snaps)  lab.act
+      %-  malt
+      %+  murn  hers.act
+      |=  her=ship
+      ^-  (unit (pair ship pier))
+      =+  per=(~(get by piers) her)
+      ?~  per
+        ~
+      `[her u.per]
+    `state
+  ::
+      %restore-snap
+    =/  to-kill  :: only kill ships in the snapshot
+      %-  ~(int in ~(key by piers))
+      ~(key by (~(got by fleet-snaps) lab.act))
+    =.  this
+      %+  turn-ships  ~(tap in to-kill)
+      |=  [who=ship thus=_this]
+      =.  this  thus
+      (publish-effect:(pe who) [/ %kill ~])
+    =.  piers  (~(got by fleet-snaps) lab.act)
+    =.  this
+      %+  turn-ships  (turn ~(tap by piers) head)
+      |=  [who=ship thus=_this]
+      =.  this  thus
+      (publish-effect:(pe who) [/ %restore ~])
+    `state
+  ::
+      %clear-snap
+    =.  fleet-snaps  (~(del by fleet-snaps) lab.act)
+    `state
   ::  %touch-file
   ::  %start-app/%poke-app
   ==
