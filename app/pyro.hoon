@@ -132,9 +132,7 @@
         [%x %i @ @ @ @ @ *]
 
       =/  who  (slav %p i.t.t.path)
-      =/  pier  (~(get by piers) who)
-      ?~  pier
-        ~
+      ?.  (~(has by piers) who)  ~
       :^  ~  ~  %noun  !>
       (peek:(pe who) t.t.t.path)
     ==
