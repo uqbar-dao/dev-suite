@@ -114,13 +114,15 @@
         [%x %fleets ~]        ``noun+!>((turn ~(tap by fleet-snaps) head))
         [%x %ships ~]         ``noun+!>((turn ~(tap by piers) head))
         [%x %pill ~]          ``pill+!>(pil)
+    ::
         [%x %fleet-ships @ ~]
-          =+  sips=(~(get by fleet-snaps) i.t.t.path)
-          ?~  sips  ~  ``noun+!>(~(key by u.sips))
+      =+  sips=(~(get by fleet-snaps) i.t.t.path)
+      ?~  sips  ~  ``noun+!>(~(key by u.sips))
+    ::
+    ::  scry into running virtual ships
+    ::  ship, care, ship, desk, time, path     
         [%x %i @ @ @ @ @ *]
-      ::   ship | scry path
-      ::          care, ship, desk, time, path
-      ::  scry into running virtual ships
+
       =/  who  (slav %p i.t.t.path)
       =/  pier  (~(get by piers) who)
       ?~  pier
