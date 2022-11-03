@@ -130,7 +130,6 @@
     ::  scry into running virtual ships
     ::  ship, care, ship, desk, time, path     
         [%x %i @ @ @ @ @ *]
-
       =/  who  (slav %p i.t.t.path)
       ?.  (~(has by piers) who)  ~
       :^  ~  ~  %noun  !>
