@@ -110,7 +110,7 @@
   ++  on-peek
     |=  =path
     ^-  (unit (unit cage))
-    ?+  path  ~
+    ?+    path  ~
         [%x %fleet-snap @ ~]  ``noun+!>((~(has by fleet-snaps) i.t.t.path))
         [%x %fleets ~]        ``noun+!>(~(key by fleet-snaps))
         [%x %ships ~]         ``noun+!>(~(key by piers))
