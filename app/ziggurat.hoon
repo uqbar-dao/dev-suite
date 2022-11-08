@@ -230,26 +230,14 @@
       :-  (make-project-update project.act project)^~
       state(projects (~(put by projects) project.act project))
     ::
-        %add-to-state
-      =/  =project  (~(got by projects) project.act)
-      =/  noun-text  ;;(@t noun.act)
+        %add-item
       =/  =id:smart  (hash-data:smart source.act holder.act town-id.act salt.act)
-      =/  =data:smart
-        =+  (text-to-zebra-noun noun-text smart-lib-vase)
-        [id source.act holder.act town-id.act salt.act label.act -]
-      ::  take text data input and ream to form data noun
-      ::  put a new grain in the granary
-      =:  p.chain.project
-        %+  put:big:engine  p.chain.project
-        [id.data %&^data]
-      ::
-          noun-texts.project
-        (~(put by noun-texts.project) id.data noun-text)
-      ==
-      :-  (make-project-update project.act project)^~
-      state(projects (~(put by projects) project.act project))
+      (add-or-update-item project.act %& id +.+.act)
     ::
-        %delete-from-state
+        %update-item
+      (add-or-update-item project.act %& +.+.act)
+    ::
+        %delete-item
       ::  remove a grain from the granary
       =/  =project  (~(got by projects) project.act)
       =.  p.chain.project
@@ -439,6 +427,25 @@
         [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
       ~
     ==
+  ++  add-or-update-item
+    |=  [project-id=@t =item:smart]
+    ^-  (quip card _state)
+    ?>  ?=(%& -.item)
+    =,  p.item
+    =/  =project  (~(got by projects) project-id)
+    =/  noun-text  ;;(@t noun)
+    =/  =data:smart
+      =+  (text-to-zebra-noun noun-text smart-lib-vase)
+      [id source holder town salt label -]
+    =:  p.chain.project
+      %+  put:big:engine  p.chain.project
+      [id.data %&^data]
+    ::
+        noun-texts.project
+      (~(put by noun-texts.project) id.data noun-text)
+    ==
+    :-  (make-project-update project-id project)^~
+    state(projects (~(put by projects) project-id project))
   --
 ::
 ++  on-agent

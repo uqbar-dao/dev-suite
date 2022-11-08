@@ -161,7 +161,7 @@
 ::  transaction error codes
 ::
 +$  errorcode
-  $%  %0  ::  0: successfully performed
+  $?  %0  ::  0: successfully performed
       %1  ::  1: bad signature
       %2  ::  2: incorrect nonce
       %3  ::  3: lack zigs to fulfill budget
