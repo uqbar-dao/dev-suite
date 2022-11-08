@@ -142,7 +142,7 @@
       =.  user-files.project
         (~(put in user-files.project) file.act)
       :_  state(projects (~(put by projects) project.act project))
-      :+  (make-save-hoon [project file text]:act)
+      :+  (make-save-file [project file text]:act)
         (make-compile project.act our.bowl)
       ~
     ::
@@ -542,8 +542,7 @@
     =/  des=@ta    i.t.t.path
     =/  pat=^path  `^path`t.t.t.path
     =/  pre=^path  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
-    =/  res        .^(? %cu (weld pre pat))
-    ``json+!>(`json`[%b res])
+    ``json+!>(`json`[%b .^(? %cu (weld pre pat))])
   ::
   ::  APP-PROJECT JSON
   ::
@@ -551,14 +550,20 @@
     =/  des=@ta    i.t.t.path
     =/  pat=^path  `^path`t.t.t.path
     =/  pre  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
+    =/  padh  (weld pre pat)
+    =/  =mark  (rear pat)
     :^  ~  ~  %json  !>
     ^-  json
     :-  %s
-    ?+  (rear pat)  .^(@t %cx (weld pre pat)) :: assume hoon as the default file type
-      %kelvin  (crip ~(ram re (cain !>(.^([@tas @ud] %cx (weld pre pat))))))
-      %ship  (crip ~(ram re (cain !>(.^(@p %cx (weld pre pat))))))
-      %bill  (crip ~(ram re (cain !>(.^((list @tas) %cx (weld pre pat))))))
-      %docket-0  (crip (spit-docket:mime:dock .^(docket:dock %cx (weld pre pat))))
+    ?+    mark  =-  q.q.-
+        !<(mime (.^(tube:clay %cc (weld pre /[mark]/mime)) .^(vase %cr padh)))
+      %hoon    .^(@t %cx padh)
+      %kelvin  (crip ~(ram re (cain !>(.^([@tas @ud] %cx padh)))))
+      %ship    (crip ~(ram re (cain !>(.^(@p %cx padh)))))
+      %bill    (crip ~(ram re (cain !>(.^((list @tas) %cx padh)))))
+        %docket-0
+      =-  (crip (spit-docket:mime:dock -))
+      .^(docket:dock %cx padh)
     ==
   ==
 ::
