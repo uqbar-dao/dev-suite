@@ -95,6 +95,13 @@
   ++  on-watch
     |=  =path
     ^-  step:agent:gall
+    :: /effect       subscribe to effects one by one
+    :: /effects      subscribe to effects in list form
+    :: /effect/~dev  subscribe to all effects of a given ship
+    :: /effect/blit  subscribe to all effects of a certain kind (e.g. blits)
+    :: /effects/~dev subscribe to all effects of a given ship in list form
+    :: /events/~dev  subscribe to all events of a given ship
+    :: /boths/~dev   subscribe to all events and effects of a given ship
     ?:  ?=([?(%effects %effect) ~] path)
       `this
     ?:  ?=([%effect @ ~] path)
