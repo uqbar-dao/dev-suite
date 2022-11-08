@@ -4,6 +4,7 @@
     pyio=py-io
 ::
 =*  strand     strand:spider
+=*  get-bowl   get-bowl:strandio
 =*  scry       scry:strandio
 =*  sleep      sleep:strandio
 =*  watch-our  watch-our:strandio
@@ -34,12 +35,23 @@
   |=  [payload=scry-payload:zig expected=@t]
   =/  m  (strand ,vase)
   ^-  form:m
-  ;<  scry-noun=noun  bind:m
-    %+  scry  noun
-    [care.payload app.payload (snoc path.payload %noun)]
-  =/  scry-molded  ;;(mold.payload scry-noun)
-  ?~  scry-molded  (pure:m !>(`~`~))
-  (pure:m !>(`mold.payload`scry-molded))
+  ;<  =bowl:strand  bind:m  get-bowl
+  =/  who=@ta  (scot %p who.payload)
+  =/  now=@ta  (scot %da now.bowl)
+  =/  scry-noun=*
+    .^  *
+        %gx
+        ;:  weld
+            /(scot %p our.bowl)/pyro/[now]/i/[who]
+            /[care.payload]/[who]/[app.payload]/[now]
+            path.payload
+            /noun
+        ==
+    ==
+  ?.  ?=(^ scry-noun)  (pure:m !>(`~`~))
+  ;<  scry-mold=vase  bind:m
+    (build-scry-mold [mold-sur mold-name]:payload)
+  (pure:m (slam scry-mold !>(+.scry-noun)))
 ::
 ++  send-pyro-poke
   |=  payload=poke-payload:zig
@@ -54,6 +66,14 @@
       " "
       (trip payload.payload)
   ==
+::
+++  build-scry-mold
+  |=  [mold-sur-path=path mold-name=@t]
+  =/  m  (strand ,vase)
+  ^-  form:m
+  ?~  mold-sur-path  (pure:m (slap !>(.) (ream mold-name)))
+  ;<  mold-sur=vase  bind:m  (scry vase [%ca mold-sur-path])
+  (pure:m (slap mold-sur (ream mold-name)))
 ::
 ++  run-steps
   |=  =test-steps:zig
@@ -93,16 +113,16 @@
         test-results  [u.tr test-results]
     ==
   ::
-      %scry  !!
-    :: ;<  result=vase  bind:m
-    ::   (send-pyro-scry payload.test-step)
-    :: =*  expected  expected.test-step
-    :: =/  res-text=@t  (noah result)
-    :: %=  $
-    ::     test-steps    t.test-steps
-    ::     test-results
-    ::   [[=(expected res-text) expected res-text]~ test-results]
-    :: ==
+      %scry
+    ;<  result=vase  bind:m
+      (send-pyro-scry [payload expected]:test-step)
+    =*  expected  expected.test-step
+    =/  res-text=@t  (crip (noah result))
+    %=  $
+        test-steps    t.test-steps
+        test-results
+      [[=(expected res-text) expected res-text]~ test-results]
+    ==
   ::
       %read-subscription  !!
   ::

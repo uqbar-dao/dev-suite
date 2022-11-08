@@ -44,7 +44,15 @@
       [%subscribe payload=sub-payload expected=(list test-read-step)]
   ==
 :: +$  dbug-payload  [who=@p app=@tas %state/bowl/???] :: TODO
-+$  scry-payload  [who=@p =mold care=@tas app=@tas =path]
++$  scry-payload
+  ::  if `mold-name` mold in stdlib, `mold-sur` must be `~`.
+  ::  `mold-sur` first element is desk and subsequent are
+  ::   path to the sur file, e.g., to import this file:
+  ::   `mold-sur=/zig/sur/zig/ziggurat/hoon`.
+  ::  whether from stdlib or from imported sur file,
+  ::   `mold-name` is a direct reference, e.g.,
+  ::   `@ud` or, from this file, `test-write-step`.
+  [who=@p mold-sur=path mold-name=@t care=@tas app=@tas =path]
 +$  read-sub-payload  [who=@p =mold care=@tas app=@tas =path]  :: TODO
 :: +$  poke-payload  [who=@p app=@tas payload=cage]
 +$  dojo-payload  [who=@p payload=@t]
