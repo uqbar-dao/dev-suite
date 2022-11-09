@@ -22,7 +22,7 @@
     $%  ::  called once to initialize multisig
         [%create threshold=@ud members=(pset address)]
         ::
-        [%execute multisig=id sigs=(pset sig) calls=(list [to=id town=id =calldata]) deadline=@ud]
+        [%execute multisig=id sigs=(pmap id sig) calls=(list [to=id town=id =calldata]) deadline=@ud]
         ::
         [%vote multisig=id proposal-hash=@ux aye=?]
         [%propose multisig=id calls=(list [to=id town=id =calldata])]
@@ -36,11 +36,10 @@
 ::
 ++  lib
   |%
-  ++  type-hash-execute
+  ++  execute-mold
     :: TODO  gas price
     ::       gas limit
     ::       refund receiver
-    %-  sham
     $:  multisig=id
         calls=(list [to=id town=id =calldata])
         nonce=@ud
