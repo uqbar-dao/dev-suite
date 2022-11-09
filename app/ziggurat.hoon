@@ -304,7 +304,7 @@
               /delay-test/[project.act]/(scot %ux id.act)
             /(scot %ud rate.act)/(scot %ud bud.act)
           %arvo
-        [%b %wait (add now.bowl ~s1)]
+        [%b %wait (add now.bowl ~s5)]  ::  TODO: unhardcode
       =/  =project  (~(got by projects) project.act)
       =/  =test     (~(got by tests.project) id.act)
       =/  tid=@ta
@@ -501,7 +501,7 @@
       :_  ~
       ?.  is-ready.test-master
         ::  delay until test-master is-ready
-        [%pass wire %arvo [%b %wait (add now.bowl ~s1)]]
+        [%pass wire %arvo [%b %wait (add now.bowl ~s5)]]  ::  TODO: unhardcode
       =*  project  i.t.wire
       =*  id       (slav %ux i.t.t.wire)
       =*  rate     (slav %ud i.t.t.t.wire)

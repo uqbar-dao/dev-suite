@@ -37,6 +37,7 @@
   ;<  our=@p  bind:m  get-our
   ;<  ~  bind:m  start-simple:pyio
   ;<  ~  bind:m  (init-ships ships)
+  ;<  ~  bind:m  (send-hi:pyio ~nec ~bud)
   ;<  ~  bind:m
     %+  poke-our  %ziggurat
     :-  %ziggurat-action
