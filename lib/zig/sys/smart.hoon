@@ -174,7 +174,15 @@
   ==
 ::
 ::  EIP-712 mold for offchain data signing
-+$  typed-message  [domain=id type-hash=@ message=@]
++$  typed-message  [domain=id type=mold message=*]
+::
+++  verify-ecdsa-signed
+  |=  [=typed-message =sig who=id]
+  ^-  ?
+  =-  =(who -)
+  %-  address-from-pub
+  %-  serialize-point:secp256k1:secp:crypto
+  (ecdsa-raw-recover:secp256k1:secp:crypto (sham typed-message) sig)
 ::
 ::  typed paths inside contracts
 ::  taken from: https://github.com/urbit/urbit/pull/5887
