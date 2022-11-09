@@ -122,13 +122,24 @@
         [%x %fleets ~]        ``noun+!>(~(key by fleet-snaps))
         [%x %ships ~]         ``noun+!>(~(key by piers))
         [%x %pill ~]          ``pill+!>(pil)
+        [%x %fleet-sizes @ ~]
+      ?~  fleet=(~(get by fleet-snaps) `@tas`i.t.t.path)  ~
+      :^  ~  ~  %noun
+      !>
+      %-  ~(run by u.fleet)
+      |=  p=pier
+      =/  jam-snap=@  (jam snap)
+      :^  (mug jam-snap)  (met 3 jam-snap)
+      (lent event-log.p)  ~(wyt in next-events.p)
     ::
         [%x %events ~]
       :^  ~  ~  %noun
       !>
       %-  ~(run by piers)
       |=  p=pier
-      [(lent event-log.p) ~(wyt in next-events.p)]
+      =/  jam-snap=@  (jam snap)
+      :^  (mug jam-snap)  (met 3 jam-snap)
+      (lent event-log.p)  ~(wyt in next-events.p)
     ::
         [%x %fleet-ships @ ~]
       =+  sips=(~(get by fleet-snaps) i.t.t.path)
