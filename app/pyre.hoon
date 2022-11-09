@@ -53,7 +53,7 @@
     ?+    -.sign  (on-agent:def wire sign)
         %fact
       =+  ef=!<([aqua-effect] q.cage.sign)
-      ?+    -.q.ufs.ef  !!
+      ?+    -.q.ufs.ef  (on-agent:def wire sign)
           %restore  [(restore:ames:hc who.ef) this]
           %send     [(send:ames:hc now.bowl who.ef ufs.ef) this]
       ==
@@ -64,7 +64,7 @@
         %fact
       =+  ef=!<([aqua-effect] q.cage.sign)
       =^  cards  behn-piers
-        ?+    -.q.ufs.ef  !!
+        ?+    -.q.ufs.ef  [~ behn-piers]
             %sleep    abet-pe:sleep:(behn:hc who.ef)
             %restore  abet-pe:restore:(behn:hc who.ef)
             %doze     abet-pe:(doze:(behn:hc who.ef) ufs.ef)
@@ -86,7 +86,7 @@
         %fact
       =+  ef=!<([aqua-effect] q.cage.sign)
       =^  cards  eyre-piers
-        ?+    -.q.ufs.ef  !!
+        ?+    -.q.ufs.ef  [~ eyre-piers]
             %sleep    abet-pe:sleep:(eyre who.ef)
             %restore  abet-pe:restore:(eyre who.ef)
             %thus     abet-pe:(thus:(eyre who.ef) ufs.ef)
