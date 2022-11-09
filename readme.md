@@ -48,9 +48,9 @@ In the future, with remote scry, users will not need to run their own `%indexer`
    cd urbit/pkg
    git submodule add git@github.com:uqbar-dao/ziggurat.git ziggurat
    ```
-2. Boot a development fakeship:
+2. Either build or install the Urbit binary, then boot a development fakeship:
    ```bash
-   urbit -F zod
+   ./urbit -F zod
    ```
 3. In the Dojo of the fakeship, set up a `%zig` desk, where we will copy the files in this repo:
    ```hoon
