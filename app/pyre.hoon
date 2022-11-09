@@ -20,9 +20,11 @@
 ++  on-init
   ^-  (quip card _this)
   :_  this
-  :~  [%pass /ames/restore %agent [our.bowl %pyro] %watch /effect/restore]  :: ames
+  :~  :: ames
+      [%pass /ames/restore %agent [our.bowl %pyro] %watch /effect/restore]
       [%pass /ames/send %agent [our.bowl %pyro] %watch /effect/send]
       :: dill
+      [%pass /dill/blit %agent [our.bowl %pyro] %watch /effect/blit]
       :: eyre
       :: etc.
   ==
@@ -41,6 +43,7 @@
   ^-  (quip card _this)
   ::  ames
   ?+    wire  (on-agent:def wire sign)
+  ::
       [%ames @ ~]
     ?+    -.sign  (on-agent:def wire sign)
         %fact
@@ -55,7 +58,14 @@
       ==
     ==
   ::
-      %dill  !!
+      [%dill %blit ~]
+    ?+    -.sign  (on-agent:def wire sign)
+        %fact
+      ?>  ?=(%aqua-effect p.cage.sign)
+      =/  ef  !<([aqua-effect] q.cage.sign)
+      ?>  ?=(%blit -.q.ufs.ef)
+      [(handle-blit:hc ef) this]
+    ==
   ==
 ::
 ++  on-watch  on-watch:def
@@ -112,4 +122,24 @@
   ?.  =(ship ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud)
     ship
   0xdead.beef.cafe
+::
+++  handle-blit
+  |=  [who=@p way=wire %blit blits=(list blit:dill)]
+  ^-  (list card:agent:gall)
+  =/  last-line
+    %+  roll  blits
+    |=  [b=blit:dill line=tape]
+    ?-    -.b
+        %lin  (tape p.b)
+        %klr  (tape (zing (turn p.b tail)))
+        %mor  ~&  "{<who>}: {line}"  ""
+        %hop  line
+        %bel  line
+        %clr  ""
+        %sag  ~&  [%save-jamfile-to p.b]  line
+        %sav  ~&  [%save-file-to p.b]  line
+        %url  ~&  [%activate-url p.b]  line
+    ==
+  ~?  !=(~ last-line)  last-line
+  ~
 --
