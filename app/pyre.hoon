@@ -79,7 +79,7 @@
             %doze
           ?>  ?=(%doze -.q.ufs.ef)
           abet-pe:(doze:(behn:hc who.ef) ufs.ef)
-            %kill     !!  :: XX `(~(del by piers) who)
+            %kill  `(~(del by behn-piers) who.ef)
         ==
       [cards this]
     ==
@@ -112,7 +112,7 @@
         ::
             %kill
           ?>  ?=(%kill -.q.ufs.ef)
-          !!  ::  `(~(del by piers) who)
+          `(~(del by eyre-piers) who.ef)
         ::
         ==
       [cards this]
