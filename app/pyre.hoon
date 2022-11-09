@@ -99,7 +99,29 @@
 ++  on-watch  on-watch:def
 ++  on-leave  on-leave:def
 ++  on-peek   on-peek:def
-++  on-arvo   on-arvo:def
+++  on-arvo
+  |=  [=wire =sign-arvo]
+  ^-  (quip card _this)
+  ?+    -.sign-arvo  (on-arvo:def)
+      %behn
+    ?>  ?=([%behn %wake *] sign-arvo)
+    ?>  ?=([@ *] wire)
+    =/  who  (,@p (slav %p i.wire))
+    =^  cards  behn-piers
+      abet-pe:(take-wake:(behn who) t.wire error.sign-arvo)
+    [cards this]
+  ::
+      %iris
+    ?>  ?=([%iris %http-response %finished *] sign-arvo)
+    ?>  ?=([@ *] wire)
+    =/  who  (,@p (slav %p i.wire))
+    =/  =httr:^eyre
+      (to-httr:iris [response-header full-file]:client-response.sign-arvo)
+    =^  cards  eyre-piers
+      abet-pe:(take-sigh-httr:(eyre who) t.wire httr)
+    [cards this]
+  ==
+::
 ++  on-fail   on-fail:def
 --
 ::
