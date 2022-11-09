@@ -1,52 +1,44 @@
 ::  This agent simulates vere. Since we aren't sending messages
 ::  over a real network - just a virtual network, we need to simulate
-::  all network conditions. This includes packet routing (ames), unix
-::  timers (behn), terminal drivers (dill), and http requests/
+::  all all networking and runtime. This includes packet routing (ames),
+::  unix timers (behn), terminal drivers (dill), and http requests/
 ::  responses (iris/eyre).
 ::
 /-  *pyro
 /+  dbug, default-agent
 ::
-|%
-+$  versioned-state
-  $%  state-0
-  ==
-+$  state-0  [%0 ~]
-+$  card  card:agent:gall
---
 %-  agent:dbug
-=|  state-0
-=*  state  -
 ^-  agent:gall
 =<
 |_  bowl=bowl:gall
 +*  this  .
     def   ~(. (default-agent this %.n) bowl)
     hc    ~(. +> bowl)
+    card  card:agent:gall
 ++  on-init
   ^-  (quip card _this)
   :_  this
   %+  turn
     :~  [/ames/restore /effect/restore]
         [/ames/send /effect/send]
+        ::
         [/behn/sleep /effect/sleep]
         [/behn/restore /effect/restore]
         [/behn/doze /effect/doze]
         [/behn/kill /effect/kill]
+        ::
         [/dill/blit /effect/blit]
+        ::
         [/eyre/sleep /effect/sleep]
         [/eyre/restore /effect/restore]
         [/eyre/thus /effect/thus]
         [/eyre/kill /effect/kill]
-        :: etc.
+        ::
     ==
   |=  [=wire =path]
   [%pass wire %agent [our.bowl %pyro] %watch path]
-++  on-save  !>(state)
-++  on-load
-  |=  old-vase=vase
-  ^-  (quip card _this)
-  [~ this(state !<(state-0 old-vase))]
+++  on-save  on-save:def
+++  on-load  on-load:def
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
@@ -142,7 +134,7 @@
   ++  emit-aqua-events
     |=  aes=(list aqua-event)
     ^-  (list card:agent:gall)
-    [%pass /aqua-events %agent [our.bowl %aqua] %poke %aqua-events !>(aes)]~
+    [%pass /aqua-events %agent [our.bowl %pyro] %poke %aqua-events !>(aes)]~
   ::
   ++  restore
     |=  who=@p
@@ -207,7 +199,7 @@
   ++  emit-aqua-events
     |=  aes=(list aqua-event)
     %-  emit-cards
-    [%pass /aqua-events %agent [our.bowl %aqua] %poke %aqua-events !>(aes)]~
+    [%pass /aqua-events %agent [our.bowl %pyro] %poke %aqua-events !>(aes)]~
   ::
   ++  sleep
     ^+  ..abet-pe
@@ -306,7 +298,7 @@
   ++  emit-aqua-events
     |=  aes=(list aqua-event)
     %-  emit-cards
-    [%pass /aqua-events %agent [our.bowl %aqua] %poke %aqua-events !>(aes)]~
+    [%pass /aqua-events %agent [our.bowl %pyro] %poke %aqua-events !>(aes)]~
   ::
   ++  sleep
     ^+  ..abet-pe
