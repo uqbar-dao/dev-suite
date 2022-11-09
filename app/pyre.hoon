@@ -1,3 +1,9 @@
+::  This agent simulates vere. Since we aren't sending messages
+::  over a real network - just a virtual network, we need to simulate
+::  all network conditions. This includes packet routing (ames), unix
+::  timers (behn), terminal drivers (dill), and http requests/
+::  responses (iris/eyre).
+::
 /-  *pyro
 /+  dbug, default-agent
 ::
@@ -23,16 +29,15 @@
   %+  turn
     :~  [/ames/restore /effect/restore]
         [/ames/send /effect/send]
-        [/dill/blit /effect/blit]
-        :: [/eyre/sleep /effect/sleep]
-        :: [/eyre/restore /effect/restore]
-        :: [/eyre/thus /effect/thus]
-        :: [/eyre/kill /effect/kill]
         [/behn/sleep /effect/sleep]
         [/behn/restore /effect/restore]
         [/behn/doze /effect/doze]
         [/behn/kill /effect/kill]
-        :: eyre
+        [/dill/blit /effect/blit]
+        [/eyre/sleep /effect/sleep]
+        [/eyre/restore /effect/restore]
+        [/eyre/thus /effect/thus]
+        [/eyre/kill /effect/kill]
         :: etc.
     ==
   |=  [=wire =path]
@@ -73,16 +78,16 @@
         ?+    i.t.wire  !!
             %sleep
           ?>  ?=(%sleep -.q.ufs.ef)
-          abet-pe:sleep:(pe:behn:hc who.ef)
+          abet-pe:sleep:(behn:hc who.ef)
         ::
             %restore
           ?>  ?=(%restore -.q.ufs.ef)
-          abet-pe:restore:(pe:behn:hc who.ef)
+          abet-pe:restore:(behn:hc who.ef)
         ::
             %doze
           ?>  ?=(%doze -.q.ufs.ef)
-          abet-pe:(doze:(pe:behn:hc who.ef) ufs.ef)
-            %kill     !!  ::`(~(del by piers) who)
+          abet-pe:(doze:(behn:hc who.ef) ufs.ef)
+            %kill     !!  :: XX `(~(del by piers) who)
         ==
       [cards this]
     ==
@@ -94,6 +99,32 @@
       ?>  ?=(%blit -.q.ufs.ef)
       [(blit:dill:hc ef) this]
     ==
+  ::
+      [%eyre @ ~]
+    ?+    -.sign  (on-agent:def wire sign)
+        %fact
+      =+  ef=!<([aqua-effect] q.cage.sign)
+      =^  cards  eyre-piers
+        ?+    i.t.wire  !!
+            %sleep
+          ?>  ?=(%sleep -.q.ufs.ef)
+          abet-pe:sleep:(eyre who.ef)
+        ::
+            %restore
+          ?>  ?=(%restore -.q.ufs.ef)
+          abet-pe:restore:(eyre who.ef)
+        ::
+            %thus
+          ?>  ?=(%thus -.q.ufs.ef)
+          abet-pe:(thus:(eyre who.ef) ufs.ef)
+        ::
+            %kill
+          ?>  ?=(%kill -.q.ufs.ef)
+          !!  ::  `(~(del by piers) who)
+        ::
+        ==
+      [cards this]
+    ==
   ==
 ::
 ++  on-watch  on-watch:def
@@ -104,6 +135,7 @@
 --
 ::
 =|  behn-piers=(map ship behn-pier)
+=|  eyre-piers=(map ship eyre-pier)
 |_  bowl=bowl:gall
 ++  ames
   |%
@@ -157,84 +189,81 @@
   ::
   --
 ++  behn
+  |=  who=ship
+  =+  (~(gut by behn-piers) who *behn-pier)
+  =*  pier-data  -
+  =|  cards=(list card:agent:gall)
   |%
-  ++  pe
-    |=  who=ship
-    =+  (~(gut by behn-piers) who *behn-pier)
-    =*  pier-data  -
-    =|  cards=(list card:agent:gall)
-    |%
-    ++  this  .
-    ++  abet-pe
-      ^-  (quip card:agent:gall _behn-piers)
-      =.  behn-piers  (~(put by behn-piers) who pier-data)
-      [(flop cards) behn-piers]
-    ::
-    ++  emit-cards
-      |=  cs=(list card:agent:gall)
-      %_(this cards (weld cs cards))
-    ::
-    ++  emit-aqua-events
-      |=  aes=(list aqua-event)
-      %-  emit-cards
-      [%pass /aqua-events %agent [our.bowl %aqua] %poke %aqua-events !>(aes)]~
-    ::
-    ++  sleep
-      ^+  ..abet-pe
-      =<  ..abet-pe(pier-data *behn-pier)
+  ++  this  .
+  ++  abet-pe
+    ^-  (quip card:agent:gall _behn-piers)
+    =.  behn-piers  (~(put by behn-piers) who pier-data)
+    [(flop cards) behn-piers]
+  ::
+  ++  emit-cards
+    |=  cs=(list card:agent:gall)
+    %_(this cards (weld cs cards))
+  ::
+  ++  emit-aqua-events
+    |=  aes=(list aqua-event)
+    %-  emit-cards
+    [%pass /aqua-events %agent [our.bowl %aqua] %poke %aqua-events !>(aes)]~
+  ::
+  ++  sleep
+    ^+  ..abet-pe
+    =<  ..abet-pe(pier-data *behn-pier)
+    ?~  next-timer
+      ..abet-pe
+    cancel-timer
+  ::
+  ++  restore
+    ^+  ..abet-pe
+    =.  this
+      %-  emit-aqua-events
+      [%event who [/b/behn/0v1n.2m9vh %born ~]]~
+    ..abet-pe
+  ::
+  ++  doze
+    |=  [way=wire %doze tim=(unit @da)]
+    ^+  ..abet-pe
+    ?~  tim
       ?~  next-timer
         ..abet-pe
       cancel-timer
-    ::
-    ++  restore
-      ^+  ..abet-pe
-      =.  this
-        %-  emit-aqua-events
-        [%event who [/b/behn/0v1n.2m9vh %born ~]]~
-      ..abet-pe
-    ::
-    ++  doze
-      |=  [way=wire %doze tim=(unit @da)]
-      ^+  ..abet-pe
-      ?~  tim
-        ?~  next-timer
-          ..abet-pe
-        cancel-timer
-      ?~  next-timer
-        (set-timer u.tim)
-      (set-timer:cancel-timer u.tim)
-    ::
-    ++  set-timer
-      |=  tim=@da
-      ~?  debug=|  [who=who %setting-timer tim]
-      =.  next-timer  `tim
-      =.  this  (emit-cards [%pass /(scot %p who) %arvo %b %wait tim]~)
-      ..abet-pe
-    ::
-    ++  cancel-timer
-      ~?  debug=|  [who=who %cancell-timer (need next-timer)]
-      =.  this
-        (emit-cards [%pass /(scot %p who) %arvo %b %rest (need next-timer)]~)
-      =.  next-timer  ~
-      ..abet-pe
-    ::
-    ++  take-wake
-      |=  [way=wire error=(unit tang)]
-      ~?  debug=|  [who=who %aqua-behn-wake now.bowl error=error]
-      =.  next-timer  ~
-      =.  this
-        %-  emit-aqua-events
-        ?^  error
-          ::  Should pass through errors to aqua, but doesn't
-          ::
-          %-  (slog leaf+"aqua-behn: timer failed" u.error)
-          ~
-        :_  ~
-        ^-  aqua-event
-        :+  %event  who
-        [/b/behn/0v1n.2m9vh [%wake ~]]
-      ..abet-pe
-    --
+    ?~  next-timer
+      (set-timer u.tim)
+    (set-timer:cancel-timer u.tim)
+  ::
+  ++  set-timer
+    |=  tim=@da
+    ~?  debug=|  [who=who %setting-timer tim]
+    =.  next-timer  `tim
+    =.  this  (emit-cards [%pass /(scot %p who) %arvo %b %wait tim]~)
+    ..abet-pe
+  ::
+  ++  cancel-timer
+    ~?  debug=|  [who=who %cancell-timer (need next-timer)]
+    =.  this
+      (emit-cards [%pass /(scot %p who) %arvo %b %rest (need next-timer)]~)
+    =.  next-timer  ~
+    ..abet-pe
+  ::
+  ++  take-wake
+    |=  [way=wire error=(unit tang)]
+    ~?  debug=|  [who=who %aqua-behn-wake now.bowl error=error]
+    =.  next-timer  ~
+    =.  this
+      %-  emit-aqua-events
+      ?^  error
+        ::  Should pass through errors to aqua, but doesn't
+        ::
+        %-  (slog leaf+"aqua-behn: timer failed" u.error)
+        ~
+      :_  ~
+      ^-  aqua-event
+      :+  %event  who
+      [/b/behn/0v1n.2m9vh [%wake ~]]
+    ..abet-pe
   --
 ++  dill
   |%
@@ -257,5 +286,93 @@
       ==
     ~?  !=(~ last-line)  last-line
     ~
+  --
+++  eyre
+  |=  who=ship
+  =+  (~(gut by eyre-piers) who *eyre-pier)
+  =*  pier-data  -
+  =|  cards=(list card:agent:gall)
+  |%
+  ++  this  .
+  ++  abet-pe
+    ^-  (quip card:agent:gall _eyre-piers)
+    =.  eyre-piers  (~(put by eyre-piers) who pier-data)
+    [(flop cards) eyre-piers]
+  ::
+  ++  emit-cards
+    |=  cs=(list card:agent:gall)
+    %_(this cards (weld cs cards))
+  ::
+  ++  emit-aqua-events
+    |=  aes=(list aqua-event)
+    %-  emit-cards
+    [%pass /aqua-events %agent [our.bowl %aqua] %poke %aqua-events !>(aes)]~
+  ::
+  ++  sleep
+    ^+  ..abet-pe
+    ..abet-pe(pier-data *eyre-pier)
+  ::
+  ++  restore
+    ^+  ..abet-pe
+    =.  this
+      %-  emit-aqua-events
+      [%event who [/i/http/0v1n.2m9vh %born ~]]~
+    ..abet-pe
+  ::
+  ++  thus
+    |=  [way=wire %thus num=@ud req=(unit hiss:^eyre)]
+    ^+  ..abet-pe
+    ?~  req
+      ?.  (~(has in http-requests) num)
+        ..abet-pe
+      ::  Eyre doesn't support cancelling HTTP requests from userspace,
+      ::  so we remove it from our state so we won't pass along the
+      ::  response.
+      ::
+      ~&  [who=who %aqua-eyre-cant-cancel-thus num=num]
+      =.  http-requests  (~(del in http-requests) num)
+      ..abet-pe
+    ~&  [who=who %aqua-eyre-requesting u.req]
+    =.  http-requests  (~(put in http-requests) num)
+    =.  this
+      %-  emit-cards  :_  ~
+      :*  %pass
+          /(scot %p who)/(scot %ud num)
+          %arvo
+          %i
+          %request
+          (hiss-to-request:html u.req)
+          *outbound-config:iris
+      ==
+    ..abet-pe
+  ::
+  ::  Pass HTTP response back to virtual ship
+  ::
+  ++  take-sigh-httr
+    |=  [way=wire res=httr:^eyre]
+    ^+  ..abet-pe
+    ?>  ?=([@ ~] way)
+    =/  num  (slav %ud i.way)
+    ?.  (~(has in http-requests) num)
+      ~&  [who=who %ignoring-httr num=num]
+      ..abet-pe
+    =.  http-requests  (~(del in http-requests) num)
+    =.  this
+      (emit-aqua-events [%event who [/i/http/0v1n.2m9vh %receive num [%start [p.res q.res] r.res &]]]~)
+    ..abet-pe
+  ::
+  ::  Got error in HTTP response
+  ::
+  ++  take-sigh-tang
+    |=  [way=wire tan=tang]
+    ^+  ..abet-pe
+    ?>  ?=([@ ~] way)
+    =/  num  (slav %ud i.way)
+    ?.  (~(has in http-requests) num)
+      ~&  [who=who %ignoring-httr num=num]
+      ..abet-pe
+    =.  http-requests  (~(del in http-requests) num)
+    %-  (slog tan)
+    ..abet-pe
   --
 --
