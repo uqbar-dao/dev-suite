@@ -53,12 +53,9 @@
     ?+    -.sign  (on-agent:def wire sign)
         %fact
       =+  ef=!<([aqua-effect] q.cage.sign)
-      ?+    i.t.wire  !!
+      ?+    -.q.ufs.ef  !!
           %restore  [(restore:ames:hc who.ef) this]
-      ::
-          %send
-        ?>  ?=(%send -.q.ufs.ef)
-        [(send:ames:hc now.bowl who.ef ufs.ef) this]
+          %send     [(send:ames:hc now.bowl who.ef ufs.ef) this]
       ==
     ==
   ::
@@ -67,19 +64,11 @@
         %fact
       =+  ef=!<([aqua-effect] q.cage.sign)
       =^  cards  behn-piers
-        ?+    i.t.wire  !!
-            %sleep
-          ?>  ?=(%sleep -.q.ufs.ef)
-          abet-pe:sleep:(behn:hc who.ef)
-        ::
-            %restore
-          ?>  ?=(%restore -.q.ufs.ef)
-          abet-pe:restore:(behn:hc who.ef)
-        ::
-            %doze
-          ?>  ?=(%doze -.q.ufs.ef)
-          abet-pe:(doze:(behn:hc who.ef) ufs.ef)
-            %kill  `(~(del by behn-piers) who.ef)
+        ?+    -.q.ufs.ef  !!
+            %sleep    abet-pe:sleep:(behn:hc who.ef)
+            %restore  abet-pe:restore:(behn:hc who.ef)
+            %doze     abet-pe:(doze:(behn:hc who.ef) ufs.ef)
+            %kill     `(~(del by behn-piers) who.ef)
         ==
       [cards this]
     ==
@@ -97,23 +86,11 @@
         %fact
       =+  ef=!<([aqua-effect] q.cage.sign)
       =^  cards  eyre-piers
-        ?+    i.t.wire  !!
-            %sleep
-          ?>  ?=(%sleep -.q.ufs.ef)
-          abet-pe:sleep:(eyre who.ef)
-        ::
-            %restore
-          ?>  ?=(%restore -.q.ufs.ef)
-          abet-pe:restore:(eyre who.ef)
-        ::
-            %thus
-          ?>  ?=(%thus -.q.ufs.ef)
-          abet-pe:(thus:(eyre who.ef) ufs.ef)
-        ::
-            %kill
-          ?>  ?=(%kill -.q.ufs.ef)
-          `(~(del by eyre-piers) who.ef)
-        ::
+        ?+    -.q.ufs.ef  !!
+            %sleep    abet-pe:sleep:(eyre who.ef)
+            %restore  abet-pe:restore:(eyre who.ef)
+            %thus     abet-pe:(thus:(eyre who.ef) ufs.ef)
+            %kill     `(~(del by eyre-piers) who.ef)
         ==
       [cards this]
     ==
