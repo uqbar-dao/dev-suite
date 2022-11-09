@@ -199,8 +199,7 @@
     [who.act town.context [%on-push id.caller.context amount.act calldata.act]]~
     
   ::
-  ++  pull-type-hash
-    %-  sham
+  ++  pull-mold
     $:  from=id
         to=address
         amount=@ud
@@ -219,17 +218,12 @@
     =/  giver  (husk account:sur giv `this.context ~)
     ::  this will fail if amount > balance, as desired
     =.  balance.noun.giver  (sub balance.noun.giver amount.act)
-    ::  reconstruct the hash of the typed message and hash
-    =+  %^    sham
-            (hash-data this.context holder.giver town.context salt.giver)
-          pull-type-hash
-        (sham [holder.giver to.act amount.act nonce.act deadline.act])
-    ::  recover the address from the message and signature
-    =+  %-  address-from-pub
-        %-  serialize-point:secp256k1:secp:crypto
-        (ecdsa-raw-recover:secp256k1:secp:crypto - sig.act)
-    ::  assert the signature is valid
-    ?>  =(- holder.giver)
+    ::  verify signature is correct
+    =/  =typed-message
+        :+  (hash-data this.context holder.giver town.context salt.giver)
+          pull-mold
+        [holder.giver to.act amount.act nonce.act deadline.act]
+    ?>  (verify-ecdsa-signed typed-message sig.act holder.giver)
     ::  assert nonce is valid
     =+  (~(gut by nonces.noun.giver) to.act 0)
     ?>  .=(nonce.act -)
