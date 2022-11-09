@@ -24,6 +24,14 @@
     :~  [/ames/restore /effect/restore]
         [/ames/send /effect/send]
         [/dill/blit /effect/blit]
+        :: [/eyre/sleep /effect/sleep]
+        :: [/eyre/restore /effect/restore]
+        :: [/eyre/thus /effect/thus]
+        :: [/eyre/kill /effect/kill]
+        [/behn/sleep /effect/sleep]
+        [/behn/restore /effect/restore]
+        [/behn/doze /effect/doze]
+        [/behn/kill /effect/kill]
         :: eyre
         :: etc.
     ==
@@ -57,6 +65,28 @@
       ==
     ==
   ::
+      [%behn @ ~]
+    ?+    -.sign  (on-agent:def wire sign)
+        %fact
+      =+  ef=!<([aqua-effect] q.cage.sign)
+      =^  cards  behn-piers
+        ?+    i.t.wire  !!
+            %sleep
+          ?>  ?=(%sleep -.q.ufs.ef)
+          abet-pe:sleep:(pe:behn:hc who.ef)
+        ::
+            %restore
+          ?>  ?=(%restore -.q.ufs.ef)
+          abet-pe:restore:(pe:behn:hc who.ef)
+        ::
+            %doze
+          ?>  ?=(%doze -.q.ufs.ef)
+          abet-pe:(doze:(pe:behn:hc who.ef) ufs.ef)
+            %kill     !!  ::`(~(del by piers) who)
+        ==
+      [cards this]
+    ==
+  ::
       [%dill %blit ~]
     ?+    -.sign  (on-agent:def wire sign)
         %fact
@@ -72,6 +102,8 @@
 ++  on-arvo   on-arvo:def
 ++  on-fail   on-fail:def
 --
+::
+=|  behn-piers=(map ship behn-pier)
 |_  bowl=bowl:gall
 ++  ames
   |%
@@ -123,6 +155,86 @@
       ship
     0xdead.beef.cafe
   ::
+  --
+++  behn
+  |%
+  ++  pe
+    |=  who=ship
+    =+  (~(gut by behn-piers) who *behn-pier)
+    =*  pier-data  -
+    =|  cards=(list card:agent:gall)
+    |%
+    ++  this  .
+    ++  abet-pe
+      ^-  (quip card:agent:gall _behn-piers)
+      =.  behn-piers  (~(put by behn-piers) who pier-data)
+      [(flop cards) behn-piers]
+    ::
+    ++  emit-cards
+      |=  cs=(list card:agent:gall)
+      %_(this cards (weld cs cards))
+    ::
+    ++  emit-aqua-events
+      |=  aes=(list aqua-event)
+      %-  emit-cards
+      [%pass /aqua-events %agent [our.bowl %aqua] %poke %aqua-events !>(aes)]~
+    ::
+    ++  sleep
+      ^+  ..abet-pe
+      =<  ..abet-pe(pier-data *behn-pier)
+      ?~  next-timer
+        ..abet-pe
+      cancel-timer
+    ::
+    ++  restore
+      ^+  ..abet-pe
+      =.  this
+        %-  emit-aqua-events
+        [%event who [/b/behn/0v1n.2m9vh %born ~]]~
+      ..abet-pe
+    ::
+    ++  doze
+      |=  [way=wire %doze tim=(unit @da)]
+      ^+  ..abet-pe
+      ?~  tim
+        ?~  next-timer
+          ..abet-pe
+        cancel-timer
+      ?~  next-timer
+        (set-timer u.tim)
+      (set-timer:cancel-timer u.tim)
+    ::
+    ++  set-timer
+      |=  tim=@da
+      ~?  debug=|  [who=who %setting-timer tim]
+      =.  next-timer  `tim
+      =.  this  (emit-cards [%pass /(scot %p who) %arvo %b %wait tim]~)
+      ..abet-pe
+    ::
+    ++  cancel-timer
+      ~?  debug=|  [who=who %cancell-timer (need next-timer)]
+      =.  this
+        (emit-cards [%pass /(scot %p who) %arvo %b %rest (need next-timer)]~)
+      =.  next-timer  ~
+      ..abet-pe
+    ::
+    ++  take-wake
+      |=  [way=wire error=(unit tang)]
+      ~?  debug=|  [who=who %aqua-behn-wake now.bowl error=error]
+      =.  next-timer  ~
+      =.  this
+        %-  emit-aqua-events
+        ?^  error
+          ::  Should pass through errors to aqua, but doesn't
+          ::
+          %-  (slog leaf+"aqua-behn: timer failed" u.error)
+          ~
+        :_  ~
+        ^-  aqua-event
+        :+  %event  who
+        [/b/behn/0v1n.2m9vh [%wake ~]]
+      ..abet-pe
+    --
   --
 ++  dill
   |%
