@@ -1,17 +1,17 @@
 ::  uqbar [UQ| DAO]
 ::
-::  The "vane" for interacting with UQ|. Provides read/write layer for userspace agents.
+::  The agent for interacting with Uqbar. Provides read/write layer for userspace agents.
 ::
 /-  spider,
-    ui=indexer,
-    w=wallet
+    u=zig-uqbar,
+    ui=zig-indexer,
+    w=zig-wallet
 /+  agentio,
     default-agent,
     dbug,
     verb,
-    s=sequencer,
-    smart=zig-sys-smart,
-    u=uqbar
+    s=zig-sequencer,
+    smart=zig-sys-smart
 |%
 +$  card  card:agent:gall
 +$  state-0
@@ -41,8 +41,7 @@
   +*  this        .
       def         ~(. (default-agent this %|) bowl)
       io          ~(. agentio bowl)
-      uqbar-core  +>
-      uc          ~(. uqbar-core bowl)
+      uc          ~(. +> bowl)
   ::
   ++  on-init
     ^-  (quip card _this)
@@ -52,7 +51,7 @@
         max-ping-time         ~h2   ::   Spam risk?
         ping-time-fast-delay  ~s5
         ping-timeout          ~s30
-        wallet-source         %wallet
+        wallet-source         %wallet  ::  name of locally-installed wallet app
     ==
   ::
   ++  on-save  !>(state)
@@ -76,16 +75,22 @@
         %track  ~
         %wallet
       ::  must be of the form, e.g.,
-      ::   /wallet/*-updates
-      ?.  ?=([%wallet @ ~] path)  ~
-      (watch-wallet /[i.path] t.path)
+      ::   /wallet/[requesting-app-name]/[*-updates]
+      ?.  ?=([%wallet @ @ ~] path)  ~  ::  TODO: kick
+      (watch-wallet /[i.path]/[i.t.path] t.t.path)
     ::
         %indexer
       ::  must be of the form, e.g.,
-      ::   /indexer/grain/[town-id]/[grain-id]
-      ?.  ?=([%indexer @ @ @ ~] path)  ~
-      =/  town-id=id:smart  (slav %ux i.t.t.path)
-      (watch-indexer town-id /[i.path] t.path)
+      ::   /indexer/[requesting-app-name]/batch-order/[town-id]
+      ::   or
+      ::   /indexer/[requesting-app-name]/json/batch-order/[town-id]
+      ?.  ?=([%indexer @ @ *] path)  ~  ::  TODO: kick
+      =/  town-id=id:smart              ::  TODO: generalize?
+        ?:  ?=([%indexer @ @ @ ~] path)
+          (slav %ux i.t.t.t.path)
+        ?>  ?=([%indexer @ %json @ @ ~] path)
+        (slav %ux i.t.t.t.t.path)
+      (watch-indexer town-id /[i.path]/[i.t.path] t.t.path)
     ==
     ::
     ++  watch-wallet
@@ -96,11 +101,11 @@
       wallet-source  sub-path
     ::
     ++  watch-indexer  ::  TODO: use fallback better?
-      |=  [town-id=id:smart wire-prefix=wire sub-path=^path]
+      |=  [town=id:smart wire-prefix=wire sub-path=^path]
       ^-  (list card)
-      ?~  source=(get-best-source:uc town-id ~ %nu)
+      ?~  source=(get-best-source:uc town ~ %nu)
         ~&  >>>  "%uqbar: subscription failed:"
-        ~&  >>>  " do not have indexer source for town {<town-id>}."
+        ~&  >>>  " do not have indexer source for town {<town>}."
         ~&  >>>  " Add indexer source for town and try again."
         ~
       :_  ~
@@ -116,8 +121,7 @@
       ?+    mark  ~|("%uqbar: rejecting erroneous poke" !!)
           %uqbar-action  (handle-action !<(action:u vase))
           %uqbar-write   (handle-write !<(write:u vase))
-          %zig-wallet-poke
-        (handle-wallet-poke !<(wallet-poke:w vase))
+          %wallet-poke   (handle-wallet-poke !<(wallet-poke:w vase))
       ==
     [cards this]
     ::
@@ -134,7 +138,7 @@
       :_  state
       :_  ~
       %+  ~(poke-our pass:io /wallet-poke)  wallet-source
-      [%zig-wallet-poke !>(`wallet-poke:w`wallet-poke)]
+      [%wallet-poke !>(`wallet-poke:w`wallet-poke)]
     ::
     ++  handle-action
       |=  act=action:u
@@ -159,7 +163,7 @@
             [%uqbar-action !>(`action:u`[%ping ~])]
         %=  state
             indexer-sources
-          (~(put ju indexer-sources) town-id.act source.act)
+          (~(put ju indexer-sources) town.act source.act)
         ==
       ::
           %remove-source
@@ -169,12 +173,12 @@
         %=  state
             indexer-sources-ping-results
           %^    remove-from-ping-results
-              town-id.act
+              town.act
             source.act
           indexer-sources-ping-results
         ::
             indexer-sources
-          (~(del ju indexer-sources) town-id.act source.act)
+          (~(del ju indexer-sources) town.act source.act)
         ==
       ::
           %set-sources
@@ -195,27 +199,26 @@
       ==
       ::
       ++  remove-from-ping-results
-        |=  $:  town-id=id:smart
+        |=  $:  town=id:smart
                 source=dock
                 =indexer-sources-ping-results:u
             ==
         ^-  indexer-sources-ping-results:u
         =/  old
           %+  ~(gut by indexer-sources-ping-results)
-          town-id  [~ ~ ~ ~]
+          town  [~ ~ ~ ~]
         ?:  ?=([~ ~ ~ ~] old)  indexer-sources-ping-results
         %+  ~(put by indexer-sources-ping-results)
-          town-id
+          town
         :^    (~(del in previous-up.old) source)
             (~(del in previous-down.old) source)
           (~(del in newest-up.old) source)
         (~(del in newest-down.old) source)
       ::
       ++  set-sources-remove-from-ping-results
-        |=  towns=(list [town-id=id:smart (set dock)])
+        |=  towns=(list [town=id:smart (set dock)])
         ^-  indexer-sources-ping-results:u
         ?~  towns  indexer-sources-ping-results
-        =*  town-id  town-id.i.towns
         =/  docks=(list dock)  ~(tap in +.i.towns)
         %=  $
             towns  t.towns
@@ -226,7 +229,7 @@
               docks  t.docks
               indexer-sources-ping-results
             %^    remove-from-ping-results
-                town-id
+                town.i.towns
               i.docks
             indexer-sources-ping-results
           ==
@@ -237,43 +240,33 @@
       |=  =write:u
       ^-  (quip card _state)
       ?-    -.write
-      ::
-      ::  Each write can optionally create a subscription, which will forward these things:
-      ::
-      ::  - a "receipt" from sequencer, which contains a signed hash of the egg
-      ::    (signed by both urbit ID and uqbar address -- enforcing that reputational link)
-      ::
-      ::  - once the egg gets submitted in batch to rollup, a card with the status/errorcode
-      ::
-      ::  - a card containing the new nonce of the address submitting the egg
-      ::    (apps can ignore and track on their own, or use this)
-      ::
-      ::  To enable status update, uqbar.hoon should subscribe to indexer for that egg
-      ::  and unsub when either status is received, or batch is rejected. (TODO how to determine latter?)
-      ::
           %submit
+        ::  forward a transaction to sequencer we're tracking
+        ::  for the specified town
         ?>  =(src.bowl our.bowl)
-        =/  town-id  `@ux`town-id.shell.egg.write
-        ?~  seq=(~(get by sequencers.state) town-id)
+        ?~  seq=(~(get by sequencers.state) `@ux`town.transaction.write)
           ~|("%uqbar: no known sequencer for that town" !!)
-        =/  egg-hash  (scot %ux `@ux`(sham [shell yolk]:egg.write))
+        =/  transaction-hash
+          (scot %ux `@ux`(sham +.transaction.write))
         :_  state
-        :+  %+  ~(poke pass:io /submit-transaction/egg-hash)
+        :+  %+  %~  poke  pass:io
+                /submit-transaction/[transaction-hash]
               [q.u.seq %sequencer]
             :-  %sequencer-town-action
-            !>(`town-action:s`[%receive (silt ~[egg.write])])
+            !>  ^-  town-action:s
+            [%receive (silt ~[transaction.write])]
           %+  fact:io
             [%write-result !>(`write-result:u`[%sent ~])]
-          ~[/track/[egg-hash]]
+          ~[/track/[transaction-hash]]
         ~
       ::
           %receipt
-        ::  forward to local watchers
+        ::  forward to local watchers, usually wallet
         :_  state
         :_  ~
         %+  fact:io
           [%write-result !>(`write-result:u`write)]
-        ~[/track/(scot %ux egg-hash.write)]
+        ~[/track/(scot %ux transaction-hash.write)]
       ==
     --
   ::
@@ -330,13 +323,13 @@
         ::
             %thread-done
           ?:  =(*vase q.cage.sign)  `this  ::  thread canceled
-          =*  town-id  p.u.source
+          =*  town    p.u.source
           =*  d        q.u.source
           =/  is-last-ping-tid=?  =(0 ~(wyt by ping-tids))
           =.  indexer-sources-ping-results
-            %+  ~(put by indexer-sources-ping-results)  town-id
+            %+  ~(put by indexer-sources-ping-results)  town
             =/  [pu=(set dock) pd=(set dock) nu=(set dock) nd=(set dock)]
-              %+  ~(gut by indexer-sources-ping-results)  town-id
+              %+  ~(gut by indexer-sources-ping-results)  town
               [~ ~ ~ ~]
             =:  nu  ?:(!<(? q.cage.sign) (~(put in nu) d) nu)
                 nd  ?:(!<(? q.cage.sign) nd (~(put in nd) d))
@@ -362,20 +355,10 @@
     ::
     ++  rejoin  ::  TODO: ping indexers and find responsive one?
       ^-  (list card)
-      =/  old-source=(unit [dock path])  get-wex-dock-by-wire
+      =/  old-source=(unit [dock path])
+        (get-wex-dock-by-wire:uc wire)
       ?~  old-source  ~
       ~[(~(watch pass:io wire) u.old-source)]
-    ::
-    ++  get-wex-dock-by-wire
-      ^-  (unit [dock path])
-      ?:  =(0 ~(wyt by wex.bowl))  ~
-      =/  wexs=(list [[w=^wire s=ship t=term] a=? p=path])
-        ~(tap by wex.bowl)
-      |-
-      ?~  wexs  ~
-      =*  wex  i.wexs
-      ?.  =(wire w.wex)  $(wexs t.wexs)
-      `[[s.wex t.wex] p.wex]
     ::
     ++  update-sequencers
       |=  upd=capitol-update:s
@@ -405,7 +388,7 @@
           max-ping-time
         =.  indexer-sources-ping-results
           %-  ~(urn by indexer-sources-ping-results)
-          |=  $:  town-id=id:smart
+          |=  $:  town=@ux
                   previous-up=(set dock)
                   previous-down=(set dock)
                   newest-up=(set dock)
@@ -423,29 +406,29 @@
         =/  until=@da  (slav %da i.t.wire)
         ?:  (gth until now.bowl)  `this
         =.  indexer-sources-ping-results
-          =/  ping-tids-list=(list [@ta town-id=id:smart d=dock])
+          =/  ping-tids-list=(list [@ta town=id:smart d=dock])
             ~(tap by ping-tids)
           |-
           ?~  ping-tids-list
             %-  ~(gas by *_indexer-sources-ping-results)
             %+  turn  ~(tap by indexer-sources-ping-results)
-            |=  $:  town-id=id:smart
+            |=  $:  town=id:smart
                     (set dock)
                     (set dock)
                     newest-up=(set dock)
                     newest-down=(set dock)
                 ==
-            [town-id newest-up newest-down ~ ~]
-          =*  town-id  town-id.i.ping-tids-list
-          =*  d        d.i.ping-tids-list
+            [town newest-up newest-down ~ ~]
+          =*  town  town.i.ping-tids-list
+          =*  d      d.i.ping-tids-list
           %=  $
               ping-tids-list  t.ping-tids-list
               indexer-sources-ping-results
             =/  [pu=(set dock) pd=(set dock) nu=(set dock) nd=(set dock)]
               %+  ~(gut by indexer-sources-ping-results)
-              town-id  [~ ~ ~ ~]
+              town  [~ ~ ~ ~]
             %+  ~(put by indexer-sources-ping-results)
-            town-id  [pu pd nu (~(put in nd) d)]
+            town  [pu pd nu (~(put in nd) d)]
           ==
         :-  %-  zing
             :-  move-downed-subscriptions
@@ -467,7 +450,7 @@
       ^-  (list card)
       %-  zing
       %+  turn  ~(tap by indexer-sources-ping-results)
-      |=  $:  town-id=id:smart
+      |=  $:  town=id:smart
               previous-up=(set dock)
               previous-down=(set dock)
               newest-up=(set dock)
@@ -477,10 +460,10 @@
       |=  [[[w=^wire s=ship t=term] a=? p=path] out=(list card)]
       ?.  (~(has in previous-down) [s t])
         out
-      ?~  source=(get-best-source:uc town-id ~ %nu)  out
+      ?~  source=(get-best-source:uc town ~ %nu)  out
       :+  (~(leave pass:io w) [s t])
         %+  ~(watch pass:io w)  p.u.source
-        ?:(?=(%no-init (rear p)) p (snoc p %no-init))
+        ?.(?=(%history (rear p)) p (snip p))
       out
     ::
     ++  make-ping-indexer-cards
@@ -490,9 +473,9 @@
       =/  all-indexer-sources=(list (pair id:smart dock))
         %-  zing
         %+  turn  ~(tap by indexer-sources)
-        |=  [town-id=id:smart docks=(set dock)]
+        |=  [town=id:smart docks=(set dock)]
         %+  turn  ~(tap in docks)
-        |=(d=dock [town-id d])
+        |=(d=dock [town d])
       |-
       ?~  all-indexer-sources
         =.  pings-timedout  `(add now.bowl ping-timeout)
@@ -502,14 +485,14 @@
             %~  wait  pass:io
             /ping-timeout/(scot %da u.pings-timedout)
         cards
-      =*  town-id  p.i.all-indexer-sources
-      =*  d        q.i.all-indexer-sources
+      =*  town  p.i.all-indexer-sources
+      =*  d      q.i.all-indexer-sources
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
             (scot %uw (sham eny.bowl))
             '-'
-            (scot %ux town-id)
+            (scot %ux town)
             '-'
             (scot %p p.d)
         ==
@@ -557,9 +540,39 @@
     ::   .^(update:ui %gx (scry:io %indexer (snoc t.t.path %noun)))
     ==
   ::
-  ++  on-leave  on-leave:def
+  ++  on-leave
+    |=  =path
+    |^  ^-  (quip card _this)
+    ?>  =(src.bowl our.bowl)
+    :_  this
+    ?+    -.path  !!
+        %track  ~
+        %wallet
+      ::  must be of the form, e.g.,
+      ::   /wallet/[requesting-app-name]/[*-updates]
+      ?.  ?=([%wallet @ @ ~] path)  ~
+      leave-wallet
+    ::
+        %indexer
+      ::  must be of the form, e.g.,
+      ::   /indexer/[requesting-app-name]/grain/[town-id]/[grain-id]
+      ?.  ?=([%indexer @ @ @ @ ~] path)  ~
+      leave-indexer
+    ==
+    ::
+    ++  leave-wallet
+      ^-  (list card)
+      [(~(leave-our pass:io path) wallet-source)]~
+    ::
+    ++  leave-indexer
+      ^-  (list card)
+      ?~  dock-path=(get-wex-dock-by-wire:uc path)  ~
+      [(~(leave pass:io path) p.u.dock-path)]~
+    --
   ++  on-fail   on-fail:def
   --
+::
+::  uqbar-core
 ::
 |_  =bowl:gall
 +*  io  ~(. agentio bowl)
@@ -591,8 +604,20 @@
     [roll (into seen index roll)]
   $(index +(index))
 ::
+++  get-wex-dock-by-wire
+  |=  =wire
+  ^-  (unit (pair dock path))
+  ?:  =(0 ~(wyt by wex.bowl))  ~
+  =/  wexs=(list [[w=^wire s=ship t=term] a=? p=path])
+    ~(tap by wex.bowl)
+  |-
+  ?~  wexs  ~
+  =*  wex  i.wexs
+  ?.  =(wire w.wex)  $(wexs t.wexs)
+  `[[s.wex t.wex] p.wex]
+::
 ++  get-best-source
-  |=  [town-id=id:smart seen=(list @ud) level=?(%nu %nd %pu %pd %~)]
+  |=  [town=id:smart seen=(list @ud) level=?(%nu %nd %pu %pd %~)]
   ^-  (unit [p=dock q=(list @ud) r=?(%nu %nd %pu %pd %~)])
   ::  TODO:
   ::   temporary hack to reduce fragility, since the

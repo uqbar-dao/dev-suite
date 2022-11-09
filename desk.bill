@@ -1,7 +1,8 @@
-:~  %ziggurat
-    %sequencer
+:~  %uqbar
     %rollup
+    %sequencer
     %indexer
-    %uqbar
     %wallet
+    %pyro
+    %ziggurat
 ==

@@ -1,4 +1,4 @@
-/+  *ziggurat
+/+  *zig-ziggurat
 =,  enjs:format
 |_  upd=test-update
 ++  grab
@@ -10,7 +10,7 @@
   ++  noun  upd
   ++  json
     %-  pairs
-    :~  ['result' (granary-to-json p.land.upd ~)]
+    :~  ['result' (granary-to-json p.chain.upd ~)]
     ==
   --
 ++  grad  %noun

@@ -4,7 +4,8 @@
 ::  Receives state transitions (moves) for towns, verifies them,
 ::  and allows sequencer ships to continue processing batches.
 ::
-/+  *sequencer, *rollup, ethereum, mill=zig-mill, default-agent, dbug, verb
+/+  default-agent, dbug, verb, ethereum,
+    *zig-sequencer, *zig-rollup, eng=zig-sys-engine
 |%
 +$  card  card:agent:gall
 +$  state-0
@@ -49,7 +50,7 @@
       [%peer-root-updates ~]
     :_  this
     %+  turn  ~(tap by capitol)
-    |=  [=id:smart =hall:sequencer]
+    |=  [=id:smart =hall]
     ^-  card
     ::  send bunted @da here as placeholder/null time.
     ::  may in future have canonical batch times
@@ -81,10 +82,19 @@
       ?<  (~(has by capitol) town-id.hall.act)
       ::  TODO remove starting-state from init and populate new towns via
       ::  assets from other towns
-      =+  (~(put by capitol) town-id.hall.act hall.act)
+      =/  first-root  `@ux`(sham chain.act)
+      ::  assert signature matches
+      =/  recovered
+        %-  address-from-pub:key:ethereum
+        %-  serialize-point:secp256k1:secp:crypto
+        %+  ecdsa-raw-recover:secp256k1:secp:crypto
+        first-root  sig.act
+      ?.  =(from.act recovered)
+        ~|("%rollup: rejecting new town; sequencer signature not valid" !!)
+      =+  (~(put by capitol) town-id.hall.act hall.act(roots ~[first-root]))
       :_  state(capitol -)
       :~  =-  [%give %fact ~[/peer-root-updates] %sequencer-rollup-update -]
-          !>(`town-update`[%new-peer-root town-id.hall.act (rear roots.hall.act) now.bowl])
+          !>(`town-update`[%new-peer-root town-id.hall.act first-root now.bowl])
       ::
           =-  [%give %fact ~[/capitol-updates] %sequencer-rollup-update -]
           !>(`capitol-update`[%new-capitol -])
