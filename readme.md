@@ -40,18 +40,7 @@ In the future, with remote scry, users will not need to run their own `%indexer`
 
 ## Initial Installation
 
-1. Clone and build the custom Urbit runtime with Pedersen jets, and set env var `URBIT_BIN` to point to the resulting binary.
-   Sequencers must use the Pedersen-jetted binary to execute contracts at reasonable speed.
-   Building requires the Nix package manager, see [installation instructions](https://nixos.org/download.html).
-   ```bash
-   mkdir ~/git && cd ~/git  # Replace with your chosen directory.
-
-   git clone -b mb/local-jet git@github.com:martyr-binbex/urbit.git urbit-jet
-   cd urbit-jet
-   nix-build -A urbit
-   export URBIT_BIN=$(realpath ./result/bin/urbit)
-   ```
-2. Clone the official Urbit repository and add this repository as a submodule.
+1. Clone the official Urbit repository and add this repository as a submodule.
    This structure is necessary to resolve symbolic links to other desks like `base-dev` and `garden-dev`.
    ```bash
    cd ~/git  # Replace with your chosen directory.
@@ -60,28 +49,28 @@ In the future, with remote scry, users will not need to run their own `%indexer`
    cd urbit/pkg
    git submodule add git@github.com:uqbar-dao/ziggurat.git ziggurat
    ```
-3. Boot a development fakeship:
+2. Either build or install the Urbit binary, then boot a development fakeship:
    ```bash
-   $URBIT_BIN -F zod
+   ./urbit -F zod
    ```
-4. In the Dojo of the fakeship, set up a `%zig` desk, where we will copy the files in this repo:
+3. In the Dojo of the fakeship, set up a `%zig` desk, where we will copy the files in this repo:
    ```hoon
    |merge %zig our %base
    |mount %zig
    ```
-5. In a new terminal, copy the files from this repo into the `%zig` desk:
+4. In a new terminal, copy the files from this repo into the `%zig` desk:
    ```bash
    cd ~/git/urbit/pkg  # Replace with your chosen directory.
 
    rm -rf zod/zig/*
    cp -RL ziggurat/* zod/zig/
    ```
-6. In the Dojo of the fakeship, commit the copied files and install.
+5. In the Dojo of the fakeship, commit the copied files and install.
    ```hoon
    |commit %zig
    |install our %zig
    ```
-7. Run tests, if desired, in the Dojo.
+6. Run tests, if desired, in the Dojo.
    ```hoon
    ::  Run all tests.
    -test ~[/=zig=/tests]
