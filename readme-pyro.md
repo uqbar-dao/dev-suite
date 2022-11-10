@@ -103,6 +103,11 @@ Here are two examples, the first of a scry to clay for a file, and the second a 
 ;;((unit update:ui) .^(noun %gx /=pyro=/i/(scot %p virtualship)/gx/(scot %p virtualship)/indexer/(scot %da now)/batch-order/0x0/noun/noun))
 ```
 
+To avoid the overly-verbose scries, you can also use the `+scry` generator which will automatically format agent scries (care of `%gx`) into pyro-ships.
+```
++zig!pyro/scry ~nec %sequencer /status/noun 
+```
+
 ## Example usage
 
 Setup; add tests to `%ziggurat`; start virtualships (in `%start-test-master`):
