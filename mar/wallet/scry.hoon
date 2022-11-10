@@ -1,14 +1,14 @@
-/-  *wallet
+/-  *zig-wallet
 ::
 |_  ws=wallet-scry
 ++  grab
   |%
-  ++  noun  ws
+  ++  noun  wallet-scry
   --
 ::
 ++  grow
   |%
-  ++  noun  wallet-scry
+  ++  noun  ws
   --
 ::
 ++  grad  %noun

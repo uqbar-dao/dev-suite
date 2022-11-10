@@ -473,7 +473,7 @@
   ::  noun scries, for other apps
   ::
       [%keys ~]
-    ``noun+!>(`wallet-scry`[%addresses ~(key by keys.state)])
+    ``wallet-scry+!>(`wallet-scry`[%addresses ~(key by keys.state)])
   ::
       [%account @ @ ~]
     ::  returns our account for the pubkey and town ID given
@@ -482,10 +482,10 @@
     =/  town  (slav %ux i.t.t.t.path)
     =/  nonce  (~(gut by (~(gut by nonces.state) pub ~)) town 0)
     =+  (hash-data:smart `@ux`'zigs-contract' pub town `@`'zigs')
-    ``noun+!>(`wallet-scry`[%account `caller:smart`[pub nonce -]])
+    ``wallet-scry+!>(`wallet-scry`[%account `caller:smart`[pub nonce -]])
   ::
       [%signatures ~]
-    ``noun+!>(`wallet-scry`[%signatures signatures.state])
+    ``wallet-scry+!>(`wallet-scry`[%signatures signatures.state])
   ::
       [%metadata @ ~]
     ::  return specific metadata from our store
