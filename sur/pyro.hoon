@@ -40,8 +40,8 @@
 ::
 +$  pyro-action
   $%  [%dojo who=@p command=tape]
-      [%peek =path]
       [%remove-ship who=@p]
+      [%insert-files who=@p des=desk files=(list [=path txt=@t])]
   ==
 ::
 +$  aqua-effects

@@ -16,10 +16,10 @@
   (pure:m !<([aqua-effect] q.cage))
 ::
 ++  start-simple
-  (start-test %aqua-ames %aqua-behn %aqua-dill %aqua-eyre ~)
+  (start-test %pyro-ames %pyro-behn %pyro-dill %pyro-eyre ~)
 ::
 ++  end
-  (end-test %aqua-ames %aqua-behn %aqua-dill %aqua-eyre ~)
+  (end-test %pyro-ames %pyro-behn %pyro-dill %pyro-eyre ~)
 ::
 ++  start-test
   |=  vane-threads=(list term)

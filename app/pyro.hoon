@@ -4,8 +4,9 @@
 ::  |start %zig %pyro
 ::  :pyro +solid %base %zig
 ::  swap files is NOT working
-::  :pyro &aqua-events [%init-ship ~dev %.y]~  OR  :pyro|init ~dev
+::  :pyro &aqua-events [%init-ship ~dev]~  OR  :pyro|init ~dev
 ::  :pyro &action [%dojo ~dev "(add 2 2)"]     OR  :pyro|dojo ~dev "(add 2 2)"
+::  +zig!pyro/scry ~dev %sequencer /status/noun
 ::
 ::  Then try stuff:
 ::  XX :aqua [%init ~[~bud ~dev]]
@@ -21,6 +22,7 @@
 ::
 /-  *pyro
 /+  pill, default-agent, naive, dbug, verb
+/*  cached-pill  %noun  /lib/py/pill/pill
 =,  pill-lib=pill
 =>  $~  |%
     +$  versioned-state
@@ -45,6 +47,7 @@
           event-log=(list unix-timed-event)
           next-events=(qeu unix-event)
           processing-events=?
+          scry-time=@da
       ==
     --
 ::
@@ -59,7 +62,9 @@
       aqua-core  +>
       ac         ~(. aqua-core bowl)
       def        ~(. (default-agent this %|) bowl)
-  ++  on-init  `this
+  ++  on-init
+    :_  this
+    [%pass / %agent [our.bowl %pyro] %poke %pill !>(cached-pill)]~
   ++  on-save  !>(state)
   ++  on-load
     |=  old-vase=vase
@@ -78,43 +83,14 @@
   ++  on-poke
     |=  [=mark =vase]
     ^-  step:agent:gall
-    |^
     =^  cards  state
       ?+  mark  ~|([%aqua-bad-mark mark] !!)
         %aqua-events  (poke-aqua-events:ac !<((list aqua-event) vase))
         %pill         (poke-pill:ac !<(pill vase))
         %noun         (poke-noun:ac !<(* vase))
-        %action       (handle-action !<(pyro-action vase))
+        %action       (poke-action:ac our.bowl !<(pyro-action vase))
       ==
     [cards this]
-    ::
-    ++  handle-action
-      |=  act=pyro-action
-      ^-  (quip card:agent:gall _state)
-      ?-    -.act
-          %peek
-        !!
-      ::
-          %dojo
-        :_  state
-        =-  [%pass /self-poke %agent [our.bowl %pyro] %poke -]~
-        :-  %aqua-events  !>
-        ^-  (list aqua-event)
-        %+  turn
-          ^-  (list unix-event)
-          :~  [/d/term/1 %belt %ctl `@c`%e]
-              [/d/term/1 %belt %ctl `@c`%u]
-              [/d/term/1 %belt %txt ((list @c) ;;(tape command.act))]
-              [/d/term/1 %belt %ret ~]
-          ==
-        |=  ue=unix-event
-        [%event who.act ue]
-      ::
-          %remove-ship
-        =.  piers  (~(del by piers) who.act)
-        `state
-      ==
-    --
   ::
   ++  on-watch
     |=  =path
@@ -134,19 +110,24 @@
   ++  on-peek
     |=  =path
     ^-  (unit (unit cage))
-    ?+  path  ~
+    ?+    path  ~
         [%x %fleet-snap @ ~]  ``noun+!>((~(has by fleet-snaps) i.t.t.path))
-        [%x %fleets ~]        ``noun+!>((turn ~(tap by fleet-snaps) head))
-        [%x %ships ~]         ``noun+!>((turn ~(tap by piers) head))
+        [%x %fleets ~]        ``noun+!>(~(key by fleet-snaps))
+        [%x %ships ~]         ``noun+!>(~(key by piers))
         [%x %pill ~]          ``pill+!>(pil)
+        [%x %events ~]
+      :^  ~  ~  %noun
+      !>
+      %-  ~(run by piers)
+      |=  p=pier
+      [(lent event-log.p) ~(wyt in next-events.p)]
+    ::
         [%x %i @ @ @ @ @ *]
       ::   ship | scry path
       ::          care, ship, desk, time, path
       ::  scry into running virtual ships
       =/  who  (slav %p i.t.t.path)
-      =/  pier  (~(get by piers) who)
-      ?~  pier
-        ~
+      ?.  (~(has by piers) who)  ~
       :^  ~  ~  %noun  !>
       (peek:(pe who) t.t.t.path)
     ==
@@ -245,6 +226,7 @@
       %-  (slog >%aqua-crash< >guest=who< p.poke-result)
       $
     =.  snap  +.p.poke-result
+    =.  scry-time  tym
     =.  ..abet-pe  (publish-event tym ue)
     =.  ..abet-pe
       ~|  ova=-.p.poke-result
@@ -264,7 +246,7 @@
     ::  validate path
     ?>  ?=([@ @ @ @ *] pax)
     ::  alter timestamp to match %pyro fake-time
-    =.  i.t.t.t.pax  (scot %da tym)
+    =.  i.t.t.t.pax  (scot %da scry-time)
     ~&  >>  `path`pax
     ::  execute scry
     =/  pek  (slum scry [[~ ~] & pax])
@@ -300,7 +282,7 @@
       =/  sof  ((soft unix-effect) i.effects)
       ?~  sof
         ~?  aqua-debug=&  [who=who %unknown-effect i.effects]
-        $(effects t.effects)  ::  XX this used to be ..abet-pe
+        ..abet-pe
       (publish-effect u.sof)
     $(effects t.effects)
   ::
@@ -626,6 +608,51 @@
       raw-event=[who.ae ue.ae]
     (push-events:(pe who.ae) [ue.ae]~)
   ==
+::
+++  poke-action
+  |=  [our=ship act=pyro-action]
+  ^-  (quip card:agent:gall _state)
+  |^
+  ?-    -.act
+      %dojo
+    :_  state
+    %-  send-events
+    ^-  (list aqua-event)
+    %+  turn
+      ^-  (list unix-event)
+      :~  [/d/term/1 %belt %ctl `@c`%e]
+          [/d/term/1 %belt %ctl `@c`%u]
+          [/d/term/1 %belt %txt ((list @c) ;;(tape command.act))]
+          [/d/term/1 %belt %ret ~]
+      ==
+    |=  ue=unix-event
+    [%event who.act ue]
+  ::
+      %remove-ship
+    =.  piers  (~(del by piers) who.act)
+    `state
+  ::
+      %insert-files
+    :_  state
+    %-  send-events
+    ^-  (list aqua-event)
+    %+  turn
+      ^-  (list unix-event)
+      =-  [/c/sync/0v1n.2m9vh %into des.act | -]~
+      %+  turn  files.act
+      |=  [=path txt=@t]
+      [path ~ /text/plain (as-octs:mimes:html txt)]
+    |=  ue=unix-event
+    [%event who.act ue]
+  ::  %touch-file
+  ::  %start-app/%poke-app
+  ==
+  ++  send-events
+    |=  events=(list aqua-event)
+    ^-  (list card:agent:gall)
+    =+  [%aqua-events !>(events)]
+    [%pass /self-poke %agent [our %pyro] %poke -]~
+  --
 ::
 ::  Run a callback function against a list of ships, aggregating state
 ::  and plowing all ships at the end.

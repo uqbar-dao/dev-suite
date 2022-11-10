@@ -2,9 +2,14 @@
 ::
 ::  Contract Playground
 ::
-/+  *zig-ziggurat, smart=zig-sys-smart,
-    engine=zig-sys-engine, seq=zig-sequencer,
-    default-agent, dbug, verb
+/-  spider
+/+  dbug,
+    default-agent,
+    verb,
+    *zig-ziggurat,
+    engine=zig-sys-engine,
+    seq=zig-sequencer,
+    smart=zig-sys-smart
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
 ::
@@ -12,6 +17,7 @@
 +$  state-0
   $:  %0
       =projects
+      test-master=[tid=@ta is-ready=?]
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
 +$  eng  $_  ~(engine engine:engine !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
@@ -36,7 +42,7 @@
   :-  ~
   %_    this
       state
-    [[%0 ~] eng smart-lib]
+    [[%0 ~ ['' %.n]] eng smart-lib]
   ==
 ++  on-save  !>(-.state)
 ++  on-load
@@ -53,6 +59,7 @@
   |=  =path
   ^-  (quip card _this)
   ?+    path  !!
+      [%pyro-done ~]  `this
       [%project @ ~]
     ::  serve updates about state of a given project
     =/  name=@t  `@t`i.t.path
@@ -123,15 +130,16 @@
       ==
     ::
         %populate-template
-      ::  spawn some hardcoded example tests and grains for %fungible and %nft templates
-      =/  =project  (~(got by projects) project.act)
-      ?<  ?=(%blank template.act)
-      =.  project
-        ?:  ?=(%fungible template.act)
-          (fungible-template-project project metadata.act smart-lib-vase)
-        (nft-template-project project metadata.act smart-lib-vase)
-      :-  (make-compile project.act our.bowl)^~
-      state(projects (~(put by projects) project.act project))
+      !!  ::  TODO
+      :: ::  spawn some hardcoded example tests and grains for %fungible and %nft templates
+      :: =/  =project  (~(got by projects) project.act)
+      :: ?<  ?=(%blank template.act)
+      :: =.  project
+      ::   ?:  ?=(%fungible template.act)
+      ::     (fungible-template-project project metadata.act smart-lib-vase)
+      ::   (nft-template-project project metadata.act smart-lib-vase)
+      :: :-  (make-compile project.act our.bowl)^~
+      :: state(projects (~(put by projects) project.act project))
     ::
         %delete-project
       ::  should show a warning on frontend before performing this one ;)
@@ -240,50 +248,11 @@
         %add-test
       ::  generate an id for the test
       =/  =project  (~(got by projects) project.act)
-      =/  test-id  `@ux`(mug now.bowl)
-      ::  ream action to form calldata
-      =+  (text-to-zebra-noun action.act smart-lib-vase)
-      =/  =calldata:smart  [;;(@tas -.-) +.-]
-      =/  new-error=@ud  (fall expected-error.act 0)
-      ::  put it in the project
+      :: =/  test-id  `@ux`(mug now.bowl)
+      =/  test-id=@ux  `@ux`(sham test-steps.act)
       =.  tests.project
         %+  ~(put by tests.project)  test-id
-        :*  name.act
-            for-contract.act
-            action.act
-            calldata
-            ~
-            new-error
-            ~
-        ==
-      :-  (make-project-update project.act project)^~
-      state(projects (~(put by projects) project.act project))
-    ::
-        %add-test-expectation
-      ::  add/replace expected data output
-      =/  =project  (~(got by projects) project.act)
-      ?~  current=(~(get by tests.project) test-id.act)
-        ~|("%ziggurat: test does not exist" !!)
-      =/  =id:smart  (hash-data:smart source.act holder.act town-id.act salt.act)
-      =/  =data:smart
-        [id source.act holder.act town-id.act salt.act label.act noun.act]
-      =/  tex  ;;(@t noun.data)
-      =/  new
-        =-  [id.data %&^data(noun -) tex]
-        (text-to-zebra-noun tex smart-lib-vase)
-      =.  tests.project
-        %+  ~(put by tests.project)  test-id.act
-        u.current(expected (~(put by expected.u.current) new), result ~)
-      :-  (make-project-update project.act project)^~
-      state(projects (~(put by projects) project.act project))
-    ::
-        %delete-test-expectation
-      =/  =project  (~(got by projects) project.act)
-      ?~  current=(~(get by tests.project) id.act)
-        ~|("%ziggurat: test does not exist" !!)
-      =.  tests.project
-        %+  ~(put by tests.project)  id.act
-        u.current(expected (~(del by expected.u.current) delete.act), result ~)
+        [name.act test-steps.act ~]
       :-  (make-project-update project.act project)^~
       state(projects (~(put by projects) project.act project))
     ::
@@ -293,130 +262,136 @@
       :-  (make-project-update project.act project)^~
       state(projects (~(put by projects) project.act project))
     ::
-        %edit-test
-      =/  =project  (~(got by projects) project.act)
-      ::  ream action to form calldata
-      =+  (text-to-zebra-noun action.act smart-lib-vase)
-      =/  =calldata:smart  [;;(@tas -.-) +.-]
-      =/  new-error
-        ?~  expected-error.act  0
-        u.expected-error.act
-      ::  get existing
-      =.  tests.project
-        ?~  current=(~(get by tests.project) id.act)
-          %+  ~(put by tests.project)  id.act
-          :*  name.act
-              for-contract.act
-              action.act
-              calldata
-              ~
-              new-error
-              ~
-          ==
-        %+  ~(put by tests.project)  id.act
-        :*  name.act
-            for-contract.act
-            action.act
-            calldata
-            expected.u.current
-            (fall expected-error.act expected-error.u.current)
-            ~
-        ==
-      :-  (make-project-update project.act project)^~
-      state(projects (~(put by projects) project.act project))
+      ::   %edit-test  :: TODO: update or remove
+      :: =/  =project  (~(got by projects) project.act)
+      :: ::  ream action to form calldata
+      :: =+  (text-to-zebra-noun action.act smart-lib-vase)
+      :: =/  =calldata:smart  [;;(@tas -.-) +.-]
+      :: =/  new-error
+      ::   ?~  expected-error.act  0
+      ::   u.expected-error.act
+      :: ::  get existing
+      :: =.  tests.project
+      ::   ?~  current=(~(get by tests.project) id.act)
+      ::     %+  ~(put by tests.project)  id.act
+      ::     :*  name.act
+      ::         for-contract.act
+      ::         action.act
+      ::         calldata
+      ::         ~
+      ::         new-error
+      ::         ~
+      ::     ==
+      ::   %+  ~(put by tests.project)  id.act
+      ::   :*  name.act
+      ::       for-contract.act
+      ::       action.act
+      ::       calldata
+      ::       expected.u.current
+      ::       (fall expected-error.act expected-error.u.current)
+      ::       ~
+      ::   ==
+      :: :-  (make-project-update project.act project)^~
+      :: state(projects (~(put by projects) project.act project))
     ::
         %run-test
+      ?.  is-ready.test-master
+        ::  delay until test-master is-ready
+        :_  state
+        :_  ~
+        :^    %pass
+            %+  weld
+              /delay-test/[project.act]/(scot %ux id.act)
+            /(scot %ud rate.act)/(scot %ud bud.act)
+          %arvo
+        [%b %wait (add now.bowl ~s5)]  ::  TODO: unhardcode
       =/  =project  (~(got by projects) project.act)
-      =/  =test  (~(got by tests.project) id.act)
-      =/  caller
-        (designated-caller user-address.project +(user-nonce.project))
-      =/  =shell:smart
-        :*  caller
-            ~
-            for-contract.test
-            gas=[rate.act bud.act]
-            designated-town-id
-            status=0
+      =/  =test     (~(got by tests.project) id.act)
+      =/  tid=@ta
+        %+  rap  3
+        :~  'ted-'
+            project.act
+            '-'
+            ?^(name.test u.name.test (scot %ux id.act))
+            '-'
+            (scot %uw (sham eny.bowl))
         ==
-      =/  =output:engine
-        %~  intake  %~  eng  eng
-          [caller designated-town-id batch-num.project eth-block-height=0]
-        [chain.project [[0 0 0] action.test shell]]
-      =/  =expected-diff
-        %-  malt
-        %+  turn  ~(tap by modified.output)
-        |=  [=id:smart [@ux made=item:smart]]
-        =/  expected  (~(get by expected.test) id)
-        :-  id
-        :+  `made
-          ?~(expected ~ `-.u.expected)
-        ?~  expected  ~
-        `=(-.u.expected made)
-      ::  add any expected that weren't ids in result
-      =.  expected-diff
-        =/  lis  ~(tap by expected.test)
-        |-
-        ?~  lis  expected-diff
-        %=  $
-          lis  t.lis
-        ::
-            expected-diff
-          ?:  (~(has by expected-diff) -.i.lis)
-            expected-diff
-          (~(put by expected-diff) [-.i.lis [~ `-.+.i.lis `%.n]])
-        ==
-      ::
-      =/  success
-        ?~  expected.test  ~
+      =/  =start-args:spider
         :-  ~
-        ?&  =(errorcode.output expected-error.test)
-        ::
-            %+  levy  ~(val by expected-diff)
-            |=  [(unit item:smart) (unit item:smart) match=(unit ?)]
-            ?~  match  %.y
-            u.match
-        ==
-      ::
-      =/  =test-result
-        :*  gas.output
-            errorcode.output
-            events.output
-            expected-diff
-            success
-        ==
-      ::  save result in test, send update
-      =.  tests.project
-        (~(put by tests.project) id.act test(result `test-result))
-      :-  (make-project-update project.act project)^~
-      state(projects (~(put by projects) project.act project))
+        :^  `tid  byk.bowl(r da+now.bowl)
+          %ziggurat-test-run
+        !>(`(unit test-steps)``steps.test)
+      =/  w=wire  /test/[project.act]/(scot %ux id.act)/[tid]
+      :_  state
+      :+  :^  %pass  w  %agent
+          [[our.bowl %spider] %watch /thread-result/[tid]]
+        :^  %pass  w  %agent
+        [[our.bowl %spider] %poke %spider-start !>(start-args)]
+      ~
     ::
         %run-tests
-      ::  run tests IN SUCCESSION against SAME STATE
-      ::  note that this doesn't save last-result for each test,
-      ::  as results here will not reflect *just this test*
+      !!  ::  TODO
+      :: ::  run tests IN SUCCESSION against SAME STATE
+      :: ::  note that this doesn't save last-result for each test,
+      :: ::  as results here will not reflect *just this test*
+      :: =/  =project  (~(got by projects) project.act)
+      :: =/  [eggs=(list [@ux transaction:smart]) new-nonce=@ud]
+      ::   %^  spin  tests.act  user-nonce.project
+      ::   |=  [[id=@ux rate=@ud bud=@ud] nonce=@ud]
+      ::   =/  =test  (~(got by tests.project) id)
+      ::   =/  caller  (designated-caller user-address.project +(nonce))
+      ::   =/  =shell:smart
+      ::     :*  caller
+      ::         ~
+      ::         for-contract.test
+      ::         gas=[rate bud]
+      ::         designated-town-id
+      ::         status=0
+      ::     ==
+      ::   :_  +(nonce)
+      ::   :-  `@ux`(sham shell action.test)
+      ::   [[0 0 0] action.test shell]
+      :: =/  res=state-transition:engine
+      ::   %+  %~  run  eng
+      ::       [(designated-caller user-address.project 0) designated-town-id batch-num.project 0]
+      ::   chain.project  (silt eggs)
+      :: :-  (make-multi-test-update project.act res)^~
+      :: state(projects (~(put by projects) project.act project))
+    ::
+        %start-test-master
+      ?.  =('' tid.test-master)
+        ~|("%ziggurat: stop current test-master before starting new one" !!)
       =/  =project  (~(got by projects) project.act)
-      =/  [eggs=(list [@ux transaction:smart]) new-nonce=@ud]
-        %^  spin  tests.act  user-nonce.project
-        |=  [[id=@ux rate=@ud bud=@ud] nonce=@ud]
-        =/  =test  (~(got by tests.project) id)
-        =/  caller  (designated-caller user-address.project +(nonce))
-        =/  =shell:smart
-          :*  caller
-              ~
-              for-contract.test
-              gas=[rate bud]
-              designated-town-id
-              status=0
-          ==
-        :_  +(nonce)
-        :-  `@ux`(sham shell action.test)
-        [[0 0 0] action.test shell]
-      =/  res=state-transition:engine
-        %+  %~  run  eng
-            [(designated-caller user-address.project 0) designated-town-id batch-num.project 0]
-        chain.project  (silt eggs)
-      :-  (make-multi-test-update project.act res)^~
-      state(projects (~(put by projects) project.act project))
+      =/  tid=@ta
+        %+  rap  3
+        :~  'ted-'
+            project.act
+            '-pyro-vanes-'
+            (scot %uw (sham eny.bowl))
+        ==
+      =/  =start-args:spider
+        :-  ~
+        :^  `tid  byk.bowl(r da+now.bowl)
+          %ziggurat-test-master
+        !>  ^-  (unit [@t (list @p)])
+        ?^  ships.act  [~ project.act u.ships.act]
+        [~ project.act ~[~nec ~bud]]
+        :: [~ project.act ~[~nec ~bud ~wes]]
+      :_  state(test-master [tid %.n])
+      :_  ~
+      :^  %pass  /pyro-vanes  %agent
+      [[our.bowl %spider] %poke %spider-start !>(start-args)]
+    ::
+        %ready-test-master
+      ?:  =('' tid.test-master)
+        ~|("%ziggurat: start-test-master before signaling ready" !!)
+      `state(is-ready.test-master %.y)
+    ::
+        %stop-test-master
+      :_  state(test-master ['' %.n])
+      :+  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
+        [%give %kick [/pyro-done]~ ~]
+      ~
     ::
         %deploy-contract  ::  TODO
       !!
@@ -476,7 +451,32 @@
 ++  on-agent
   |=  [=wire =sign:agent:gall]
   ^-  (quip card _this)
-  (on-agent:def wire sign)
+  ?+    wire  (on-agent:def wire sign)
+      [%test @ @ @ ~]
+    ?+    -.sign  (on-agent:def wire sign)
+        %kick      `this
+        %poke-ack  `this
+        %fact
+      =*  project-name  i.t.wire
+      =/  test-id=@ux   (slav %ux i.t.t.wire)
+      =/  tid=@ta       i.t.t.t.wire
+      ?+    p.cage.sign  (on-agent:def wire sign)
+          %thread-fail
+        ~&  ziggurat+thread-fail+project^test-id^tid
+        `this
+      ::
+          %thread-done
+      =+  !<(=test-results q.cage.sign)
+      =/  =project  (~(got by projects) project-name)
+      =/  =test     (~(got by tests.project) test-id)
+      =.  tests.project
+        %+  ~(put by tests.project)  test-id
+        test(results test-results)
+      :-  (make-project-update project-name project)^~
+      this(projects (~(put by projects) project-name project))
+      ==
+    ==
+  ==
 ::
 ++  on-arvo
   |=  [=wire =sign-arvo:agent:gall]
@@ -491,6 +491,30 @@
     ~&  >>>  "failed to make new desk"
     `this
   ::
+      [%delay-test @ @ @ @ ~]
+    ?+    sign-arvo  (on-arvo:def wire sign-arvo)
+        [%behn %wake *]
+      ?^  error.sign-arvo
+        ~|("%ziggurat: %delay-test error: {<u.error.sign-arvo>}" !!)
+      ~&  %delay-test
+      :_  this
+      :_  ~
+      ?.  is-ready.test-master
+        ::  delay until test-master is-ready
+        [%pass wire %arvo [%b %wait (add now.bowl ~s5)]]  ::  TODO: unhardcode
+      =*  project  i.t.wire
+      =*  id       (slav %ux i.t.t.wire)
+      =*  rate     (slav %ud i.t.t.t.wire)
+      =*  bud      (slav %ud i.t.t.t.t.wire)
+      :*  %pass
+          /self-wire
+          %agent
+          [our.bowl %ziggurat]
+          %poke
+          %ziggurat-action
+          !>(`action`project^[%run-test id rate bud])
+      ==
+    ==
   ==
 ::
 ++  on-peek
@@ -527,11 +551,11 @@
     =/  =json  (state-to-json p.chain.u.project noun-texts.u.project)
     ``json+!>(json)
   ::
-      [%project-tests @ ~]
-    ?~  project=(~(get by projects) i.t.t.path)
-      ``json+!>(~)
-    =/  =json  (tests-to-json tests.u.project)
-    ``json+!>(json)
+    ::   [%project-tests @ ~]  :: TODO
+    :: ?~  project=(~(get by projects) i.t.t.path)
+    ::   ``json+!>(~)
+    :: =/  =json  (tests-to-json tests.u.project)
+    :: ``json+!>(json)
   ::
       [%project-user-files @ ~]
     ?~  project=(~(get by projects) i.t.t.path)
