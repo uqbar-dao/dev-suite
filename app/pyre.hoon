@@ -39,6 +39,7 @@
   [%pass wire %agent [our.bowl %pyro] %watch path]
 ++  on-save  on-save:def
 ++  on-load  on-load:def
+::
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
@@ -48,7 +49,6 @@
   |=  [=wire =sign:agent:gall]
   ^-  (quip card _this)
   ?+    wire  (on-agent:def wire sign)
-  ::
       [%ames @ ~]
     ?+    -.sign  (on-agent:def wire sign)
         %fact
@@ -87,9 +87,9 @@
       =+  ef=!<([aqua-effect] q.cage.sign)
       =^  cards  eyre-piers
         ?+    -.q.ufs.ef  [~ eyre-piers]
-            %sleep    abet-pe:sleep:(eyre who.ef)
-            %restore  abet-pe:restore:(eyre who.ef)
-            %thus     abet-pe:(thus:(eyre who.ef) ufs.ef)
+            %sleep    abet-pe:sleep:(eyre:hc who.ef)
+            %restore  abet-pe:restore:(eyre:hc who.ef)
+            %thus     abet-pe:(thus:(eyre:hc who.ef) ufs.ef)
             %kill     `(~(del by eyre-piers) who.ef)
         ==
       [cards this]
@@ -108,7 +108,7 @@
     ?>  ?=([@ *] wire)
     =/  who  (,@p (slav %p i.wire))
     =^  cards  behn-piers
-      abet-pe:(take-wake:(behn who) t.wire error.sign-arvo)
+      abet-pe:(take-wake:(behn:hc who) t.wire error.sign-arvo)
     [cards this]
   ::
       %iris
@@ -118,7 +118,7 @@
     =/  =httr:^eyre
       (to-httr:iris [response-header full-file]:client-response.sign-arvo)
     =^  cards  eyre-piers
-      abet-pe:(take-sigh-httr:(eyre who) t.wire httr)
+      abet-pe:(take-sigh-httr:(eyre:hc who) t.wire httr)
     [cards this]
   ==
 ::
