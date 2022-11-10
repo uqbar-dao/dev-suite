@@ -40,9 +40,9 @@
   $%  [%dojo who=@p command=tape]
       [%remove-ship who=@p]
       [%insert-files who=@p des=desk files=(list [=path txt=@t])]
-      [%snap-ships lab=term hers=(list ship)]
-      [%restore-snap lab=term]
-      [%clear-snap lab=term]
+      [%snap-ships =path hers=(list ship)]
+      [%restore-snap =path]
+      [%clear-snap =path]
   ==
 ::
 +$  aqua-effects
