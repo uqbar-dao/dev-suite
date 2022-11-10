@@ -7,6 +7,7 @@
 =*  get-our    get-our:strandio
 =*  poke-our   poke-our:strandio
 =*  watch-one  watch-one:strandio
+=*  watch-our  watch-our:strandio
 ::
 =/  m  (strand ,vase)
 |^  ted
@@ -35,7 +36,7 @@
   =*  ships    ships.u.args
   ::
   ;<  our=@p  bind:m  get-our
-  ;<  ~  bind:m  start-simple:pyio
+  ;<  ~  bind:m  (watch-our /effect %pyro /effect)
   ;<  ~  bind:m  (init-ships ships)
   ;<  ~  bind:m
     %+  poke-our  %ziggurat
@@ -43,6 +44,5 @@
     !>(`action:zig`project^[%ready-test-master ~])
   ;<  =cage  bind:m
     (watch-one /pyro-done [our %ziggurat] /pyro-done)
-  ;<  ~  bind:m  end:pyio
   (pure:m !>(`~`~))
 --

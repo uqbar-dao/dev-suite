@@ -494,7 +494,7 @@
       :_  ~
       ?.  is-ready.test-master
         ::  delay until test-master is-ready
-        [%pass wire %arvo [%b %wait (add now.bowl ~s1)]]
+        [%pass wire %arvo [%b %wait (add now.bowl ~s5)]]
       =*  project  i.t.wire
       =*  id       (slav %ux i.t.t.wire)
       =*  rate     (slav %ud i.t.t.t.wire)
