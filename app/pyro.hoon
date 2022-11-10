@@ -3,7 +3,7 @@
 ::  usage:
 ::  |start %zig %pyro
 ::  :pyro +solid %base %zig
-::  swap files is NOT working
+::  swap files is NOT working - maybe it is? you have to restart your ships to see the changes
 ::  :pyro &aqua-events [%init-ship ~dev]~  OR  :pyro|init ~dev
 ::  :pyro &action [%dojo ~dev "(add 2 2)"]     OR  :pyro|dojo ~dev "(add 2 2)"
 ::  +zig!pyro/scry ~dev %sequencer /status/noun
@@ -95,11 +95,18 @@
   ++  on-watch
     |=  =path
     ^-  step:agent:gall
+    :: /effect       subscribe to effects one by one
+    :: /effects      subscribe to effects in list form
+    :: /effect/~dev  subscribe to all effects of a given ship
+    :: /effect/blit  subscribe to all effects of a certain kind (e.g. blits)
+    :: /effects/~dev subscribe to all effects of a given ship in list form
+    :: /events/~dev  subscribe to all events of a given ship
+    :: /boths/~dev   subscribe to all events and effects of a given ship
     ?:  ?=([?(%effects %effect) ~] path)
       `this
     ?:  ?=([%effect @ ~] path)
       `this
-    ?.  ?=([?(%effects %effect %evens %boths) @ ~] path)
+    ?.  ?=([?(%effects %effect %events %boths) @ ~] path)
       ~|  [%aqua-bad-subscribe-path path]
       !!
     ?~  (slaw %p i.t.path)
@@ -115,6 +122,7 @@
         [%x %fleets ~]        ``noun+!>(~(key by fleet-snaps))
         [%x %ships ~]         ``noun+!>(~(key by piers))
         [%x %pill ~]          ``pill+!>(pil)
+    ::
         [%x %events ~]
       :^  ~  ~  %noun
       !>
@@ -122,10 +130,13 @@
       |=  p=pier
       [(lent event-log.p) ~(wyt in next-events.p)]
     ::
+        [%x %fleet-ships @ ~]
+      =+  sips=(~(get by fleet-snaps) i.t.t.path)
+      ?~  sips  ~  ``noun+!>(~(key by u.sips))
+    ::
+    ::  scry into running virtual ships
+    ::  ship, care, ship, desk, time, path     
         [%x %i @ @ @ @ @ *]
-      ::   ship | scry path
-      ::          care, ship, desk, time, path
-      ::  scry into running virtual ships
       =/  who  (slav %p i.t.t.path)
       ?.  (~(has by piers) who)  ~
       :^  ~  ~  %noun  !>
@@ -550,13 +561,13 @@
         ::
         userspace-ova.pil  :: load os
         ::
-        :*  [/b/behn/0v1n.2m9vh %born ~]
+        ::  XX start vanes - does this actually start the vanes?
+        :~  [/b/behn/0v1n.2m9vh %born ~]
             [/i/http-client/0v1n.2m9vh %born ~]
             [/e/http-server/0v1n.2m9vh %born ~]
             [/e/http-server/0v1n.2m9vh %live 8.080 `8.445]
             [/a/newt/0v1n.2m9vh %born ~]
             [/d/term/1 %hail ~]
-            ~
         ==
       ==
     =.  this
@@ -565,41 +576,6 @@
   ::
       %pause-events
     stop-processing-events:(pe who.ae)
-  ::
-      %snap-ships
-    =.  this
-      %+  turn-ships  (turn ~(tap by piers) head)
-      |=  [who=ship thus=_this]
-      =.  this  thus
-      (publish-effect:(pe who) [/ %kill ~])
-    =.  fleet-snaps
-      %+  ~(put by fleet-snaps)  lab.ae
-      %-  malt
-      %+  murn  hers.ae
-      |=  her=ship
-      ^-  (unit (pair ship pier))
-      =+  per=(~(get by piers) her)
-      ?~  per
-        ~
-      `[her u.per]
-    ::  =.  this   stop-azimuth-timer
-    =.  piers  *fleet
-    (pe -.hers.ae)
-  ::
-      %restore-snap
-    =.  this
-      %+  turn-ships  (turn ~(tap by piers) head)
-      |=  [who=ship thus=_this]
-      =.  this  thus
-      (publish-effect:(pe who) [/ %kill ~])
-    =.  piers  (~(got by fleet-snaps) lab.ae)
-    ::  =.  this   start-azimuth-timer
-    =.  this
-      %+  turn-ships  (turn ~(tap by piers) head)
-      |=  [who=ship thus=_this]
-      =.  this  thus
-      (publish-effect:(pe who) [/ %restore ~])
-    (pe ~bud)  ::  XX why ~bud?  need an example
   ::
       %event
     ~?  &(aqua-debug=| !?=(?(%belt %hear) -.q.ue.ae))
@@ -644,6 +620,45 @@
       [path ~ /text/plain (as-octs:mimes:html txt)]
     |=  ue=unix-event
     [%event who.act ue]
+  ::
+      %snap-ships
+    =.  this
+      %+  turn-ships  (turn ~(tap by piers) head)
+      |=  [who=ship thus=_this]
+      =.  this  thus
+      ..abet-pe:(pe who)
+    =.  fleet-snaps
+      %+  ~(put by fleet-snaps)  lab.act
+      %-  malt
+      %+  murn  hers.act
+      |=  her=ship
+      ^-  (unit (pair ship pier))
+      =+  per=(~(get by piers) her)
+      ?~  per
+        ~
+      `[her u.per]
+    `state
+  ::
+      %restore-snap
+    =/  to-kill  :: only kill ships in the snapshot
+      %-  ~(int in ~(key by piers))
+      ~(key by (~(got by fleet-snaps) lab.act))
+    =.  this
+      %+  turn-ships  ~(tap in to-kill)
+      |=  [who=ship thus=_this]
+      =.  this  thus
+      (publish-effect:(pe who) [/ %kill ~])
+    =.  piers  (~(got by fleet-snaps) lab.act)
+    =.  this
+      %+  turn-ships  (turn ~(tap by piers) head)
+      |=  [who=ship thus=_this]
+      =.  this  thus
+      (publish-effect:(pe who) [/ %restore ~])
+    `state
+  ::
+      %clear-snap
+    =.  fleet-snaps  (~(del by fleet-snaps) lab.act)
+    `state
   ::  %touch-file
   ::  %start-app/%poke-app
   ==
