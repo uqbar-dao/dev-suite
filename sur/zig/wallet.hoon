@@ -31,7 +31,7 @@
   (map @ux [=transaction:smart action=supported-actions])
 ::
 +$  transaction-status-code
-  $%  %100  ::  100: transaction pending in wallet
+  $?  %100  ::  100: transaction pending in wallet
       %101  ::  101: transaction submitted from wallet to sequencer
       %102  ::  102: transaction received by sequencer
       %103  ::  103: failure: transaction rejected by sequencer
