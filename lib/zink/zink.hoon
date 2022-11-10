@@ -38,6 +38,9 @@
       [%scot 5]
       [%pedersen-hash 10]
       [%shag 1.000]
+      ::  crypto
+      [%k224 100]  [%k256 100]  [%k384 100]  [%k512 100]
+      [%make 100]  [%sign 100]  [%reco 100]
     ==
 ::
 ++  zebra                                                 ::  bounded zk +mule
@@ -534,6 +537,36 @@
         %pedersen-hash
       ?.  ?=([@ @] sam)  %|^trace
       %&^(some (hash:pedersen sam))
+    ::                                                                       ::
+    ::  crypto                                                               ::
+    ::                                                                       ::
+        %k224
+      ?.  ?=([@ud @] sam)  %|^trace
+      %&^(some (keccak-224:keccak:crypto sam))
+    ::
+        %k256
+      ?.  ?=([@ud @] sam)  %|^trace
+      %&^(some (keccak-256:keccak:crypto sam))
+    ::
+        %k384
+      ?.  ?=([@ud @] sam)  %|^trace
+      %&^(some (keccak-384:keccak:crypto sam))
+    ::
+        %k512
+      ?.  ?=([@ud @] sam)  %|^trace
+      %&^(some (keccak-512:keccak:crypto sam))
+    ::
+        %make
+      ?.  ?=([@uvI @] sam)  %|^trace
+      %&^(some (make-k:secp256k1:secp:crypto sam))
+    ::
+        %sign
+      ?.  ?=([@uvI @] sam)  %|^trace
+      %&^(some (ecdsa-raw-sign:secp256k1:secp:crypto sam))
+    ::
+        %reco
+      ?.  ?=([@ [@ @ @]] sam)  %|^trace
+      %&^(some (ecdsa-raw-recover:secp256k1:secp:crypto sam))
     ::
         %shag
       %&^(some (shag:merk sam))
