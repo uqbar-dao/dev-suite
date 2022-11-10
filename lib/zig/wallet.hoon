@@ -149,8 +149,8 @@
     ~
   ?.  ?=(%& -.u.g)  ~
   ?+  token-type  ~
-    %token  `[%token town ;;(token-metadata noun.p.u.g)]
-    %nft    `[%nft town ;;(nft-metadata noun.p.u.g)]
+    %token  `[%token town source.p.u.g ;;(token-metadata noun.p.u.g)]
+    %nft    `[%nft town source.p.u.g ;;(nft-metadata noun.p.u.g)]
   ==
 ::
 ::  JSON parsing utils

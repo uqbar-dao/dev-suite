@@ -15,8 +15,8 @@
 ::
 +$  metadata-store  (map id:smart asset-metadata)
 +$  asset-metadata
-  $%  [%token town=@ux token-metadata]
-      [%nft town=@ux nft-metadata]
+  $%  [%token town=@ux contract=id:smart token-metadata]
+      [%nft town=@ux contract=id:smart nft-metadata]
   ==
 ::
 +$  unfinished-transaction-store

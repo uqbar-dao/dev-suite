@@ -562,8 +562,12 @@
     =/  pub  (slav %ux i.t.t.path)
     =/  our=(map @ux [transaction:smart supported-actions])
       (~(gut by pending-store) pub ~)
-    ::
     ``noun+!>(`(map @ux [transaction:smart supported-actions])`our)
+  ::
+      [%metadata @ ~]
+    ::  return (unit) specific metadata from our store
+    =/  found  (~(get by metadata-store) (slav %ux i.t.t.path))
+    ``noun+!>(`(unit asset-metadata)`found)
   ==
 ::
 ++  on-leave  on-leave:def
