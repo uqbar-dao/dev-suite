@@ -532,12 +532,10 @@
       !>  ^-  json
       .^(json %gx (scry:io %indexer (snoc t.t.path %json)))
     ::
-    ::  TODO: scry wallet?
-    ::   first need unified type to cast with scry
-    ::     [%wallet *]
-    ::   :^  ~  ~  %noun
-    ::   !>  ^-  update:ui
-    ::   .^(update:ui %gx (scry:io %indexer (snoc t.t.path %noun)))
+        [%wallet *]
+      :^  ~  ~  %wallet-scry
+      !>  ^-  wallet-scry:w
+      .^(wallet-scry:w %gx (scry:io %wallet (snoc t.t.path %noun)))
     ==
   ::
   ++  on-leave

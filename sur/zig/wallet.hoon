@@ -36,7 +36,7 @@
       %102  ::  102: transaction received by sequencer
       %103  ::  103: failure: transaction rejected by sequencer
       ::
-      ::  200-class refers to codes that come from a completed, processed transaction
+      ::  200-class refers to codes that come from a completed transaction
       ::  informed by egg status codes in smart.hoon
       %200  ::  200: successfully performed
       %201  ::  201: bad signature
@@ -50,13 +50,38 @@
       %209  ::  209: dedicated burn transaction failed
   ==
 ::
+::  noun type that comes from wallet scries, used thru uqbar.hoon
+::
++$  wallet-scry
+  $@  ~
+  $%  [%asset asset]
+      [%metadata asset-metadata]
+      [%account =caller:smart]  ::  tuple of [address nonce zigs-account]
+      [%addresses saved=(set address:smart)]
+      [%signatures sigs=(list [=typed-message:smart =sig:smart])]
+      $:  %unfinished-transaction
+          =transaction:smart
+          action=supported-actions
+      ==
+      $:  %finished-transaction
+          =transaction:smart
+          action=supported-actions
+          =output:eng
+      ==
+  ==
+::
 ::  sent to web interface
 ::
 +$  wallet-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
       [%new-metadata metadata=metadata-store]
-      [%finished-tx hash=@ux =transaction:smart action=supported-actions =output:eng]
       [%tx-status hash=@ux =transaction:smart action=supported-actions]
+      $:  %finished-tx
+          hash=@ux
+          =transaction:smart
+          action=supported-actions
+          =output:eng
+      ==
   ==
 ::
 ::  received from web interface

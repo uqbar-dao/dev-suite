@@ -469,6 +469,62 @@
   ?.  =(%x -.path)  ~
   =,  format
   ?+    +.path  (on-peek:def path)
+  ::
+  ::  noun scries, for other apps
+  ::
+      [%keys ~]
+    ``noun+!>(`wallet-scry`[%addresses ~(key by keys.state)])
+  ::
+      [%account @ @ ~]
+    ::  returns our account for the pubkey and town ID given
+    ::  for validator & sequencer use, to run mill
+    =/  pub  (slav %ux i.t.t.path)
+    =/  town  (slav %ux i.t.t.t.path)
+    =/  nonce  (~(gut by (~(gut by nonces.state) pub ~)) town 0)
+    =+  (hash-data:smart `@ux`'zigs-contract' pub town `@`'zigs')
+    ``noun+!>(`wallet-scry`[%account `caller:smart`[pub nonce -]])
+  ::
+      [%signatures ~]
+    ``noun+!>(`wallet-scry`[%signatures signatures.state])
+  ::
+      [%metadata @ ~]
+    ::  return specific metadata from our store
+    :^  ~  ~  %wallet-scry
+    !>  ^-  wallet-scry
+    ?~  found=(~(get by metadata-store) (slav %ux i.t.t.path))
+      ~
+    [%metadata u.found]
+  ::
+      [%asset @ @ ~]
+    ::  return specific asset from our store
+    ::  held by specific address
+    :^  ~  ~  %wallet-scry
+    !>  ^-  wallet-scry
+    ?~  where=(~(get by tokens) (slav %ux i.t.t.path))
+      ~
+    ?~  found=(~(get by `book`u.where) (slav %ux i.t.t.t.path))
+      ~
+    [%asset u.found]
+  ::
+      [%transaction @ @ ~]
+    ::  find transaction from address by hash
+    ::  look in all stores: pending, unfinished, finished
+    :^  ~  ~  %wallet-scry
+    !>  ^-  wallet-scry
+    =/  address  (slav %ux i.t.t.path)
+    =/  tx-hash  (slav %ux i.t.t.t.path)
+    =/  finished  (~(gut by transaction-store) address ~)
+    ?^  f1=(~(get by finished) tx-hash)
+      [%finished-transaction u.f1]
+    =/  pending  (~(gut by pending-store) address ~)
+    ?^  f2=(~(get by pending) tx-hash)
+      [%unfinished-transaction u.f2]
+    ?~  f3=(find [tx-hash]~ (turn unfinished-transaction-store head))
+      ~
+    [%unfinished-transaction +:(snag u.f3 unfinished-transaction-store)]
+  ::
+  ::  JSON scries, for frontend
+  ::
       [%seed ~]
     =;  =json  ``json+!>(json)
     %-  pairs:enjs
@@ -492,18 +548,6 @@
         |=  [town=@ux nonce=@ud]
         [(scot %ux town) (numb:enjs nonce)]
     ==
-  ::
-      [%keys ~]
-    ``noun+!>(~(key by keys.state))
-  ::
-      [%account @ @ ~]
-    ::  returns our account for the pubkey and town ID given
-    ::  for validator & sequencer use, to run mill
-    =/  pub  (slav %ux i.t.t.path)
-    =/  town  (slav %ux i.t.t.t.path)
-    =/  nonce  (~(gut by (~(gut by nonces.state) pub ~)) town 0)
-    =+  (hash-data:smart `@ux`'zigs-contract' pub town `@`'zigs')
-    ``noun+!>(`caller:smart`[pub nonce -])
   ::
       [%book ~]
     =;  =json  ``json+!>(json)
@@ -543,9 +587,6 @@
         (turn ~(tap by m) transaction-with-output:parsing)
     ==
   ::
-      [%signatures ~]
-    ``noun+!>(signatures.state)
-  ::
       [%pending @ ~]
     ::  return pending store for given pubkey
     =/  pub  (slav %ux i.t.t.path)
@@ -563,11 +604,6 @@
     =/  our=(map @ux [transaction:smart supported-actions])
       (~(gut by pending-store) pub ~)
     ``noun+!>(`(map @ux [transaction:smart supported-actions])`our)
-  ::
-      [%metadata @ ~]
-    ::  return (unit) specific metadata from our store
-    =/  found  (~(get by metadata-store) (slav %ux i.t.t.path))
-    ``noun+!>(`(unit asset-metadata)`found)
   ==
 ::
 ++  on-leave  on-leave:def
