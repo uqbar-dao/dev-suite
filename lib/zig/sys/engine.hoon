@@ -290,9 +290,9 @@
             !(has:big p.chain id.p.item)
             ?:  ?=(%| -.item)
               .=  id
-              (hash-pact:smart source holder.p.item town.p.item code.p.item)
+              (hash-pact:smart [source holder town code]:p.item)
             .=  id
-            (hash-data:smart source holder.p.item town.p.item salt.p.item)
+            (hash-data:smart [source holder town salt]:p.item)
         ==
       ::
         %-  ~(all in burned.diff)

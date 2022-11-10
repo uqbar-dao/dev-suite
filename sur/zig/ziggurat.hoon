@@ -44,7 +44,15 @@
       [%subscribe payload=sub-payload expected=(list test-read-step)]
   ==
 :: +$  dbug-payload  [who=@p app=@tas %state/bowl/???] :: TODO
-+$  scry-payload  [who=@p =mold care=@tas app=@tas =path]
++$  scry-payload
+  ::  if `mold-name` mold in stdlib, `mold-sur` must be `~`.
+  ::  `mold-sur` first element is desk and subsequent are
+  ::   path to the sur file, e.g., to import this file:
+  ::   `mold-sur=/zig/sur/zig/ziggurat/hoon`.
+  ::  whether from stdlib or from imported sur file,
+  ::   `mold-name` is a direct reference, e.g.,
+  ::   `@ud` or, from this file, `test-write-step`.
+  [who=@p mold-sur=path mold-name=@t care=@tas app=@tas =path]
 +$  read-sub-payload  [who=@p =mold care=@tas app=@tas =path]  :: TODO
 :: +$  poke-payload  [who=@p app=@tas payload=cage]
 +$  dojo-payload  [who=@p payload=@t]
@@ -74,8 +82,9 @@
           [%compile-contracts ~]  ::  alterations to project files call %compile-contracts which calls %read-desk which sends a project update; TODO: skip compile when no change?
           [%read-desk ~]
           ::
-          [%add-to-state source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
-          [%delete-from-state =id:smart]
+          [%add-item source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
+          [%update-item =id:smart source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
+          [%delete-item =id:smart]
           ::
           [%add-test name=(unit @t) =test-steps]  ::  name optional
           [%delete-test id=@ux]

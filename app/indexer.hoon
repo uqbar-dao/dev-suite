@@ -146,8 +146,8 @@
     ::   to allow easier setup.
     ::   TODO: Remove hardcode and add a GUI button/
     ::         input menu to setup.
-    =/  testnet-host=@p            ~nec
-    =/  indexer-bootstrap-host=@p  ~nec
+    =/  testnet-host=@p            ~nec  ::  TODO: change back to bacdun
+    =/  indexer-bootstrap-host=@p  ~nec  ::  TODO: change back to dister-dozzod-bacdun
     =/  rollup-dock=dock           [testnet-host %rollup]
     =/  sequencer-dock=dock        [testnet-host %sequencer]
     =/  indexer-bootstrap-dock=dock

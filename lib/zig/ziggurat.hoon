@@ -93,20 +93,23 @@
   :-  %info
   [`@tas`project %& [file %ins %noun !>(`@`(jam non))]~]
 ::
-++  make-save-hoon
+++  make-save-file
   |=  [project=@t file=path text=@t]
   ^-  card
   =/  file-type  (rear file)
+  =/  mym=mime  :-  /application/x-urb-unknown
+    %-  as-octt:mimes:html
+    %+  rash  text
+    (star ;~(pose (cold '\0a' (jest '\0d\0a')) next))
   =-  [%pass /save-wire %arvo %c -]
   :^  %info  `@tas`project  %&
   :_  ~  :+  file  %ins
-  ?:  =(%hoon file-type)
-    [%hoon !>(`@t`text)]
-  =/  reamed-text  q:(slap !>(~) (ream text))
-  ?+  file-type  [%hoon !>(`@t`text)]  :: assume hoon as the default file type
-    %ship    [%ship !>(;;(@p reamed-text))]
-    %bill    [%bill !>(;;((list @tas) reamed-text))]
-    %kelvin  [%kelvin !>(;;([@tas @ud] reamed-text))]
+  =*  reamed-text  q:(slap !>(~) (ream text))  ::  =* in case text unreamable
+  ?+  file-type  [%mime !>(mym)] :: don't need to know mar if we have bytes :^)
+    %hoon        [%hoon !>(text)]
+    %ship        [%ship !>(;;(@p reamed-text))]
+    %bill        [%bill !>(;;((list @tas) reamed-text))]
+    %kelvin      [%kelvin !>(;;([@tas @ud] reamed-text))]
       %docket-0
     =-  [%docket-0 !>((need (from-clauses:mime:dock -)))]
     ;;((list clause:dock) reamed-text)

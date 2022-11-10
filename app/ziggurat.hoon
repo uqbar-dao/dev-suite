@@ -150,7 +150,7 @@
       =.  user-files.project
         (~(put in user-files.project) file.act)
       :_  state(projects (~(put by projects) project.act project))
-      :+  (make-save-hoon [project file text]:act)
+      :+  (make-save-file [project file text]:act)
         (make-compile project.act our.bowl)
       ~
     ::
@@ -230,26 +230,14 @@
       :-  (make-project-update project.act project)^~
       state(projects (~(put by projects) project.act project))
     ::
-        %add-to-state
-      =/  =project  (~(got by projects) project.act)
-      =/  noun-text  ;;(@t noun.act)
+        %add-item
       =/  =id:smart  (hash-data:smart source.act holder.act town-id.act salt.act)
-      =/  =data:smart
-        =+  (text-to-zebra-noun noun-text smart-lib-vase)
-        [id source.act holder.act town-id.act salt.act label.act -]
-      ::  take text data input and ream to form data noun
-      ::  put a new grain in the granary
-      =:  p.chain.project
-        %+  put:big:engine  p.chain.project
-        [id.data %&^data]
-      ::
-          noun-texts.project
-        (~(put by noun-texts.project) id.data noun-text)
-      ==
-      :-  (make-project-update project.act project)^~
-      state(projects (~(put by projects) project.act project))
+      (add-or-update-item project.act %& id +.+.act)
     ::
-        %delete-from-state
+        %update-item
+      (add-or-update-item project.act %& +.+.act)
+    ::
+        %delete-item
       ::  remove a grain from the granary
       =/  =project  (~(got by projects) project.act)
       =.  p.chain.project
@@ -316,7 +304,7 @@
               /delay-test/[project.act]/(scot %ux id.act)
             /(scot %ud rate.act)/(scot %ud bud.act)
           %arvo
-        [%b %wait (add now.bowl ~s1)]
+        [%b %wait (add now.bowl ~s5)]  ::  TODO: unhardcode
       =/  =project  (~(got by projects) project.act)
       =/  =test     (~(got by tests.project) id.act)
       =/  tid=@ta
@@ -439,6 +427,25 @@
         [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
       ~
     ==
+  ++  add-or-update-item
+    |=  [project-id=@t =item:smart]
+    ^-  (quip card _state)
+    ?>  ?=(%& -.item)
+    =,  p.item
+    =/  =project  (~(got by projects) project-id)
+    =/  noun-text  ;;(@t noun)
+    =/  =data:smart
+      =+  (text-to-zebra-noun noun-text smart-lib-vase)
+      [id source holder town salt label -]
+    =:  p.chain.project
+      %+  put:big:engine  p.chain.project
+      [id.data %&^data]
+    ::
+        noun-texts.project
+      (~(put by noun-texts.project) id.data noun-text)
+    ==
+    :-  (make-project-update project-id project)^~
+    state(projects (~(put by projects) project-id project))
   --
 ::
 ++  on-agent
@@ -494,7 +501,7 @@
       :_  ~
       ?.  is-ready.test-master
         ::  delay until test-master is-ready
-        [%pass wire %arvo [%b %wait (add now.bowl ~s5)]]
+        [%pass wire %arvo [%b %wait (add now.bowl ~s5)]]  ::  TODO: unhardcode
       =*  project  i.t.wire
       =*  id       (slav %ux i.t.t.wire)
       =*  rate     (slav %ud i.t.t.t.wire)
@@ -559,8 +566,7 @@
     =/  des=@ta    i.t.t.path
     =/  pat=^path  `^path`t.t.t.path
     =/  pre=^path  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
-    =/  res        .^(? %cu (weld pre pat))
-    ``json+!>(`json`[%b res])
+    ``json+!>(`json`[%b .^(? %cu (weld pre pat))])
   ::
   ::  APP-PROJECT JSON
   ::
@@ -568,14 +574,20 @@
     =/  des=@ta    i.t.t.path
     =/  pat=^path  `^path`t.t.t.path
     =/  pre  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
+    =/  padh  (weld pre pat)
+    =/  =mark  (rear pat)
     :^  ~  ~  %json  !>
     ^-  json
     :-  %s
-    ?+  (rear pat)  .^(@t %cx (weld pre pat)) :: assume hoon as the default file type
-      %kelvin  (crip ~(ram re (cain !>(.^([@tas @ud] %cx (weld pre pat))))))
-      %ship  (crip ~(ram re (cain !>(.^(@p %cx (weld pre pat))))))
-      %bill  (crip ~(ram re (cain !>(.^((list @tas) %cx (weld pre pat))))))
-      %docket-0  (crip (spit-docket:mime:dock .^(docket:dock %cx (weld pre pat))))
+    ?+    mark  =-  q.q.-
+        !<(mime (.^(tube:clay %cc (weld pre /[mark]/mime)) .^(vase %cr padh)))
+      %hoon    .^(@t %cx padh)
+      %kelvin  (crip ~(ram re (cain !>(.^([@tas @ud] %cx padh)))))
+      %ship    (crip ~(ram re (cain !>(.^(@p %cx padh)))))
+      %bill    (crip ~(ram re (cain !>(.^((list @tas) %cx padh)))))
+        %docket-0
+      =-  (crip (spit-docket:mime:dock -))
+      .^(docket:dock %cx padh)
     ==
   ==
 ::

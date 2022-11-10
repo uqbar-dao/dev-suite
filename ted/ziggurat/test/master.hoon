@@ -38,6 +38,7 @@
   ;<  our=@p  bind:m  get-our
   ;<  ~  bind:m  (watch-our /effect %pyro /effect)
   ;<  ~  bind:m  (init-ships ships)
+  ;<  ~  bind:m  (send-hi:pyio ~nec ~bud)
   ;<  ~  bind:m
     %+  poke-our  %ziggurat
     :-  %ziggurat-action
