@@ -174,7 +174,7 @@
   ==
 ::
 ::  EIP-712 mold for offchain data signing
-::  :domain rice that this message will modify
+::  :domain pact that this message will modify
 ::  :type is the +sham of the message type jold
 ::  :message the noun being signed
 +$  typed-message  [domain=id type=@ux message=*]
