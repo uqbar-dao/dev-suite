@@ -1,12 +1,11 @@
-/-  pyro,
-    spider,
+/-  spider,
     zig=zig-ziggurat
 /+  strandio,
-    pyio=py-io
+    pyio=py-io,
+    test=zig-ziggurat-test
 ::
 =*  strand     strand:spider
 =*  get-bowl   get-bowl:strandio
-=*  poke-our   poke-our:strandio
 =*  scry       scry:strandio
 =*  sleep      sleep:strandio
 =*  watch-our  watch-our:strandio
@@ -35,9 +34,6 @@
   ^-  form:m
   ;<  ~  bind:m
     (dojo:pyio who.payload (trip payload.payload))
-  ;<  ~  bind:m
-    %+  send-hi:pyio  who.payload
-    ?:(=(~nec who.payload) ~nec ~bud)
   (pure:m ~)
 ::
 ++  send-pyro-scry
@@ -76,9 +72,6 @@
         " "
         (trip payload.payload)
     ==
-  ;<  ~  bind:m
-    %+  send-hi:pyio  who.payload
-    ?:(=(~nec who.payload) ~nec ~bud)
   (pure:m ~)
 ::
 ++  build-scry-mold
@@ -89,22 +82,6 @@
   ;<  mold-sur=vase  bind:m  (scry vase [%ca mold-sur-path])
   (pure:m (slap mold-sur (ream mold-name)))
 ::
-++  take-snapshot
-  |=  $:  step=@ud
-          for-snapshot=(unit [project=@t ships=(list @p)])
-      ==
-  =/  m  (strand ,~)
-  ^-  form:m
-  ?~  for-snapshot  (pure:m ~)
-  =*  project  project.u.for-snapshot
-  =*  ships    ships.u.for-snapshot
-  ;<  ~  bind:m
-    %+  poke-our  %pyro
-    :-  %action
-    !>  ^-  pyro-action:pyro
-    [%snap-ships /[project]/(scot %ud step) ships]
-  (pure:m ~)
-::
 ++  run-steps
   |=  [=test-steps:zig for-snapshot=(unit [@t (list @p)])]
   =/  m  (strand ,test-results:zig)
@@ -112,7 +89,14 @@
   =|  =test-results:zig
   =|  step-number=@ud
   |-
-  ;<  ~  bind:m  (take-snapshot step-number for-snapshot)
+  ;<  ~  bind:m
+    ?~(for-snapshot (pure:(strand ,~) ~) (sleep ~s1))  :: TODO: unhardcode; tune time to allow previous step to continue processing
+  ;<  ~  bind:m
+    ?~  for-snapshot  (pure:(strand ,~) ~)
+    (block-on-previous-step:test ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
+  ;<  ~  bind:m
+    ?~  for-snapshot  (pure:(strand ,~) ~)
+    (take-snapshot:test step-number for-snapshot)
   ?~  test-steps  (pure:m (flop test-results))
   =*  test-step   i.test-steps
   ?-    -.test-step

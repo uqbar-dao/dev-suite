@@ -1,7 +1,8 @@
 /-  spider,
     zig=zig-ziggurat
 /+  strandio,
-    pyio=py-io
+    pyio=py-io,
+    test=zig-ziggurat-test
 ::
 =*  strand  strand:spider
 =*  get-our    get-our:strandio
@@ -38,7 +39,9 @@
   ;<  our=@p  bind:m  get-our
   ;<  ~  bind:m  (watch-our /effect %pyro /effect)
   ;<  ~  bind:m  (init-ships ships)
-  ;<  ~  bind:m  (send-hi:pyio ~nec ~bud)
+  ;<  ~  bind:m  (block-on-previous-step:test ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
+  ;<  ~  bind:m
+    (take-snapshot:test 0 `[%initial-ships ships])
   ;<  ~  bind:m
     %+  poke-our  %ziggurat
     :-  %ziggurat-action

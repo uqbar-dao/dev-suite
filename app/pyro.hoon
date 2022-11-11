@@ -128,18 +128,20 @@
       !>
       %-  ~(run by u.fleet)
       |=  p=pier
-      =/  jam-snap=@  (jam snap.p)
-      :^  (mug jam-snap)  (met 3 jam-snap)
-      (lent event-log.p)  (met 3 (jam event-log.p))
+      [(lent event-log.p) ~(wyt in next-events.p)]
+    ::
+        [%x %is-next-events-empty ~]
+      :^  ~  ~  %noun
+      !>   ^-  ?
+      %+  levy  ~(val by piers)
+      |=([p=pier] =(0 ~(wyt in next-events.p)))
     ::
         [%x %events ~]
       :^  ~  ~  %noun
       !>
       %-  ~(run by piers)
       |=  p=pier
-      =/  jam-snap=@  (jam snap.p)
-      :^  (mug jam-snap)  (met 3 jam-snap)
-      (lent event-log.p)  (met 3 (jam event-log.p))
+      [(lent event-log.p) ~(wyt in next-events.p)]
     ::
         [%x %fleet-ships ^]
       =+  sips=(~(get by fleet-snaps) t.t.path)
@@ -221,6 +223,7 @@
     |=  ues=(list unix-event)
     ^+  ..abet-pe
     =.  next-events  (~(gas to next-events) ues)
+    :: ~&  %pyro-push^[who now.hid log=(lent event-log.pier-data) new=~(wyt in next-events.pier-data)]^.^((map @p (unit @da)) %gx /(scot %p our.hid)/pyre/(scot %da now.hid)/behn-piers/noun)
     ..abet-pe
   ::
   ::  Send cards to host arvo

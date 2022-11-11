@@ -173,8 +173,8 @@ An alternative to `send-nec`:
 
 To interact with snapshots:
 ```hoon
-:pyro &action [%snap-ships %test-0 ~[~nec ~bud]]
-:pyro &action [%restore-snap %pre-setup]
-:pyro &action [%clear-snap %pre-setup]
+:pyro &action [%snap-ships /foo/bar ~[~nec ~bud]]
+:pyro &action [%restore-snap /foo/bar]
+:pyro &action [%clear-snap /foo/bar]
 ```
-
+where the `/foo/bar` here is just a `path` label of the snapshot.
