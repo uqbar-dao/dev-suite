@@ -119,9 +119,9 @@
     ^-  (unit (unit cage))
     ?+    path  ~
         [%x %fleet-snap ^]  ``noun+!>((~(has by fleet-snaps) t.t.path))
-        [%x %fleets ~]        ``noun+!>(~(key by fleet-snaps))
-        [%x %ships ~]         ``noun+!>(~(key by piers))
-        [%x %pill ~]          ``pill+!>(pil)
+        [%x %fleets ~]      ``noun+!>(~(key by fleet-snaps))
+        [%x %ships ~]       ``noun+!>(~(key by piers))
+        [%x %pill ~]        ``pill+!>(pil)
         [%x %fleet-sizes ^]
       ?~  fleet=(~(get by fleet-snaps) t.t.path)  ~
       :^  ~  ~  %noun

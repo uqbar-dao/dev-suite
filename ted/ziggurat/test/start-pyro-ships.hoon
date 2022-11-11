@@ -30,7 +30,7 @@
   =/  args  !<((unit arg-mold) args-vase)
   ?~  args
     ~&  >>>  "Usage:"
-    ~&  >>>  "-zig!ziggurat-test-master project=@t (list ship)"
+    ~&  >>>  "-zig!ziggurat-test-start-pyro-ships project=@t (list ship)"
     (pure:m !>(~))
   =*  project  project.u.args
   =*  ships    ships.u.args
@@ -42,7 +42,7 @@
   ;<  ~  bind:m
     %+  poke-our  %ziggurat
     :-  %ziggurat-action
-    !>(`action:zig`project^[%ready-test-master ~])
+    !>(`action:zig`project^[%ready-pyro-ships ~])
   ;<  =cage  bind:m
     (watch-one /pyro-done [our %ziggurat] /pyro-done)
   (pure:m !>(`~`~))

@@ -92,9 +92,10 @@
           [%run-test id=@ux rate=@ud bud=@ud]
           [%run-tests tests=(list [id=@ux rate=@ud bud=@ud])]  :: each one run with same gas
           ::
-          [%start-test-master ships=(unit (list @p))]
-          [%ready-test-master ~]
-          [%stop-test-master ~]
+          [%ready-pyro-ships ~]
+          [%stop-pyro-ships ~]
+          [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> [~nec ~bud]
+          [%load-pyro-snapshot =path]
           ::
           [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
           $:  %deploy-contract

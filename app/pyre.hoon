@@ -55,7 +55,7 @@
       =+  ef=!<([aqua-effect] q.cage.sign)
       ?+    -.q.ufs.ef  (on-agent:def wire sign)
           %restore  [(restore:ames:hc who.ef) this]
-          %send     [(send:ames:hc now.bowl who.ef ufs.ef) this]
+          %send     ~&  %ames-send-to^who.ef  [(send:ames:hc now.bowl who.ef ufs.ef) this]
       ==
     ==
   ::

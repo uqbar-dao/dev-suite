@@ -17,7 +17,7 @@
 +$  state-0
   $:  %0
       =projects
-      test-master=[tid=@ta is-ready=?]
+      pyro-ships=[tid=@ta is-ready=?]
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
 +$  eng  $_  ~(engine engine:engine !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
@@ -295,8 +295,8 @@
       :: state(projects (~(put by projects) project.act project))
     ::
         %run-test
-      ?.  is-ready.test-master
-        ::  delay until test-master is-ready
+      ?.  is-ready.pyro-ships
+        ::  delay until pyro-ships is-ready
         :_  state
         :_  ~
         :^    %pass
@@ -320,7 +320,8 @@
         :-  ~
         :^  `tid  byk.bowl(r da+now.bowl)
           %ziggurat-test-run
-        !>(`(unit test-steps)``steps.test)
+        !>  ^-  (unit [test-steps (unit [@t (list @p)])])
+        `[steps.test `[project.act ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
       =/  w=wire  /test/[project.act]/(scot %ux id.act)/[tid]
       :_  state
       :+  :^  %pass  w  %agent
@@ -358,40 +359,60 @@
       :: :-  (make-multi-test-update project.act res)^~
       :: state(projects (~(put by projects) project.act project))
     ::
-        %start-test-master
-      ?.  =('' tid.test-master)
-        ~|("%ziggurat: stop current test-master before starting new one" !!)
+        %ready-pyro-ships
+      ?:  =('' tid.pyro-ships)
+        ~|("%ziggurat: %start-pyro-ships or %load-pyro-snapshot before signaling ready" !!)
+      `state(is-ready.pyro-ships %.y)
+    ::
+        %stop-pyro-ships
+      :_  state(pyro-ships ['' %.n])
+      :+  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
+        [%give %kick [/pyro-done]~ ~]
+      ~
+    ::
+        %start-pyro-ships
+      ?.  =('' tid.pyro-ships)
+        ~|("%ziggurat: %stop-pyro-ships before starting new one" !!)
       =/  =project  (~(got by projects) project.act)
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
             project.act
-            '-pyro-vanes-'
+            '-start-pyro-ships-'
             (scot %uw (sham eny.bowl))
         ==
       =/  =start-args:spider
         :-  ~
         :^  `tid  byk.bowl(r da+now.bowl)
-          %ziggurat-test-master
+          %ziggurat-test-start-pyro-ships
         !>  ^-  (unit [@t (list @p)])
-        ?^  ships.act  [~ project.act u.ships.act]
-        [~ project.act ~[~nec ~bud]]
-        :: [~ project.act ~[~nec ~bud ~wes]]
-      :_  state(test-master [tid %.n])
+        ?^  ships.act  [~ project.act ships.act]
+        [~ project.act ~[~nec ~bud]]  ::  TODO: remove hardcode?
+      :_  state(pyro-ships [tid %.n])
       :_  ~
       :^  %pass  /pyro-vanes  %agent
       [[our.bowl %spider] %poke %spider-start !>(start-args)]
     ::
-        %ready-test-master
-      ?:  =('' tid.test-master)
-        ~|("%ziggurat: start-test-master before signaling ready" !!)
-      `state(is-ready.test-master %.y)
-    ::
-        %stop-test-master
-      :_  state(test-master ['' %.n])
-      :+  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
-        [%give %kick [/pyro-done]~ ~]
-      ~
+        %load-pyro-snapshot
+      ?.  =('' tid.pyro-ships)
+        ~|("%ziggurat: %stop-pyro-ships before starting new one" !!)
+      =/  =project  (~(got by projects) project.act)
+      =/  tid=@ta
+        %+  rap  3
+        :~  'ted-'
+            project.act
+            '-load-pyro-snapshot-'
+            (scot %uw (sham eny.bowl))
+        ==
+      =/  =start-args:spider
+        :-  ~
+        :^  `tid  byk.bowl(r da+now.bowl)
+          %ziggurat-test-load-pyro-snapshot
+        !>(`(unit [@t path])`[~ project.act path.act])
+      :_  state(pyro-ships [tid %.n])
+      :_  ~
+      :^  %pass  /pyro-vanes  %agent
+      [[our.bowl %spider] %poke %spider-start !>(start-args)]
     ::
         %deploy-contract  ::  TODO
       !!
@@ -499,8 +520,8 @@
       ~&  %delay-test
       :_  this
       :_  ~
-      ?.  is-ready.test-master
-        ::  delay until test-master is-ready
+      ?.  is-ready.pyro-ships
+        ::  delay until pyro-ships is-ready
         [%pass wire %arvo [%b %wait (add now.bowl ~s5)]]  ::  TODO: unhardcode
       =*  project  i.t.wire
       =*  id       (slav %ux i.t.t.wire)
