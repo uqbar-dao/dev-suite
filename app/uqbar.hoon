@@ -533,9 +533,9 @@
       .^(json %gx (scry:io %indexer (snoc t.t.path %json)))
     ::
         [%wallet *]
-      :^  ~  ~  %wallet-scry
-      !>  ^-  wallet-scry:w
-      .^(wallet-scry:w %gx (scry:io %wallet (snoc t.t.path %noun)))
+      :^  ~  ~  %wallet-update
+      !>  ^-  wallet-update:w
+      .^(wallet-update:w %gx (scry:io %wallet (snoc t.t.path %noun)))
     ==
   ::
   ++  on-leave

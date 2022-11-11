@@ -52,7 +52,7 @@
 ::
 ::  noun type that comes from wallet scries, used thru uqbar.hoon
 ::
-+$  wallet-scry
++$  wallet-update
   $@  ~
   $%  [%asset asset]
       [%metadata asset-metadata]
@@ -72,7 +72,7 @@
 ::
 ::  sent to web interface
 ::
-+$  wallet-update
++$  wallet-frontend-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
       [%new-metadata metadata=metadata-store]
       [%tx-status hash=@ux =transaction:smart action=supported-actions]

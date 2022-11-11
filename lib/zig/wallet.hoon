@@ -12,14 +12,14 @@
 ++  tx-update-card
   |=  in=[@ux transaction:smart supported-actions]
   ^-  card
-  =+  `wallet-update`[%tx-status in]
-  [%give %fact ~[/tx-updates] %wallet-update !>(-)]
+  =+  `wallet-frontend-update`[%tx-status in]
+  [%give %fact ~[/tx-updates] %wallet-frontend-update !>(-)]
 ::
 ++  finished-tx-update-card
   |=  in=[@ux transaction:smart supported-actions output:eng]
   ^-  card
-  =+  `wallet-update`[%finished-tx in]
-  [%give %fact ~[/tx-updates] %wallet-update !>(-)]
+  =+  `wallet-frontend-update`[%finished-tx in]
+  [%give %fact ~[/tx-updates] %wallet-frontend-update !>(-)]
 ::
 ++  get-sent-history
   |=  [=address:smart newest=? our=@p now=@da]
