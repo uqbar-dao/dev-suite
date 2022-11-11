@@ -105,7 +105,7 @@
     %-  pairs
     :^    [%town-id %s (scot %ux town-id.location)]
         [%batch-id %s (scot %ux batch-id.location)]
-      [%transaction-num (numb transaction-num.location)]
+      [%transaction-num [%s (scot %ud transaction-num.location)]]
     ~
   ::
   ++  batches
@@ -199,8 +199,8 @@
     |=  =output:eng
     ^-  json
     %-  pairs
-    :~  [%gas (numb gas.output)]
-        [%errorcode (numb errorcode.output)]
+    :~  [%gas [%s (scot %ud gas.output)]]
+        [%errorcode [%s (scot %ud errorcode.output)]]
         :: [%errorcode %s errorcode.output]
         [%modified (state modified.output)]
         [%burned (state burned.output)]
@@ -231,10 +231,10 @@
     :~  [%caller (caller caller.shell)]
         [%eth-hash (eth-hash eth-hash.shell)]
         [%contract %s (scot %ux contract.shell)]
-        [%rate (numb rate.gas.shell)]
-        [%budget (numb bud.gas.shell)]
+        [%rate [%s (scot %ud rate.gas.shell)]]
+        [%budget [%s (scot %ud bud.gas.shell)]]
         [%town-id %s (scot %ux town.shell)]
-        [%status (numb status.shell)]
+        [%status [%s (scot %ud status.shell)]]
     ==
   ::
   ++  calldata
@@ -248,7 +248,7 @@
     ^-  json
     %-  pairs
     :^    [%id %s (scot %ux address.caller)]
-        [%nonce (numb nonce.caller)]
+        [%nonce [%s (scot %ud nonce.caller)]]
       [%zigs %s (scot %ux zigs.caller)]
     ~
   ::
@@ -258,7 +258,7 @@
   ::   %-  pairs
   ::   :^    [%hash %s (scot %ux p.signature)]
   ::       [%ship %s (scot %p q.signature)]
-  ::     [%life (numb r.signature)]
+  ::     [%life [%s (scot %ud r.signature)]]
   ::   ~
   ::
   ++  eth-hash
@@ -309,7 +309,7 @@
       ?:  ?=(%& -.item)
         ::  data
         :~  [%is-data %b %&]
-            [%salt (numb salt.p.item)]
+            [%salt [%s (scot %ud salt.p.item)]]
             [%label %s `@ta`label.p.item]
             :-  %noun
             %+  frond  label.p.item
@@ -322,7 +322,7 @@
         ==
       ::  wheat
       :~  [%is-data %b %|]
-          [%cont (numb 0)]
+          [%cont [%s (scot %ud 0)]]
           [%interface (tas-to-json interface.p.item)]
           [%types (tas-to-json types.p.item)]
       ==
@@ -364,7 +364,7 @@
     %+  turn  ~(tap by nonces)
     ::  TODO: either print Pedersen hash or don't store it
     |=  [=id:smart pedersen=@ux nonce=@ud]
-    [(scot %ux id) (numb nonce)]
+    [(scot %ux id) [%s (scot %ud nonce)]]
   ::
   ++  hall
     |=  =hall:seq
@@ -425,9 +425,9 @@
     |=  =sig:smart
     ^-  json
     %-  pairs
-    :^    [%v (numb v.sig)]
-        [%r (numb r.sig)]
-      [%s (numb s.sig)]
+    :^    [%v [%s (scot %ud v.sig)]]
+        [%r [%s (scot %ud r.sig)]]
+      [%s [%s (scot %ud s.sig)]]
     ~
   ::
   ++  batch-order
