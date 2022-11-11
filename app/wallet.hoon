@@ -193,14 +193,14 @@
         %sign-typed-message
       :: XX display something to the user using the type jold
       =/  keypair  (~(got by keys.state) from.act)
-      =/  hash     (sham typed-message.act)
+      =/  =typed-message:smart  [domain.act `@ux`(sham type.act) msg.act]    
       =/  signature
         ?~  priv.keypair
           !!  ::  put it into some temporary thing for cold storage. Make it pending
         %+  ecdsa-raw-sign:secp256k1:secp:crypto
-          hash
+          (sham typed-message)
         u.priv.keypair
-      `state(signatures [[typed-message.act signature] signatures])
+      `state(signatures [[typed-message signature] signatures])
     ::
         %set-nonce  ::  for testing/debugging
       =+  acc=(~(gut by nonces.state) address.act ~)
