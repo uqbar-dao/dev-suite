@@ -191,10 +191,8 @@
       `state(keys (~(put by keys) address.act [- nick.act]))
     ::
         %sign-typed-message
+      :: XX display something to the user using the type jold
       =/  keypair  (~(got by keys.state) from.act)
-      ::  does nothing but crash if the mold doesn't fit the message
-      =.  message.typed-message.act
-        (type:typed-message.act message.typed-message.act)
       =/  hash     (sham typed-message.act)
       =/  signature
         ?~  priv.keypair
