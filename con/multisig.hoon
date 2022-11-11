@@ -59,7 +59,7 @@
       [multisig.act calls.act (lent executed.noun.multisig) deadline.act]
     ?>  %+  levy  ~(tap py sigs.act)
         |=  [=id =sig]
-        (verify-ecdsa-signed typed-message sig id)
+        =((recover typed-message sig) id)
     ::  add to call history
     =.  executed.noun.multisig
       [`@ux`(sham typed-message) executed.noun.multisig]

@@ -231,7 +231,7 @@
         :+  (hash-data this.context holder.giver town.context salt.giver)
           pull-jold-hash
         [holder.giver to.act amount.act nonce.act deadline.act]
-    ?>  (verify-ecdsa-signed typed-message sig.act holder.giver)
+    ?>  =((recover typed-message sig.act) holder.giver)
     ::  assert nonce is valid
     =+  (~(gut by nonces.noun.giver) to.act 0)
     ?>  .=(nonce.act -)

@@ -179,10 +179,9 @@
 ::  :message the noun being signed
 +$  typed-message  [domain=id type=@ux message=*]
 ::
-++  verify-ecdsa-signed
-  |=  [=typed-message =sig who=id]
-  ^-  ?
-  =-  =(who -)
+++  recover
+  |=  [=typed-message =sig]
+  ^-  id
   %-  address-from-pub
   %-  serialize-point:secp256k1:secp:crypto
   (ecdsa-raw-recover:secp256k1:secp:crypto (sham typed-message) sig)
