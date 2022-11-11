@@ -174,7 +174,10 @@
   ==
 ::
 ::  EIP-712 mold for offchain data signing
-+$  typed-message  [domain=id type=json message=*]
+::  :domain rice that this message will modify
+::  :type is the +sham of the message type jold
+::  :message the noun being signed
++$  typed-message  [domain=id type=@ux message=*]
 ::
 ++  verify-ecdsa-signed
   |=  [=typed-message =sig who=id]

@@ -36,28 +36,26 @@
 ::
 ++  lib
   |%
-  ++  execute-jold
-    :: XX this is wrong. Use de-json
-    :: '[{"multisig": "ux"},{"calls": ["list", [{"contract": "ux"},{"town": "ux"},{"calldata": [{"p": "tas"}, {"q": "*"}]}]]},{"nonce": "ud"},{"deadline": "ud"}]'
-
-    ^-  json
-    :-  %a
-    :~  [%o p=[[p='multisig' q=[%s p='ux']] ~ ~]]
-        :-  %o  :+
-        :-  'calls'
-        :-  %a
-        :~  [%s p='list']
-            :-  %a
-            :~
-              [%o p=[[p='contract' q=[%s p='ux']] ~ ~]]
-              [%o p=[[p='town' q=[%s p='ux']] ~ ~]]
-              [%o p=[[p='calldata' q=[%a p=~[[%o p=[[p='p' q=[%s p='tas']] ~ ~]]]]] ~ ~]]
-              [%o p=[[p='q' q=[%s p='*']] ~ ~]]
-            ==
-        ==
-        ~  ~
-        [%o p=[[p='nonce' q=[%s p='ud']] ~ ~]]
-        [%o p=[[p='deadline' q=[%s p='ud']] ~ ~]]
-    ==
+  ++  execute-jold-hash  0x1bdb.45ec.612a.7371.4ce8.f462.0108.5ab7
+    :: ^-  @ux
+    :: %-  sham
+    :: %-  need
+    :: %-  de-json:html
+    :: ^-  cord
+    :: '''
+    :: [
+    ::   {"multisig": "ux"},
+    ::   {"calls": [
+    ::     "list",
+    ::     [
+    ::       {"contract": "ux"},
+    ::       {"town": "ux"},
+    ::       {"calldata": [{"p": "tas"}, {"q": "*"}]}
+    ::     ]
+    ::   ]},
+    ::   {"nonce": "ud"},
+    ::   {"deadline": "ud"}
+    :: ]
+    :: '''
   --
 --

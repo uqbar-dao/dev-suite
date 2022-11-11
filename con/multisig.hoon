@@ -55,7 +55,7 @@
     ::  assert signatures are correct
     =/  =typed-message
       :+  (hash-data this.context this.context town.context 0)
-        execute-jold:lib
+        execute-jold-hash:lib
       [multisig.act calls.act (lent executed.noun.multisig) deadline.act]
     ?>  %+  levy  ~(tap py sigs.act)
         |=  [=id =sig]
