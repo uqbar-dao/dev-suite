@@ -417,8 +417,10 @@
       $(unfinished t.unfinished, still-looking [i.unfinished still-looking])
     ::  put latest version of tx into transaction-store
     =/  updated
-      =+  (~(got by transactions.tx-latest) hash.i.unfinished)
-      [hash.i.unfinished transaction.- action.i.unfinished output.-]
+      =+  found=(~(got by transactions.tx-latest) hash.i.unfinished)
+      ::  add 200 to finished status code to get wallet status equivalent
+      =.  status.transaction.found  (add 200 status.transaction.found)
+      [hash.i.unfinished transaction.found action.i.unfinished output.found]
     %=  $
       unfinished  t.unfinished
       cards       [(finished-tx-update-card updated) cards]
