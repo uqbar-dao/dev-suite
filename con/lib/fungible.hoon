@@ -199,12 +199,23 @@
     [who.act town.context [%on-push id.caller.context amount.act calldata.act]]~
     
   ::
-  ++  pull-mold
-    $:  from=id
-        to=address
-        amount=@ud
-        nonce=@ud
-        deadline=@ud
+  ++  pull-jold
+    :: XX use de-json if it's added to smart.hoon
+    :: [
+    ::   {"from": "ux"},
+    ::   {"to": "ux"},
+    ::   {"amount": "ud"},
+    ::   {"nonce": "ud"},
+    ::   {"deadline": "ud"}
+    :: ]
+    ^-  json
+    :-  %a
+    :~
+        [%o p=[[p='from' q=[%s p='ux']]] ~ ~]
+        [%o p=[[p='to' q=[%s p='ux']]] ~ ~]
+        [%o p=[[p='amount' q=[%s p='ud']]] ~ ~]
+        [%o p=[[p='nonce' q=[%s p='ud']]] ~ ~]
+        [%o p=[[p='deadline' q=[%s p='ud']]] ~ ~]
     ==
   ::
   ++  pull
@@ -221,7 +232,7 @@
     ::  verify signature is correct
     =/  =typed-message
         :+  (hash-data this.context holder.giver town.context salt.giver)
-          pull-mold
+          pull-jold
         [holder.giver to.act amount.act nonce.act deadline.act]
     ?>  (verify-ecdsa-signed typed-message sig.act holder.giver)
     ::  assert nonce is valid

@@ -5,7 +5,7 @@
   ::  calls is hashed to form proposal's key in pending map
   ::  this hash is used to vote on that proposal
   +$  proposal
-    $:  calls=(list [to=id town=id =calldata])
+    $:  calls=(list call)
         votes=(pmap address ?)
         ayes=@ud
         nays=@ud
@@ -22,10 +22,10 @@
     $%  ::  called once to initialize multisig
         [%create threshold=@ud members=(pset address)]
         ::
-        [%execute multisig=id sigs=(pmap id sig) calls=(list [to=id town=id =calldata]) deadline=@ud]
+        [%execute multisig=id sigs=(pmap id sig) calls=(list call) deadline=@ud]
         ::
         [%vote multisig=id proposal-hash=@ux aye=?]
-        [%propose multisig=id calls=(list [to=id town=id =calldata])]
+        [%propose multisig=id calls=(list call)]
         ::  the following must be sent by the contract, which means
         ::  that they can only be executed by a successful proposal!
         [%add-member multisig=id =address]
@@ -36,14 +36,28 @@
 ::
 ++  lib
   |%
-  ++  execute-mold
-    :: TODO  gas price
-    ::       gas limit
-    ::       refund receiver
-    $:  multisig=id
-        calls=(list [to=id town=id =calldata])
-        nonce=@ud
-        deadline=@ud
+  ++  execute-jold
+    :: XX this is wrong. Use de-json
+    :: '[{"multisig": "ux"},{"calls": ["list", [{"contract": "ux"},{"town": "ux"},{"calldata": [{"p": "tas"}, {"q": "*"}]}]]},{"nonce": "ud"},{"deadline": "ud"}]'
+
+    ^-  json
+    :-  %a
+    :~  [%o p=[[p='multisig' q=[%s p='ux']] ~ ~]]
+        :-  %o  :+
+        :-  'calls'
+        :-  %a
+        :~  [%s p='list']
+            :-  %a
+            :~
+              [%o p=[[p='contract' q=[%s p='ux']] ~ ~]]
+              [%o p=[[p='town' q=[%s p='ux']] ~ ~]]
+              [%o p=[[p='calldata' q=[%a p=~[[%o p=[[p='p' q=[%s p='tas']] ~ ~]]]]] ~ ~]]
+              [%o p=[[p='q' q=[%s p='*']] ~ ~]]
+            ==
+        ==
+        ~  ~
+        [%o p=[[p='nonce' q=[%s p='ud']] ~ ~]]
+        [%o p=[[p='deadline' q=[%s p='ud']] ~ ~]]
     ==
   --
 --

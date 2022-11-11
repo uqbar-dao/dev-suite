@@ -174,7 +174,7 @@
   ==
 ::
 ::  EIP-712 mold for offchain data signing
-+$  typed-message  [domain=id type=mold message=*]
++$  typed-message  [domain=id type=json message=*]
 ::
 ++  verify-ecdsa-signed
   |=  [=typed-message =sig who=id]
