@@ -76,7 +76,6 @@
   |^
   ?.  ?=(%sequencer-town-action mark)
     ~|("%sequencer: error: got erroneous %poke" !!)
-  ?>  (allowed-participant [src our now]:bowl)
   =^  cards  state
     (handle-poke !<(town-action vase))
   [cards this]
