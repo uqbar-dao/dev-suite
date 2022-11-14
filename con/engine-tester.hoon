@@ -141,6 +141,13 @@
     :~  [this.context town.context [%just-modify dummy.act]]
         [this.context town.context [%read-modified dummy.act]]
     ==
+  ::
+      [%call-crash ~]
+    :_  (result ~ ~ ~ ~)
+    [this.context town.context [%crash ~]]~
+  ::
+      [%crash ~]
+    !!
   ==
 ::
 ++  read

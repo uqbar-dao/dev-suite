@@ -110,14 +110,14 @@
       ::
       =/  =context:smart
         [contract.tx [- +<]:caller.tx batch-num eth-block-height town-id]
-      =/  [mov=(unit move) gas=@ud =errorcode:smart]
+      =/  [mov=(unit move) gas-remaining=@ud =errorcode:smart]
         (combust code.p.u.pac context calldata.tx bud.gas.tx)
       ::
-      ?~  mov  (exhaust gas errorcode ~)
+      ?~  mov  (exhaust gas-remaining errorcode ~)
       =*  calls  -.u.mov
       =*  diff   +.u.mov
       ?.  (clean diff contract.tx zigs.caller.tx)
-        (exhaust gas %7 ~)
+        (exhaust gas-remaining %7 ~)
       =/  all-diffs   (uni:big changed.diff issued.diff)
       =/  all-burns   burned.diff
       =/  all-events=(list contract-event)
@@ -127,7 +127,7 @@
       |-  ::  INNER loop for handling continuations
       ?~  calls
         ::  diff-only result, finished calling
-        (exhaust gas %0 `[all-diffs all-burns all-events])
+        (exhaust gas-remaining %0 `[all-diffs all-burns all-events])
       =.  p.chain
         %+  dif:big
           %+  uni:big  p.chain
@@ -144,7 +144,7 @@
         ::
             tx
           %=  tx
-            bud.gas         gas
+            bud.gas         gas-remaining
             address.caller  contract.tx
             contract        contract.i.calls
             calldata        calldata.i.calls
@@ -152,13 +152,13 @@
         ==
       ::
       ?.  ?=(%0 errorcode.inter)
-        (exhaust gas.inter errorcode.inter ~)
+        (exhaust (sub gas-remaining gas.inter) errorcode.inter ~)
       %=  $
-        calls       t.calls
-        gas         (sub gas gas.inter)
-        all-diffs   (uni:big all-diffs modified.inter)
-        all-burns   (uni:big all-burns burned.inter)
-        all-events  (weld all-events events.inter)
+        calls          t.calls
+        gas-remaining  (sub gas-remaining gas.inter)
+        all-diffs      (uni:big all-diffs modified.inter)
+        all-burns      (uni:big all-burns burned.inter)
+        all-events     (weld all-events events.inter)
       ==
     ::
     ::  +exhaust: prepare final diff for entire call, including all
