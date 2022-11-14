@@ -53,14 +53,6 @@
         nonces=(pmap address @ud)      ::  necessary for gasless approves
     ==
   ::
-  +$  approval
-    $:  from=id       ::  pubkey giving
-        to=address    ::  pubkey permitted to take
-        amount=@ud    ::  how many tokens the taker can take
-        nonce=@ud     ::  current nonce of the giver
-        deadline=@ud  ::  how long this approve is valid
-    ==
-  ::
   ::  patterns of arguments supported by this contract
   ::  "action" in input must fit one of these molds
   ::
@@ -199,14 +191,21 @@
     [who.act town.context [%on-push id.caller.context amount.act calldata.act]]~
     
   ::
-  ++  pull-type-hash
-    %-  sham
-    $:  from=id
-        to=address
-        amount=@ud
-        nonce=@ud
-        deadline=@ud
-    ==
+  ++  pull-jold-hash  0x8a0c.ebea.b35e.84a1.1729.7c78.f677.f39a
+    :: ^-  @ux
+    :: %-  sham
+    :: %-  need
+    :: %-  de-json:html
+    :: ^-  cord
+    :: '''
+    :: [
+    ::   {"from": "ux"},
+    ::   {"to": "ux"},
+    ::   {"amount": "ud"},
+    ::   {"nonce": "ud"},
+    ::   {"deadline": "ud"}
+    :: ]
+    :: '''
   ::
   ++  pull
     |=  [=context act=pull:sur]
@@ -219,17 +218,12 @@
     =/  giver  (husk account:sur giv `this.context ~)
     ::  this will fail if amount > balance, as desired
     =.  balance.noun.giver  (sub balance.noun.giver amount.act)
-    ::  reconstruct the hash of the typed message and hash
-    =+  %^    sham
-            (hash-data this.context holder.giver town.context salt.giver)
-          pull-type-hash
-        (sham [holder.giver to.act amount.act nonce.act deadline.act])
-    ::  recover the address from the message and signature
-    =+  %-  address-from-pub
-        %-  serialize-point:secp256k1:secp:crypto
-        (ecdsa-raw-recover:secp256k1:secp:crypto - sig.act)
-    ::  assert the signature is valid
-    ?>  =(- holder.giver)
+    ::  verify signature is correct
+    =/  =typed-message
+        :+  (hash-data this.context holder.giver town.context salt.giver)
+          pull-jold-hash
+        [holder.giver to.act amount.act nonce.act deadline.act]
+    ?>  =((recover typed-message sig.act) holder.giver)
     ::  assert nonce is valid
     =+  (~(gut by nonces.noun.giver) to.act 0)
     ?>  .=(nonce.act -)
