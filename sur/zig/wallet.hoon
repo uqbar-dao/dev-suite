@@ -15,8 +15,8 @@
 ::
 +$  metadata-store  (map id:smart asset-metadata)
 +$  asset-metadata
-  $%  [%token town=@ux token-metadata]
-      [%nft town=@ux nft-metadata]
+  $%  [%token town=@ux contract=id:smart token-metadata]
+      [%nft town=@ux contract=id:smart nft-metadata]
   ==
 ::
 +$  unfinished-transaction-store
@@ -31,12 +31,12 @@
   (map @ux [=transaction:smart action=supported-actions])
 ::
 +$  transaction-status-code
-  $%  %100  ::  100: transaction pending in wallet
+  $?  %100  ::  100: transaction pending in wallet
       %101  ::  101: transaction submitted from wallet to sequencer
       %102  ::  102: transaction received by sequencer
       %103  ::  103: failure: transaction rejected by sequencer
       ::
-      ::  200-class refers to codes that come from a completed, processed transaction
+      ::  200-class refers to codes that come from a completed transaction
       ::  informed by egg status codes in smart.hoon
       %200  ::  200: successfully performed
       %201  ::  201: bad signature
@@ -50,13 +50,38 @@
       %209  ::  209: dedicated burn transaction failed
   ==
 ::
-::  sent to web interface
+::  noun type that comes from wallet scries, used thru uqbar.hoon
 ::
 +$  wallet-update
+  $@  ~
+  $%  [%asset asset]
+      [%metadata asset-metadata]
+      [%account =caller:smart]  ::  tuple of [address nonce zigs-account]
+      [%addresses saved=(set address:smart)]
+      [%signatures sigs=(list [=typed-message:smart =sig:smart])]
+      $:  %unfinished-transaction
+          =transaction:smart
+          action=supported-actions
+      ==
+      $:  %finished-transaction
+          =transaction:smart
+          action=supported-actions
+          =output:eng
+      ==
+  ==
+::
+::  sent to web interface
+::
++$  wallet-frontend-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
       [%new-metadata metadata=metadata-store]
-      [%finished-tx hash=@ux =transaction:smart action=supported-actions =output:eng]
       [%tx-status hash=@ux =transaction:smart action=supported-actions]
+      $:  %finished-tx
+          hash=@ux
+          =transaction:smart
+          action=supported-actions
+          =output:eng
+      ==
   ==
 ::
 ::  received from web interface

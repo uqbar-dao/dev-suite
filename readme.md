@@ -46,11 +46,11 @@ In the future, with remote scry, users will not need to run their own `%indexer`
 
    git clone git@github.com:urbit/urbit.git
    cd urbit/pkg
-   git submodule add git@github.com:uqbar-dao/ziggurat.git ziggurat
+   git submodule add git@github.com:uqbar-dao/uqbar-core.git uqbar-core
    ```
-2. Boot a development fakeship:
+2. Either build or install the Urbit binary, then boot a development fakeship:
    ```bash
-   urbit -F zod
+   ./urbit -F zod
    ```
 3. In the Dojo of the fakeship, set up a `%zig` desk, where we will copy the files in this repo:
    ```hoon
@@ -62,7 +62,7 @@ In the future, with remote scry, users will not need to run their own `%indexer`
    cd ~/git/urbit/pkg  # Replace with your chosen directory.
 
    rm -rf zod/zig/*
-   cp -RL ziggurat/* zod/zig/
+   cp -RL uqbar-core/* zod/zig/
    ```
 5. In the Dojo of the fakeship, commit the copied files and install.
    ```hoon
@@ -82,7 +82,7 @@ In the future, with remote scry, users will not need to run their own `%indexer`
 ## Starting a Fakeship Testnet
 
 To develop this repo or new contracts, it is convenient to start with a fakeship testnet.
-First, make sure the fakeship you're using is in the [whitelist](https://github.com/uqbar-dao/ziggurat/blob/master/lib/rollup.hoon).
+First, make sure the fakeship you're using is in the [whitelist](https://github.com/uqbar-dao/uqbar-core/blob/master/lib/rollup.hoon).
 
 Uqbar provides a generator to set up a fakeship testnet for local development.
 That generator, used as a poke to the `%sequencer` app as `:sequencer|init`, populates a new town with some [`item`](#item)s: [`pact`](#pact) (contract code) and [`data`](#data) (contract data).

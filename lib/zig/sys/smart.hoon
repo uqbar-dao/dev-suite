@@ -2801,10 +2801,22 @@
     ::
     ::  keccak
     ::
-    ++  keccak-224  ~/  %k224  |=(a=octs (keccak 1.152 448 224 a))
-    ++  keccak-256  ~/  %k256  |=(a=octs (keccak 1.088 512 256 a))
-    ++  keccak-384  ~/  %k384  |=(a=octs (keccak 832 768 384 a))
-    ++  keccak-512  ~/  %k512  |=(a=octs (keccak 576 1.024 512 a))
+    ++  keccak-224
+      |=  a=octs
+      ~>  %k224.+<
+      (keccak 1.152 448 224 a)
+    ++  keccak-256
+      |=  a=octs
+      ~>  %k256.+<
+      (keccak 1.088 512 256 a)
+    ++  keccak-384
+      |=  a=octs
+      ~>  %k384.+<
+      (keccak 832 768 384 a)
+    ++  keccak-512
+      |=  a=octs
+      ~>  %k512.+<
+      (keccak 576 1.024 512 a)
     ::
     ++  keccak  (cury (cury hash keccak-f) padding-keccak)
     ::
@@ -3387,8 +3399,8 @@
       ++  add-points        add-points:curve
       ++  mul-point-scalar  mul-point-scalar:curve
       ++  make-k
-        ~/  %make
         |=  [hash=@uvI private-key=@]
+        ~>  %make.+<
         ::  checks sizes
         (make-k:curve hash private-key)
       ++  priv-to-pub
@@ -3397,8 +3409,8 @@
         (priv-to-pub:curve private-key)
       ::
       ++  ecdsa-raw-sign
-        ~/  %sign
         |=  [hash=@uvI private-key=@]
+        ~>  %sign.+<
         ^-  [v=@ r=@ s=@]
         =/  c  curve
         ::  raw-sign checks sizes
@@ -3415,8 +3427,8 @@
         [v x.rp s]
       ::
       ++  ecdsa-raw-recover
-        ~/  %reco
         |=  [hash=@ sig=[v=@ r=@ s=@]]
+        ~>  %reco.+<
         ^-  point
         ?>  (lte v.sig 3)
         =/  c   curve

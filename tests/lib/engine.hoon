@@ -645,6 +645,22 @@
     !>(events.output)
   ==
 ::
+++  test-vv-fail-on-continuation
+  =/  =calldata:smart  [%call-crash ~]
+  =/  =shell:smart  [caller-1 ~ id.p:pact:engine-tester [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [sequencer town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
+  ~&  >  "gas spent: {<gas.output>}"
+  ;:  weld
+    (expect-eq !>(%6) !>(errorcode.output))
+    (expect-eq !>(~) !>(modified.output))
+    (expect-eq !>(~) !>(burned.output))
+    (expect-eq !>(~) !>(events.output))
+  ==
+::
 ::  tests for transaction nonces
 ::
 ++  test-uz-nonce-too-high

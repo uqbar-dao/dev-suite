@@ -32,7 +32,7 @@
       {"balance": "ud"},
       {"allowances": ["map", "ux", "ud"]},
       {"metadata": "ux"},
-      {"nonce": "ud"}
+      {"nonces": ["map", "ux", "ud"]}
     ]
     '''
   --
