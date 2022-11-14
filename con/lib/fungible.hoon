@@ -53,14 +53,6 @@
         nonces=(pmap address @ud)      ::  necessary for gasless approves
     ==
   ::
-  +$  approval
-    $:  from=id       ::  pubkey giving
-        to=address    ::  pubkey permitted to take
-        amount=@ud    ::  how many tokens the taker can take
-        nonce=@ud     ::  current nonce of the giver
-        deadline=@ud  ::  how long this approve is valid
-    ==
-  ::
   ::  patterns of arguments supported by this contract
   ::  "action" in input must fit one of these molds
   ::
