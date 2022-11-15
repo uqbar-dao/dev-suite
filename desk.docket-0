@@ -1,0 +1,11 @@
+:~  title+'Uqbar Suite'
+    info+'The contract & app development, wallet, and block explorer suite from Uqbar'
+    color+0xf2.f3ef  :: purple is 0x72.7bf2 pink is 0xdd.7c8a
+    :: https://developers.urbit.org/reference/additional/dist/glob
+    glob-http+['https://personal-server.fra1.digitaloceanspaces.com/glob-0v4.qjmng.8ar9h.qec52.o4vac.hjrsn.glob' 0v4.qjmng.8ar9h.qec52.o4vac.hjrsn]
+    base+'ziggurat'
+    image+'https://hodzod-walrus.s3.us-east-2.amazonaws.com/hodzod-walrus/2022.9.12..23.15.34-R8S9LBS4.png'
+    version+[0 0 6]
+    website+'https://uqbar.network'
+    license+'MIT'
+==
