@@ -19,8 +19,15 @@
       [%nft town=@ux contract=id:smart nft-metadata]
   ==
 ::
+::  keyed by message hash
+::
++$  signed-message-store
+  (map @ux [=typed-message:smart =sig:smart])
+::
 +$  unfinished-transaction-store
   (list [hash=@ux tx=transaction:smart action=supported-actions])
+::
+::  inner maps keyed by transaction hash
 ::
 +$  transaction-store
   %+  map  address:smart
@@ -58,7 +65,7 @@
       [%metadata asset-metadata]
       [%account =caller:smart]  ::  tuple of [address nonce zigs-account]
       [%addresses saved=(set address:smart)]
-      [%signatures sigs=(list [=typed-message:smart =sig:smart])]
+      [%signed-message =typed-message:smart =sig:smart]
       $:  %unfinished-transaction
           =transaction:smart
           action=supported-actions
