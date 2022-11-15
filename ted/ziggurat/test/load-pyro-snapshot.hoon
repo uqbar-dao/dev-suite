@@ -12,16 +12,7 @@
 =/  m  (strand ,vase)
 |^  ted
 ::
-+$  arg-mold  [project=@t ships=(list @p)]
-::
-++  init-ships
-  |=  ships=(list @p)
-  =/  m  (strand ,~)
-  ^-  form:m
-  |-
-  ?~  ships  (pure:m ~)
-  ;<  ~  bind:m  (init-ship:pyio i.ships)
-  $(ships t.ships)
++$  arg-mold  [project=@t =path]
 ::
 ++  ted
   ^-  thread:spider
@@ -30,19 +21,17 @@
   =/  args  !<((unit arg-mold) args-vase)
   ?~  args
     ~&  >>>  "Usage:"
-    ~&  >>>  "-zig!ziggurat-test-master project=@t (list ship)"
+    ~&  >>>  "-zig!ziggurat-test-load-pyro-snapshot project=@t path"
     (pure:m !>(~))
   =*  project  project.u.args
-  =*  ships    ships.u.args
+  =*  path     p.u.args
   ::
   ;<  our=@p  bind:m  get-our
-  ;<  ~  bind:m  (watch-our /effect %pyro /effect)
-  ;<  ~  bind:m  (init-ships ships)
-  ;<  ~  bind:m  (send-hi:pyio ~nec ~bud)
+  ;<  ~  bind:m  (poke-our %pyro [%pyro-action !>([%restore-snap path])])
   ;<  ~  bind:m
     %+  poke-our  %ziggurat
     :-  %ziggurat-action
-    !>(`action:zig`project^[%ready-test-master ~])
+    !>(`action:zig`project^[%ready-pyro-ships ~])
   ;<  =cage  bind:m
     (watch-one /pyro-done [our %ziggurat] /pyro-done)
   (pure:m !>(`~`~))

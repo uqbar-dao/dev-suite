@@ -34,7 +34,7 @@
           assembled=*
           tym=@da  ::  a fake time, starting at *@da and manually ticked up
           fresh-piers=(map =ship [=pier boths=(list unix-both)])
-          fleet-snaps=(map term fleet)
+          fleet-snaps=(map path fleet)
           piers=fleet
       ==
     ::  XX temporarily shadowed, fix and remove
@@ -118,10 +118,23 @@
     |=  =path
     ^-  (unit (unit cage))
     ?+    path  ~
-        [%x %fleet-snap @ ~]  ``noun+!>((~(has by fleet-snaps) i.t.t.path))
-        [%x %fleets ~]        ``noun+!>(~(key by fleet-snaps))
-        [%x %ships ~]         ``noun+!>(~(key by piers))
-        [%x %pill ~]          ``pill+!>(pil)
+        [%x %fleet-snap ^]  ``noun+!>((~(has by fleet-snaps) t.t.path))
+        [%x %fleets ~]      ``noun+!>(~(key by fleet-snaps))
+        [%x %ships ~]       ``noun+!>(~(key by piers))
+        [%x %pill ~]        ``pill+!>(pil)
+        [%x %fleet-sizes ^]
+      ?~  fleet=(~(get by fleet-snaps) t.t.path)  ~
+      :^  ~  ~  %noun
+      !>
+      %-  ~(run by u.fleet)
+      |=  p=pier
+      [(lent event-log.p) ~(wyt in next-events.p)]
+    ::
+        [%x %is-next-events-empty ~]
+      :^  ~  ~  %noun
+      !>   ^-  ?
+      %+  levy  ~(val by piers)
+      |=([p=pier] =(0 ~(wyt in next-events.p)))
     ::
         [%x %events ~]
       :^  ~  ~  %noun
@@ -130,8 +143,8 @@
       |=  p=pier
       [(lent event-log.p) ~(wyt in next-events.p)]
     ::
-        [%x %fleet-ships @ ~]
-      =+  sips=(~(get by fleet-snaps) i.t.t.path)
+        [%x %fleet-ships ^]
+      =+  sips=(~(get by fleet-snaps) t.t.path)
       ?~  sips  ~  ``noun+!>(~(key by u.sips))
     ::
     ::  scry into running virtual ships
@@ -210,6 +223,7 @@
     |=  ues=(list unix-event)
     ^+  ..abet-pe
     =.  next-events  (~(gas to next-events) ues)
+    :: ~&  %pyro-push^[who now.hid log=(lent event-log.pier-data) new=~(wyt in next-events.pier-data)]^.^((map @p (unit @da)) %gx /(scot %p our.hid)/pyre/(scot %da now.hid)/behn-piers/noun)
     ..abet-pe
   ::
   ::  Send cards to host arvo
@@ -511,10 +525,6 @@
     |=  [who=ship thus=_this]
     =.  this  thus
     stop-processing-events:(pe who)
-  ::
-      [%clear-snap lab=@tas]
-    =.  fleet-snaps  ~  ::  (~(del by fleet-snaps) lab.val)
-    this
   ==
 ::
 ::  Apply a list of events tagged by ship
@@ -628,7 +638,7 @@
       =.  this  thus
       ..abet-pe:(pe who)
     =.  fleet-snaps
-      %+  ~(put by fleet-snaps)  lab.act
+      %+  ~(put by fleet-snaps)  path.act
       %-  malt
       %+  murn  hers.act
       |=  her=ship
@@ -642,13 +652,13 @@
       %restore-snap
     =/  to-kill  :: only kill ships in the snapshot
       %-  ~(int in ~(key by piers))
-      ~(key by (~(got by fleet-snaps) lab.act))
+      ~(key by (~(got by fleet-snaps) path.act))
     =.  this
       %+  turn-ships  ~(tap in to-kill)
       |=  [who=ship thus=_this]
       =.  this  thus
       (publish-effect:(pe who) [/ %kill ~])
-    =.  piers  (~(got by fleet-snaps) lab.act)
+    =.  piers  (~(got by fleet-snaps) path.act)
     =.  this
       %+  turn-ships  (turn ~(tap by piers) head)
       |=  [who=ship thus=_this]
@@ -657,8 +667,10 @@
     `state
   ::
       %clear-snap
-    =.  fleet-snaps  (~(del by fleet-snaps) lab.act)
-    `state
+    `state(fleet-snaps (~(del by fleet-snaps) path.act))
+  ::
+      %clear-snaps
+    `state(fleet-snaps ~)
   ::  %touch-file
   ::  %start-app/%poke-app
   ==

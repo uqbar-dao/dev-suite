@@ -98,7 +98,21 @@
 ::
 ++  on-watch  on-watch:def
 ++  on-leave  on-leave:def
-++  on-peek   on-peek:def
+++  on-peek
+  |=  =path
+  ^-  (unit (unit cage))
+  ?+    path  ~
+      [%x %behn-piers ~]  ``noun+!>(`_behn-piers`behn-piers)
+      [%x %soonest-timer ~]
+    :^  ~  ~  %noun
+    !>  ^-  (unit @da)
+    %-  ~(rep by behn-piers)
+    |=  [[@ timer=(unit @da)] soonest=(unit @da)]
+    ?~  soonest  timer
+    ?~  timer    soonest
+    ?:((lth u.soonest u.timer) soonest timer)
+  ==
+::
 ++  on-arvo
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)

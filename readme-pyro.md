@@ -110,7 +110,7 @@ To avoid the overly-verbose scries, you can also use the `+scry` generator which
 
 ## Example usage
 
-Setup; add tests to `%ziggurat`; start virtualships (in `%start-test-master`):
+Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 ```hoon
 |meld
 
@@ -137,7 +137,7 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-test-master`):
 =scry-nec-id 0xab6f.d5d4.99a1.3b27.84ca.fc58.3b82.2d9f
 =setup-id 0xa253.baf1.f666.df41.ab31.fe25.2de6.5d20
 
-:ziggurat &ziggurat-action [%foo %start-test-master ~]
+:ziggurat &ziggurat-action [%foo %start-pyro-ships ~]
 ```
 
 Run some stuff on virtualships:
@@ -155,13 +155,13 @@ Run some stuff on virtualships:
 
 Tell `%indexer` not to run any tests right now.
 ```hoon
-:ziggurat &ziggurat-action [%foo %stop-test-master ~]
+:ziggurat &ziggurat-action [%foo %stop-pyro-ships ~]
 ```
 
 To reset virtualships to initial state:
 ```hoon
-:ziggurat &ziggurat-action [%foo %stop-test-master ~]
-:ziggurat &ziggurat-action [%foo %start-test-master ~]
+:ziggurat &ziggurat-action [%foo %stop-pyro-ships ~]
+:ziggurat &ziggurat-action [%foo %start-pyro-ships ~]
 ```
 
 An alternative to `send-nec`:
@@ -173,8 +173,8 @@ An alternative to `send-nec`:
 
 To interact with snapshots:
 ```hoon
-:pyro &action [%snap-ships %test-0 ~[~nec ~bud]]
-:pyro &action [%restore-snap %pre-setup]
-:pyro &action [%clear-snap %pre-setup]
+:pyro &action [%snap-ships /my-snapshot/0 ~[~nec ~bud]]
+:pyro &action [%restore-snap /my-snapshot/0]
+:pyro &action [%clear-snap /my-snapshot/0]
 ```
-
+where the `/my-snapshot/0` here is just a `path` label of the snapshot.
