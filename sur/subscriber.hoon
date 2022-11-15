@@ -5,5 +5,5 @@
       [%unsub =ship agent=@tas =path]
   ==
 ::  map of ship to agent name to subscription path to signs
-+$  facts  (mip ship term (qeu sign:agent:gall)) :: XX path?
++$  facts  (mip [ship term] wire (qeu sign:agent:gall)) :: XX path?
 --

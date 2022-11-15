@@ -29,15 +29,15 @@
   ^-  (quip card _this)
   ?>  =(mark %subscriber-action)
   =/  act  !<(subscriber-action vase)
-  =/  paf=path  ~[(scot %p ship.act) agent.act]
+  =/  paf=path  [(scot %p ship.act) agent.act path.act]
   ?-    -.act
       %sub
     :-  [%pass paf %agent [ship.act agent.act] %watch path.act]~
     %=    this
         facts.state
-      ?^  (~(get bi facts.state) ship.act agent.act)
+      ?^  (~(get bi facts.state) [ship.act agent.act] paf)
         facts.state
-      (~(put bi facts.state) ship.act agent.act ~)
+      (~(put bi facts.state) [ship.act agent.act] path.act ~)
     ==
   ::
       %unsub
@@ -50,24 +50,9 @@
   |=  =path
   ^-  (unit (unit cage))
   ?+    path  (on-peek:def path)
-  ::  entire qeu
-      [%x @ @ ~]
-    =/  =ship  (slav %p i.t.path)
-    =/  agent  i.t.t.path
-    =/  qew  (~(got bi facts.state) ship agent)
-    =/  fakts  ~(tap to qew)
-    ``noun+!>(fakts)
-  ::
-  ::  next event (single)
-      [%x %next @ @ ~]
-    =/  =ship  (slav %p i.t.t.path)
-    =/  agent  i.t.t.t.path
-    =/  qew  (~(got bi facts.state) ship agent)
-    =/  fakt  (head ~(get to qew))
-    ``noun+!>(fakt)
   ::
   ::  next n events
-    ::   [%x %next @ @ @ ~]
+    ::   [%x %next @ @ @ ^]
     :: =/  =ship  (slav %p i.t.t.path)
     :: =/  agent  i.t.t.t.path
     :: =/  n=@ud  (slav %ud i.t.t.t.t.path)
@@ -78,19 +63,37 @@
     ::   |-  ^-  *
     ::   ?:  =(n i)  
     :: ``noun+!>(fakt)
+  ::
+  ::  next event (single)
+      [%x %next @ @ ^]
+    =/  =ship  (slav %p i.t.t.path)
+    =/  agent  i.t.t.t.path
+    =/  pafth  t.t.t.t.path
+    =/  qew  (~(got bi facts.state) [ship agent] pafth)
+    =/  fakt  (head ~(get to qew))
+    ``noun+!>(fakt)
+  ::  entire qeu
+      [%x @ @ ^]
+    =/  =ship  (slav %p i.t.path)
+    =/  agent  i.t.t.path
+    =/  pafth  t.t.t.path
+    =/  qew  (~(got bi facts.state) [ship agent] pafth)
+    =/  fakts  ~(tap to qew)
+    ``noun+!>(fakts)
   ==
 ::
 ++  on-agent
   |=  [=wire =sign]
   ^-  (quip card _this)
   ?+    wire  (on-agent:def wire sign)
-      [@ @ ~]
+      [@ @ ^]
     =/  =ship  (slav %p i.wire)
     =/  agent  i.t.wire
-    =/  qew  (~(got bi facts) ship agent)
+    =/  pafth  t.t.wire
+    =/  qew  (~(got bi facts) [ship agent] pafth)
     =.  qew  (~(put to qew) sign)
     ~&  >  qew
-    `this(facts.state (~(put bi facts.state) ship agent qew))
+    `this(facts.state (~(put bi facts.state) [ship agent] pafth qew))
   ==
 ++  on-arvo  on-arvo:def
 ++  on-fail  on-fail:def
