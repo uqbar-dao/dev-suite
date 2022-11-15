@@ -2,36 +2,42 @@
 :: solid state subscriptions should obsolete this.
 ::
 /-  *subscriber
-/+  default-agent
+/+  dbug, default-agent
 ::
 |%
++$  state-0  [%0 facts=(map ship (jar (pair term wire) sign:agent:gall))] :: qeu might be better
 +$  card  card:agent:gall
-+$  state-0  [%0 facts=(map ship (jar wire sign:agent:gall))] :: qeu might be better
-+$  versioned-state
-  $%  state-0
-  ==
 --
 =|  state-0
 =*  state  -
+%-  agent:dbug
 ^-  agent:gall
 |_  =bowl:gall
 +*  this  .
     def   ~(. (default-agent this %|) bowl)
 ::
-++  on-init  on-init:def
-++  on-save  on-save:def
-++  on-load  on-load:def
+++  on-init  `this(state [%0 ~])
+++  on-save  !>(state)
+++  on-load
+  |=  =old=vase
+  ^-  (quip card _this)
+  =/  old-state  !<(state-0 old-vase)
+  `this(state old-state)
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
   ?>  =(mark %subscriber-action)
   =/  act  !<(subscriber-action vase)
-  =/  paf=path  [(scot %p ship.act) path.act]
+  =/  paf=path  [(scot %p ship.act) agent.act path.act]
   ?-    -.act
       %sub
-    :_  ?^  (~(get by facts) ship.act)  this
-        this(facts (~(put by facts) ship.act *(jar wire sign:agent:gall)))
-    [%pass paf %agent [ship.act agent.act] %watch path.act]~
+    :-  [%pass paf %agent [ship.act agent.act] %watch path.act]~
+    %=    this
+        facts.state
+      ?^  (~(get by facts.state) ship.act)
+        facts.state
+      (~(put by facts.state) ship.act ~)
+    ==
   ::
       %unsub
     :_  this
@@ -43,11 +49,12 @@
   |=  =path
   ^-  (unit (unit cage))
   ?+    path  (on-peek:def path)
-      [@ *]
-    =/  =ship  (slav %p i.path)
-    =/  wyre=wire  t.path
+      [%x @ @ ^]
+    =/  =ship  (slav %p i.t.path)
+    =/  agent  i.t.t.path
+    =/  wyre  t.t.t.path
     =/  jur  (~(got by facts.state) ship)
-    =/  factz  (~(get ja jur) wyre)
+    =/  factz  (~(get ja jur) [agent wyre])
     ``noun+!>(factz)
   ==
 ::
@@ -55,12 +62,14 @@
   |=  [=wire =sign:agent:gall]
   ^-  (quip card _this)
   ?+    wire  (on-agent:def wire sign)
-      [@ * ~]
+      [@ @ ^]
     =/  =ship  (slav %p i.wire)
-    =/  wyre  t.wire
+    =/  agent  i.t.wire
+    =/  wyre  t.t.wire
     =/  jur  (~(got by facts) ship)
-    =.  jur  (~(add ja jur) wyre sign)
-    `this(facts (~(put by facts) ship jur))
+    =.  jur  (~(add ja jur) [agent wyre] sign)
+    ~&  >  jur
+    `this(facts.state (~(put by facts.state) ship jur))
   ==
 ++  on-arvo  on-arvo:def
 ++  on-fail  on-fail:def
