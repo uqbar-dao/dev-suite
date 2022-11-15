@@ -6,7 +6,7 @@
 ::
 |%
 +$  card  card:agent:gall
-+$  state-0  [%0 facts=(map ship (jar wire sign:agent:gall))]
++$  state-0  [%0 facts=(map ship (jar wire sign:agent:gall))] :: qeu might be better
 +$  versioned-state
   $%  state-0
   ==
@@ -27,16 +27,15 @@
   ?>  =(mark %subscriber-action)
   =/  act  !<(subscriber-action vase)
   =/  paf=path  [(scot %p ship.act) path.act]
-  ?-    act
+  ?-    -.act
       %sub
     :_  ?^  (~(get by facts) ship.act)  this
         this(facts (~(put by facts) ship.act *(jar wire sign:agent:gall)))
-    [%pass paf %agent [ship.act agent.act] %watch path.act]
+    [%pass paf %agent [ship.act agent.act] %watch path.act]~
   ::
       %unsub
-    :_  ?^  (~(get by facts) ship.act)  this
-        this(facts (~(put by facts) ship.act *(jar wire sign:agent:gall)))
-    [%pass paf %agent [ship.act agent.act] %leave ~]
+    :_  this
+    [%pass paf %agent [ship.act agent.act] %leave ~]~
   ==
 ++  on-leave  on-leave:def
 ++  on-watch  on-watch:def
@@ -45,12 +44,11 @@
   ^-  (unit (unit cage))
   ?+    path  (on-peek:def path)
       [@ *]
-    ``noun+!>(~)
-    :: =/  =ship  (slav %p i.path)
-    :: =/  wyre=wire  t.path
-    :: =/  jur=(jar wire sign:agent:gall)  (~(get by facts.state) ship)
-    :: =/  factz  (~(get ja jur) /) :: wyre
-    :: ``!>(factz)
+    =/  =ship  (slav %p i.path)
+    =/  wyre=wire  t.path
+    =/  jur  (~(got by facts.state) ship)
+    =/  factz  (~(get ja jur) wyre)
+    ``noun+!>(factz)
   ==
 ::
 ++  on-agent
@@ -59,8 +57,8 @@
   ?+    wire  (on-agent:def wire sign)
       [@ * ~]
     =/  =ship  (slav %p i.wire)
-    =/  wyre=wire  t.wire
-    =/  jur  (~(get by facts) ship) 
+    =/  wyre  t.wire
+    =/  jur  (~(got by facts) ship)
     =.  jur  (~(add ja jur) wyre sign)
     `this(facts (~(put by facts) ship jur))
   ==
