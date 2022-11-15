@@ -27,10 +27,12 @@
     `(result ~ [pact ~] ~ ~)
   ::
       %upgrade
-    ::  we must be source to upgrade
+    ::  this contract must be source to upgrade
+    ::  caller must be holder to upgrade
     =/  pact  (need (scry-state to-upgrade.act))
     ?>  ?&  ?=(%| -.pact)
             =(this.context source.p.pact)
+            =(id.caller.context holder.p.pact)
         ==
     =.  code.p.pact  new-code.act
     `(result [pact ~] ~ ~ ~)
