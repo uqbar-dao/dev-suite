@@ -22,7 +22,7 @@
       ::  TODO: introduce a poke to check nonce from chain and re-align
       nonces=(map address:smart (map town=@ux nonce=@ud))
       ::  signatures tracks any signed calls we've made
-      signatures=(list [=typed-message:smart =sig:smart])
+      =signed-message-store
       ::  tokens tracked for each address we're handling
       tokens=(map address:smart =book)
       ::  metadata for tokens we track
@@ -112,11 +112,11 @@
       ::  TODO save nonces/tokens from HW wallets too
       ::  for now treat this as a nuke of the wallet
       %=  state
-        nonces             ~
-        signatures         ~
-        tokens             tokens
-        metadata-store     (update-metadata-store tokens ~ [our now]:bowl)
-        pending-store      ~
+        nonces                ~
+        tokens                tokens
+        signed-message-store  ~
+        metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
+        pending-store         ~
         seed  [mnemonic.act password.act 0]
         unfinished-transaction-store  ~
         transaction-store  [[addr sent] ~ ~]
@@ -138,11 +138,11 @@
       ::  TODO save nonces/tokens from HW wallets too
       ::  for now treat this as a nuke of the wallet
       %=  state
-        nonces             ~
-        signatures         ~
-        tokens             tokens
-        metadata-store     (update-metadata-store tokens ~ [our now]:bowl)
-        pending-store      ~
+        nonces                ~
+        tokens                tokens
+        signed-message-store  ~
+        metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
+        pending-store         ~
         seed  [(crip mnem) password.act 0]
         unfinished-transaction-store  ~
         transaction-store  [[addr sent] ~ ~]
@@ -193,14 +193,19 @@
         %sign-typed-message
       :: XX display something to the user using the type jold
       =/  keypair  (~(got by keys.state) from.act)
-      =/  =typed-message:smart  [domain.act `@ux`(sham type.act) msg.act]    
+      =/  =typed-message:smart  [domain.act `@ux`(sham type.act) msg.act]
+      =/  hash  (sham typed-message)
       =/  signature
         ?~  priv.keypair
           !!  ::  put it into some temporary thing for cold storage. Make it pending
         %+  ecdsa-raw-sign:secp256k1:secp:crypto
-          (sham typed-message)
-        u.priv.keypair
-      `state(signatures [[typed-message signature] signatures])
+        hash  u.priv.keypair
+      :-  ~
+      %=    state
+          signed-message-store
+        %+  ~(put by signed-message-store.state)
+        `@ux`hash  [typed-message signature]
+      ==
     ::
         %set-nonce  ::  for testing/debugging
       =+  acc=(~(gut by nonces.state) address.act ~)
@@ -487,8 +492,12 @@
     =+  (hash-data:smart `@ux`'zigs-contract' pub town `@`'zigs')
     ``wallet-update+!>(`wallet-update`[%account `caller:smart`[pub nonce -]])
   ::
-      [%signatures ~]
-    ``wallet-update+!>(`wallet-update`[%signatures signatures.state])
+      [%signed-message @ ~]
+    :^  ~  ~  %wallet-update
+    !>  ^-  wallet-update
+    ?~  message=(~(get by signed-message-store) (slav %ux i.t.t.path))
+      ~
+    [%signed-message u.message]
   ::
       [%metadata @ ~]
     ::  return specific metadata from our store
