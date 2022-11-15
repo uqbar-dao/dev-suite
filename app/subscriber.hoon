@@ -5,7 +5,7 @@
 /+  dbug, default-agent
 ::
 |%
-+$  state-0  [%0 facts=(map ship (jar (pair term wire) sign:agent:gall))] :: qeu might be better
++$  state-0  [%0 facts=(map ship (qeu (pair term sign:agent:gall)))]
 +$  card  card:agent:gall
 --
 =|  state-0
@@ -28,7 +28,7 @@
   ^-  (quip card _this)
   ?>  =(mark %subscriber-action)
   =/  act  !<(subscriber-action vase)
-  =/  paf=path  [(scot %p ship.act) agent.act path.act]
+  =/  paf=path  ~[(scot %p ship.act) agent.act]
   ?-    -.act
       %sub
     :-  [%pass paf %agent [ship.act agent.act] %watch path.act]~
@@ -49,27 +49,30 @@
   |=  =path
   ^-  (unit (unit cage))
   ?+    path  (on-peek:def path)
-      [%x @ @ ^]
+      [%x @ ~]
     =/  =ship  (slav %p i.t.path)
-    =/  agent  i.t.t.path
-    =/  wyre  t.t.t.path
-    =/  jur  (~(got by facts.state) ship)
-    =/  factz  (~(get ja jur) [agent wyre])
-    ``noun+!>(factz)
+    =/  qew  (~(got by facts.state) ship)
+    =/  fakts  ~(tap to qew)
+    ``noun+!>(fakts)
+  ::
+      [%x %next @ ~]
+    =/  =ship  (slav %p i.t.t.path)
+    =/  qew  (~(got by facts.state) ship)
+    =/  fakt  (head ~(get to qew))
+    ``noun+!>(fakt)
   ==
 ::
 ++  on-agent
   |=  [=wire =sign:agent:gall]
   ^-  (quip card _this)
   ?+    wire  (on-agent:def wire sign)
-      [@ @ ^]
+      [@ @ ~]
     =/  =ship  (slav %p i.wire)
     =/  agent  i.t.wire
-    =/  wyre  t.t.wire
-    =/  jur  (~(got by facts) ship)
-    =.  jur  (~(add ja jur) [agent wyre] sign)
-    ~&  >  jur
-    `this(facts.state (~(put by facts.state) ship jur))
+    =/  qew  (~(got by facts) ship)
+    =.  qew  (~(put to qew) [agent sign])
+    ~&  >  qew
+    `this(facts.state (~(put by facts.state) ship qew))
   ==
 ++  on-arvo  on-arvo:def
 ++  on-fail  on-fail:def
