@@ -2,11 +2,12 @@
 :: solid state subscriptions should obsolete this.
 ::
 /-  *subscriber
-/+  dbug, default-agent
+/+  dbug, default-agent, *mip
 ::
 |%
-+$  state-0  [%0 facts=(map ship (qeu (pair term sign:agent:gall)))]
++$  state-0  [%0 =facts]
 +$  card  card:agent:gall
++$  sign  sign:agent:gall
 --
 =|  state-0
 =*  state  -
@@ -34,9 +35,9 @@
     :-  [%pass paf %agent [ship.act agent.act] %watch path.act]~
     %=    this
         facts.state
-      ?^  (~(get by facts.state) ship.act)
+      ?^  (~(get bi facts.state) ship.act agent.act)
         facts.state
-      (~(put by facts.state) ship.act ~)
+      (~(put bi facts.state) ship.act agent.act ~)
     ==
   ::
       %unsub
@@ -49,30 +50,47 @@
   |=  =path
   ^-  (unit (unit cage))
   ?+    path  (on-peek:def path)
-      [%x @ ~]
+  ::  entire qeu
+      [%x @ @ ~]
     =/  =ship  (slav %p i.t.path)
-    =/  qew  (~(got by facts.state) ship)
+    =/  agent  i.t.t.path
+    =/  qew  (~(got bi facts.state) ship agent)
     =/  fakts  ~(tap to qew)
     ``noun+!>(fakts)
   ::
-      [%x %next @ ~]
+  ::  next event (single)
+      [%x %next @ @ ~]
     =/  =ship  (slav %p i.t.t.path)
-    =/  qew  (~(got by facts.state) ship)
+    =/  agent  i.t.t.t.path
+    =/  qew  (~(got bi facts.state) ship agent)
     =/  fakt  (head ~(get to qew))
     ``noun+!>(fakt)
+  ::
+  ::  next n events
+    ::   [%x %next @ @ @ ~]
+    :: =/  =ship  (slav %p i.t.t.path)
+    :: =/  agent  i.t.t.t.path
+    :: =/  n=@ud  (slav %ud i.t.t.t.t.path)
+    :: =/  qew  (~(got by facts.state) ship)
+    :: :: =/  fakt  (head ~(get to qew))
+    :: =/  meme=*
+    ::   =|  acu
+    ::   |-  ^-  *
+    ::   ?:  =(n i)  
+    :: ``noun+!>(fakt)
   ==
 ::
 ++  on-agent
-  |=  [=wire =sign:agent:gall]
+  |=  [=wire =sign]
   ^-  (quip card _this)
   ?+    wire  (on-agent:def wire sign)
       [@ @ ~]
     =/  =ship  (slav %p i.wire)
     =/  agent  i.t.wire
-    =/  qew  (~(got by facts) ship)
-    =.  qew  (~(put to qew) [agent sign])
+    =/  qew  (~(got bi facts) ship agent)
+    =.  qew  (~(put to qew) sign)
     ~&  >  qew
-    `this(facts.state (~(put by facts.state) ship qew))
+    `this(facts.state (~(put bi facts.state) ship agent qew))
   ==
 ++  on-arvo  on-arvo:def
 ++  on-fail  on-fail:def
