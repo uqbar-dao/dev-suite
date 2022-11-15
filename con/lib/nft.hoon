@@ -4,7 +4,7 @@
 ::  TODO: add gasless signing for %takes like in fungible
 ::
 ::  Basic NFT standard. In this model, each NFT is located in its own
-::  rice. This rice contains the NFT's ID within its collection, a URI,
+::  `data`. This `data` contains the NFT's ID within its collection, a URI,
 ::  the ID of the metadata for the collection, allowances, whether
 ::  the NFT is transferrable, and a map of arbitrary properties to their
 ::  values for this particular NFT. The properties are defined in the
@@ -12,12 +12,12 @@
 ::  set of properties.
 ::
 ::  Transfer of an NFT from one address to another is simply changing
-::  the rice holder. Note that the collection that an NFT belongs to is
+::  the `data` holder. Note that the collection that an NFT belongs to is
 ::  defined by its metadata ID, not the issuing contract. Like with the
 ::  fungible token standard, a contract that includes this standard's
 ::  logic can be completely generic.
 ::
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 |%
 ++  sur
   |%
@@ -56,16 +56,16 @@
   +$  give
     $:  %give
         to=address
-        grain-id=id
+        item-id=id
     ==
   +$  take
     $:  %take
         to=address
-        grain-id=id
+        item-id=id
     ==
   +$  set-allowance
     $:  %set-allowance
-        items=(list [who=address grain=id allowed=?])
+        items=(list [who=address item=id allowed=?])
     ==
   +$  mint
     $:  %mint
@@ -87,100 +87,100 @@
 ++  lib
   |%
   ++  give
-    |=  [=cart act=give:sur]
-    ^-  chick
-    =+  (need (scry grain-id.act))
+    |=  [=context act=give:sur]
+    ^-  (quip call diff)
+    =+  (need (scry-state item-id.act))
     ::  caller must hold NFT, this contract must be lord
-    =/  gift  (husk nft:sur - `me.cart `id.from.cart)
+    =/  gift  (husk nft:sur - `this.context `id.caller.context)
     ::  NFT must be transferrable
-    ?>  transferrable.data.gift
+    ?>  transferrable.noun.gift
     ::  change holder to reflect new ownership
     ::  clear allowances
     =:  holder.gift  to.act
-        allowances.data.gift  ~
+        allowances.noun.gift  ~
     ==
-    (result [[%& gift] ~] ~ ~ ~)
+    `(result [[%& gift] ~] ~ ~ ~)
   ::
   ++  take
-    |=  [=cart act=take:sur]
-    ^-  chick
-    =+  (need (scry grain-id.act))
+    |=  [=context act=take:sur]
+    ^-  (quip call diff)
+    =+  (need (scry-state item-id.act))
     ::  this contract must be lord
-    =/  gift  (husk nft:sur - `me.cart ~)
+    =/  gift  (husk nft:sur - `this.context ~)
     ::  caller must be in allowances set
-    ?>  (~(has pn allowances.data.gift) id.from.cart)
+    ?>  (~(has pn allowances.noun.gift) id.caller.context)
     ::  NFT must be transferrable
-    ?>  transferrable.data.gift
+    ?>  transferrable.noun.gift
     ::  change holder to reflect new ownership
     ::  clear allowances
     =:  holder.gift  to.act
-        allowances.data.gift  ~
+        allowances.noun.gift  ~
     ==
-    (result [[%& gift] ~] ~ ~ ~)
+    `(result [[%& gift] ~] ~ ~ ~)
   ::
   ++  set-allowance
-    |=  [=cart act=set-allowance:sur]
-    ^-  chick
+    |=  [=context act=set-allowance:sur]
+    ^-  (quip call diff)
     ::  can set many allowances in single call
-    =|  changed=(list grain)
+    =|  changed=(list item)
     |-
     ?~  items.act
       ::  finished
-      (result changed ~ ~ ~)
+      `(result changed ~ ~ ~)
     ::  can optimize repeats here by storing these all in pmap at start
-    =+  (need (scry grain.i.items.act))
+    =+  (need (scry-state item.i.items.act))
     ::  must hold any NFT we set allowance for
-    =/  nft  (husk nft:sur - `me.cart `id.from.cart)
-    =.  allowances.data.nft
+    =/  nft  (husk nft:sur - `this.context `id.caller.context)
+    =.  allowances.noun.nft
       ?:  allowed.i.items.act
-        (~(put pn allowances.data.nft) who.i.items.act)
-      (~(del pn allowances.data.nft) who.i.items.act)
+        (~(put pn allowances.noun.nft) who.i.items.act)
+      (~(del pn allowances.noun.nft) who.i.items.act)
     %=  $
       items.act  t.items.act
       changed    [[%& nft] changed]
     ==
   ::
   ++  mint
-    |=  [=cart act=mint:sur]
-    ^-  chick
-    =+  `grain`(need (scry token.act))
-    =/  meta  (husk metadata:sur - `me.cart ~)
+    |=  [=context act=mint:sur]
+    ^-  (quip call diff)
+    =+  `item`(need (scry-state token.act))
+    =/  meta  (husk metadata:sur - `this.context ~)
     ::  ensure NFT is mintable
-    ?>  mintable.data.meta
+    ?>  mintable.noun.meta
     ::  ensure caller is in minter-set
-    ?>  (~(has pn minters.data.meta) id.from.cart)
+    ?>  (~(has pn minters.noun.meta) id.caller.context)
     ::  set id of next possible item in collection
-    =/  next-item-id  +(supply.data.meta)
+    =/  next-item-id  +(supply.noun.meta)
     ::  check if mint will surpass supply cap
-    =/  new-supply  (add supply.data.meta (lent mints.act))
-    ?>  ?~  cap.data.meta  %.y
-        (gte u.cap.data.meta new-supply)
-    =.  supply.data.meta  new-supply
+    =/  new-supply  (add supply.noun.meta (lent mints.act))
+    ?>  ?~  cap.noun.meta  %.y
+        (gte u.cap.noun.meta new-supply)
+    =.  supply.noun.meta  new-supply
     ::  iterate through mints
-    =|  issued=(list grain)
+    =|  issued=(list item)
     |-
     ?~  mints.act
       ::  finished minting
-      (result [[%& meta] ~] issued ~ ~)
-    ::  create new grain for NFT
+      `(result [[%& meta] ~] issued ~ ~)
+    ::  create new item for NFT
     ::  unique salt for each item in collection
     =*  m  i.mints.act
     =/  salt    (cat 3 salt.meta (scot %ud next-item-id))
-    =/  new-id  (fry-rice me.cart to.m town-id.cart salt)
+    =/  new-id  (hash-data this.context to.m town.context salt)
     ::  properties must match those in metadata spec!
-    ?>  =(properties.data.meta ~(key py properties.m))
-    =/  data    [next-item-id uri.m id.meta ~ properties.m transferrable.m]
-    =/  =rice   [salt %nft data new-id me.cart to.m town-id.cart]
+    ?>  =(properties.noun.meta ~(key py properties.m))
+    =/  nft-noun  [next-item-id uri.m id.meta ~ properties.m transferrable.m]
+    =/  =data     [new-id this.context to.m town.context salt %nft nft-noun]
     %=  $
       mints.act     t.mints.act
       next-item-id  +(next-item-id)
-      issued        [[%& rice] issued]
+      issued        [[%& data] issued]
     ==
   ::
   ++  deploy
-    |=  [=cart act=deploy:sur]
-    ^-  chick
-    ::  create new NFT collection with a metadata grain
+    |=  [=context act=deploy:sur]
+    ^-  (quip call diff)
+    ::  create new NFT collection with a metadata item
     ::  and optional initial mint
     =/  =metadata:sur
       :*  name.act
@@ -190,18 +190,17 @@
           cap.act
           ?~(minters.act %.n %.y)
           minters.act
-          id.from.cart
+          id.caller.context
           salt.act
       ==
-    =/  =id    (fry-rice me.cart me.cart town-id.cart salt.act)
-    =/  =rice  [salt.act %metadata metadata id me.cart me.cart town-id.cart]
+    =/  =id    (hash-data this.context this.context town.context salt.act)
+    =/  =data  [id this.context this.context town.context salt.act %metadata metadata]
     ?~  initial-distribution.act
-      (result ~ [[%& rice] ~] ~ ~)
+      `(result ~ [[%& data] ~] ~ ~)
     ::  perform optional mint
     =/  next  [%mint id initial-distribution.act]
-    %+  continuation
-      [me.cart town-id.cart next]^~
-    (result ~ [[%& rice] ~] ~ ~)
+    :-  [this.context town.context next]^~
+    (result ~ [[%& data] ~] ~ ~)
   ::
   ::
   ++  enjs

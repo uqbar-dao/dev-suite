@@ -6,133 +6,194 @@
 ::::::                                         ::::  ::  ::::::  ::  ::  ::  ::
 =<
 |%
-++  big  (bi id grain)  ::  merkle engine for granary
+::  merkle engine for chain-state
+++  big  (bi id item)
 ::
 ::  +husk: check provenance and fit data to mold
 ::
-::  this arm takes in a grain, a mold, and optional lord and holder
-::  metadata. if lord or holder given, the rice is asserted to have
-::  that property. the grain is also asserted to *be* rice, and we
-::  return the rice with the data inside asserted into the mold given.
+::  this arm takes in an item, a mold, and optional source and holder
+::  metadata. if source or holder given, the data is asserted to have
+::  that property. the item is also asserted to *be* data, and we
+::  return the data with the noun inside asserted into the mold given.
 ::
 ++  husk
-  |*  [typ=mold =grain lord=(unit address) holder=(unit address)]
-  ?>  ?&  ?~(lord %.y =(lord.p.grain u.lord))
-          ?~(holder %.y =(holder.p.grain u.holder))
-          ?=(%& -.grain)
+  |*  [typ=mold =item source=(unit address) holder=(unit address)]
+  ?>  ?&  ?~(source %.y =(source.p.item u.source))
+          ?~(holder %.y =(holder.p.item u.holder))
+          ?=(%& -.item)
       ==
-  p.grain(data ;;(typ data.p.grain))
+  p.item(noun ;;(typ noun.p.item))
 ::
-::  +scry: scry wrapper
+::  scry wrappers
+::  +scry-state is used to grab an item from chain state
+::  +scry-contract is used to call a contract's +read arm (for nouns)
 ::
-++  scry
+++  scry-state
   |=  =id
-  ^-  (unit grain)
-  =-  ;;((unit grain) -)
-  .*(0 [%12 [%0 1] [%1 /granary/(scot %ux id)]])
+  ;;  (unit item)
+  .*  0
+  [%12 [%0 1] [%1 `pith`[%state [%ux id] ~]]]
 ::
-::  +fry: standard hashing functions for rice and wheat grains
+++  scry-contract
+  |=  [=id pit=pith]
+  ;;  (unit *)
+  .*  0
+  [%12 [%0 1] [%1 (weld `pith`[%contract %noun [%ux id] ~] pit)]]
 ::
-++  fry-wheat
-  |=  [lord=id holder=id town=id cont=(unit [bat=* pay=*])]
+::  +hash: standard hashing functions for items
+::
+++  hash-pact
+  |=  [source=id holder=id town=id code=*]
   ^-  id
-  ^-  @ux
-  %-  shax
-  :((cury cat 3) town lord holder (sham cont))
+  ^-  @ux  %-  shax
+  :((cury cat 3) town source holder (sham code))
 ::
-++  fry-rice
-  |=  [lord=id holder=id town=id salt=@]
+++  hash-data
+  |=  [source=id holder=id town=id salt=@]
   ^-  id
-  ^-  @ux
-  %-  shax
-  :((cury cat 3) town lord holder salt)
+  ^-  @ux  %-  shax
+  :((cury cat 3) town source holder salt)
 ::
-::  +result: generate a chick containing a final result
+::  +result: generate a diff
 ::
 ++  result
-  |=  [changed=(list grain) issued=(list grain) burned=(list grain) =crow]
-  ^-  chick
-  :-  %&
-  :^    (gas:big *(merk id grain) (turn changed |=(=grain [id.p.grain grain])))
-      (gas:big *(merk id grain) (turn issued |=(=grain [id.p.grain grain])))
-    (gas:big *(merk id grain) (turn burned |=(=grain [id.p.grain grain])))
-  crow
-::
-::  +continuation: generate a chick containing an intermediate result and a list of next calls
-::
-++  continuation
-  |=  [next=(list [to=id town-id=id =yolk]) rooster=chick]
-  ^-  chick
-  ?>  ?=(%& -.rooster)
-  [%| next p.rooster]
+  |=  [changed=(list item) issued=(list item) burned=(list item) =events]
+  ^-  diff
+  :^    (gas:big *(merk id item) (turn changed |=(=item [id.p.item item])))
+      (gas:big *(merk id item) (turn issued |=(=item [id.p.item item])))
+    (gas:big *(merk id item) (turn burned |=(=item [id.p.item item])))
+  events
 --  =<
 ::  ::
 ::  ::  four: contract types
 ::::::
 |%
-+$  id       @ux            ::  pubkey
++$  id       @ux            ::  hash pointing to some item
 +$  address  @ux            ::  42-char hex address, ETH compatible
 +$  sig      [v=@ r=@ s=@]  ::  ETH compatible ECDSA signature
 ::
-++  zigs-wheat-id  `@ux`'zigs-contract'   ::  hardcoded "native" token contract
+++  zigs-contract-id  `@ux`'zigs-contract'  ::  hardcoded "native" token contract
 ::
-+$  caller  [=id nonce=@ud zigs=id]
+::  items populate the state.
 ::
-+$  typed-message  [domain=id message=@]  ::  message should be typed according to some mold specified by the wheat
-::
-::  grains populate the state.
-::
-::  they can only be modified by their lord, which must be
+::  they can only be modified by their source, which must be
 ::  a contract. the role of a holder is determined by the
 ::  specific rules of the contract, usually implying some
 ::  form of ownership.
 ::
-::  a grain holds either rice (data) or wheat (functions).
+::  an item holds either some data or a contract.
 ::
-+$  grain  (each rice wheat)
-::  metadata stored in all grains
-+$  bran   [=id lord=id holder=id town-id=id]
++$  item  (each data pact)
 ::
 ::  each piece of data includes a contract-defined salt and label
-::  salt is for hashing, to be combined with lord/holder/town for
+::  salt is for hashing, to be combined with source/holder/town for
 ::  a unique rice ID without needing to jam data. label matches
-::  types defined in contract wheat and allows apps to find a type
+::  types defined in pact and allows apps to find a type
 ::  representation for the contained data.
 ::
-+$  rice   [salt=@ label=@tas data=* bran]
++$  data
+  $:  =id  source=id  holder=id  town=id
+      salt=@  label=@tas
+      noun=*
+  ==
 ::
-::  contract contains itself and every imported library in pay
-::
-+$  wheat
-  $:  cont=(unit [bat=* pay=*])
++$  pact
+  $:  =id  source=id  holder=id  town=id
+      code=[bat=* pay=*]
       interface=(map @tas json)
       types=(map @tas json)
-      bran
   ==
 ::
-::  labeled "restricted types" that define contract actions and rice data
+::  context: state context fed into contract
 ::
-+$  lumps  (map @tas lump)
-::
-::  lump: restricted type
-::  published inside wheat to share representation of action and rice nouns
-::  allows outside users to create vases to wrap around data and use
-::
-+$  lump
-  %+  pair  @tas
-  $~  *iota
-  $%  iota
-      [%set lump]
-      [%list lump]
-      [%unit u=lump]
-      [%map lump lump]
-      [%fork (set iota)]
-      [%pair p=lump q=lump]
-      [%trel p=lump q=lump r=lump]
-      [%qual p=lump q=lump r=lump s=lump]
++$  context
+  $:  this=id                 ::  ID of current contract
+      caller=[=id nonce=@ud]  ::  information about caller
+      batch=@ud
+      eth-block=@ud
+      town=id
   ==
 ::
-+$  iota                                                ::  typed path segment
+::  smart contract definition
+::
++$  contract
+  $_  ^|
+  |_  context
+  ++  write
+    |~  *
+    (quip call diff)
+  ::
+  ++  read
+    ^|  |_  pith
+    ++  json
+      *^json
+    ++  noun
+      *^noun
+    --
+  --
+::
+::  contract output types
+::
++$  diff
+  $:  changed=(merk id item)
+      issued=(merk id item)
+      burned=(merk id item)
+      =events
+  ==
++$  call  [contract=id town=id =calldata]
++$  event   (pair @tas json)
++$  events  (list event)
+::
+::  transaction types
+::
++$  transaction  [=sig =calldata shell]
++$  caller  [=address nonce=@ud zigs=id]
++$  calldata  (pair @tas *)
++$  shell
+  $:  =caller  ::  contains address, nonce, and zigs account
+      eth-hash=(unit @)  ::  if signed with eth wallet, use verify signature
+      contract=id
+      gas=[rate=@ud bud=@ud]
+      town=id
+      status=@ud  ::  error code
+  ==
+::
+::  transaction error codes
+::
++$  errorcode
+  $?  %0  ::  0: successfully performed
+      %1  ::  1: bad signature
+      %2  ::  2: incorrect nonce
+      %3  ::  3: lack zigs to fulfill budget
+      %4  ::  4: couldn't find contract
+      %5  ::  5: data was under contract ID
+      %6  ::  6: crash in contract execution
+      %7  ::  7: validation of diff failed
+      %8  ::  8: ran out of gas while executing
+      %9  ::  9: dedicated burn transaction failed
+  ==
+::
+::  EIP-712 mold for offchain data signing
+::  :domain pact that this message will modify
+::  :type is the +sham of the message type jold
+::  :message the noun being signed
++$  typed-message  [domain=id type=@ux message=*]
+::
+++  recover
+  |=  [=typed-message =sig]
+  ^-  id
+  %-  address-from-pub
+  %-  serialize-point:secp256k1:secp:crypto
+  (ecdsa-raw-recover:secp256k1:secp:crypto (sham typed-message) sig)
+::
+::  typed paths inside contracts
+::  taken from: https://github.com/urbit/urbit/pull/5887
+::  can live here temporarily until these types/parsers
+::  are merged into hoon.hoon
+::
++$  pith  (list iota)                                  ::  typed urbit path
+::                                                     ::
++$  iota                                               ::  typed path segment
   $~  [%n ~]
   $@  @tas
   $%  [%ub @ub]  [%uc @uc]  [%ud @ud]  [%ui @ui]
@@ -145,77 +206,6 @@
       [%t @t]    [%ta @ta]  ::  @tas
       [%p @p]    [%q @q]
       [%rs @rs]  [%rd @rd]  [%rh @rh]  [%rq @rq]
-      ::  contract types
-      [%address @ux]  [%grain @ux]
-  ==
-::
-::  cart: state context fed into contract
-::
-+$  cart
-  $:  me=id
-      from=[=id nonce=@ud]
-      batch=@ud
-      town-id=id
-  ==
-::
-::  contract result types
-::
-+$  chick    (each rooster hen)
-::
-+$  rooster  [changed=(merk id grain) issued=(merk id grain) burned=(merk id grain) =crow]
-+$  hen      [next=(list [contract=id town-id=id =yolk]) =rooster]
-::
-+$  crow     (list [@tas json])
-::
-::  smart contract definition
-::
-+$  contract
-  $_  ^|
-  |_  cart
-  ++  write
-    |~  *
-    chick
-  ::
-  ++  read
-    ^|  |_  path
-    ++  json
-      *^json
-    ++  noun
-      *^noun
-    --
-  --
-::
-::  transaction type, fed into contract
-::
-+$  egg     [=sig =shell =yolk]
-::
-::  @tas label should match to one in contract's interface
-::  yolk becomes the noun fed into contract write arm
-::
-+$  yolk    (pair @tas *)
-+$  shell
-  $:  from=caller
-      eth-hash=(unit @)  ::  if transaction signed with eth wallet, use this to verify signature
-      contract=id
-      rate=@ud
-      budget=@ud
-      town-id=id
-      status=@ud  ::  error code
-  ==
-::
-::  egg error codes
-::
-+$  errorcode
-  $%  %0  ::  0: successfully performed
-      %1  ::  1: submitted with raw id / no account info
-      %2  ::  2: bad signature
-      %3  ::  3: incorrect nonce
-      %4  ::  4: lack zigs to fulfill budget
-      %5  ::  5: couldn't find contract
-      %6  ::  6: crash in contract execution
-      %7  ::  7: validation of changed/issued/burned rice failed
-      %8  ::  8: ran out of gas while executing
-      %9  ::  9: was not parallel / superceded by another egg in batch
   ==
 --  =<
 ::  ::
@@ -227,40 +217,40 @@
 ::  allows read arm of contracts to generate JSON
 ::
 +$  ship  @p
-+$  json                                                ::  normal json value
-  $@  ~                                                 ::  null
-  $%  [%a p=(list json)]                                ::  array
-      [%b p=?]                                          ::  boolean
-      [%o p=(map @t json)]                              ::  object
-      [%n p=@ta]                                        ::  number
-      [%s p=@t]                                         ::  string
++$  json                                               ::  normal json value
+  $@  ~                                                ::  null
+  $%  [%a p=(list json)]                               ::  array
+      [%b p=?]                                         ::  boolean
+      [%o p=(map @t json)]                             ::  object
+      [%n p=@ta]                                       ::  number
+      [%s p=@t]                                        ::  string
   ==
 ++  format  ^?
   |%
-  ++  enjs  ^?                                          ::  json encoders
+  ++  enjs  ^?                                         ::  json encoders
     |%
-    ::                                                  ::  ++frond:enjs:format
-    ++  frond                                           ::  object from k-v pair
+    ::                                                 ::  ++frond:enjs:format
+    ++  frond                                          ::  object from k-v pair
       |=  [p=@t q=json]
       ^-  json
       [%o [[p q] ~ ~]]
-    ::                                                  ::  ++pairs:enjs:format
-    ++  pairs                                           ::  object from k-v list
+    ::                                                 ::  ++pairs:enjs:format
+    ++  pairs                                          ::  object from k-v list
       |=  a=(list [p=@t q=json])
       ^-  json
       [%o (~(gas by *(map @t json)) a)]
-    ::                                                  ::  ++tape:enjs:format
-    ++  tape                                            ::  string from tape
+    ::                                                 ::  ++tape:enjs:format
+    ++  tape                                           ::  string from tape
       |=  a=^tape
       ^-  json
       [%s (crip a)]
-    ::                                                  ::  ++ship:enjs:format
-    ++  ship                                            ::  string from ship
+    ::                                                 ::  ++ship:enjs:format
+    ++  ship                                           ::  string from ship
       |=  a=^ship
       ^-  json
       [%n (rap 3 '"' (rsh [3 1] (scot %p a)) '"' ~)]
-    ::                                                  ::  ++numb:enjs:format
-    ++  numb                                            ::  number from unsigned
+    ::                                                 ::  ++numb:enjs:format
+    ++  numb                                           ::  number from unsigned
       |=  a=@u
       ^-  json
       :-  %n
@@ -313,7 +303,7 @@
   ~>  %shag.+<
   ^-  hash
   `@ux`(sham yux)
-  ::  TODO: make LRU-cache-optimized version for granary retrivial & modification
+  ::  TODO: make LRU-cache-optimized version for granary retrivial
   ::  ?@  yux
   ::    (hash:pedersen yux 0)
   ::  (hash:pedersen $(yux -.yux) $(yux +.yux))
@@ -594,10 +584,10 @@
     =|  [l=(unit) r=(unit)]
     |.  ^-  ?
     ?~  a   &
-    ?&  ?~(l & (sore n.a u.l))
-        ?~(r & (sore u.r n.a))
-        ?~(l.a & ?&((sure n.a n.l.a) $(a l.a, l `n.a)))
-        ?~(r.a & ?&((sure n.a n.r.a) $(a r.a, r `n.a)))
+    ?&  ?~(l & &((sore n.a u.l) !=(n.a u.l)))
+        ?~(r & &((sore u.r n.a) !=(u.r n.a)))
+        ?~(l.a & ?&((sure n.a n.l.a) !=(n.a n.l.a) $(a l.a, l `n.a)))
+        ?~(r.a & ?&((sure n.a n.r.a) !=(n.a n.r.a) $(a r.a, r `n.a)))
     ==
   ::
   ++  bif                                               ::  splits a by b
@@ -2811,10 +2801,22 @@
     ::
     ::  keccak
     ::
-    ++  keccak-224  ~/  %k224  |=(a=octs (keccak 1.152 448 224 a))
-    ++  keccak-256  ~/  %k256  |=(a=octs (keccak 1.088 512 256 a))
-    ++  keccak-384  ~/  %k384  |=(a=octs (keccak 832 768 384 a))
-    ++  keccak-512  ~/  %k512  |=(a=octs (keccak 576 1.024 512 a))
+    ++  keccak-224
+      |=  a=octs
+      ~>  %k224.+<
+      (keccak 1.152 448 224 a)
+    ++  keccak-256
+      |=  a=octs
+      ~>  %k256.+<
+      (keccak 1.088 512 256 a)
+    ++  keccak-384
+      |=  a=octs
+      ~>  %k384.+<
+      (keccak 832 768 384 a)
+    ++  keccak-512
+      |=  a=octs
+      ~>  %k512.+<
+      (keccak 576 1.024 512 a)
     ::
     ++  keccak  (cury (cury hash keccak-f) padding-keccak)
     ::
@@ -3397,8 +3399,8 @@
       ++  add-points        add-points:curve
       ++  mul-point-scalar  mul-point-scalar:curve
       ++  make-k
-        ~/  %make
         |=  [hash=@uvI private-key=@]
+        ~>  %make.+<
         ::  checks sizes
         (make-k:curve hash private-key)
       ++  priv-to-pub
@@ -3407,8 +3409,8 @@
         (priv-to-pub:curve private-key)
       ::
       ++  ecdsa-raw-sign
-        ~/  %sign
         |=  [hash=@uvI private-key=@]
+        ~>  %sign.+<
         ^-  [v=@ r=@ s=@]
         =/  c  curve
         ::  raw-sign checks sizes
@@ -3425,8 +3427,8 @@
         [v x.rp s]
       ::
       ++  ecdsa-raw-recover
-        ~/  %reco
         |=  [hash=@ sig=[v=@ r=@ s=@]]
+        ~>  %reco.+<
         ^-  point
         ?>  (lte v.sig 3)
         =/  c   curve

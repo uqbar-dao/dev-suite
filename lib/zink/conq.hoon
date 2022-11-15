@@ -1,5 +1,5 @@
-/+  *zink-zink, smart=zig-sys-smart, mill=zig-mill
-/*  smart-lib-noun  %noun  /con/compiled/smart-lib/noun
+/+  *zink-zink, smart=zig-sys-smart, engine=zig-sys-engine
+/*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  triv-txt        %hoon  /con/trivial/hoon
 |%
 ::
@@ -27,23 +27,40 @@
 ++  compile-contract
   |=  [desk=path txt=@t]
   ^-  [bat=* pay=*]
+  ::
+  ::  goal flow:
+  ::  - take main file, parse to find libs
+  ::  - for each lib, parse to find any libs there
+  ::  - if an import is already present in that stack
+  ::    (circular), crash
+  ::  - once a file with no imports is reached, (rain ) it
+  ::  - compose against this back up the stack
+  ::
+  ::  old stuff:
+  ::
   ::  parse contract code
   =/  [raw=(list [face=term =path]) contract-hoon=hoon]
     (parse-pile (trip txt))
   ::  generate initial subject containing uHoon
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
-  ::  compose libraries flatly against uHoon subject
-  =/  braw=(list hoon)
+  ::  compose libraries against uHoon subject
+  =/  libraries=hoon
+    :-  %clsg
     %+  turn  raw
     |=  [face=term =path]
     =/  pax  (weld desk path)
-    `hoon`[%ktts face (rain pax .^(@t %cx (welp pax /hoon)))]
-  =/  libraries=hoon  [%clsg braw]
-  =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun libraries)
+    ^-  hoon
+    :+  %ktts  face
+    =/  lib-txt  .^(@t %cx (welp pax /hoon))
+    ::  CURRENTLY IGNORING IMPORTS INSIDE LIBRARIES
+    +:(parse-pile (trip lib-txt))
+  =/  pay=*  q:(~(mint ut p.smart-lib) %noun libraries)
   =/  payload=vase  (slap smart-lib libraries)
-  =/  cont  (~(mint ut p:(slop smart-lib payload)) %noun contract-hoon)
+  =/  cont
+    %+  ~(mint ut p:(slop smart-lib payload))
+    %noun  contract-hoon
   ::
-  [bat=q.cont pay=full-nock]
+  [bat=q.cont pay]
 ::
 ++  compile-trivial
   |=  [hoonlib-txt=@t smartlib-txt=@t]
@@ -51,7 +68,6 @@
   =/  [raw=(list [face=term =path]) contract-hoon=hoon]
     (parse-pile (trip triv-txt))
   =/  smart-lib=vase
-    ::  (slap (slap !>(~) (ream hoonlib-txt)) (ream smartlib-txt))
     ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  libraries=hoon  [%clsg ~]
   =/  full-nock=*     q:(~(mint ut p.smart-lib) %noun libraries)
@@ -125,16 +141,16 @@
   ::  =/  cont  (~(mint ut p:(slop smart-lib payload)) %noun contract-hoon)
   ::  ::
   ::  =/  gun  (~(mint ut p.cont) %noun (ream '~'))
-  ::  =/  =book  (zebra bud cax *granary-scry [q.cont q.gun] %.n)
+  ::  =/  =book  (zebra bud cax *chain-state-scry [q.cont q.gun] %.n)
   ::  ~&  p.book
   ::  cax.q.book
   ::
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
-  =/  cont=[bat=* pay=*]  (compile-contract /zig triv-txt)
-  =/  cor  .*([q.smart-lib pay.cont] bat.cont)
+  =/  code=[bat=* pay=*]  (compile-contract /zig triv-txt)
+  =/  cor  .*([q.smart-lib pay.code] bat.code)
   =/  dor  [-:!>(*contract:smart) cor]
-  =/  gun  (ajar:mill dor %write !>(*cart:smart) !>(*yolk:smart))
-  =/  =book  (zebra bud cax *granary-scry gun %.n)
+  =/  gun  (ajar:engine dor %write !>(*context:smart) !>(*calldata:smart) %$)
+  =/  =book  (zebra bud cax *chain-state-scry gun %.n)
   ~&  p.book
   cax.q.book
   ::
@@ -181,6 +197,7 @@
     $:  raw=(list [face=term =path])
         =hoon
     ==
++$  taut  [face=(unit term) pax=term]
 ++  parse-pile
   |=  tex=tape
   ^-  small-pile
@@ -196,8 +213,12 @@
   ==
 ++  pile-rule
   %-  full
-  %+  ifix  [gay gay]
+  %+  ifix
+    :_  gay
+    ::  parse optional smart library import and ignore
+    ;~(plug gay (punt ;~(plug fas lus gap taut-rule gap)))
   ;~  plug
+  ::  only accept /= imports for contract libraries
     %+  rune  tis
     ;~(plug sym ;~(pfix gap stap))
   ::
@@ -215,4 +236,11 @@
 ++  mast
   |*  [bus=rule fel=rule]
   ;~(sfix (more bus fel) bus)
+++  taut-rule
+  %+  cook  |=(taut +<)
+  ;~  pose
+    (stag ~ ;~(pfix tar sym))
+    ;~(plug (stag ~ sym) ;~(pfix tis sym))
+    (cook |=(a=term [`a a]) sym)
+  ==
 --

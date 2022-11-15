@@ -3,19 +3,19 @@
 ::  NFT standard. Provides abilities similar to ERC-721 tokens, also ability
 ::  to deploy and mint new sets of tokens.
 ::
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 /=  nft  /con/lib/nft
 =,  nft
-|_  =cart
+|_  =context
 ++  write
   |=  act=action:sur
-  ^-  chick
+  ^-  (quip call diff)
   ?-  -.act
-    %give           (give:lib:nft cart act)
-    %take           (take:lib:nft cart act)
-    %set-allowance  (set-allowance:lib:nft cart act)
-    %mint           (mint:lib:nft cart act)
-    %deploy         (deploy:lib:nft cart act)
+    %give           (give:lib:nft context act)
+    %take           (take:lib:nft context act)
+    %set-allowance  (set-allowance:lib:nft context act)
+    %mint           (mint:lib:nft context act)
+    %deploy         (deploy:lib:nft context act)
   ==
 ::
 ++  read
@@ -24,11 +24,11 @@
     ^-  ^json
     ?+    path  !!
         [%inspect @ ~]
-      ?~  g=(scry (slav %ux i.t.path))  ~
-      ?.  ?=(%& -.u.g)  ~
-      ?^  item=((soft nft:sur:nft) data.p.u.g)
+      ?~  i=(scry-state (slav %ux i.t.path))  ~
+      ?.  ?=(%& -.u.i)  ~
+      ?^  item=((soft nft:sur:nft) noun.p.u.i)
         (nft:enjs:lib:nft u.item)
-      ?^  meta=((soft metadata:sur:nft) data.p.u.g)
+      ?^  meta=((soft metadata:sur:nft) noun.p.u.i)
         (metadata:enjs:lib:nft u.meta)
       ~
     ==

@@ -1,4 +1,4 @@
-/-  ui=indexer
+/-  ui=zig-indexer
 ::
 |_  =versioned-state:ui
 ++  grab

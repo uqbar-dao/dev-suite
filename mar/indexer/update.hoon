@@ -1,5 +1,5 @@
-/-  ui=indexer
-/+  ui-lib=indexer
+/-  ui=zig-indexer
+/+  ui-lib=zig-indexer
 ::
 |_  =update:ui
 ++  grab
