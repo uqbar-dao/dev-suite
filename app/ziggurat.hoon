@@ -320,8 +320,8 @@
         :-  ~
         :^  `tid  byk.bowl(r da+now.bowl)
           %ziggurat-test-run
-        !>  ^-  (unit [test-steps (unit [@t (list @p)])])
-        `[steps.test `[project.act ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
+        !>  ^-  (unit [test-steps (unit [@t @ux (list @p)])])
+        `[steps.test `[project.act id.act ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
       =/  w=wire  /test/[project.act]/(scot %ux id.act)/[tid]
       :_  state
       :+  :^  %pass  w  %agent

@@ -43,6 +43,7 @@
       [%snap-ships =path hers=(list ship)]
       [%restore-snap =path]
       [%clear-snap =path]
+      [%clear-snaps ~]
   ==
 ::
 +$  aqua-effects

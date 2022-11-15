@@ -5,18 +5,21 @@
 ::
 ++  take-snapshot
   |=  $:  step=@ud
-          for-snapshot=(unit [project=@t ships=(list @p)])
+          for-snapshot=(unit [project=@t test-id=@ux ships=(list @p)])
       ==
   =/  m  (strand:spider ,~)
   ^-  form:m
   ?~  for-snapshot  (pure:m ~)
   =*  project  project.u.for-snapshot
+  =*  test-id  test-id.u.for-snapshot
   =*  ships    ships.u.for-snapshot
   ;<  ~  bind:m
     %+  poke-our:strandio  %pyro
     :-  %action
     !>  ^-  pyro-action:pyro
-    [%snap-ships /[project]/(scot %ud step) ships]
+    :+  %snap-ships
+      /[project]/(scot %ux test-id)/(scot %ud step)
+    ships
   (pure:m ~)
 ::
 ++  block-on-previous-step

@@ -14,15 +14,6 @@
 ::
 +$  arg-mold  [project=@t =path]
 ::
-++  init-ships
-  |=  ships=(list @p)
-  =/  m  (strand ,~)
-  ^-  form:m
-  |-
-  ?~  ships  (pure:m ~)
-  ;<  ~  bind:m  (init-ship:pyio i.ships)
-  $(ships t.ships)
-::
 ++  ted
   ^-  thread:spider
   |=  args-vase=vase

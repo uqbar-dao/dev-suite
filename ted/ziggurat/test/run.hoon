@@ -15,7 +15,7 @@
 ::
 +$  arg-mold
   $:  =test-steps:zig
-      for-snapshot=(unit [project=@t ships=(list @p)])
+      for-snapshot=(unit [project=@t test-id=@ux ships=(list @p)])
   ==
 ::
 ++  test-results-of-reads-to-test-result
@@ -83,7 +83,7 @@
   (pure:m (slap mold-sur (ream mold-name)))
 ::
 ++  run-steps
-  |=  [=test-steps:zig for-snapshot=(unit [@t (list @p)])]
+  |=  [=test-steps:zig for-snapshot=(unit [@t @ux (list @p)])]
   =/  m  (strand ,test-results:zig)
   ^-  form:m
   =|  =test-results:zig

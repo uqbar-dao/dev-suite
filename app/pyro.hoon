@@ -667,8 +667,10 @@
     `state
   ::
       %clear-snap
-    =.  fleet-snaps  (~(del by fleet-snaps) path.act)
-    `state
+    `state(fleet-snaps (~(del by fleet-snaps) path.act))
+  ::
+      %clear-snaps
+    `state(fleet-snaps ~)
   ::  %touch-file
   ::  %start-app/%poke-app
   ==
