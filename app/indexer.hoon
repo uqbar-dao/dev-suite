@@ -435,15 +435,13 @@
         [cards this]
       ::
           %kick
-        ::  become inert on kick
-        `this
-        ::  :_  this
-        ::  %^    set-watch-target:ic
-        ::      wire
-        ::    [src.bowl %rollup]  ::  TODO: remove hardcode
-        ::  ?:  ?=(%rollup-root-update -.wire)
-        ::    rollup-root-path
-        ::  rollup-capitol-path
+        :_  this
+        %^    set-watch-target:ic
+            wire
+          [src.bowl %rollup]  ::  TODO: remove hardcode
+        ?:  ?=(%rollup-root-update -.wire)
+          rollup-root-path
+        rollup-capitol-path
       ==
     ::
         [%sequencer-update ~]
@@ -455,13 +453,11 @@
         [cards this]
       ::
           %kick
-        ::  become inert on kick
-        `this
-        ::  :_  this
-        ::  %^    set-watch-target:ic
-        ::      sequencer-wire
-        ::    [src.bowl %sequencer]  ::  TODO: remove hardcode
-        ::  sequencer-path
+        :_  this
+        %^    set-watch-target:ic
+            sequencer-wire
+          [src.bowl %sequencer]  ::  TODO: remove hardcode
+        sequencer-path
       ==
     ::
         [%indexer-bootstrap-update ~]
