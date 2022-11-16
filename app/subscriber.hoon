@@ -5,7 +5,7 @@
 /+  dbug, default-agent, *mip
 ::
 |%
-+$  state-0  [%0 =facts]
++$  state-0  [%0 =facts] :: XX change facts to a set not a queue - tag by timestamp
 +$  card  card:agent:gall
 +$  sign  sign:agent:gall
 --
@@ -32,12 +32,12 @@
   =/  paf=path  [(scot %p ship.act) agent.act path.act]
   ?-    -.act
       %sub
-    :-  [%pass paf %agent [ship.act agent.act] %watch path.act]~
+    :-  [%pass paf %agent [ship agent]:act %watch path.act]~
     %=    this
         facts.state
-      ?^  (~(get bi facts.state) [ship.act agent.act] paf)
+      ?^  (~(get bi facts.state) [ship agent]:act paf)
         facts.state
-      (~(put bi facts.state) [ship.act agent.act] path.act ~)
+      (~(put bi facts.state) [ship agent]:act path.act ~)
     ==
   ::
       %unsub
@@ -45,7 +45,7 @@
     [%pass paf %agent [ship.act agent.act] %leave ~]~
   ::
       %clear
-    `this(facts.state (~(put bi facts.state) [ship.act agent.act] path.act ~))
+    `this(facts.state (~(put bi facts.state) [ship agent]:act path.act ~))
   ==
 ++  on-leave  on-leave:def
 ++  on-watch  on-watch:def
