@@ -367,9 +367,8 @@
     %-  zing
     %+  turn  ufs
     |=  uf=unix-effect
-    :~  [%give %fact ~[/effect] %aqua-effect !>(`aqua-effect`[ship uf])]
-        [%give %fact ~[/effect/[-.q.uf]] %aqua-effect !>(`aqua-effect`[ship uf])]
-    ==
+    =+  paths=~[/effect /effect/[-.q.uf]]
+    [%give %fact paths %aqua-effect !>(`aqua-effect`[ship uf])]~
   ::
   =.  this
     =/  =path  /effects
