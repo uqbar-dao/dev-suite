@@ -52,28 +52,31 @@
   ?+    path  (on-peek:def path)
   ::
   ::  next n events
-    ::   [%x %next @ @ @ ^]
-    :: =/  =ship  (slav %p i.t.t.path)
-    :: =/  agent  i.t.t.t.path
-    :: =/  n=@ud  (slav %ud i.t.t.t.t.path)
-    :: =/  qew  (~(got by facts.state) ship)
-    :: :: =/  fakt  (head ~(get to qew))
-    :: =/  meme=*
-    ::   =|  acu
-    ::   |-  ^-  *
-    ::   ?:  =(n i)  
-    :: ``noun+!>(fakt)
+      [%x %next-facts @ @ @ ^]
+    =/  n=@ud  (slav %ud i.t.t.path)
+    =/  =ship  (slav %p i.t.t.t.path)
+    =/  agent  i.t.t.t.t.path
+    =/  pafth  t.t.t.t.t.path
+    =/  qew  (~(got bi facts.state) [ship agent] pafth)
+    =/  res=(list sign)
+      =|  i=@ud
+      =|  facts=(list sign)
+      |-  ^-  (list sign)
+      ?:    |(=(n i) =(~ qew))
+        facts
+      =^  new  qew  ~(get to qew)
+      $(i +(i), facts [new facts])
+    ``noun+!>(res)
   ::
-  ::  next event (single)
-      [%x %next @ @ ^]
+      [%x %next-fact @ @ ^]
     =/  =ship  (slav %p i.t.t.path)
     =/  agent  i.t.t.t.path
     =/  pafth  t.t.t.t.path
     =/  qew  (~(got bi facts.state) [ship agent] pafth)
     =/  fakt  (head ~(get to qew))
     ``noun+!>(fakt)
-  ::  entire qeu
-      [%x @ @ ^]
+  ::
+      [%x %all-facts @ @ ^]
     =/  =ship  (slav %p i.t.path)
     =/  agent  i.t.t.path
     =/  pafth  t.t.t.path
