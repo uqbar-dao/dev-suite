@@ -13,16 +13,6 @@
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
 ::
-|%
-+$  state-0
-  $:  %0
-      =projects
-      pyro-ships=[tid=@ta is-ready=?]
-  ==
-+$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
-+$  eng  $_  ~(engine engine:engine !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
---
-::
 =|  inflated-state-0
 =*  state  -
 ::
@@ -42,7 +32,7 @@
   :-  ~
   %_    this
       state
-    [[%0 ~ ['' %.n]] eng smart-lib]
+    [[%0 ~ ~ ['' %.n]] eng smart-lib]
   ==
 ++  on-save  !>(-.state)
 ++  on-load
@@ -359,6 +349,31 @@
       :: :-  (make-multi-test-update project.act res)^~
       :: state(projects (~(put by projects) project.act project))
     ::
+        %add-custom-step  ::  TODO: add transform & debug
+      =/  compilation-result
+        %-  mule
+        |.((slap !>(..zuse) (ream custom-step-definition.act)))
+      :-  ~
+      %=  state
+          custom-step-definitions
+        %+  ~(put by custom-step-definitions)  tag.act
+        :-  custom-step-definition.act
+        :-  ~
+        ?:  ?=(%& -.compilation-result)  compilation-result
+        :-  %|
+        %-  crip
+        %+  roll  p.compilation-result
+        |=  [in=tank out=tape]
+        (weld ~(ram re in) out)
+      ==
+    ::
+        %delete-custom-step
+      :-  ~
+      %=  state
+          custom-step-definitions
+        (~(del by custom-step-definitions) tag.act)
+      ==
+    ::
         %ready-pyro-ships
       ?:  =('' tid.pyro-ships)
         ~|("%ziggurat: %start-pyro-ships or %load-pyro-snapshot before signaling ready" !!)
@@ -554,6 +569,15 @@
     :: ?~  compiled.p.u.project
     ::   ``noun+!>(~)
     :: ``noun+!>(compiled.p.u.project)
+  ::
+      [%custom-step-definitions ~]
+    :^  ~  ~  %noun
+    !>  ^-  ^custom-step-definitions
+    %-  ~(run by custom-step-definitions)
+    |=  [p=custom-step-definition q=custom-step-compiled]
+    :-  p
+    ?~  q  q
+    ?:  ?=(%| -.u.q)  q  `[%& *vase]
   ::
   ::  JSONS
   ::

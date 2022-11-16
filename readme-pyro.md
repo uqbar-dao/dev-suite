@@ -122,19 +122,19 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 =setup-bud `test-steps:zig`~[[%poke [~bud %indexer %set-sequencer '[~nec %sequencer]'] ~] [%poke [~bud %indexer %set-rollup '[~nec %rollup]'] ~] [%poke [~bud %indexer %indexer-bootstrap '[~nec %indexer]'] ~] [%poke [~bud %uqbar %wallet-poke '[%import-seed \'post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney\' \'squid\' \'nickname\']'] ~]]
 =setup `test-steps:zig`(weld setup-nec setup-bud)
 :ziggurat &ziggurat-action [%foo %add-test `%setup setup]
-=scry-nec `test-steps:zig`~[[%scry [~nec /zig/sur/zig/indexer/hoon 'update' %gx %indexer /batch-order/0x0/noun] '[%batch-order batch-order=~[0xd85a.d919.9806.cbc2.b841.eb0d.854d.22af]]']]
+=scry-nec `test-steps:zig`~[[%scry [~nec /zig/sur/zig/indexer/hoon 'update:indexer' %gx %indexer /batch-order/0x0/noun] '[%batch-order batch-order=~[0xd85a.d919.9806.cbc2.b841.eb0d.854d.22af]]']]
 :ziggurat &ziggurat-action [%foo %add-test `%scry-nec scry-nec]
-=scry-bud `test-steps:zig`~[[%scry [~bud /zig/sur/zig/indexer/hoon 'update' %gx %indexer /batch-order/0x0/noun] '[%batch-order batch-order=~[0xd85a.d919.9806.cbc2.b841.eb0d.854d.22af]]']]
+=scry-bud `test-steps:zig`~[[%scry [~bud /zig/sur/zig/indexer/hoon 'update:indexer' %gx %indexer /batch-order/0x0/noun] '[%batch-order batch-order=~[0xd85a.d919.9806.cbc2.b841.eb0d.854d.22af]]']]
 :ziggurat &ziggurat-action [%foo %add-test `%scry-bud scry-bud]
 =scry-clay `test-steps:zig`~[[%scry [~bud ~ 'wain' %cx %base /desk/bill] '<|acme azimuth dbug dojo eth-watcher hood herm lens ping spider|>']]
 :ziggurat &ziggurat-action [%foo %add-test `%scry-clay scry-clay]
-=send-nec `test-steps:zig`~[[%poke [rollup-host %uqbar %wallet-poke '[%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]'] ~] [%poke [rollup-host %uqbar %wallet-poke '[%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xa99c.4c8e.1c8d.abb8.e870.81e8.8c96.2cf5 gas=[rate=1 bud=1.000.000]]'] ~] [%dojo [~nec ':sequencer|batch'] `(list test-read-step:zig)`~[[%wait ~s1] [%scry [~nec /zig/sur/zig/indexer/hoon 'update' %gx %indexer /newest/item/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun] '']]]]
+=send-nec `test-steps:zig`~[[%poke [rollup-host %uqbar %wallet-poke '[%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]'] ~] [%poke [rollup-host %uqbar %wallet-poke '[%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xa99c.4c8e.1c8d.abb8.e870.81e8.8c96.2cf5 gas=[rate=1 bud=1.000.000]]'] ~] [%dojo [~nec ':sequencer|batch'] `(list test-read-step:zig)`~[[%wait ~s1] [%scry [~nec /zig/sur/zig/indexer/hoon 'update:indexer' %gx %indexer /newest/item/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun] '']]]]
 :ziggurat &ziggurat-action [%foo %add-test `%send-nec send-nec]
 
-=send-nec-id 0xfb1d.9efc.7e0e.53e4.c03b.4d28.721f.f8b6
+=send-nec-id 0x49.6b9f.c2dc.2641.5c66.e64a.848b.80ee
 =scry-clay-id 0x29de.35b5.a26d.c49c.a39c.7437.c399.c316
-=scry-bud-id 0x25cc.25ff.133c.59bf.bfd7.4836.1364.727f
-=scry-nec-id 0xab6f.d5d4.99a1.3b27.84ca.fc58.3b82.2d9f
+=scry-bud-id 0xddd5.d31d.72c2.dbe0.42fe.7ae1.3d17.8db5
+=scry-nec-id 0x9fb7.15f6.364d.dfd0.42ea.540e.57cd.daf8
 =setup-id 0xa253.baf1.f666.df41.ab31.fe25.2de6.5d20
 
 :ziggurat &ziggurat-action [%foo %start-pyro-ships ~]

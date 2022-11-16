@@ -1,7 +1,16 @@
 /-  engine=zig-engine, docket, wallet=zig-wallet
-/+  smart=zig-sys-smart
+/+  engine-lib=zig-sys-engine,
+    smart=zig-sys-smart
 |%
 +$  card  card:agent:gall
++$  state-0
+  $:  %0
+      =projects
+      =custom-step-definitions
+      pyro-ships=[tid=@ta is-ready=?]
+  ==
++$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
++$  eng  $_  ~(engine engine:engine-lib !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
 ::
 +$  projects  (map @t project)
 +$  project
@@ -18,7 +27,7 @@
       =tests
   ==
 ::
-+$  build-result   (each [bat=* pay=*] @t)
++$  build-result  (each [bat=* pay=*] @t)
 ::
 +$  tests  (map @ux test)
 +$  test
@@ -43,15 +52,19 @@
       [%poke payload=poke-payload expected=(list test-read-step)]
       [%subscribe payload=sub-payload expected=(list test-read-step)]
   ==
++$  test-custom-step
+  [tag=@tas payload=@t expected=(list test-read-step)]
 :: +$  dbug-payload  [who=@p app=@tas %state/bowl/???] :: TODO
 +$  scry-payload
-  ::  if `mold-name` mold in stdlib, `mold-sur` must be `~`.
+  ::  if `mold-name` mold in stdlib, set `mold-sur` to `~`.
   ::  `mold-sur` first element is desk and subsequent are
   ::   path to the sur file, e.g., to import this file:
   ::   `mold-sur=/zig/sur/zig/ziggurat/hoon`.
-  ::  whether from stdlib or from imported sur file,
-  ::   `mold-name` is a direct reference, e.g.,
-  ::   `@ud` or, from this file, `test-write-step`.
+  ::  if `mold-name` from stdlib, `mold-name` is a direct
+  ::   reference, e.g., `@ud`
+  ::  if `mold-name` from `mold-sur`, `mold-name` is
+  ::   namespaced by file name, e.g., from this file,
+  ::   `test-write-step:ziggurat`.
   [who=@p mold-sur=path mold-name=@t care=@tas app=@tas =path]
 +$  read-sub-payload  [who=@p =mold care=@tas app=@tas =path]  :: TODO
 :: +$  poke-payload  [who=@p app=@tas payload=cage]
@@ -59,10 +72,20 @@
 +$  poke-payload  [who=@p app=@tas mark=@tas payload=@t]
 +$  sub-payload  [who=@p app=@tas p=path]
 ::
++$  custom-step-definitions
+  %+  map  @tas
+  (pair custom-step-definition custom-step-compiled)
++$  custom-step-definition
+  transform=@t
+  :: $:  payload=[mold-surs=(list path) input=@t]
+  ::     transform=$-(payload=vase test-step)
+  :: ==
++$  custom-step-compiled
+  (unit (each transform=vase @t))
+  :: (unit (each [payload=vase transform=vase] @t))
+::
 +$  test-results  (list test-result)
 +$  test-result   (list [success=? expected=@t result=@t])
-  :: %+  each  [success=? expected=@t result=@t]
-  :: (list [success=? expected=@t result=@t])
 ::
 +$  template  ?(%fungible %nft %blank)
 ::
@@ -91,6 +114,9 @@
           :: [%edit-test id=@ux name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]
           [%run-test id=@ux rate=@ud bud=@ud]
           [%run-tests tests=(list [id=@ux rate=@ud bud=@ud])]  :: each one run with same gas
+          ::
+          [%add-custom-step tag=@tas =custom-step-definition]
+          [%delete-custom-step tag=@tas]
           ::
           [%ready-pyro-ships ~]
           [%stop-pyro-ships ~]

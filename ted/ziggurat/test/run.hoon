@@ -78,9 +78,14 @@
   |=  [mold-sur-path=path mold-name=@t]
   =/  m  (strand ,vase)
   ^-  form:m
-  ?~  mold-sur-path  (pure:m (slap !>(.) (ream mold-name)))
+  ?~  snipped=(snip mold-sur-path)
+    (pure:m (slap !>(..zuse) (ream mold-name)))  ::  TODO: do better
+  =/  sur-face=@tas  `@tas`(rear snipped)
   ;<  mold-sur=vase  bind:m  (scry vase [%ca mold-sur-path])
-  (pure:m (slap mold-sur (ream mold-name)))
+  %-  pure:m
+  %-  slap  :_  (ream mold-name)
+  %-  slop  :_  !>(..zuse)
+  mold-sur(p [%face sur-face p:mold-sur])
 ::
 ++  run-steps
   |=  [=test-steps:zig for-snapshot=(unit [@t @ux (list @p)])]
