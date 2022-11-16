@@ -43,6 +43,9 @@
       %unsub
     :_  this
     [%pass paf %agent [ship.act agent.act] %leave ~]~
+  ::
+      %clear
+    `this(facts.state (~(put bi facts.state) [ship.act agent.act] path.act ~))
   ==
 ++  on-leave  on-leave:def
 ++  on-watch  on-watch:def
@@ -73,7 +76,9 @@
     =/  agent  i.t.t.t.path
     =/  pafth  t.t.t.t.path
     =/  qew  (~(got bi facts.state) [ship agent] pafth)
-    =/  fakt  (head ~(get to qew))
+    =/  fakt
+      ?~  qew  ~
+      (head ~(get to qew))
     ``noun+!>(fakt)
   ::
       [%x %all-facts @ @ ^]
