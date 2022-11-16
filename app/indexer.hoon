@@ -594,6 +594,9 @@
           %new-peer-root
         =*  town-id   town.update
         =*  batch-id  root.update
+        =/  timestamp=@da
+          ?:  =(*@da timestamp.update)  now.bowl
+          timestamp.update
         ?:  (has-batch-id-already town-id batch-id)  `state
         =/  sequencer-update
           ^-  (unit [transactions=processed-txs:eng =town:seq])
@@ -609,7 +612,7 @@
             %+  %~  put  by
                 %+  ~(gut by town-update-queue)  town-id
                 *(map batch-id=@ux timestamp=@da)
-            batch-id  timestamp.update
+            batch-id  timestamp
           ==
         :_  state
         :_  ~
@@ -619,7 +622,7 @@
         :*  batch-id
             transactions.u.sequencer-update
             town.u.sequencer-update
-            timestamp.update
+            timestamp
             %.y
         ==
       ==
