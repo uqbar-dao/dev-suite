@@ -20,6 +20,7 @@
   ~&  >  "open-faucet: Poke the %faucet app on faucet-host"
   ~&  >  "             to receive some native tokens to address"
   ~&  >  "Usage: -zig!open-faucet faucet-host town-id address"
+  (pure:m !>(~))
 =*  faucet-host  faucet-host.u.args
 =*  town-id      town-id.u.args
 =*  address      address.u.args
