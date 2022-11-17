@@ -349,10 +349,19 @@
       :: :-  (make-multi-test-update project.act res)^~
       :: state(projects (~(put by projects) project.act project))
     ::
-        %add-custom-step  ::  TODO: add transform & debug
+        %add-custom-step
+      =/  ziggurat-sur=^vase
+        .^  ^vase
+            %ca
+            %+  weld  /(scot %p our.bowl)/zig
+            /(scot %da now.bowl)/sur/zig/ziggurat/hoon
+        ==
       =/  compilation-result
         %-  mule
-        |.((slap !>(..zuse) (ream custom-step-definition.act)))
+        |.
+        %-  slap  :_  (ream custom-step-definition.act)
+        %-  slop  :_  !>(..zuse)
+        ziggurat-sur(p [%face %ziggurat p.ziggurat-sur])
       :-  ~
       %=  state
           custom-step-definitions
@@ -578,6 +587,14 @@
     :-  p
     ?~  q  q
     ?:  ?=(%| -.u.q)  q  `[%& *vase]
+  ::
+      [%custom-step-compiled @ ~]
+    =/  tag=@tas  `@tas`i.t.t.path
+    ?~  def=(~(get by custom-step-definitions) tag)
+      ~|("%ziggurat: did not find {<tag>} custom-step-definition in {<~(key by custom-step-definitions)>}" !!)
+    ?:  |(?=(~ q.u.def) ?=(%| -.u.q.u.def))  ::  TODO: do better
+      ~|("%ziggurat: compilation of {<tag>} failed; please fix and try again" !!)
+    ``noun+!>(`vase`p.u.q.u.def)
   ::
   ::  JSONS
   ::

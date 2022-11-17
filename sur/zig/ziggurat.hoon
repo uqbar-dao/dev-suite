@@ -40,20 +40,20 @@
   (map id:smart [made=(unit item:smart) expected=(unit item:smart) match=(unit ?)])
 ::
 +$  test-steps  (list test-step)
-+$  test-step   $%(test-read-step test-write-step)
++$  test-step  $%(test-read-step test-write-step)
 +$  test-read-step
   $%  [%scry payload=scry-payload expected=@t]
       :: [%dbug payload=dbug-payload expected=@t]  :: TODO
       [%read-subscription payload=read-sub-payload expected=@t timeout=@dr]  ::  not sure if need timeout: if want to not block so can handle out-of-order when multiple subscriptions are being passed around, may need it. Ideally wouldn't need.
       [%wait until=@dr]
+      [%custom-read tag=@tas payload=@t expected=@t]
   ==
 +$  test-write-step
   $%  [%dojo payload=dojo-payload expected=(list test-read-step)]
       [%poke payload=poke-payload expected=(list test-read-step)]
       [%subscribe payload=sub-payload expected=(list test-read-step)]
+      [%custom-write tag=@tas payload=@t expected=(list test-read-step)]
   ==
-+$  test-custom-step
-  [tag=@tas payload=@t expected=(list test-read-step)]
 :: +$  dbug-payload  [who=@p app=@tas %state/bowl/???] :: TODO
 +$  scry-payload
   ::  if `mold-name` mold in stdlib, set `mold-sur` to `~`.

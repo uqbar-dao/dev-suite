@@ -150,6 +150,36 @@
       [[=(expected res-text) expected res-text]~ test-results]
     ==
   ::
+      %custom-read
+    ~&  %ziggurat-test-run^%0
+    ;<  transform=vase  bind:m
+      %+  scry  vase
+      /gx/ziggurat/custom-step-compiled/[tag.test-step]/noun
+    ~&  %ziggurat-test-run^%1
+    =/  transformed-step=test-step:zig
+      !<  test-step:zig
+      %+  slam  transform
+      %+  slop
+      %+  slap  !>(..zuse)  (ream payload.test-step)
+      !>(expected.test-step)
+    ~&  %ziggurat-test-run-custom-from-to^payload.test-step^transformed-step
+    $(test-steps [transformed-step t.test-steps])
+  ::
+      %custom-write
+    ~&  %ziggurat-test-run^%0
+    ;<  transform=vase  bind:m
+      %+  scry  vase
+      /gx/ziggurat/custom-step-compiled/[tag.test-step]/noun
+    ~&  %ziggurat-test-run^%1
+    =/  transformed-step=test-step:zig
+      !<  test-step:zig
+      %+  slam  transform
+      %+  slop
+      %+  slap  !>(..zuse)  (ream payload.test-step)
+      !>(expected.test-step)
+    ~&  %ziggurat-test-run-custom-from-to^payload.test-step^transformed-step
+    $(test-steps [transformed-step t.test-steps])
+  ::
       %read-subscription  !!
   ::
       %subscribe  !!
