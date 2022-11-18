@@ -151,33 +151,50 @@
     ==
   ::
       %custom-read
-    ~&  %ziggurat-test-run^%0
     ;<  transform=vase  bind:m
       %+  scry  vase
       /gx/ziggurat/custom-step-compiled/[tag.test-step]/noun
-    ~&  %ziggurat-test-run^%1
-    =/  transformed-step=test-step:zig
-      !<  test-step:zig
+    =/  transformed-step=test-read-step:zig
+      !<  test-read-step:zig
       %+  slam  transform
       %+  slop
       %+  slap  !>(..zuse)  (ream payload.test-step)
       !>(expected.test-step)
-    ~&  %ziggurat-test-run-custom-from-to^payload.test-step^transformed-step
     $(test-steps [transformed-step t.test-steps])
   ::
       %custom-write
-    ~&  %ziggurat-test-run^%0
     ;<  transform=vase  bind:m
       %+  scry  vase
       /gx/ziggurat/custom-step-compiled/[tag.test-step]/noun
-    ~&  %ziggurat-test-run^%1
-    =/  transformed-step=test-step:zig
-      !<  test-step:zig
+    =/  transformed-step=test-write-step:zig
+      !<  test-write-step:zig
       %+  slam  transform
       %+  slop
       %+  slap  !>(..zuse)  (ream payload.test-step)
       !>(expected.test-step)
-    ~&  %ziggurat-test-run-custom-from-to^payload.test-step^transformed-step
+    ::  execute code given as @t, e.g., transform
+    ::   `:*  %foo  %bar  ==`
+    ::   to
+    ::   `[%foo %bar]`
+    ::   TODO: consolidate logic
+    =?    transformed-step
+        ?=(%dojo -.transformed-step)
+      %=  transformed-step
+          payload.payload
+        %-  crip
+        %-  noah
+        %+  slap  !>(..zuse)
+        (ream payload.payload.transformed-step)
+      ==
+    =?    transformed-step
+        ?=(%poke -.transformed-step)
+      %=  transformed-step
+          payload.payload
+        %-  crip
+        %-  noah
+        %+  slap  !>(..zuse)
+        (ream payload.payload.transformed-step)
+      ==
     $(test-steps [transformed-step t.test-steps])
   ::
       %read-subscription  !!

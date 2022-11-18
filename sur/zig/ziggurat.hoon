@@ -7,6 +7,7 @@
   $:  %0
       =projects
       =custom-step-definitions
+      virtualnet-addresses=(map @p address:smart)
       pyro-ships=[tid=@ta is-ready=?]
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
@@ -80,8 +81,7 @@
   :: $:  payload=[mold-surs=(list path) input=@t]
   ::     transform=$-(payload=vase test-step)
   :: ==
-+$  custom-step-compiled
-  (unit (each transform=vase @t))
++$  custom-step-compiled  (each transform=vase @t)
   :: (unit (each [payload=vase transform=vase] @t))
 ::
 +$  test-results  (list test-result)
@@ -100,15 +100,17 @@
       ::
           [%save-file file=path text=@t]  ::  generates new file or overwrites existing
           [%delete-file file=path]
-          ::
+      ::
+          [%set-virtualnet-address who=@p =address:smart]
+      ::
           [%register-contract-for-compilation file=path]
           [%compile-contracts ~]  ::  alterations to project files call %compile-contracts which calls %read-desk which sends a project update; TODO: skip compile when no change?
           [%read-desk ~]
-          ::
+      ::
           [%add-item source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
           [%update-item =id:smart source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
           [%delete-item =id:smart]
-          ::
+      ::
           [%add-test name=(unit @t) =test-steps]  ::  name optional
           [%delete-test id=@ux]
           :: [%edit-test id=@ux name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]
@@ -122,7 +124,7 @@
           [%stop-pyro-ships ~]
           [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> [~nec ~bud]
           [%load-pyro-snapshot =path]
-          ::
+      ::
           [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
           $:  %deploy-contract
               =path

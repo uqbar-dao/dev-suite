@@ -29,10 +29,19 @@
     %~  engine  engine:engine
     ::  sigs off, hints off
     [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.n %.n]
+  =*  nec-address
+    0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
+  =*  bud-address
+    0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
   :-  ~
   %_    this
       state
-    [[%0 ~ ~ ['' %.n]] eng smart-lib]
+    :_  [eng smart-lib]
+    :-  %0
+    :^  ~  ~
+      %-  ~(gas by *(map @p address:smart))
+      ~[[~nec nec-address] [~bud bud-address]]
+    ['' %.n]
   ==
 ++  on-save  !>(-.state)
 ++  on-load
@@ -73,6 +82,32 @@
       %ziggurat-action  (handle-poke !<(action vase))
     ==
   [cards this]
+  ::
+  ++  compile-custom-step
+    |=  [tag=@tas =custom-step-definition]
+    ^-  (each ^vase @t)
+    =/  ziggurat-sur=^vase
+      .^  ^vase
+          %ca
+          %+  weld  /(scot %p our.bowl)/zig
+          /(scot %da now.bowl)/sur/zig/ziggurat/hoon
+      ==
+    =/  addresses=^vase  !>(virtualnet-addresses)
+    =/  compilation-result
+      %-  mule
+      |.
+      %-  slap  :_  (ream custom-step-definition)
+      ;:  slop
+          addresses(p [%face %addresses p.addresses])
+          ziggurat-sur(p [%face %ziggurat p.ziggurat-sur])
+          !>(..zuse)
+      ==
+    ?:  ?=(%& -.compilation-result)  compilation-result
+    :-  %|
+    %-  crip
+    %+  roll  p.compilation-result
+    |=  [in=tank out=tape]
+    :(weld ~(ram re in) "\0a" out)
   ::
   ++  handle-poke
     |=  act=action
@@ -163,6 +198,13 @@
         =-  [%pass /del-wire %arvo %c -]
         [%info `@tas`project.act %& [file.act %del ~]~]
       ~
+    ::
+        %set-virtualnet-address
+      :-  ~
+      %=  state
+          virtualnet-addresses
+        (~(put by virtualnet-addresses) [who address]:act)
+      ==
     ::
         %register-contract-for-compilation
       =/  =project  (~(got by projects) project.act)
@@ -350,30 +392,13 @@
       :: state(projects (~(put by projects) project.act project))
     ::
         %add-custom-step
-      =/  ziggurat-sur=^vase
-        .^  ^vase
-            %ca
-            %+  weld  /(scot %p our.bowl)/zig
-            /(scot %da now.bowl)/sur/zig/ziggurat/hoon
-        ==
-      =/  compilation-result
-        %-  mule
-        |.
-        %-  slap  :_  (ream custom-step-definition.act)
-        %-  slop  :_  !>(..zuse)
-        ziggurat-sur(p [%face %ziggurat p.ziggurat-sur])
+      =/  compilation-result=(each ^vase @t)
+        (compile-custom-step [tag custom-step-definition]:act)
       :-  ~
       %=  state
           custom-step-definitions
         %+  ~(put by custom-step-definitions)  tag.act
-        :-  custom-step-definition.act
-        :-  ~
-        ?:  ?=(%& -.compilation-result)  compilation-result
-        :-  %|
-        %-  crip
-        %+  roll  p.compilation-result
-        |=  [in=tank out=tape]
-        (weld ~(ram re in) out)
+        [custom-step-definition.act compilation-result]
       ==
     ::
         %delete-custom-step
@@ -585,16 +610,15 @@
     %-  ~(run by custom-step-definitions)
     |=  [p=custom-step-definition q=custom-step-compiled]
     :-  p
-    ?~  q  q
-    ?:  ?=(%| -.u.q)  q  `[%& *vase]
+    ?:  ?=(%| -.q)  q  [%& *vase]
   ::
       [%custom-step-compiled @ ~]
     =/  tag=@tas  `@tas`i.t.t.path
     ?~  def=(~(get by custom-step-definitions) tag)
       ~|("%ziggurat: did not find {<tag>} custom-step-definition in {<~(key by custom-step-definitions)>}" !!)
-    ?:  |(?=(~ q.u.def) ?=(%| -.u.q.u.def))  ::  TODO: do better
+    ?:  ?=(%| -.q.u.def)  ::  TODO: do better
       ~|("%ziggurat: compilation of {<tag>} failed; please fix and try again" !!)
-    ``noun+!>(`vase`p.u.q.u.def)
+    ``noun+!>(`vase`p.q.u.def)
   ::
   ::  JSONS
   ::
