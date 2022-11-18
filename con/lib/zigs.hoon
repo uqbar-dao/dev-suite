@@ -33,14 +33,12 @@
             to=address
             amount=@ud
             from-account=id
-            to-account=(unit id)
         ==
     ::
         $:  %take
             to=address
             amount=@ud
             from-account=id
-            to-account=(unit id)
         ==
     ::
         $:  %set-allowance

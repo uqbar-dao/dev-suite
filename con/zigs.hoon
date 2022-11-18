@@ -23,16 +23,15 @@
     ::  is provided in budget argument via execution engine.
     ?>  (gte balance.noun.giver (add amount.act budget.act))
     =.  balance.noun.giver  (sub balance.noun.giver amount.act)
-    ?~  to-account.act
+    =/  to-account=id  (hash-data this.context to.act town.context salt.giver)
+    ?~  to-account-data=(scry-state to-account)
       ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (hash-data this.context to.act town.context salt.giver)
       =+  [amount.act ~ metadata.noun.giver ~]
-      =+  receiver=[id this.context to.act town.context salt.giver %account -]
+      =+  receiver=[to-account this.context to.act town.context salt.giver %account -]
       `(result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
-    =+  (need (scry-state u.to-account.act))
     ::  assert that account is held by the address we're sending to
-    =/  receiver  (husk account:sur - `this.context `to.act)
+    =/  receiver  (husk account:sur u.to-account-data `this.context `to.act)
     =.  balance.noun.receiver  (add balance.noun.receiver amount.act)
     ::  return the result: two changed grains
     `(result [%&^giver %&^receiver ~] ~ ~ ~)
@@ -49,16 +48,15 @@
           id.caller.context
         |=(old=@ud (sub old amount.act))
     ==
-    ?~  to-account.act
+    =/  to-account=id  (hash-data this.context to.act town.context salt.giver)
+    ?~  to-account-data=(scry-state to-account)
       ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (hash-data this.context to.act town.context salt.giver)
       =+  [amount.act ~ metadata.noun.giver ~]
-      =+  receiver=[id this.context to.act town.context salt.giver %account -]
+      =+  receiver=[to-account this.context to.act town.context salt.giver %account -]
       `(result [%&^giver ~] [%&^receiver ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
-    =+  (need (scry-state u.to-account.act))
     ::  assert that account is held by the address we're sending to
-    =/  receiver  (husk account:sur - `this.context `to.act)
+    =/  receiver  (husk account:sur u.to-account-data `this.context `to.act)
     =.  balance.noun.receiver  (add balance.noun.receiver amount.act)
     ::  return the result: two changed grains
     `(result [%&^giver %&^receiver ~] ~ ~ ~)
