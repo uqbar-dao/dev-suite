@@ -24,6 +24,7 @@
     def   ~(. (default-agent this %|) bowl)
 ::
 ++  on-init
+  |^
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  eng
     %~  engine  engine:engine
@@ -33,7 +34,14 @@
     0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
   =*  bud-address
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
-  :-  ~
+  =/  w=wire  /self-wire
+  :-  :+  :^  %pass  w  %agent
+          :^  [our dap]:bowl  %poke  %ziggurat-action
+          !>([%$ %add-custom-step poke-wallet-transaction])
+        :^  %pass  w  %agent
+        :^  [our dap]:bowl  %poke  %ziggurat-action
+        !>([%$ %add-custom-step scry-indexer])
+      ~
   %_    this
       state
     :_  [eng smart-lib]
@@ -43,6 +51,42 @@
       ~[[~nec nec-address] [~bud bud-address]]
     ['' %.n]
   ==
+  ::
+  ++  scry-indexer
+    :-  %scry-indexer
+    '''
+    |=  [indexer-path=path expected=@t]
+    ^-  test-read-step:ziggurat
+    :+  %scry
+      :*  who=~nec  ::  hardcode: ~nec runs rollup/sequencer
+          /zig/sur/zig/indexer/hoon
+          'update:indexer'
+          %gx
+          %indexer
+          indexer-path
+      ==
+    expected
+    '''
+  ::
+  ++  poke-wallet-transaction
+    :-  %poke-wallet-transaction
+    '''
+    |=  [[who=@p contract=@ux transaction=@t] expected=(list test-read-step:ziggurat)]
+    ^-  test-write-step:ziggurat
+    :+  %poke
+      :^  who  %uqbar  %wallet-poke
+      %-  crip
+      """
+      :*  %transaction
+          from={<(~(got by addresses) who)>}
+          contract={<contract>}
+          town=0x0  ::  harcode
+          action=[%text {<transaction>}]
+      ==
+      """
+    expected
+    '''
+  --
 ++  on-save  !>(-.state)
 ++  on-load
   |=  =old=vase
@@ -84,7 +128,7 @@
   [cards this]
   ::
   ++  compile-custom-step
-    |=  [tag=@tas =custom-step-definition]
+    |=  [tag=@tas =custom-step-definition addresses=^vase]
     ^-  (each ^vase @t)
     =/  ziggurat-sur=^vase
       .^  ^vase
@@ -92,7 +136,6 @@
           %+  weld  /(scot %p our.bowl)/zig
           /(scot %da now.bowl)/sur/zig/ziggurat/hoon
       ==
-    =/  addresses=^vase  !>(virtualnet-addresses)
     =/  compilation-result
       %-  mule
       |.
@@ -200,10 +243,17 @@
       ~
     ::
         %set-virtualnet-address
+      =.  virtualnet-addresses
+        (~(put by virtualnet-addresses) [who address]:act)
+      =/  addresses=^vase  !>(virtualnet-addresses)
       :-  ~
       %=  state
-          virtualnet-addresses
-        (~(put by virtualnet-addresses) [who address]:act)
+          custom-step-definitions
+        %-  ~(urn by custom-step-definitions)
+        |=  [tag=@tas =custom-step-definition *]
+        :-  custom-step-definition
+        %^  compile-custom-step  tag  custom-step-definition
+        addresses
       ==
     ::
         %register-contract-for-compilation
@@ -392,8 +442,10 @@
       :: state(projects (~(put by projects) project.act project))
     ::
         %add-custom-step
+      =/  addresses=^vase  !>(virtualnet-addresses)
       =/  compilation-result=(each ^vase @t)
-        (compile-custom-step [tag custom-step-definition]:act)
+        %^  compile-custom-step  tag.act
+        custom-step-definition.act  addresses
       :-  ~
       %=  state
           custom-step-definitions
