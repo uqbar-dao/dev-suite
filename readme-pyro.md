@@ -154,17 +154,17 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 
 Run some stuff on virtualships:
 ```hoon
-:ziggurat &ziggurat-action [%foo %run-test setup-id 1 1.000.000]
+:ziggurat &ziggurat-action [%foo %run-test setup-id]
 
-:ziggurat &ziggurat-action [%foo %run-test scry-bud-id 1 1.000.000]
+:ziggurat &ziggurat-action [%foo %run-test scry-bud-id]
 
-:ziggurat &ziggurat-action [%foo %run-test scry-nec-id 1 1.000.000]
+:ziggurat &ziggurat-action [%foo %run-test scry-nec-id]
 
-:ziggurat &ziggurat-action [%foo %run-test scry-clay-id 1 1.000.000]
+:ziggurat &ziggurat-action [%foo %run-test scry-clay-id]
 
-:ziggurat &ziggurat-action [%foo %run-test send-nec-id 1 1.000.000]
+:ziggurat &ziggurat-action [%foo %run-test send-nec-id]
 
-:ziggurat &ziggurat-action [%foo %run-test send-nec-custom-id 1 1.000.000]
+:ziggurat &ziggurat-action [%foo %run-test send-nec-custom-id]
 ```
 
 Tell `%indexer` not to run any tests right now.
