@@ -37,10 +37,10 @@
   =/  w=wire  /self-wire
   :-  :+  :^  %pass  w  %agent
           :^  [our dap]:bowl  %poke  %ziggurat-action
-          !>([%$ %add-custom-step poke-wallet-transaction])
+          !>(`action`[%$ %add-custom-step poke-wallet-transaction])
         :^  %pass  w  %agent
         :^  [our dap]:bowl  %poke  %ziggurat-action
-        !>([%$ %add-custom-step scry-indexer])
+        !>(`action`[%$ %add-custom-step scry-indexer])
       ~
   %_    this
       state
@@ -336,7 +336,6 @@
         %add-test
       ::  generate an id for the test
       =/  =project  (~(got by projects) project.act)
-      :: =/  test-id  `@ux`(mug now.bowl)
       =/  test-id=@ux  `@ux`(sham test-steps.act)
       =.  tests.project
         %+  ~(put by tests.project)  test-id
@@ -397,7 +396,7 @@
               %arvo
             [%b %wait (add now.bowl ~s5)]  ::  TODO: unhardcode
         %=  state
-            running-test  `[project id]:act
+            :: running-test  `[project id]:act
             test-queue
           ?~  test-queue                        test-queue
           ?.  =(i.test-queue [project id]:act)  test-queue
@@ -434,34 +433,19 @@
         t.test-queue
       ==
     ::
-        %run-tests
-      !!  ::  TODO
-      :: ::  run tests IN SUCCESSION against SAME STATE
-      :: ::  note that this doesn't save last-result for each test,
-      :: ::  as results here will not reflect *just this test*
-      :: =/  =project  (~(got by projects) project.act)
-      :: =/  [eggs=(list [@ux transaction:smart]) new-nonce=@ud]
-      ::   %^  spin  tests.act  user-nonce.project
-      ::   |=  [[id=@ux rate=@ud bud=@ud] nonce=@ud]
-      ::   =/  =test  (~(got by tests.project) id)
-      ::   =/  caller  (designated-caller user-address.project +(nonce))
-      ::   =/  =shell:smart
-      ::     :*  caller
-      ::         ~
-      ::         for-contract.test
-      ::         gas=[rate bud]
-      ::         designated-town-id
-      ::         status=0
-      ::     ==
-      ::   :_  +(nonce)
-      ::   :-  `@ux`(sham shell action.test)
-      ::   [[0 0 0] action.test shell]
-      :: =/  res=state-transition:engine
-      ::   %+  %~  run  eng
-      ::       [(designated-caller user-address.project 0) designated-town-id batch-num.project 0]
-      ::   chain.project  (silt eggs)
-      :: :-  (make-multi-test-update project.act res)^~
-      :: state(projects (~(put by projects) project.act project))
+        %add-and-run-test
+      ::  generate an id for the test
+      =/  =project  (~(got by projects) project.act)
+      =/  test-id=@ux  `@ux`(sham test-steps.act)
+      =.  tests.project
+        %+  ~(put by tests.project)  test-id
+        [name.act test-steps.act ~]
+      :_  state(projects (~(put by projects) project.act project))
+      :+  (make-project-update project.act project)
+        :^  %pass  /self-wire  %agent
+        :^  [our dap]:bowl  %poke  %ziggurat-action
+        !>(`action`[project.act %run-test test-id])
+      ~
     ::
         %add-custom-step
       =/  addresses=^vase  !>(virtualnet-addresses)

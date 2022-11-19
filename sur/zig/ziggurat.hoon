@@ -117,7 +117,7 @@
           [%delete-test id=@ux]
           :: [%edit-test id=@ux name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]
           [%run-test id=@ux]
-          [%run-tests tests=(list [id=@ux rate=@ud bud=@ud])]  :: each one run with same gas
+          [%add-and-run-test name=(unit @t) =test-steps]
           ::
           [%add-custom-step tag=@tas =custom-step-definition]
           [%delete-custom-step tag=@tas]
