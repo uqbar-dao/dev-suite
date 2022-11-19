@@ -158,6 +158,34 @@
     |=  [in=tank out=tape]
     :(weld ~(ram re in) "\0a" out)
   ::
+  ++  compile-test-surs
+    |=  surs=(list path)
+    ^-  (each ^vase @t)
+    =/  compilation-result
+      %-  mule
+      |.
+      %-  slop  :_  !>(..zuse)  ::  TODO: slop onto stdlib at runtime?
+      %+  roll  surs
+      |=  [sur=path subject=^vase]
+      ?~  snipped=(snip sur)  subject  ::  TODO: do better
+      =/  sur-face=@tas  `@tas`(rear snipped)
+      ?>  ?=(^ sur)
+      =/  sur-hoon=^vase
+        .^  ^vase
+            %ca
+            :-  (scot %p our.bowl)
+            %+  weld  /[i.sur]/(scot %da now.bowl)
+            t.sur
+        ==
+      %+  slop  subject
+      sur-hoon(p [%face sur-face p.sur-hoon])
+    ?:  ?=(%& -.compilation-result)  compilation-result
+    :-  %|
+    %-  crip
+    %+  roll  p.compilation-result
+    |=  [in=tank out=tape]
+    :(weld ~(ram re in) "\0a" out)
+  ::
   ++  handle-poke
     |=  act=action
     ^-  (quip card _state)
@@ -334,12 +362,13 @@
       state(projects (~(put by projects) project.act project))
     ::
         %add-test
-      ::  generate an id for the test
       =/  =project  (~(got by projects) project.act)
       =/  test-id=@ux  `@ux`(sham test-steps.act)
       =.  tests.project
         %+  ~(put by tests.project)  test-id
-        [name.act test-steps.act ~]
+        :-  name.act
+        :^  test-surs.act  (compile-test-surs test-surs.act)
+        test-steps.act  ~
       :-  (make-project-update project.act project)^~
       state(projects (~(put by projects) project.act project))
     ::
@@ -434,12 +463,13 @@
       ==
     ::
         %add-and-run-test
-      ::  generate an id for the test
       =/  =project  (~(got by projects) project.act)
       =/  test-id=@ux  `@ux`(sham test-steps.act)
       =.  tests.project
         %+  ~(put by tests.project)  test-id
-        [name.act test-steps.act ~]
+        :-  name.act
+        :^  test-surs.act  (compile-test-surs test-surs.act)
+        test-steps.act  ~
       :_  state(projects (~(put by projects) project.act project))
       :+  (make-project-update project.act project)
         :^  %pass  /self-wire  %agent

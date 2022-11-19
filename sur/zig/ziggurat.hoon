@@ -35,12 +35,16 @@
 +$  tests  (map @ux test)
 +$  test
   $:  name=(unit @t)  ::  optional
+      surs=test-surs
+      subject=(each vase @t)  ::  test-surs build or error
       steps=test-steps
       results=test-results
   ==
 ::
 +$  expected-diff
   (map id:smart [made=(unit item:smart) expected=(unit item:smart) match=(unit ?)])
+::
++$  test-surs  (list path)
 ::
 +$  test-steps  (list test-step)
 +$  test-step  $%(test-read-step test-write-step)
@@ -113,11 +117,11 @@
           [%update-item =id:smart source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
           [%delete-item =id:smart]
       ::
-          [%add-test name=(unit @t) =test-steps]  ::  name optional
+          [%add-test name=(unit @t) =test-surs =test-steps]  ::  name optional
           [%delete-test id=@ux]
           :: [%edit-test id=@ux name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]
           [%run-test id=@ux]
-          [%add-and-run-test name=(unit @t) =test-steps]
+          [%add-and-run-test name=(unit @t) =test-surs =test-steps]
           ::
           [%add-custom-step tag=@tas =custom-step-definition]
           [%delete-custom-step tag=@tas]
