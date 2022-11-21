@@ -52,7 +52,7 @@
         %-  ~(gas by *(map @p address:smart))
         ~[[~nec nec-address] [~bud bud-address]]
     ::
-        ['' ~]
+        ~
         ~
         ~
     ==
@@ -388,7 +388,7 @@
               ==
           ==
         `state(test-queue (snoc test-queue [project id]:act))
-      ?.  (levy ~(val by ready.pyro-ships) |=(w=? =(w %.y)))
+      ?.  (levy ~(val by pyro-ships-ready) |=(w=? =(w %.y)))
         ::  queue the test until pyro-ships is ready
         `state(test-queue [[project.act id.act] test-queue])
       =/  =project  (~(got by projects) project.act)
@@ -456,7 +456,7 @@
       ==
     ::
         %stop-pyro-ships
-      :_  state(pyro-ships ['' ~])
+      :_  state(pyro-ships-ready ~)
       :+  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
         [%give %kick [/pyro-done]~ ~]
       ~
@@ -478,33 +478,21 @@
         ==
       :-  (weld wach init)
       %_    state
-          ready.pyro-ships
+          pyro-ships-ready
         =|  r=(map ship ?)
         |-  ^-  (map ship ?)
         ?~  ships.act  r
         $(ships.act t.ships.act, r (~(put by r) i.ships.act %.n))      
       ==
     ::
-        %load-pyro-snapshot :: XX is this correct usage?
-      ?.  =('' tid.pyro-ships)
-        ~|("%ziggurat: %stop-pyro-ships before starting new one" !!)
-      =/  =project  (~(got by projects) project.act)
-      =/  tid=@ta
-        %+  rap  3
-        :~  'ted-'
-            project.act
-            '-load-pyro-snapshot-'
-            (scot %uw (sham eny.bowl))
-        ==
-      =/  =start-args:spider
-        :-  ~
-        :^  `tid  byk.bowl(r da+now.bowl)
-          %ziggurat-test-load-pyro-snapshot
-        !>(`(unit [@t path])`[~ project.act path.act])
-      :_  state(pyro-ships [tid ~])
+        %load-pyro-snapshot
+      :_  state
       :_  ~
-      :^  %pass  /pyro-vanes  %agent
-      [[our.bowl %spider] %poke %spider-start !>(start-args)]
+      :*  %pass  /  %agent
+          [our.bowl %pyro]
+          %poke  %action
+          !>([%restore-snap path.act])
+      ==
     ::
         %deploy-contract  ::  TODO
       !!
@@ -609,10 +597,10 @@
     ?+    -.sign  (on-agent:def wire sign)
         %fact
       =/  who=ship  (slav %p i.t.wire)
-      =.  ready.pyro-ships.this  (~(put by ready.pyro-ships.this) who %.y)
+      =.  pyro-ships-ready.this  (~(put by pyro-ships-ready.this) who %.y)
       :_  this
       ::  if all ships are ready, then run the test-queue
-      ?.  (levy ~(val by ready.pyro-ships) |=(w=? =(w %.y)))
+      ?.  (levy ~(val by pyro-ships-ready) |=(w=? =(w %.y)))
         ~
       %+  turn  (flop test-queue)
       |=  [proj=@t teid=@ux]
