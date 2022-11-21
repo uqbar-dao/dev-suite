@@ -78,9 +78,14 @@
   |=  [mold-sur-path=path mold-name=@t]
   =/  m  (strand ,vase)
   ^-  form:m
-  ?~  mold-sur-path  (pure:m (slap !>(.) (ream mold-name)))
+  ?~  snipped=(snip mold-sur-path)
+    (pure:m (slap !>(..zuse) (ream mold-name)))  ::  TODO: do better
+  =/  sur-face=@tas  `@tas`(rear snipped)
   ;<  mold-sur=vase  bind:m  (scry vase [%ca mold-sur-path])
-  (pure:m (slap mold-sur (ream mold-name)))
+  %-  pure:m
+  %-  slap  :_  (ream mold-name)
+  %-  slop  :_  !>(..zuse)
+  mold-sur(p [%face sur-face p:mold-sur])
 ::
 ++  run-steps
   |=  [=test-steps:zig for-snapshot=(unit [@t @ux (list @p)])]
@@ -144,6 +149,53 @@
         test-results
       [[=(expected res-text) expected res-text]~ test-results]
     ==
+  ::
+      %custom-read
+    ;<  transform=vase  bind:m
+      %+  scry  vase
+      /gx/ziggurat/custom-step-compiled/[tag.test-step]/noun
+    =/  transformed-step=test-read-step:zig
+      !<  test-read-step:zig
+      %+  slam  transform
+      %+  slop
+      %+  slap  !>(..zuse)  (ream payload.test-step)
+      !>(expected.test-step)
+    $(test-steps [transformed-step t.test-steps])
+  ::
+      %custom-write
+    ;<  transform=vase  bind:m
+      %+  scry  vase
+      /gx/ziggurat/custom-step-compiled/[tag.test-step]/noun
+    =/  transformed-step=test-write-step:zig
+      !<  test-write-step:zig
+      %+  slam  transform
+      %+  slop
+      %+  slap  !>(..zuse)  (ream payload.test-step)
+      !>(expected.test-step)
+    ::  execute code given as @t, e.g., transform
+    ::   `:*  %foo  %bar  ==`
+    ::   to
+    ::   `[%foo %bar]`
+    ::   TODO: consolidate logic
+    =?    transformed-step
+        ?=(%dojo -.transformed-step)
+      %=  transformed-step
+          payload.payload
+        %-  crip
+        %-  noah
+        %+  slap  !>(..zuse)
+        (ream payload.payload.transformed-step)
+      ==
+    =?    transformed-step
+        ?=(%poke -.transformed-step)
+      %=  transformed-step
+          payload.payload
+        %-  crip
+        %-  noah
+        %+  slap  !>(..zuse)
+        (ream payload.payload.transformed-step)
+      ==
+    $(test-steps [transformed-step t.test-steps])
   ::
       %read-subscription  !!
   ::
