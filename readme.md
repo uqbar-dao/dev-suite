@@ -173,7 +173,7 @@ When routed through `%uqbar`, as below, `/indexer` must be prepended to the path
 
 1. Scrying from the Dojo.
    ```hoon
-   =ui -build-file /=zig=/sur/indexer/hoon
+   =ui -build-file /=zig=/sur/zig/indexer/hoon
 
    ::  Query all fields for the given hash.
    .^(update:ui %gx /=uqbar=/indexer/hash/0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70/noun)
