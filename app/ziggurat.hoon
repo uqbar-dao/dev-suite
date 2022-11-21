@@ -2,7 +2,7 @@
 ::
 ::  Contract Playground
 ::
-/-  spider
+/-  spider, *pyro
 /+  dbug,
     default-agent,
     verb,
@@ -17,7 +17,7 @@
 +$  state-0
   $:  %0
       =projects
-      pyro-ships=[tid=@ta is-ready=?]
+      pyro-ships=[tid=@ta ready=(map ship ?) queued-tests=(list [id=@ux rate=@ud bud=@ud])]
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
 +$  eng  $_  ~(engine engine:engine !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
@@ -42,7 +42,7 @@
   :-  ~
   %_    this
       state
-    [[%0 ~ ['' %.n]] eng smart-lib]
+    [[%0 ~ ['' ~ ~]] eng smart-lib]
   ==
 ++  on-save  !>(-.state)
 ++  on-load
@@ -295,16 +295,9 @@
       :: state(projects (~(put by projects) project.act project))
     ::
         %run-test
-      ?.  is-ready.pyro-ships
-        ::  delay until pyro-ships is-ready
-        :_  state
-        :_  ~
-        :^    %pass
-            %+  weld
-              /delay-test/[project.act]/(scot %ux id.act)
-            /(scot %ud rate.act)/(scot %ud bud.act)
-          %arvo
-        [%b %wait (add now.bowl ~s5)]  ::  TODO: unhardcode
+      ?.  (levy ~(val by ready.pyro-ships) |=(w=? =(w %.y)))
+        ::  queue up the test for later
+        `state(queued-tests.pyro-ships [[id.act rate.act bud.act] queued-tests.pyro-ships])
       =/  =project  (~(got by projects) project.act)
       =/  =test     (~(got by tests.project) id.act)
       =/  tid=@ta
@@ -359,41 +352,37 @@
       :: :-  (make-multi-test-update project.act res)^~
       :: state(projects (~(put by projects) project.act project))
     ::
-        %ready-pyro-ships
-      ?:  =('' tid.pyro-ships)
-        ~|("%ziggurat: %start-pyro-ships or %load-pyro-snapshot before signaling ready" !!)
-      `state(is-ready.pyro-ships %.y)
-    ::
         %stop-pyro-ships
-      :_  state(pyro-ships ['' %.n])
+      :_  state(pyro-ships ['' ~ ~])
       :+  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
         [%give %kick [/pyro-done]~ ~]
       ~
     ::
         %start-pyro-ships
-      ?.  =('' tid.pyro-ships)
-        ~|("%ziggurat: %stop-pyro-ships before starting new one" !!)
-      =/  =project  (~(got by projects) project.act)
-      =/  tid=@ta
-        %+  rap  3
-        :~  'ted-'
-            project.act
-            '-start-pyro-ships-'
-            (scot %uw (sham eny.bowl))
+      =/  wach=(list card:agent:gall)
+        %+  turn  ships.act
+        |=  who=ship
+        :*  %pass  /ready/(scot %p who)  %agent
+            [our.bowl %pyro]
+            %watch  /ready/(scot %p who)
         ==
-      =/  =start-args:spider
-        :-  ~
-        :^  `tid  byk.bowl(r da+now.bowl)
-          %ziggurat-test-start-pyro-ships
-        !>  ^-  (unit [@t (list @p)])
-        ?^  ships.act  [~ project.act ships.act]
-        [~ project.act ~[~nec ~bud]]  ::  TODO: remove hardcode?
-      :_  state(pyro-ships [tid %.n])
-      :_  ~
-      :^  %pass  /pyro-vanes  %agent
-      [[our.bowl %spider] %poke %spider-start !>(start-args)]
+      =/  init=(list card:agent:gall)
+        :_  ~
+        :*  %pass  /  %agent
+            [our.bowl %pyro]
+            %poke  %aqua-events
+            !>((turn ships.act |=(who=ship [%init-ship who])))
+        ==
+      :-  (weld wach init)
+      %_    state
+          ready.pyro-ships
+        =|  r=(map ship ?)
+        |-  ^-  (map ship ?)
+        ?~  ships.act  r
+        $(ships.act t.ships.act, r (~(put by r) i.ships.act %.n))      
+      ==
     ::
-        %load-pyro-snapshot
+        %load-pyro-snapshot :: XX is this correct usage?
       ?.  =('' tid.pyro-ships)
         ~|("%ziggurat: %stop-pyro-ships before starting new one" !!)
       =/  =project  (~(got by projects) project.act)
@@ -409,7 +398,7 @@
         :^  `tid  byk.bowl(r da+now.bowl)
           %ziggurat-test-load-pyro-snapshot
         !>(`(unit [@t path])`[~ project.act path.act])
-      :_  state(pyro-ships [tid %.n])
+      :_  state(pyro-ships [tid ~ ~])
       :_  ~
       :^  %pass  /pyro-vanes  %agent
       [[our.bowl %spider] %poke %spider-start !>(start-args)]
@@ -497,6 +486,23 @@
       this(projects (~(put by projects) project-name project))
       ==
     ==
+  ::
+      [%ready @ ~]
+    ?+    -.sign  (on-agent:def wire sign)
+        %fact
+      =/  who=ship  (slav %p i.t.wire)
+      =.  ready.pyro-ships.this  (~(put by ready.pyro-ships.this) who %.y)
+      :_  this
+      ::  if all ships are ready, then run the queued-tests
+      ?.  (levy ~(val by ready.pyro-ships) |=(w=? =(w %.y)))
+        ~
+      :_  ~
+      :*  %pass  /  %agent
+          [our.bowl %pyro]
+          %poke  %ziggurat-action
+          !>([%run-tests (flop queued-tests.pyro-ships)])
+      ==
+    ==
   ==
 ::
 ++  on-arvo
@@ -511,31 +517,6 @@
       `this
     ~&  >>>  "failed to make new desk"
     `this
-  ::
-      [%delay-test @ @ @ @ ~]
-    ?+    sign-arvo  (on-arvo:def wire sign-arvo)
-        [%behn %wake *]
-      ?^  error.sign-arvo
-        ~|("%ziggurat: %delay-test error: {<u.error.sign-arvo>}" !!)
-      ~&  %delay-test
-      :_  this
-      :_  ~
-      ?.  is-ready.pyro-ships
-        ::  delay until pyro-ships is-ready
-        [%pass wire %arvo [%b %wait (add now.bowl ~s5)]]  ::  TODO: unhardcode
-      =*  project  i.t.wire
-      =*  id       (slav %ux i.t.t.wire)
-      =*  rate     (slav %ud i.t.t.t.wire)
-      =*  bud      (slav %ud i.t.t.t.t.wire)
-      :*  %pass
-          /self-wire
-          %agent
-          [our.bowl %ziggurat]
-          %poke
-          %ziggurat-action
-          !>(`action`project^[%run-test id rate bud])
-      ==
-    ==
   ==
 ::
 ++  on-peek
