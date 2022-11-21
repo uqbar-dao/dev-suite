@@ -58,10 +58,6 @@
 ++  on-watch
   |=  =path
   ^-  (quip card _this)
-  ::  open: anyone can watch
-  :: ?.  =(%available status.state)
-  ::   ~|("%sequencer: error: got watch while not active" !!)
-  ::  ?>  (allowed-participant [src our now]:bowl)
   ?.  ?=([%indexer %updates ~] path)
     ~|("%sequencer: rejecting %watch on bad path" !!)
   ::  handle indexer watches here -- send nothing
