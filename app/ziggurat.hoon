@@ -52,7 +52,7 @@
         %-  ~(gas by *(map @p address:smart))
         ~[[~nec nec-address] [~bud bud-address]]
     ::
-        ['' ~ ~]
+        ['' ~]
         ~
         ~
     ==
@@ -389,15 +389,8 @@
           ==
         `state(test-queue (snoc test-queue [project id]:act))
       ?.  (levy ~(val by ready.pyro-ships) |=(w=? =(w %.y)))
-        ::  delay until pyro-ships is-ready
-        :-  ~
-        %=    state
-            :: running-test  `[project id]:act
-            test-queue
-          ?~  test-queue                        test-queue
-          ?.  =(i.test-queue [project id]:act)  test-queue
-          t.test-queue
-        ==
+        ::  queue the test until pyro-ships is ready
+        `state(test-queue [[project.act id.act] test-queue])
       =/  =project  (~(got by projects) project.act)
       =/  =test     (~(got by tests.project) id.act)
       =/  tid=@ta
@@ -463,7 +456,7 @@
       ==
     ::
         %stop-pyro-ships
-      :_  state(pyro-ships ['' ~ ~])
+      :_  state(pyro-ships ['' ~])
       :+  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
         [%give %kick [/pyro-done]~ ~]
       ~
@@ -508,7 +501,7 @@
         :^  `tid  byk.bowl(r da+now.bowl)
           %ziggurat-test-load-pyro-snapshot
         !>(`(unit [@t path])`[~ project.act path.act])
-      :_  state(pyro-ships [tid ~ ~])
+      :_  state(pyro-ships [tid ~])
       :_  ~
       :^  %pass  /pyro-vanes  %agent
       [[our.bowl %spider] %poke %spider-start !>(start-args)]
@@ -618,14 +611,15 @@
       =/  who=ship  (slav %p i.t.wire)
       =.  ready.pyro-ships.this  (~(put by ready.pyro-ships.this) who %.y)
       :_  this
-      ::  if all ships are ready, then run the queued-tests
+      ::  if all ships are ready, then run the test-queue
       ?.  (levy ~(val by ready.pyro-ships) |=(w=? =(w %.y)))
         ~
-      :_  ~
+      %+  turn  (flop test-queue)
+      |=  [proj=@t teid=@ux]
       :*  %pass  /  %agent
           [our.bowl %pyro]
           %poke  %ziggurat-action
-          !>([%run-tests (flop queued-tests.pyro-ships)])
+          !>([%run-test teid])
       ==
     ==
   ==

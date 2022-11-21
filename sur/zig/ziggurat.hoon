@@ -8,7 +8,7 @@
       =projects
       =custom-step-definitions
       virtualnet-addresses=(map @p address:smart)
-      pyro-ships=[tid=@ta is-ready=?]
+      pyro-ships=[tid=@ta ready=(map ship ?)]
       running-test=(unit [project=@t test-id=@ux])
       test-queue=(list [project=@t test-id=@ux])  ::  i.test-queue is next
   ==
