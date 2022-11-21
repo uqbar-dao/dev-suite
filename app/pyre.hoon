@@ -282,7 +282,7 @@
           %lin  (tape p.b)
           %klr  (tape (zing (turn p.b tail)))
           %mor  ~&  "{<who>}: {line}"  ""
-          %hop  line
+          %hop  ""
           %bel  line
           %clr  ""
           %sag  ~&  [%save-jamfile-to p.b]  line
