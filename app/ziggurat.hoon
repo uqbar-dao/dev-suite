@@ -384,7 +384,7 @@
         %run-test
       ?:  ?|  ?=(^ running-test)
               ?&  ?=(^ test-queue)
-                  !=(~(top to test-queue) [project id]:act)
+                  !=((need ~(top to test-queue)) [project id]:act)
               ==
           ==
         `state(test-queue (~(put to test-queue) [project id]:act))
@@ -457,10 +457,16 @@
       ==
     ::
         %stop-pyro-ships
+      =/  leave-cards=(list card:agent:gall)
+        %+  turn  (turn ~(tap by pyro-ships-ready) head)
+        |=  who=ship
+        [%pass /ready/(scot %p who) %agent [our.bowl %pyro] %leave ~]
+      =/  pyro-done=(list card:agent:gall)
+        :~  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
+            [%give %kick [/pyro-done]~ ~]
+        ==
       :_  state(pyro-ships-ready ~)
-      :+  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
-        [%give %kick [/pyro-done]~ ~]
-      ~
+      (weld leave-cards pyro-done)
     ::
         %start-pyro-ships
       =/  wach=(list card:agent:gall)
@@ -588,15 +594,15 @@
     ?+    -.sign  (on-agent:def wire sign)
         %fact
       =/  who=ship  (slav %p i.t.wire)
-      =.  pyro-ships-ready.this  (~(put by pyro-ships-ready.this) who %.y)
-      ?~  test-queue.this                         `this
-      ?.  (~(all by pyro-ships-ready.this) same)  `this
-      =/  top  ~(get to test-queue.this) :: XX why isn't =^ working
-      :_  this(test-queue q.top)
+      =.  pyro-ships-ready  (~(put by pyro-ships-ready) who %.y)
+      ?~  test-queue                         `this
+      ?.  (~(all by pyro-ships-ready) same)  `this
+      =/  top  (need ~(top to test-queue))
+      :_  this
       :_  ~
-      :^  %pass  /  %agent
+      :^  %pass  /self-wire  %agent
       :^  [our dap]:bowl  %poke  %ziggurat-action
-      !>([project.p.top %run-test test-id.p.top])
+      !>([project.top %run-test test-id.top])
     ==
   ==
 ::
@@ -646,6 +652,9 @@
     ?:  ?=(%| -.q.u.def)  ::  TODO: do better
       ~|("%ziggurat: compilation of {<tag>} failed; please fix and try again" !!)
     ``noun+!>(`vase`p.q.u.def)
+  ::
+      [%test-queue ~]
+    ``noun+!>(test-queue)
   ::
   ::  JSONS
   ::
