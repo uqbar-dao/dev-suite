@@ -388,7 +388,7 @@
               ==
           ==
         `state(test-queue (snoc test-queue [project id]:act))
-      ?.  (~(all by pyro-ships-ready) |=(w=? w))
+      ?.  |((~(all by pyro-ships-ready) |=(w=? w)) =(~ pyro-ships-ready))
         ::  queue the test until pyro-ships is ready
         `state(test-queue (snoc test-queue [project.act id.act]))
       =/  =project  (~(got by projects) project.act)
@@ -555,7 +555,7 @@
       ?+    p.cage.sign  (on-agent:def wire sign)
           %thread-fail
         ~&  ziggurat+thread-fail+project^test-id^tid
-        `this
+        `this(running-test ~)
       ::
           %thread-done
         =+  !<(=test-results q.cage.sign)
