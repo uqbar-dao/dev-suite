@@ -318,7 +318,7 @@
           ::  this is an ephemeral nonce used to differentiate between
           ::  pending transactions. the real on-chain nonce is assigned
           ::  upon signing.
-          ~(wyt by pending-store)
+          `@ud`(cut 3 [0 3] eny.bowl)
         ::  generate our zigs token account ID
         (hash-data:smart zigs-contract-id:smart from.act town.act `@`'zigs')
       ::  build calldata of transaction, depending on argument type
