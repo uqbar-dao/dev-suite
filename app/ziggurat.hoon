@@ -2,7 +2,7 @@
 ::
 ::  Contract Playground
 ::
-/-  spider, *pyro
+/-  spider
 /+  dbug,
     default-agent,
     verb,
