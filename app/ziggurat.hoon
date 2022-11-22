@@ -384,13 +384,13 @@
         %run-test
       ?:  ?|  ?=(^ running-test)
               ?&  ?=(^ test-queue)
-                  !=(i.test-queue [project id]:act)
+                  !=(~(top to test-queue) [project id]:act)
               ==
           ==
-        `state(test-queue (snoc test-queue [project id]:act))
-      ?.  |((~(all by pyro-ships-ready) |=(w=? w)) =(~ pyro-ships-ready))
+        `state(test-queue (~(put to test-queue) [project id]:act))
+      ?:  |(=(~ pyro-ships-ready) !(~(all by pyro-ships-ready) same))
         ::  queue the test until pyro-ships is ready
-        `state(test-queue (snoc test-queue [project.act id.act]))
+        `state(test-queue (~(put to test-queue) [project.act id.act]))
       =/  =project  (~(got by projects) project.act)
       =/  =test     (~(got by tests.project) id.act)
       =/  tid=@ta
@@ -417,9 +417,10 @@
       %=  state
           running-test  `[project id]:act
           test-queue
-        ?~  test-queue                        test-queue
-        ?.  =(i.test-queue [project id]:act)  test-queue
-        t.test-queue
+        ?:  =(~(top to test-queue) [project id]:act)
+          test-queue
+        ?~  test-queue  ~
+        ~(nap to test-queue)
       ==
     ::
         %add-and-run-test
@@ -568,12 +569,11 @@
           (make-project-update project-name project)^~
         =.  cards
           ?~  test-queue  cards
-          =*  next-project  project.i.test-queue
-          =*  next-test-id  test-id.i.test-queue
+          =+  next=(need ~(top to test-queue))
           %+  snoc  cards
           :^  %pass  /self-wire  %agent
           :^  [our dap]:bowl  %poke  %ziggurat-action
-          !>([next-project %run-test next-test-id])
+          !>([project.next %run-test test-id.next])
         :-  cards
         %=  this
             running-test  ~
@@ -589,14 +589,14 @@
         %fact
       =/  who=ship  (slav %p i.t.wire)
       =.  pyro-ships-ready.this  (~(put by pyro-ships-ready.this) who %.y)
-      :_  this
-      ::  if all ships are ready, then pop the next test off the queue
-      ?.  &((~(all by pyro-ships-ready) |=(w=? w)) ?=(^ test-queue))
-        ~
+      ?~  test-queue.this                         `this
+      ?.  (~(all by pyro-ships-ready.this) same)  `this
+      =/  top  ~(get to test-queue.this) :: XX why isn't =^ working
+      :_  this(test-queue q.top)
       :_  ~
       :^  %pass  /  %agent
       :^  [our dap]:bowl  %poke  %ziggurat-action
-      !>([project.i.test-queue %run-test test-id.i.test-queue])
+      !>([project.p.top %run-test test-id.p.top])
     ==
   ==
 ::
