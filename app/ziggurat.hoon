@@ -469,6 +469,7 @@
       (weld leave-cards pyro-done)
     ::
         %start-pyro-ships
+      =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud]
       =/  wach=(list card:agent:gall)
         %+  turn  ships.act
         |=  who=ship
