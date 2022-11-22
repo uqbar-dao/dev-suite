@@ -315,10 +315,7 @@
       ::  take in a new pending transaction
       =/  =caller:smart
         :+  from.act
-          ::  this is an ephemeral nonce used to differentiate between
-          ::  pending transactions. the real on-chain nonce is assigned
-          ::  upon signing.
-          ~(wyt by pending-store)
+          0  ::  we fill in *correct* nonce upon submission
         ::  generate our zigs token account ID
         (hash-data:smart zigs-contract-id:smart from.act town.act `@`'zigs')
       ::  build calldata of transaction, depending on argument type
