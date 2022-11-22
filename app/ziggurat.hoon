@@ -388,9 +388,9 @@
               ==
           ==
         `state(test-queue (snoc test-queue [project id]:act))
-      ?.  (levy ~(val by pyro-ships-ready) |=(w=? =(w %.y)))
+      ?.  (~(all by pyro-ships-ready) |=(w=? w))
         ::  queue the test until pyro-ships is ready
-        `state(test-queue [[project.act id.act] test-queue])
+        `state(test-queue (snoc test-queue [project.act id.act]))
       =/  =project  (~(got by projects) project.act)
       =/  =test     (~(got by tests.project) id.act)
       =/  tid=@ta
@@ -483,15 +483,6 @@
         |-  ^-  (map ship ?)
         ?~  ships.act  r
         $(ships.act t.ships.act, r (~(put by r) i.ships.act %.n))      
-      ==
-    ::
-        %load-pyro-snapshot
-      :_  state
-      :_  ~
-      :*  %pass  /  %agent
-          [our.bowl %pyro]
-          %poke  %action
-          !>([%restore-snap path.act])
       ==
     ::
         %deploy-contract  ::  TODO
@@ -599,16 +590,13 @@
       =/  who=ship  (slav %p i.t.wire)
       =.  pyro-ships-ready.this  (~(put by pyro-ships-ready.this) who %.y)
       :_  this
-      ::  if all ships are ready, then run the test-queue
-      ?.  (levy ~(val by pyro-ships-ready) |=(w=? =(w %.y)))
+      ::  if all ships are ready, then pop the next test off the queue
+      ?.  &((~(all by pyro-ships-ready) |=(w=? w)) ?=(^ test-queue))
         ~
-      %+  turn  (flop test-queue)
-      |=  [proj=@t teid=@ux]
-      :*  %pass  /  %agent
-          [our.bowl %pyro]
-          %poke  %ziggurat-action
-          !>([%run-test teid])
-      ==
+      :_  ~
+      :^  %pass  /  %agent
+      :^  [our dap]:bowl  %poke  %ziggurat-action
+      !>([project.i.test-queue %run-test test-id.i.test-queue])
     ==
   ==
 ::
