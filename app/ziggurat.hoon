@@ -456,13 +456,6 @@
         (~(del by custom-step-definitions) tag.act)
       ==
     ::
-        %delete-custom-step
-      :-  ~
-      %=  state
-          custom-step-definitions
-        (~(del by custom-step-definitions) tag.act)
-      ==
-    ::
         %stop-pyro-ships
       =/  leave-cards=(list card:agent:gall)
         %+  turn  (turn ~(tap by pyro-ships-ready) head)
