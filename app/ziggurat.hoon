@@ -436,7 +436,7 @@
         !>  ^-  (unit [test-steps (unit [@t @ux (list @p)])])
         `[steps.test `[project.act test-id ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
       =/  w=wire  /test/[project.act]/(scot %ux test-id)/[tid]
-      :_  state(test-queue test-queue) :: XX might be wrong?
+      :_  state
       :+  :^  %pass  w  %agent
             [[our.bowl %spider] %watch /thread-result/[tid]]
         :^  %pass  w  %agent
