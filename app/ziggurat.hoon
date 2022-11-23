@@ -417,14 +417,15 @@
       =/  =project  (~(got by projects) project.act)
       ::  XX for some reason can't get faces on top? e.g. test-id.top
       =^  top  test-queue  ~(get to test-queue)
-      ~&  >  "running {(scow %ux +.top)}"
-      =/  =test     (~(got by tests.project) +.top)
+      =*  test-id  +.top
+      ~&  >  "running {(scow %ux test-id)}"
+      =/  =test     (~(got by tests.project) test-id)
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
             project.act
             '-'
-            ?^(name.test u.name.test (scot %ux +.top))
+            ?^(name.test u.name.test (scot %ux test-id))
             '-'
             (scot %uw (sham eny.bowl))
         ==
@@ -433,8 +434,8 @@
         :^  `tid  byk.bowl(r da+now.bowl)
           %ziggurat-test-run
         !>  ^-  (unit [test-steps (unit [@t @ux (list @p)])])
-        `[steps.test `[project.act +.top ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
-      =/  w=wire  /test/[project.act]/(scot %ux +.top)/[tid]
+        `[steps.test `[project.act test-id ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
+      =/  w=wire  /test/[project.act]/(scot %ux test-id)/[tid]
       :_  state(test-queue test-queue) :: XX might be wrong?
       :+  :^  %pass  w  %agent
             [[our.bowl %spider] %watch /thread-result/[tid]]
