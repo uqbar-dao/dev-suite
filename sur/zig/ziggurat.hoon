@@ -6,7 +6,6 @@
 +$  state-0
   $:  %0
       =projects
-      =custom-step-definitions
       virtualnet-addresses=(map @p address:smart)
       pyro-ships=[tid=@ta is-ready=?]
       running-test=(unit [project=@t test-id=@ux])
@@ -19,7 +18,7 @@
 +$  project
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
-      to-compile=(map path id:smart)  ::  compile these contracts with these id's
+      to-compile=(map path id:smart)  ::  compile contracts with these id's
       next-contract-id=id:smart
       errors=(list [path @t])
       =chain:engine
@@ -37,6 +36,7 @@
   $:  name=(unit @t)  ::  optional
       surs=test-surs
       subject=(each vase @t)  ::  test-surs build or error
+      =custom-step-definitions
       steps=test-steps
       results=test-results
   ==
@@ -123,8 +123,8 @@
           [%run-test id=@ux]
           [%add-and-run-test name=(unit @t) =test-surs =test-steps]
           ::
-          [%add-custom-step tag=@tas =custom-step-definition]
-          [%delete-custom-step tag=@tas]
+          [%add-custom-step test-id=@ux tag=@tas =custom-step-definition]
+          [%delete-custom-step test-id=@ux tag=@tas]
           ::
           [%ready-pyro-ships ~]
           [%stop-pyro-ships ~]
