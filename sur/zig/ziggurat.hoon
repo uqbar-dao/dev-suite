@@ -9,7 +9,6 @@
       =custom-step-definitions
       virtualnet-addresses=(map @p address:smart)
       pyro-ships-ready=(map ship ?)
-      running-test=(unit [project=@t test-id=@ux])
       test-queue=(qeu [project=@t test-id=@ux])
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
@@ -116,8 +115,9 @@
           [%add-test name=(unit @t) =test-steps]  ::  name optional
           [%delete-test id=@ux]
           :: [%edit-test id=@ux name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]
-          [%run-test id=@ux]
-          [%add-and-run-test name=(unit @t) =test-steps]
+          [%run-queue ~]
+          [%queue-test name=(unit @t) =test-steps]
+          :: [%run-test name=(unit @t) =test-steps]
           ::
           [%add-custom-step tag=@tas =custom-step-definition]
           [%delete-custom-step tag=@tas]

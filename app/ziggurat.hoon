@@ -54,7 +54,6 @@
     ::
         ~
         ~
-        ~
     ==
   ==
   ::
@@ -381,24 +380,22 @@
       :: :-  (make-project-update project.act project)^~
       :: state(projects (~(put by projects) project.act project))
     ::
-        %run-test
-      ?:  ?|  ?=(^ running-test)
-              ?&  ?=(^ test-queue)
-                  !=((need ~(top to test-queue)) [project id]:act)
-              ==
-          ==
-        `state(test-queue (~(put to test-queue) [project id]:act))
-      ?:  |(=(~ pyro-ships-ready) !(~(all by pyro-ships-ready) same))
-        ::  queue the test until pyro-ships is ready
-        `state(test-queue (~(put to test-queue) [project.act id.act]))
+        %run-queue
+      ?:  =(~ pyro-ships-ready)
+        ~|("%ziggurat: run %start-pyro-ships before running tests" !!)
+      ?:  !(~(all by pyro-ships-ready) same)
+        ~|("%ziggurat: %pyro ships aren't ready yet, wait" !!)
       =/  =project  (~(got by projects) project.act)
-      =/  =test     (~(got by tests.project) id.act)
+      ::  XX for some reason can't get faces on top? e.g. test-id.top
+      =^  top  test-queue  ~(get to test-queue)
+      ~&  >  "running {(scow %ux +.top)}"
+      =/  =test     (~(got by tests.project) +.top)
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
             project.act
             '-'
-            ?^(name.test u.name.test (scot %ux id.act))
+            ?^(name.test u.name.test (scot %ux +.top))
             '-'
             (scot %uw (sham eny.bowl))
         ==
@@ -407,35 +404,29 @@
         :^  `tid  byk.bowl(r da+now.bowl)
           %ziggurat-test-run
         !>  ^-  (unit [test-steps (unit [@t @ux (list @p)])])
-        `[steps.test `[project.act id.act ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
-      =/  w=wire  /test/[project.act]/(scot %ux id.act)/[tid]
-      :-  :+  :^  %pass  w  %agent
-              [[our.bowl %spider] %watch /thread-result/[tid]]
-            :^  %pass  w  %agent
-            [[our.bowl %spider] %poke %spider-start !>(start-args)]
-          ~
-      %=  state
-          running-test  `[project id]:act
-          test-queue
-        ?:  =(~(top to test-queue) [project id]:act)
-          test-queue
-        ?~  test-queue  ~
-        ~(nap to test-queue)
-      ==
+        `[steps.test `[project.act +.top ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
+      =/  w=wire  /test/[project.act]/(scot %ux +.top)/[tid]
+      :_  state(test-queue test-queue) :: XX might be wrong?
+      :+  :^  %pass  w  %agent
+            [[our.bowl %spider] %watch /thread-result/[tid]]
+        :^  %pass  w  %agent
+        [[our.bowl %spider] %poke %spider-start !>(start-args)]
+      ~
     ::
-        %add-and-run-test
+        %queue-test
       ::  generate an id for the test
       =/  =project  (~(got by projects) project.act)
       =/  test-id=@ux  `@ux`(sham test-steps.act)
       =.  tests.project
         %+  ~(put by tests.project)  test-id
         [name.act test-steps.act ~]
-      :_  state(projects (~(put by projects) project.act project))
-      :+  (make-project-update project.act project)
-        :^  %pass  /self-wire  %agent
-        :^  [our dap]:bowl  %poke  %ziggurat-action
-        !>(`action`[project.act %run-test test-id])
-      ~
+      :-  [(make-project-update project.act project) ~]
+      %=    state
+          projects
+        (~(put by projects) project.act project)
+          test-queue
+        (~(put to test-queue) [project:act test-id])
+      ==
     ::
         %add-custom-step
       =/  addresses=^vase  !>(virtualnet-addresses)
@@ -460,7 +451,7 @@
       =/  leave-cards=(list card:agent:gall)
         %+  turn  (turn ~(tap by pyro-ships-ready) head)
         |=  who=ship
-        [%pass /ready/(scot %p who) %agent [our.bowl %pyro] %leave ~]
+        [%pass /ready/[project.act]/(scot %p who) %agent [our.bowl %pyro] %leave ~]
       =/  pyro-done=(list card:agent:gall)
         :~  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
             [%give %kick [/pyro-done]~ ~]
@@ -473,7 +464,7 @@
       =/  wach=(list card:agent:gall)
         %+  turn  ships.act
         |=  who=ship
-        :*  %pass  /ready/(scot %p who)  %agent
+        :*  %pass  /ready/[project.act]/(scot %p who)  %agent
             [our.bowl %pyro]
             %watch  /ready/(scot %p who)
         ==
@@ -563,9 +554,10 @@
       ?+    p.cage.sign  (on-agent:def wire sign)
           %thread-fail
         ~&  ziggurat+thread-fail+project^test-id^tid
-        `this(running-test ~)
+        `this
       ::
           %thread-done
+        ~&  >  "%test-done"
         =+  !<(=test-results q.cage.sign)
         =/  =project  (~(got by projects) project-name)
         =/  =test     (~(got by tests.project) test-id)
@@ -576,34 +568,30 @@
           (make-project-update project-name project)^~
         =.  cards
           ?~  test-queue  cards
-          =+  next=(need ~(top to test-queue))
           %+  snoc  cards
           :^  %pass  /self-wire  %agent
           :^  [our dap]:bowl  %poke  %ziggurat-action
-          !>([project.next %run-test test-id.next])
+          !>([project-name %run-queue ~]) :: XX why not faces
         :-  cards
-        %=  this
-            running-test  ~
-            projects
-          (~(put by projects) project-name project)
-        ::
-        ==
+        this(projects (~(put by projects) project-name project))
       ==
     ==
   ::
-      [%ready @ ~]
+      [%ready @ @ ~]
     ?+    -.sign  (on-agent:def wire sign)
         %fact
-      =/  who=ship  (slav %p i.t.wire)
+      =*  project  i.t.wire
+      =/  who=ship  (slav %p i.t.t.wire)
       =.  pyro-ships-ready  (~(put by pyro-ships-ready) who %.y)
       ?~  test-queue                         `this
       ?.  (~(all by pyro-ships-ready) same)  `this
-      =/  top  (need ~(top to test-queue))
       :_  this
       :_  ~
+      ::  XX not sure if we actually want this? I think we just want
+      ::     something on a subscribe wire that says "your ships are ready sir"
       :^  %pass  /self-wire  %agent
       :^  [our dap]:bowl  %poke  %ziggurat-action
-      !>([project.top %run-test test-id.top])
+      !>([project %run-queue ~])
     ==
   ==
 ::
