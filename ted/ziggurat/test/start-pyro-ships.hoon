@@ -40,8 +40,7 @@
   ;<  ~  bind:m  (watch-our /effect %pyro /effect)
   ;<  ~  bind:m  (init-ships ships)
   ;<  ~  bind:m  (block-on-previous-step:test ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
-  ;<  ~  bind:m
-    (take-snapshot:test 0 `[%initial-ships 0x0 ships])
+  ;<  ~  bind:m  (take-snapshot:test project ~ 0 ships)
   ;<  ~  bind:m
     %+  poke-our  %ziggurat
     :-  %ziggurat-action

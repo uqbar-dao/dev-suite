@@ -11,11 +11,15 @@
 =*  watch-our  watch-our:strandio
 ::
 =/  m  (strand ,vase)
+=|  subject=vase
 |^  ted
 ::
 +$  arg-mold
-  $:  =test-steps:zig
-      for-snapshot=(unit [project=@t test-id=@ux ships=(list @p)])
+  $:  project-id=@t
+      test-id=@ux
+      =test-steps:zig
+      subject=vase
+      snapshot-ships=(list @p)
   ==
 ::
 ++  test-results-of-reads-to-test-result
@@ -28,12 +32,19 @@
   ?.  =(1 (lent i.trs))  ~
   $(trs t.trs, tr [i.i.trs tr])
 ::
+++  slap-subject
+  |=  payload=@t
+  ^-  vase
+  (slap subject (ream payload))
+::
 ++  send-pyro-dojo
   |=  payload=dojo-payload:zig
   =/  m  (strand ,~)
   ^-  form:m
   ;<  ~  bind:m
-    (dojo:pyio who.payload (trip payload.payload))
+    %+  dojo:pyio  who.payload
+    (trip payload.payload)
+    :: (noah (slap-subject payload.payload))  ::  TODO: convert zariables
   (pure:m ~)
 ::
 ++  send-pyro-scry
@@ -54,8 +65,7 @@
         ==
     ==
   ?.  ?=(^ scry-noun)  (pure:m !>(`~`~))
-  ;<  scry-mold=vase  bind:m
-    (build-scry-mold [mold-sur mold-name]:payload)
+  =/  scry-mold=vase  (slap-subject mold-name:payload)
   (pure:m (slam scry-mold !>(+.scry-noun)))
 ::
 ++  send-pyro-poke
@@ -71,37 +81,34 @@
         (trip mark.payload)
         " "
         (trip payload.payload)
+        :: (noah (slap-subject payload.payload))  ::  TODO: convert zariables
     ==
   (pure:m ~)
 ::
-++  build-scry-mold
-  |=  [mold-sur-path=path mold-name=@t]
-  =/  m  (strand ,vase)
-  ^-  form:m
-  ?~  snipped=(snip mold-sur-path)
-    (pure:m (slap !>(..zuse) (ream mold-name)))  ::  TODO: do better
-  =/  sur-face=@tas  `@tas`(rear snipped)
-  ;<  mold-sur=vase  bind:m  (scry vase [%ca mold-sur-path])
-  %-  pure:m
-  %-  slap  :_  (ream mold-name)
-  %-  slop  :_  !>(..zuse)
-  mold-sur(p [%face sur-face p:mold-sur])
-::
 ++  run-steps
-  |=  [=test-steps:zig for-snapshot=(unit [@t @ux (list @p)])]
+  |=  $:  project-id=@t
+          test-id=@ux
+          =test-steps:zig
+          snapshot-ships=(list @p)
+      ==
   =/  m  (strand ,test-results:zig)
   ^-  form:m
   =|  =test-results:zig
   =|  step-number=@ud
   |-
   ;<  ~  bind:m
-    ?~(for-snapshot (pure:(strand ,~) ~) (sleep ~s1))  :: TODO: unhardcode; tune time to allow previous step to continue processing
+    ?~(snapshot-ships (pure:(strand ,~) ~) (sleep ~s1))  :: TODO: unhardcode; tune time to allow previous step to continue processing
   ;<  ~  bind:m
-    ?~  for-snapshot  (pure:(strand ,~) ~)
+    ?~  snapshot-ships  (pure:(strand ,~) ~)
     (block-on-previous-step:test ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
   ;<  ~  bind:m
-    ?~  for-snapshot  (pure:(strand ,~) ~)
-    (take-snapshot:test step-number for-snapshot)
+    ?~  snapshot-ships  (pure:(strand ,~) ~)
+    %:  take-snapshot:test
+        project-id
+        `test-id
+        step-number
+        snapshot-ships
+    ==
   ?~  test-steps  (pure:m (flop test-results))
   =*  test-step   i.test-steps
   ?-    -.test-step
@@ -117,7 +124,9 @@
       %dojo
     ;<  ~  bind:m  (send-pyro-dojo payload.test-step)
     ;<  trs=test-results:zig  bind:m
-      (run-steps `test-steps:zig`expected.test-step ~)
+      %-  run-steps
+      :^  project-id  test-id
+      `test-steps:zig`expected.test-step  ~
     ?~  tr=(test-results-of-reads-to-test-result trs)
       ~|("ziggurat-test-run: %dojo expected can only contain %scrys, %subscribes, %waits" !!)
     %=  $
@@ -129,7 +138,9 @@
       %poke
     ;<  ~  bind:m  (send-pyro-poke payload.test-step)
     ;<  trs=test-results:zig  bind:m
-      (run-steps `test-steps:zig`expected.test-step ~)
+      %-  run-steps
+      :^  project-id  test-id
+      `test-steps:zig`expected.test-step  ~
     ?~  tr=(test-results-of-reads-to-test-result trs)
       ~|("ziggurat-test-run: %poke expected can only contain %scrys, %subscribes, %waits" !!)
     %=  $
@@ -153,25 +164,25 @@
       %custom-read
     ;<  transform=vase  bind:m
       %+  scry  vase
-      /gx/ziggurat/custom-step-compiled/[tag.test-step]/noun
+      %+  weld  /gx/ziggurat/custom-step-compiled/[project-id]
+      /(scot %ux test-id)/[tag.test-step]/noun
     =/  transformed-step=test-read-step:zig
       !<  test-read-step:zig
       %+  slam  transform
-      %+  slop
-      %+  slap  !>(..zuse)  (ream payload.test-step)
-      !>(expected.test-step)
+      %-  slop  :_  !>(expected.test-step)
+      (slap-subject payload.test-step)
     $(test-steps [transformed-step t.test-steps])
   ::
       %custom-write
     ;<  transform=vase  bind:m
       %+  scry  vase
-      /gx/ziggurat/custom-step-compiled/[tag.test-step]/noun
+      %+  weld  /gx/ziggurat/custom-step-compiled/[project-id]
+      /(scot %ux test-id)/[tag.test-step]/noun
     =/  transformed-step=test-write-step:zig
       !<  test-write-step:zig
       %+  slam  transform
-      %+  slop
-      %+  slap  !>(..zuse)  (ream payload.test-step)
-      !>(expected.test-step)
+      %-  slop  :_  !>(expected.test-step)
+      (slap-subject payload.test-step)
     ::  execute code given as @t, e.g., transform
     ::   `:*  %foo  %bar  ==`
     ::   to
@@ -183,8 +194,7 @@
           payload.payload
         %-  crip
         %-  noah
-        %+  slap  !>(..zuse)
-        (ream payload.payload.transformed-step)
+        (slap-subject payload.payload.transformed-step)
       ==
     =?    transformed-step
         ?=(%poke -.transformed-step)
@@ -192,8 +202,7 @@
           payload.payload
         %-  crip
         %-  noah
-        %+  slap  !>(..zuse)
-        (ream payload.payload.transformed-step)
+        (slap-subject payload.payload.transformed-step)
       ==
     $(test-steps [transformed-step t.test-steps])
   ::
@@ -209,14 +218,17 @@
   =/  args  !<((unit arg-mold) args-vase)
   ?~  args
     ~&  >>>  "Usage:"
-    ~&  >>>  "-zig!ziggurat-test-run test-steps:zig (unit [project=@t ships=(list @p)])"
+    ~&  >>>  "-zig!ziggurat-test-run project-id=@t test-id=@ux test-steps:zig subject=vase (list @p)"
     ~&  >>>  "producing snapshots if second argument is non-null"
     (pure:m !>(~))
-  =*  test-steps    test-steps.u.args
-  =*  for-snapshot  for-snapshot.u.args
+  =.  subject         subject.u.args
+  =*  project-id      project-id.u.args
+  =*  test-id         test-id.u.args
+  =*  test-steps      test-steps.u.args
+  =*  snapshot-ships  snapshot-ships.u.args
   ::
   ;<  ~  bind:m  (watch-our /effect %pyro /effect)
   ;<  =test-results:zig  bind:m
-    (run-steps test-steps for-snapshot)
+    (run-steps project-id test-id test-steps snapshot-ships)
   (pure:m !>(`test-results:zig`test-results))
 --

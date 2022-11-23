@@ -63,17 +63,8 @@
   ==
 :: +$  dbug-payload  [who=@p app=@tas %state/bowl/???] :: TODO
 +$  scry-payload
-  ::  if `mold-name` mold in stdlib, set `mold-sur` to `~`.
-  ::  `mold-sur` first element is desk and subsequent are
-  ::   path to the sur file, e.g., to import this file:
-  ::   `mold-sur=/zig/sur/zig/ziggurat/hoon`.
-  ::  if `mold-name` from stdlib, `mold-name` is a direct
-  ::   reference, e.g., `@ud`
-  ::  if `mold-name` from `mold-sur`, `mold-name` is
-  ::   namespaced by file name, e.g., from this file,
-  ::   `test-write-step:ziggurat`.
-  [who=@p mold-sur=path mold-name=@t care=@tas app=@tas =path]
-+$  read-sub-payload  [who=@p =mold care=@tas app=@tas =path]  :: TODO
+  [who=@p mold-name=@t care=@tas app=@tas =path]
++$  read-sub-payload  [who=@p care=@tas app=@tas =path]  :: TODO
 :: +$  poke-payload  [who=@p app=@tas payload=cage]
 +$  dojo-payload  [who=@p payload=@t]
 +$  poke-payload  [who=@p app=@tas mark=@tas payload=@t]

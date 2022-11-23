@@ -127,7 +127,7 @@
     |=  [tag=@tas =custom-step-definition subject=(each ^vase @t)]
     ^-  (each ^vase @t)
     ?:  ?=(%| -.subject)
-      ~|("ziggurat: subject must compile from surs before adding custom step" !!)
+      ~|("%ziggurat: subject must compile from surs before adding custom step" !!)
     =/  compilation-result
       %-  mule
       |.
@@ -194,13 +194,18 @@
     =/  compilation-result
       %-  mule
       |.
-      %-  slop  :_  ziggurat-sur(p [%face %ziggurat p.ziggurat-sur])
-      %-  slop  :_  addresses(p [%face %addresses p.addresses])
-      %-  slop  :_  !>(..zuse)  ::  TODO: slop onto stdlib at runtime?
+      %+  slop  addresses(p [%face %addresses p.addresses])
+      %+  slop
+        ziggurat-sur(p [%face %ziggurat p.ziggurat-sur])
       %+  roll  surs
-      |=  [sur=path subject=^vase]
+      |:  [sur=`path`/ subject=`^vase`!>(..zuse)]
       ?~  snipped=(snip sur)  subject  ::  TODO: do better
       =/  sur-face=@tas  `@tas`(rear snipped)
+      ?:  %-  %~  has  in
+              %-  %~  gas  in  *(set @tas)
+              ~[%addresses %test-results %ziggurat]
+          sur-face
+        ~|("%ziggurat: compilation failed; cannot use %addresses, %test-results, %ziggrat: reserved and built into subject already" !!)
       ?>  ?=(^ sur)
       =/  sur-hoon=^vase
         .^  ^vase
@@ -209,7 +214,7 @@
             %+  weld  /[i.sur]/(scot %da now.bowl)
             t.sur
         ==
-      %+  slop  subject
+      %-  slop  :_  subject
       sur-hoon(p [%face sur-face p.sur-hoon])
     ?:  ?=(%& -.compilation-result)  compilation-result
     :-  %|
@@ -468,6 +473,8 @@
         ==
       =/  =project  (~(got by projects) project.act)
       =/  =test     (~(got by tests.project) id.act)
+      ?:  ?=(%| -.subject.test)
+        ~|("%ziggurat: test subject must compile before test can be run" !!)  ::  TODO: do better
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
@@ -481,8 +488,14 @@
         :-  ~
         :^  `tid  byk.bowl(r da+now.bowl)
           %ziggurat-test-run
-        !>  ^-  (unit [test-steps (unit [@t @ux (list @p)])])
-        `[steps.test `[project.act id.act ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
+        !>  ^-  (unit [@t @ux test-steps ^vase (list @p)])
+        :*  ~
+            project.act
+            id.act
+            steps.test
+            p.subject.test
+            ~[~nec ~bud]  :: TODO: remove hardcode and allow input of for-snapshot
+        ==
       =/  w=wire  /test/[project.act]/(scot %ux id.act)/[tid]
       :-  :+  :^  %pass  w  %agent
               [[our.bowl %spider] %watch /thread-result/[tid]]
