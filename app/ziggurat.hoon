@@ -380,11 +380,40 @@
       :: :-  (make-project-update project.act project)^~
       :: state(projects (~(put by projects) project.act project))
     ::
+        %run-test
+      ~?  >  ?=(^ test-queue)  
+        ::  XX  might want to fix this
+        "%ziggurat: test-queue is non-empty, running queued tests first"
+      :-  (make-run-queue our.bowl project.act)^~
+      state(test-queue (~(put to test-queue) [project:act id.act]))
+    ::
+        %add-and-run-test
+      ~?  >  ?=(^ test-queue)  
+        ::  XX  might want to fix this
+        "%ziggurat: test-queue is non-empty, running queued tests first"
+      ::  generate an id for the test
+      =/  =project  (~(got by projects) project.act)
+      =/  test-id=@ux  `@ux`(sham test-steps.act)
+      =.  tests.project
+        %+  ~(put by tests.project)  test-id
+        [name.act test-steps.act ~]
+      :-  :~  (make-project-update project.act project)
+              (make-run-queue our.bowl project.act)
+          ==
+      %=    state
+          projects
+        (~(put by projects) project.act project)
+          test-queue
+        (~(put to test-queue) [project:act test-id])
+      ==
+    ::
         %run-queue
       ?:  =(~ pyro-ships-ready)
         ~|("%ziggurat: run %start-pyro-ships before running tests" !!)
       ?:  !(~(all by pyro-ships-ready) same)
         ~|("%ziggurat: %pyro ships aren't ready yet, wait" !!)
+      ?:  =(~ test-queue)
+        ~|("%ziggurat: no tests in the queue" !!)
       =/  =project  (~(got by projects) project.act)
       ::  XX for some reason can't get faces on top? e.g. test-id.top
       =^  top  test-queue  ~(get to test-queue)
@@ -414,6 +443,9 @@
       ~
     ::
         %queue-test
+      `state(test-queue (~(put to test-queue) [project.act id.act]))
+    ::
+        %add-and-queue-test
       ::  generate an id for the test
       =/  =project  (~(got by projects) project.act)
       =/  test-id=@ux  `@ux`(sham test-steps.act)
