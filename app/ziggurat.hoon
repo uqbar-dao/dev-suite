@@ -584,10 +584,10 @@
         `this
       ::
           %thread-done
-        ~&  >  "%test-done"
         =+  !<(=test-results q.cage.sign)
         =/  =project  (~(got by projects) project-name)
         =/  =test     (~(got by tests.project) test-id)
+        ~&  >  "%ziggurat: test done {(scow %ux test-id)}"
         =.  tests.project
           %+  ~(put by tests.project)  test-id
           test(results test-results)
