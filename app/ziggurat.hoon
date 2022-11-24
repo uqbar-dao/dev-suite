@@ -85,6 +85,7 @@
   =^  cards  state
     ?+  mark  !!
       %ziggurat-action  (handle-poke !<(action vase))
+      %noun  ?.  ?=([%not-running ~] !<([@tas ~] vase))  !!  `state(running-test ~)
     ==
   [cards this]
   ::
@@ -513,22 +514,20 @@
         %add-and-run-test
       =/  =project  (~(got by projects) project.act)
       =/  test-id=@ux  `@ux`(sham test-steps.act)
-      =/  addresses=^vase  !>(virtualnet-addresses)
-      =.  tests.project
-        %+  ~(put by tests.project)  test-id
-        :-  name.act
-        :*  test-surs.act
-            (compile-test-surs test-surs.act addresses)
-            ~
+      =/  [cards=(list card) =test]
+        %:  add-test
+            project.act
+            test-id
+            name.act
+            test-surs.act
             test-steps.act
-            ~
         ==
+      =.  tests.project  (~(put by tests.project) test-id test)
       :_  state(projects (~(put by projects) project.act project))
-      :+  (make-project-update project.act project)
-        :^  %pass  /self-wire  %agent
-        :^  [our dap]:bowl  %poke  %ziggurat-action
-        !>(`action`[project.act %run-test test-id])
-      ~
+      %+  snoc  cards
+      :^  %pass  /self-wire  %agent
+      :^  [our dap]:bowl  %poke  %ziggurat-action
+      !>(`action`[project.act %run-test test-id])
     ::
         %add-custom-step
       =/  =project  (~(got by projects) project.act)
@@ -779,7 +778,7 @@
     ?:  ?=(%| -.q)  q  [%& *vase]
   ::
       [%custom-step-compiled @ @ @ ~]
-    =/  =project  (~(got by projects) (slav %ux i.t.t.path))
+    =/  =project  (~(got by projects) i.t.t.path)
     =/  =test  (~(got by tests.project) (slav %ux i.t.t.t.path))
     =/  tag=@tas  `@tas`i.t.t.t.t.path
     ?~  def=(~(get by custom-step-definitions.test) tag)

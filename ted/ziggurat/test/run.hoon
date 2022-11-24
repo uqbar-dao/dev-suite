@@ -37,14 +37,25 @@
   ^-  vase
   (slap subject (ream payload))
 ::
+++  noah-slap-ream
+  |=  payload=@t
+  ^-  tape
+  =/  compilation-result
+    (mule |.((slap-subject payload)))
+  ?:  ?=(%| -.compilation-result)
+    ~&  %nsr^%fail^payload
+    (trip payload)
+  ~&  %nsr^%succ^(noah p.compilation-result)
+  (noah p.compilation-result)
+::
 ++  send-pyro-dojo
   |=  payload=dojo-payload:zig
   =/  m  (strand ,~)
   ^-  form:m
   ;<  ~  bind:m
     %+  dojo:pyio  who.payload
-    (trip payload.payload)
-    :: (noah (slap-subject payload.payload))  ::  TODO: convert zariables
+    :: (trip payload.payload)
+    (noah-slap-ream payload.payload)
   (pure:m ~)
 ::
 ++  send-pyro-scry
@@ -80,8 +91,7 @@
         " &"
         (trip mark.payload)
         " "
-        (trip payload.payload)
-        :: (noah (slap-subject payload.payload))  ::  TODO: convert zariables
+        (noah-slap-ream payload.payload)
     ==
   (pure:m ~)
 ::
