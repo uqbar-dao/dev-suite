@@ -414,11 +414,11 @@
         ~|("%ziggurat: %pyro ships aren't ready yet, wait" !!)
       ?:  =(~ test-queue)
         ~|("%ziggurat: no tests in the queue" !!)
-      =/  =project  (~(got by projects) project.act)
-      ::  XX for some reason can't get faces on top? e.g. test-id.top
       =^  top  test-queue  ~(get to test-queue)
-      =*  test-id  +.top
+      =*  project-id  -.top
+      =*  test-id     +.top
       ~&  >  "running {(scow %ux test-id)}"
+      =/  =project  (~(got by projects) project-id)
       =/  =test     (~(got by tests.project) test-id)
       =/  tid=@ta
         %+  rap  3
