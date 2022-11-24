@@ -54,6 +54,7 @@
     ::
         ~
         ~
+        |
     ==
   ==
   ::
@@ -381,25 +382,23 @@
       :: state(projects (~(put by projects) project.act project))
     ::
         %run-test
-      ~?  >  ?=(^ test-queue)  
-        ::  XX  might want to fix this
-        "%ziggurat: test-queue is non-empty, running queued tests first"
-      :-  (make-run-queue our.bowl project.act)^~
-      state(test-queue (~(put to test-queue) [project:act id.act]))
+      :_  state(test-queue (~(put to test-queue) [project:act id.act]))
+      ?:  =(| test-running)
+        (make-run-queue our.bowl project.act)^~
+      ~&  >  "%ziggurat: another test is running, adding to queue"  ~
     ::
         %add-and-run-test
-      ~?  >  ?=(^ test-queue)  
-        ::  XX  might want to fix this
-        "%ziggurat: test-queue is non-empty, running queued tests first"
       ::  generate an id for the test
       =/  =project  (~(got by projects) project.act)
       =/  test-id=@ux  `@ux`(sham test-steps.act)
       =.  tests.project
         %+  ~(put by tests.project)  test-id
         [name.act test-steps.act ~]
-      :-  :~  (make-project-update project.act project)
-              (make-run-queue our.bowl project.act)
-          ==
+      :-  %+  weld
+            (make-project-update project.act project)^~
+          ?:  =(| test-running)
+            (make-run-queue our.bowl project.act)^~
+          ~&  >  "%ziggurat: another test is running, adding to queue"  ~
       %=    state
           projects
         (~(put by projects) project.act project)
@@ -414,6 +413,8 @@
         ~|("%ziggurat: %pyro ships aren't ready yet, wait" !!)
       ?:  =(~ test-queue)
         ~|("%ziggurat: no tests in the queue" !!)
+      ?:  =(& test-running)
+        ~|("%ziggurat: queue already running" !!)
       =^  top  test-queue  ~(get to test-queue)
       =*  project-id  -.top
       =*  test-id     +.top
@@ -436,7 +437,7 @@
         !>  ^-  (unit [test-steps (unit [@t @ux (list @p)])])
         `[steps.test `[project-id test-id ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
       =/  w=wire  /test/[project-id]/(scot %ux test-id)/[tid]
-      :_  state
+      :_  state(test-running &)
       :+  :^  %pass  w  %agent
             [[our.bowl %spider] %watch /thread-result/[tid]]
         :^  %pass  w  %agent
@@ -579,7 +580,7 @@
       ?+    p.cage.sign  (on-agent:def wire sign)
           %thread-fail
         ~&  ziggurat+thread-fail+project^test-id^tid
-        `this
+        `this(test-running |)
       ::
           %thread-done
         =+  !<(=test-results q.cage.sign)
@@ -591,14 +592,16 @@
           test(results test-results)
         =/  cards=(list card)
           (make-project-update project-name project)^~
-        =.  cards
-          ?~  test-queue  cards
+        =?  cards  ?=(^ test-queue)
           %+  snoc  cards
           :^  %pass  /self-wire  %agent
           :^  [our dap]:bowl  %poke  %ziggurat-action
           !>([project-name %run-queue ~])
         :-  cards
-        this(projects (~(put by projects) project-name project))
+        %=  this
+          projects  (~(put by projects) project-name project)
+          test-running  |
+        ==
       ==
     ==
   ::
@@ -667,9 +670,6 @@
     ?:  ?=(%| -.q.u.def)  ::  TODO: do better
       ~|("%ziggurat: compilation of {<tag>} failed; please fix and try again" !!)
     ``noun+!>(`vase`p.q.u.def)
-  ::
-      [%test-queue ~]
-    ``noun+!>(test-queue)
   ::
   ::  JSONS
   ::

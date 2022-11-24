@@ -10,6 +10,7 @@
       virtualnet-addresses=(map @p address:smart)
       pyro-ships-ready=(map ship ?)
       test-queue=(qeu [project=@t test-id=@ux])
+      test-running=?
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
 +$  eng  $_  ~(engine engine:engine-lib !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
