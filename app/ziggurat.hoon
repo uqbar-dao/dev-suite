@@ -481,16 +481,10 @@
       ==
     ::
         %stop-pyro-ships
-      =/  leave-cards=(list card:agent:gall)
-        %+  turn  (turn ~(tap by pyro-ships-ready) head)
-        |=  who=ship
-        [%pass /ready/[project.act]/(scot %p who) %agent [our.bowl %pyro] %leave ~]
-      =/  pyro-done=(list card:agent:gall)
-        :~  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
-            [%give %kick [/pyro-done]~ ~]
-        ==
       :_  state(pyro-ships-ready ~)
-      (weld leave-cards pyro-done)
+      :~  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
+          [%give %kick [/pyro-done]~ ~]
+      ==
     ::
         %start-pyro-ships
       =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud]
@@ -616,15 +610,19 @@
       =*  project  i.t.wire
       =/  who=ship  (slav %p i.t.t.wire)
       =.  pyro-ships-ready  (~(put by pyro-ships-ready) who %.y)
-      ?~  test-queue                         `this
-      ?.  (~(all by pyro-ships-ready) same)  `this
+      =/  card=card:agent:gall
+        :^  %pass  /ready/[project]/(scot %p who)  %agent
+        [[our.bowl %pyro] %leave ~]
+      ?~  test-queue                         [card^~ this]
+      ?.  (~(all by pyro-ships-ready) same)  [card^~ this]
       :_  this
-      :_  ~
-      ::  XX not sure if we actually want this? I think we just want
-      ::     something on a subscribe wire that says "your ships are ready sir"
-      :^  %pass  /self-wire  %agent
-      :^  [our dap]:bowl  %poke  %ziggurat-action
-      !>([project %run-queue ~])
+      :+  card
+        ::  XX not sure if we actually want this? I think we just want
+        ::     something on a subscribe wire that says "your ships are ready sir"
+        :^  %pass  /self-wire  %agent
+        :^  [our dap]:bowl  %poke  %ziggurat-action
+        !>([project %run-queue ~])
+      ~
     ==
   ==
 ::
