@@ -117,7 +117,7 @@
           :: [%edit-test id=@ux name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]
           [%run-test id=@ux]
           [%add-and-run-test name=(unit @t) =test-steps]
-          [%run-queue ~]
+          [%run-queue ~]  ::  can be used as [%$ %run-queue ~]
           [%queue-test id=@ux]
           [%add-and-queue-test name=(unit @t) =test-steps]
           ::

@@ -417,13 +417,13 @@
       =^  top  test-queue  ~(get to test-queue)
       =*  project-id  -.top
       =*  test-id     +.top
-      ~&  >  "running {(scow %ux test-id)}"
+      ~&  >  "%ziggurat: running {(scow %ux test-id)}"
       =/  =project  (~(got by projects) project-id)
       =/  =test     (~(got by tests.project) test-id)
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
-            project.act
+            project-id
             '-'
             ?^(name.test u.name.test (scot %ux test-id))
             '-'
@@ -434,8 +434,8 @@
         :^  `tid  byk.bowl(r da+now.bowl)
           %ziggurat-test-run
         !>  ^-  (unit [test-steps (unit [@t @ux (list @p)])])
-        `[steps.test `[project.act test-id ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
-      =/  w=wire  /test/[project.act]/(scot %ux test-id)/[tid]
+        `[steps.test `[project-id test-id ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
+      =/  w=wire  /test/[project-id]/(scot %ux test-id)/[tid]
       :_  state
       :+  :^  %pass  w  %agent
             [[our.bowl %spider] %watch /thread-result/[tid]]
@@ -491,7 +491,7 @@
       =/  wach=(list card:agent:gall)
         %+  turn  ships.act
         |=  who=ship
-        :*  %pass  /ready/[project.act]/(scot %p who)  %agent
+        :*  %pass  /ready/(scot %p who)  %agent
             [our.bowl %pyro]
             %watch  /ready/(scot %p who)
         ==
@@ -598,20 +598,19 @@
           %+  snoc  cards
           :^  %pass  /self-wire  %agent
           :^  [our dap]:bowl  %poke  %ziggurat-action
-          !>([project-name %run-queue ~]) :: XX why not faces
+          !>([project-name %run-queue ~])
         :-  cards
         this(projects (~(put by projects) project-name project))
       ==
     ==
   ::
-      [%ready @ @ ~]
+      [%ready @ ~]
     ?+    -.sign  (on-agent:def wire sign)
         %fact
-      =*  project  i.t.wire
-      =/  who=ship  (slav %p i.t.t.wire)
+      =/  who=ship  (slav %p i.t.wire)
       =.  pyro-ships-ready  (~(put by pyro-ships-ready) who %.y)
       =/  card=card:agent:gall
-        :^  %pass  /ready/[project]/(scot %p who)  %agent
+        :^  %pass  /ready/(scot %p who)  %agent
         [[our.bowl %pyro] %leave ~]
       ?~  test-queue                         [card^~ this]
       ?.  (~(all by pyro-ships-ready) same)  [card^~ this]
@@ -619,7 +618,7 @@
       :+  card
         :^  %pass  /self-wire  %agent
         :^  [our dap]:bowl  %poke  %ziggurat-action
-        !>([project %run-queue ~])
+        !>([%$ %run-queue ~])
       ~
     ==
   ==

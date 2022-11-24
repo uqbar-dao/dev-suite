@@ -219,5 +219,5 @@ An alternative to adding tests and then running them: do it one one step:
 :ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec send-nec]
 :ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec-custom send-nec-custom]
 
-:ziggurat &ziggurat-action [%foo %run-queue ~]
+:ziggurat &ziggurat-action [%$ %run-queue ~]
 ```
