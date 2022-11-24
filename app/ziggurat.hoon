@@ -617,8 +617,6 @@
       ?.  (~(all by pyro-ships-ready) same)  [card^~ this]
       :_  this
       :+  card
-        ::  XX not sure if we actually want this? I think we just want
-        ::     something on a subscribe wire that says "your ships are ready sir"
         :^  %pass  /self-wire  %agent
         :^  [our dap]:bowl  %poke  %ziggurat-action
         !>([project %run-queue ~])
