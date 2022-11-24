@@ -505,10 +505,8 @@
       :-  (weld wach init)
       %_    state
           pyro-ships-ready
-        =|  r=(map ship ?)
-        |-  ^-  (map ship ?)
-        ?~  ships.act  r
-        $(ships.act t.ships.act, r (~(put by r) i.ships.act %.n))      
+        %-  ~(gas by *(map ship ?))
+        (turn ships.act |=(=ship [ship %.n]))   
       ==
     ::
         %deploy-contract  ::  TODO
