@@ -3,7 +3,7 @@
 |%
 +$  signature   [p=@ux q=ship r=life]
 ::  for app-generated transactions to be notified of their txn results
-+$  origin  (unit (pair desk wire))
++$  origin  (unit (pair term wire))
 ::
 ::  book: the primary map of assets that we track
 ::  supports fungibles and NFTs
@@ -131,7 +131,7 @@
       ==
       ::
       $:  %transaction
-          =wire
+          =origin
           from=address:smart
           contract=id:smart
           town=@ux

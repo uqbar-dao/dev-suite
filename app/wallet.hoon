@@ -378,7 +378,7 @@
       ::  define origin as source desk + their wire
       =/  my-pending
         %+  ~(put by (~(gut by pending-store) from.act ~))
-        hash  [`[q.byk.bowl wire.act] transaction action.act]
+        hash  [origin.act transaction action.act]
       :-  (tx-update-card hash transaction action.act)^~
       %=  state
         pending-store  (~(put by pending-store) from.act my-pending)
