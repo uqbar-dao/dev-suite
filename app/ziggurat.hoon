@@ -52,9 +52,9 @@
         %-  ~(gas by *(map @p address:smart))
         ~[[~nec nec-address] [~bud bud-address]]
     ::
-        ['' %.n]
         ~
         ~
+        |
     ==
   ==
   ::
@@ -382,56 +382,10 @@
       :: state(projects (~(put by projects) project.act project))
     ::
         %run-test
-      ?:  ?|  ?=(^ running-test)
-              ?&  ?=(^ test-queue)
-                  !=(i.test-queue [project id]:act)
-              ==
-          ==
-        `state(test-queue (snoc test-queue [project id]:act))
-      ?.  is-ready.pyro-ships
-        ::  delay until pyro-ships is-ready
-        :-  :_  ~
-            :^    %pass
-                /delay-test/[project.act]/(scot %ux id.act)
-              %arvo
-            [%b %wait (add now.bowl ~s5)]  ::  TODO: unhardcode
-        %=  state
-            :: running-test  `[project id]:act
-            test-queue
-          ?~  test-queue                        test-queue
-          ?.  =(i.test-queue [project id]:act)  test-queue
-          t.test-queue
-        ==
-      =/  =project  (~(got by projects) project.act)
-      =/  =test     (~(got by tests.project) id.act)
-      =/  tid=@ta
-        %+  rap  3
-        :~  'ted-'
-            project.act
-            '-'
-            ?^(name.test u.name.test (scot %ux id.act))
-            '-'
-            (scot %uw (sham eny.bowl))
-        ==
-      =/  =start-args:spider
-        :-  ~
-        :^  `tid  byk.bowl(r da+now.bowl)
-          %ziggurat-test-run
-        !>  ^-  (unit [test-steps (unit [@t @ux (list @p)])])
-        `[steps.test `[project.act id.act ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
-      =/  w=wire  /test/[project.act]/(scot %ux id.act)/[tid]
-      :-  :+  :^  %pass  w  %agent
-              [[our.bowl %spider] %watch /thread-result/[tid]]
-            :^  %pass  w  %agent
-            [[our.bowl %spider] %poke %spider-start !>(start-args)]
-          ~
-      %=  state
-          running-test  `[project id]:act
-          test-queue
-        ?~  test-queue                        test-queue
-        ?.  =(i.test-queue [project id]:act)  test-queue
-        t.test-queue
-      ==
+      :_  state(test-queue (~(put to test-queue) [project:act id.act]))
+      ?:  =(| test-running)
+        (make-run-queue our.bowl project.act)^~
+      ~&  >  "%ziggurat: another test is running, adding to queue"  ~
     ::
         %add-and-run-test
       ::  generate an id for the test
@@ -440,12 +394,73 @@
       =.  tests.project
         %+  ~(put by tests.project)  test-id
         [name.act test-steps.act ~]
-      :_  state(projects (~(put by projects) project.act project))
-      :+  (make-project-update project.act project)
-        :^  %pass  /self-wire  %agent
-        :^  [our dap]:bowl  %poke  %ziggurat-action
-        !>(`action`[project.act %run-test test-id])
+      :-  %+  weld
+            (make-project-update project.act project)^~
+          ?:  =(| test-running)
+            (make-run-queue our.bowl project.act)^~
+          ~&  >  "%ziggurat: another test is running, adding to queue"  ~
+      %=    state
+          projects
+        (~(put by projects) project.act project)
+          test-queue
+        (~(put to test-queue) [project:act test-id])
+      ==
+    ::
+        %run-queue
+      ?:  =(~ pyro-ships-ready)
+        ~|("%ziggurat: run %start-pyro-ships before running tests" !!)
+      ?:  !(~(all by pyro-ships-ready) same)
+        ~|("%ziggurat: %pyro ships aren't ready yet, wait" !!)
+      ?:  =(~ test-queue)
+        ~|("%ziggurat: no tests in the queue" !!)
+      ?:  =(& test-running)
+        ~|("%ziggurat: queue already running" !!)
+      =^  top  test-queue  ~(get to test-queue)
+      =*  project-id  -.top
+      =*  test-id     +.top
+      ~&  >  "%ziggurat: running {(scow %ux test-id)}"
+      =/  =project  (~(got by projects) project-id)
+      =/  =test     (~(got by tests.project) test-id)
+      =/  tid=@ta
+        %+  rap  3
+        :~  'ted-'
+            project-id
+            '-'
+            ?^(name.test u.name.test (scot %ux test-id))
+            '-'
+            (scot %uw (sham eny.bowl))
+        ==
+      =/  =start-args:spider
+        :-  ~
+        :^  `tid  byk.bowl(r da+now.bowl)
+          %ziggurat-test-run
+        !>  ^-  (unit [test-steps (unit [@t @ux (list @p)])])
+        `[steps.test `[project-id test-id ~[~nec ~bud]]]  :: TODO: remove hardcode and allow input of for-snapshot
+      =/  w=wire  /test/[project-id]/(scot %ux test-id)/[tid]
+      :_  state(test-running &)
+      :+  :^  %pass  w  %agent
+            [[our.bowl %spider] %watch /thread-result/[tid]]
+        :^  %pass  w  %agent
+        [[our.bowl %spider] %poke %spider-start !>(start-args)]
       ~
+    ::
+        %queue-test
+      `state(test-queue (~(put to test-queue) [project.act id.act]))
+    ::
+        %add-and-queue-test
+      ::  generate an id for the test
+      =/  =project  (~(got by projects) project.act)
+      =/  test-id=@ux  `@ux`(sham test-steps.act)
+      =.  tests.project
+        %+  ~(put by tests.project)  test-id
+        [name.act test-steps.act ~]
+      :-  [(make-project-update project.act project) ~]
+      %=    state
+          projects
+        (~(put by projects) project.act project)
+          test-queue
+        (~(put to test-queue) [project:act test-id])
+      ==
     ::
         %add-custom-step
       =/  addresses=^vase  !>(virtualnet-addresses)
@@ -466,60 +481,34 @@
         (~(del by custom-step-definitions) tag.act)
       ==
     ::
-        %ready-pyro-ships
-      ?:  =('' tid.pyro-ships)
-        ~|("%ziggurat: %start-pyro-ships or %load-pyro-snapshot before signaling ready" !!)
-      `state(is-ready.pyro-ships %.y)
-    ::
         %stop-pyro-ships
-      :_  state(pyro-ships ['' %.n])
-      :+  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
-        [%give %kick [/pyro-done]~ ~]
-      ~
+      :_  state(pyro-ships-ready ~)
+      :~  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
+          [%give %kick [/pyro-done]~ ~]
+      ==
     ::
         %start-pyro-ships
-      ?.  =('' tid.pyro-ships)
-        ~|("%ziggurat: %stop-pyro-ships before starting new one" !!)
-      =/  =project  (~(got by projects) project.act)
-      =/  tid=@ta
-        %+  rap  3
-        :~  'ted-'
-            project.act
-            '-start-pyro-ships-'
-            (scot %uw (sham eny.bowl))
+      =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud]
+      =/  wach=(list card:agent:gall)
+        %+  turn  ships.act
+        |=  who=ship
+        :*  %pass  /ready/(scot %p who)  %agent
+            [our.bowl %pyro]
+            %watch  /ready/(scot %p who)
         ==
-      =/  =start-args:spider
-        :-  ~
-        :^  `tid  byk.bowl(r da+now.bowl)
-          %ziggurat-test-start-pyro-ships
-        !>  ^-  (unit [@t (list @p)])
-        ?^  ships.act  [~ project.act ships.act]
-        [~ project.act ~[~nec ~bud]]  ::  TODO: remove hardcode?
-      :_  state(pyro-ships [tid %.n])
-      :_  ~
-      :^  %pass  /pyro-vanes  %agent
-      [[our.bowl %spider] %poke %spider-start !>(start-args)]
-    ::
-        %load-pyro-snapshot
-      ?.  =('' tid.pyro-ships)
-        ~|("%ziggurat: %stop-pyro-ships before starting new one" !!)
-      =/  =project  (~(got by projects) project.act)
-      =/  tid=@ta
-        %+  rap  3
-        :~  'ted-'
-            project.act
-            '-load-pyro-snapshot-'
-            (scot %uw (sham eny.bowl))
+      =/  init=(list card:agent:gall)
+        :_  ~
+        :*  %pass  /  %agent
+            [our.bowl %pyro]
+            %poke  %aqua-events
+            !>((turn ships.act |=(who=ship [%init-ship who])))
         ==
-      =/  =start-args:spider
-        :-  ~
-        :^  `tid  byk.bowl(r da+now.bowl)
-          %ziggurat-test-load-pyro-snapshot
-        !>(`(unit [@t path])`[~ project.act path.act])
-      :_  state(pyro-ships [tid %.n])
-      :_  ~
-      :^  %pass  /pyro-vanes  %agent
-      [[our.bowl %spider] %poke %spider-start !>(start-args)]
+      :-  (weld wach init)
+      %_    state
+          pyro-ships-ready
+        %-  ~(gas by *(map ship ?))
+        (turn ships.act |=(=ship [ship %.n]))   
+      ==
     ::
         %deploy-contract  ::  TODO
       !!
@@ -591,33 +580,47 @@
       ?+    p.cage.sign  (on-agent:def wire sign)
           %thread-fail
         ~&  ziggurat+thread-fail+project^test-id^tid
-        `this
+        `this(test-running |)
       ::
           %thread-done
         =+  !<(=test-results q.cage.sign)
         =/  =project  (~(got by projects) project-name)
         =/  =test     (~(got by tests.project) test-id)
+        ~&  >  "%ziggurat: test done {(scow %ux test-id)}"
         =.  tests.project
           %+  ~(put by tests.project)  test-id
           test(results test-results)
         =/  cards=(list card)
           (make-project-update project-name project)^~
-        =.  cards
-          ?~  test-queue  cards
-          =*  next-project  project.i.test-queue
-          =*  next-test-id  test-id.i.test-queue
+        =?  cards  ?=(^ test-queue)
           %+  snoc  cards
           :^  %pass  /self-wire  %agent
           :^  [our dap]:bowl  %poke  %ziggurat-action
-          !>([next-project %run-test next-test-id])
+          !>([project-name %run-queue ~])
         :-  cards
         %=  this
-            running-test  ~
-            projects
-          (~(put by projects) project-name project)
-        ::
+          projects  (~(put by projects) project-name project)
+          test-running  |
         ==
       ==
+    ==
+  ::
+      [%ready @ ~]
+    ?+    -.sign  (on-agent:def wire sign)
+        %fact
+      =/  who=ship  (slav %p i.t.wire)
+      =.  pyro-ships-ready  (~(put by pyro-ships-ready) who %.y)
+      =/  card=card:agent:gall
+        :^  %pass  /ready/(scot %p who)  %agent
+        [[our.bowl %pyro] %leave ~]
+      ?~  test-queue                         [card^~ this]
+      ?.  (~(all by pyro-ships-ready) same)  [card^~ this]
+      :_  this
+      :+  card
+        :^  %pass  /self-wire  %agent
+        :^  [our dap]:bowl  %poke  %ziggurat-action
+        !>([%$ %run-queue ~])
+      ~
     ==
   ==
 ::
@@ -633,29 +636,6 @@
       `this
     ~&  >>>  "failed to make new desk"
     `this
-  ::
-      [%delay-test @ @ ~]
-    ?+    sign-arvo  (on-arvo:def wire sign-arvo)
-        [%behn %wake *]
-      ?^  error.sign-arvo
-        ~|("%ziggurat: %delay-test error: {<u.error.sign-arvo>}" !!)
-      ~&  %delay-test
-      :_  this
-      :_  ~
-      ?.  is-ready.pyro-ships
-        ::  delay until pyro-ships is-ready
-        [%pass wire %arvo [%b %wait (add now.bowl ~s5)]]  ::  TODO: unhardcode
-      =*  project  i.t.wire
-      =*  id       (slav %ux i.t.t.wire)
-      :*  %pass
-          /self-wire
-          %agent
-          [our.bowl %ziggurat]
-          %poke
-          %ziggurat-action
-          !>(`action`project^[%run-test id])
-      ==
-    ==
   ==
 ::
 ++  on-peek
