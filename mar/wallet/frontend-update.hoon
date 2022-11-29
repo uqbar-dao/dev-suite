@@ -29,11 +29,11 @@
     ::
         %tx-status
       %-  frond
-      (transaction-no-output:parsing +.upd)
+      (transaction-no-output:parsing hash.upd ~ +.+.upd)
     ::
         %finished-tx
       %-  frond
-      (transaction-with-output:parsing +.upd)
+      (transaction-with-output:parsing hash.upd ~ +.+.upd)
     ==
   --
 ++  grad  %noun
