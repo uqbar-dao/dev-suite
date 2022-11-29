@@ -95,6 +95,7 @@
   ++  on-watch
     |=  =path
     ^-  step:agent:gall
+    :: /ready/~dev   subscribe to when a ship has fully booted
     :: /effect       subscribe to effects one by one
     :: /effects      subscribe to effects in list form
     :: /effect/~dev  subscribe to all effects of a given ship
@@ -106,7 +107,7 @@
       `this
     ?:  ?=([%effect @ ~] path)
       `this
-    ?.  ?=([?(%effects %effect %events %boths) @ ~] path)
+    ?.  ?=([?(%effects %effect %events %boths %ready) @ ~] path)
       ~|  [%aqua-bad-subscribe-path path]
       !!
     ?~  (slaw %p i.t.path)
@@ -200,16 +201,18 @@
     =?  fresh-piers  !(~(has by fresh-piers) who)
       %+  ~(put by fresh-piers)  who
       [pier-data (~(get ja unix-boths) who)]
-    ..ahoy
+    =/  =card:agent:gall  [%give %fact ~[/ready/(scot %p who)] %noun !>(%.y)]
+    ..ahoy:(emit-cards ~[card])
   ::
   ::  restore post-pill ship for re-use
   ::
   ++  yaho
     =/  fresh  (~(got by fresh-piers) who)
+    =/  =card:agent:gall  [%give %fact ~[/ready/(scot %p who)] %noun !>(%.y)]
     =.  pier-data  pier.fresh
     =.  boths.fresh  (flop boths.fresh)
     |-
-    ?~  boths.fresh  ..yaho
+    ?~  boths.fresh  ..yaho:(emit-cards ~[card])
     =.  ..yaho
       ?-  -.i.boths.fresh
         %effect  (publish-effect +.i.boths.fresh)
@@ -367,9 +370,8 @@
     %-  zing
     %+  turn  ufs
     |=  uf=unix-effect
-    :~  [%give %fact ~[/effect] %aqua-effect !>(`aqua-effect`[ship uf])]
-        [%give %fact ~[/effect/[-.q.uf]] %aqua-effect !>(`aqua-effect`[ship uf])]
-    ==
+    =+  paths=~[/effect /effect/[-.q.uf]]
+    [%give %fact paths %aqua-effect !>(`aqua-effect`[ship uf])]~
   ::
   =.  this
     =/  =path  /effects

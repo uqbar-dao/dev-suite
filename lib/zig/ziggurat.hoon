@@ -115,6 +115,13 @@
     ;;((list clause:dock) reamed-text)
   ==
 ::
+++  make-run-queue
+  |=  [our=ship project=@t]
+  ^-  card
+  :^  %pass  /self-poke  %agent
+  :^  [our %ziggurat]  %poke  %ziggurat-action
+  !>([project %run-queue ~])
+::
 ++  text-to-zebra-noun
   |=  [tex=@t smart-lib=vase]
   ^-  *

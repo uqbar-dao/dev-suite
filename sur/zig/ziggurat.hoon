@@ -7,9 +7,9 @@
   $:  %0
       =projects
       virtualnet-addresses=(map @p address:smart)
-      pyro-ships=[tid=@ta is-ready=?]
-      running-test=(unit [project=@t test-id=@ux])
-      test-queue=(list [project=@t test-id=@ux])  ::  i.test-queue is next
+      pyro-ships-ready=(map ship ?)
+      test-queue=(qeu [project=@t test-id=@ux])
+      test-running=?
   ==
 +$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
 +$  eng  $_  ~(engine engine:engine-lib !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
@@ -110,17 +110,17 @@
       ::
           [%add-test name=(unit @t) =test-surs =test-steps]  ::  name optional
           [%delete-test id=@ux]
-          :: [%edit-test id=@ux name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]
           [%run-test id=@ux]
           [%add-and-run-test name=(unit @t) =test-surs =test-steps]
+          [%run-queue ~]  ::  can be used as [%$ %run-queue ~]
+          [%queue-test id=@ux]
+          [%add-and-queue-test name=(unit @t) =test-surs =test-steps]
           ::
           [%add-custom-step test-id=@ux tag=@tas =custom-step-definition]
           [%delete-custom-step test-id=@ux tag=@tas]
           ::
-          [%ready-pyro-ships ~]
           [%stop-pyro-ships ~]
           [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> [~nec ~bud]
-          [%load-pyro-snapshot =path]
       ::
           [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
           $:  %deploy-contract

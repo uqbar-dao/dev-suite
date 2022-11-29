@@ -135,7 +135,7 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 :ziggurat &ziggurat-action [%foo %add-test `%scry-nec ~[/zig/sur/zig/indexer/hoon] scry-nec]
 =scry-bud `test-steps:zig`~[[%scry [~bud 'update:indexer' %gx %indexer /batch-order/0x0/noun] '[%batch-order batch-order=~[0xd85a.d919.9806.cbc2.b841.eb0d.854d.22af]]']]
 :ziggurat &ziggurat-action [%foo %add-test `%scry-bud ~[/zig/sur/zig/indexer/hoon] scry-bud]
-=scry-clay `test-steps:zig`~[[%scry [~bud ~ 'wain' %cx %base /desk/bill] '<|acme azimuth dbug dojo eth-watcher hood herm lens ping spider|>']]
+=scry-clay `test-steps:zig`~[[%scry [~bud 'wain' %cx %base /desk/bill] '<|acme azimuth dbug dojo eth-watcher hood herm lens ping spider|>']]
 :ziggurat &ziggurat-action [%foo %add-test `%scry-clay ~ scry-clay]
 =send-nec `test-steps:zig`~[[%poke [rollup-host %uqbar %wallet-poke '[%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]'] ~] [%poke [rollup-host %uqbar %wallet-poke '[%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xa99c.4c8e.1c8d.abb8.e870.81e8.8c96.2cf5 gas=[rate=1 bud=1.000.000]]'] ~] [%dojo [~nec ':sequencer|batch'] `(list test-read-step:zig)`~[[%scry [~nec 'update:indexer' %gx %indexer /newest/item/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun] '']]]]
 :ziggurat &ziggurat-action [%foo %add-test `%send-nec ~[/zig/sur/zig/indexer/hoon] send-nec]
@@ -143,10 +143,10 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 :ziggurat &ziggurat-action [%foo %add-test `%send-nec-custom ~[/zig/sur/zig/indexer/hoon] send-nec-custom]
 
 =setup-id 0xa253.baf1.f666.df41.ab31.fe25.2de6.5d20
-=scry-nec-id 0x9fb7.15f6.364d.dfd0.42ea.540e.57cd.daf8
-=scry-bud-id 0xddd5.d31d.72c2.dbe0.42fe.7ae1.3d17.8db5
-=scry-clay-id 0x29de.35b5.a26d.c49c.a39c.7437.c399.c316
-=send-nec-id 0x49.6b9f.c2dc.2641.5c66.e64a.848b.80ee
+=scry-nec-id 0xf0de.09d4.5978.393e.229e.f6bf.fc14.ec78
+=scry-bud-id 0x588c.dfd8.ebb6.5501.b15a.2e0d.30ed.18f9
+=scry-clay-id 0xc606.1893.2747.dfcc.42b9.1ece.0624.73a2
+=send-nec-id 0x9f62.0378.bbd4.4318.b7dd.99d9.a638.cc96
 =send-nec-custom-id 0x4a0c.8a95.d289.95f3.c455.791c.8431.d24d
 
 :ziggurat &ziggurat-action [%foo %start-pyro-ships ~]
@@ -211,13 +211,15 @@ An alternative to adding tests and then running them: do it one one step:
 =send-nec-custom `test-steps:zig`~[[%custom-write %poke-wallet-transaction '[who=~nec contract=0x74.6361.7274.6e6f.632d.7367.697a transaction=\'[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 `0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]\']' ~] [%poke [rollup-host %uqbar %wallet-poke '[%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xa99c.4c8e.1c8d.abb8.e870.81e8.8c96.2cf5 gas=[rate=1 bud=1.000.000]]'] ~] [%dojo [~nec ':sequencer|batch'] `(list test-read-step:zig)`~[[%custom-read %scry-indexer '/newest/item/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun' '']]]]
 
 :ziggurat &ziggurat-action [%foo %start-pyro-ships ~]
-:ziggurat &ziggurat-action [%foo %add-and-run-test `%setup ~ setup]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%setup ~ setup]
 
-:ziggurat &ziggurat-action [%foo %add-and-run-test `%scry-nec ~[/zig/sur/zig/indexer/hoon] scry-nec]
-:ziggurat &ziggurat-action [%foo %add-and-run-test `%scry-bud ~[/zig/sur/zig/indexer/hoon] scry-bud]
-:ziggurat &ziggurat-action [%foo %add-and-run-test `%scry-clay ~ scry-clay]
-:ziggurat &ziggurat-action [%foo %add-and-run-test `%send-nec ~[/zig/sur/zig/indexer/hoon] send-nec]
-:ziggurat &ziggurat-action [%foo %add-and-run-test `%send-nec-custom ~[/zig/sur/zig/indexer/hoon] send-nec-custom]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-nec ~[/zig/sur/zig/indexer/hoon] scry-nec]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-bud ~[/zig/sur/zig/indexer/hoon] scry-bud]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-clay ~ scry-clay]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec ~[/zig/sur/zig/indexer/hoon] send-nec]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec-custom ~[/zig/sur/zig/indexer/hoon] send-nec-custom]
+
+:ziggurat &ziggurat-action [%$ %run-queue ~]
 ```
 
 ```hoon
