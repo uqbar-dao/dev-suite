@@ -195,12 +195,14 @@
       ?~  p.p.book
         ~&  >>>  "engine: ran out of gas"
         [~ 0 %8]
-      =/  m  ;;((unit move) p.p.book)
+      ?~  m=((soft (unit move)) p.p.book)
+        ::  error in contract execution
+        [~ gas.q.book %6]
       ::  useful debug prints
       ::  ~&  "context: {<context>}"
       ::  ~&  >  "calldata: {<calldata>}"
-      ::  ~&  >>  m
-      [m gas.q.book %0]
+      ::  ~&  >>  u.m
+      [u.m gas.q.book %0]
       ::
       ::  +load: take contract code and combine with smart-lib
       ::

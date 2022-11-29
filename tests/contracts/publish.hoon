@@ -1,27 +1,24 @@
 ::
 ::  Tests for publish.hoon
 ::
-/-  zink
-/+  *test, smart=zig-sys-smart, *sequencer, merk
-/*  smart-lib-noun    %noun  /lib/zig/sys/smart-lib/noun
-/*  zink-cax-noun     %noun  /lib/zig/sys/hash-cache/noun
-/*  publish-contract  %noun  /con/compiled/publish/noun
+/+  *test, *zig-sys-engine, smart=zig-sys-smart,
+    *zig-sequencer, merk, bip32, bip39, ethereum
+/*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
+/*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
+/*  publish-contract  %jam  /con/compiled/publish/jam
 |%
 ::
 ::  constants / dummy info for mill
 ::
-++  big  (bi:merk id:smart item:smart)  ::  merkle engine for granary
+++  big  (bi:merk id:smart item:smart)   ::  merkle engine for granary
 ++  pig  (bi:merk id:smart @ud)          ::                for populace
 ++  town-id   0x0
 ++  fake-sig  [0 0 0]
-++  mil
-  %~  mill  mill
-  :+    ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
+++  eng
+  %~  engine  engine
+  :^    ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
     ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun)))
-  %.y
-::
-+$  single-result
-  [fee=@ud =land burned=granary =errorcode:smart hits=(list hints:zink) =crow:smart]
+  %.n  %.n
 ::
 ::  fake data
 ::
@@ -36,16 +33,18 @@
   |%
   ++  make-id
     |=  holder=id:smart
-    (fry-data:smart zigs-contract-id:smart holder town-id `@`'zigs')
+    (hash-data:smart zigs-contract-id:smart holder town-id `@`'zigs')
   ++  make-account
     |=  [holder=id:smart amt=@ud]
     ^-  item:smart
-    :*  %&  `@`'zigs'  %account
-        [amt ~ `@ux`'zigs-metadata-id']
+    :*  %&
         (make-id holder)
         zigs-contract-id:smart
         holder
         town-id
+        `@`'zigs'  %account
+        [amt ~ `@ux`'zigs-metadata-id' ~]
+
     ==
   --
 ::
@@ -57,145 +56,172 @@
   [bat=[8 [1 0 [0 0] 0 0] [1 [8 [1 0] [1 [1 0] 1 0] 0 1] 8 [1 0] [1 8 [8 [9 2.398 0 16.127] 9 2 10 [6 7 [0 3] 1 100] 0 2] 1 0 0 0 0 0] 0 1] 0 1] pay=[1 0]]
 ::
 ++  upgradable-id
-  (fry-pact:smart id.p:publish-wheat id:caller-1 town-id `trivial-nok)
+  (hash-pact:smart id.p:publish-pact address:caller-1 town-id trivial-nok)
 ++  upgradable
   ^-  item:smart
   :*  %|
-        `trivial-nok
-        ~
-        ~
-        upgradable-id
-        id.p:publish-wheat
-        id:caller-1
-        town-id
+      upgradable-id
+      id.p:publish-pact
+      address:caller-1
+      town-id
+      trivial-nok
+      ~
+      ~
   ==
 ::
 ++  immutable-id
-  (fry-pact:smart 0x0 id:caller-1 town-id `immutable-nok)
+  (hash-pact:smart 0x0 address:caller-1 town-id immutable-nok)
 ++  immutable
   ^-  item:smart
   :*  %|
-      `immutable-nok
-      ~
-      ~
       immutable-id
       0x0
-      id:caller-1
+      address:caller-1
       town-id
+      immutable-nok
+      ~
+      ~
   ==
 ::
-++  publish-wheat
+++  publish-pact
   ^-  item:smart
-  =/  cont  ;;([bat=* pay=*] (cue +.+:;;([* * @] publish-contract)))
+  =/  code  (cue publish-contract)
   :*  %|
-      `cont
+      0x1111.1111  ::  id
+      0x1111.1111  ::  lord
+      0x1111.1111  ::  holder
+      town-id
+      [-.code +.code]
       interface=~
       types=~
-      0xdada.dada  ::  id
-      0xdada.dada  ::  lord
-      0xdada.dada  ::  holder
-      town-id
   ==
 ::
-++  fake-granary
-  ^-  granary
+++  fake-state
+  ^-  state
   %+  gas:big  *(merk:merk id:smart item:smart)
   %+  turn
-    :~  publish-wheat
+    :~  publish-pact
         upgradable
         immutable
         (make-account:zigs holder-1 300.000.000)
         (make-account:zigs holder-2 300.000.000)
     ==
-  |=(=item:smart [id.p.grain grain])
-++  fake-populace
-  ^-  populace
-  %+  gas:pig  *(merk:merk id:smart @ud)
-  ~[[holder-1 0] [holder-2 0]]
-++  fake-land
-  ^-  land
-  [fake-granary fake-populace]
+  |=(=item:smart [id.p.item item])
+++  fake-chain
+  ^-  chain
+  [fake-state ~]
 ::
 ::  begin tests
 ::
 ++  test-deploy
-  =/  =calldata:smart  [%deploy %.y trivial-nok ~ ~]
-  =/  shel=shell:smart
-    [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
-  =/  res=single-result
-    %+  ~(mill mil miller town-id 1)
-      [(del:big fake-granary upgradable-id) fake-populace]
-    `transaction:smart`[fake-sig shel yolk]
+  =/  =calldata:smart  [%deploy %.y trivial-nok-upgrade ~ ~]
+  =/  =shell:smart
+    [caller-1 ~ id.p:publish-pact [1 1.000.000] town-id %0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [miller town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
   ::
+  =/  deployed-id
+    (hash-pact:smart id.p:publish-pact address:caller-1 town-id trivial-nok-upgrade)
+  =/  deployed-pact
+    ^-  item:smart
+    :*  %|
+        deployed-id
+        id.p:publish-pact
+        address:caller-1
+        town-id
+        trivial-nok-upgrade
+        ~
+        ~
+    ==
   ;:  weld
   ::  assert that our call went through
-    (expect-eq !>(%0) !>(errorcode.res))
+    (expect-eq !>(%0) !>(errorcode.output))
   ::  assert new contract grain was created properly
-    (expect-eq !>(upgradable) !>((got:big p.land.res upgradable-id)))
+    (expect-eq !>(deployed-pact) !>((got:big modified.output deployed-id)))
   ==
 ::
 ++  test-deploy-immutable
-  =/  =calldata:smart  [%deploy %.n immutable-nok ~ ~]
-  =/  shel=shell:smart
-    [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
-  =/  res=single-result
-    %+  ~(mill mil miller town-id 1)
-      [(del:big fake-granary immutable-id) fake-populace]
-    `transaction:smart`[fake-sig shel yolk]
+  =/  =calldata:smart  [%deploy %.n trivial-nok-upgrade ~ ~]
+  =/  =shell:smart
+    [caller-1 ~ id.p:publish-pact [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [miller town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
   ::
+  =/  deployed-id
+    (hash-pact:smart 0x0 address:caller-1 town-id trivial-nok-upgrade)
+  =/  deployed-pact
+    ^-  item:smart
+    :*  %|
+        deployed-id
+        0x0
+        address:caller-1
+        town-id
+        trivial-nok-upgrade
+        ~
+        ~
+    ==
   ;:  weld
   ::  assert that our call went through
-    (expect-eq !>(%0) !>(errorcode.res))
+    (expect-eq !>(%0) !>(errorcode.output))
   ::  assert new contract grain was created properly
-    (expect-eq !>(immutable) !>((got:big p.land.res immutable-id)))
+    (expect-eq !>(deployed-pact) !>((got:big modified.output deployed-id)))
   ==
 ::
 ++  test-upgrade
   =/  =calldata:smart  [%upgrade upgradable-id trivial-nok-upgrade]
-  =/  shel=shell:smart
-    [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
-  =/  res=single-result
-    %+  ~(mill mil miller town-id 1)
-      fake-land
-    `transaction:smart`[fake-sig shel yolk]
+  =/  =shell:smart
+    [caller-1 ~ id.p:publish-pact [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [miller town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
   ::
-  =/  new-wheat
+  =/  new-pact
     ^-  item:smart
     :*  %|
-        `trivial-nok-upgrade
-        ~
-        ~
         upgradable-id
-        id.p:publish-wheat
-        id:caller-1
+        id.p:publish-pact
+        address:caller-1
         town-id
+        trivial-nok-upgrade
+        ~
+        ~
     ==
   ;:  weld
   ::  assert that our call went through
-    (expect-eq !>(%0) !>(errorcode.res))
+    (expect-eq !>(%0) !>(errorcode.output))
   ::  assert new contract grain was created properly
-    (expect-eq !>(new-wheat) !>((got:big p.land.res upgradable-id)))
+    (expect-eq !>(new-pact) !>((got:big modified.output upgradable-id)))
   ==
 ::
 ++  test-upgrade-immutable
   =/  =calldata:smart  [%upgrade immutable-id trivial-nok-upgrade]
-  =/  shel=shell:smart
-    [caller-1 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
-  =/  res=single-result
-    %+  ~(mill mil miller town-id 1)
-      fake-land
-    `transaction:smart`[fake-sig shel yolk]
+  =/  =shell:smart
+    [caller-1 ~ id.p:publish-pact [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [miller town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
   ::  assert that our call failed
-  (expect-eq !>(%6) !>(errorcode.res))
+  (expect-eq !>(%6) !>(errorcode.output))
 ::
 ++  test-upgrade-not-holder
   =/  =calldata:smart  [%upgrade immutable-id trivial-nok-upgrade]
-  =/  shel=shell:smart
-    [caller-2 ~ id.p:publish-wheat 1 1.000.000 town-id 0]
-  =/  res=single-result
-    %+  ~(mill mil miller town-id 1)
-      fake-land
-    `transaction:smart`[fake-sig shel yolk]
+  =/  =shell:smart
+    [caller-2 ~ id.p:publish-pact [1 1.000.000] town-id 0]
+  =/  tx=transaction:smart  [fake-sig calldata shell]
+  =/  =output
+    %~  intake  %~  eng  eng
+      [miller town-id batch=1 eth-block-height=0]
+    [fake-chain tx]
   ::  assert that our call failed
-  (expect-eq !>(%6) !>(errorcode.res))
+  (expect-eq !>(%6) !>(errorcode.output))
 --

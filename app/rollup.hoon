@@ -42,20 +42,11 @@
   ::  give new subscribers recent root from every town
   ::
   ?+    path  !!
+      [%peer-root-updates ~]  `this
       [%capitol-updates ~]
     :_  this
     =-  [%give %fact ~ -]~
     [%sequencer-rollup-update !>(`capitol-update`[%new-capitol capitol])]
-  ::
-      [%peer-root-updates ~]
-    :_  this
-    %+  turn  ~(tap by capitol)
-    |=  [=id:smart =hall]
-    ^-  card
-    ::  send bunted @da here as placeholder/null time.
-    ::  may in future have canonical batch times
-    =-  [%give %fact ~ -]
-    [%sequencer-rollup-update !>(`town-update`[%new-peer-root id (rear roots.hall) *@da])]
   ==
 ::
 ++  on-poke

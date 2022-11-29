@@ -254,6 +254,8 @@
     |=  =path
     ^-  (quip card _this)
     ?+    path  (on-watch:def path)
+        ?([%batch-order @ ~] [%json %batch-order @])  `this
+    ::
         [%ping ~]
       :_  this
       %-  fact-init-kick:io
@@ -283,32 +285,6 @@
       %=  $
           batches      (~(del by batches) i.batch-order)
           batch-order  t.batch-order
-      ==
-    ::
-        [%batch-order @ ~]
-      :_  this
-      :_  ~
-      %-  fact:io
-      :_  ~
-      :-  %indexer-update
-      !>  ^-  update:ui
-      .^  update:ui
-          %gx
-          %+  scry:pass:io  %indexer
-          (snoc `(list @ta)`path `@ta`%noun)
-      ==
-    ::
-        [%json %batch-order @ ~]
-      :_  this
-      :_  ~
-      %-  fact:io
-      :_  ~
-      :-  %json
-      !>  ^-  json
-      .^  json
-          %gx
-          %+  scry:pass:io  %indexer
-          (snoc `(list @ta)`path `@ta`%json)
       ==
     ::
         [%capitol-updates ~]
@@ -594,6 +570,9 @@
           %new-peer-root
         =*  town-id   town.update
         =*  batch-id  root.update
+        =/  timestamp=@da
+          ?:  =(*@da timestamp.update)  now.bowl
+          timestamp.update
         ?:  (has-batch-id-already town-id batch-id)  `state
         =/  sequencer-update
           ^-  (unit [transactions=processed-txs:eng =town:seq])
@@ -609,7 +588,7 @@
             %+  %~  put  by
                 %+  ~(gut by town-update-queue)  town-id
                 *(map batch-id=@ux timestamp=@da)
-            batch-id  timestamp.update
+            batch-id  timestamp
           ==
         :_  state
         :_  ~
@@ -619,7 +598,7 @@
         :*  batch-id
             transactions.u.sequencer-update
             town.u.sequencer-update
-            timestamp.update
+            timestamp
             %.y
         ==
       ==
