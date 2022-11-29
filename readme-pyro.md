@@ -222,14 +222,18 @@ An alternative to adding tests and then running them: do it one one step:
 :ziggurat &ziggurat-action [%$ %run-queue ~]
 ```
 
+The following makes use of the `addresses` test global, which maps from virtualships to their corresponding virtualnet addresses:
+```hoon
+=send-nec `test-steps:zig`~[[%poke [rollup-host %uqbar %wallet-poke '[%transaction from=(~(got by addresses) ~nec) contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=(~(got by addresses) ~bud) amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]'] ~] [%poke [rollup-host %uqbar %wallet-poke '[%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xa99c.4c8e.1c8d.abb8.e870.81e8.8c96.2cf5 gas=[rate=1 bud=1.000.000]]'] ~] [%dojo [~nec ':sequencer|batch'] `(list test-read-step:zig)`~[[%scry [~nec 'update:indexer' %gx %indexer /newest/item/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun] '']]]]
+
+:ziggurat &ziggurat-action [%foo %add-and-run-test `%send-nec ~[/zig/sur/zig/indexer/hoon] send-nec]
+```
+
+However, here it does not yet work because `%poke-wallet-transaction` passes in the `transaction` as an `@t` and it is never properly transformed (TODO):
 ```hoon
 =send-nec-custom `test-steps:zig`~[[%custom-write %poke-wallet-transaction '[who=~nec contract=0x74.6361.7274.6e6f.632d.7367.697a transaction=\'[%give to=(~(got by addresses) ~bud) amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 `0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]\']' ~] [%poke [rollup-host %uqbar %wallet-poke '[%submit from=(~(got by addresses) ~nec) hash=0xa99c.4c8e.1c8d.abb8.e870.81e8.8c96.2cf5 gas=[rate=1 bud=1.000.000]]'] ~] [%dojo [~nec ':sequencer|batch'] `(list test-read-step:zig)`~[[%custom-read %scry-indexer '/newest/item/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun' '']]]]
 
 :ziggurat &ziggurat-action [%foo %add-and-run-test `%send-nec-custom ~[/zig/sur/zig/indexer/hoon] send-nec-custom]
 ```
 
-```hoon
-=send-nec `test-steps:zig`~[[%poke [rollup-host %uqbar %wallet-poke '[%transaction from=(~(got by addresses) ~nec) contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=(~(got by addresses) ~bud) amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]'] ~] [%poke [rollup-host %uqbar %wallet-poke '[%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xa99c.4c8e.1c8d.abb8.e870.81e8.8c96.2cf5 gas=[rate=1 bud=1.000.000]]'] ~] [%dojo [~nec ':sequencer|batch'] `(list test-read-step:zig)`~[[%scry [~nec 'update:indexer' %gx %indexer /newest/item/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun] '']]]]
-
-:ziggurat &ziggurat-action [%foo %add-and-run-test `%send-nec ~[/zig/sur/zig/indexer/hoon] send-nec]
-```
+It also does not yet work for transforming `%dojo` arguments: another TODO.

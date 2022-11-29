@@ -116,7 +116,7 @@
           from={<(~(got by addresses) who)>}
           contract={<contract>}
           town=0x0  ::  harcode
-          action=[%text {<transaction>}]
+          action=[%text {<transaction>}]  ::  TODO: how to transform within the %text?
       ==
       """
     expected

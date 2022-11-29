@@ -43,10 +43,14 @@
   =/  compilation-result
     (mule |.((slap-subject payload)))
   ?:  ?=(%| -.compilation-result)
-    ~&  %nsr^%fail^payload
     (trip payload)
-  ~&  %nsr^%succ^(noah p.compilation-result)
   (noah p.compilation-result)
+::
+++  build-next-subject
+  |=  [old-subject=vase results=vase]
+  ^-  vase
+  %-  slop  :_  (slap old-subject (ream '+'))
+  results(p [%face %test-results p.results])
 ::
 ++  send-pyro-dojo
   |=  payload=dojo-payload:zig
@@ -54,8 +58,8 @@
   ^-  form:m
   ;<  ~  bind:m
     %+  dojo:pyio  who.payload
-    :: (trip payload.payload)
-    (noah-slap-ream payload.payload)
+    (trip payload.payload)
+    :: (noah-slap-ream payload.payload)  ::  TODO: enable transforming of dojo arguments like scries & pokes are transformed
   (pure:m ~)
 ::
 ++  send-pyro-scry
@@ -105,6 +109,11 @@
   ^-  form:m
   =|  =test-results:zig
   =|  step-number=@ud
+  ::  first element of subject is test-results: null on first step
+  =/  results-vase=vase  !>(~)
+  =.  subject
+    %-  slop  :_  subject
+    results-vase(p [%face %test-results p.results-vase])
   |-
   ;<  ~  bind:m
     ?~(snapshot-ships (pure:(strand ,~) ~) (sleep ~s1))  :: TODO: unhardcode; tune time to allow previous step to continue processing
@@ -125,10 +134,12 @@
       %wait
     ~!  test-step
     ;<  ~  bind:m  (sleep until.test-step)
+    =.  test-results  [~ test-results]
     %=  $
         test-steps    t.test-steps
         step-number   +(step-number)
-        test-results  [~ test-results]
+        subject
+      (build-next-subject subject !>(test-results))
     ==
   ::
       %dojo
@@ -139,10 +150,12 @@
       `test-steps:zig`expected.test-step  ~
     ?~  tr=(test-results-of-reads-to-test-result trs)
       ~|("ziggurat-test-run: %dojo expected can only contain %scrys, %subscribes, %waits" !!)
+    =.  test-results  [u.tr test-results]
     %=  $
         test-steps    t.test-steps
         step-number   +(step-number)
-        test-results  [u.tr test-results]
+        subject
+      (build-next-subject subject !>(test-results))
     ==
   ::
       %poke
@@ -153,10 +166,12 @@
       `test-steps:zig`expected.test-step  ~
     ?~  tr=(test-results-of-reads-to-test-result trs)
       ~|("ziggurat-test-run: %poke expected can only contain %scrys, %subscribes, %waits" !!)
+    =.  test-results  [u.tr test-results]
     %=  $
         test-steps    t.test-steps
         step-number   +(step-number)
-        test-results  [u.tr test-results]
+        subject
+      (build-next-subject subject !>(test-results))
     ==
   ::
       %scry
@@ -164,11 +179,13 @@
       (send-pyro-scry [payload expected]:test-step)
     =*  expected  expected.test-step
     =/  res-text=@t  (crip (noah result))
+    =.  test-results
+      [[=(expected res-text) expected res-text]~ test-results]
     %=  $
         test-steps    t.test-steps
         step-number   +(step-number)
-        test-results
-      [[=(expected res-text) expected res-text]~ test-results]
+        subject
+      (build-next-subject subject !>(test-results))
     ==
   ::
       %custom-read
