@@ -88,6 +88,7 @@
           :-  %wallet-poke
           !>  ^-  wallet-poke:w
           :*  %transaction
+              origin=~  ::  we don't care to be notified
               from=address.u.town-info
               contract=zigs-contract.u.town-info
               town=town-id.action
