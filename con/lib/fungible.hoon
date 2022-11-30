@@ -9,13 +9,6 @@
 ::  UTXO system. This account model provides a good balance between
 ::  simplicity and capacity for parallel execution.
 ::
-::  Note that in any token send, the transaction must either specify
-::  the account item of the receiver, or assert that the receiver
-::  does not yet have an account for this token. The transaction will
-::  fail if the contract attempts to generate an account item for
-::  an address that already has one. This maintains the 1:1 relation
-::  between addresses and accounts.
-::
 ::  Note that a token is classified not by its issuing contract address
 ::  (the "source"), but rather its metadata item address. The issuing
 ::  contract is potentially generic, as any contract can import this
@@ -57,13 +50,10 @@
   ::  "action" in input must fit one of these molds
   ::
   +$  action
-    $%  give
-        take
-        push
-        pull
+    $%  give  take
+        push  pull
         set-allowance
-        mint
-        deploy
+        mint  deploy
     ==
   ::
   +$  give
@@ -71,28 +61,26 @@
         to=address
         amount=@ud
         from-account=id
-        to-account=(unit id)
     ==
   +$  take
     $:  %take
         to=address
         amount=@ud
         from-account=id
-        to-account=(unit id)
     ==
-  +$  push
+  +$  push  ::  call a contract's %on-push action with tokens
     $:  %push
-        who=address
+        to=address
         amount=@ud
-        account=id
+        from-account=id
         calldata=*
     ==
-  +$  pull
+  +$  pull  ::  make use of a signed gasless approval
     $:  %pull
+        from=address
         to=address
-        from-account=id
-        to-account=(unit id)
         amount=@ud
+        from-account=id
         nonce=@ud
         deadline=@ud
         =sig
@@ -105,8 +93,8 @@
     ==
   +$  mint
     $:  %mint  ::  can only be called by minters, can't mint above cap
-        token=id
-        mints=(list [to=address account=(unit id) amount=@ud])
+        token-metadata=id
+        mints=(list [to=address amount=@ud])
     ==
   +$  deploy
     $:  %deploy
@@ -126,53 +114,47 @@
     ^-  (quip call diff)
     =+  (need (scry-state from-account.act))
     =/  giver  (husk account:sur - `this.context `id.caller.context)
-    ::  this will fail if amount > balance, as desired
+    ::  fail if amount > balance
     =.  balance.noun.giver  (sub balance.noun.giver amount.act)
-    ?~  to-account.act
-      ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (hash-data this.context to.act town.context salt.giver)
+    ::  locate receiver account
+    =+  to-id=(hash-data this.context to.act town.context salt.giver)
+    ?~  receiver-account=(scry-state -)
+      ::  if receiver doesn't have an account, issue one for them
       =+  [amount.act ~ metadata.noun.giver ~]
-      =+  receiver=[id this.context to.act town.context salt.giver %account -]
-      `(result [%&^giver ~] [%&^receiver ~] ~ ~)
+      =+  [to-id this.context to.act town.context salt.giver %account -]
+      `(result [%&^giver ~] [%&^- ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
-    =+  (need (scry-state u.to-account.act))
-    ::  assert that account is held by the address we're sending to
-    =/  receiver  (husk account:sur - `this.context `to.act)
-    ::  assert that token accounts are of the same token
-    ::  (since this contract can deploy and thus manage multiple tokens)
-    ?>  =(metadata.noun.receiver metadata.noun.giver)
+    =+  receiver=(husk account:sur u.receiver-account `this.context `to.act)
+    ::  assert token accounts are of the same token
+    ?>  =(metadata.noun.giver metadata.noun.receiver)
     =.  balance.noun.receiver  (add balance.noun.receiver amount.act)
-    ::  return the result: two changed items
     `(result [%&^giver %&^receiver ~] ~ ~ ~)
   ::
   ++  take
     |=  [=context act=take:sur]
     ^-  (quip call diff)
     =+  (need (scry-state from-account.act))
-    =/  giver  (husk account:sur - `this.context ~)
-    ::  this will fail if amount > balance or allowance is exceeded, as desired
+    =+  giver=(husk account:sur - `this.context ~)
+    ::  this will fail if amount > balance or allowance is exceeded
     =:  balance.noun.giver  (sub balance.noun.giver amount.act)
     ::
-          allowances.noun.giver
-        %+  ~(jab py allowances.noun.giver)
-          id.caller.context
-        |=(old=@ud (sub old amount.act))
+        allowances.noun.giver
+      %+  ~(jab py allowances.noun.giver)
+        id.caller.context
+      |=(old=@ud (sub old amount.act))
     ==
-    ?~  to-account.act
-      ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (hash-data this.context to.act town.context salt.giver)
+    ::  locate receiver account
+    =+  to-id=(hash-data this.context to.act town.context salt.giver)
+    ?~  receiver-account=(scry-state -)
+      ::  if receiver doesn't have an account, issue one for them
       =+  [amount.act ~ metadata.noun.giver ~]
-      =+  receiver=[id this.context to.act town.context salt.giver %account -]
-      `(result [%&^giver ~] [%&^receiver ~] ~ ~)
+      =+  [to-id this.context to.act town.context salt.giver %account -]
+      `(result [%&^giver ~] [%&^- ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
-    =+  (need (scry-state u.to-account.act))
-    ::  assert that account is held by the address we're sending to
-    =/  receiver  (husk account:sur - `this.context `to.act)
-    ::  assert that token accounts are of the same token
-    ::  (since this contract can deploy and thus manage multiple tokens)
-    ?>  =(metadata.noun.receiver metadata.noun.giver)
+    =+  receiver=(husk account:sur u.receiver-account `this.context `to.act)
+    ::  assert token accounts are of the same token
+    ?>  =(metadata.noun.giver metadata.noun.receiver)
     =.  balance.noun.receiver  (add balance.noun.receiver amount.act)
-    ::  return the result: two changed items
     `(result [%&^giver %&^receiver ~] ~ ~ ~)
   ::
   ++  push
@@ -182,14 +164,14 @@
     ::  In a single transaction you can approve a max spend and call a function, saving
     ::  an extra transaction. For any contract that wants to implement this, the wheat
     ::  must have an %on-push arm implemented as [%on-push from=id amount=id calldata=*]
-    ?>  !=(who.act id.caller.context)
-    =+  (need (scry-state account.act))
-    =/  account  (husk account:sur - `this.context `id.caller.context)
+    =+  (need (scry-state from-account.act))
+    =+  account=(husk account:sur - `this.context `id.caller.context)
     =.  allowances.noun.account
-      (~(put py allowances.noun.account) who.act amount.act)
+      (~(put py allowances.noun.account) to.act amount.act)
     :_  (result [%&^account ~] ~ ~ ~)
-    [who.act town.context [%on-push id.caller.context amount.act calldata.act]]~
-    
+    :_  ~
+    :+  to.act  town.context
+    [%on-push id.caller.context amount.act calldata.act]
   ::
   ++  pull-jold-hash  0x8a0c.ebea.b35e.84a1.1729.7c78.f677.f39a
     :: ^-  @ux
@@ -213,10 +195,9 @@
     ::  %pull allows for gasless approvals for transferring tokens
     ::  the giver must sign the from-account id and the typed +$approve struct
     ::  above, and the taker will pass in the signature to take the tokens
-    =/  giv=item  (need (scry-state from-account.act))
-    ?>  ?=(%& -.giv)
-    =/  giver  (husk account:sur giv `this.context ~)
-    ::  this will fail if amount > balance, as desired
+    =+  (need (scry-state from-account.act))
+    =+  giver=(husk account:sur - `this.context `from.act)
+    ::  will fail if amount > balance
     =.  balance.noun.giver  (sub balance.noun.giver amount.act)
     ::  verify signature is correct
     =/  =typed-message
@@ -229,21 +210,19 @@
     ?>  .=(nonce.act -)
     ::  assert deadline is valid
     ?>  (lte eth-block.context deadline.act)
-    ?~  to-account.act
-    ::  create new `data` for reciever and add it to state
-      ::  if receiver doesn't have an account, try to produce one for them
-      =/  =id  (hash-data this.context to.act town.context salt.p.giv)
-      =+  [amount.act ~ metadata.noun.giver 0]
-      =+  rec=[id this.context to.act town.context salt.p.giv %account -]
-      `(result [giv ~] [%&^rec ~] ~ ~)
-    ::  direct send
-    =/  rec=item  (need (scry-state u.to-account.act))
-    =/  receiver  (husk account:sur rec `this.context `to.act)
-    ?>  ?=(%& -.rec)
-    ?>  =(metadata.noun.receiver metadata.noun.giver)
-    =.  noun.p.rec
-      receiver(balance.noun (add balance.noun.receiver amount.act))
-    `(result [giv rec ~] ~ ~ ~)
+    ::  locate receiver account
+    =+  to-id=(hash-data this.context to.act town.context salt.giver)
+    ?~  receiver-account=(scry-state -)
+      ::  if receiver doesn't have an account, issue one for them
+      =+  [amount.act ~ metadata.noun.giver ~]
+      =+  [to-id this.context to.act town.context salt.giver %account -]
+      `(result [%&^giver ~] [%&^- ~] ~ ~)
+    ::  otherwise, add amount given to the existing account for that address
+    =+  receiver=(husk account:sur u.receiver-account `this.context `to.act)
+    ::  assert token accounts are of the same token
+    ?>  =(metadata.noun.giver metadata.noun.receiver)
+    =.  balance.noun.receiver  (add balance.noun.receiver amount.act)
+    `(result [%&^giver %&^receiver ~] ~ ~ ~)
   ::
   ++  set-allowance
     |=  [=context act=set-allowance:sur]
@@ -254,23 +233,21 @@
     ::  note: cannot set an allowance to ourselves
     ?>  !=(who.act id.caller.context)
     =+  (need (scry-state account.act))
-    =/  account  (husk account:sur - `this.context `id.caller.context)
+    =+  account=(husk account:sur - `this.context `id.caller.context)
     =.  allowances.noun.account
       (~(put py allowances.noun.account) who.act amount.act)
-    `(result [%& account]^~ ~ ~ ~)
+    `(result [%&^account ~] ~ ~ ~)
   ::
   ++  mint
     |=  [=context act=mint:sur]
     ^-  (quip call diff)
-    =+  (need (scry-state token.act))
-    =/  meta  (husk token-metadata:sur - `this.context `this.context)
+    =+  (need (scry-state token-metadata.act))
+    =+  meta=(husk token-metadata:sur - `this.context `this.context)
     ::  first, check if token is mintable
     ?>  mintable.noun.meta
     ::  check if caller is permitted to mint
     ?>  (~(has pn minters.noun.meta) id.caller.context)
     ::  loop through mints and either modify existing account or make new
-    ::  note: entire mint will fail if any accounts are not found, or
-    ::  if new accounts overlap with existing ones
     =|  issued=(list item)
     =|  changed=(list item)
     |-
@@ -281,24 +258,23 @@
     =/  new-supply  (add supply.noun.meta amount.m)
     ?>  ?~  cap.noun.meta  %.y
         (gte u.cap.noun.meta new-supply)
-    ?~  account.m
+    =+  id=(hash-data this.context to.m town.context salt.noun.meta)
+    ?~  receiver-account=(scry-state id)
       ::  create new account for receiver
-      =/  =id  (hash-data this.context to.m town.context salt.noun.meta)
-      =+  [amount.m ~ token.act 0]
-      =+  rec=[id this.context to.m town.context salt.noun.meta %account -]
+      =+  [amount.m ~ token-metadata.act 0]
+      =+  [id this.context to.m town.context salt.noun.meta %account -]
       %=  $
         mints.act         t.mints.act
         supply.noun.meta  new-supply
-        issued            [%&^rec issued]
+        issued            [%&^- issued]
       ==
-    ::  find and modify existing receiver account
-    =+  (need (scry-state u.account.m))
-    =/  rec  (husk account:sur - `this.context `to.m)
-    =.  balance.noun.rec  (add balance.noun.rec amount.m)
+    ::  modify existing receiver account
+    =+  receiver=(husk account:sur u.receiver-account `this.context `to.m)
+    =.  balance.noun.receiver  (add balance.noun.receiver amount.m)
     %=  $
       mints.act         t.mints.act
       supply.noun.meta  new-supply
-      changed           [%&^rec changed]
+      changed           [%&^receiver changed]
     ==
   ::
   ++  deploy

@@ -99,7 +99,7 @@
 ::
 ++  test-zz-zigs-give
   =/  =calldata:smart
-    [%give address-2 1.000]
+    [%give address-2 1.000 id.p:account-1:zigs]
   =/  =shell:smart  [caller-1 ~ id.p:pact:zigs [1 1.000.000] town-id 0]
   =/  tx=transaction:smart  [fake-sig calldata shell]
   =/  =output
@@ -111,7 +111,7 @@
 ::
 ++  test-zy-zigs-give-new-address
   =/  =calldata:smart
-    [%give 0xdead.beef 1.000]
+    [%give 0xdead.beef 1.000 id.p:account-1:zigs]
   =/  =shell:smart  [caller-1 ~ id.p:pact:zigs [1 1.000.000] town-id 0]
   =/  tx=transaction:smart  [fake-sig calldata shell]
   =/  =output
@@ -123,7 +123,7 @@
 ::
 ++  test-zx-zigs-give-self  ::  should fail
   =/  =calldata:smart
-    [%give address-1 1.000]
+    [%give address-1 1.000 id.p:account-1:zigs]
   =/  =shell:smart  [caller-1 ~ id.p:pact:zigs [1 1.000.000] town-id 0]
   =/  tx=transaction:smart  [fake-sig calldata shell]
   =/  =output
@@ -136,7 +136,7 @@
 ::
 ++  test-zw-zigs-give-too-much  ::  should fail
   =/  =calldata:smart
-    [%give address-2 500.000.000]
+    [%give address-2 500.000.000 id.p:account-1:zigs]
   =/  =shell:smart  [caller-1 ~ id.p:pact:zigs [1 1.000.000] town-id 0]
   =/  tx=transaction:smart  [fake-sig calldata shell]
   =/  =output
@@ -150,7 +150,7 @@
 ::
 ++  test-yz-zigs-take
   =/  =calldata:smart
-    [%take address-1 address-3 1.000]
+    [%take address-3 1.000 id.p:account-1:zigs]
   =/  =shell:smart  [caller-2 ~ id.p:pact:zigs [1 50.000] town-id 0]
   =/  tx=transaction:smart  [fake-sig calldata shell]
   =/  =output
@@ -162,7 +162,7 @@
 ::
 ++  test-yy-zigs-take-no-allowance  ::  should fail
   =/  =calldata:smart
-    [%take address-2 address-3 1.000]
+    [%take address-3 1.000 id.p:account-2:zigs]
   =/  =shell:smart  [caller-1 ~ id.p:pact:zigs [1 1.000.000] town-id 0]
   =/  tx=transaction:smart  [fake-sig calldata shell]
   =/  =output
@@ -176,7 +176,7 @@
 ::
 ++  test-xz-set-allowance
   =/  =calldata:smart
-    [%set-allowance address-3 1.000]
+    [%set-allowance address-3 1.000 id.p:account-1:zigs]
   =/  =shell:smart  [caller-1 ~ id.p:pact:zigs [1 1.000.000] town-id 0]
   =/  tx=transaction:smart  [fake-sig calldata shell]
   =/  =output
@@ -188,7 +188,7 @@
 ::
 ++  test-xy-set-allowance-again
   =/  =calldata:smart
-    [%set-allowance address-2 0]
+    [%set-allowance address-2 0 id.p:account-1:zigs]
   =/  =shell:smart  [caller-1 ~ id.p:pact:zigs [1 1.000.000] town-id 0]
   =/  tx=transaction:smart  [fake-sig calldata shell]
   =/  =output
@@ -200,7 +200,7 @@
 ::
 ++  test-xx-set-allowance-self  ::  should fail
   =/  =calldata:smart
-    [%set-allowance address-1 1.000]
+    [%set-allowance address-1 1.000 id.p:account-1:zigs]
   =/  =shell:smart  [caller-1 ~ id.p:pact:zigs [1 1.000.000] town-id 0]
   =/  tx=transaction:smart  [fake-sig calldata shell]
   =/  =output
