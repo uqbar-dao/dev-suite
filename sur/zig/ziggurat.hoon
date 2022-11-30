@@ -6,7 +6,6 @@
 +$  state-0
   $:  %0
       =projects
-      =custom-step-definitions
       virtualnet-addresses=(map @p address:smart)
       pyro-ships-ready=(map ship ?)
       test-queue=(qeu [project=@t test-id=@ux])
@@ -19,7 +18,7 @@
 +$  project
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
-      to-compile=(map path id:smart)  ::  compile these contracts with these id's
+      to-compile=(map path id:smart)  ::  compile contracts with these id's
       next-contract-id=id:smart
       errors=(list [path @t])
       =chain:engine
@@ -35,12 +34,17 @@
 +$  tests  (map @ux test)
 +$  test
   $:  name=(unit @t)  ::  optional
+      surs=test-surs
+      subject=(each vase @t)  ::  test-surs build or error
+      =custom-step-definitions
       steps=test-steps
       results=test-results
   ==
 ::
 +$  expected-diff
   (map id:smart [made=(unit item:smart) expected=(unit item:smart) match=(unit ?)])
+::
++$  test-surs  (list path)
 ::
 +$  test-steps  (list test-step)
 +$  test-step  $%(test-read-step test-write-step)
@@ -59,17 +63,8 @@
   ==
 :: +$  dbug-payload  [who=@p app=@tas %state/bowl/???] :: TODO
 +$  scry-payload
-  ::  if `mold-name` mold in stdlib, set `mold-sur` to `~`.
-  ::  `mold-sur` first element is desk and subsequent are
-  ::   path to the sur file, e.g., to import this file:
-  ::   `mold-sur=/zig/sur/zig/ziggurat/hoon`.
-  ::  if `mold-name` from stdlib, `mold-name` is a direct
-  ::   reference, e.g., `@ud`
-  ::  if `mold-name` from `mold-sur`, `mold-name` is
-  ::   namespaced by file name, e.g., from this file,
-  ::   `test-write-step:ziggurat`.
-  [who=@p mold-sur=path mold-name=@t care=@tas app=@tas =path]
-+$  read-sub-payload  [who=@p =mold care=@tas app=@tas =path]  :: TODO
+  [who=@p mold-name=@t care=@tas app=@tas =path]
++$  read-sub-payload  [who=@p care=@tas app=@tas =path]  :: TODO
 :: +$  poke-payload  [who=@p app=@tas payload=cage]
 +$  dojo-payload  [who=@p payload=@t]
 +$  poke-payload  [who=@p app=@tas mark=@tas payload=@t]
@@ -113,17 +108,16 @@
           [%update-item =id:smart source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
           [%delete-item =id:smart]
       ::
-          [%add-test name=(unit @t) =test-steps]  ::  name optional
+          [%add-test name=(unit @t) =test-surs =test-steps]  ::  name optional
           [%delete-test id=@ux]
-          :: [%edit-test id=@ux name=(unit @t) for-contract=id:smart action=@t expected-error=(unit @ud)]
           [%run-test id=@ux]
-          [%add-and-run-test name=(unit @t) =test-steps]
+          [%add-and-run-test name=(unit @t) =test-surs =test-steps]
           [%run-queue ~]  ::  can be used as [%$ %run-queue ~]
           [%queue-test id=@ux]
-          [%add-and-queue-test name=(unit @t) =test-steps]
+          [%add-and-queue-test name=(unit @t) =test-surs =test-steps]
           ::
-          [%add-custom-step tag=@tas =custom-step-definition]
-          [%delete-custom-step tag=@tas]
+          [%add-custom-step test-id=@ux tag=@tas =custom-step-definition]
+          [%delete-custom-step test-id=@ux tag=@tas]
           ::
           [%stop-pyro-ships ~]
           [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> [~nec ~bud]
