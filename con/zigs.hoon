@@ -16,49 +16,51 @@
   ^-  (quip call diff)
   ?-    -.act
       %give
-    =+  (need (scry-state from-account.act))
-    =/  giver  (husk account:sur - `this.context `id.caller.context)
+    ?>  !=(to.act id.caller.context)
+    =+  (hash-data this.context id.caller.context town.context `@`'zigs')
+    =+  (need (scry-state -))
+    =+  giver=(husk account:sur - `this.context `id.caller.context)
     ::  we must confirm that the giver's zigs balance is enough to
     ::  cover the maximum cost in the original transaction, which
     ::  is provided in budget argument via execution engine.
     ?>  (gte balance.noun.giver (add amount.act budget.act))
     =.  balance.noun.giver  (sub balance.noun.giver amount.act)
-    =/  to-account=id  (hash-data this.context to.act town.context salt.giver)
-    ?~  to-account-data=(scry-state to-account)
-      ::  if receiver doesn't have an account, try to produce one for them
+    ::  locate receiver account
+    =+  to-id=(hash-data this.context to.act town.context `@`'zigs')
+    ?~  receiver-account=(scry-state -)
+      ::  if receiver doesn't have an account, issue one for them
       =+  [amount.act ~ metadata.noun.giver ~]
-      =+  receiver=[to-account this.context to.act town.context salt.giver %account -]
-      `(result [%&^giver ~] [%&^receiver ~] ~ ~)
+      =+  [to-id this.context to.act town.context `@`'zigs' %account -]
+      `(result [%&^giver ~] [%&^- ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
-    ::  assert that account is held by the address we're sending to
-    =/  receiver  (husk account:sur u.to-account-data `this.context `to.act)
+    =+  receiver=(husk account:sur u.receiver-account `this.context `to.act)
     =.  balance.noun.receiver  (add balance.noun.receiver amount.act)
-    ::  return the result: two changed grains
+    ::  return the result
     `(result [%&^giver %&^receiver ~] ~ ~ ~)
-
   ::
       %take
-    =+  (need (scry-state from-account.act))
-    =/  giver  (husk account:sur - `this.context ~)
-    ::  this will fail if amount > balance or allowance is exceeded, as desired
+    =+  (hash-data this.context from.act town.context `@`'zigs')
+    =+  (need (scry-state -))
+    =+  giver=(husk account:sur - `this.context `from.act)
+    ::  this will fail if amount > balance or allowance is exceeded
     =:  balance.noun.giver  (sub balance.noun.giver amount.act)
     ::
-          allowances.noun.giver
-        %+  ~(jab py allowances.noun.giver)
-          id.caller.context
-        |=(old=@ud (sub old amount.act))
+        allowances.noun.giver
+      %+  ~(jab py allowances.noun.giver)
+        id.caller.context
+      |=(old=@ud (sub old amount.act))
     ==
-    =/  to-account=id  (hash-data this.context to.act town.context salt.giver)
-    ?~  to-account-data=(scry-state to-account)
-      ::  if receiver doesn't have an account, try to produce one for them
+    ::  locate receiver account
+    =+  to-id=(hash-data this.context to.act town.context `@`'zigs')
+    ?~  receiver-account=(scry-state -)
+      ::  if receiver doesn't have an account, issue one for them
       =+  [amount.act ~ metadata.noun.giver ~]
-      =+  receiver=[to-account this.context to.act town.context salt.giver %account -]
-      `(result [%&^giver ~] [%&^receiver ~] ~ ~)
+      =+  [to-id this.context to.act town.context `@`'zigs' %account -]
+      `(result [%&^giver ~] [%&^- ~] ~ ~)
     ::  otherwise, add amount given to the existing account for that address
-    ::  assert that account is held by the address we're sending to
-    =/  receiver  (husk account:sur u.to-account-data `this.context `to.act)
+    =+  receiver=(husk account:sur u.receiver-account `this.context `to.act)
     =.  balance.noun.receiver  (add balance.noun.receiver amount.act)
-    ::  return the result: two changed grains
+    ::  return the result
     `(result [%&^giver %&^receiver ~] ~ ~ ~)
   ::
       %set-allowance
@@ -67,11 +69,12 @@
     ::  but spends will still be constrained by token balance
     ::  note: cannot set an allowance to ourselves
     ?>  !=(who.act id.caller.context)
-    =+  (need (scry-state account.act))
-    =/  account  (husk account:sur - `this.context `id.caller.context)
+    =+  (hash-data this.context id.caller.context town.context `@`'zigs')
+    =+  (need (scry-state -))
+    =+  account=(husk account:sur - `this.context `id.caller.context)
     =.  allowances.noun.account
       (~(put py allowances.noun.account) who.act amount.act)
-    `(result [%& account]^~ ~ ~ ~)
+    `(result [%&^account ~] ~ ~ ~)
   ==
 ::
 ++  read

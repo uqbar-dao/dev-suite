@@ -1,5 +1,4 @@
-::  [UQ| DAO]
-::  zigs.hoon v1.0
+::  zigs.hoon [UQ| DAO]
 ::
 /+  *zig-sys-smart
 |%
@@ -32,19 +31,17 @@
             budget=@ud
             to=address
             amount=@ud
-            from-account=id
         ==
     ::
         $:  %take
+            from=address
             to=address
             amount=@ud
-            from-account=id
         ==
     ::
         $:  %set-allowance
             who=address
             amount=@ud  ::  (to revoke, call with amount=0)
-            account=id
         ==
     ==
   --
