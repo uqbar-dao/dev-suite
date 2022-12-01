@@ -66,7 +66,6 @@
 +$  scry-payload
   [who=@p mold-name=@t care=@tas app=@tas =path]
 +$  read-sub-payload  [who=@p care=@tas app=@tas =path]  :: TODO
-:: +$  poke-payload  [who=@p app=@tas payload=cage]
 +$  dojo-payload  [who=@p payload=@t]
 +$  poke-payload  [who=@p app=@tas mark=@tas payload=@t]
 +$  sub-payload  [who=@p app=@tas p=path]
@@ -74,13 +73,8 @@
 +$  custom-step-definitions
   %+  map  @tas
   (pair custom-step-definition custom-step-compiled)
-+$  custom-step-definition
-  transform=@t
-  :: $:  payload=[mold-surs=(list path) input=@t]
-  ::     transform=$-(payload=vase test-step)
-  :: ==
++$  custom-step-definition  @t
 +$  custom-step-compiled  (each transform=vase @t)
-  :: (unit (each [payload=vase transform=vase] @t))
 ::
 +$  test-results  (list test-result)
 +$  test-result   (list [success=? expected=@t result=@t])

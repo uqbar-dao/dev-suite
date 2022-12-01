@@ -797,7 +797,10 @@
       [%project-user-files @ ~]
     ?~  project=(~(get by projects) i.t.t.path)
       ``json+!>(~)
-    ``json+!>(`json`(user-files-to-json user-files.u.project))
+    :^  ~  ~  %json
+    !>  ^-  json
+    %+  frond:enjs:format  %user-files
+    (dir-to-json ~(tap in user-files.u.project))
   ::
       [%file-exists @ ^]
     =/  des=@ta    i.t.t.path

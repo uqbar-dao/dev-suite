@@ -773,74 +773,26 @@
           /[town-ta]/(scot %ux newest-batch)/noun/noun
   ==  ==
 ::
-:: ++  tests-to-json  :: TODO
-::   |=  =tests
-::   =,  enjs:format
-::   ^-  json
-::   %-  pairs
-::   %+  turn  ~(tap by tests)
-::   |=  [id=@ux =test]
-::   [(scot %ux id) (test-to-json test)]
-:: ::
-:: ++  test-to-json
-::   |=  =test
-::   =,  enjs:format
-::   ^-  json
-::   %-  pairs
-::   :~  ['name' %s ?~(name.test '' u.name.test)]
-::       ['for_contract' %s (scot %ux for-contract.test)]  ::  TODO: to contract path?
-::       ['action_text' %s action-text.test]
-::       ['action' %s (crip (noah !>(action.test)))]  ::  TODO: remove?
-::       ['expected' (expected-to-json expected.test)]
-::       ['expected_error' ?~(expected-error.test n+'0' (numb expected-error.test))]
-::       ['result' ?~(result.test ~ (test-result-to-json u.result.test))]
-::   ==
-::
-++  expected-to-json
-  |=  m=(map id:smart [item:smart @t])
+++  tests-to-json  :: TODO
+  |=  =tests
   =,  enjs:format
   ^-  json
   %-  pairs
-  %+  turn  ~(tap by m)
-  |=  [=id:smart =item:smart tex=@t]
-  [(scot %ux id) (item-to-json item tex)]
+  %+  turn  ~(tap by tests)
+  |=  [id=@ux =test]
+  [(scot %ux id) (test-to-json test)]
 ::
-:: ++  test-result-to-json  :: TODO
-::   |=  t=test-result
-::   =,  enjs:format
-::   ^-  json
-::   %-  pairs
-::   :~  ['fee' (numb fee.t)]
-::       ['errorcode' (numb errorcode.t)]
-::       ['events' (events-to-json events.t)]
-::       ['items' (expected-diff-to-json expected-diff.t)]
-::       ['success' ?~(success.t ~ [%b u.success.t])]
-::   ==
-::
-++  expected-diff-to-json
-  |=  m=expected-diff
+++  test-to-json
+  |=  =test
   =,  enjs:format
   ^-  json
   %-  pairs
-  %+  turn  ~(tap by m)
-  |=  [=id:smart made=(unit item:smart) expected=(unit item:smart) match=(unit ?)]
-  :-  (scot %ux id)
-  %-  pairs
-  :~  ['made' ?~(made ~ (item-to-json u.made ''))]
-      ['expected' ?~(expected ~ (item-to-json u.expected ''))]
-      ['match' ?~(match ~ [%b u.match])]
-  ==
-::
-++  events-to-json
-  |=  events=(list contract-event:engine)
-  =,  enjs:format
-  ^-  json
-  :-  %a
-  %+  turn  events
-  |=  [contract=@ux label=@tas =json]
-  %-  pairs
-  :~  ['contract' [%s (scot %ux contract)]]
-      [(scot %t label) json]
+  :~  ['name' %s ?~(name.test '' u.name.test)]
+      ['surs' (dir-to-json surs.test)]
+      ['subject' %s ?:(?=(%& -.subject.test) '' p.subject.test)]
+      ['custom-step-definitions' (custom-step-definitions-to-json custom-step-definitions.test)]
+      ['steps' (test-steps-to-json steps.test)]
+      ['results' (test-results-to-json results.test)]
   ==
 ::
 ++  dir-to-json
@@ -877,13 +829,168 @@
     ['error' %s error]
   ~
 ::
-++  user-files-to-json
-  |=  user-files=(set path)
+++  custom-step-definitions-to-json
+  |=  =custom-step-definitions
+  =,  enjs:format
   ^-  json
-  =/  user-files-list=(list path)  ~(tap in user-files)
-  ?~  user-files-list  ~
-  %+  frond:enjs:format  %user-files
+  %-  pairs
+  %+  turn  ~(tap by custom-step-definitions)
+  |=  [id=@tas def=custom-step-definition com=custom-step-compiled]
+  :-  id
+  %-  pairs
+  :+  ['custom-step-definition' %s def]
+    ['custom-step-compiled' (custom-step-compiled-to-json com)]
+  ~
+::
+++  custom-step-compiled-to-json
+  |=  =custom-step-compiled
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :+  ['compiled-successfully' %b ?=(%& -.custom-step-compiled)]
+    ['compile-error' %s ?:(?=(%& -.custom-step-compiled) '' p.custom-step-compiled)]
+  ~
+::
+++  test-steps-to-json
+  |=  =test-steps
+  ^-  json
   :-  %a
-  %+  turn  user-files-list
-  |=([p=path] (path:enjs:format p))
+  %+  turn  test-steps
+  |=([=test-step] (test-step-to-json test-step))
+::
+++  test-step-to-json
+  |=  =test-step
+  ^-  json
+  ?:  ?=(?(%dojo %poke %subscribe %custom-write) -.test-step)
+    (test-write-step-to-json test-step)
+  ?>  ?=(?(%scry %read-subscription %wait %custom-read) -.test-step)
+  (test-read-step-to-json test-step)
+::
+++  test-write-step-to-json
+  |=  test-step=test-write-step
+  =,  enjs:format
+  ^-  json
+  %+  frond  -.test-step
+  ?-    -.test-step
+      %dojo
+    %-  pairs
+    :+  ['payload' (dojo-payload-to-json payload.test-step)]
+      ['expected' (write-expected-to-json expected.test-step)]
+    ~
+  ::
+      %poke
+    %-  pairs
+    :+  ['payload' (poke-payload-to-json payload.test-step)]
+      ['expected' (write-expected-to-json expected.test-step)]
+    ~
+  ::
+      %subscribe
+    %-  pairs
+    :+  ['payload' (sub-payload-to-json payload.test-step)]
+      ['expected' (write-expected-to-json expected.test-step)]
+    ~
+  ::
+      %custom-write
+    %+  frond  tag.test-step
+    %-  pairs
+    :+  ['payload' %s payload.test-step]
+      ['expected' (write-expected-to-json expected.test-step)]
+    ~
+  ==
+::
+++  test-read-step-to-json
+  |=  test-step=test-read-step
+  =,  enjs:format
+  ^-  json
+  %+  frond  -.test-step
+  ?-    -.test-step
+      %scry
+    %-  pairs
+    :+  ['payload' (scry-payload-to-json payload.test-step)]
+      ['expected' %s expected.test-step]
+    ~
+  ::
+      %read-subscription  ~  ::  TODO
+  ::
+      %wait
+    (frond 'until' [%s (scot %dr until.test-step)])
+  ::
+      %custom-read
+    %+  frond  tag.test-step
+    %-  pairs
+    :+  ['payload' %s payload.test-step]
+      ['expected' %s expected.test-step]
+    ~
+  ==
+::
+++  scry-payload-to-json
+  |=  payload=scry-payload
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :~  ['who' %s (scot %p who.payload)]
+      ['mold-name' %s mold-name.payload]
+      ['care' %s care.payload]
+      ['app' %s app.payload]
+      ['path' (path path.payload)]
+  ==
+::
+++  poke-payload-to-json
+  |=  payload=poke-payload
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :~  ['who' %s (scot %p who.payload)]
+      ['app' %s app.payload]
+      ['mark' %s mark.payload]
+      ['payload' %s payload.payload]
+  ==
+::
+++  dojo-payload-to-json
+  |=  payload=dojo-payload
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :+  ['who' %s (scot %p who.payload)]
+    ['payload' %s payload.payload]
+  ~
+::
+++  sub-payload-to-json
+  |=  payload=sub-payload
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :^    ['who' %s (scot %p who.payload)]
+      ['app' %s app.payload]
+    ['path' (path p.payload)]
+  ~
+::
+++  write-expected-to-json
+  |=  test-read-steps=(list test-read-step)
+  =,  enjs:format
+  ^-  json
+  :-  %a
+  %+  turn  test-read-steps
+  |=([=test-read-step] (test-read-step-to-json test-read-step))
+::
+++  test-results-to-json
+  |=  =test-results
+  =,  enjs:format
+  ^-  json
+  :-  %a
+  %+  turn  test-results
+  |=([=test-result] (test-result-to-json test-result))
+::
+++  test-result-to-json
+  |=  =test-result
+  =,  enjs:format
+  ^-  json
+  :-  %a
+  %+  turn  test-result
+  |=  [success=? expected=@t result=@t]
+  %-  pairs
+  :^    ['success' %b success]
+      ['expected' %s expected]
+    ['result' %s result]
+  ~
 --
