@@ -5,6 +5,8 @@
 |%
 +$  query-type
   $?  %batch
+      %batch-chain
+      %batch-transactions
       %transaction
       %from
       %item
@@ -88,6 +90,13 @@
 ::
 +$  batch-update-value
   [timestamp=@da location=town-location =batch]
++$  batch-chain-update-value
+  [timestamp=@da location=town-location =chain:eng]
++$  batch-transactions-update-value
+  $:  timestamp=@da
+      location=town-location
+      transactions=processed-txs:eng
+  ==
 +$  transaction-update-value
   $:  timestamp=@da
       location=transaction-location
@@ -101,7 +110,9 @@
   $@  ~
   $%  [%path-does-not-exist ~]
       [%batch batches=(map batch-id=id:smart batch-update-value)]
+      [%batch-chain chains=(map batch-id=id:smart batch-chain-update-value)]
       [%batch-order =batch-order]
+      [%batch-transactions transactions=(map batch-id=id:smart batch-transactions-update-value)]
       [%transaction transactions=(map transaction-id=id:smart transaction-update-value)]
       [%item items=(jar item-id=id:smart item-update-value)]
       $:  %hash

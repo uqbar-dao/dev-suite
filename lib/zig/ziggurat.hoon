@@ -1,4 +1,5 @@
-/-  *zig-ziggurat
+/-  *zig-ziggurat,
+    ui=zig-indexer
 /+  conq=zink-conq,
     dock=docket,
     pyio=py-io,
@@ -724,7 +725,7 @@
   ==
 ::
 ++  project-to-json
-  |=  p=project
+  |=  [p=project our=@p now=@da]
   =,  enjs:format
   ^-  json
   %-  pairs
@@ -733,23 +734,44 @@
       ['to_compile' (to-compile-to-json to-compile.p)]
       ['next_contract_id' %s (scot %ux next-contract-id.p)]
       ['errors' (errors-to-json errors.p)]
-      ['state' (state-to-json p.chain.p noun-texts.p)]
+      ['state' (state-to-json p our now)]
       :: ['tests' (tests-to-json tests.p)]  :: TODO
   ==
 ::
 ++  state-to-json
-  |=  [=state:engine noun-texts=(map id:smart @t)]
-  ::
-  ::  ignoring/not printing nonces for now.
-  ::
-  =,  enjs:format
+  |=  [p=project our=@p now=@da]
   ^-  json
-  %-  pairs
-  %+  turn  ~(tap py:smart state)
-  |=  [=id:smart merk=@ux =item:smart]
-  ::  ignore contract nock -- just print metadata
-  :-  (scot %ux id)
-  (item-to-json item (~(gut by noun-texts) id ''))
+  %-  pairs:enjs:format
+  %+  turn  ~(tap by town-sequencers.p)
+  |=  [town-id=@ux who=@p]
+  =/  who-ta=@ta   (scot %p who)
+  =/  now-ta=@ta   (scot %da now)
+  =/  town-ta=@ta  (scot %ux town-id)
+  =/  =update:ui
+    %-  fall  :_  ~
+    ;;  (unit update:ui)
+    .^  noun
+        %gx
+        ;:  weld
+          /(scot %p our)/pyro/[now-ta]/i/[who-ta]/gx
+          /[who-ta]/indexer/[now-ta]/batch-order/[town-ta]
+          /noun/noun
+    ==  ==
+  =/  newest-batch=@ux
+    ?>  ?=(^ update)
+    ?>  ?=(%batch-order -.update)
+    ?>  ?=(^ batch-order.update)
+    i.batch-order.update
+  :-  (scot %ux town-id)
+  %-  fall  :_  ~
+  ;;  (unit json)
+  .^  noun
+      %gx
+      ;:  weld
+          /(scot %p our)/pyro/[now-ta]/i/[who-ta]/gx
+          /[who-ta]/indexer/[now-ta]/json/newest/batch-chain
+          /[town-ta]/(scot %ux newest-batch)/noun/noun
+  ==  ==
 ::
 :: ++  tests-to-json  :: TODO
 ::   |=  =tests

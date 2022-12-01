@@ -53,8 +53,15 @@
         %batch
       (frond %batch (batches batches.update))
     ::
+        %batch-chain
+      (frond %batch-chain (batch-chain chains.update))
+    ::
         %batch-order
       (frond %batch-order (batch-order batch-order.update))
+    ::
+        %batch-transactions
+      %+  frond  %batch-transactions
+      (batch-transactions transactions.update)
     ::
         %transaction
       (frond %transaction (transactions transactions.update))
@@ -137,6 +144,32 @@
     %-  pairs
     :+  [%transactions (processed-txs transactions.batch)]
       [%town (town +.batch)]
+    ~
+  ::
+  ++  batch-chain
+    |=  chains=(map batch-id=id:smart batch-chain-update-value:ui)
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by chains)
+    |=  [=id:smart timestamp=@da location=town-location:ui c=chain:eng]
+    :-  (scot %ux id)
+    %-  pairs
+    :^    [%timestamp (sect timestamp)]
+        [%location (town-location location)]
+      [%chain (chain c)]
+    ~
+  ::
+  ++  batch-transactions
+    |=  transactions=(map batch-id=id:smart batch-transactions-update-value:ui)
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by transactions)
+    |=  [=id:smart timestamp=@da location=town-location:ui t=processed-txs:eng]
+    :-  (scot %ux id)
+    %-  pairs
+    :^    [%timestamp (sect timestamp)]
+        [%location (town-location location)]
+      [%transactions (processed-txs t)]
     ~
   ::
   ++  processed-txs

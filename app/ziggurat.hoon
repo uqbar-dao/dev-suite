@@ -287,6 +287,7 @@
             user-address.act
             user-nonce=0
             batch-num=0
+            town-sequencers=(~(put by *(map @ux @p)) 0x0 ~nec)
             tests=~
         ==
       ==
@@ -562,6 +563,26 @@
         (turn ships.act |=(=ship [ship %.n]))   
       ==
     ::
+        %add-town-sequencer
+      =/  =project  (~(got by projects) project.act)
+      =.  project
+        %=  project
+            town-sequencers
+          (~(put by town-sequencers.project) [town-id who]:act)
+        ==
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
+    ::
+        %delete-town-sequencer
+      =/  =project  (~(got by projects) project.act)
+      =.  project
+        %=  project
+            town-sequencers
+          (~(del by town-sequencers.project) town-id.act)
+        ==
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
+    ::
         %deploy-contract  ::  TODO
       !!
     ::
@@ -759,13 +780,13 @@
     %+  murn  ~(tap by projects)
     |=  [name=@t =project]
     :-  ~  :-  name
-    (project-to-json project)
+    (project-to-json project [our now]:bowl)
   ::
       [%project-state @ ~]
-    ?~  project=(~(get by projects) i.t.t.path)
-      ``json+!>(~)
-    =/  =json  (state-to-json p.chain.u.project noun-texts.u.project)
-    ``json+!>(json)
+    ?~  project=(~(get by projects) i.t.t.path)  ``json+!>(~)
+    :^  ~  ~  %json
+    !>  ^-  json
+    (state-to-json u.project [our now]:bowl)
   ::
     ::   [%project-tests @ ~]  :: TODO
     :: ?~  project=(~(get by projects) i.t.t.path)

@@ -19,13 +19,14 @@
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
       to-compile=(map path id:smart)  ::  compile contracts with these id's
-      next-contract-id=id:smart
-      errors=(list [path @t])
-      =chain:engine
-      noun-texts=(map id:smart @t)  ::  holds `noun.data` that got ream'd
-      user-address=address:smart
-      user-nonce=@ud
-      batch-num=@ud
+      next-contract-id=id:smart  ::  remove?
+      errors=(list [path @t])  ::  remove?
+      =chain:engine  ::  remove?
+      noun-texts=(map id:smart @t)  ::  holds `noun.data` that got ream'd  ::  remove?
+      user-address=address:smart  ::  remove?
+      user-nonce=@ud  ::  remove?
+      batch-num=@ud  ::  remove?
+      town-sequencers=(map @ux @p)
       =tests
   ==
 ::
@@ -118,6 +119,9 @@
           ::
           [%add-custom-step test-id=@ux tag=@tas =custom-step-definition]
           [%delete-custom-step test-id=@ux tag=@tas]
+          ::
+          [%add-town-sequencer town-id=@ux who=@p]
+          [%delete-town-sequencer town-id=@ux]
           ::
           [%stop-pyro-ships ~]
           [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> [~nec ~bud]
