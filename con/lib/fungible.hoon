@@ -112,8 +112,9 @@
   ++  give
     |=  [=context act=give:sur]
     ^-  (quip call diff)
+    ?>  !=(to.act id.caller.context)
     =+  (need (scry-state from-account.act))
-    =/  giver  (husk account:sur - `this.context `id.caller.context)
+    =+  giver=(husk account:sur - `this.context `id.caller.context)
     ::  fail if amount > balance
     =.  balance.noun.giver  (sub balance.noun.giver amount.act)
     ::  locate receiver account
@@ -206,8 +207,7 @@
         [holder.giver to.act amount.act nonce.act deadline.act]
     ?>  =((recover typed-message sig.act) holder.giver)
     ::  assert nonce is valid
-    =+  (~(gut by nonces.noun.giver) to.act 0)
-    ?>  .=(nonce.act -)
+    ?>  .=(nonce.act (~(gut by nonces.noun.giver) to.act 0))
     ::  assert deadline is valid
     ?>  (lte eth-block.context deadline.act)
     ::  locate receiver account
