@@ -27,6 +27,8 @@
       tokens=(map address:smart =book)
       ::  metadata for tokens we track
       =metadata-store
+      ::  origins we automatically sign and approve txns from
+      approved-origins=(map (pair term wire) [rate=@ud bud=@ud])
       ::  transactions we've sent that haven't been finalized by sequencer
       =unfinished-transaction-store
       ::  finished transactions we've sent
@@ -46,7 +48,7 @@
 +*  this  .
     def   ~(. (default-agent this %|) bowl)
 ::
-++  on-init  `this(state [%0 ['' '' 0] ~ ~ ~ ~ ~ ~ ~ ~])
+++  on-init  `this(state [%0 ['' '' 0] ~ ~ ~ ~ ~ ~ ~ ~ ~])
 ::
 ++  on-save  !>(state)
 ++  on-load
@@ -210,6 +212,12 @@
         %set-nonce  ::  for testing/debugging
       =+  acc=(~(gut by nonces.state) address.act ~)
       `state(nonces (~(put by nonces) address.act (~(put by acc) town.act new.act)))
+    ::
+        %approve-origin
+      `state(approved-origins (~(put by approved-origins) +.act))
+    ::
+        %remove-origin
+      `state(approved-origins (~(del by approved-origins) +.act))
     ::
         %submit-signed
       ::  sign a pending transaction from an attached hardware wallet
@@ -379,7 +387,16 @@
       =/  my-pending
         %+  ~(put by (~(gut by pending-store) from.act ~))
         hash  [origin.act transaction action.act]
-      :-  (tx-update-card hash transaction action.act)^~
+      :-  :-  (tx-update-card hash transaction action.act)
+          ?~  origin.act  ~
+          ?~  gas=(~(get by approved-origins) u.origin.act)  ~
+          :_  ~
+          :*  %pass  /self-submit
+              %agent  [our.bowl %wallet]
+              %poke  %wallet-poke
+              !>  ^-  wallet-poke
+              [%submit from.act hash u.gas]
+          ==
       %=  state
         pending-store  (~(put by pending-store) from.act my-pending)
       ==
