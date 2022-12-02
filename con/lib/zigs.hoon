@@ -1,5 +1,4 @@
-::  [UQ| DAO]
-::  zigs.hoon v1.0
+::  lib/zigs.hoon [UQ| DAO]
 ::
 /+  *zig-sys-smart
 |%
@@ -33,14 +32,12 @@
             to=address
             amount=@ud
             from-account=id
-            to-account=(unit id)
         ==
     ::
         $:  %take
             to=address
             amount=@ud
             from-account=id
-            to-account=(unit id)
         ==
     ::
         $:  %set-allowance

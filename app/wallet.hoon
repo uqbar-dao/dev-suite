@@ -328,16 +328,7 @@
           ::  Standard fungible token %give
           =/  from=asset  (~(got by `book`(~(got by tokens.state) from.act)) item.action.act)
           ?>  ?=(%token -.from)
-          =/  =asset-metadata  (~(got by metadata-store.state) metadata.from)
-          =/  to-id  (hash-data:smart zigs-contract-id:smart to.action.act town.act salt.asset-metadata)
-          =/  scry-res
-            .^  update:ui  %gx
-                /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/indexer/newest/item/(scot %ux town.act)/(scot %ux to-id)/noun
-            ==
-          =+  ?~  scry-res  ~
-              ?.  ?=(%newest-item -.scry-res)  ~
-              `item.scry-res
-          [%give to.action.act amount.action.act item.action.act ?~(- ~ `to-id)]
+          [%give to.action.act amount.action.act item.action.act]
         ::
             %give-nft
           ::  Standard NFT %give
