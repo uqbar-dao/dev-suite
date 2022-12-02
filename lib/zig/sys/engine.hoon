@@ -79,6 +79,7 @@
         ~&  >>>  "engine: tx failed gas audit"
         (exhaust bud.gas.tx %3 ~)
       ::
+      =/  gas-payer  address.caller.tx
       |-  ::  recursion point for calls
       ::
       ?:  &(=(0x0 contract.tx) =(%burn p.calldata.tx))
@@ -97,6 +98,9 @@
           ?&  =(contract.tx zigs-contract-id:smart)
               =(p.calldata.tx %give)
           ==
+        ::  only assert budget check when gas-payer is interacting
+        ?.  =(address.caller.tx gas-payer)
+          [0 q.calldata.tx]
         [bud.gas.tx q.calldata.tx]
       ?~  pac=(get:big p.chain contract.tx)
         ~&  >>>  "engine: call to missing pact"

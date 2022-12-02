@@ -2,6 +2,8 @@
 /+  smart=zig-sys-smart
 |%
 +$  signature   [p=@ux q=ship r=life]
+::  for app-generated transactions to be notified of their txn results
++$  origin  (unit (pair term wire))
 ::
 ::  book: the primary map of assets that we track
 ::  supports fungibles and NFTs
@@ -25,17 +27,17 @@
   (map @ux [=typed-message:smart =sig:smart])
 ::
 +$  unfinished-transaction-store
-  (list [hash=@ux tx=transaction:smart action=supported-actions])
+  (map @ux [=origin =transaction:smart action=supported-actions])
 ::
 ::  inner maps keyed by transaction hash
 ::
 +$  transaction-store
   %+  map  address:smart
-  (map @ux [=transaction:smart action=supported-actions =output:eng])
+  (map @ux [=origin =transaction:smart action=supported-actions =output:eng])
 ::
 +$  pending-store
   %+  map  address:smart
-  (map @ux [=transaction:smart action=supported-actions])
+  (map @ux [=origin =transaction:smart action=supported-actions])
 ::
 +$  transaction-status-code
   $?  %100  ::  100: transaction pending in wallet
@@ -67,10 +69,12 @@
       [%addresses saved=(set address:smart)]
       [%signed-message =typed-message:smart =sig:smart]
       $:  %unfinished-transaction
+          =origin
           =transaction:smart
           action=supported-actions
       ==
       $:  %finished-transaction
+          =origin
           =transaction:smart
           action=supported-actions
           =output:eng
@@ -85,6 +89,7 @@
       [%tx-status hash=@ux =transaction:smart action=supported-actions]
       $:  %finished-tx
           hash=@ux
+          =origin
           =transaction:smart
           action=supported-actions
           =output:eng
@@ -103,6 +108,8 @@
       [%add-tracked-address address=@ux nick=@t]
       ::  testing and internal
       [%set-nonce address=@ux town=@ux new=@ud]
+      [%approve-origin (pair term wire) gas=[rate=@ud bud=@ud]]
+      [%remove-origin (pair term wire)]
       ::
       ::  TX submit pokes
       ::
@@ -127,6 +134,7 @@
       ==
       ::
       $:  %transaction
+          =origin
           from=address:smart
           contract=id:smart
           town=@ux
