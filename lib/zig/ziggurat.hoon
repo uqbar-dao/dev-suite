@@ -735,7 +735,7 @@
       ['next_contract_id' %s (scot %ux next-contract-id.p)]
       ['errors' (errors-to-json errors.p)]
       ['state' (state-to-json p our now)]
-      :: ['tests' (tests-to-json tests.p)]  :: TODO
+      ['tests' (tests-to-json tests.p)]
   ==
 ::
 ++  state-to-json
@@ -773,7 +773,7 @@
           /[town-ta]/(scot %ux newest-batch)/noun/noun
   ==  ==
 ::
-++  tests-to-json  :: TODO
+++  tests-to-json
   |=  =tests
   =,  enjs:format
   ^-  json

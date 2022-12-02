@@ -788,11 +788,10 @@
     !>  ^-  json
     (state-to-json u.project [our now]:bowl)
   ::
-    ::   [%project-tests @ ~]  :: TODO
-    :: ?~  project=(~(get by projects) i.t.t.path)
-    ::   ``json+!>(~)
-    :: =/  =json  (tests-to-json tests.u.project)
-    :: ``json+!>(json)
+      [%project-tests @ ~]
+    ?~  project=(~(get by projects) i.t.t.path)
+      ``json+!>(~)
+    ``json+!>((tests-to-json tests.u.project))
   ::
       [%project-user-files @ ~]
     ?~  project=(~(get by projects) i.t.t.path)
