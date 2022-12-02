@@ -447,18 +447,23 @@
       ~&  >>>  "%wallet: couldn't find transaction hash for update!"
       $(unfinished t.unfinished, still-looking [i.unfinished still-looking])
     ::  put latest version of tx into transaction-store
-    =/  updated
+    =/  updated=[@ux =origin transaction:smart supported-actions output:eng]
       =+  found=(~(got by transactions.tx-latest) hash.i.unfinished)
       ::  add 200 to finished status code to get wallet status equivalent
       =.  status.transaction.found  (add 200 status.transaction.found)
-      [hash.i.unfinished origin.i.unfinished transaction.found action.i.unfinished output.found]
+      :*  hash.i.unfinished
+          origin.i.unfinished
+          transaction.found
+          action.i.unfinished
+          output.found
+      ==
     ::  when we have a finished transaction, use transaction origin to
     ::  notify an app about their completed transaction.
     %=  $
       unfinished  t.unfinished
         cards
       :-  (finished-tx-update-card updated)
-      ?~  -.+.updated  cards
+      ?~  origin.updated  cards
       [(notify-origin-card our.bowl updated) cards]
         transaction-store
       %+  ~(jab by transaction-store)  address.caller.tx.i.unfinished

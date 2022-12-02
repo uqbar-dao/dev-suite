@@ -33,7 +33,7 @@
     ::
         %finished-tx
       %-  frond
-      (transaction-with-output:parsing hash.upd ~ +.+.upd)
+      (transaction-with-output:parsing +.upd)
     ==
   --
 ++  grad  %noun

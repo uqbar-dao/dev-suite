@@ -89,6 +89,7 @@
       [%tx-status hash=@ux =transaction:smart action=supported-actions]
       $:  %finished-tx
           hash=@ux
+          =origin
           =transaction:smart
           action=supported-actions
           =output:eng

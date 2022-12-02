@@ -18,7 +18,7 @@
 ++  finished-tx-update-card
   |=  in=[@ux origin transaction:smart supported-actions output:eng]
   ^-  card
-  =+  `wallet-frontend-update`[%finished-tx [-.in +.+.in]]
+  =+  `wallet-frontend-update`[%finished-tx in]
   [%give %fact ~[/tx-updates] %wallet-frontend-update !>(-)]
 ::
 ++  notify-origin-card
