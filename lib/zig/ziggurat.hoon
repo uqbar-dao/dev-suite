@@ -910,6 +910,12 @@
       ['expected' %s expected.test-step]
     ~
   ::
+      %dbug
+    %-  pairs
+    :+  ['payload' (dbug-payload-to-json payload.test-step)]
+      ['expected' %s expected.test-step]
+    ~
+  ::
       %read-subscription  ~  ::  TODO
   ::
       %wait
@@ -934,6 +940,15 @@
       ['app' %s app.payload]
       ['path' (path path.payload)]
   ==
+::
+++  dbug-payload-to-json
+  |=  payload=dbug-payload
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :+  ['who' %s (scot %p who.payload)]
+    ['app' %s app.payload]
+  ~
 ::
 ++  poke-payload-to-json
   |=  payload=poke-payload
@@ -993,4 +1008,10 @@
       ['expected' %s expected]
     ['result' %s result]
   ~
+::
+++  json-single-string-object
+  |=  [key=@t error=tape]
+  =,  enjs:format
+  ^-  json
+  (frond key [%s (crip error)])
 --

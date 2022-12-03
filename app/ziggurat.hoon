@@ -289,6 +289,7 @@
             batch-num=0
             town-sequencers=(~(put by *(map @ux @p)) 0x0 ~nec)
             tests=~
+            dbug-dashboards=~
         ==
       ==
     ::
@@ -502,6 +503,9 @@
         [[our.bowl %spider] %poke %spider-start !>(start-args)]
       ~
     ::
+        %clear-queue
+      `state(test-queue ~)
+    ::
         %queue-test
       `state(test-queue (~(put to test-queue) [project.act id.act]))
     ::
@@ -515,11 +519,11 @@
       =.  test
         %+  add-custom-step  test
         [tag custom-step-definition]:act
-      :-  ~
-      %=  state
-          projects
-        %+  ~(put by projects)  project.act
+      =.  project
         project(tests (~(put by tests.project) test-id.act test))
+      :-  (make-project-update project.act project)^~
+      %=  state
+          projects  (~(put by projects) project.act project)
       ==
     ::
         %delete-custom-step
@@ -527,11 +531,78 @@
       =/  =test     (~(got by tests.project) test-id.act)
       =.  custom-step-definitions.test
         (~(del by custom-step-definitions.test) tag.act)
-      :-  ~
-      %=  state
-          projects
-        %+  ~(put by projects)  project.act
+      =.  project
         project(tests (~(put by tests.project) test-id.act test))
+      :-  (make-project-update project.act project)^~
+      %=  state
+          projects  (~(put by projects) project.act project)
+      ==
+    ::
+        %add-app-to-dashboard
+      =/  =project  (~(got by projects) project.act)
+      =*  sur  sur.act
+      ::
+      =/  dbug-mold-result
+        %-  mule
+        |.
+        ::  make mold subject
+        ?~  snipped=(snip sur)  !!  ::  TODO: do better
+        =/  sur-face=@tas  `@tas`(rear snipped)
+        ?>  ?=(^ sur)
+        =/  sur-hoon=^vase
+          .^  ^vase
+              %ca
+              :-  (scot %p our.bowl)
+              %+  weld  /[i.sur]/(scot %da now.bowl)
+              t.sur
+          ==
+        =/  subject=^vase
+          %-  slop  :_  !>(..zuse)
+          sur-hoon(p [%face sur-face p.sur-hoon])
+        ::  make mold
+        (slap subject (ream mold-name.act))
+      =/  dbug-mold
+        ?:  ?=(%& -.dbug-mold-result)  dbug-mold-result
+        :-  %|
+        %-  crip
+        %+  roll  p.dbug-mold-result
+        |=  [in=tank out=tape]
+        :(weld ~(ram re in) "\0a" out)
+      ::
+      =/  mar-tube=(unit tube:clay)
+        ?~  mar.act  ~
+        =/  tube-res
+          %-  mule
+          |.
+          .^  tube:clay
+              %cc
+              %+  weld  /(scot %p our.bowl)/[i.mar.act]/(scot %da now.bowl)
+              t.mar.act
+          ==
+        ?:  ?=(%| -.tube-res)  ~
+        `p.tube-res
+      ::
+      ~&  "%ziggurat: added {<app.act>} to dashboard with mold, mar: {<?=(%& -.dbug-mold)>} {<?=(^ mar-tube)>}"
+      =.  dbug-dashboards.project
+        %+  ~(put by dbug-dashboards.project)  app.act
+        :*  sur
+            mold-name.act
+            mar.act
+            dbug-mold
+            mar-tube
+        ==
+      :-  (make-project-update project.act project)^~
+      %=  state
+          projects  (~(put by projects) project.act project)
+      ==
+    ::
+        %delete-app-from-dashboard
+      =/  =project  (~(got by projects) project.act)
+      =.  dbug-dashboards.project
+        (~(del by dbug-dashboards.project) app.act)
+      :-  (make-project-update project.act project)^~
+      %=  state
+          projects  (~(put by projects) project.act project)
       ==
     ::
         %stop-pyro-ships
@@ -565,21 +636,15 @@
     ::
         %add-town-sequencer
       =/  =project  (~(got by projects) project.act)
-      =.  project
-        %=  project
-            town-sequencers
-          (~(put by town-sequencers.project) [town-id who]:act)
-        ==
+      =.  town-sequencers.project
+        (~(put by town-sequencers.project) [town-id who]:act)
       :-  (make-project-update project.act project)^~
       state(projects (~(put by projects) project.act project))
     ::
         %delete-town-sequencer
       =/  =project  (~(got by projects) project.act)
-      =.  project
-        %=  project
-            town-sequencers
-          (~(del by town-sequencers.project) town-id.act)
-        ==
+      =.  town-sequencers.project
+        (~(del by town-sequencers.project) town-id.act)
       :-  (make-project-update project.act project)^~
       state(projects (~(put by projects) project.act project))
     ::
@@ -800,6 +865,38 @@
     !>  ^-  json
     %+  frond:enjs:format  %user-files
     (dir-to-json ~(tap in user-files.u.project))
+  ::
+      [%dashboard @ @ @ ~]
+    =*  project-name  i.t.t.path
+    =*  who           i.t.t.t.path
+    =*  app           i.t.t.t.t.path
+    :^  ~  ~  %json
+    !>  ^-  json
+    ?~  project=(~(get by projects) project-name)
+      %+  json-single-string-object  %error
+      "project {<project-name>} not found; must register project with %new-project"
+    ?~  dbug=(~(get by dbug-dashboards.u.project) app)
+      %+  json-single-string-object  %error
+      "app {<app>} not found; must add app to dashboard with %add-app-to-dashboard"
+    ?:  ?=(%| -.mold.u.dbug)
+      %+  json-single-string-object  %error
+      "app {<app>} subject failed to build; fix sur file path and re-add with %add-app-to-dashboard. error message from build: {<p.mold.u.dbug>}"
+    =/  now=@ta  (scot %da now.bowl)
+    =/  dbug-noun=*
+      .^  *
+          %gx
+          %+  weld  /(scot %p our.bowl)/pyro/[now]/i/[who]
+          /gx/[who]/[app]/[now]/dbug/state/noun/noun
+      ==
+    ?.  ?=(^ dbug-noun)
+      %+  json-single-string-object  %error
+      "dbug scry failed: unexpected result from pyro"
+    =*  mar-tube   mar-tube.u.dbug
+    =*  dbug-mold  p.mold.u.dbug
+    =/  dbug-vase=vase  (slym dbug-mold +.+.dbug-noun)
+    ?~  mar-tube
+      (json-single-string-object %state (noah dbug-vase))
+    (frond:enjs:format %state !<(json (u.mar-tube dbug-vase)))
   ::
       [%file-exists @ ^]
     =/  des=@ta    i.t.t.path

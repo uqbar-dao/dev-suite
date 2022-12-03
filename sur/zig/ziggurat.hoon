@@ -28,6 +28,7 @@
       batch-num=@ud  ::  remove?
       town-sequencers=(map @ux @p)
       =tests
+      dbug-dashboards=(map app=@tas dbug-dashboard)
   ==
 ::
 +$  build-result  (each [bat=* pay=*] @t)
@@ -51,7 +52,7 @@
 +$  test-step  $%(test-read-step test-write-step)
 +$  test-read-step
   $%  [%scry payload=scry-payload expected=@t]
-      :: [%dbug payload=dbug-payload expected=@t]  :: TODO
+      [%dbug payload=dbug-payload expected=@t]
       [%read-subscription payload=read-sub-payload expected=@t timeout=@dr]  ::  not sure if need timeout: if want to not block so can handle out-of-order when multiple subscriptions are being passed around, may need it. Ideally wouldn't need.
       [%wait until=@dr]
       [%custom-read tag=@tas payload=@t expected=@t]
@@ -62,9 +63,9 @@
       [%subscribe payload=sub-payload expected=(list test-read-step)]
       [%custom-write tag=@tas payload=@t expected=(list test-read-step)]
   ==
-:: +$  dbug-payload  [who=@p app=@tas %state/bowl/???] :: TODO
 +$  scry-payload
   [who=@p mold-name=@t care=@tas app=@tas =path]
++$  dbug-payload  [who=@p mold-name=@t app=@tas]
 +$  read-sub-payload  [who=@p care=@tas app=@tas =path]  :: TODO
 +$  dojo-payload  [who=@p payload=@t]
 +$  poke-payload  [who=@p app=@tas mark=@tas payload=@t]
@@ -83,6 +84,14 @@
 ::
 +$  deploy-location  ?(%local testnet)
 +$  testnet  ship
+::
++$  dbug-dashboard
+  $:  sur=path
+      mold-name=@t
+      mar=path
+      mold=(each vase @t)
+      mar-tube=(unit tube:clay)
+  ==
 ::
 +$  action
   $:  project=@t
@@ -108,11 +117,15 @@
           [%run-test id=@ux]
           [%add-and-run-test name=(unit @t) =test-surs =test-steps]
           [%run-queue ~]  ::  can be used as [%$ %run-queue ~]
+          [%clear-queue ~]
           [%queue-test id=@ux]
           [%add-and-queue-test name=(unit @t) =test-surs =test-steps]
           ::
           [%add-custom-step test-id=@ux tag=@tas =custom-step-definition]
           [%delete-custom-step test-id=@ux tag=@tas]
+          ::
+          [%add-app-to-dashboard app=@tas sur=path mold-name=@t mar=path]
+          [%delete-app-from-dashboard app=@tas]
           ::
           [%add-town-sequencer town-id=@ux who=@p]
           [%delete-town-sequencer town-id=@ux]
