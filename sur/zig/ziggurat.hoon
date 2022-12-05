@@ -131,6 +131,9 @@
               town-id=@ux
               upgradable=?
           ==
+          ::
+          [%add-user-file file=path]
+          [%delete-user-file file=path]
       ==
   ==
 ::

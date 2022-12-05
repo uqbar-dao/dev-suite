@@ -37,6 +37,8 @@
           [%run-tests (ar parse-test)]
           [%deploy-contract parse-deploy]
           [%publish-app parse-docket]
+          [%add-user-file (ot ~[[%file pa]])]
+          [%delete-user-file (ot ~[[%file pa]])]
       ==
     ::
     ++  parse-docket

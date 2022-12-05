@@ -595,6 +595,18 @@
         =-  [%pass /treaty-wire %agent [our.bowl %treaty] %poke -]
         [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
       ~
+    ::
+        %add-user-file
+      =/  =project  (~(got by projects) project.act)
+      =.  user-files.project  (~(put in user-files.project) file.act)
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
+    ::
+        %delete-user-file
+      =/  =project  (~(got by projects) project.act)
+      =.  user-files.project  (~(del in user-files.project) file.act)
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
     ==
   ++  add-or-update-item
     |=  [project-id=@t =item:smart]
