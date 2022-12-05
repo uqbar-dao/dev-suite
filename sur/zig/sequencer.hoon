@@ -1,5 +1,5 @@
 /-  *zig-engine
-/+  smart=zig-sys-smart, zink=zink-zink
+/+  smart=zig-sys-smart
 |%
 +$  ship-sig   [p=@ux q=ship r=life]
 +$  sequencer  (pair address:smart ship)
