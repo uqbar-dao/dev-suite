@@ -64,7 +64,10 @@
       def        ~(. (default-agent this %|) bowl)
   ++  on-init
     :_  this
-    [%pass / %agent [our.bowl %pyro] %poke %pill !>(cached-pill)]~
+    :~  [%pass / %agent [our dap]:bowl %poke %pill !>(cached-pill)]
+        [%pass / %agent [our dap]:bowl %poke %action !>([%import-snap /testnet/jam /testnet])]
+      :: [%pass / %agent [our dap]:bowl %poke %action !>([%import-fresh-piers /zig/lib/py/fresh-piers/jam])]
+    ==
   ++  on-save  !>(state)
   ++  on-load
     |=  old-vase=vase
@@ -122,6 +125,7 @@
         [%x %fleet-snap ^]  ``noun+!>((~(has by fleet-snaps) t.t.path))
         [%x %fleets ~]      ``noun+!>(~(key by fleet-snaps))
         [%x %ships ~]       ``noun+!>(~(key by piers))
+        [%x %fresh-pier-keys ~]  ``noun+!>(~(key by fresh-piers))
         [%x %pill ~]        ``pill+!>(pil)
         [%x %fleet-sizes ^]
       ?~  fleet=(~(get by fleet-snaps) t.t.path)  ~
@@ -170,7 +174,7 @@
 =|  unix-events=(jar ship unix-timed-event)
 =|  unix-boths=(jar ship unix-both)
 =|  cards=(list card:agent:gall)
-|_  hid=bowl:gall
+|_  hid=bowl:gall  ::  TODO: hid -> bowl
 ::
 ::  Represents a single ship's state.
 ::
@@ -666,10 +670,81 @@
       |=  [who=ship thus=_this]
       =.  this  thus
       (publish-effect:(pe who) [/ %restore ~])
-    `state
+    abet-aqua
   ::
       %clear-snap
     `state(fleet-snaps (~(del by fleet-snaps) path.act))
+  ::
+      %export-snap
+    :: all snapshots are put in /=zig=/lib/py/snapshots/[path]/jam
+    ?~  p=(~(get by fleet-snaps) path.act)
+      ~&(%pyro^%no-such-snapshot !!)
+    :_  state
+    :_  ~
+    :*  %pass
+        export+path.act
+        %arvo
+        %c
+        %info
+        %zig
+        %&
+        :_  ~
+        :+  lib+py+snapshots+(snoc path.act %jam)  %ins
+        [%jam !>((jam u.p))]
+    ==
+  ::
+      %import-snap
+    :: fetches from /=zig=/lib/py/snapshots
+    ?~  jam-file-path.act
+      ~&(%pyro^%unexpected-file-path^jam-file-path.act !!)
+    =/  jammed=@
+      .^  @
+          %cx
+          %+  welp
+            /(scot %p our.hid)/zig/(scot %da now.hid)/lib/py/snapshots
+          jam-file-path.act
+      ==
+    =/  cued=*  (cue jammed)
+    =/  f=fleet  ;;(fleet cued)
+    =.  fleet-snaps
+      (~(put by fleet-snaps) snap-label.act f)
+    :_  state
+    [%pass / %agent [our.hid %hood] %poke %helm-meld !>(~)]~
+  ::
+      %export-fresh-piers
+    ?~  fresh-piers  ~&(%pyro^%no-fresh-piers !!)
+    =/  jam-fresh-piers=@  (jam fresh-piers)
+    =*  piers-hash=@ta  (scot %ux (mug jam-fresh-piers))
+    :_  state
+    :_  ~
+    :*  %pass
+        /export/fresh-piers
+        %arvo
+        %c
+        %info
+        %zig
+        %&
+        :_  ~
+        :+  /snapshots/[piers-hash]/jam  %ins
+        [%jam !>(jam-fresh-piers)]
+    ==
+  ::
+      %import-fresh-piers
+    ?~  jam-file-path.act
+      ~&(%pyro^%unexpected-file-path^jam-file-path.act !!)
+    =/  jammed=@
+      .^  @
+          %cx
+          %+  welp
+            :-  (scot %p our.hid)
+            /[i.jam-file-path.act]/(scot %da now.hid)
+          t.jam-file-path.act
+      ==
+    =/  piers-hash=@ux  (mug jammed)
+    =/  imported-fresh-piers
+      ;;((map ship [pier (list unix-both)]) (cue jammed))
+    ~&  %pyro^%import-fresh-piers^jam-file-path.act^piers-hash^~(key by imported-fresh-piers)
+    `state(fresh-piers imported-fresh-piers)
   ::
       %clear-snaps
     `state(fleet-snaps ~)

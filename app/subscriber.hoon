@@ -2,10 +2,10 @@
 :: solid state subscriptions should obsolete this.
 ::
 /-  *subscriber
-/+  dbug, default-agent, *mip
+/+  dbug, default-agent
 ::
 |%
-+$  state-0  [%0 =facts] :: XX change facts to a set not a queue - tag by timestamp
++$  state-0  [%0 =facts =signs]
 +$  card  card:agent:gall
 +$  sign  sign:agent:gall
 --
@@ -17,7 +17,7 @@
 +*  this  .
     def   ~(. (default-agent this %|) bowl)
 ::
-++  on-init  `this(state [%0 ~])
+++  on-init  `this(state [%0 ~ ~])
 ++  on-save  !>(state)
 ++  on-load
   |=  =old=vase
@@ -29,23 +29,26 @@
   ^-  (quip card _this)
   ?>  =(mark %subscriber-action)
   =/  act  !<(subscriber-action vase)
-  =/  paf=path  [(scot %p ship.act) agent.act path.act]
+  =/  paf=path  [(scot %p ship.act) app.act path.act]
   ?-    -.act
       %sub
-    :-  [%pass paf %agent [ship agent]:act %watch path.act]~
-    %=    this
-        facts.state
-      ?^  (~(get bi facts.state) [ship agent]:act paf)
-        facts.state
-      (~(put bi facts.state) [ship agent]:act path.act ~)
+    ?:  (~(has by wex.bowl) [paf [ship app]:act])  `this
+    :-  [%pass paf %agent [ship app]:act %watch path.act]~
+    %_  this
+      facts  (~(put by facts) [ship app path]:act ~)
+      signs  (~(put by signs) [ship app path]:act ~)
     ==
   ::
       %unsub
     :_  this
-    [%pass paf %agent [ship.act agent.act] %leave ~]~
+    [%pass paf %agent [ship.act app.act] %leave ~]~
   ::
       %clear
-    `this(facts.state (~(put bi facts.state) [ship agent]:act path.act ~))
+    :-  ~
+    %_  this
+      facts  (~(put by facts) [ship app path]:act ~)
+      signs  (~(put by signs) [ship app path]:act ~)
+    ==
   ==
 ++  on-leave  on-leave:def
 ++  on-watch  on-watch:def
@@ -53,41 +56,21 @@
   |=  =path
   ^-  (unit (unit cage))
   ?+    path  (on-peek:def path)
-  ::
-  ::  next n events
-      [%x %next-facts @ @ @ ^]
-    =/  n=@ud  (slav %ud i.t.t.path)
-    =/  =ship  (slav %p i.t.t.t.path)
-    =/  agent  i.t.t.t.t.path
-    =/  pafth  t.t.t.t.t.path
-    =/  qew  (~(got bi facts.state) [ship agent] pafth)
-    =/  res=(list sign)
-      =|  i=@ud
-      =|  facts=(list sign)
-      |-  ^-  (list sign)
-      ?:    |(=(n i) =(~ qew))
-        facts
-      =^  new  qew  ~(get to qew)
-      $(i +(i), facts [new facts])
-    ``noun+!>(res)
-  ::
-      [%x %next-fact @ @ ^]
+      [%x %facts @ @ ^]
     =/  =ship  (slav %p i.t.t.path)
-    =/  agent  i.t.t.t.path
-    =/  pafth  t.t.t.t.path
-    =/  qew  (~(got bi facts.state) [ship agent] pafth)
-    =/  fakt
-      ?~  qew  ~
-      (head ~(get to qew))
-    ``noun+!>(fakt)
+    =*  app  i.t.t.t.path
+    =*  paf  t.t.t.t.path
+    :^  ~  ~  %noun
+    =+  (~(get by facts) [ship app paf])
+    ?@  -  !>(~)  !>((need -))  
   ::
-      [%x %all-facts @ @ ^]
-    =/  =ship  (slav %p i.t.path)
-    =/  agent  i.t.t.path
-    =/  pafth  t.t.t.path
-    =/  qew  (~(got bi facts.state) [ship agent] pafth)
-    =/  fakts  ~(tap to qew)
-    ``noun+!>(fakts)
+      [%x %signs @ @ ^]
+    =/  =ship  (slav %p i.t.t.path)
+    =*  app  i.t.t.t.path
+    =*  paf  t.t.t.t.path
+    :^  ~  ~  %noun
+    =+  (~(get by signs) [ship app paf])
+    ?~  -  !>(~)  !>((need -))
   ==
 ::
 ++  on-agent
@@ -96,12 +79,25 @@
   ?+    wire  (on-agent:def wire sign)
       [@ @ ^]
     =/  =ship  (slav %p i.wire)
-    =/  agent  i.t.wire
-    =/  pafth  t.t.wire
-    =/  qew  (~(got bi facts) [ship agent] pafth)
-    =.  qew  (~(put to qew) sign)
-    ~&  >  qew
-    `this(facts.state (~(put bi facts.state) [ship agent] pafth qew))
+    =*  app  i.t.wire
+    =*  paf  t.t.wire
+    ~&  >  "{(scow %p our.bowl)}/subscriber: subscription received from {(scow %p ship)} for %{(trip app)} on wire"
+    ~&  >  paf
+    |^  :: TODO this code is extremely ugly
+    ?+    -.sign  (default sign)
+        %fact
+      =/  fact-set  (~(got by facts) [ship app paf])
+      =.  fact-set  (~(put in fact-set) (crip (noah q.cage.sign)))
+      `this(facts (~(put by facts) [ship app paf] fact-set))
+    ==
+    ::
+    ++  default
+      |=  =^sign
+      ^-  (quip card _this)
+      =/  sign-set  (~(got by signs) [ship app paf])
+      =.  sign-set  (~(put in sign-set) sign)
+      `this(signs (~(put by signs) [ship app paf] sign-set))
+    --
   ==
 ++  on-arvo  on-arvo:def
 ++  on-fail  on-fail:def

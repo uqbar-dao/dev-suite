@@ -251,6 +251,8 @@
     ^-  (quip card _state)
     ?-    -.+.act
         %new-project
+      ?:  (~(has in (~(gas in *(set @t)) ~['fresh-piers' 'assembled'])) project.act)
+        ~|("%ziggurat: choose a different project name, {<project.act>} is reserved" !!)
       ~&  desk
       ~&  >  "scrying..."
       =/  desks=(set desk)
@@ -562,6 +564,12 @@
         (turn ships.act |=(=ship [ship %.n]))   
       ==
     ::
+        %start-pyro-snap
+      :_  state(pyro-ships-ready ~)
+      :~  [%pass /restore %agent [our.bowl %pyro] %watch /effect/restore]
+          [%pass / %agent [our.bowl %pyro] %poke %action !>([%restore-snap snap.act])]
+      ==
+    ::
         %deploy-contract  ::  TODO
       !!
     ::
@@ -651,6 +659,7 @@
         =/  =project  (~(got by projects) project-name)
         =/  =test     (~(got by tests.project) test-id)
         ~&  >  "%ziggurat: test done {(scow %ux test-id)}"
+        ~&  >  test-results
         =.  tests.project
           %+  ~(put by tests.project)  test-id
           test(results test-results)
@@ -685,6 +694,13 @@
         :^  [our dap]:bowl  %poke  %ziggurat-action
         !>([%$ %run-queue ~])
       ~
+    ==
+  ::
+      [%restore ~]
+    ?+    -.sign  (on-agent:def wire sign)
+        %fact
+      :_  this(pyro-ships-ready [[~nec %.y] ~ ~]) :: XX extremely hacky
+      [%pass /restore %agent [our.bowl %pyro] %leave ~]^~
     ==
   ==
 ::
