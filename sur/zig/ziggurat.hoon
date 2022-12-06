@@ -89,7 +89,7 @@
 ::
 +$  action
   $:  project=@t
-      $%  [%new-project user-address=address:smart]
+      $%  [%new-project ~]
           [%populate-template =template metadata=data:smart]  ::  TODO
           [%delete-project ~]
       ::

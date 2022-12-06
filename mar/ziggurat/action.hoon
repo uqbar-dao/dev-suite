@@ -17,7 +17,7 @@
       ==
     ++  process
       %-  of
-      :~  [%new-project (ot ~[[%user-address (se %ux)]])]
+      :~  [%new-project ul]
           [%populate-template (ot ~[[%template (se %tas)] [%metadata parse-data]])]
           [%delete-project ul]
       ::

@@ -125,7 +125,7 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 
 =zig -build-file /=zig=/sur/zig/ziggurat/hoon
 =rollup-host ~nec
-:ziggurat &ziggurat-action [%foo %new-project 0x1234.5678]
+:ziggurat &ziggurat-action [%foo %new-project ~]
 
 =setup-nec `test-steps:zig`~[[%dojo [rollup-host ':rollup|activate'] ~] [%dojo [rollup-host ':sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608'] ~] [%poke [rollup-host %indexer %set-sequencer '[our %sequencer]'] ~] [%poke [rollup-host %indexer %set-rollup '[our %rollup]'] ~] [%poke [rollup-host %uqbar %wallet-poke '[%import-seed \'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove\' \'squid\' \'nickname\']'] ~]]
 =setup-bud `test-steps:zig`~[[%poke [~bud %indexer %set-sequencer '[~nec %sequencer]'] ~] [%poke [~bud %indexer %set-rollup '[~nec %rollup]'] ~] [%poke [~bud %indexer %indexer-bootstrap '[~nec %indexer]'] ~] [%poke [~bud %uqbar %wallet-poke '[%import-seed \'post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney\' \'squid\' \'nickname\']'] ~]]
@@ -199,7 +199,7 @@ An alternative to adding tests and then running them: do it one one step:
 
 =zig -build-file /=zig=/sur/zig/ziggurat/hoon
 =rollup-host ~nec
-:ziggurat &ziggurat-action [%foo %new-project 0x1234.5678]
+:ziggurat &ziggurat-action [%foo %new-project ~]
 
 =setup-nec `test-steps:zig`~[[%dojo [rollup-host ':rollup|activate'] ~] [%dojo [rollup-host ':sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608'] ~] [%poke [rollup-host %indexer %set-sequencer '[our %sequencer]'] ~] [%poke [rollup-host %indexer %set-rollup '[our %rollup]'] ~] [%poke [rollup-host %uqbar %wallet-poke '[%import-seed \'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove\' \'squid\' \'nickname\']'] ~]]
 =setup-bud `test-steps:zig`~[[%poke [~bud %indexer %set-sequencer '[~nec %sequencer]'] ~] [%poke [~bud %indexer %set-rollup '[~nec %rollup]'] ~] [%poke [~bud %indexer %indexer-bootstrap '[~nec %indexer]'] ~] [%poke [~bud %uqbar %wallet-poke '[%import-seed \'post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney\' \'squid\' \'nickname\']'] ~]]
