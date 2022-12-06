@@ -69,12 +69,7 @@
     =/  name=@t  `@t`i.t.path
     ?~  proj=(~(get by projects) name)
       `this
-    [(make-project-update name u.proj)^~ this]
-  ::
-      [%test-updates @ ~]
-    ::  serve updates for all %run-tests executed
-    ::  within a given contract project
-    `this
+    [(make-project-update name u.proj [our now]:bowl)^~ this]
   ==
 ::
 ++  on-poke
@@ -171,7 +166,7 @@
     ^-  [(list card) test]
     =/  =project  (~(got by projects) project-id)
     =/  addresses=^vase  !>(virtualnet-addresses)
-    :-  (make-project-update project-id project)^~
+    :-  (make-project-update project-id project [our now]:bowl)^~
     %-  add-custom-step  :_  scry-indexer
     %-  add-custom-step  :_  poke-wallet-transaction
     :-  name
@@ -280,13 +275,7 @@
         :*  dir=~  ::  populated by %read-desk
             user-files=(~(put in *(set path)) /app/[project.act]/hoon)
             to-compile=~
-            next-contract-id=0xfafa.faf0
-            error=~
-            state=(starting-state user-address.act)
-            noun-texts=(malt ~[[id.p:(designated-zigs-item user-address.act) '[balance=300.000.000.000.000.000.000 allowances=~ metadata=0x61.7461.6461.7465.6d2d.7367.697a]']])
-            user-address.act
-            user-nonce=0
-            batch-num=0
+            errors=~
             town-sequencers=(~(put by *(map @ux @p)) 0x0 ~nec)
             tests=~
             dbug-dashboards=~
@@ -325,12 +314,7 @@
         (~(del in user-files.project) file.act)
       ::
           to-compile.project
-        (~(del by to-compile.project) file.act)
-      ::
-          p.chain.project
-        ?~  remove-id=(~(get by to-compile.project) file.act)
-          p.chain.project
-        (del:big:engine p.chain.project u.remove-id)
+        (~(del in to-compile.project) file.act)
       ==
       :_  state(projects (~(put by projects) project.act project))
       :+  (make-compile project.act our.bowl)
@@ -353,16 +337,12 @@
     ::
         %register-contract-for-compilation
       =/  =project  (~(got by projects) project.act)
-      ?:  (~(has by to-compile.project) file.act)  `state
-      =:  next-contract-id.project
-        (add next-contract-id.project 1)
-      ::
-          user-files.project
+      ?:  (~(has in to-compile.project) file.act)  `state
+      =:  user-files.project
         (~(put in user-files.project) file.act)
       ::
           to-compile.project
-        %+  ~(put by to-compile.project)  file.act
-        next-contract-id.project
+        (~(put in to-compile.project) file.act)
       ==
       :-  (make-compile project.act our.bowl)^~
       state(projects (~(put by projects) project.act project))
@@ -370,7 +350,7 @@
         %compile-contracts
       ::  for internal use -- app calls itself to scry clay
       =/  =project  (~(got by projects) project.act)
-      =/  build-results=(list (trel path id:smart build-result))
+      =/  build-results=(list (pair path build-result))
         %^  build-contract-projects  smart-lib-vase
           /(scot %p our.bowl)/[project.act]/(scot %da now.bowl)
         to-compile.project
@@ -378,23 +358,7 @@
       =/  [cards=(list card) errors=(list [path @t])]
         (save-compiled-projects project.act build-results)
       ~&  errors
-      =:  errors.project  errors
-          p.chain.project
-        %+  gas:big:engine  p.chain.project
-        %+  murn  build-results
-        |=  [p=path q=id:smart r=build-result]
-        ?:  ?=(%| -.r)  ~
-        :+  ~  q
-        :*  %|
-            id=q
-            source=0x0
-            holder=user-address.project
-            town-id=designated-town-id
-            code=p.r
-            interface=~
-            types=~
-        ==
-      ==
+      =.  errors.project  errors
       :-  [(make-read-desk project.act our.bowl) cards]
       state(projects (~(put by projects) project.act project))
     ::
@@ -404,22 +368,20 @@
       =.  dir.project
         =-  .^((list path) %ct -)
         /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)
-      :-  (make-project-update project.act project)^~
+      :-  (make-project-update project.act project [our now]:bowl)^~
       state(projects (~(put by projects) project.act project))
     ::
-        %add-item
+        %add-item  ::  TODO: redo?
       =/  =id:smart  (hash-data:smart source.act holder.act town-id.act salt.act)
       (add-or-update-item project.act %& id +.+.act)
     ::
-        %update-item
+        %update-item  ::  TODO: redo?
       (add-or-update-item project.act %& +.+.act)
     ::
-        %delete-item
+        %delete-item  ::  TODO: redo?
       ::  remove a grain from the granary
       =/  =project  (~(got by projects) project.act)
-      =.  p.chain.project
-        (del:big:engine p.chain.project id.act)
-      :-  (make-project-update project.act project)^~
+      :-  (make-project-update project.act project [our now]:bowl)^~
       state(projects (~(put by projects) project.act project))
     ::
         %add-test
@@ -440,7 +402,7 @@
         %delete-test
       =/  =project  (~(got by projects) project.act)
       =.  tests.project  (~(del by tests.project) id.act)
-      :-  (make-project-update project.act project)^~
+      :-  (make-project-update project.act project [our now]:bowl)^~
       state(projects (~(put by projects) project.act project))
     ::
         %run-test
@@ -521,7 +483,7 @@
         [tag custom-step-definition]:act
       =.  project
         project(tests (~(put by tests.project) test-id.act test))
-      :-  (make-project-update project.act project)^~
+      :-  (make-project-update project.act project [our now]:bowl)^~
       %=  state
           projects  (~(put by projects) project.act project)
       ==
@@ -533,7 +495,7 @@
         (~(del by custom-step-definitions.test) tag.act)
       =.  project
         project(tests (~(put by tests.project) test-id.act test))
-      :-  (make-project-update project.act project)^~
+      :-  (make-project-update project.act project [our now]:bowl)^~
       %=  state
           projects  (~(put by projects) project.act project)
       ==
@@ -591,7 +553,7 @@
             dbug-mold
             mar-tube
         ==
-      :-  (make-project-update project.act project)^~
+      :-  (make-project-update project.act project [our now]:bowl)^~
       %=  state
           projects  (~(put by projects) project.act project)
       ==
@@ -600,7 +562,7 @@
       =/  =project  (~(got by projects) project.act)
       =.  dbug-dashboards.project
         (~(del by dbug-dashboards.project) app.act)
-      :-  (make-project-update project.act project)^~
+      :-  (make-project-update project.act project [our now]:bowl)^~
       %=  state
           projects  (~(put by projects) project.act project)
       ==
@@ -638,14 +600,14 @@
       =/  =project  (~(got by projects) project.act)
       =.  town-sequencers.project
         (~(put by town-sequencers.project) [town-id who]:act)
-      :-  (make-project-update project.act project)^~
+      :-  (make-project-update project.act project [our now]:bowl)^~
       state(projects (~(put by projects) project.act project))
     ::
         %delete-town-sequencer
       =/  =project  (~(got by projects) project.act)
       =.  town-sequencers.project
         (~(del by town-sequencers.project) town-id.act)
-      :-  (make-project-update project.act project)^~
+      :-  (make-project-update project.act project [our now]:bowl)^~
       state(projects (~(put by projects) project.act project))
     ::
         %deploy-contract  ::  TODO
@@ -692,14 +654,7 @@
     =/  =data:smart
       =+  (text-to-zebra-noun noun-text smart-lib-vase)
       [id source holder town salt label -]
-    =:  p.chain.project
-      %+  put:big:engine  p.chain.project
-      [id.data %&^data]
-    ::
-        noun-texts.project
-      (~(put by noun-texts.project) id.data noun-text)
-    ==
-    :-  (make-project-update project-id project)^~
+    :-  (make-project-update project-id project [our now]:bowl)^~
     state(projects (~(put by projects) project-id project))
   --
 ::
@@ -729,7 +684,7 @@
           %+  ~(put by tests.project)  test-id
           test(results test-results)
         =/  cards=(list card)
-          (make-project-update project-name project)^~
+          (make-project-update project-name project [our now]:bowl)^~
         =?  cards  ?=(^ test-queue)
           %+  snoc  cards
           :^  %pass  /self-wire  %agent
@@ -819,7 +774,6 @@
     %-  ~(run by projects)
     |=  =project
     %=  project
-        noun-texts  ~
         tests
       %-  ~(run by tests.project)
       |=  =test
@@ -845,13 +799,13 @@
     %+  murn  ~(tap by projects)
     |=  [name=@t =project]
     :-  ~  :-  name
-    (project-to-json project [our now]:bowl)
+    (project-to-json project)
   ::
       [%project-state @ ~]
     ?~  project=(~(get by projects) i.t.t.path)  ``json+!>(~)
     :^  ~  ~  %json
     !>  ^-  json
-    (state-to-json u.project [our now]:bowl)
+    (get-state-to-json u.project [our now]:bowl)
   ::
       [%project-tests @ ~]
     ?~  project=(~(get by projects) i.t.t.path)

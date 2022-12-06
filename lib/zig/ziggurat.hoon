@@ -1,8 +1,10 @@
 /-  *zig-ziggurat,
+    eng=zig-engine,
     ui=zig-indexer
 /+  conq=zink-conq,
     dock=docket,
     pyio=py-io,
+    ui-lib=zig-indexer,
     zink=zink-zink
 |%
 ::
@@ -50,27 +52,15 @@
   .^(@t %cx (weld pre pat))
 ::
 ++  make-project-update
-  |=  [project-name=@t p=project]
+  |=  [project-name=@t p=project our=@p now=@da]
   ^-  card
   =/  =path  /project/[project-name]
   =/  update=project-update
-    :*  dir.p
-        user-files.p
-        ?=(~ errors.p)
-        errors.p
-        chain.p
-        noun-texts.p
-        tests.p
-    ==
+    :_  p
+    (get-state-to-json p our now)
   :^  %give  %fact  ~[path]
   :-  %ziggurat-project-update
   !>(`project-update`update)
-::
-++  make-multi-test-update
-  |=  [project=@t result=state-transition:engine]
-  ^-  card
-  =/  =path  /test-updates/[project]
-  [%give %fact ~[path] %ziggurat-test-update !>(`test-update`[%result result])]
 ::
 ++  make-compile
   |=  [project=@t our=@p]
@@ -140,7 +130,7 @@
 ::
 ++  save-compiled-projects
   |=  $:  project=@t
-          build-results=(list [p=path q=@ux r=build-result])
+          build-results=(list [p=path q=build-result])
       ==
   ^-  [(list card) (list [path @t])]
   =|  cards=(list card)
@@ -148,7 +138,7 @@
   |-
   ?~  build-results  [cards errors]
   =*  contract-path   p.i.build-results
-  =/  =build-result   r.i.build-results
+  =/  =build-result   q.i.build-results
   ?:  ?=(%| -.build-result)
     %=  $
         build-results  t.build-results
@@ -171,13 +161,13 @@
 ++  build-contract-projects
   |=  $:  smart-lib=vase
           desk=path
-          to-compile=(map path @ux)
+          to-compile=(set path)
       ==
-  ^-  (list [path @ux build-result])
-  %+  turn  ~(tap by to-compile)
-  |=  [p=path q=@ux]
-  ~&  "building {<p>} {<q>}..."
-  [p q (build-contract-project smart-lib desk p)]
+  ^-  (list [path build-result])
+  %+  turn  ~(tap in to-compile)
+  |=  p=path
+  ~&  "building {<p>}..."
+  [p (build-contract-project smart-lib desk p)]
 ::
 ++  build-contract-project
   |=  [smart-lib=vase desk=path to-compile=path]
@@ -704,6 +694,47 @@
   --
   '''
 ::
+++  get-state
+  |=  [p=project our=@p now=@da]
+  ^-  (map @ux chain:eng)
+  %-  ~(gas by *(map @ux chain:eng))
+  %+  murn  ~(tap by town-sequencers.p)
+  |=  [town-id=@ux who=@p]
+  =/  who-ta=@ta   (scot %p who)
+  =/  now-ta=@ta   (scot %da now)
+  =/  town-ta=@ta  (scot %ux town-id)
+  =/  batch-order=update:ui
+    %-  fall  :_  ~
+    ;;  (unit update:ui)
+    .^  noun
+        %gx
+        ;:  weld
+          /(scot %p our)/pyro/[now-ta]/i/[who-ta]/gx
+          /[who-ta]/indexer/[now-ta]/batch-order/[town-ta]
+          /noun/noun
+    ==  ==
+  ?~  batch-order                     ~
+  ?.  ?=(%batch-order -.batch-order)  ~
+  ?~  batch-order.batch-order         ~
+  =*  newest-batch  i.batch-order.batch-order
+  =/  batch-chain=update:ui
+    %-  fall  :_  ~
+    ;;  (unit update:ui)
+    .^  noun
+        %gx
+        ;:  weld
+            /(scot %p our)/pyro/[now-ta]/i/[who-ta]/gx
+            /[who-ta]/indexer/[now-ta]/newest/batch-chain
+            /[town-ta]/(scot %ux newest-batch)/noun/noun
+    ==  ==
+  ?~  batch-chain                     ~
+  ?.  ?=(%batch-chain -.batch-chain)  ~
+  =/  chains=(list batch-chain-update-value:ui)
+    ~(val by chains.batch-chain)
+  ?.  =(1 (lent chains))              ~
+  ?~  chains                          ~  ::  for compiler
+  `[town-id chain.i.chains]
+::
 ::  JSON parsing utils
 ::
 ++  item-to-json
@@ -725,53 +756,30 @@
   ==
 ::
 ++  project-to-json
-  |=  [p=project our=@p now=@da]
+  |=  p=project
   =,  enjs:format
   ^-  json
   %-  pairs
   :~  ['dir' (dir-to-json dir.p)]
       ['user_files' (dir-to-json ~(tap in user-files.p))]
-      ['to_compile' (to-compile-to-json to-compile.p)]
-      ['next_contract_id' %s (scot %ux next-contract-id.p)]
+      ['to_compile' (dir-to-json ~(tap in to-compile.p))]
       ['errors' (errors-to-json errors.p)]
-      ['state' (state-to-json p our now)]
       ['tests' (tests-to-json tests.p)]
+      ['dbug_dashboards' (dbug-dashboards-to-json dbug-dashboards.p)]
   ==
 ::
 ++  state-to-json
-  |=  [p=project our=@p now=@da]
+  |=  state=(map @ux chain:eng)
   ^-  json
   %-  pairs:enjs:format
-  %+  turn  ~(tap by town-sequencers.p)
-  |=  [town-id=@ux who=@p]
-  =/  who-ta=@ta   (scot %p who)
-  =/  now-ta=@ta   (scot %da now)
-  =/  town-ta=@ta  (scot %ux town-id)
-  =/  =update:ui
-    %-  fall  :_  ~
-    ;;  (unit update:ui)
-    .^  noun
-        %gx
-        ;:  weld
-          /(scot %p our)/pyro/[now-ta]/i/[who-ta]/gx
-          /[who-ta]/indexer/[now-ta]/batch-order/[town-ta]
-          /noun/noun
-    ==  ==
-  =/  newest-batch=@ux
-    ?>  ?=(^ update)
-    ?>  ?=(%batch-order -.update)
-    ?>  ?=(^ batch-order.update)
-    i.batch-order.update
-  :-  (scot %ux town-id)
-  %-  fall  :_  ~
-  ;;  (unit json)
-  .^  noun
-      %gx
-      ;:  weld
-          /(scot %p our)/pyro/[now-ta]/i/[who-ta]/gx
-          /[who-ta]/indexer/[now-ta]/json/newest/batch-chain
-          /[town-ta]/(scot %ux newest-batch)/noun/noun
-  ==  ==
+  %+  turn  ~(tap by state)
+  |=  [town-id=@ux =chain:eng]
+  [(scot %ux town-id) (chain:enjs:ui-lib chain)]
+::
+++  get-state-to-json
+  |=  [p=project our=@p now=@da]
+  ^-  json
+  (state-to-json (get-state p our now))
 ::
 ++  tests-to-json
   |=  =tests
@@ -803,18 +811,6 @@
   %+  turn  dir
   |=  p=^path
   (path p)
-::
-++  to-compile-to-json
-  |=  to-compile=(map path @ux)
-  =,  enjs:format
-  ^-  json
-  :-  %a
-  %+  turn  ~(tap by to-compile)
-  |=  [p=^path id=@ux]
-  %-  pairs
-  :+  ['path' (path p)]
-    ['wheat-id' %s (scot %ux id)]
-  ~
 ::
 ++  errors-to-json
   |=  errors=(list [path @t])
@@ -1008,6 +1004,26 @@
       ['expected' %s expected]
     ['result' %s result]
   ~
+::
+++  dbug-dashboards-to-json
+  |=  dashboards=(map @tas dbug-dashboard)
+  ^-  json
+  %-  pairs:enjs:format
+  %+  turn  ~(tap by dashboards)
+  |=  [app=@tas d=dbug-dashboard]
+  [app (dbug-dashboard-to-json d)]
+::
+++  dbug-dashboard-to-json
+  |=  d=dbug-dashboard
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :~  [%sur (path sur.d)]
+      [%mold-name %s mold-name.d]
+      [%mar (path mar.d)]
+      [%did-mold-compile %b ?=(%& mold.d)]
+      [%did-mar-tube-compile %b ?=(^ mar-tube.d)]
+  ==
 ::
 ++  json-single-string-object
   |=  [key=@t error=tape]

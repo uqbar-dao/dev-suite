@@ -18,14 +18,8 @@
 +$  project
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
-      to-compile=(map path id:smart)  ::  compile contracts with these id's
-      next-contract-id=id:smart  ::  remove?
-      errors=(list [path @t])  ::  remove?
-      =chain:engine  ::  remove?
-      noun-texts=(map id:smart @t)  ::  holds `noun.data` that got ream'd  ::  remove?
-      user-address=address:smart  ::  remove?
-      user-nonce=@ud  ::  remove?
-      batch-num=@ud  ::  remove?
+      to-compile=(set path)
+      errors=(list [path @t])
       town-sequencers=(map @ux @p)
       =tests
       dbug-dashboards=(map app=@tas dbug-dashboard)
@@ -148,13 +142,8 @@
 ::  subscription update types
 ::
 +$  project-update
-  $:  dir=(list path)
-      user-files=(set path)
-      compiled=?
-      errors=(list [path @t])
-      =chain:engine
-      noun-texts=(map id:smart @t)
-      =tests
+  $:  state=json  ::  state=(map @ux chain:engine)
+      project
   ==
 ::
 +$  test-update
