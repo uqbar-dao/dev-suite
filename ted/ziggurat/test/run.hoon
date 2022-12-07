@@ -109,6 +109,45 @@
   =/  dbug-mold=vase  (slap-subject mold-name.payload)
   (pure:m (slym dbug-mold +.+.dbug-noun))
 ::
+++  read-pyro-subscription
+  |=  [payload=read-sub-payload:zig expected=@t]
+  =/  m  (strand ,vase)
+  ;<  =bowl:strand  bind:m  get-bowl
+  =/  now=@ta  (scot %da now.bowl)
+  =/  scry-noun=*
+    .^  *
+        %gx
+        ;:  weld
+          /(scot %p our.bowl)/pyro/[now]/i/(scot %p who.payload)/gx
+          /(scot %p who.payload)/subscriber/[now]
+          /facts/(scot %p to.payload)/[app.payload]
+          path.payload
+          /noun
+        ==
+    ==
+  ?.  ?=(^ scry-noun)  (pure:m !>(~))
+  =+  fact-set=(fall ;;((unit (set @t)) scry-noun) *(set @t))
+  ?:  (~(has in fact-set) expected)
+    (pure:m !>(expected))
+  (pure:m !>((crip (noah !>(~(tap in fact-set))))))
+::
+++  send-pyro-subscription
+  |=  payload=sub-payload:zig
+  =/  m  (strand ,~)
+  ^-  form:m
+  ;<  ~  bind:m
+    %+  dojo:pyio  who.payload
+    ;:  weld
+        ":subscriber &subscriber-action [%sub "
+        (scow %p to.payload)
+        " %"
+        (trip app.payload)
+        " "
+        (trip path.payload)
+        "]"
+    ==
+  (pure:m ~)
+::
 ++  send-pyro-poke
   |=  payload=poke-payload:zig
   =/  m  (strand ,~)
@@ -273,9 +312,32 @@
       ==
     $(test-steps [transformed-step t.test-steps])
   ::
-      %read-subscription  !!
+        %read-subscription
+    ;<  result=vase  bind:m
+      (read-pyro-subscription [payload expected]:test-step)
+    =*  expected  expected.test-step
+    =/  res-text=@t  !<(@t result)
+    %=    $
+        test-steps    t.test-steps
+        step-number   +(step-number)
+        test-results
+      [[=(expected res-text) expected res-text]~ test-results]
+    ==
   ::
-      %subscribe  !!
+      %subscribe
+    ;<  ~  bind:m  (send-pyro-subscription payload.test-step)
+    ;<  trs=test-results:zig  bind:m
+      %:  run-steps
+          project-id  test-id
+          `test-steps:zig`expected.test-step  ~
+      ==
+    ?~  tr=(test-results-of-reads-to-test-result trs)
+      ~|("ziggurat-test-run: %subscribe expected can only contain %scrys, %subscribes, %waits" !!)
+    %=  $
+        test-steps    t.test-steps
+        step-number   +(step-number)
+        test-results  [u.tr test-results]
+    ==
   ==
 ::
 ++  ted

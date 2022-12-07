@@ -47,7 +47,7 @@
 +$  test-read-step
   $%  [%scry payload=scry-payload expected=@t]
       [%dbug payload=dbug-payload expected=@t]
-      [%read-subscription payload=read-sub-payload expected=@t timeout=@dr]  ::  not sure if need timeout: if want to not block so can handle out-of-order when multiple subscriptions are being passed around, may need it. Ideally wouldn't need.
+      [%read-subscription payload=read-sub-payload expected=@t]
       [%wait until=@dr]
       [%custom-read tag=@tas payload=@t expected=@t]
   ==
@@ -60,10 +60,10 @@
 +$  scry-payload
   [who=@p mold-name=@t care=@tas app=@tas =path]
 +$  dbug-payload  [who=@p mold-name=@t app=@tas]
-+$  read-sub-payload  [who=@p care=@tas app=@tas =path]  :: TODO
++$  read-sub-payload  [who=@p to=@p app=@tas =path]
 +$  dojo-payload  [who=@p payload=@t]
 +$  poke-payload  [who=@p app=@tas mark=@tas payload=@t]
-+$  sub-payload  [who=@p app=@tas p=path]
++$  sub-payload  [who=@p to=@p app=@tas path=@t]
 ::
 +$  custom-step-definitions
   %+  map  @tas
@@ -126,6 +126,7 @@
           ::
           [%stop-pyro-ships ~]
           [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> [~nec ~bud]
+          [%start-pyro-snap snap=path]
       ::
           [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
           $:  %deploy-contract
@@ -136,6 +137,9 @@
               town-id=@ux
               upgradable=?
           ==
+          ::
+          [%add-user-file file=path]
+          [%delete-user-file file=path]
       ==
   ==
 ::

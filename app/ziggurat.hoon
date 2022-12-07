@@ -246,6 +246,8 @@
     ^-  (quip card _state)
     ?-    -.+.act
         %new-project
+      ?:  (~(has in (~(gas in *(set @t)) ~['fresh-piers' 'assembled'])) project.act)
+        ~|("%ziggurat: choose a different project name, {<project.act>} is reserved" !!)
       ~&  desk
       ~&  >  "scrying..."
       =/  desks=(set desk)
@@ -610,6 +612,12 @@
       :-  (make-project-update project.act project [our now]:bowl)^~
       state(projects (~(put by projects) project.act project))
     ::
+        %start-pyro-snap
+      :_  state(pyro-ships-ready ~)
+      :~  [%pass /restore %agent [our.bowl %pyro] %watch /effect/restore]
+          [%pass / %agent [our.bowl %pyro] %poke %action !>([%restore-snap snap.act])]
+      ==
+    ::
         %deploy-contract  ::  TODO
       !!
     ::
@@ -643,6 +651,18 @@
         =-  [%pass /treaty-wire %agent [our.bowl %treaty] %poke -]
         [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
       ~
+    ::
+        %add-user-file
+      =/  =project  (~(got by projects) project.act)
+      =.  user-files.project  (~(put in user-files.project) file.act)
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
+    ::
+        %delete-user-file
+      =/  =project  (~(got by projects) project.act)
+      =.  user-files.project  (~(del in user-files.project) file.act)
+      :-  (make-project-update project.act project)^~
+      state(projects (~(put by projects) project.act project))
     ==
   ++  add-or-update-item
     |=  [project-id=@t =item:smart]
@@ -680,6 +700,7 @@
         =/  =project  (~(got by projects) project-name)
         =/  =test     (~(got by tests.project) test-id)
         ~&  >  "%ziggurat: test done {(scow %ux test-id)}"
+        ~&  >  test-results
         =.  tests.project
           %+  ~(put by tests.project)  test-id
           test(results test-results)
@@ -714,6 +735,13 @@
         :^  [our dap]:bowl  %poke  %ziggurat-action
         !>([%$ %run-queue ~])
       ~
+    ==
+  ::
+      [%restore ~]
+    ?+    -.sign  (on-agent:def wire sign)
+        %fact
+      :_  this(pyro-ships-ready [[~nec %.y] ~ ~]) :: XX extremely hacky
+      [%pass /restore %agent [our.bowl %pyro] %leave ~]^~
     ==
   ==
 ::

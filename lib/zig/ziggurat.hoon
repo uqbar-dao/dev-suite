@@ -662,7 +662,7 @@
 ++  simple-app
   ^-  @t
   '''
-  +  default-agent, dbug
+  /+  default-agent, dbug
   |%
   +$  versioned-state
       $%  state-0
@@ -677,20 +677,23 @@
   +*  this     .
       default   ~(. (default-agent this %|) bowl)
   ::
-  ++  on-init
+  ++  on-init                     :: [(list card) this]
     `this(state [%0 ~])
   ++  on-save
     ^-  vase
     !>(state)
-  ++  on-load
+  ++  on-load                     :: |=(old-state=vase [(list card) this])
     on-load:default
-  ++  on-poke  on-poke:default
-  ++  on-watch  on-watch:default
-  ++  on-leave  on-leave:default
-  ++  on-peek   on-peek:default
-  ++  on-agent  on-agent:default
-  ++  on-arvo   on-arvo:default
-  ++  on-fail   on-fail:default
+  ++  on-poke   on-poke:default   :: |=(=cage [(list card) this])
+  ++  on-watch  on-watch:default  :: |=(=path [(list card) this])
+  ++  on-leave  on-leave:default  :: |=(=path [(list card) this])
+  ++  on-peek   on-peek:default   :: |=(=path [(list card) this])
+  ++  on-agent  on-agent:default  :: |=  [=wire =sign:agent:gall] 
+                                  :: [(list card) this]
+  ++  on-arvo   on-arvo:default   :: |=([=wire =sign-arvo] [(list card) this])
+  ++  on-fail   on-fail:default   :: |=  [=term =tang] 
+                                  :: %-  (slog leaf+"{<dap.bowl>}" >term< tang)
+                                  :: [(list card) this]
   --
   '''
 ::
