@@ -156,7 +156,7 @@
       ==
     ::
     ++  parse-test-write-step
-      (of parse-test-write-step)
+      (of parse-test-write-step-inner)
     ::
     ++  parse-test-write-step-inner
       :~  [%dojo (ot ~[[%payload parse-dojo-payload] [%expected (ar parse-test-read-step)]])]
