@@ -123,11 +123,10 @@
       (of parse-test-read-step-inner)
     ::
     ++  parse-test-read-step-inner
-      %-  of
       :~  [%scry (ot ~[[%payload parse-scry-payload] [%expected so]])]
           [%dbug (ot ~[[%payload parse-dbug-payload] [%expected so]])]
           [%read-subscription (ot ~[[%payload parse-read-sub-payload] [%expected so]])]
-          [%wait (ot ~[%until (se %dr)])]
+          [%wait (ot ~[[%until (se %dr)]])]
           [%custom-read (ot ~[[%tag (se %tas)] [%payload so] [%expected so]])]
       ==
     ::
