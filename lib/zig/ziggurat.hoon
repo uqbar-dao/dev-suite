@@ -977,7 +977,7 @@
   :~  ['who' %s (scot %p who.payload)]
       ['to' %s (scot %p to.payload)]
       ['app' %s app.payload]
-      ['path' (path p.payload)]
+      ['path' (path path.payload)]
   ==
 ::
 ++  write-expected-to-json
