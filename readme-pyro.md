@@ -113,7 +113,9 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 ```hoon
 =help -build-file /=zig=/lib/zig/ziggurat/test-steps-dojo/hoon
 
-:ziggurat &ziggurat-action [%foo %new-project 0x1234.5678]
+=zig -build-file /=zig=/sur/zig/ziggurat/hoon
+=rollup-host ~nec
+:ziggurat &ziggurat-action [%foo %new-project ~]
 :ziggurat &ziggurat-action [%foo %start-pyro-ships ~[~nec ~bud]]
 
 :ziggurat &ziggurat-action [%foo %add-and-queue-test `%setup ~[/zig/sur/zig/indexer/hoon] setup:help]

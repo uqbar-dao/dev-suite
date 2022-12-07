@@ -18,15 +18,11 @@
 +$  project
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
-      to-compile=(map path id:smart)  ::  compile contracts with these id's
-      next-contract-id=id:smart
+      to-compile=(set path)
       errors=(list [path @t])
-      =chain:engine
-      noun-texts=(map id:smart @t)  ::  holds `noun.data` that got ream'd
-      user-address=address:smart
-      user-nonce=@ud
-      batch-num=@ud
+      town-sequencers=(map @ux @p)
       =tests
+      dbug-dashboards=(map app=@tas dbug-dashboard)
   ==
 ::
 +$  build-result  (each [bat=* pay=*] @t)
@@ -50,7 +46,7 @@
 +$  test-step  $%(test-read-step test-write-step)
 +$  test-read-step
   $%  [%scry payload=scry-payload expected=@t]
-      :: [%dbug payload=dbug-payload expected=@t]  :: TODO
+      [%dbug payload=dbug-payload expected=@t]
       [%read-subscription payload=read-sub-payload expected=@t]
       [%wait until=@dr]
       [%custom-read tag=@tas payload=@t expected=@t]
@@ -61,11 +57,10 @@
       [%subscribe payload=sub-payload expected=(list test-read-step)]
       [%custom-write tag=@tas payload=@t expected=(list test-read-step)]
   ==
-:: +$  dbug-payload  [who=@p app=@tas %state/bowl/???] :: TODO
 +$  scry-payload
   [who=@p mold-name=@t care=@tas app=@tas =path]
++$  dbug-payload  [who=@p mold-name=@t app=@tas]
 +$  read-sub-payload  [who=@p to=@p app=@tas =path]
-:: +$  poke-payload  [who=@p app=@tas payload=cage]
 +$  dojo-payload  [who=@p payload=@t]
 +$  poke-payload  [who=@p app=@tas mark=@tas payload=@t]
 +$  sub-payload  [who=@p to=@p app=@tas path=@t]
@@ -73,13 +68,8 @@
 +$  custom-step-definitions
   %+  map  @tas
   (pair custom-step-definition custom-step-compiled)
-+$  custom-step-definition
-  transform=@t
-  :: $:  payload=[mold-surs=(list path) input=@t]
-  ::     transform=$-(payload=vase test-step)
-  :: ==
++$  custom-step-definition  @t
 +$  custom-step-compiled  (each transform=vase @t)
-  :: (unit (each [payload=vase transform=vase] @t))
 ::
 +$  test-results  (list test-result)
 +$  test-result   (list [success=? expected=@t result=@t])
@@ -89,9 +79,17 @@
 +$  deploy-location  ?(%local testnet)
 +$  testnet  ship
 ::
++$  dbug-dashboard
+  $:  sur=path
+      mold-name=@t
+      mar=path
+      mold=(each vase @t)
+      mar-tube=(unit tube:clay)
+  ==
+::
 +$  action
   $:  project=@t
-      $%  [%new-project user-address=address:smart]
+      $%  [%new-project ~]
           [%populate-template =template metadata=data:smart]  ::  TODO
           [%delete-project ~]
       ::
@@ -113,11 +111,18 @@
           [%run-test id=@ux]
           [%add-and-run-test name=(unit @t) =test-surs =test-steps]
           [%run-queue ~]  ::  can be used as [%$ %run-queue ~]
+          [%clear-queue ~]
           [%queue-test id=@ux]
           [%add-and-queue-test name=(unit @t) =test-surs =test-steps]
           ::
           [%add-custom-step test-id=@ux tag=@tas =custom-step-definition]
           [%delete-custom-step test-id=@ux tag=@tas]
+          ::
+          [%add-app-to-dashboard app=@tas sur=path mold-name=@t mar=path]
+          [%delete-app-from-dashboard app=@tas]
+          ::
+          [%add-town-sequencer town-id=@ux who=@p]
+          [%delete-town-sequencer town-id=@ux]
           ::
           [%stop-pyro-ships ~]
           [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> [~nec ~bud]
@@ -141,13 +146,8 @@
 ::  subscription update types
 ::
 +$  project-update
-  $:  dir=(list path)
-      user-files=(set path)
-      compiled=?
-      errors=(list [path @t])
-      =chain:engine
-      noun-texts=(map id:smart @t)
-      =tests
+  $:  state=json  ::  state=(map @ux chain:engine)
+      project
   ==
 ::
 +$  test-update

@@ -63,7 +63,7 @@
   (pure:m ~)
 ::
 ++  send-pyro-scry
-  |=  [payload=scry-payload:zig expected=@t]
+  |=  payload=scry-payload:zig
   =/  m  (strand ,vase)
   ^-  form:m
   ;<  =bowl:strand  bind:m  get-bowl
@@ -80,8 +80,34 @@
         ==
     ==
   ?.  ?=(^ scry-noun)  (pure:m !>(`~`~))
-  =/  scry-mold=vase  (slap-subject mold-name:payload)
-  (pure:m (slam scry-mold !>(+.scry-noun)))
+  =/  scry-mold=vase  (slap-subject mold-name.payload)
+  (pure:m (slym scry-mold +.scry-noun))
+::
+::  +send-pyro-dbug differs from +send-pyro-scry in that
+::   the return value of +send-pyro-dbug is a vase.
+::   must throw out the type information -- which has been
+::   lost anyways when it is forced into being a noun by the
+::   %pyro scry.
+::   compare, e.g., the `+.+.dbug-noun` in the final `+slam`
+::   in +send-pyro-dbug to the `+.scry-noun` in the final
+::   `+slam` of `+send-pyro-scry`.
+::
+++  send-pyro-dbug
+  |=  payload=dbug-payload:zig
+  =/  m  (strand ,vase)
+  ^-  form:m
+  ;<  =bowl:strand  bind:m  get-bowl
+  =/  who=@ta  (scot %p who.payload)
+  =/  now=@ta  (scot %da now.bowl)
+  =/  dbug-noun=*
+    .^  *
+        %gx
+        %+  weld  /(scot %p our.bowl)/pyro/[now]/i/[who]/gx
+        /[who]/[app.payload]/[now]/dbug/state/noun/noun
+    ==
+  ?.  ?=(^ dbug-noun)  (pure:m !>(`~`~))
+  =/  dbug-mold=vase  (slap-subject mold-name.payload)
+  (pure:m (slym dbug-mold +.+.dbug-noun))
 ::
 ++  read-pyro-subscription
   |=  [payload=read-sub-payload:zig expected=@t]
@@ -215,7 +241,21 @@
   ::
       %scry
     ;<  result=vase  bind:m
-      (send-pyro-scry [payload expected]:test-step)
+      (send-pyro-scry payload.test-step)
+    =*  expected  expected.test-step
+    =/  res-text=@t  (crip (noah result))
+    =.  test-results
+      [[=(expected res-text) expected res-text]~ test-results]
+    %=  $
+        test-steps    t.test-steps
+        step-number   +(step-number)
+        subject
+      (build-next-subject subject !>(test-results))
+    ==
+  ::
+      %dbug
+    ;<  result=vase  bind:m
+      (send-pyro-dbug payload.test-step)
     =*  expected  expected.test-step
     =/  res-text=@t  (crip (noah result))
     =.  test-results

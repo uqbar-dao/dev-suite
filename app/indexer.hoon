@@ -44,9 +44,15 @@
 ::    /x/batch/[batch-id=@ux]
 ::    /x/batch/[town-id=@ux]/[batch-id=@ux]:
 ::      An entire batch.
+::    /x/batch-chain/[batch-id=@ux]
+::    /x/batch-chain/[town-id=@ux]/[batch-id=@ux]:
+::      Chain state within a batch.
 ::    /x/batch-order/[town-id=@ux]
 ::    /x/batch-order/[town-id=@ux]/[nth-most-recent=@ud]/[how-many=@ud]:
 ::      The order of batches for a town, or a subset thereof.
+::    /x/batch-transactions/[batch-id=@ux]
+::    /x/batch-transactions/[town-id=@ux]/[batch-id=@ux]:
+::      Transactions within a batch.
 ::    /x/transaction/[transaction-id=@ux]:
 ::    /x/transaction/[town-id=@ux]/[transaction-id=@ux]:
 ::      Info about transaction with the given hash.
@@ -70,7 +76,7 @@
 ::      History of id (queries `from`s and `to`s).
 ::    /x/source/[source-id=@ux]:
 ::    /x/source/[town-id=@ux]/[source-id=@ux]:
-::      items ruled by source with given hash.
+::      Items with source of given hash.
 ::    /x/to/[to-id=@ux]:
 ::    /x/to/[town-id=@ux]/[to-id=@ux]:
 ::      History of receiver with the given hash.
@@ -371,6 +377,9 @@
       (get-ids u.query-payload only-newest)
     ::
         $?  [%batch @ ~]        [%batch @ @ ~]
+            [%batch-chain @ ~]  [%batch-chain @ @ ~]
+            [%batch-transactions @ ~]
+            [%batch-transactions @ @ ~]
             [%transaction @ ~]  [%transaction @ @ ~]
             [%from @ ~]         [%from @ @ ~]
             [%item @ ~]         [%item @ @ ~]
@@ -926,15 +935,29 @@
     ?.(only-newest get-batch get-newest-batch)
   |^
   ?+    query-type  ~
-      %batch
-    get-batch-update
-  ::
+      %batch               get-batch-update
+      %batch-chain         get-batch-chain-update
+      %batch-transactions  get-batch-transactions-update
+      %town                get-town
       ?(%transaction %from %item %item-transactions %holder %source %to)
     get-from-index
-  ::
-      %town
-    get-town
   ==
+  ::
+  ++  get-batch-chain-update
+    =/  =update:ui  get-batch-update
+    ?.  ?=(%batch -.update)  ~
+    :-  %batch-chain
+    %-  ~(run by batches.update)
+    |=  [timestamp=@da location=town-location:ui =batch:ui]
+    [timestamp location chain.batch]
+  ::
+  ++  get-batch-transactions-update
+    =/  =update:ui  get-batch-update
+    ?.  ?=(%batch -.update)  ~
+    :-  %batch-transactions
+    %-  ~(run by batches.update)
+    |=  [timestamp=@da location=town-location:ui =batch:ui]
+    [timestamp location transactions.batch]
   ::
   ++  get-town
     ?.  ?=(@ query-payload)  ~

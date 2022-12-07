@@ -1,7 +1,10 @@
-/-  *zig-ziggurat
+/-  *zig-ziggurat,
+    eng=zig-engine,
+    ui=zig-indexer
 /+  conq=zink-conq,
     dock=docket,
     pyio=py-io,
+    ui-lib=zig-indexer,
     zink=zink-zink
 |%
 ::
@@ -49,27 +52,15 @@
   .^(@t %cx (weld pre pat))
 ::
 ++  make-project-update
-  |=  [project-name=@t p=project]
+  |=  [project-name=@t p=project our=@p now=@da]
   ^-  card
   =/  =path  /project/[project-name]
   =/  update=project-update
-    :*  dir.p
-        user-files.p
-        ?=(~ errors.p)
-        errors.p
-        chain.p
-        noun-texts.p
-        tests.p
-    ==
+    :_  p
+    (get-state-to-json p our now)
   :^  %give  %fact  ~[path]
   :-  %ziggurat-project-update
   !>(`project-update`update)
-::
-++  make-multi-test-update
-  |=  [project=@t result=state-transition:engine]
-  ^-  card
-  =/  =path  /test-updates/[project]
-  [%give %fact ~[path] %ziggurat-test-update !>(`test-update`[%result result])]
 ::
 ++  make-compile
   |=  [project=@t our=@p]
@@ -139,7 +130,7 @@
 ::
 ++  save-compiled-projects
   |=  $:  project=@t
-          build-results=(list [p=path q=@ux r=build-result])
+          build-results=(list [p=path q=build-result])
       ==
   ^-  [(list card) (list [path @t])]
   =|  cards=(list card)
@@ -147,7 +138,7 @@
   |-
   ?~  build-results  [cards errors]
   =*  contract-path   p.i.build-results
-  =/  =build-result   r.i.build-results
+  =/  =build-result   q.i.build-results
   ?:  ?=(%| -.build-result)
     %=  $
         build-results  t.build-results
@@ -170,13 +161,13 @@
 ++  build-contract-projects
   |=  $:  smart-lib=vase
           desk=path
-          to-compile=(map path @ux)
+          to-compile=(set path)
       ==
-  ^-  (list [path @ux build-result])
-  %+  turn  ~(tap by to-compile)
-  |=  [p=path q=@ux]
-  ~&  "building {<p>} {<q>}..."
-  [p q (build-contract-project smart-lib desk p)]
+  ^-  (list [path build-result])
+  %+  turn  ~(tap in to-compile)
+  |=  p=path
+  ~&  "building {<p>}..."
+  [p (build-contract-project smart-lib desk p)]
 ::
 ++  build-contract-project
   |=  [smart-lib=vase desk=path to-compile=path]
@@ -706,6 +697,47 @@
   --
   '''
 ::
+++  get-state
+  |=  [p=project our=@p now=@da]
+  ^-  (map @ux chain:eng)
+  %-  ~(gas by *(map @ux chain:eng))
+  %+  murn  ~(tap by town-sequencers.p)
+  |=  [town-id=@ux who=@p]
+  =/  who-ta=@ta   (scot %p who)
+  =/  now-ta=@ta   (scot %da now)
+  =/  town-ta=@ta  (scot %ux town-id)
+  =/  batch-order=update:ui
+    %-  fall  :_  ~
+    ;;  (unit update:ui)
+    .^  noun
+        %gx
+        ;:  weld
+          /(scot %p our)/pyro/[now-ta]/i/[who-ta]/gx
+          /[who-ta]/indexer/[now-ta]/batch-order/[town-ta]
+          /noun/noun
+    ==  ==
+  ?~  batch-order                     ~
+  ?.  ?=(%batch-order -.batch-order)  ~
+  ?~  batch-order.batch-order         ~
+  =*  newest-batch  i.batch-order.batch-order
+  =/  batch-chain=update:ui
+    %-  fall  :_  ~
+    ;;  (unit update:ui)
+    .^  noun
+        %gx
+        ;:  weld
+            /(scot %p our)/pyro/[now-ta]/i/[who-ta]/gx
+            /[who-ta]/indexer/[now-ta]/newest/batch-chain
+            /[town-ta]/(scot %ux newest-batch)/noun/noun
+    ==  ==
+  ?~  batch-chain                     ~
+  ?.  ?=(%batch-chain -.batch-chain)  ~
+  =/  chains=(list batch-chain-update-value:ui)
+    ~(val by chains.batch-chain)
+  ?.  =(1 (lent chains))              ~
+  ?~  chains                          ~  ::  for compiler
+  `[town-id chain.i.chains]
+::
 ::  JSON parsing utils
 ::
 ++  item-to-json
@@ -733,95 +765,45 @@
   %-  pairs
   :~  ['dir' (dir-to-json dir.p)]
       ['user_files' (dir-to-json ~(tap in user-files.p))]
-      ['to_compile' (to-compile-to-json to-compile.p)]
-      ['next_contract_id' %s (scot %ux next-contract-id.p)]
+      ['to_compile' (dir-to-json ~(tap in to-compile.p))]
       ['errors' (errors-to-json errors.p)]
-      ['state' (state-to-json p.chain.p noun-texts.p)]
-      :: ['tests' (tests-to-json tests.p)]  :: TODO
+      ['tests' (tests-to-json tests.p)]
+      ['dbug_dashboards' (dbug-dashboards-to-json dbug-dashboards.p)]
   ==
 ::
 ++  state-to-json
-  |=  [=state:engine noun-texts=(map id:smart @t)]
-  ::
-  ::  ignoring/not printing nonces for now.
-  ::
+  |=  state=(map @ux chain:eng)
+  ^-  json
+  %-  pairs:enjs:format
+  %+  turn  ~(tap by state)
+  |=  [town-id=@ux =chain:eng]
+  [(scot %ux town-id) (chain:enjs:ui-lib chain)]
+::
+++  get-state-to-json
+  |=  [p=project our=@p now=@da]
+  ^-  json
+  (state-to-json (get-state p our now))
+::
+++  tests-to-json
+  |=  =tests
   =,  enjs:format
   ^-  json
   %-  pairs
-  %+  turn  ~(tap py:smart state)
-  |=  [=id:smart merk=@ux =item:smart]
-  ::  ignore contract nock -- just print metadata
-  :-  (scot %ux id)
-  (item-to-json item (~(gut by noun-texts) id ''))
+  %+  turn  ~(tap by tests)
+  |=  [id=@ux =test]
+  [(scot %ux id) (test-to-json test)]
 ::
-:: ++  tests-to-json  :: TODO
-::   |=  =tests
-::   =,  enjs:format
-::   ^-  json
-::   %-  pairs
-::   %+  turn  ~(tap by tests)
-::   |=  [id=@ux =test]
-::   [(scot %ux id) (test-to-json test)]
-:: ::
-:: ++  test-to-json
-::   |=  =test
-::   =,  enjs:format
-::   ^-  json
-::   %-  pairs
-::   :~  ['name' %s ?~(name.test '' u.name.test)]
-::       ['for_contract' %s (scot %ux for-contract.test)]  ::  TODO: to contract path?
-::       ['action_text' %s action-text.test]
-::       ['action' %s (crip (noah !>(action.test)))]  ::  TODO: remove?
-::       ['expected' (expected-to-json expected.test)]
-::       ['expected_error' ?~(expected-error.test n+'0' (numb expected-error.test))]
-::       ['result' ?~(result.test ~ (test-result-to-json u.result.test))]
-::   ==
-::
-++  expected-to-json
-  |=  m=(map id:smart [item:smart @t])
+++  test-to-json
+  |=  =test
   =,  enjs:format
   ^-  json
   %-  pairs
-  %+  turn  ~(tap by m)
-  |=  [=id:smart =item:smart tex=@t]
-  [(scot %ux id) (item-to-json item tex)]
-::
-:: ++  test-result-to-json  :: TODO
-::   |=  t=test-result
-::   =,  enjs:format
-::   ^-  json
-::   %-  pairs
-::   :~  ['fee' (numb fee.t)]
-::       ['errorcode' (numb errorcode.t)]
-::       ['events' (events-to-json events.t)]
-::       ['items' (expected-diff-to-json expected-diff.t)]
-::       ['success' ?~(success.t ~ [%b u.success.t])]
-::   ==
-::
-++  expected-diff-to-json
-  |=  m=expected-diff
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  %+  turn  ~(tap by m)
-  |=  [=id:smart made=(unit item:smart) expected=(unit item:smart) match=(unit ?)]
-  :-  (scot %ux id)
-  %-  pairs
-  :~  ['made' ?~(made ~ (item-to-json u.made ''))]
-      ['expected' ?~(expected ~ (item-to-json u.expected ''))]
-      ['match' ?~(match ~ [%b u.match])]
-  ==
-::
-++  events-to-json
-  |=  events=(list contract-event:engine)
-  =,  enjs:format
-  ^-  json
-  :-  %a
-  %+  turn  events
-  |=  [contract=@ux label=@tas =json]
-  %-  pairs
-  :~  ['contract' [%s (scot %ux contract)]]
-      [(scot %t label) json]
+  :~  ['name' %s ?~(name.test '' u.name.test)]
+      ['surs' (dir-to-json surs.test)]
+      ['subject' %s ?:(?=(%& -.subject.test) '' p.subject.test)]
+      ['custom-step-definitions' (custom-step-definitions-to-json custom-step-definitions.test)]
+      ['steps' (test-steps-to-json steps.test)]
+      ['results' (test-results-to-json results.test)]
   ==
 ::
 ++  dir-to-json
@@ -832,18 +814,6 @@
   %+  turn  dir
   |=  p=^path
   (path p)
-::
-++  to-compile-to-json
-  |=  to-compile=(map path @ux)
-  =,  enjs:format
-  ^-  json
-  :-  %a
-  %+  turn  ~(tap by to-compile)
-  |=  [p=^path id=@ux]
-  %-  pairs
-  :+  ['path' (path p)]
-    ['wheat-id' %s (scot %ux id)]
-  ~
 ::
 ++  errors-to-json
   |=  errors=(list [path @t])
@@ -858,13 +828,209 @@
     ['error' %s error]
   ~
 ::
-++  user-files-to-json
-  |=  user-files=(set path)
+++  custom-step-definitions-to-json
+  |=  =custom-step-definitions
+  =,  enjs:format
   ^-  json
-  =/  user-files-list=(list path)  ~(tap in user-files)
-  ?~  user-files-list  ~
-  %+  frond:enjs:format  %user-files
+  %-  pairs
+  %+  turn  ~(tap by custom-step-definitions)
+  |=  [id=@tas def=custom-step-definition com=custom-step-compiled]
+  :-  id
+  %-  pairs
+  :+  ['custom-step-definition' %s def]
+    ['custom-step-compiled' (custom-step-compiled-to-json com)]
+  ~
+::
+++  custom-step-compiled-to-json
+  |=  =custom-step-compiled
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :+  ['compiled-successfully' %b ?=(%& -.custom-step-compiled)]
+    ['compile-error' %s ?:(?=(%& -.custom-step-compiled) '' p.custom-step-compiled)]
+  ~
+::
+++  test-steps-to-json
+  |=  =test-steps
+  ^-  json
   :-  %a
-  %+  turn  user-files-list
-  |=([p=path] (path:enjs:format p))
+  %+  turn  test-steps
+  |=([=test-step] (test-step-to-json test-step))
+::
+++  test-step-to-json
+  |=  =test-step
+  ^-  json
+  ?:  ?=(?(%dojo %poke %subscribe %custom-write) -.test-step)
+    (test-write-step-to-json test-step)
+  ?>  ?=(?(%scry %read-subscription %wait %custom-read) -.test-step)
+  (test-read-step-to-json test-step)
+::
+++  test-write-step-to-json
+  |=  test-step=test-write-step
+  =,  enjs:format
+  ^-  json
+  %+  frond  -.test-step
+  ?-    -.test-step
+      %dojo
+    %-  pairs
+    :+  ['payload' (dojo-payload-to-json payload.test-step)]
+      ['expected' (write-expected-to-json expected.test-step)]
+    ~
+  ::
+      %poke
+    %-  pairs
+    :+  ['payload' (poke-payload-to-json payload.test-step)]
+      ['expected' (write-expected-to-json expected.test-step)]
+    ~
+  ::
+      %subscribe
+    %-  pairs
+    :+  ['payload' (sub-payload-to-json payload.test-step)]
+      ['expected' (write-expected-to-json expected.test-step)]
+    ~
+  ::
+      %custom-write
+    %+  frond  tag.test-step
+    %-  pairs
+    :+  ['payload' %s payload.test-step]
+      ['expected' (write-expected-to-json expected.test-step)]
+    ~
+  ==
+::
+++  test-read-step-to-json
+  |=  test-step=test-read-step
+  =,  enjs:format
+  ^-  json
+  %+  frond  -.test-step
+  ?-    -.test-step
+      %scry
+    %-  pairs
+    :+  ['payload' (scry-payload-to-json payload.test-step)]
+      ['expected' %s expected.test-step]
+    ~
+  ::
+      %dbug
+    %-  pairs
+    :+  ['payload' (dbug-payload-to-json payload.test-step)]
+      ['expected' %s expected.test-step]
+    ~
+  ::
+      %read-subscription  ~  ::  TODO
+  ::
+      %wait
+    (frond 'until' [%s (scot %dr until.test-step)])
+  ::
+      %custom-read
+    %+  frond  tag.test-step
+    %-  pairs
+    :+  ['payload' %s payload.test-step]
+      ['expected' %s expected.test-step]
+    ~
+  ==
+::
+++  scry-payload-to-json
+  |=  payload=scry-payload
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :~  ['who' %s (scot %p who.payload)]
+      ['mold-name' %s mold-name.payload]
+      ['care' %s care.payload]
+      ['app' %s app.payload]
+      ['path' (path path.payload)]
+  ==
+::
+++  dbug-payload-to-json
+  |=  payload=dbug-payload
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :+  ['who' %s (scot %p who.payload)]
+    ['app' %s app.payload]
+  ~
+::
+++  poke-payload-to-json
+  |=  payload=poke-payload
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :~  ['who' %s (scot %p who.payload)]
+      ['app' %s app.payload]
+      ['mark' %s mark.payload]
+      ['payload' %s payload.payload]
+  ==
+::
+++  dojo-payload-to-json
+  |=  payload=dojo-payload
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :+  ['who' %s (scot %p who.payload)]
+    ['payload' %s payload.payload]
+  ~
+::
+++  sub-payload-to-json
+  |=  payload=sub-payload
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :^    ['who' %s (scot %p who.payload)]
+      ['app' %s app.payload]
+    ['path' (path p.payload)]
+  ~
+::
+++  write-expected-to-json
+  |=  test-read-steps=(list test-read-step)
+  =,  enjs:format
+  ^-  json
+  :-  %a
+  %+  turn  test-read-steps
+  |=([=test-read-step] (test-read-step-to-json test-read-step))
+::
+++  test-results-to-json
+  |=  =test-results
+  =,  enjs:format
+  ^-  json
+  :-  %a
+  %+  turn  test-results
+  |=([=test-result] (test-result-to-json test-result))
+::
+++  test-result-to-json
+  |=  =test-result
+  =,  enjs:format
+  ^-  json
+  :-  %a
+  %+  turn  test-result
+  |=  [success=? expected=@t result=@t]
+  %-  pairs
+  :^    ['success' %b success]
+      ['expected' %s expected]
+    ['result' %s result]
+  ~
+::
+++  dbug-dashboards-to-json
+  |=  dashboards=(map @tas dbug-dashboard)
+  ^-  json
+  %-  pairs:enjs:format
+  %+  turn  ~(tap by dashboards)
+  |=  [app=@tas d=dbug-dashboard]
+  [app (dbug-dashboard-to-json d)]
+::
+++  dbug-dashboard-to-json
+  |=  d=dbug-dashboard
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  :~  [%sur (path sur.d)]
+      [%mold-name %s mold-name.d]
+      [%mar (path mar.d)]
+      [%did-mold-compile %b ?=(%& mold.d)]
+      [%did-mar-tube-compile %b ?=(^ mar-tube.d)]
+  ==
+::
+++  json-single-string-object
+  |=  [key=@t error=tape]
+  =,  enjs:format
+  ^-  json
+  (frond key [%s (crip error)])
 --
