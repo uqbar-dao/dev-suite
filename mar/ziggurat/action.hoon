@@ -131,7 +131,7 @@
           [%custom-read (ot ~[[%tag (se %tas)] [%payload so] [%expected so]])]
       ==
     ::
-    ++  parse-scry-paylod
+    ++  parse-scry-payload
       %-  ot
       :~  [%who (se %p)]
           [%mold-name so]
