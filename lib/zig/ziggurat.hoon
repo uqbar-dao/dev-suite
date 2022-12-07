@@ -974,10 +974,11 @@
   =,  enjs:format
   ^-  json
   %-  pairs
-  :^    ['who' %s (scot %p who.payload)]
+  :~  ['who' %s (scot %p who.payload)]
+      ['to' %s (scot %p to.payload)]
       ['app' %s app.payload]
-    ['path' (path p.payload)]
-  ~
+      ['path' (path p.payload)]
+  ==
 ::
 ++  write-expected-to-json
   |=  test-read-steps=(list test-read-step)

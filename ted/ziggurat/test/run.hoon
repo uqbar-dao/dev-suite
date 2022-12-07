@@ -143,7 +143,7 @@
         " %"
         (trip app.payload)
         " "
-        (trip path.payload)
+        (noah !>(`path`path.payload))
         "]"
     ==
   (pure:m ~)

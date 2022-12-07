@@ -63,7 +63,7 @@
 +$  read-sub-payload  [who=@p to=@p app=@tas =path]
 +$  dojo-payload  [who=@p payload=@t]
 +$  poke-payload  [who=@p app=@tas mark=@tas payload=@t]
-+$  sub-payload  [who=@p to=@p app=@tas path=@t]
++$  sub-payload  [who=@p to=@p app=@tas =path]
 ::
 +$  custom-step-definitions
   %+  map  @tas
