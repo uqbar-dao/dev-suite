@@ -267,6 +267,33 @@
       (build-next-subject subject !>(test-results))
     ==
   ::
+        %read-subscription
+    ;<  result=vase  bind:m
+      (read-pyro-subscription [payload expected]:test-step)
+    =*  expected  expected.test-step
+    =/  res-text=@t  !<(@t result)
+    %=    $
+        test-steps    t.test-steps
+        step-number   +(step-number)
+        test-results
+      [[=(expected res-text) expected res-text]~ test-results]
+    ==
+  ::
+      %subscribe
+    ;<  ~  bind:m  (send-pyro-subscription payload.test-step)
+    ;<  trs=test-results:zig  bind:m
+      %:  run-steps
+          project-id  test-id
+          `test-steps:zig`expected.test-step  ~
+      ==
+    ?~  tr=(test-results-of-reads-to-test-result trs)
+      ~|("ziggurat-test-run: %subscribe expected can only contain %scrys, %subscribes, %waits" !!)
+    %=  $
+        test-steps    t.test-steps
+        step-number   +(step-number)
+        test-results  [u.tr test-results]
+    ==
+  ::
       %custom-read
     ;<  transform=vase  bind:m
       %+  scry  vase
@@ -311,33 +338,6 @@
         (slap-subject payload.payload.transformed-step)
       ==
     $(test-steps [transformed-step t.test-steps])
-  ::
-        %read-subscription
-    ;<  result=vase  bind:m
-      (read-pyro-subscription [payload expected]:test-step)
-    =*  expected  expected.test-step
-    =/  res-text=@t  !<(@t result)
-    %=    $
-        test-steps    t.test-steps
-        step-number   +(step-number)
-        test-results
-      [[=(expected res-text) expected res-text]~ test-results]
-    ==
-  ::
-      %subscribe
-    ;<  ~  bind:m  (send-pyro-subscription payload.test-step)
-    ;<  trs=test-results:zig  bind:m
-      %:  run-steps
-          project-id  test-id
-          `test-steps:zig`expected.test-step  ~
-      ==
-    ?~  tr=(test-results-of-reads-to-test-result trs)
-      ~|("ziggurat-test-run: %subscribe expected can only contain %scrys, %subscribes, %waits" !!)
-    %=  $
-        test-steps    t.test-steps
-        step-number   +(step-number)
-        test-results  [u.tr test-results]
-    ==
   ==
 ::
 ++  ted

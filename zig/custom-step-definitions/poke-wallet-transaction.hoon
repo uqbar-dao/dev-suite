@@ -1,0 +1,21 @@
+/=  zig  /sur/zig/ziggurat
+::
+|%
+++  $
+  |=  $:  [who=@p contract=@ux transaction=@t]
+          expected=(list test-read-step:zig)
+      ==
+  ^-  test-write-step:zig
+  :+  %poke
+    :^  who  %uqbar  %wallet-poke
+    %-  crip
+    """
+    :*  %transaction
+        from={<(~(got by addresses) who)>}
+        contract={<contract>}
+        town=0x0  ::  harcode
+        action=[%text {<transaction>}]  ::  TODO: how to transform within the %text?
+    ==
+    """
+  expected
+--

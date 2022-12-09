@@ -30,8 +30,9 @@
 +$  tests  (map @ux test)
 +$  test
   $:  name=(unit @t)  ::  optional
-      surs=test-surs
-      subject=(each vase @t)  ::  test-surs build or error
+      test-steps-file=path
+      =test-surs
+      subject=(each vase @t)
       =custom-step-definitions
       steps=test-steps
       results=test-results
@@ -40,7 +41,7 @@
 +$  expected-diff
   (map id:smart [made=(unit item:smart) expected=(unit item:smart) match=(unit ?)])
 ::
-+$  test-surs  (list path)
++$  test-surs  (map @tas path)
 ::
 +$  test-steps  (list test-step)
 +$  test-step  $%(test-read-step test-write-step)
@@ -66,9 +67,7 @@
 +$  sub-payload  [who=@p to=@p app=@tas =path]
 ::
 +$  custom-step-definitions
-  %+  map  @tas
-  (pair custom-step-definition custom-step-compiled)
-+$  custom-step-definition  @t
+  (map @tas (pair path custom-step-compiled))
 +$  custom-step-compiled  (each transform=vase @t)
 ::
 +$  test-results  (list test-result)
@@ -103,16 +102,16 @@
           [%compile-contract =path]  ::  path of form /[desk]/path/to/contract, e.g., /zig/con/fungible/hoon
           [%read-desk ~]  ::  make-project-update, make-watch-for-file-changes
       ::
-          [%add-test name=(unit @t) =test-surs =test-steps]  ::  name optional
+          [%add-test name=(unit @t) =path]  ::  name optional
           [%delete-test id=@ux]
           [%run-test id=@ux]
-          [%add-and-run-test name=(unit @t) =test-surs =test-steps]
+          [%add-and-run-test name=(unit @t) =path]
           [%run-queue ~]  ::  can be used as [%$ %run-queue ~]
           [%clear-queue ~]
           [%queue-test id=@ux]
-          [%add-and-queue-test name=(unit @t) =test-surs =test-steps]
+          [%add-and-queue-test name=(unit @t) =path]
           ::
-          [%add-custom-step test-id=@ux tag=@tas =custom-step-definition]
+          [%add-custom-step test-id=@ux tag=@tas =path]
           [%delete-custom-step test-id=@ux tag=@tas]
           ::
           [%add-app-to-dashboard app=@tas sur=path mold-name=@t mar=path]
