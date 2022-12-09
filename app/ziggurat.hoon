@@ -64,6 +64,7 @@
   ^-  (quip card _this)
   ?+    path  !!
       [%pyro-done ~]  `this
+      [%test-updates @ ~]  `this
       [%project @ ~]
     ::  serve updates about state of a given project
     =/  name=@t  `@t`i.t.path
@@ -259,7 +260,6 @@
         ~|("%ziggurat: project desk already exists" !!)  ::  TODO: start project using this desk?
       ::  merge new desk, mount desk
       ::  currently using ziggurat desk as template -- should refine this
-      ~&  >>  q.byk.bowl
       =/  merge-task  [%merg `@tas`project.act our.bowl q.byk.bowl da+now.bowl %init]
       =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
       =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]

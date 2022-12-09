@@ -113,7 +113,7 @@
     ::
     ++  parse-test-step
       %-  of
-      %+  weld  parse-test-read-step-inner
+      %+  welp  parse-test-read-step-inner
       parse-test-write-step-inner
     ::
     ++  parse-test-read-step
