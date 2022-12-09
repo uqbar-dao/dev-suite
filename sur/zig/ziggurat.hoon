@@ -19,7 +19,7 @@
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
       to-compile=(set path)
-      errors=(list [path @t])
+      errors=(map path @t)
       town-sequencers=(map @ux @p)
       =tests
       dbug-dashboards=(map app=@tas dbug-dashboard)
@@ -99,12 +99,9 @@
           [%set-virtualnet-address who=@p =address:smart]
       ::
           [%register-contract-for-compilation file=path]
-          [%compile-contracts ~]  ::  alterations to project files call %compile-contracts which calls %read-desk which sends a project update; TODO: skip compile when no change?
-          [%read-desk ~]
-      ::
-          [%add-item source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
-          [%update-item =id:smart source=id:smart holder=id:smart town-id=@ux salt=@ label=@tas noun=*]
-          [%delete-item =id:smart]
+          [%compile-contracts ~]  ::  make-read-desk
+          [%compile-contract =path]  ::  path of form /[desk]/path/to/contract, e.g., /zig/con/fungible/hoon
+          [%read-desk ~]  ::  make-project-update, make-watch-for-file-changes
       ::
           [%add-test name=(unit @t) =test-surs =test-steps]  ::  name optional
           [%delete-test id=@ux]

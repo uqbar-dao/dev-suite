@@ -156,8 +156,8 @@
     ::  ship, care, ship, desk, time, path     
         [%x %i @ @ @ @ @ *]
       =/  who  (slav %p i.t.t.path)
-      ?.  (~(has by piers) who)  ~
       :^  ~  ~  %noun  !>
+      ?.  (~(has by piers) who)  ~
       (peek:(pe who) t.t.t.path)
     ==
   ++  on-leave  on-leave:def
@@ -271,12 +271,12 @@
     |=  p=*
     ::  grab scry axis from snapshot
     =/  res  (mox +22.snap)
-    ?>  ?=(%0 -.res)
+    ?.  ?=(%0 -.res)  ~
     =/  scry  p.res
     ::  get path from input
     =/  pax  (path p)
     ::  validate path
-    ?>  ?=([@ @ @ @ *] pax)
+    ?.  ?=([@ @ @ @ *] pax)  ~
     ::  alter timestamp to match %pyro fake-time
     =.  i.t.t.t.pax  (scot %da scry-time)
     ~&  >>  `path`pax

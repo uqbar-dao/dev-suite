@@ -62,12 +62,32 @@
   :-  %ziggurat-project-update
   !>(`project-update`update)
 ::
-++  make-compile
+++  make-compile-contracts
   |=  [project=@t our=@p]
   ^-  card
   =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
   :-  %ziggurat-action
   !>(`action`project^[%compile-contracts ~])
+::
+++  make-compile-contract
+  |=  [project=@t file=path our=@p]
+  ^-  card
+  =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
+  :-  %ziggurat-action
+  !>(`action`project^[%compile-contract file])
+::
+++  make-watch-for-file-changes
+  |=  [project=@tas files=(list path) our=@p now=@da]
+  ^-  card
+  =-  [%pass /clay/[project] %arvo %c %warp our project -]
+  :^  ~  %mult  da+now
+  %-  ~(gas in *(set [care:clay path]))
+  (turn files |=(p=path [%x p]))
+::
+++  make-cancel-watch-for-file-changes
+  |=  [project=@tas files=(list path) our=@p now=@da]
+  ^-  card
+  [%pass /clay/[project] %arvo %c %warp our project ~]
 ::
 ++  make-read-desk
   |=  [project=@t our=@p]
@@ -139,24 +159,35 @@
   ?~  build-results  [cards errors]
   =*  contract-path   p.i.build-results
   =/  =build-result   q.i.build-results
-  ?:  ?=(%| -.build-result)
+  =/  save-result=(each card [path @t])
+    %^  save-compiled-project  project  contract-path
+    build-result
+  ?:  ?=(%| -.save-result)
     %=  $
         build-results  t.build-results
-        errors         [[contract-path p.build-result] errors]
+        errors         [p.save-result errors]
     ==
+  %=  $
+      build-results  t.build-results
+      cards          [p.save-result cards]
+  ==
+::
+++  save-compiled-project
+  |=  $:  project=@t
+          contract-path=path
+          =build-result
+      ==
+  ^-  (each card [path @t])
+  ?:  ?=(%| -.build-result)
+    [%| [contract-path p.build-result]]
   =/  contract-jam-path=path
     ?>  ?=([%con *] contract-path)
     %-  snoc
     :_  %jam
     %-  snip
     `path`(welp /con/compiled +.contract-path)
-  %=  $
-      build-results  t.build-results
-      cards
-    :_  cards
-    %^  make-save-jam  project
-    contract-jam-path  p.build-result
-  ==
+  :-  %&
+  (make-save-jam project contract-jam-path p.build-result)
 ::
 ++  build-contract-projects
   |=  $:  smart-lib=vase
@@ -782,7 +813,8 @@
 ++  get-state-to-json
   |=  [p=project our=@p now=@da]
   ^-  json
-  (state-to-json (get-state p our now))
+  ?~  state=(get-state p our now)  ~
+  (state-to-json state)
 ::
 ++  tests-to-json
   |=  =tests
@@ -816,17 +848,12 @@
   (path p)
 ::
 ++  errors-to-json
-  |=  errors=(list [path @t])
-  =,  enjs:format
+  |=  errors=(map path @t)
   ^-  json
-  ?~  errors  ~
-  :-  %a
-  %+  turn  errors
-  |=  [p=^path error=@t]
-  %-  pairs
-  :+  ['path' (path p)]
-    ['error' %s error]
-  ~
+  %-  pairs:enjs:format
+  %+  turn  ~(tap by errors)
+  |=  [p=path error=@t]
+  [(crip (noah !>(`path`p))) %s error]
 ::
 ++  custom-step-definitions-to-json
   |=  =custom-step-definitions

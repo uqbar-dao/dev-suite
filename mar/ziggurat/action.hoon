@@ -28,9 +28,6 @@
           [%compile-contracts ul]
           [%read-desk ul]
       ::
-          :: [%add-item parse-data-without-id]
-          :: [%delete-item (ot ~[[%id (se %ux)]])]
-      ::
           [%add-test parse-add-test]
           [%delete-test (ot ~[[%id (se %ux)]])]
           [%run-test (ot ~[[%id (se %ux)]])]

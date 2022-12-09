@@ -268,13 +268,12 @@
               [%pass /mount-wire %arvo %c mount-task]
               [%pass /save-wire %arvo %c bill-task]
               [%pass /save-wire %arvo %c deletions-task]
-              =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
-              [%ziggurat-action !>(`action`project.act^[%read-desk ~])]
+              (make-read-desk project.act our.bowl)
           ==
       %=  state
           projects
         %+  ~(put by projects)  project.act
-        :*  dir=~  ::  populated by %read-desk
+        :*  dir=~  ::  populated by +make-read-desk / %read-desk
             user-files=(~(put in *(set path)) /app/[project.act]/hoon)
             to-compile=~
             errors=~
@@ -293,7 +292,7 @@
       ::   ?:  ?=(%fungible template.act)
       ::     (fungible-template-project project metadata.act smart-lib-vase)
       ::   (nft-template-project project metadata.act smart-lib-vase)
-      :: :-  (make-compile project.act our.bowl)^~
+      :: :-  (make-compile-contracts project.act our.bowl)^~
       :: state(projects (~(put by projects) project.act project))
     ::
         %delete-project
@@ -304,10 +303,8 @@
       =/  =project  (~(got by projects) project.act)
       =.  user-files.project
         (~(put in user-files.project) file.act)
-      :_  state(projects (~(put by projects) project.act project))
-      :+  (make-save-file [project file text]:act)
-        (make-compile project.act our.bowl)
-      ~
+      :-  (make-save-file [project file text]:act)^~
+      state(projects (~(put by projects) project.act project))
     ::
         %delete-file
       ::  should show warning
@@ -319,10 +316,9 @@
         (~(del in to-compile.project) file.act)
       ==
       :_  state(projects (~(put by projects) project.act project))
-      :+  (make-compile project.act our.bowl)
-        =-  [%pass /del-wire %arvo %c -]
-        [%info `@tas`project.act %& [file.act %del ~]~]
-      ~
+      :_  ~
+      =-  [%pass /del-wire %arvo %c -]
+      [%info `@tas`project.act %& [file.act %del ~]~]
     ::
         %set-virtualnet-address
       =/  =project  (~(got by projects) project.act)
@@ -346,11 +342,12 @@
           to-compile.project
         (~(put in to-compile.project) file.act)
       ==
-      :-  (make-compile project.act our.bowl)^~
+      :-  (make-compile-contracts project.act our.bowl)^~
       state(projects (~(put by projects) project.act project))
     ::
         %compile-contracts
       ::  for internal use -- app calls itself to scry clay
+      ?>  &(=(our.bowl src.bowl) ?=(%ziggurat dap.bowl))
       =/  =project  (~(got by projects) project.act)
       =/  build-results=(list (pair path build-result))
         %^  build-contract-projects  smart-lib-vase
@@ -360,30 +357,42 @@
       =/  [cards=(list card) errors=(list [path @t])]
         (save-compiled-projects project.act build-results)
       ~&  errors
-      =.  errors.project  errors
+      =.  errors.project  (~(gas by errors.project) errors)
       :-  [(make-read-desk project.act our.bowl) cards]
       state(projects (~(put by projects) project.act project))
     ::
+        %compile-contract
+      ::  for internal use -- app calls itself to scry clay
+      ?>  &(=(our.bowl src.bowl) ?=(%ziggurat dap.bowl))
+      =/  =project  (~(got by projects) project.act)
+      ?~  path.act  !!
+      =/  =build-result
+        %^  build-contract-project  smart-lib-vase
+          /(scot %p our.bowl)/[i.path.act]/(scot %da now.bowl)
+        t.path.act
+      ~&  "done building {<path>}, got errors:"
+      =/  save-result=(each card [path @t])
+        (save-compiled-project project.act t.path.act build-result)
+      ?:  ?=(%| -.save-result)
+        ~&  p.save-result
+        =.  errors.project
+          (~(put by errors.project) p.save-result)
+        :-  (make-project-update project.act project [our now]:bowl)^~
+        state(projects (~(put by projects) project.act project))
+      [(make-read-desk project.act our.bowl)^~ state]
+    ::
         %read-desk
       ::  for internal use -- app calls itself to scry clay
+      ?>  &(=(our.bowl src.bowl) ?=(%ziggurat dap.bowl))
       =/  =project  (~(got by projects) project.act)
       =.  dir.project
         =-  .^((list path) %ct -)
         /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)
-      :-  (make-project-update project.act project [our now]:bowl)^~
-      state(projects (~(put by projects) project.act project))
-    ::
-        %add-item  ::  TODO: redo?
-      =/  =id:smart  (hash-data:smart source.act holder.act town-id.act salt.act)
-      (add-or-update-item project.act %& id +.+.act)
-    ::
-        %update-item  ::  TODO: redo?
-      (add-or-update-item project.act %& +.+.act)
-    ::
-        %delete-item  ::  TODO: redo?
-      ::  remove a grain from the granary
-      =/  =project  (~(got by projects) project.act)
-      :-  (make-project-update project.act project [our now]:bowl)^~
+      :-  :+  %^  make-project-update  project.act  project
+                  [our now]:bowl
+            %^  make-watch-for-file-changes  project.act
+            dir.project  [our now]:bowl
+          ~
       state(projects (~(put by projects) project.act project))
     ::
         %add-test
@@ -595,7 +604,7 @@
       %_    state
           pyro-ships-ready
         %-  ~(gas by *(map ship ?))
-        (turn ships.act |=(=ship [ship %.n]))   
+        (turn ships.act |=(=ship [ship %.n]))
       ==
     ::
         %add-town-sequencer
@@ -647,7 +656,7 @@
         [%info `@tas`project.act %& [/desk/docket-0 %ins %docket-0 !>(docket-0)]~]
       :_  state
       :^    [%pass /save-wire %arvo %c docket-task]
-          (make-compile project.act our.bowl)
+          (make-compile-contracts project.act our.bowl)
         =-  [%pass /treaty-wire %agent [our.bowl %treaty] %poke -]
         [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
       ~
@@ -757,6 +766,22 @@
       `this
     ~&  >>>  "failed to make new desk"
     `this
+  ::
+      [%clay @ ~]
+    ~&  %ziggurat^%clay
+    ?>  ?=([%clay %wris *] sign-arvo)
+    =*  project-name  i.t.wire
+    =/  project  (~(got by projects) project-name)
+    =/  updated-files=(set path)
+      %-  ~(gas in *(set path))
+      (turn ~(tap in q.sign-arvo) |=([@ p=path] p))
+    :_  this
+    :_  ~
+    ?:  .=  0
+        %~  wyt  in
+        (~(int in updated-files) to-compile.project)
+      (make-read-desk project-name our.bowl)
+    (make-compile-contracts project-name our.bowl)
   ==
 ::
 ++  on-peek
