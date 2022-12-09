@@ -98,13 +98,30 @@ To avoid the overly-verbose scries, you can also use the `+scry` generator which
 +zig!pyro/scry ~nec %sequencer /status/noun 
 ```
 
+##  Test steps
+
+`test-steps` are sequences of `test-step`s: a command to do something that optionally has an expected result.
+E.g., a `test-step` can be a `%poke` or a `%scry`.
+A `%scry` `test-step`, an example of a read from state, has an `expected` field that is a `@t`: the expectation of output as a result of completing that scry.
+In contract, a `test-step` like a `%poke` that writes to state has an `expected` field that is a `list` of read steps: a single `%poke` can have cascading effects and so it is important to have the ability to query multiple times.
+
+`test-steps` are defined in the `$` arm of a core.
+Examples can be seen in the `zig/test-steps/` dir](https://github.com/uqbar-dao/uqbar-core/tree/067f1552bbcc335db32550733b99338b33c6ed5d/zig/test-steps).
+
+The subject of a `test-steps` is defined by the `/=` imports at the top of the `test-steps` file.
+In addition, this subject will be applied for [`custom-step-definitions`](#custom-inputs), so those dependencies must be included in `test-steps`.
+Finally, some test globals will be accessible by `test-steps`.
+`addresses` includes the `(map @p @ux)` defined in `%ziggurat` app state and set with the `%set-virtualnet-addresses` action.
+The `addresses` map is useful for easy access and pairing between virtualships and their testnet addresses.
+`test-results` are also accessible, so that the results of a previous `test-step` is usable in the current one (TODO).
+
 ## Custom inputs
 
 You can build custom inputs to `%pyro` ships.
-For examples, see the [`zig/custom-step-definitions/` dir](https://github.com/uqbar-dao/uqbar-core/).
+For examples, see the [`zig/custom-step-definitions/` dir](https://github.com/uqbar-dao/uqbar-core/tree/067f1552bbcc335db32550733b99338b33c6ed5d/zig/custom-step-definitions).
 (TODO: keep this link updated).
 These steps are labeled by a `tag=@tas` -- the name of the step that will be referenced when calling it.
-The code for a step lives in the `$` arm of a core..
+The code for a custom step lives in the `$` arm of a core.
 Please refer to the `zig/custom-step-definitions/` dir linked above for examples on how to write the `transform` and [Example usage](#example-usage) `%send-nec-custom` for usage of the custom steps.
 TODO: write more here.
 
@@ -113,7 +130,6 @@ TODO: write more here.
 Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 ```hoon
 :ziggurat &ziggurat-action [%foo %new-project ~]
-:ziggurat &ziggurat-action [%foo %start-pyro-ships ~[~nec ~bud]]
 
 ::  Setup virtaulship testnet, like following [README](https://github.com/uqbar-dao/uqbar-core/blob/master/readme.md).
 :ziggurat &ziggurat-action [%foo %add-and-queue-test `%setup /zig/test-steps/setup/hoon]
@@ -132,6 +148,7 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 :ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec-custom /zig/test-steps/send-nec-custom/hoon]
 :ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec-addresses /zig/test-steps/send-nec-addresses/hoon]
 
+:ziggurat &ziggurat-action [%foo %start-pyro-ships ~[~nec ~bud]]
 :ziggurat &ziggurat-action [%$ %run-queue ~]
 
 ::  Tell `%ziggurat` not to run any more tests right now.
@@ -185,7 +202,7 @@ TODO: turn this into a thread
 
 First go into ames - ctrl+F "13" and replace with "23" to boost the packet size (see [above](#ames-speedboost-on-fakeships) for more details), then:
 
-```
+```hoon
 |commit %base
 :pyro &pill +zig!solid %base %zig
 :pyro|init ~nec
@@ -206,4 +223,4 @@ First go into ames - ctrl+F "13" and replace with "23" to boost the packet size 
 |unmount %zig
 |mount %zig
 ```
-then move zig/lib/py/snapshots/testnet.jam into this repo
+then move `zig/lib/py/snapshots/testnet.jam` into this repo
