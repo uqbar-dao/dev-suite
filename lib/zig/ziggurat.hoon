@@ -798,6 +798,7 @@
       ['user_files' (dir-to-json ~(tap in user-files.p))]
       ['to_compile' (dir-to-json ~(tap in to-compile.p))]
       ['errors' (errors-to-json errors.p)]
+      ['town_sequencers' (town-sequencers-to-json town-sequencers.p)]
       ['tests' (tests-to-json tests.p)]
       ['dbug_dashboards' (dbug-dashboards-to-json dbug-dashboards.p)]
   ==
@@ -831,6 +832,7 @@
   ^-  json
   %-  pairs
   :~  ['name' %s ?~(name.test '' u.name.test)]
+      ['test-steps-file' (path test-steps-file.test)]
       ['test-surs' (test-surs-to-json test-surs.test)]
       ['subject' %s ?:(?=(%& -.subject.test) '' p.subject.test)]
       ['custom-step-definitions' (custom-step-definitions-to-json custom-step-definitions.test)]
@@ -884,6 +886,14 @@
   :+  ['compiled-successfully' %b ?=(%& -.custom-step-compiled)]
     ['compile-error' %s ?:(?=(%& -.custom-step-compiled) '' p.custom-step-compiled)]
   ~
+::
+++  town-sequencers-to-json
+  |=  town-sequencers=(map @ux @p)
+  ^-  json
+  %-  pairs
+  %+  turn  ~(tap by town-sequencers)
+  |=  [town-id=@ux who=@p]
+  [(scot %ux town-id) %s (scot %p who)]
 ::
 ++  test-steps-to-json
   |=  =test-steps

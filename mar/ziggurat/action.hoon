@@ -26,6 +26,7 @@
       ::
           [%register-contract-for-compilation (ot ~[[%file pa]])]
           [%compile-contracts ul]
+          [%compile-contract (ot ~[[%path pa]])]
           [%read-desk ul]
       ::
           [%add-test parse-add-test]
@@ -106,9 +107,8 @@
     ::
     ++  parse-add-test
       %-  ot
-      :^    [%name so:dejs-soft:format]
-          [%test-surs (ar pa)]
-        [%test-steps (ar parse-test-step)]
+      :+  [%name so:dejs-soft:format]
+        [%path pa]
       ~
     ::
     ++  parse-test-step
@@ -184,7 +184,7 @@
     ++  parse-add-custom-step
       :^    [%test-id (se %ux)]
           [%tag (se %tas)]
-        [%custom-step-definition so]
+        [%path pa]
       ~
     ::
     ++  parse-add-app-to-dashboard
