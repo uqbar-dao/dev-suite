@@ -74,16 +74,17 @@
   $%  [%blit p=(list blit:dill)]
       [%send p=lane:ames q=@]
       [%doze p=(unit @da)]
-      [%thus p=@ud q=(unit hiss:eyre)]
       [%ergo p=@tas q=mode:clay]
       [%sleep ~]
       [%restore ~]
       [%kill ~]
       [%init ~]
       [%request id=@ud request=request:http]
+      [%cancel-request ~] :: TODO
+      [%http-response ~] :: TODO
   ==
 ::
 +$  behn-pier  next-timer=(unit @da)
-+$  eyre-pier  http-requests=(set @ud)
++$  iris-pier  http-requests=(set @ud)
 ::
 --

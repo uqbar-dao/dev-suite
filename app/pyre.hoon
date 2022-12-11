@@ -18,6 +18,8 @@
 ++  on-init
   ^-  (quip card _this)
   :_  this
+  %+  weld
+    [%pass /connect %arvo %e %connect [~ /apps/pyro] %pyro]~
   %+  turn
     :~  [/ames/restore /effect/restore]
         [/ames/send /effect/send]
@@ -29,11 +31,12 @@
         ::
         [/dill/blit /effect/blit]
         ::
-        [/eyre/sleep /effect/sleep]
-        [/eyre/restore /effect/restore]
-        [/eyre/thus /effect/thus]
-        [/eyre/kill /effect/kill]
-        ::
+        [/iris/request /effect/request]
+        [/iris/cancel-request /effect/cancel-request]
+        [/iris/http-response /effect/http-response]
+        [/iris/sleep /effect/sleep]
+        [/iris/restore /effect/restore]
+        [/iris/kill /effect/kill]
     ==
   |=  [=wire =path]
   [%pass wire %agent [our.bowl %pyro] %watch path]
@@ -65,9 +68,10 @@
       =+  ef=!<([aqua-effect] q.cage.sign)
       =^  cards  behn-piers
         ?+    -.q.ufs.ef  [~ behn-piers]
-            %sleep    abet-pe:sleep:(behn:hc who.ef)
-            %restore  abet-pe:restore:(behn:hc who.ef)
-            %doze     abet-pe:(doze:(behn:hc who.ef) ufs.ef)
+            %sleep    abet:sleep:(behn:hc who.ef)
+            %doze     abet:(doze:(behn:hc who.ef) ufs.ef)
+            ::  note that %restore and %kill are pyro, not behn, events
+            %restore  abet:restore:(behn:hc who.ef)
             %kill     `(~(del by behn-piers) who.ef)
         ==
       [cards this]
@@ -81,16 +85,18 @@
       [(blit:dill:hc ef) this]
     ==
   ::
-      [%eyre @ ~]
+      [%iris @ ~]
     ?+    -.sign  (on-agent:def wire sign)
         %fact
       =+  ef=!<([aqua-effect] q.cage.sign)
-      =^  cards  eyre-piers
-        ?+    -.q.ufs.ef  [~ eyre-piers]
-            %sleep    abet-pe:sleep:(eyre:hc who.ef)
-            %restore  abet-pe:restore:(eyre:hc who.ef)
-            %thus     abet-pe:(thus:(eyre:hc who.ef) ufs.ef)
-            %kill     `(~(del by eyre-piers) who.ef)
+      =^  cards  iris-piers
+        ?+  -.q.ufs.ef  [~ iris-piers]
+          %request         abet:(request:(iris:hc who.ef) ufs.ef)
+          %cancel-request  abet:cancel-request:(iris:hc who.ef)
+          %http-response   abet:http-response:(iris:hc who.ef)
+          %sleep           abet:sleep:(iris:hc who.ef)
+          %restore         abet:restore:(iris:hc who.ef)
+          %kill            `(~(del by iris-piers) who.ef)
         ==
       [cards this]
     ==
@@ -122,25 +128,37 @@
     ?>  ?=([@ *] wire)
     =/  who  (,@p (slav %p i.wire))
     =^  cards  behn-piers
-      abet-pe:(take-wake:(behn:hc who) t.wire error.sign-arvo)
+      abet:(take-wake:(behn:hc who) t.wire error.sign-arvo)
     [cards this]
   ::
       %iris
     ?>  ?=([%iris %http-response %finished *] sign-arvo)
-    ?>  ?=([@ *] wire)
-    =/  who  (,@p (slav %p i.wire))
-    =/  =httr:^eyre
-      (to-httr:iris [response-header full-file]:client-response.sign-arvo)
-    =^  cards  eyre-piers
-      abet-pe:(take-sigh-httr:(eyre:hc who) t.wire httr)
-    [cards this]
+    ?+    wire  (on-arvo:def)
+        [@ @ ~]
+      =/  who=@p    (slav %p i.wire)
+      =/  num=@ud   (slav %ud i.t.wire)
+      =*  response-header  response-header.client-response.sign-arvo
+      =*  full-file        full-file.client-response.sign-arvo
+      =^  cards  iris-piers
+        =<  abet
+        %^    take-sigh-httr:(iris:hc who)
+            num
+          response-header
+        ?~(full-file ~ `data.u.full-file)
+      [cards this]
+    ==
+    ::
+        %eyre
+    ~&  >  wire
+    ~&  >  sign-arvo
+    `this
   ==
 ::
 ++  on-fail   on-fail:def
 --
 ::
 =|  behn-piers=(map ship behn-pier)
-=|  eyre-piers=(map ship eyre-pier)
+=|  iris-piers=(map ship iris-pier)
 |_  bowl=bowl:gall
 ++  ames
   |%
@@ -200,7 +218,7 @@
   =|  cards=(list card:agent:gall)
   |%
   ++  this  .
-  ++  abet-pe
+  ++  abet
     ^-  (quip card:agent:gall _behn-piers)
     =.  behn-piers  (~(put by behn-piers) who pier-data)
     [(flop cards) behn-piers]
@@ -215,25 +233,25 @@
     [%pass /aqua-events %agent [our.bowl %pyro] %poke %aqua-events !>(aes)]~
   ::
   ++  sleep
-    ^+  ..abet-pe
-    =<  ..abet-pe(pier-data *behn-pier)
+    ^+  ..abet
+    =<  ..abet(pier-data *behn-pier)
     ?~  next-timer
-      ..abet-pe
+      ..abet
     cancel-timer
   ::
   ++  restore
-    ^+  ..abet-pe
+    ^+  ..abet
     =.  this
       %-  emit-aqua-events
       [%event who [/b/behn/0v1n.2m9vh %born ~]]~
-    ..abet-pe
+    ..abet
   ::
   ++  doze
     |=  [way=wire %doze tim=(unit @da)]
-    ^+  ..abet-pe
+    ^+  ..abet
     ?~  tim
       ?~  next-timer
-        ..abet-pe
+        ..abet
       cancel-timer
     ?~  next-timer
       (set-timer u.tim)
@@ -244,14 +262,14 @@
     ~?  debug=|  [who=who %setting-timer tim]
     =.  next-timer  `tim
     =.  this  (emit-cards [%pass /(scot %p who) %arvo %b %wait tim]~)
-    ..abet-pe
+    ..abet
   ::
   ++  cancel-timer
     ~?  debug=|  [who=who %cancell-timer (need next-timer)]
     =.  this
       (emit-cards [%pass /(scot %p who) %arvo %b %rest (need next-timer)]~)
     =.  next-timer  ~
-    ..abet-pe
+    ..abet
   ::
   ++  take-wake
     |=  [way=wire error=(unit tang)]
@@ -268,7 +286,7 @@
       ^-  aqua-event
       :+  %event  who
       [/b/behn/0v1n.2m9vh [%wake ~]]
-    ..abet-pe
+    ..abet
   --
 ++  dill
   |%
@@ -292,17 +310,21 @@
     ~?  !=(~ last-line)  last-line
     ~
   --
-++  eyre
+++  iris
+  ::  :pyro|dojo ~nec "|pass [%i %request [%'GET' 'https://google.com' ~ ~] *outbound-config:iris]"
+  ::  :pyro|dojo ~nec "|pass [%i %cancel-request ~]"
+  ::  
   |=  who=ship
-  =+  (~(gut by eyre-piers) who *eyre-pier)
+  =+  (~(gut by iris-piers) who *iris-pier)
   =*  pier-data  -
   =|  cards=(list card:agent:gall)
   |%
   ++  this  .
-  ++  abet-pe
-    ^-  (quip card:agent:gall _eyre-piers)
-    =.  eyre-piers  (~(put by eyre-piers) who pier-data)
-    [(flop cards) eyre-piers]
+  ::
+  ++  abet
+    ^-  (quip card:agent:gall _iris-piers)
+    =.  iris-piers  (~(put by iris-piers) who pier-data)
+    [(flop cards) iris-piers]
   ::
   ++  emit-cards
     |=  cs=(list card:agent:gall)
@@ -314,70 +336,64 @@
     [%pass /aqua-events %agent [our.bowl %pyro] %poke %aqua-events !>(aes)]~
   ::
   ++  sleep
-    ^+  ..abet-pe
-    ..abet-pe(pier-data *eyre-pier)
+    ^+  ..abet
+    ..abet(pier-data *iris-pier)
   ::
   ++  restore
-    ^+  ..abet-pe
+    ^+  ..abet
     =.  this
       %-  emit-aqua-events
       [%event who [/i/http/0v1n.2m9vh %born ~]]~
-    ..abet-pe
+      ..abet
   ::
-  ++  thus
-    |=  [way=wire %thus num=@ud req=(unit hiss:^eyre)]
-    ^+  ..abet-pe
-    ?~  req
-      ?.  (~(has in http-requests) num)
-        ..abet-pe
-      ::  Eyre doesn't support cancelling HTTP requests from userspace,
-      ::  so we remove it from our state so we won't pass along the
-      ::  response.
-      ::
-      ~&  [who=who %aqua-eyre-cant-cancel-thus num=num]
-      =.  http-requests  (~(del in http-requests) num)
-      ..abet-pe
-    ~&  [who=who %aqua-eyre-requesting u.req]
-    =.  http-requests  (~(put in http-requests) num)
+  ++  request
+    |=  [way=wire %request id=@ud req=request:http]
+    ^+  ..abet
+    =.  http-requests  (~(put in http-requests) id)
     =.  this
       %-  emit-cards  :_  ~
       :*  %pass
-          /(scot %p who)/(scot %ud num)
-          %arvo
-          %i
-          %request
-          (hiss-to-request:html u.req)
-          *outbound-config:iris
+          /(scot %p who)/(scot %ud id)
+          %arvo  %i
+          %request  req  *outbound-config:^iris
       ==
-    ..abet-pe
+    ..abet
+  ++  cancel-request
+    ..abet
+  ::
+  ++  http-response
+    ..abet
   ::
   ::  Pass HTTP response back to virtual ship
   ::
   ++  take-sigh-httr
-    |=  [way=wire res=httr:^eyre]
-    ^+  ..abet-pe
-    ?>  ?=([@ ~] way)
-    =/  num  (slav %ud i.way)
+    |=  [num=@ud =response-header:http data=(unit octs)]
+    ^+  ..abet
     ?.  (~(has in http-requests) num)
       ~&  [who=who %ignoring-httr num=num]
-      ..abet-pe
+      ..abet
     =.  http-requests  (~(del in http-requests) num)
     =.  this
-      (emit-aqua-events [%event who [/i/http/0v1n.2m9vh %receive num [%start [p.res q.res] r.res &]]]~)
-    ..abet-pe
+      %-  emit-aqua-events
+      :_  ~
+      :*  %event  who  /i/http/0v1n.2m9vh
+          %receive  num
+          %start  response-header  data  &
+      ==
+    ..abet
   ::
   ::  Got error in HTTP response
   ::
-  ++  take-sigh-tang
-    |=  [way=wire tan=tang]
-    ^+  ..abet-pe
-    ?>  ?=([@ ~] way)
-    =/  num  (slav %ud i.way)
-    ?.  (~(has in http-requests) num)
-      ~&  [who=who %ignoring-httr num=num]
-      ..abet-pe
-    =.  http-requests  (~(del in http-requests) num)
-    %-  (slog tan)
-    ..abet-pe
+  :: ++  take-sigh-tang
+  ::   |=  [way=wire tan=tang]
+  ::   ^+  ..abet
+  ::   ?>  ?=([@ ~] way)
+  ::   =/  num  (slav %ud i.way)
+  ::   ?.  (~(has in http-requests) num)
+  ::     ~&  [who=who %ignoring-httr num=num]
+  ::     ..abet
+  ::   =.  http-requests  (~(del in http-requests) num)
+  ::   %-  (slog tan)
+  ::   ..abet
   --
 --
