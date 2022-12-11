@@ -889,6 +889,7 @@
 ::
 ++  town-sequencers-to-json
   |=  town-sequencers=(map @ux @p)
+  =,  enjs:format
   ^-  json
   %-  pairs
   %+  turn  ~(tap by town-sequencers)
