@@ -47,6 +47,7 @@
         /sys    ::  system files
         /ted    ::  :spider strands
         /web    ::  %eyre web content
+        /zig    ::  uqbar %ziggurat files
         /desk   ::  desk manifest
     ==
   |=  [des=desk bas=path]

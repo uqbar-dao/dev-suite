@@ -7,6 +7,7 @@
     default-agent,
     verb,
     *zig-ziggurat,
+    conq=zink-conq,
     engine=zig-sys-engine,
     seq=zig-sequencer,
     smart=zig-sys-smart
@@ -84,51 +85,17 @@
     ==
   [cards this]
   ::
-  ++  scry-indexer
-    :-  %scry-indexer
-    '''
-    |=  [indexer-path=path expected=@t]
-    ^-  test-read-step:ziggurat
-    :+  %scry
-      :*  who=~nec  ::  hardcode: ~nec runs rollup/sequencer
-          'update:indexer'
-          %gx
-          %indexer
-          indexer-path
-      ==
-    expected
-    '''
-  ::
-  ++  poke-wallet-transaction
-    :-  %poke-wallet-transaction
-    '''
-    |=  [[who=@p contract=@ux transaction=@t] expected=(list test-read-step:ziggurat)]
-    ^-  test-write-step:ziggurat
-    :+  %poke
-      :^  who  %uqbar  %wallet-poke
-      %-  crip
-      """
-      :*  %transaction
-          from={<(~(got by addresses) who)>}
-          contract={<contract>}
-          town=0x0  ::  harcode
-          action=[%text {<transaction>}]  ::  TODO: how to transform within the %text?
-      ==
-      """
-    expected
-    '''
-  ::
   ++  compile-custom-step
-    |=  [tag=@tas =custom-step-definition subject=(each ^vase @t)]
+    |=  [tag=@tas =hoon subject=(each ^vase @t)]
     ^-  (each ^vase @t)
     ?:  ?=(%| -.subject)
       ~|("%ziggurat: subject must compile from surs before adding custom step" !!)
     =/  compilation-result
       %-  mule
-      |.
-      %+  slap  p.subject
-      (ream custom-step-definition)
-    ?:  ?=(%& -.compilation-result)  compilation-result
+      |.  (slap (slap p.subject hoon) (ream '$'))
+    :: ?:  ?=(%& -.compilation-result)  compilation-result
+    ?:  ?=(%& -.compilation-result)
+      compilation-result
     :-  %|
     %-  crip
     %+  roll  p.compilation-result
@@ -136,63 +103,80 @@
     :(weld ~(ram re in) "\0a" out)
   ::
   ++  make-recompile-custom-steps-cards
-    |=  [project-id=@t test-id=@ux =custom-step-definitions]
+    |=  [project-name=@t test-id=@ux =custom-step-definitions]
     ^-  (list card)
     %+  turn  ~(tap by custom-step-definitions)
-    |=  [tag=@tas [=custom-step-definition *]]
+    |=  [tag=@tas [p=path *]]
     :^  %pass  /self-wire  %agent
     :^  [our dap]:bowl  %poke  %ziggurat-action
     !>  ^-  action
-    :-  project-id
-    [%add-custom-step test-id tag custom-step-definition]
+    project-name^[%add-custom-step test-id tag p]
   ::
   ++  add-custom-step
-    |=  [=test tag=@tas =custom-step-definition]
-    ^-  ^test
+    |=  [=test project-name=@tas tag=@tas p=path]
+    ^-  (unit ^test)
+    =/  file-scry-path=path
+      :-  (scot %p our.bowl)
+      (weld /[project-name]/(scot %da now.bowl) p)
+    ?.  .^(? %cu file-scry-path)  ~
+    =/  [surs=(list [face=@tas =path]) =hoon]
+      (parse-pile:conq (trip .^(@t %cx file-scry-path)))
     =/  compilation-result=(each ^vase @t)
-      %^  compile-custom-step  tag
-      custom-step-definition  subject.test
+      (compile-custom-step tag hoon subject.test)
     =.  custom-step-definitions.test
       %+  ~(put by custom-step-definitions.test)  tag
-      [custom-step-definition compilation-result]
-    test
+      [p compilation-result]
+    ~?  ?=(%| -.compilation-result)
+      %ziggurat^%custom-step-compilation-failed^p.compilation-result
+    `test
   ::
   ++  add-test
-    |=  $:  project-id=@t
-            test-id=@ux
-            name=(unit @t)
-            test-surs=(list path)
-            test-steps=(list test-step)
-        ==
-    ^-  [(list card) test]
-    =/  =project  (~(got by projects) project-id)
+    |=  [project-name=@tas name=(unit @t) p=path]
+    ^-  test
+    ?~  p  !!  ::  TODO: do better
+    =/  =project  (~(got by projects) project-name)
+    =/  file-scry-path=path
+      :-  (scot %p our.bowl)
+      (weld /[project-name]/(scot %da now.bowl) p)
+    =/  [surs=(list [face=@tas =path]) =hoon]
+      (parse-pile:conq (trip .^(@t %cx file-scry-path)))
     =/  addresses=^vase  !>(virtualnet-addresses)
-    :-  (make-project-update project-id project [our now]:bowl)^~
-    %-  add-custom-step  :_  scry-indexer
-    %-  add-custom-step  :_  poke-wallet-transaction
-    :-  name
-    :*  test-surs
-        (compile-test-surs test-surs addresses)
-        ~
-        test-steps
-        ~
-    ==
+    =/  subject=(each ^vase @t)
+      (compile-test-surs `@tas`project-name surs addresses)
+    ?:  ?=(%| -.subject)  !!  ::  TODO: do better
+    =+  !<  =test-steps
+        (slap (slap p.subject hoon) (ream '$'))
+    =/  =test
+      :*  name
+          p
+          (~(gas by *test-surs) surs)
+          subject
+          ~
+          test-steps
+          ~
+      ==
+    =.  test
+      %-  fall  :_  test
+      %-  add-custom-step
+      :^  test  project-name  %scry-indexer
+      /zig/custom-step-definitions/scry-indexer/hoon
+    =.  test
+      %-  fall  :_  test
+      %-  add-custom-step
+      :^  test  project-name  %poke-wallet-transaction
+      /zig/custom-step-definitions/poke-wallet-transaction/hoon
+    test
   ::
   ++  add-and-queue-test
-    |=  [project-name=@t name=(unit @t) =test-surs =test-steps]
+    |=  [project-name=@t name=(unit @t) test-steps-file=path]
     ^-  (quip card _state)
     =/  =project  (~(got by projects) project-name)
-    =/  test-id=@ux  `@ux`(sham test-steps)
-    =/  [cards=(list card) =test]
-      %:  add-test
-          project-name
-          test-id
-          name
-          test-surs
-          test-steps
-      ==
+    =/  =test  (add-test project-name name test-steps-file)
+    =/  test-id=@ux  `@ux`(sham test)
     =.  tests.project  (~(put by tests.project) test-id test)
-    :-  cards
+    :-  :_  ~
+        %^  make-project-update  project-name  project
+        [our now]:bowl
     %=  state
         projects
       (~(put by projects) project-name project)
@@ -202,39 +186,31 @@
     ==
   ::
   ++  compile-test-surs
-    |=  [surs=(list path) addresses=^vase]
+    |=  $:  project-desk=@tas
+            surs=(list [face=@tas =path])
+            addresses=^vase
+        ==
     ^-  (each ^vase @t)
-    =/  ziggurat-sur=^vase
-      .^  ^vase
-          %ca
-          %+  weld  /(scot %p our.bowl)/zig
-          /(scot %da now.bowl)/sur/zig/ziggurat/hoon
-      ==
     =/  compilation-result
       %-  mule
       |.
       %+  slop  addresses(p [%face %addresses p.addresses])
-      %+  slop
-        ziggurat-sur(p [%face %ziggurat p.ziggurat-sur])
       %+  roll  surs
-      |:  [sur=`path`/ subject=`^vase`!>(..zuse)]
-      ?~  snipped=(snip sur)  subject  ::  TODO: do better
-      =/  sur-face=@tas  `@tas`(rear snipped)
+      |:  [[face=`@tas`%$ sur=`path`/] subject=`^vase`!>(..zuse)]
       ?:  %-  %~  has  in
               %-  %~  gas  in  *(set @tas)
-              ~[%addresses %test-results %ziggurat]
-          sur-face
-        ~|("%ziggurat: compilation failed; cannot use %addresses, %test-results, %ziggrat: reserved and built into subject already" !!)
-      ?>  ?=(^ sur)
+              ~[%addresses %test-results]
+          face
+        ~|("%ziggurat: compilation failed; cannot use %addresses, %test-results: reserved and built into subject already" !!)
       =/  sur-hoon=^vase
         .^  ^vase
             %ca
             :-  (scot %p our.bowl)
-            %+  weld  /[i.sur]/(scot %da now.bowl)
-            t.sur
+            %+  weld  /[project-desk]/(scot %da now.bowl)
+            (snoc sur %hoon)
         ==
       %-  slop  :_  subject
-      sur-hoon(p [%face sur-face p.sur-hoon])
+      sur-hoon(p [%face face p.sur-hoon])
     ?:  ?=(%& -.compilation-result)  compilation-result
     :-  %|
     %-  crip
@@ -397,17 +373,12 @@
     ::
         %add-test
       =/  =project  (~(got by projects) project.act)
-      =/  test-id=@ux  `@ux`(sham test-steps.act)
-      =/  [cards=(list card) =test]
-        %:  add-test
-            project.act
-            test-id
-            name.act
-            test-surs.act
-            test-steps.act
-        ==
+      =/  =test  (add-test [project name path]:act)
+      =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
-      :-  cards
+      :-  :_  ~
+          %^  make-project-update  project.act  project
+          [our now]:bowl
       state(projects (~(put by projects) project.act project))
     ::
         %delete-test
@@ -424,8 +395,7 @@
     ::
         %add-and-run-test
       =^  cards  state
-        %-  add-and-queue-test
-        [project name test-surs test-steps]:act
+        (add-and-queue-test [project name path]:act)
       =?  cards  =(| test-running)
         (snoc cards (make-run-queue our.bowl project.act))
       [cards state]
@@ -442,7 +412,7 @@
       =^  top  test-queue  ~(get to test-queue)
       =*  project-id  -.top
       =*  test-id     +.top
-      ~&  >  "%ziggurat: running {(scow %ux test-id)}"
+      ~&  >  "%ziggurat: running {<test-id>}"
       =/  =project  (~(got by projects) project-id)
       =/  =test     (~(got by tests.project) test-id)
       ?:  ?=(%| -.subject.test)
@@ -483,15 +453,14 @@
       `state(test-queue (~(put to test-queue) [project.act id.act]))
     ::
         %add-and-queue-test
-      %-  add-and-queue-test
-      [project name test-surs test-steps]:act
+      (add-and-queue-test [project name path]:act)
     ::
         %add-custom-step
       =/  =project  (~(got by projects) project.act)
       =/  =test     (~(got by tests.project) test-id.act)
       =.  test
-        %+  add-custom-step  test
-        [tag custom-step-definition]:act
+        %-  fall  :_  test
+        (add-custom-step test [project tag path]:act)
       =.  project
         project(tests (~(put by tests.project) test-id.act test))
       :-  (make-project-update project.act project [our now]:bowl)^~
@@ -801,15 +770,15 @@
     ::   ``noun+!>(~)
     :: ``noun+!>(compiled.p.u.project)
   ::
-      [%custom-step-definitions @ @ ~]
-    =/  =project  (~(got by projects) (slav %ux i.t.t.path))
-    =/  =test  (~(got by tests.project) (slav %ux i.t.t.t.path))
-    :^  ~  ~  %noun
-    !>  ^-  custom-step-definitions
-    %-  ~(run by custom-step-definitions.test)
-    |=  [p=custom-step-definition q=custom-step-compiled]
-    :-  p
-    ?:  ?=(%| -.q)  q  [%& *vase]
+    ::   [%custom-step-definitions @ @ ~]
+    :: =/  =project  (~(got by projects) (slav %ux i.t.t.path))
+    :: =/  =test  (~(got by tests.project) (slav %ux i.t.t.t.path))
+    :: :^  ~  ~  %noun
+    :: !>  ^-  custom-step-definitions
+    :: %-  ~(run by custom-step-definitions.test)
+    :: |=  [p=custom-step-definition q=custom-step-compiled]
+    :: :-  p
+    :: ?:  ?=(%| -.q)  q  [%& *vase]
   ::
       [%custom-step-compiled @ @ @ ~]
     =/  =project  (~(got by projects) i.t.t.path)
@@ -833,13 +802,11 @@
       %=  test
           subject
         ?:(?=(%& -.subject.test) [%& *vase] subject.test)
-        :: ?:(?=(%& -.subject.test) [%& *vase] [%| *@t])
       ::
           custom-step-definitions
         %-  ~(run by custom-step-definitions.test)
-        |=  [p=custom-step-definition q=custom-step-compiled]
-        :-  p
-        ?:(?=(%& -.q) [%& *vase] q)
+        |=  [p=^path q=custom-step-compiled]
+        [p ?:(?=(%& -.q) [%& *vase] q)]
       ==
     ==
   ::

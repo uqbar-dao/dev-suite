@@ -98,47 +98,62 @@ To avoid the overly-verbose scries, you can also use the `+scry` generator which
 +zig!pyro/scry ~nec %sequencer /status/noun 
 ```
 
+##  Test steps
+
+`test-steps` are sequences of `test-step`s: a command to do something that optionally has an expected result.
+E.g., a `test-step` can be a `%poke` or a `%scry`.
+A `%scry` `test-step`, an example of a read from state, has an `expected` field that is a `@t`: the expectation of output as a result of completing that scry.
+In contract, a `test-step` like a `%poke` that writes to state has an `expected` field that is a `list` of read steps: a single `%poke` can have cascading effects and so it is important to have the ability to query multiple times.
+
+`test-steps` are defined in the `$` arm of a core.
+Examples can be seen in the `zig/test-steps/` dir](https://github.com/uqbar-dao/uqbar-core/tree/067f1552bbcc335db32550733b99338b33c6ed5d/zig/test-steps).
+
+The subject of a `test-steps` is defined by the `/=` imports at the top of the `test-steps` file.
+In addition, this subject will be applied for [`custom-step-definitions`](#custom-inputs), so those dependencies must be included in `test-steps`.
+Finally, some test globals will be accessible by `test-steps`.
+`addresses` includes the `(map @p @ux)` defined in `%ziggurat` app state and set with the `%set-virtualnet-addresses` action.
+The `addresses` map is useful for easy access and pairing between virtualships and their testnet addresses.
+`test-results` are also accessible, so that the results of a previous `test-step` is usable in the current one (TODO).
+
 ## Custom inputs
 
 You can build custom inputs to `%pyro` ships.
-For example, see the [`%ziggurat` `+on-init`](https://github.com/uqbar-dao/uqbar-core/blob/06ec7d43aeac29c0f623f5b17d1b4ec86c2053ad/app/ziggurat.hoon#L55-L88).
+For examples, see the [`zig/custom-step-definitions/` dir](https://github.com/uqbar-dao/uqbar-core/tree/067f1552bbcc335db32550733b99338b33c6ed5d/zig/custom-step-definitions).
 (TODO: keep this link updated).
-These steps consist of a `tag=@tas`, the name of the step that will be referenced when calling it, and `transform=@t`, the code that will be run to transform the custom step input into a normal step, as a `cord`.
-Please refer to the `%ziggurat` `+on-init` linked above for examples on how to write the `transform` and [Example usage](#example-usage) `%custom-send` for usage of the custom steps.
+These steps are labeled by a `tag=@tas` -- the name of the step that will be referenced when calling it.
+The code for a custom step lives in the `$` arm of a core.
+Please refer to the `zig/custom-step-definitions/` dir linked above for examples on how to write the `transform` and [Example usage](#example-usage) `%send-nec-custom` for usage of the custom steps.
 TODO: write more here.
 
 ## Example usage
 
 Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 ```hoon
-=help -build-file /=zig=/lib/zig/ziggurat/test-steps-dojo/hoon
-
-=zig -build-file /=zig=/sur/zig/ziggurat/hoon
-=rollup-host ~nec
 :ziggurat &ziggurat-action [%foo %new-project ~]
+
+::  Setup virtaulship testnet, like following [README](https://github.com/uqbar-dao/uqbar-core/blob/master/readme.md).
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%setup /zig/test-steps/setup/hoon]
+
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-nec /zig/test-steps/scry-nec/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-bud /zig/test-steps/scry-bud/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-clay /zig/test-steps/scry-clay/hoon]
+
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%subscribe-nec /zig/test-steps/subscribe-nec/hoon]
+
+::  The same ZIGS send done in three ways:
+::   Straight up,
+::   Using custom-test-steps,
+::   Using the `addresses` test global.
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec /zig/test-steps/send-nec/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec-custom /zig/test-steps/send-nec-custom/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec-addresses /zig/test-steps/send-nec-addresses/hoon]
+
 :ziggurat &ziggurat-action [%foo %start-pyro-ships ~[~nec ~bud]]
-
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%setup ~[/zig/sur/zig/indexer/hoon] setup:help]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-nec ~[/zig/sur/zig/indexer/hoon] scry-nec:help]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-bud ~[/zig/sur/zig/indexer/hoon] scry-bud:help]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-clay ~ scry-clay:help]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%subscribe-nec ~[/zig/sur/zig/indexer/hoon] subscribe-nec:help]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec ~[/zig/sur/zig/indexer/hoon] send-nec:help]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec-custom ~[/zig/sur/zig/indexer/hoon] send-nec-custom:help]
-
 :ziggurat &ziggurat-action [%$ %run-queue ~]
-:ziggurat &ziggurat-action [%foo %stop-pyro-ships ~]
-```
 
-Tell `%indexer` not to run any tests right now.
-```hoon
+::  Tell `%ziggurat` not to run any more tests right now.
+::   Also resets state when `%start-pyro-ships` is called again.
 :ziggurat &ziggurat-action [%foo %stop-pyro-ships ~]
-```
-
-To reset virtualships to initial state:
-```hoon
-:ziggurat &ziggurat-action [%foo %stop-pyro-ships ~]
-:ziggurat &ziggurat-action [%foo %start-pyro-ships ~]
 ```
 
 An alternative to `send-nec`:
@@ -149,7 +164,6 @@ An alternative to `send-nec`:
 ```
 
 To interact with snapshots:
-Disclaimer : these currently have a bunch of jet mismatches when you boot them. May be super slow! This is getting fixed in an OTA soon.
 ```hoon
 :pyro &action [%snap-ships /my-snapshot/0 ~[~nec ~bud]]
 :pyro &action [%restore-snap /my-snapshot/0]
@@ -157,7 +171,11 @@ Disclaimer : these currently have a bunch of jet mismatches when you boot them. 
 ```
 where the `/my-snapshot/0` here is just a `path` label of the snapshot.
 
-We pre-cache a special `/testnet` snapshot which loads a virtual testnet for you. To activate it use
+We pre-cache a special `/testnet` snapshot which loads a virtual testnet for you.
+Disclaimer: these currently have a bunch of jet mismatches when you boot them.
+May be super slow!
+This is getting fixed in an OTA soon.
+To activate it use
 ```
 :ziggurat &ziggurat-action [%foo %start-pyro-snap /testnet]
 ```
@@ -175,14 +193,16 @@ However, here it does not yet work because `%poke-wallet-transaction` passes in 
 It also does not yet work for transforming `%dojo` arguments: another TODO.
 
 ## Configuring Testnet Snapshot For Quick-Boot
+
 Testnet snap last updated: Dec 6 2022
 
-Note that this will create a bunch of jet mismatch errors because jetted code is not currently portable (easily). If you find that the ships are running slowly, and can't figure out why, repeating the steps below to recreate the default testnet state is a good idea.
+Note that this will create a bunch of jet mismatch errors because jetted code is not currently portable (easily).
+If you find that the ships are running slowly, and can't figure out why, repeating the steps below to recreate the default testnet state is a good idea.
 TODO: turn this into a thread
 
-first go into ames - ctrl+F "13" and replace with "23" to boost the packet size
+First go into ames - ctrl+F "13" and replace with "23" to boost the packet size (see [above](#ames-speedboost-on-fakeships) for more details), then:
 
-```
+```hoon
 |commit %base
 :pyro &pill +zig!solid %base %zig
 :pyro|init ~nec
@@ -203,4 +223,4 @@ first go into ames - ctrl+F "13" and replace with "23" to boost the packet size
 |unmount %zig
 |mount %zig
 ```
-then move zig/lib/py/snapshots/testnet.jam into this repo
+then move `zig/lib/py/snapshots/testnet.jam` into this repo

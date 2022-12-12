@@ -798,6 +798,7 @@
       ['user_files' (dir-to-json ~(tap in user-files.p))]
       ['to_compile' (dir-to-json ~(tap in to-compile.p))]
       ['errors' (errors-to-json errors.p)]
+      ['town_sequencers' (town-sequencers-to-json town-sequencers.p)]
       ['tests' (tests-to-json tests.p)]
       ['dbug_dashboards' (dbug-dashboards-to-json dbug-dashboards.p)]
   ==
@@ -831,12 +832,21 @@
   ^-  json
   %-  pairs
   :~  ['name' %s ?~(name.test '' u.name.test)]
-      ['surs' (dir-to-json surs.test)]
+      ['test-steps-file' (path test-steps-file.test)]
+      ['test-surs' (test-surs-to-json test-surs.test)]
       ['subject' %s ?:(?=(%& -.subject.test) '' p.subject.test)]
       ['custom-step-definitions' (custom-step-definitions-to-json custom-step-definitions.test)]
       ['steps' (test-steps-to-json steps.test)]
       ['results' (test-results-to-json results.test)]
   ==
+::
+++  test-surs-to-json
+  |=  =test-surs
+  ^-  json
+  %-  pairs:enjs:format
+  %+  turn  ~(tap by test-surs)
+  |=  [face=@tas p=path]
+  [face (path:enjs:format p)]
 ::
 ++  dir-to-json
   |=  dir=(list path)
@@ -861,10 +871,10 @@
   ^-  json
   %-  pairs
   %+  turn  ~(tap by custom-step-definitions)
-  |=  [id=@tas def=custom-step-definition com=custom-step-compiled]
+  |=  [id=@tas p=^path com=custom-step-compiled]
   :-  id
   %-  pairs
-  :+  ['custom-step-definition' %s def]
+  :+  ['path' (path p)]
     ['custom-step-compiled' (custom-step-compiled-to-json com)]
   ~
 ::
@@ -876,6 +886,15 @@
   :+  ['compiled-successfully' %b ?=(%& -.custom-step-compiled)]
     ['compile-error' %s ?:(?=(%& -.custom-step-compiled) '' p.custom-step-compiled)]
   ~
+::
+++  town-sequencers-to-json
+  |=  town-sequencers=(map @ux @p)
+  =,  enjs:format
+  ^-  json
+  %-  pairs
+  %+  turn  ~(tap by town-sequencers)
+  |=  [town-id=@ux who=@p]
+  [(scot %ux town-id) %s (scot %p who)]
 ::
 ++  test-steps-to-json
   |=  =test-steps
