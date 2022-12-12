@@ -569,7 +569,15 @@
             %poke  %aqua-events
             !>((turn ships.act |=(who=ship [%init-ship who])))
         ==
-      :-  (weld wach init)
+      =/  subs=(list card:agent:gall) ::  start %subscriber app
+        %+  turn  ships.act
+        |=  who=ship
+        :*  %pass  /  %agent
+            [our.bowl %pyro]
+            %poke  %action
+            !>([%dojo who "|start %zig %subscriber"])
+        ==
+      :-  :(weld wach init subs)
       %_    state
           pyro-ships-ready
         %-  ~(gas by *(map ship ?))

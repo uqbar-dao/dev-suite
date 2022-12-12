@@ -18,8 +18,7 @@
 ++  on-init
   ^-  (quip card _this)
   :_  this
-  %+  weld
-    [%pass /connect %arvo %e %connect [~ /apps/pyro] %pyro]~
+  :: :-  [%pass /connect %arvo %e %connect [~ /apps/pyro] %pyro]
   %+  turn
     :~  [/ames/restore /effect/restore]
         [/ames/send /effect/send]
