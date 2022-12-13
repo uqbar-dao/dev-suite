@@ -1,8 +1,7 @@
 ::  Scry an agent inside of a pyro ship
 ::  Usage: +zig!pyro/scry ~dev %sequencer /status/noun
 ::
-/-  pyro
-=,  pyro
+/-  *pyro
 :-  %say
 |=  [[now=@da * =beak] [her=ship app=@tas =path ~] ~]
 :-  %noun

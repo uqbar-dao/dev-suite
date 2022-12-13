@@ -18,7 +18,7 @@
 ++  on-init
   ^-  (quip card _this)
   :_  this
-  :: :-  [%pass /connect %arvo %e %connect [~ /apps/pyro] %pyro]
+  :: :-  [%pass /connect %arvo %e %connect [~ /'~pyro'] %pyro]~
   %+  turn
     :~  [/ames/restore /effect/restore]
         [/ames/send /effect/send]

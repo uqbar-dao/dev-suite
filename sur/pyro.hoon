@@ -38,8 +38,7 @@
 ::
 +$  pyro-action
   $%  [%dojo who=@p command=tape]
-      [%remove-ship who=@p]
-      [%insert-files who=@p des=desk files=(list [=path txt=@t])]
+      [%remove-ship who=ship]
       [%snap-ships =path hers=(list ship)]
       [%restore-snap =path]
       [%clear-snap =path]

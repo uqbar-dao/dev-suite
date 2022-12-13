@@ -1,29 +1,28 @@
 ::  Usage: :pyro|commit ~dev %zig
-::     or: :pyro|commit ~dev %zig, =files ~[/foo/hoon /bar/hoon]
-::   Note:  first run :pyro|dojo ~dev "|mount %zig" once before using commit
-::   TODO:  get .docket-0 files working
-/-  pyro, *docket
-=,  pyro
+::
+/-  *pyro, *docket
 :-  %say
-|=  $:  [* * =beak]
+|=  $:  [now=@da * =beak]
         [who=ship desk=@tas ~]
-        files=(list path)
+        ~
     ==
 =/  desk-path  /(scot %p p.beak)/[desk]/(scot r.beak)
-=/  to-insert=(list path)
-  ?^  files  files
-  .^((list path) %ct desk-path)
-:-  %action
-:^  %insert-files  who  desk
-%+  murn  to-insert
-|=  =path
-^-  (unit [^path @t])
-?+  (rear path)  ~&(>>> "can't commit .{(trip (rear path))} files" ~)
-  %hoon    `[path .^(@t %cx (weld desk-path path))]
-  %ship    `[path (scot %p .^(ship %cx (weld desk-path path)))]
-  %bill    `[path (crip (noah !>(.^((list @tas) %cx (weld desk-path path)))))]
-  %kelvin  `[path (crip (noah !>(.^([@tas @ud] %cx (weld desk-path path)))))]
-  ::   %docket-0
-  :: :+  ~  path
-  :: (crip (noah !>(.^(docket %cx (weld desk-path path)))))
-==
+=/  files  .^((list path) %ct desk-path)
+~&  >  "inserting {<(lent files)>} files"
+=/  insert=aqua-event
+  :*  %event  who  /c/sync/0v1n.2m9vh
+  ::
+      %park  desk
+      :+  %&
+        ~
+      %-  ~(gas by *(map path [%& page]))
+      %+  turn  files
+      |=  =path
+      ^-  [^path %& page]
+      [path %& (rear path) .^(* %cx (weld desk-path path))]
+  ::
+      *rang:clay
+  ==
+~&  >  "%park-ing files, this may take a few seconds..."
+:-  %aqua-events
+~[insert]

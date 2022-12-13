@@ -624,19 +624,6 @@
     =.  piers  (~(del by piers) who.act)
     `state
   ::
-      %insert-files
-    :_  state
-    %-  send-events
-    ^-  (list aqua-event)
-    %+  turn
-      ^-  (list unix-event)
-      =-  [/c/sync/0v1n.2m9vh %into des.act | -]~
-      %+  turn  files.act
-      |=  [=path txt=@t]
-      [path ~ /text/plain (as-octs:mimes:html txt)]
-    |=  ue=unix-event
-    [%event who.act ue]
-  ::
       %snap-ships
     =.  this
       %+  turn-ships  (turn ~(tap by piers) head)
