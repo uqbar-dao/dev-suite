@@ -1,4 +1,4 @@
-/+  smart=zig-sys-smart, zink=zink-zink
+/+  smart=zig-sys-smart
 |%
 ++  big  (bi:smart id:smart item:smart)  ::  merkle engine for state
 ++  pig  (bi:smart id:smart @ud)         ::                for nonces

@@ -17,7 +17,12 @@
   =/  interface-types=(map @tas json)  get-interface-types
   ?~  interface-type=(~(get by interface-types) label)
     [%s (crip (noah !>(noun)))]
-  (jold-full-tuple-to-object:jold u.interface-type noun)
+  =/  jold-result
+    %-  mule
+    |.
+    (jold-full-tuple-to-object:jold u.interface-type noun)
+  ?:  ?=(%& -.jold-result)  p.jold-result
+  [%s (crip (noah !>(noun)))]
   ::
   ++  get-interface-types
     ^-  (map @tas json)
