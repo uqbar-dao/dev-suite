@@ -164,7 +164,7 @@
     ::  This is an implementation of the approveAndCall psuedo-standard for ERC20 tokens.
     ::  In a single transaction you can approve a max spend and call a function, saving
     ::  an extra transaction. For any contract that wants to implement this, the wheat
-    ::  must have an %on-push arm implemented as [%on-push from=id amount=id calldata=*]
+    ::  must have an %on-push arm implemented as [%on-push from=id amount=@ud calldata=*]
     =+  (need (scry-state from-account.act))
     =+  account=(husk account:sur - `this.context `id.caller.context)
     =.  allowances.noun.account

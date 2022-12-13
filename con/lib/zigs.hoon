@@ -40,6 +40,23 @@
             from-account=id
         ==
     ::
+        $:  %push
+            to=address
+            amount=@ud
+            from-account=id
+            calldata=*
+        ==
+    ::
+        $:  %pull
+            from=address
+            to=address
+            amount=@ud
+            from-account=id
+            nonce=@ud
+            deadline=@ud
+            =sig
+        ==
+    ::
         $:  %set-allowance
             who=address
             amount=@ud  ::  (to revoke, call with amount=0)
@@ -50,5 +67,7 @@
 ::
 ++  lib
   |%
+  ::  see lib/fungible.hoon
+  ++  pull-jold-hash  0x8a0c.ebea.b35e.84a1.1729.7c78.f677.f39a
   --
 --
