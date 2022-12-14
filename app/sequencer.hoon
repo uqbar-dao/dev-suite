@@ -3,7 +3,7 @@
 ::  Agent for managing a single UQ| town. Publishes diffs to rollup.hoon
 ::  Accepts transactions and batches them periodically as moves to town.
 ::
-/-  uqbar=zig-uqbar
+/-  uqbar=zig-uqbar, w=zig-wallet
 /+  default-agent, dbug, verb,
     *zig-sequencer, *zig-rollup,
     zink=zink-zink, sig=zig-sig,
@@ -58,17 +58,10 @@
 ++  on-watch
   |=  =path
   ^-  (quip card _this)
-  ?.  =(%available status.state)
-    ~|("%sequencer: error: got watch while not active" !!)
-  ::  open: anyone can watch
-  ::  ?>  (allowed-participant [src our now]:bowl)
   ?.  ?=([%indexer %updates ~] path)
     ~|("%sequencer: rejecting %watch on bad path" !!)
-  ::  handle indexer watches here -- send latest state
-  ?~  town  `this
-  :_  this
-  =-  [%give %fact ~ %sequencer-indexer-update -]~
-  !>(`indexer-update`[%update (rear roots.hall.u.town) ~ u.town])
+  ::  handle indexer watches here -- send nothing
+  `this
 ::
 ++  on-poke
   |=  [=mark =vase]
@@ -76,7 +69,6 @@
   |^
   ?.  ?=(%sequencer-town-action mark)
     ~|("%sequencer: error: got erroneous %poke" !!)
-  ?>  (allowed-participant [src our now]:bowl)
   =^  cards  state
     (handle-poke !<(town-action vase))
   [cards this]
@@ -188,10 +180,14 @@
       ::  1. produce diff and new state with engine
       =/  batch-num  batch-num.hall.town
       =/  addr  p.sequencer.hall.town
-      =+  /(scot %p our.bowl)/wallet/(scot %da now.bowl)/account/(scot %ux addr)/(scot %ux town-id.hall.town)/noun
-      =+  .^(caller:smart %gx -)
+      =/  =wallet-update:w
+        .^  wallet-update:w  %gx
+            %+  weld  /(scot %p our.bowl)/wallet/(scot %da now.bowl)
+            /account/(scot %ux addr)/(scot %ux town-id.hall.town)/noun
+        ==
+      ?>  ?=(%account -.wallet-update)
       =/  new=state-transition
-        %+  ~(run eng - town-id.hall.town batch-num eth-block-height.act)
+        %+  ~(run eng caller.wallet-update town-id.hall.town batch-num eth-block-height.act)
         chain.town  mempool.state
       =/  new-root       `@ux`(sham chain.new)
       =/  diff-hash      `@ux`(sham ~[modified.new])

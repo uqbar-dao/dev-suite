@@ -12,18 +12,29 @@
 ++  tx-update-card
   |=  in=[@ux transaction:smart supported-actions]
   ^-  card
-  =+  `wallet-update`[%tx-status in]
-  [%give %fact ~[/tx-updates] %wallet-update !>(-)]
+  =+  `wallet-frontend-update`[%tx-status in]
+  [%give %fact ~[/tx-updates] %wallet-frontend-update !>(-)]
 ::
 ++  finished-tx-update-card
-  |=  in=[@ux transaction:smart supported-actions output:eng]
+  |=  in=[@ux origin transaction:smart supported-actions output:eng]
   ^-  card
-  =+  `wallet-update`[%finished-tx in]
-  [%give %fact ~[/tx-updates] %wallet-update !>(-)]
+  =+  `wallet-frontend-update`[%finished-tx in]
+  [%give %fact ~[/tx-updates] %wallet-frontend-update !>(-)]
+::
+++  notify-origin-card
+  |=  [our=@p in=[@ux =origin transaction:smart supported-actions output:eng]]
+  ^-  card
+  ?~  origin.in  !!
+  :*  %pass  q.u.origin.in
+      %agent  [our p.u.origin.in]
+      %poke  %wallet-update
+      !>  ^-  wallet-update
+      [%finished-transaction +.in]
+  ==
 ::
 ++  get-sent-history
   |=  [=address:smart newest=? our=@p now=@da]
-  ^-  (map @ux [transaction:smart supported-actions output:eng])
+  ^-  (map @ux [origin transaction:smart supported-actions output:eng])
   =/  transaction-history=update:ui
     .^  update:ui
         %gx
@@ -35,7 +46,8 @@
   ?.  ?=(%transaction -.transaction-history)  ~
   %-  ~(urn by transactions.transaction-history)
   |=  [hash=@ux @ * =transaction:smart =output:eng]
-  :+  transaction(status (add 200 `@`status.transaction))
+  :^    ~
+      transaction(status (add 200 `@`status.transaction))
     [%noun calldata.transaction]
   output
 ::
@@ -149,8 +161,8 @@
     ~
   ?.  ?=(%& -.u.g)  ~
   ?+  token-type  ~
-    %token  `[%token town ;;(token-metadata noun.p.u.g)]
-    %nft    `[%nft town ;;(nft-metadata noun.p.u.g)]
+    %token  `[%token town source.p.u.g ;;(token-metadata noun.p.u.g)]
+    %nft    `[%nft town source.p.u.g ;;(nft-metadata noun.p.u.g)]
   ==
 ::
 ::  JSON parsing utils
@@ -171,12 +183,12 @@
         %-  pairs
         ?-    -.asset
             %token
-          :~  ['balance' (numb balance.asset)]
+          :~  ['balance' [%s (scot %ud balance.asset)]]
               ['metadata' [%s (scot %ux metadata.asset)]]
           ==
         ::
             %nft
-          :~  ['id' (numb id.asset)]
+          :~  ['id' [%s (scot %ud id.asset)]]
               ['uri' [%s uri.asset]]
               ['metadata' [%s (scot %ux metadata.asset)]]
               ['allowances' (address-set allowances.asset)]
@@ -203,15 +215,15 @@
           ^-  (list [@t json])
           :~  ['name' [%s name.m]]
               ['symbol' [%s symbol.m]]
-              ['supply' (numb supply.m)]
-              ['cap' ?~(cap.m ~ (numb u.cap.m))]
+              ['supply' [%s (scot %ud supply.m)]]
+              ['cap' ?~(cap.m ~ [%s (scot %ud u.cap.m)])]
               ['mintable' [%b mintable.m]]
               ['minters' (address-set minters.m)]
               ['deployer' [%s (scot %ux deployer.m)]]
-              ['salt' (numb salt.m)]
+              ['salt' [%s (scot %ud salt.m)]]
           ==
         ?-  -.m
-          %token  ['decimals' (numb decimals.m)]
+          %token  ['decimals' [%s (scot %ud decimals.m)]]
           %nft  ['properties' (properties-set properties.m)]
         ==
     ==
@@ -238,29 +250,30 @@
     |=([prop=@tas val=@t] [prop [%s val]])
   ::
   ++  transaction-with-output
-    |=  [hash=@ux t=transaction:smart action=supported-actions o=output:eng]
+    |=  [hash=@ux =origin t=transaction:smart action=supported-actions o=output:eng]
     :-  (scot %ux hash)
     %-  pairs
-    :~  ['transaction' (transaction t action)]
+    :~  ['transaction' (transaction hash t action)]
         ['output' (output o)]
     ==
   ::
   ++  transaction-no-output
-    |=  [hash=@ux t=transaction:smart action=supported-actions]
+    |=  [hash=@ux =origin t=transaction:smart action=supported-actions]
     :-  (scot %ux hash)
-    (transaction t action)
+    (transaction hash t action)
   ::
   ++  transaction
-    |=  [t=transaction:smart action=supported-actions]
+    |=  [hash=@ux t=transaction:smart action=supported-actions]
     ^-  json
     %-  pairs
-    :~  ['from' [%s (scot %ux address.caller.t)]]
-        ['nonce' (numb nonce.caller.t)]
+    :~  ['hash' [%s (scot %ux hash)]]
+        ['from' [%s (scot %ux address.caller.t)]]
+        ['nonce' [%s (scot %ud nonce.caller.t)]]
         ['contract' [%s (scot %ux contract.t)]]
-        ['rate' (numb rate.gas.t)]
-        ['budget' (numb bud.gas.t)]
+        ['rate' [%s (scot %ud rate.gas.t)]]
+        ['budget' [%s (scot %ud bud.gas.t)]]
         ['town' [%s (scot %ux town.t)]]
-        ['status' (numb status.t)]
+        ['status' [%s (scot %ud status.t)]]
         :-  'action'
         %-  frond
         :-  (scot %tas -.action)
@@ -268,7 +281,7 @@
         ?-    -.action
             %give
           :~  ['to' [%s (scot %ux to.action)]]
-              ['amount' (numb amount.action)]
+              ['amount' [%s (scot %ud amount.action)]]
               ['item' [%s (scot %ux item.action)]]
           ==
         ::
@@ -290,7 +303,7 @@
     ^-  json
     %-  pairs
     :~  ['gas' [%s (scot %ud gas.o)]]
-        ['errorcode' (numb errorcode.o)]
+        ['errorcode' [%s (scot %ud errorcode.o)]]
         ::  XX add when merging parsing libraries
     ==
   --

@@ -79,6 +79,7 @@
         ~&  >>>  "engine: tx failed gas audit"
         (exhaust bud.gas.tx %3 ~)
       ::
+      =/  gas-payer  address.caller.tx
       |-  ::  recursion point for calls
       ::
       ?:  &(=(0x0 contract.tx) =(%burn p.calldata.tx))
@@ -97,6 +98,9 @@
           ?&  =(contract.tx zigs-contract-id:smart)
               =(p.calldata.tx %give)
           ==
+        ::  only assert budget check when gas-payer is interacting
+        ?.  =(address.caller.tx gas-payer)
+          [0 q.calldata.tx]
         [bud.gas.tx q.calldata.tx]
       ?~  pac=(get:big p.chain contract.tx)
         ~&  >>>  "engine: call to missing pact"
@@ -110,14 +114,14 @@
       ::
       =/  =context:smart
         [contract.tx [- +<]:caller.tx batch-num eth-block-height town-id]
-      =/  [mov=(unit move) gas=@ud =errorcode:smart]
+      =/  [mov=(unit move) gas-remaining=@ud =errorcode:smart]
         (combust code.p.u.pac context calldata.tx bud.gas.tx)
       ::
-      ?~  mov  (exhaust gas errorcode ~)
+      ?~  mov  (exhaust gas-remaining errorcode ~)
       =*  calls  -.u.mov
       =*  diff   +.u.mov
       ?.  (clean diff contract.tx zigs.caller.tx)
-        (exhaust gas %7 ~)
+        (exhaust gas-remaining %7 ~)
       =/  all-diffs   (uni:big changed.diff issued.diff)
       =/  all-burns   burned.diff
       =/  all-events=(list contract-event)
@@ -127,7 +131,7 @@
       |-  ::  INNER loop for handling continuations
       ?~  calls
         ::  diff-only result, finished calling
-        (exhaust gas %0 `[all-diffs all-burns all-events])
+        (exhaust gas-remaining %0 `[all-diffs all-burns all-events])
       =.  p.chain
         %+  dif:big
           %+  uni:big  p.chain
@@ -144,7 +148,7 @@
         ::
             tx
           %=  tx
-            bud.gas         gas
+            bud.gas         gas-remaining
             address.caller  contract.tx
             contract        contract.i.calls
             calldata        calldata.i.calls
@@ -152,13 +156,13 @@
         ==
       ::
       ?.  ?=(%0 errorcode.inter)
-        (exhaust gas.inter errorcode.inter ~)
+        (exhaust (sub gas-remaining gas.inter) errorcode.inter ~)
       %=  $
-        calls       t.calls
-        gas         (sub gas gas.inter)
-        all-diffs   (uni:big all-diffs modified.inter)
-        all-burns   (uni:big all-burns burned.inter)
-        all-events  (weld all-events events.inter)
+        calls          t.calls
+        gas-remaining  (sub gas-remaining gas.inter)
+        all-diffs      (uni:big all-diffs modified.inter)
+        all-burns      (uni:big all-burns burned.inter)
+        all-events     (weld all-events events.inter)
       ==
     ::
     ::  +exhaust: prepare final diff for entire call, including all
@@ -195,12 +199,14 @@
       ?~  p.p.book
         ~&  >>>  "engine: ran out of gas"
         [~ 0 %8]
-      =/  m  ;;((unit move) p.p.book)
+      ?~  m=((soft (unit move)) p.p.book)
+        ::  error in contract execution
+        [~ gas.q.book %6]
       ::  useful debug prints
       ::  ~&  "context: {<context>}"
       ::  ~&  >  "calldata: {<calldata>}"
-      ::  ~&  >>  m
-      [m gas.q.book %0]
+      ::  ~&  >>  u.m
+      [u.m gas.q.book %0]
       ::
       ::  +load: take contract code and combine with smart-lib
       ::

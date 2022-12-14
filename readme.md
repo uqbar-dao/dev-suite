@@ -46,7 +46,7 @@ In the future, with remote scry, users will not need to run their own `%indexer`
 
    git clone git@github.com:urbit/urbit.git
    cd urbit/pkg
-   git submodule add git@github.com:uqbar-dao/ziggurat.git ziggurat
+   git submodule add git@github.com:uqbar-dao/uqbar-core.git uqbar-core
    ```
 2. Either build or install the Urbit binary, then boot a development fakeship:
    ```bash
@@ -62,7 +62,7 @@ In the future, with remote scry, users will not need to run their own `%indexer`
    cd ~/git/urbit/pkg  # Replace with your chosen directory.
 
    rm -rf zod/zig/*
-   cp -RL ziggurat/* zod/zig/
+   cp -RL uqbar-core/* zod/zig/
    ```
 5. In the Dojo of the fakeship, commit the copied files and install.
    ```hoon
@@ -82,7 +82,7 @@ In the future, with remote scry, users will not need to run their own `%indexer`
 ## Starting a Fakeship Testnet
 
 To develop this repo or new contracts, it is convenient to start with a fakeship testnet.
-First, make sure the fakeship you're using is in the [whitelist](https://github.com/uqbar-dao/ziggurat/blob/master/lib/rollup.hoon).
+First, make sure the fakeship you're using is in the [whitelist](https://github.com/uqbar-dao/uqbar-core/blob/master/lib/rollup.hoon).
 
 Uqbar provides a generator to set up a fakeship testnet for local development.
 That generator, used as a poke to the `%sequencer` app as `:sequencer|init`, populates a new town with some [`item`](#item)s: [`pact`](#pact) (contract code) and [`data`](#data) (contract data).
@@ -90,9 +90,9 @@ Specifically, contracts for zigs tokens, NFTs, and publishing new contracts are 
 After [initial installation](#initial-installation), start the `%rollup`, initialize the `%sequencer`, set up the `%uqbar` read-write interface, and configure the `%wallet` to point to some [pre-set assets](#accounts-initialized-by-init-script), minted in the `:sequencer|init` poke:
 ```hoon
 :rollup|activate
-:sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608
 :indexer &set-sequencer [our %sequencer]
 :indexer &set-rollup [our %rollup]
+:sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608
 :uqbar &wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
 ```
 
@@ -107,13 +107,13 @@ First, create a pending transaction.
 The `%wallet` will send the transaction hash on a subscription wire as well as print it in the Dojo.
 ```hoon
 ::  Send zigs tokens.
-:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
+:uqbar &wallet-poke [%transaction ~ from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]
 
 ::  Send an NFT.
-:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0xb526.8432.294e.1c99.de7f.0cd9.2634.332a.28d3.9b76.4549.b51f.0fb2.80d5.91f1.1f5a atown=0x0 action=[%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de item=0xf4db.64cc.9ab5.5d34.8aa5.be1c.1de2.a6c3.10f8.f18a.a6f0.4f17.6051.e8e3.5bac.ce63]]
+:uqbar &wallet-poke [%transaction ~ from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0xb526.8432.294e.1c99.de7f.0cd9.2634.332a.28d3.9b76.4549.b51f.0fb2.80d5.91f1.1f5a town=0x0 action=[%give-nft to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de item=0xf4db.64cc.9ab5.5d34.8aa5.be1c.1de2.a6c3.10f8.f18a.a6f0.4f17.6051.e8e3.5bac.ce63]]
 
 ::  Use the custom transaction interface to send zigs tokens.
-:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%noun [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]]]
+:uqbar &wallet-poke [%transaction ~ from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%noun [%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=69.000 from-account=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6 to-account=`0xd79b.98fc.7d3b.d71b.4ac9.9135.ffba.cc6c.6c98.9d3b.8aca.92f8.b07e.a0a5.3d8f.a26c]]]
 ```
 
 Then, sign the transaction and assign it a gas budget.
@@ -173,7 +173,7 @@ When routed through `%uqbar`, as below, `/indexer` must be prepended to the path
 
 1. Scrying from the Dojo.
    ```hoon
-   =ui -build-file /=zig=/sur/indexer/hoon
+   =ui -build-file /=zig=/sur/zig/indexer/hoon
 
    ::  Query all fields for the given hash.
    .^(update:ui %gx /=uqbar=/indexer/hash/0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70/noun)
@@ -308,7 +308,7 @@ To deploy on town `0x0`, in the Dojo:
 =contract-path /=zig=/con/compiled/multisig/jam
 =contract-jam .^(@ %cx contract-path)
 =contract [- +]:(cue contract-jam)
-:uqbar &wallet-poke [%transaction from=[youraddress] contract=0x1111.1111 town=0x0 action=[%noun [%deploy mutable=%.n cont=contract interface=~ types=~]]]
+:uqbar &wallet-poke [%transaction ~ from=[youraddress] contract=0x1111.1111 town=0x0 action=[%noun [%deploy mutable=%.n cont=contract interface=~ types=~]]]
 ```
 
 

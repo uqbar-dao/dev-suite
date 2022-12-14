@@ -2,6 +2,8 @@
 /+  smart=zig-sys-smart
 |%
 +$  signature   [p=@ux q=ship r=life]
+::  for app-generated transactions to be notified of their txn results
++$  origin  (unit (pair term wire))
 ::
 ::  book: the primary map of assets that we track
 ::  supports fungibles and NFTs
@@ -15,28 +17,35 @@
 ::
 +$  metadata-store  (map id:smart asset-metadata)
 +$  asset-metadata
-  $%  [%token town=@ux token-metadata]
-      [%nft town=@ux nft-metadata]
+  $%  [%token town=@ux contract=id:smart token-metadata]
+      [%nft town=@ux contract=id:smart nft-metadata]
   ==
 ::
+::  keyed by message hash
+::
++$  signed-message-store
+  (map @ux [=typed-message:smart =sig:smart])
+::
 +$  unfinished-transaction-store
-  (list [hash=@ux tx=transaction:smart action=supported-actions])
+  (map @ux [=origin =transaction:smart action=supported-actions])
+::
+::  inner maps keyed by transaction hash
 ::
 +$  transaction-store
   %+  map  address:smart
-  (map @ux [=transaction:smart action=supported-actions =output:eng])
+  (map @ux [=origin =transaction:smart action=supported-actions =output:eng])
 ::
 +$  pending-store
   %+  map  address:smart
-  (map @ux [=transaction:smart action=supported-actions])
+  (map @ux [=origin =transaction:smart action=supported-actions])
 ::
 +$  transaction-status-code
-  $%  %100  ::  100: transaction pending in wallet
+  $?  %100  ::  100: transaction pending in wallet
       %101  ::  101: transaction submitted from wallet to sequencer
       %102  ::  102: transaction received by sequencer
       %103  ::  103: failure: transaction rejected by sequencer
       ::
-      ::  200-class refers to codes that come from a completed, processed transaction
+      ::  200-class refers to codes that come from a completed transaction
       ::  informed by egg status codes in smart.hoon
       %200  ::  200: successfully performed
       %201  ::  201: bad signature
@@ -50,13 +59,41 @@
       %209  ::  209: dedicated burn transaction failed
   ==
 ::
-::  sent to web interface
+::  noun type that comes from wallet scries, used thru uqbar.hoon
 ::
 +$  wallet-update
+  $@  ~
+  $%  [%asset asset]
+      [%metadata asset-metadata]
+      [%account =caller:smart]  ::  tuple of [address nonce zigs-account]
+      [%addresses saved=(set address:smart)]
+      [%signed-message =typed-message:smart =sig:smart]
+      $:  %unfinished-transaction
+          =origin
+          =transaction:smart
+          action=supported-actions
+      ==
+      $:  %finished-transaction
+          =origin
+          =transaction:smart
+          action=supported-actions
+          =output:eng
+      ==
+  ==
+::
+::  sent to web interface
+::
++$  wallet-frontend-update
   $%  [%new-book tokens=(map pub=id:smart =book)]
       [%new-metadata metadata=metadata-store]
-      [%finished-tx hash=@ux =transaction:smart action=supported-actions =output:eng]
       [%tx-status hash=@ux =transaction:smart action=supported-actions]
+      $:  %finished-tx
+          hash=@ux
+          =origin
+          =transaction:smart
+          action=supported-actions
+          =output:eng
+      ==
   ==
 ::
 ::  received from web interface
@@ -67,10 +104,12 @@
       [%derive-new-address hdpath=tape nick=@t]
       [%delete-address address=@ux]
       [%edit-nickname address=@ux nick=@t]
-      [%sign-typed-message from=address:smart =typed-message:smart]
+      [%sign-typed-message from=address:smart domain=id:smart type=json msg=*]
       [%add-tracked-address address=@ux nick=@t]
       ::  testing and internal
       [%set-nonce address=@ux town=@ux new=@ud]
+      [%approve-origin (pair term wire) gas=[rate=@ud bud=@ud]]
+      [%remove-origin (pair term wire)]
       ::
       ::  TX submit pokes
       ::
@@ -95,6 +134,7 @@
       ==
       ::
       $:  %transaction
+          =origin
           from=address:smart
           contract=id:smart
           town=@ux

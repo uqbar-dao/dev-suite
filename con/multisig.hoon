@@ -47,26 +47,22 @@
   ?-    -.act
       %execute
     ::  assert sigs aren't duplicated
-    ?>  ~(apt pn sigs.act)
+    ?>  ~(apt py sigs.act)
     ::  assert threshold has been met
-    ?>  (gte ~(wyt pn sigs.act) threshold.noun.multisig)
+    ?>  (gte ~(wyt py sigs.act) threshold.noun.multisig)
     ::  assert deadline is valid
     ?>  (lte eth-block.context deadline.act)
     ::  assert signatures are correct
-    =/  typed-message-hash=@ux
-      ^-  @
-      %^    sham  ::  XX use sham or shag? unclear - I'm using sham in fungible.hoon
-          (hash-data this.context this.context town.context 0)
-        type-hash-execute:lib
-      (sham [multisig.act calls.act (lent executed.noun.multisig) deadline.act])
-    ?>  %+  levy  ~(tap pn sigs.act)
-        |=  =sig
-        %-  ~(has in members.noun.multisig)
-        %-  address-from-pub
-        %-  serialize-point:secp256k1:secp:crypto
-        (ecdsa-raw-recover:secp256k1:secp:crypto typed-message-hash sig)
+    =/  =typed-message
+      :+  (hash-data this.context this.context town.context 0)
+        execute-jold-hash:lib
+      [multisig.act calls.act (lent executed.noun.multisig) deadline.act]
+    ?>  %+  levy  ~(tap py sigs.act)
+        |=  [=id =sig]
+        =((recover typed-message sig) id)
     ::  add to call history
-    =.  executed.noun.multisig  [typed-message-hash executed.noun.multisig]
+    =.  executed.noun.multisig
+      [`@ux`(sham typed-message) executed.noun.multisig]
     ::  create continuation calls
     :-  calls.act
     (result [%&^multisig]^~ ~ ~ ~)

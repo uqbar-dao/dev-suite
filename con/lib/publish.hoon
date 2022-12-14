@@ -7,6 +7,9 @@
           interface=(map @tas json)
           types=(map @tas json)
       ==
+      ::  TODO add initialization call option?
+      ::  $:  %deploy-and-init
+      ::  ==
       ::
       $:  %upgrade
           to-upgrade=id

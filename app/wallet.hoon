@@ -22,11 +22,13 @@
       ::  TODO: introduce a poke to check nonce from chain and re-align
       nonces=(map address:smart (map town=@ux nonce=@ud))
       ::  signatures tracks any signed calls we've made
-      signatures=(list [=typed-message:smart =sig:smart])
+      =signed-message-store
       ::  tokens tracked for each address we're handling
       tokens=(map address:smart =book)
       ::  metadata for tokens we track
       =metadata-store
+      ::  origins we automatically sign and approve txns from
+      approved-origins=(map (pair term wire) [rate=@ud bud=@ud])
       ::  transactions we've sent that haven't been finalized by sequencer
       =unfinished-transaction-store
       ::  finished transactions we've sent
@@ -46,7 +48,7 @@
 +*  this  .
     def   ~(. (default-agent this %|) bowl)
 ::
-++  on-init  `this(state [%0 ['' '' 0] ~ ~ ~ ~ ~ ~ ~ ~])
+++  on-init  `this(state [%0 ['' '' 0] ~ ~ ~ ~ ~ ~ ~ ~ ~])
 ::
 ++  on-save  !>(state)
 ++  on-load
@@ -63,15 +65,15 @@
     ?>  =(src.bowl our.bowl)
     ::  send frontend updates along this path
     :_  this
-    =-  ~[[%give %fact ~ %wallet-update -]]
-    !>(`wallet-update`[%new-book tokens.state])
+    =-  ~[[%give %fact ~ %wallet-frontend-update -]]
+    !>(`wallet-frontend-update`[%new-book tokens.state])
   ::
       [%metadata-updates ~]
     ?>  =(src.bowl our.bowl)
     ::  send frontend updates along this path
     :_  this
-    =-  ~[[%give %fact ~ %wallet-update -]]
-    !>(`wallet-update`[%new-metadata metadata-store.state])
+    =-  ~[[%give %fact ~ %wallet-frontend-update -]]
+    !>(`wallet-frontend-update`[%new-metadata metadata-store.state])
   ::
       [%tx-updates ~]
     ?>  =(src.bowl our.bowl)
@@ -112,11 +114,11 @@
       ::  TODO save nonces/tokens from HW wallets too
       ::  for now treat this as a nuke of the wallet
       %=  state
-        nonces             ~
-        signatures         ~
-        tokens             tokens
-        metadata-store     (update-metadata-store tokens ~ [our now]:bowl)
-        pending-store      ~
+        nonces                ~
+        tokens                tokens
+        signed-message-store  ~
+        metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
+        pending-store         ~
         seed  [mnemonic.act password.act 0]
         unfinished-transaction-store  ~
         transaction-store  [[addr sent] ~ ~]
@@ -138,11 +140,11 @@
       ::  TODO save nonces/tokens from HW wallets too
       ::  for now treat this as a nuke of the wallet
       %=  state
-        nonces             ~
-        signatures         ~
-        tokens             tokens
-        metadata-store     (update-metadata-store tokens ~ [our now]:bowl)
-        pending-store      ~
+        nonces                ~
+        tokens                tokens
+        signed-message-store  ~
+        metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
+        pending-store         ~
         seed  [(crip mnem) password.act 0]
         unfinished-transaction-store  ~
         transaction-store  [[addr sent] ~ ~]
@@ -191,19 +193,31 @@
       `state(keys (~(put by keys) address.act [- nick.act]))
     ::
         %sign-typed-message
+      :: XX display something to the user using the type jold
       =/  keypair  (~(got by keys.state) from.act)
-      =/  hash     (sham typed-message.act)
+      =/  =typed-message:smart  [domain.act `@ux`(sham type.act) msg.act]
+      =/  hash  (sham typed-message)
       =/  signature
         ?~  priv.keypair
           !!  ::  put it into some temporary thing for cold storage. Make it pending
         %+  ecdsa-raw-sign:secp256k1:secp:crypto
-          hash
-        u.priv.keypair
-      `state(signatures [[typed-message.act signature] signatures])
+        hash  u.priv.keypair
+      :-  ~
+      %=    state
+          signed-message-store
+        %+  ~(put by signed-message-store.state)
+        `@ux`hash  [typed-message signature]
+      ==
     ::
         %set-nonce  ::  for testing/debugging
       =+  acc=(~(gut by nonces.state) address.act ~)
       `state(nonces (~(put by nonces) address.act (~(put by acc) town.act new.act)))
+    ::
+        %approve-origin
+      `state(approved-origins (~(put by approved-origins) +.act))
+    ::
+        %remove-origin
+      `state(approved-origins (~(del by approved-origins) +.act))
     ::
         %submit-signed
       ::  sign a pending transaction from an attached hardware wallet
@@ -233,7 +247,9 @@
             (~(put by pending-store) from.act (~(del by my-pending) hash.act))
           ::
               unfinished-transaction-store
-            [[hash tx action.u.found] unfinished-transaction-store]
+            %+  ~(put by unfinished-transaction-store)
+              hash
+            [origin.u.found tx action.u.found]
           ::
               nonces
             (~(put by nonces) from.act (~(put by our-nonces) town.tx +(nonce)))
@@ -280,7 +296,9 @@
             (~(put by pending-store) from.act (~(del by my-pending) hash.act))
           ::
               unfinished-transaction-store
-            [[hash tx action.u.found] unfinished-transaction-store]
+            %+  ~(put by unfinished-transaction-store)
+              hash
+            [origin.u.found tx action.u.found]
           ::
               nonces
             (~(put by nonces) from.act (~(put by our-nonces) town.tx +(nonce)))
@@ -309,7 +327,10 @@
       ::  take in a new pending transaction
       =/  =caller:smart
         :+  from.act
-          0  ::  we fill in *correct* nonce upon submission
+          ::  this is an ephemeral nonce used to differentiate between
+          ::  pending transactions. the real on-chain nonce is assigned
+          ::  upon signing.
+          `@ud`(cut 3 [0 3] eny.bowl)
         ::  generate our zigs token account ID
         (hash-data:smart zigs-contract-id:smart from.act town.act `@`'zigs')
       ::  build calldata of transaction, depending on argument type
@@ -319,16 +340,7 @@
           ::  Standard fungible token %give
           =/  from=asset  (~(got by `book`(~(got by tokens.state) from.act)) item.action.act)
           ?>  ?=(%token -.from)
-          =/  =asset-metadata  (~(got by metadata-store.state) metadata.from)
-          =/  to-id  (hash-data:smart zigs-contract-id:smart to.action.act town.act salt.asset-metadata)
-          =/  scry-res
-            .^  update:ui  %gx
-                /(scot %p our.bowl)/uqbar/(scot %da now.bowl)/indexer/newest/item/(scot %ux town.act)/(scot %ux to-id)/noun
-            ==
-          =+  ?~  scry-res  ~
-              ?.  ?=(%newest-item -.scry-res)  ~
-              `item.scry-res
-          [%give to.action.act amount.action.act item.action.act ?~(- ~ `to-id)]
+          [%give to.action.act amount.action.act item.action.act]
         ::
             %give-nft
           ::  Standard NFT %give
@@ -362,10 +374,20 @@
       =/  =transaction:smart  [[0 0 0] calldata shell]
       ~&  >>  "%wallet: transaction pending with hash {<hash>}"
       ::  add to our pending-store with empty signature
+      ::  define origin as source desk + their wire
       =/  my-pending
         %+  ~(put by (~(gut by pending-store) from.act ~))
-        hash  [transaction action.act]
-      :-  (tx-update-card hash transaction action.act)^~
+        hash  [origin.act transaction action.act]
+      :-  :-  (tx-update-card hash transaction action.act)
+          ?~  origin.act  ~
+          ?~  gas=(~(get by approved-origins) u.origin.act)  ~
+          :_  ~
+          :*  %pass  /self-submit
+              %agent  [our.bowl %wallet]
+              %poke  %wallet-poke
+              !>  ^-  wallet-poke
+              [%submit from.act hash u.gas]
+          ==
       %=  state
         pending-store  (~(put by pending-store) from.act my-pending)
       ==
@@ -391,17 +413,18 @@
     ::  update status, then insert in tx-store mapping
     ::  and build an update card with its new status.
     =|  cards=(list card)
-    =|  still-looking=(list [hash=@ux tx=transaction:smart action=supported-actions])
-    =*  unfinished  unfinished-transaction-store
+    =|  still-looking=(list [hash=@ux =origin tx=transaction:smart action=supported-actions])
+    =/  unfinished=(list [hash=@ux =origin tx=transaction:smart action=supported-actions])
+      ~(tap by unfinished-transaction-store)
     |-
     ?~  unfinished
       :_  %=  this
             tokens  new-tokens
             metadata-store  new-metadata
-            unfinished-transaction-store  still-looking
+            unfinished-transaction-store  (malt still-looking)
           ==
-      :+  [%give %fact ~[/book-updates] %wallet-update !>(`wallet-update`[%new-book new-tokens])]
-        [%give %fact ~[/metadata-updates] %wallet-update !>(`wallet-update`[%new-metadata new-metadata])]
+      :+  [%give %fact ~[/book-updates] %wallet-frontend-update !>(`wallet-frontend-update`[%new-book new-tokens])]
+        [%give %fact ~[/metadata-updates] %wallet-frontend-update !>(`wallet-frontend-update`[%new-metadata new-metadata])]
       cards
     =/  tx-latest=update:ui
       .^  update:ui
@@ -409,22 +432,33 @@
           %+  weld  /(scot %p our.bowl)/uqbar/(scot %da now.bowl)
           /indexer/transaction/(scot %ux hash.i.unfinished)/noun
       ==
-    ::  this is unpleasant
     ?.  ?&  ?=(^ tx-latest)
             ?=(%transaction -.tx-latest)
         ==
-      ~&  >>  "%wallet: couldn't find transaction hash for update(3)"
+      ~&  >>>  "%wallet: couldn't find transaction hash for update!"
       $(unfinished t.unfinished, still-looking [i.unfinished still-looking])
     ::  put latest version of tx into transaction-store
-    =/  updated
-      =+  (~(got by transactions.tx-latest) hash.i.unfinished)
-      [hash.i.unfinished transaction.- action.i.unfinished output.-]
+    =/  updated=[@ux =origin transaction:smart supported-actions output:eng]
+      =+  found=(~(got by transactions.tx-latest) hash.i.unfinished)
+      ::  add 200 to finished status code to get wallet status equivalent
+      =.  status.transaction.found  (add 200 status.transaction.found)
+      :*  hash.i.unfinished
+          origin.i.unfinished
+          transaction.found
+          action.i.unfinished
+          output.found
+      ==
+    ::  when we have a finished transaction, use transaction origin to
+    ::  notify an app about their completed transaction.
     %=  $
       unfinished  t.unfinished
-      cards       [(finished-tx-update-card updated) cards]
+        cards
+      :-  (finished-tx-update-card updated)
+      ?~  origin.updated  cards
+      [(notify-origin-card our.bowl updated) cards]
         transaction-store
       %+  ~(jab by transaction-store)  address.caller.tx.i.unfinished
-      |=  m=(map @ux [transaction:smart supported-actions output:eng])
+      |=  m=(map @ux [origin transaction:smart supported-actions output:eng])
       (~(put by m) updated)
     ==
   ::
@@ -469,6 +503,75 @@
   ?.  =(%x -.path)  ~
   =,  format
   ?+    +.path  (on-peek:def path)
+  ::
+  ::  noun scries, for other apps
+  ::
+      [%addresses ~]
+    ``wallet-update+!>(`wallet-update`[%addresses ~(key by keys.state)])
+  ::
+      [%account @ @ ~]
+    ::  returns our account for the pubkey and town ID given
+    ::  for validator & sequencer use, to run mill
+    =/  pub  (slav %ux i.t.t.path)
+    =/  town  (slav %ux i.t.t.t.path)
+    =/  nonce  (~(gut by (~(gut by nonces.state) pub ~)) town 0)
+    =+  (hash-data:smart `@ux`'zigs-contract' pub town `@`'zigs')
+    ``wallet-update+!>(`wallet-update`[%account `caller:smart`[pub nonce -]])
+  ::
+      [%signed-message @ ~]
+    :^  ~  ~  %wallet-update
+    !>  ^-  wallet-update
+    ?~  message=(~(get by signed-message-store) (slav %ux i.t.t.path))
+      ~
+    [%signed-message u.message]
+  ::
+      [%metadata @ ~]
+    ::  return specific metadata from our store
+    :^  ~  ~  %wallet-update
+    !>  ^-  wallet-update
+    ?~  found=(~(get by metadata-store) (slav %ux i.t.t.path))
+      ~
+    [%metadata u.found]
+  ::
+      [%asset @ @ ~]
+    ::  return specific asset from our store
+    ::  held by specific address
+    :^  ~  ~  %wallet-update
+    !>  ^-  wallet-update
+    ?~  where=(~(get by tokens) (slav %ux i.t.t.path))
+      ~
+    ?~  found=(~(get by `book`u.where) (slav %ux i.t.t.t.path))
+      ~
+    [%asset u.found]
+  ::
+      [%transaction @ @ ~]
+    ::  find transaction from address by hash
+    ::  look in all stores: pending, unfinished, finished
+    :^  ~  ~  %wallet-update
+    !>  ^-  wallet-update
+    =/  address  (slav %ux i.t.t.path)
+    =/  tx-hash  (slav %ux i.t.t.t.path)
+    =/  finished  (~(gut by transaction-store) address ~)
+    ?^  f1=(~(get by finished) tx-hash)
+      [%finished-transaction u.f1]
+    =/  pending  (~(gut by pending-store) address ~)
+    ?^  f2=(~(get by pending) tx-hash)
+      [%unfinished-transaction u.f2]
+    ?^  f3=(~(get by unfinished-transaction-store) tx-hash)
+      [%unfinished-transaction u.f3]
+    ~
+  ::
+  ::  internal / non-standard noun scries
+  ::
+      [%pending-store @ ~]
+    ::  return pending store for given pubkey, noun format
+    =/  pub  (slav %ux i.t.t.path)
+    =/  our=(map @ux [origin transaction:smart supported-actions])
+      (~(gut by pending-store) pub ~)
+    ``noun+!>(`(map @ux [origin transaction:smart supported-actions])`our)
+  ::
+  ::  JSON scries, for frontend
+  ::
       [%seed ~]
     =;  =json  ``json+!>(json)
     %-  pairs:enjs
@@ -492,18 +595,6 @@
         |=  [town=@ux nonce=@ud]
         [(scot %ux town) (numb:enjs nonce)]
     ==
-  ::
-      [%keys ~]
-    ``noun+!>(~(key by keys.state))
-  ::
-      [%account @ @ ~]
-    ::  returns our account for the pubkey and town ID given
-    ::  for validator & sequencer use, to run mill
-    =/  pub  (slav %ux i.t.t.path)
-    =/  town  (slav %ux i.t.t.t.path)
-    =/  nonce  (~(gut by (~(gut by nonces.state) pub ~)) town 0)
-    =+  (hash-data:smart `@ux`'zigs-contract' pub town `@`'zigs')
-    ``noun+!>(`caller:smart`[pub nonce -])
   ::
       [%book ~]
     =;  =json  ``json+!>(json)
@@ -532,38 +623,27 @@
     %-  pairs:enjs
     :~  :-  'unfinished'
         %-  pairs:enjs
-        %+  turn  unfinished-transaction-store.state
+        %+  turn  ~(tap by unfinished-transaction-store.state)
         transaction-no-output:parsing
         :-  'finished'
         %-  pairs:enjs
         %+  turn  ~(tap by transaction-store.state)
-        |=  [a=@ux m=(map @ux [transaction:smart supported-actions output:eng])]
+        |=  [a=@ux m=(map @ux [origin transaction:smart supported-actions output:eng])]
         :-  (scot %ux a)
         %-  pairs:enjs
         (turn ~(tap by m) transaction-with-output:parsing)
     ==
   ::
-      [%signatures ~]
-    ``noun+!>(signatures.state)
-  ::
       [%pending @ ~]
     ::  return pending store for given pubkey
     =/  pub  (slav %ux i.t.t.path)
-    =/  our=(map @ux [transaction:smart supported-actions])
+    =/  our=(map @ux [origin transaction:smart supported-actions])
       (~(gut by pending-store) pub ~)
     ::
     =;  =json  ``json+!>(json)
     %-  pairs:enjs
     %+  turn  ~(tap by our)
     transaction-no-output:parsing
-  ::
-      [%pending-noun @ ~]
-    ::  return pending store for given pubkey, noun format
-    =/  pub  (slav %ux i.t.t.path)
-    =/  our=(map @ux [transaction:smart supported-actions])
-      (~(gut by pending-store) pub ~)
-    ::
-    ``noun+!>(`(map @ux [transaction:smart supported-actions])`our)
   ==
 ::
 ++  on-leave  on-leave:def

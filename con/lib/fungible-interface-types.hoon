@@ -29,7 +29,7 @@
       {"balance": "ud"},
       {"allowances": ["map", "ux", "ud"]},
       {"metadata": "ux"},
-      {"nonce": "ud"}
+      {"nonces": ["map", "ux", "ud"]}
     ]
     '''
   ::
@@ -50,7 +50,8 @@
   %-  ~(gas by *(map @tas json))
   :~  [%give (need (de-json:html give-cord))]
       [%take (need (de-json:html take-cord))]
-      [%take-with-sig (need (de-json:html take-with-sig-cord))]
+      [%push (need (de-json:html push-cord))]
+      [%pull (need (de-json:html pull-cord))]
       [%set-allowance (need (de-json:html set-allowance-cord))]
       [%mint (need (de-json:html mint-cord))]
       [%deploy (need (de-json:html deploy-cord))]
@@ -78,8 +79,19 @@
     ]
     '''
   ::
-  ++  take-with-sig-cord
-    ^-  cord  :: TODO: Sig
+  ++  push-cord
+    ^-  cord
+    '''
+    [
+      {"who": "ux"},
+      {"amount": "ud"},
+      {"account": "ux"},
+      {"calldata": "*"}
+    ]
+    '''
+  ::
+  ++  pull-cord
+    ^-  cord
     '''
     [
       {"to": "ux"},
