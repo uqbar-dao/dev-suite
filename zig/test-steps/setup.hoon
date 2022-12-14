@@ -9,15 +9,15 @@
   ^-  test-steps:zig
   :~  [%dojo [~nec ':rollup|activate'] ~]
   ::
-      :+  %dojo
-        :-  ~nec
-        ':sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608'
-      ~
-  ::
       :+  %poke
       [~nec %indexer %set-sequencer '[our %sequencer]']  ~
   ::
       [%poke [~nec %indexer %set-rollup '[our %rollup]'] ~]
+  ::
+      :+  %dojo
+        :-  ~nec
+        ':sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608'
+      ~
   ::
       :+  %poke
         :^  ~nec  %uqbar  %wallet-poke
