@@ -47,10 +47,16 @@
   (noah p.compilation-result)
 ::
 ++  build-next-subject
-  |=  [old-subject=vase results=vase]
+  |=  [old-subject=vase results=vase =bowl:strand]
   ^-  vase
+  =+  !<  old=test-globals:zig
+      (slap old-subject (ream 'test-globals'))
+  =/  test-globals=vase
+    !>  ^-  test-globals:zig
+    :^  our.bowl  now.bowl  !<(test-results:zig results)
+    [project addresses]:old
   %-  slop  :_  (slap old-subject (ream '+'))
-  results(p [%face %test-results p.results])
+  test-globals(p [%face %test-globals p.test-globals])
 ::
 ++  send-pyro-dojo
   |=  payload=dojo-payload:zig
@@ -195,6 +201,7 @@
     ==
   ?~  test-steps  (pure:m (flop test-results))
   =*  test-step   i.test-steps
+  ;<  =bowl:strand  bind:m  get-bowl
   ?-    -.test-step
       %wait
     ~!  test-step
@@ -204,7 +211,7 @@
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
-      (build-next-subject subject !>(test-results))
+      (build-next-subject subject !>(test-results) bowl)
     ==
   ::
       %dojo
@@ -220,7 +227,7 @@
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
-      (build-next-subject subject !>(test-results))
+      (build-next-subject subject !>(test-results) bowl)
     ==
   ::
       %poke
@@ -236,7 +243,7 @@
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
-      (build-next-subject subject !>(test-results))
+      (build-next-subject subject !>(test-results) bowl)
     ==
   ::
       %scry
@@ -250,7 +257,7 @@
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
-      (build-next-subject subject !>(test-results))
+      (build-next-subject subject !>(test-results) bowl)
     ==
   ::
       %dbug
@@ -264,7 +271,7 @@
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
-      (build-next-subject subject !>(test-results))
+      (build-next-subject subject !>(test-results) bowl)
     ==
   ::
         %read-subscription
@@ -350,11 +357,12 @@
     ~&  >>>  "-zig!ziggurat-test-run project-id=@t test-id=@ux test-steps:zig subject=vase (list @p)"
     ~&  >>>  "producing snapshots if second argument is non-null"
     (pure:m !>(~))
-  =.  subject         subject.u.args
   =*  project-id      project-id.u.args
   =*  test-id         test-id.u.args
   =*  test-steps      test-steps.u.args
   =*  snapshot-ships  snapshot-ships.u.args
+  ;<  =bowl:strand  bind:m  get-bowl
+  =.  subject  (build-next-subject subject.u.args !>(`~`~) bowl)
   ::
   ;<  ~  bind:m  (watch-our /effect %pyro /effect)
   ;<  =test-results:zig  bind:m

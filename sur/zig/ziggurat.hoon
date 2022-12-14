@@ -86,6 +86,14 @@
       mar-tube=(unit tube:clay)
   ==
 ::
++$  test-globals
+  $:  our=@p
+      now=@da
+      =test-results
+      project=@tas
+      addresses=(map @p address:smart)
+  ==
+::
 +$  action
   $:  project=@t
       $%  [%new-project ~]
@@ -98,6 +106,8 @@
           [%set-virtualnet-address who=@p =address:smart]
       ::
           [%register-contract-for-compilation file=path]
+          [%deploy-contract town-id=@ux =path]
+      ::
           [%compile-contracts ~]  ::  make-read-desk
           [%compile-contract =path]  ::  path of form /[desk]/path/to/contract, e.g., /zig/con/fungible/hoon
           [%read-desk ~]  ::  make-project-update, make-watch-for-file-changes
@@ -125,14 +135,6 @@
           [%start-pyro-snap snap=path]
       ::
           [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
-          $:  %deploy-contract
-              =path
-              =address:smart
-              rate=@ud  bud=@ud
-              =deploy-location
-              town-id=@ux
-              upgradable=?
-          ==
           ::
           [%add-user-file file=path]
           [%delete-user-file file=path]

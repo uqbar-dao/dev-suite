@@ -106,7 +106,7 @@
   |=  [=ship =tape]
   =/  m  (strand ,~)
   ^-  form:m
-  ~&  >  "dojo: {tape}"
+  :: ~&  >  "dojo: {tape}"
   (send-events (dojo:util ship tape))
 ::
 ++  wait-for-output

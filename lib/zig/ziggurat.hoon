@@ -148,7 +148,17 @@
   ~|  "ziggurat: result of custom data compile was ~"
   (need p.p.res)
 ::
-++  save-compiled-projects
+++  convert-contract-hoon-to-jam
+  |=  contract-hoon-path=path
+  ^-  (unit path)
+  ?.  ?=([%con *] contract-hoon-path)  ~
+  :-  ~
+  %-  snoc
+  :_  %jam
+  %-  snip
+  `path`(welp /con/compiled +.contract-hoon-path)
+::
+++  save-compiled-contracts
   |=  $:  project=@t
           build-results=(list [p=path q=build-result])
       ==
@@ -160,7 +170,7 @@
   =*  contract-path   p.i.build-results
   =/  =build-result   q.i.build-results
   =/  save-result=(each card [path @t])
-    %^  save-compiled-project  project  contract-path
+    %^  save-compiled-contract  project  contract-path
     build-result
   ?:  ?=(%| -.save-result)
     %=  $
@@ -172,7 +182,7 @@
       cards          [p.save-result cards]
   ==
 ::
-++  save-compiled-project
+++  save-compiled-contract
   |=  $:  project=@t
           contract-path=path
           =build-result
@@ -181,11 +191,7 @@
   ?:  ?=(%| -.build-result)
     [%| [contract-path p.build-result]]
   =/  contract-jam-path=path
-    ?>  ?=([%con *] contract-path)
-    %-  snoc
-    :_  %jam
-    %-  snip
-    `path`(welp /con/compiled +.contract-path)
+    (need (convert-contract-hoon-to-jam contract-path))
   :-  %&
   (make-save-jam project contract-jam-path p.build-result)
 ::
