@@ -138,6 +138,10 @@ The code for a custom step lives in the `$` arm of a core.
 Please refer to the `zig/custom-step-definitions/` dir linked above for examples on how to write the `transform` and [Example usage](#example-usage) `%send-nec-custom` for usage of the custom steps.
 TODO: write more here.
 
+## `dbug` dashboard
+
+TODO
+
 ## Example usage
 
 Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):

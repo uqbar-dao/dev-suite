@@ -37,7 +37,7 @@
   :-  ~
   %_    this
       state
-    :_  [eng smart-lib]
+    :_  [eng smart-lib ~]
     :*  %0
         ~
     ::
@@ -58,7 +58,7 @@
     %~  engine  engine:engine
     ::  sigs off, hints off
     [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.n %.n]
-  `this(state [!<(state-0 old-vase) eng smart-lib])
+  `this(state [!<(state-0 old-vase) eng smart-lib ~])
 ::
 ++  on-watch
   |=  =path
@@ -130,7 +130,7 @@
   ::
   ++  add-test
     |=  [project-name=@tas name=(unit @t) p=path]
-    ^-  test
+    ^-  [test _state]
     ?~  p  !!  ::  TODO: do better
     =/  =project  (~(got by projects) project-name)
     =/  file-scry-path=path
@@ -138,7 +138,7 @@
       (weld /[project-name]/(scot %da now.bowl) p)
     =/  [surs=(list [face=@tas =path]) =hoon]
       (parse-pile:conq (trip .^(@t %cx file-scry-path)))
-    =/  subject=(each ^vase @t)
+    =^  subject=(each ^vase @t)  state
       (compile-test-surs `@tas`project-name surs)
     ?:  ?=(%| -.subject)  !!  ::  TODO: do better
     =+  !<  =test-steps
@@ -162,13 +162,14 @@
       %-  add-custom-step
       :^  test  project-name  %poke-wallet-transaction
       /zig/custom-step-definitions/poke-wallet-transaction/hoon
-    test
+    [test state]
   ::
   ++  add-and-queue-test
     |=  [project-name=@t name=(unit @t) test-steps-file=path]
     ^-  (quip card _state)
     =/  =project  (~(got by projects) project-name)
-    =/  =test  (add-test project-name name test-steps-file)
+    =^  =test  state
+      (add-test project-name name test-steps-file)
     =/  test-id=@ux  `@ux`(sham test)
     =.  tests.project  (~(put by tests.project) test-id test)
     :-  :_  ~
@@ -181,10 +182,34 @@
         test-queue
       (~(put to test-queue) project-name test-id)
     ==
+  ::  scry %ca or fetch from local cache
+  ::
+  ++  scry-or-cache-ca
+    |=  [project-desk=@tas p=path ca-scry-cache=_ca-scry-cache]
+    |^  ^-  [^vase _ca-scry-cache]
+    =/  scry-path=path
+      :-  (scot %p our.bowl)
+      (weld /[project-desk]/(scot %da now.bowl) p)
+    ?~  cache=(~(get by ca-scry-cache) [project-desk p])
+      scry-and-cache-ca
+    ?.  =(p.u.cache .^(@ %cz scry-path))
+      scry-and-cache-ca
+    [q.u.cache ca-scry-cache]
+    ::
+    ++  scry-and-cache-ca
+      ^-  [^vase _ca-scry-cache]
+      =/  scry-path=path
+        :-  (scot %p our.bowl)
+        (weld /[project-desk]/(scot %da now.bowl) p)
+      =/  v=^vase  .^(^vase %ca scry-path)
+      :-  v
+      %+  ~(put by ca-scry-cache)  [project-desk p]
+      [`@ux`.^(@ %cz scry-path) v]
+    --
   ::
   ++  compile-test-surs
     |=  [project-desk=@tas surs=(list [face=@tas =path])]
-    ^-  (each ^vase @t)
+    ^-  [(each ^vase @t) _state]
     =/  compilation-result
       %-  mule
       |.
@@ -192,24 +217,27 @@
         !>  ^-  test-globals
         :^  our.bowl  now.bowl  *test-results
         [project-desk virtualnet-addresses]
+      =/  [subject=^vase c=_ca-scry-cache]
+        %+  roll  surs
+        |:  [[face=`@tas`%$ sur=`path`/] [subject=`^vase`!>(..zuse) ca-scry-cache=ca-scry-cache]]
+        ?:  =(%test-globals face)
+          ~|("%ziggurat: compilation failed; cannot use %test-globals: reserved and built into subject already" !!)
+        =^  sur-hoon=^vase  ca-scry-cache
+          %^  scry-or-cache-ca  project-desk  (snoc sur %hoon)
+          ca-scry-cache
+        :_  ca-scry-cache
+        %-  slop  :_  subject
+        sur-hoon(p [%face face p.sur-hoon])
+      :_  c
       %+  slop
         %=  initial-test-globals
             p  [%face %test-globals p.initial-test-globals]
         ==
-      %+  roll  surs
-      |:  [[face=`@tas`%$ sur=`path`/] subject=`^vase`!>(..zuse)]
-      ?:  =(%test-globals face)
-        ~|("%ziggurat: compilation failed; cannot use %test-globals: reserved and built into subject already" !!)
-      =/  sur-hoon=^vase
-        .^  ^vase
-            %ca
-            :-  (scot %p our.bowl)
-            %+  weld  /[project-desk]/(scot %da now.bowl)
-            (snoc sur %hoon)
-        ==
-      %-  slop  :_  subject
-      sur-hoon(p [%face face p.sur-hoon])
-    ?:  ?=(%& -.compilation-result)  compilation-result
+      subject
+    ?:  ?=(%& -.compilation-result)
+      :-  [%& -.p.compilation-result]
+      state(ca-scry-cache +.p.compilation-result)
+    :_  state
     :-  %|
     %-  crip
     %+  roll  p.compilation-result
@@ -332,7 +360,7 @@
         /(scot %p our.bowl)/[project.act]/(scot %da now.bowl)
       =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
       =/  surs=(list [@tas path])  ~[[%zig /sur/zig/ziggurat]]
-      =/  subject=(each ^vase @t)
+      =^  subject=(each ^vase @t)  state
         (compile-test-surs `@tas`project.act surs)
       ?>  ?=(%& -.subject)
       =/  [surs=(list [face=@tas =path]) =hoon]
@@ -449,7 +477,7 @@
     ::
         %add-test
       =/  =project  (~(got by projects) project.act)
-      =/  =test  (add-test [project name path]:act)
+      =^  =test  state  (add-test [project name path]:act)
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
       :-  :_  ~
@@ -567,13 +595,8 @@
         ?~  snipped=(snip sur)  !!  ::  TODO: do better
         =/  sur-face=@tas  `@tas`(rear snipped)
         ?>  ?=(^ sur)
-        =/  sur-hoon=^vase
-          .^  ^vase
-              %ca
-              :-  (scot %p our.bowl)
-              %+  weld  /[i.sur]/(scot %da now.bowl)
-              t.sur
-          ==
+        =^  sur-hoon=^vase  ca-scry-cache
+          (scry-or-cache-ca project.act sur ca-scry-cache)
         =/  subject=^vase
           %-  slop  :_  !>(..zuse)
           sur-hoon(p [%face sur-face p.sur-hoon])
