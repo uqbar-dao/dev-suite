@@ -34,7 +34,7 @@ A pill can either be freshly built and loaded into pyro, or outputted to unix to
 .pill/pill +zig!solid %base %zig
 ```
 
-The latter is recommended - we store ours in `ziggurat/lib/py/pill.pill`, and ship it with the ziggurat desk.
+The latter is recommended - we store ours in `zig/snapshots/pill.pill`, and ship it with the ziggurat desk.
 
 Only newly created ships will use the most recently-supplied pill, so if you replace an existing pill, you need to restart ships if you want them to use it.
 
@@ -240,4 +240,4 @@ First go into ames - ctrl+F "13" and replace with "23" to boost the packet size 
 |unmount %zig
 |mount %zig
 ```
-then move `zig/lib/py/snapshots/testnet.jam` into this repo
+then move `zig/snapshots/testnet.jam` into this repo

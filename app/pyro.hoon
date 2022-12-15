@@ -22,7 +22,7 @@
 ::
 /-  *pyro
 /+  pill, default-agent, naive, dbug, verb
-/*  cached-pill  %noun  /lib/py/pill/pill
+/*  cached-pill  %noun  /zig/snapshots/pill/pill
 =,  pill-lib=pill
 =>  $~  |%
     +$  versioned-state
@@ -66,7 +66,7 @@
     :_  this
     :~  [%pass / %agent [our dap]:bowl %poke %pill !>(cached-pill)]
         [%pass / %agent [our dap]:bowl %poke %action !>([%import-snap /testnet/jam /testnet])]
-      :: [%pass / %agent [our dap]:bowl %poke %action !>([%import-fresh-piers /zig/lib/py/fresh-piers/jam])]
+        :: [%pass / %agent [our dap]:bowl %poke %action !>([%import-fresh-piers /zig/lib/py/fresh-piers/jam])]
     ==
   ++  on-save  !>(state)
   ++  on-load
@@ -679,7 +679,7 @@
     `state(fleet-snaps (~(del by fleet-snaps) path.act))
   ::
       %export-snap
-    :: all snapshots are put in /=zig=/lib/py/snapshots/[path]/jam
+    :: all snapshots are put in /=zig=/zig/snapshots/[path]/jam
     ?~  p=(~(get by fleet-snaps) path.act)
       ~&(%pyro^%no-such-snapshot !!)
     :_  state
@@ -697,14 +697,14 @@
     ==
   ::
       %import-snap
-    :: fetches from /=zig=/lib/py/snapshots
+    :: fetches from /=zig=/zig/snapshots
     ?~  jam-file-path.act
       ~&(%pyro^%unexpected-file-path^jam-file-path.act !!)
     =/  jammed=@
       .^  @
           %cx
           %+  welp
-            /(scot %p our.hid)/zig/(scot %da now.hid)/lib/py/snapshots
+            /(scot %p our.hid)/zig/(scot %da now.hid)/zig/snapshots
           jam-file-path.act
       ==
     =/  cued=*  (cue jammed)

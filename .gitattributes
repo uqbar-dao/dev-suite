@@ -1,3 +1,2 @@
-lib/py/*.jam filter=lfs diff=lfs merge=lfs -text
-lib/py/*.pill filter=lfs diff=lfs merge=lfs -text
-lib/py/snapshots/*.jam filter=lfs diff=lfs merge=lfs -text
+zig/snapshots/*.jam filter=lfs diff=lfs merge=lfs -text
+zig/snapshots/*.pill filter=lfs diff=lfs merge=lfs -text

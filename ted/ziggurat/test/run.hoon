@@ -1,7 +1,7 @@
 /-  spider,
     zig=zig-ziggurat
 /+  strandio,
-    pyio=py-io,
+    pyro=zig-pyro,
     test=zig-ziggurat-test
 ::
 =*  strand     strand:spider
@@ -63,7 +63,7 @@
   =/  m  (strand ,~)
   ^-  form:m
   ;<  ~  bind:m
-    %+  dojo:pyio  who.payload
+    %+  dojo:pyro  who.payload
     (trip payload.payload)
     :: (noah-slap-ream payload.payload)  ::  TODO: enable transforming of dojo arguments like scries & pokes are transformed
   (pure:m ~)
@@ -142,7 +142,7 @@
   =/  m  (strand ,~)
   ^-  form:m
   ;<  ~  bind:m
-    %+  dojo:pyio  who.payload
+    %+  dojo:pyro  who.payload
     ;:  weld
         ":subscriber &subscriber-action [%sub "
         (scow %p to.payload)
@@ -159,7 +159,7 @@
   =/  m  (strand ,~)
   ^-  form:m
   ;<  ~  bind:m
-    %+  dojo:pyio  who.payload
+    %+  dojo:pyro  who.payload
     ;:  weld
         ":"
         (trip app.payload)

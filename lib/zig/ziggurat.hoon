@@ -3,7 +3,6 @@
     ui=zig-indexer
 /+  conq=zink-conq,
     dock=docket,
-    pyio=py-io,
     ui-lib=zig-indexer,
     zink=zink-zink
 |%
