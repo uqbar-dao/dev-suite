@@ -137,6 +137,13 @@
     ^-  [[(list card) test] _state]
     =/  =project  (~(got by projects) project-name)
     =/  addresses=^vase  !>(virtualnet-addresses)
+    =.  surs
+      ?~  zig-val=(~(get by surs) %zig)
+        (~(put by surs) %zig /sur/zig/ziggurat)
+      ?:  =(/sur/zig/ziggurat u.zig-val)  surs
+      ~|("%ziggurat: %zig face reserved for /sur/zig/ziggurat; got {<u.zig-val>}" !!)
+    ?.  =(1 (lent (fand ~[/sur/zig/ziggurat] ~(val by surs))))
+      ~|("%ziggurat: please use only %zig face for /sur/zig/ziggurat; got {<surs>}" !!)
     =^  subject=(each ^vase @t)  state
       (compile-test-surs `@tas`project-name ~(tap by surs))
     =/  =test
@@ -548,6 +555,15 @@
         %add-and-queue-test
       %-  add-and-queue-test
       [project name test-surs test-steps]:act
+    ::
+        %save-test-to-file
+      =/  =project  (~(got by projects) project.act)
+      =/  =test  (~(got by tests.project) id.act)
+      =/  file-text=@t  (make-test-steps-file test)
+      =.  test-steps-file.test  path.act
+      =.  tests.project  (~(put by tests.project) id.act test)
+      :-  (make-save-file project.act path.act file-text)^~
+      state(projects (~(put by projects) project.act project))
     ::
         %add-test-file
       =/  =project  (~(got by projects) project.act)

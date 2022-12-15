@@ -122,6 +122,7 @@
           [%add-test name=(unit @t) =test-surs =test-steps]  ::  name optional
           [%add-and-run-test name=(unit @t) =test-surs =test-steps]
           [%add-and-queue-test name=(unit @t) =test-surs =test-steps]
+          [%save-test-to-file id=@ux =path]
       ::
           [%add-test-file name=(unit @t) =path]  ::  name optional
           [%add-and-run-test-file name=(unit @t) =path]

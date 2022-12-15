@@ -133,6 +133,49 @@
   :^  [our %ziggurat]  %poke  %ziggurat-action
   !>([project %run-queue ~])
 ::
+++  make-test-steps-file
+  |=  =test
+  ^-  @t
+  %+  rap  3
+  :~
+  ::  imports
+    %+  roll  ~(tap by test-surs.test)
+    |=  [[face=@tas file=path] imports=@t]
+    %+  rap  3
+    :~  imports
+        '/=  '
+        face
+        '  '
+        (crip (noah !>(file)))
+        '\0a'
+    ==
+  ::  infix
+    '''
+    ::
+    |%
+    ++  $
+      ^-  test-steps:zig
+      :~
+
+    '''
+  ::  test-steps
+    %+  roll  steps.test
+    |=  [=test-step test-steps-text=@t]
+    %+  rap  3
+    :~  test-steps-text
+        '  ::\0a'
+        '    '
+        (crip (noah !>(test-step)))
+        '\0a'
+    ==
+  ::  suffix
+    '''
+      ==
+    --
+
+    '''
+  ==
+::
 ++  text-to-zebra-noun
   |=  [tex=@t smart-lib=vase]
   ^-  *
