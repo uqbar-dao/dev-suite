@@ -11,7 +11,8 @@
     %-  crip
     """
     :*  %transaction
-        from={<(~(got by addresses) who)>}
+        origin=~
+        from={<(~(got by addresses:test-globals) who)>}
         contract={<contract>}
         town=0x0  ::  harcode
         action=[%text {<transaction>}]  ::  TODO: how to transform within the %text?

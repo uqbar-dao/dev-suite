@@ -25,6 +25,8 @@
           [%delete-file (ot ~[[%file pa]])]
       ::
           [%register-contract-for-compilation (ot ~[[%file pa]])]
+          [%deploy-contract parse-deploy]
+      ::
           [%compile-contracts ul]
           [%compile-contract (ot ~[[%path pa]])]
           [%read-desk ul]
@@ -50,7 +52,6 @@
           [%stop-pyro-ships ul]
           [%start-pyro-ships (ot ~[[%ships (ar (se %p))]])]
       ::
-          [%deploy-contract parse-deploy]
           [%publish-app parse-docket]
           [%add-user-file (ot ~[[%file pa]])]
           [%delete-user-file (ot ~[[%file pa]])]
@@ -97,12 +98,8 @@
     ::
     ++  parse-deploy
       %-  ot
-      :~  [%address (se %ux)]
-          [%rate ni]
-          [%bud ni]
-          [%deploy-location (se %tas)]
-          [%town-id (se %ux)]
-          [%upgradable bo]
+      :~  [%town-id (se %ux)]
+          [%path pa]
       ==
     ::
     ++  parse-add-test

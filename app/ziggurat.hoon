@@ -93,9 +93,7 @@
     =/  compilation-result
       %-  mule
       |.  (slap (slap p.subject hoon) (ream '$'))
-    :: ?:  ?=(%& -.compilation-result)  compilation-result
-    ?:  ?=(%& -.compilation-result)
-      compilation-result
+    ?:  ?=(%& -.compilation-result)  compilation-result
     :-  %|
     %-  crip
     %+  roll  p.compilation-result
@@ -140,9 +138,8 @@
       (weld /[project-name]/(scot %da now.bowl) p)
     =/  [surs=(list [face=@tas =path]) =hoon]
       (parse-pile:conq (trip .^(@t %cx file-scry-path)))
-    =/  addresses=^vase  !>(virtualnet-addresses)
     =/  subject=(each ^vase @t)
-      (compile-test-surs `@tas`project-name surs addresses)
+      (compile-test-surs `@tas`project-name surs)
     ?:  ?=(%| -.subject)  !!  ::  TODO: do better
     =+  !<  =test-steps
         (slap (slap p.subject hoon) (ream '$'))
@@ -186,22 +183,23 @@
     ==
   ::
   ++  compile-test-surs
-    |=  $:  project-desk=@tas
-            surs=(list [face=@tas =path])
-            addresses=^vase
-        ==
+    |=  [project-desk=@tas surs=(list [face=@tas =path])]
     ^-  (each ^vase @t)
     =/  compilation-result
       %-  mule
       |.
-      %+  slop  addresses(p [%face %addresses p.addresses])
+      =/  initial-test-globals=^vase
+        !>  ^-  test-globals
+        :^  our.bowl  now.bowl  *test-results
+        [project-desk virtualnet-addresses]
+      %+  slop
+        %=  initial-test-globals
+            p  [%face %test-globals p.initial-test-globals]
+        ==
       %+  roll  surs
       |:  [[face=`@tas`%$ sur=`path`/] subject=`^vase`!>(..zuse)]
-      ?:  %-  %~  has  in
-              %-  %~  gas  in  *(set @tas)
-              ~[%addresses %test-results]
-          face
-        ~|("%ziggurat: compilation failed; cannot use %addresses, %test-results: reserved and built into subject already" !!)
+      ?:  =(%test-globals face)
+        ~|("%ziggurat: compilation failed; cannot use %test-globals: reserved and built into subject already" !!)
       =/  sur-hoon=^vase
         .^  ^vase
             %ca
@@ -221,6 +219,7 @@
   ++  handle-poke
     |=  act=action
     ^-  (quip card _state)
+    ?>  =(our.bowl src.bowl)
     ?-    -.+.act
         %new-project
       ?:  (~(has in (~(gas in *(set @t)) ~['fresh-piers' 'assembled'])) project.act)
@@ -321,9 +320,86 @@
       :-  (make-compile-contracts project.act our.bowl)^~
       state(projects (~(put by projects) project.act project))
     ::
+        %deploy-contract
+      =/  =project  (~(got by projects) project.act)
+      =/  who=@p
+        (~(got by town-sequencers:project) town-id.act)
+      =/  address=@ux  (~(got by virtualnet-addresses) who)
+      =/  deploy-contract-path=path  ::  TODO: unhardcode
+        /zig/custom-step-definitions/deploy-contract/hoon
+      =/  scry-path=path
+        %-  weld  :_  deploy-contract-path
+        /(scot %p our.bowl)/[project.act]/(scot %da now.bowl)
+      =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
+      =/  surs=(list [@tas path])  ~[[%zig /sur/zig/ziggurat]]
+      =/  subject=(each ^vase @t)
+        (compile-test-surs `@tas`project.act surs)
+      ?>  ?=(%& -.subject)
+      =/  [surs=(list [face=@tas =path]) =hoon]
+        (parse-pile:conq (trip .^(@t %cx scry-path)))
+      =/  =test
+        :*  `test-name
+            ~
+            (~(gas by *test-surs) surs)
+            subject
+        ::
+            %+  ~(put by *custom-step-definitions)
+              %deploy-contract
+            :-  deploy-contract-path
+            (compile-custom-step %deploy-contract hoon subject)
+        ::
+            :~  :+  %dojo
+                  :-  who
+                  %-  crip
+                  "=old-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/{<address>}/noun)"
+                ~
+            ::
+                :^  %custom-write  %deploy-contract
+                (crip "[{<who>} {<path.act>} ~]")  ~
+            ::
+                :+  %dojo
+                  :-  who
+                  %-  crip
+                  "=new-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/{<address>}/noun)"
+                ~
+            ::
+                :+  %dojo
+                  :-  who
+                  '=diff-pending (~(dif in new-pending) old-pending)'
+                ~
+            ::
+                :+  %dojo
+                  :-  who
+                  '=deploy-tx ?>  =(1 ~(wyt in diff-pending))  -.diff-pending'
+                ~
+            ::
+                :+  %poke
+                  :^  ~nec  %uqbar  %wallet-poke
+                  %-  crip
+                  "[%submit from={<address>} hash=deploy-tx gas=[rate=1 bud=1.000.000]]"
+                ~
+            ::
+                [%dojo [~nec ':sequencer|batch'] ~]
+            ==
+        ::
+            ~
+        ==
+      =/  test-id=@ux  `@ux`(sham test)
+      =.  tests.project  (~(put by tests.project) test-id test)
+      :-  :_  (make-run-queue our.bowl project.act)^~
+          %^  make-project-update  project.act  project
+          [our now]:bowl
+      %=  state
+          projects
+        (~(put by projects) project.act project)
+      ::
+          test-queue
+        (~(put to test-queue) project.act test-id)
+      ==
+    ::
         %compile-contracts
       ::  for internal use -- app calls itself to scry clay
-      ?>  &(=(our.bowl src.bowl) ?=(%ziggurat dap.bowl))
+      ?>  ?=(%ziggurat dap.bowl)
       =/  =project  (~(got by projects) project.act)
       =/  build-results=(list (pair path build-result))
         %^  build-contract-projects  smart-lib-vase
@@ -331,7 +407,7 @@
         to-compile.project
       ~&  "done building, got errors:"
       =/  [cards=(list card) errors=(list [path @t])]
-        (save-compiled-projects project.act build-results)
+        (save-compiled-contracts project.act build-results)
       ~&  errors
       =.  errors.project  (~(gas by errors.project) errors)
       :-  [(make-read-desk project.act our.bowl) cards]
@@ -339,7 +415,7 @@
     ::
         %compile-contract
       ::  for internal use -- app calls itself to scry clay
-      ?>  &(=(our.bowl src.bowl) ?=(%ziggurat dap.bowl))
+      ?>  ?=(%ziggurat dap.bowl)
       =/  =project  (~(got by projects) project.act)
       ?~  path.act  !!
       =/  =build-result
@@ -348,7 +424,7 @@
         t.path.act
       ~&  "done building {<path>}, got errors:"
       =/  save-result=(each card [path @t])
-        (save-compiled-project project.act t.path.act build-result)
+        (save-compiled-contract project.act t.path.act build-result)
       ?:  ?=(%| -.save-result)
         ~&  p.save-result
         =.  errors.project
@@ -359,7 +435,7 @@
     ::
         %read-desk
       ::  for internal use -- app calls itself to scry clay
-      ?>  &(=(our.bowl src.bowl) ?=(%ziggurat dap.bowl))
+      ?>  ?=(%ziggurat dap.bowl)
       =/  =project  (~(got by projects) project.act)
       =.  dir.project
         =-  .^((list path) %ct -)
@@ -604,9 +680,6 @@
           [%pass / %agent [our.bowl %pyro] %poke %action !>([%restore-snap snap.act])]
       ==
     ::
-        %deploy-contract  ::  TODO
-      !!
-    ::
         %publish-app  :: TODO
       ::  [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
       ::  should assert that desk.bill contains only our agent name,
@@ -685,7 +758,7 @@
         =+  !<(=test-results q.cage.sign)
         =/  =project  (~(got by projects) project-name)
         =/  =test     (~(got by tests.project) test-id)
-        ~&  >  "%ziggurat: test done {(scow %ux test-id)}"
+        ~&  >  "%ziggurat: test done {<test-id>}"
         ~&  >  test-results
         =.  tests.project
           %+  ~(put by tests.project)  test-id

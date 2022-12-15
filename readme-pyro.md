@@ -110,10 +110,23 @@ Examples can be seen in the `zig/test-steps/` dir](https://github.com/uqbar-dao/
 
 The subject of a `test-steps` is defined by the `/=` imports at the top of the `test-steps` file.
 In addition, this subject will be applied for [`custom-step-definitions`](#custom-inputs), so those dependencies must be included in `test-steps`.
-Finally, some test globals will be accessible by `test-steps`.
-`addresses` includes the `(map @p @ux)` defined in `%ziggurat` app state and set with the `%set-virtualnet-addresses` action.
-The `addresses` map is useful for easy access and pairing between virtualships and their testnet addresses.
-`test-results` are also accessible, so that the results of a previous `test-step` is usable in the current one (TODO).
+Finally, some `test-globals` will be accessible by `test-steps`.
+`addresses:test-globals` is the `(map @p @ux)` defined in `%ziggurat` app state and set with the `%set-virtualnet-addresses` action.
+The `addresses:test-globals` map is useful for easy access and pairing between virtualships and their testnet addresses.
+`test-results:` are also accessible, so that the results of a previous `test-step` is usable in the current one (TODO).
+`test-globals` also includes `our`, `now`, and `project`.
+
+## Deploying contracts
+
+Contracts can be deployed to the virtualship testnet for a project using the `%deploy-contract` poke:
+```hoon
+:ziggurat &ziggurat-action [%foo %deploy-contract town-id=0x0 /con/compiled/nft/jam]
+```
+As of 221213, this operation requires your fake/devship be running with at least 4GB of loom.
+You must use [Urbit 1.13 or newer binaries](https://github.com/urbit/urbit/releases) and use the `--loom 32` flag when launching your fake/devship, e.g.:
+```bash
+urbit --loom 32 nec
+```
 
 ## Custom inputs
 
