@@ -38,6 +38,8 @@
 ::
 +$  pyro-action
   $%  [%dojo who=@p command=tape]
+      [%task who=@p =vane =task-arvo] :: TODO should be a note-arvo but compiler complains
+      [%poke who=@p to=@p dap=term =mark =noun]
       [%remove-ship who=ship]
       [%snap-ships =path hers=(list ship)]
       [%restore-snap =path]
@@ -48,6 +50,8 @@
       [%import-fresh-piers jam-file-path=path]
       [%clear-snaps ~]
   ==
+::
++$  vane  ?(%a %b %c %d %e %g %i %j %k)
 ::
 +$  aqua-effects
   [who=ship ufs=(list unix-effect)]
@@ -79,8 +83,7 @@
       [%kill ~]
       [%init ~]
       [%request id=@ud request=request:http]
-      [%cancel-request ~] :: TODO
-      [%http-response ~] :: TODO
+      [%poke-ack p=(unit tang)]
   ==
 ::
 +$  behn-pier  next-timer=(unit @da)

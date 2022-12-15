@@ -31,8 +31,6 @@
         [/dill/blit /effect/blit]
         ::
         [/iris/request /effect/request]
-        [/iris/cancel-request /effect/cancel-request]
-        [/iris/http-response /effect/http-response]
         [/iris/sleep /effect/sleep]
         [/iris/restore /effect/restore]
         [/iris/kill /effect/kill]
@@ -91,8 +89,6 @@
       =^  cards  iris-piers
         ?+  -.q.ufs.ef  [~ iris-piers]
           %request         abet:(request:(iris:hc who.ef) ufs.ef)
-          %cancel-request  abet:cancel-request:(iris:hc who.ef)
-          %http-response   abet:http-response:(iris:hc who.ef)
           %sleep           abet:sleep:(iris:hc who.ef)
           %restore         abet:restore:(iris:hc who.ef)
           %kill            `(~(del by iris-piers) who.ef)
@@ -356,11 +352,6 @@
           %arvo  %i
           %request  req  *outbound-config:^iris
       ==
-    ..abet
-  ++  cancel-request
-    ..abet
-  ::
-  ++  http-response
     ..abet
   ::
   ::  Pass HTTP response back to virtual ship

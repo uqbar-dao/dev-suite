@@ -311,10 +311,10 @@
     ?~  effects
       ..abet-pe
     =.  ..abet-pe
-      =/  sof  ((soft unix-effect) i.effects)
-      ?~  sof
-        ~?  aqua-debug=&  [who=who %unknown-effect i.effects]
-        ..abet-pe
+      ?~  sof=((soft unix-effect) i.effects)
+        ?:  &(=(p.card.i.effects %unto) ?=(^ q.card.i.effects))
+          ((slog (flop ;;(tang +.q.card.i.effects))) ~&(who=who ..abet-pe))
+        ~&([who=who %unknown-effect i.effects] ..abet-pe)
       (publish-effect u.sof)
     $(effects t.effects)
   ::
@@ -619,6 +619,22 @@
       ==
     |=  ue=unix-event
     [%event who.act ue]
+  ::
+      %task
+    :_  state
+    %-  send-events
+    ^-  (list aqua-event)
+    [%event who.act [[vane.act]~ task-arvo.act]]~ 
+  ::
+      %poke
+    :_  state
+    %-  send-events
+    ^-  (list aqua-event)
+    :_  ~
+    :*  %event  who.act  /g
+        %deal  [who to]:act  dap.act
+        %raw-poke  mark.act  noun.act
+    ==
   ::
       %remove-ship
     =.  piers  (~(del by piers) who.act)
