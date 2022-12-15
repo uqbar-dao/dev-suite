@@ -11,7 +11,12 @@
       test-queue=(qeu [project=@t test-id=@ux])
       test-running=?
   ==
-+$  inflated-state-0  [state-0 =eng smart-lib-vase=vase]
++$  inflated-state-0
+  $:  state-0
+      =eng
+      smart-lib-vase=vase
+      =ca-scry-cache
+  ==
 +$  eng  $_  ~(engine engine:engine-lib !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
 ::
 +$  projects  (map @t project)
@@ -93,6 +98,8 @@
       project=@tas
       addresses=(map @p address:smart)
   ==
+::
++$  ca-scry-cache  (map [@tas path] (pair @ux vase))
 ::
 +$  action
   $:  project=@t
