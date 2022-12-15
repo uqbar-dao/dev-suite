@@ -27,7 +27,7 @@
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
-  ?>  =(mark %subscriber-action)
+  ?>  =(mark %noun)
   =/  act  !<(subscriber-action vase)
   =/  paf=path  [(scot %p ship.act) app.act path.act]
   ?-    -.act

@@ -141,33 +141,14 @@
   |=  payload=sub-payload:zig
   =/  m  (strand ,~)
   ^-  form:m
-  ;<  ~  bind:m
-    %+  dojo:pyro  who.payload
-    ;:  weld
-        ":subscriber &subscriber-action [%sub "
-        (scow %p to.payload)
-        " %"
-        (trip app.payload)
-        " "
-        (noah !>(`path`path.payload))
-        "]"
-    ==
+  ;<  ~  bind:m  (subscribe:pyro payload)
   (pure:m ~)
 ::
 ++  send-pyro-poke
   |=  payload=poke-payload:zig
   =/  m  (strand ,~)
   ^-  form:m
-  ;<  ~  bind:m
-    %+  dojo:pyro  who.payload
-    ;:  weld
-        ":"
-        (trip app.payload)
-        " &"
-        (trip mark.payload)
-        " "
-        (noah-slap-ream payload.payload)
-    ==
+  ;<  ~  bind:m  (poke:pyro payload)
   (pure:m ~)
 ::
 ++  run-steps

@@ -6,35 +6,55 @@
 =*  poke-our  poke-our:strandio
 ::
 |%
-++  send-events-to
-  |=  [who=ship what=(list unix-event)]
-  ^-  (list aqua-event)
-  %+  turn  what
-  |=  ue=unix-event
-  [%event who ue]
-::
-++  dojo-events
-  |=  [who=ship what=tape]
-  ^-  (list aqua-event)
-  %+  send-events-to  who
-  ^-  (list unix-event)
-  :~
-    [/d/term/1 %belt %ctl `@c`%e]
-    [/d/term/1 %belt %ctl `@c`%u]
-    [/d/term/1 %belt %txt ((list @c) what)]
-    [/d/term/1 %belt %ret ~]
-  ==
-::
 ++  send-events
   |=  events=(list aqua-event)
   =/  m  (strand ,~)
   ^-  form:m
   (poke-our %pyro %aqua-events !>(events))
 ::
+++  ue-to-ae
+  |=  [who=ship what=(list unix-event)]
+  ^-  (list aqua-event)
+  %+  turn  what
+  |=  ue=unix-event
+  [%event who ue]
+::
 ++  dojo
-  |=  [=ship =tape]
-  =/  m  (strand ,~)
-  ^-  form:m
-  :: ~&  >  "dojo: {tape}"
-  (send-events (dojo-events ship tape))
+  |=  [who=ship =tape]
+  %-  send-events
+  %+  ue-to-ae  who
+  ^-  (list unix-event)
+  :~  [/d/term/1 %belt %ctl `@c`%e]
+      [/d/term/1 %belt %ctl `@c`%u]
+      [/d/term/1 %belt %txt ((list @c) tape)]
+      [/d/term/1 %belt %ret ~]
+  ==
+::
+++  poke
+  |=  $:  who=@p  to=@p
+          app=@tas  mark=@tas
+          payload=*
+      ==
+  %-  send-events
+  %+  ue-to-ae  who
+  ^-  (list unix-event)
+  :_  ~
+  :*  /g
+      %deal  [who to]  app
+      %raw-poke  mark  payload
+  ==
+::
+++  subscribe
+  |=  $:  who=@p  to=@p
+          app=@tas  =path
+      ==
+  %-  send-events
+  %+  ue-to-ae  who
+  ^-  (list unix-event)
+  :_  ~
+  :*  /g
+      %deal  [who who]  %subscriber
+      %raw-poke  %noun
+      %sub  to  app  path
+  ==
 --

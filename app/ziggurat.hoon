@@ -348,82 +348,82 @@
       :-  (make-compile-contracts project.act our.bowl)^~
       state(projects (~(put by projects) project.act project))
     ::
-        %deploy-contract
-      =/  =project  (~(got by projects) project.act)
-      =/  who=@p
-        (~(got by town-sequencers:project) town-id.act)
-      =/  address=@ux  (~(got by virtualnet-addresses) who)
-      =/  deploy-contract-path=path  ::  TODO: unhardcode
-        /zig/custom-step-definitions/deploy-contract/hoon
-      =/  scry-path=path
-        %-  weld  :_  deploy-contract-path
-        /(scot %p our.bowl)/[project.act]/(scot %da now.bowl)
-      =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
-      =/  surs=(list [@tas path])  ~[[%zig /sur/zig/ziggurat]]
-      =^  subject=(each ^vase @t)  state
-        (compile-test-surs `@tas`project.act surs)
-      ?>  ?=(%& -.subject)
-      =/  [surs=(list [face=@tas =path]) =hoon]
-        (parse-pile:conq (trip .^(@t %cx scry-path)))
-      =/  =test
-        :*  `test-name
-            ~
-            (~(gas by *test-surs) surs)
-            subject
-        ::
-            %+  ~(put by *custom-step-definitions)
-              %deploy-contract
-            :-  deploy-contract-path
-            (compile-custom-step %deploy-contract hoon subject)
-        ::
-            :~  :+  %dojo
-                  :-  who
-                  %-  crip
-                  "=old-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/{<address>}/noun)"
-                ~
-            ::
-                :^  %custom-write  %deploy-contract
-                (crip "[{<who>} {<path.act>} ~]")  ~
-            ::
-                :+  %dojo
-                  :-  who
-                  %-  crip
-                  "=new-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/{<address>}/noun)"
-                ~
-            ::
-                :+  %dojo
-                  :-  who
-                  '=diff-pending (~(dif in new-pending) old-pending)'
-                ~
-            ::
-                :+  %dojo
-                  :-  who
-                  '=deploy-tx ?>  =(1 ~(wyt in diff-pending))  -.diff-pending'
-                ~
-            ::
-                :+  %poke
-                  :^  ~nec  %uqbar  %wallet-poke
-                  %-  crip
-                  "[%submit from={<address>} hash=deploy-tx gas=[rate=1 bud=1.000.000]]"
-                ~
-            ::
-                [%dojo [~nec ':sequencer|batch'] ~]
-            ==
-        ::
-            ~
-        ==
-      =/  test-id=@ux  `@ux`(sham test)
-      =.  tests.project  (~(put by tests.project) test-id test)
-      :-  :_  (make-run-queue our.bowl project.act)^~
-          %^  make-project-update  project.act  project
-          [our now]:bowl
-      %=  state
-          projects
-        (~(put by projects) project.act project)
-      ::
-          test-queue
-        (~(put to test-queue) project.act test-id)
-      ==
+      ::   %deploy-contract
+      :: =/  =project  (~(got by projects) project.act)
+      :: =/  who=@p
+      ::   (~(got by town-sequencers:project) town-id.act)
+      :: =/  address=@ux  (~(got by virtualnet-addresses) who)
+      :: =/  deploy-contract-path=path  ::  TODO: unhardcode
+      ::   /zig/custom-step-definitions/deploy-contract/hoon
+      :: =/  scry-path=path
+      ::   %-  weld  :_  deploy-contract-path
+      ::   /(scot %p our.bowl)/[project.act]/(scot %da now.bowl)
+      :: =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
+      :: =/  surs=(list [@tas path])  ~[[%zig /sur/zig/ziggurat]]
+      :: =^  subject=(each ^vase @t)  state
+      ::   (compile-test-surs `@tas`project.act surs)
+      :: ?>  ?=(%& -.subject)
+      :: =/  [surs=(list [face=@tas =path]) =hoon]
+      ::   (parse-pile:conq (trip .^(@t %cx scry-path)))
+      :: =/  =test
+      ::   :*  `test-name
+      ::       ~
+      ::       (~(gas by *test-surs) surs)
+      ::       subject
+      ::   ::
+      ::       %+  ~(put by *custom-step-definitions)
+      ::         %deploy-contract
+      ::       :-  deploy-contract-path
+      ::       (compile-custom-step %deploy-contract hoon subject)
+      ::   ::
+      ::       :~  :+  %dojo
+      ::             :-  who
+      ::             %-  crip
+      ::             "=old-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/{<address>}/noun)"
+      ::           ~
+      ::       ::
+      ::           :^  %custom-write  %deploy-contract
+      ::           (crip "[{<who>} {<path.act>} ~]")  ~
+      ::       ::
+      ::           :+  %dojo
+      ::             :-  who
+      ::             %-  crip
+      ::             "=new-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/{<address>}/noun)"
+      ::           ~
+      ::       ::
+      ::           :+  %dojo
+      ::             :-  who
+      ::             '=diff-pending (~(dif in new-pending) old-pending)'
+      ::           ~
+      ::       ::
+      ::           :+  %dojo
+      ::             :-  who
+      ::             '=deploy-tx ?>  =(1 ~(wyt in diff-pending))  -.diff-pending'
+      ::           ~
+      ::       ::
+      ::           :+  %poke
+      ::             :^  ~nec  %uqbar  %wallet-poke
+      ::             %-  crip
+      ::             "[%submit from={<address>} hash=deploy-tx gas=[rate=1 bud=1.000.000]]"
+      ::           ~
+      ::       ::
+      ::           [%dojo [~nec ':sequencer|batch'] ~]
+      ::       ==
+      ::   ::
+      ::       ~
+      ::   ==
+      :: =/  test-id=@ux  `@ux`(sham test)
+      :: =.  tests.project  (~(put by tests.project) test-id test)
+      :: :-  :_  (make-run-queue our.bowl project.act)^~
+      ::     %^  make-project-update  project.act  project
+      ::     [our now]:bowl
+      :: %=  state
+      ::     projects
+      ::   (~(put by projects) project.act project)
+      :: ::
+      ::     test-queue
+      ::   (~(put to test-queue) project.act test-id)
+      :: ==
     ::
         %compile-contracts
       ::  for internal use -- app calls itself to scry clay
