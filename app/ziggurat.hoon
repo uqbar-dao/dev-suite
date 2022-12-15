@@ -129,6 +129,59 @@
     `test
   ::
   ++  add-test
+    |=  $:  project-name=@t
+            name=(unit @t)
+            surs=test-surs
+            =test-steps
+        ==
+    ^-  [[(list card) test] _state]
+    =/  =project  (~(got by projects) project-name)
+    =/  addresses=^vase  !>(virtualnet-addresses)
+    =^  subject=(each ^vase @t)  state
+      (compile-test-surs `@tas`project-name ~(tap by surs))
+    =/  =test
+      :*  name
+          /
+          surs
+          subject
+          ~
+          test-steps
+          ~
+      ==
+    =.  test
+      %-  fall  :_  test
+      %-  add-custom-step
+      :^  test  project-name  %scry-indexer
+      /zig/custom-step-definitions/scry-indexer/hoon
+    =.  test
+      %-  fall  :_  test
+      %-  add-custom-step
+      :^  test  project-name  %poke-wallet-transaction
+      /zig/custom-step-definitions/poke-wallet-transaction/hoon
+    :_  state
+    :_  test
+    :_  ~
+    %^  make-project-update  project-name  project
+    [our now]:bowl
+  ::
+  ++  add-and-queue-test
+    |=  [project-name=@t name=(unit @t) =test-surs =test-steps]
+    ^-  (quip card _state)
+    =/  =project  (~(got by projects) project-name)
+    =^  [cards=(list card) =test]  state
+        (add-test project-name name test-surs test-steps)
+    =/  test-id=@ux  `@ux`(sham test)
+    =.  tests.project  (~(put by tests.project) test-id test)
+    :-  cards
+    %=  state
+        projects
+      (~(put by projects) project-name project)
+    ::
+        test-queue
+      (~(put to test-queue) project-name test-id)
+    ==
+  ::
+  ++  add-test-file
     |=  [project-name=@tas name=(unit @t) p=path]
     ^-  [test _state]
     ?~  p  !!  ::  TODO: do better
@@ -164,12 +217,12 @@
       /zig/custom-step-definitions/poke-wallet-transaction/hoon
     [test state]
   ::
-  ++  add-and-queue-test
+  ++  add-and-queue-test-file
     |=  [project-name=@t name=(unit @t) test-steps-file=path]
     ^-  (quip card _state)
     =/  =project  (~(got by projects) project-name)
     =^  =test  state
-      (add-test project-name name test-steps-file)
+      (add-test-file project-name name test-steps-file)
     =/  test-id=@ux  `@ux`(sham test)
     =.  tests.project  (~(put by tests.project) test-id test)
     :-  :_  ~
@@ -477,13 +530,44 @@
     ::
         %add-test
       =/  =project  (~(got by projects) project.act)
-      =^  =test  state  (add-test [project name path]:act)
+      =^  [cards=(list card) =test]  state
+        (add-test [project name test-surs test-steps]:act)
+      =/  test-id=@ux  `@ux`(sham test)
+      =.  tests.project  (~(put by tests.project) test-id test)
+      :-  cards
+      state(projects (~(put by projects) project.act project))
+    ::
+        %add-and-run-test
+      =^  cards  state
+        %-  add-and-queue-test
+        [project name test-surs test-steps]:act
+      =?  cards  =(| test-running)
+        (snoc cards (make-run-queue our.bowl project.act))
+      [cards state]
+    ::
+        %add-and-queue-test
+      %-  add-and-queue-test
+      [project name test-surs test-steps]:act
+    ::
+        %add-test-file
+      =/  =project  (~(got by projects) project.act)
+      =^  =test  state  (add-test-file [project name path]:act)
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
       :-  :_  ~
           %^  make-project-update  project.act  project
           [our now]:bowl
       state(projects (~(put by projects) project.act project))
+    ::
+        %add-and-run-test-file
+      =^  cards  state
+        (add-and-queue-test-file [project name path]:act)
+      =?  cards  =(| test-running)
+        (snoc cards (make-run-queue our.bowl project.act))
+      [cards state]
+    ::
+        %add-and-queue-test-file
+      (add-and-queue-test-file [project name path]:act)
     ::
         %delete-test
       =/  =project  (~(got by projects) project.act)
@@ -496,13 +580,6 @@
       ?:  =(| test-running)
         (make-run-queue our.bowl project.act)^~
       ~&  >  "%ziggurat: another test is running, adding to queue"  ~
-    ::
-        %add-and-run-test
-      =^  cards  state
-        (add-and-queue-test [project name path]:act)
-      =?  cards  =(| test-running)
-        (snoc cards (make-run-queue our.bowl project.act))
-      [cards state]
     ::
         %run-queue
       ?:  =(~ pyro-ships-ready)
@@ -555,9 +632,6 @@
     ::
         %queue-test
       `state(test-queue (~(put to test-queue) [project.act id.act]))
-    ::
-        %add-and-queue-test
-      (add-and-queue-test [project name path]:act)
     ::
         %add-custom-step
       =/  =project  (~(got by projects) project.act)

@@ -119,14 +119,19 @@
           [%compile-contract =path]  ::  path of form /[desk]/path/to/contract, e.g., /zig/con/fungible/hoon
           [%read-desk ~]  ::  make-project-update, make-watch-for-file-changes
       ::
-          [%add-test name=(unit @t) =path]  ::  name optional
+          [%add-test name=(unit @t) =test-surs =test-steps]  ::  name optional
+          [%add-and-run-test name=(unit @t) =test-surs =test-steps]
+          [%add-and-queue-test name=(unit @t) =test-surs =test-steps]
+      ::
+          [%add-test-file name=(unit @t) =path]  ::  name optional
+          [%add-and-run-test-file name=(unit @t) =path]
+          [%add-and-queue-test-file name=(unit @t) =path]
+      ::
           [%delete-test id=@ux]
           [%run-test id=@ux]
-          [%add-and-run-test name=(unit @t) =path]
           [%run-queue ~]  ::  can be used as [%$ %run-queue ~]
           [%clear-queue ~]
           [%queue-test id=@ux]
-          [%add-and-queue-test name=(unit @t) =path]
           ::
           [%add-custom-step test-id=@ux tag=@tas =path]
           [%delete-custom-step test-id=@ux tag=@tas]

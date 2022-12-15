@@ -32,13 +32,18 @@
           [%read-desk ul]
       ::
           [%add-test parse-add-test]
+          [%add-and-run-test parse-add-test]
+          [%add-and-queue-test parse-add-test]
+      ::
+          [%add-test-file parse-add-test-file]
+          [%add-and-run-test-file parse-add-test-file]
+          [%add-and-queue-test-file parse-add-test-file]
+      ::
           [%delete-test (ot ~[[%id (se %ux)]])]
           [%run-test (ot ~[[%id (se %ux)]])]
-          [%add-and-run-test parse-add-test]
           [%run-queue ul]
           [%clear-queue ul]
           [%queue-test (ot ~[[%id (se %ux)]])]
-          [%add-and-queue-test parse-add-test]
       ::
           [%add-custom-step parse-add-custom-step]
           [%delete-custom-step (ot ~[[%test-id (se %ux)] [%tag (se %tas)]])]
@@ -103,6 +108,13 @@
       ==
     ::
     ++  parse-add-test
+      %-  ot
+      :^    [%name so:dejs-soft:format]
+          [%test-surs (ar pa)]
+        [%test-steps (ar parse-test-step)]
+      ~
+    ::
+    ++  parse-add-test-file
       %-  ot
       :+  [%name so:dejs-soft:format]
         [%path pa]
