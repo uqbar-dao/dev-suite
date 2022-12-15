@@ -44,10 +44,15 @@
       %raw-poke  mark  payload
   ==
 ::
+++  task
+  |=  [who=@p =vane =task-arvo]
+  %-  send-events
+  %+  ue-to-ae  who
+  ^-  (list unix-event)
+  [[vane]~ task-arvo]~ 
+::
 ++  subscribe
-  |=  $:  who=@p  to=@p
-          app=@tas  =path
-      ==
+  |=  [who=@p to=@p app=@tas =path]
   %-  send-events
   %+  ue-to-ae  who
   ^-  (list unix-event)
