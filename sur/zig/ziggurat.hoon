@@ -68,7 +68,7 @@
 +$  dbug-payload  [who=@p mold-name=@t app=@tas]
 +$  read-sub-payload  [who=@p to=@p app=@tas =path]
 +$  dojo-payload  [who=@p payload=@t]
-+$  poke-payload  [who=@p to=@p app=@tas mark=@tas payload=*]
++$  poke-payload  [who=@p to=@p app=@tas mark=@tas payload=@t]
 +$  sub-payload  [who=@p to=@p app=@tas =path]
 ::
 +$  custom-step-definitions
@@ -113,7 +113,7 @@
           [%set-virtualnet-address who=@p =address:smart]
       ::
           [%register-contract-for-compilation file=path]
-          :: [%deploy-contract town-id=@ux =path]
+          [%deploy-contract town-id=@ux =path]
       ::
           [%compile-contracts ~]  ::  make-read-desk
           [%compile-contract =path]  ::  path of form /[desk]/path/to/contract, e.g., /zig/con/fungible/hoon

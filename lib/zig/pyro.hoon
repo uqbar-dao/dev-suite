@@ -21,7 +21,10 @@
 ::
 ++  dojo
   |=  [who=ship =tape]
-  %-  send-events
+  (send-events (dojo-events who tape))
+::
+++  dojo-events
+  |=  [who=ship =tape]
   %+  ue-to-ae  who
   ^-  (list unix-event)
   :~  [/d/term/1 %belt %ctl `@c`%e]
@@ -31,8 +34,10 @@
   ==
 ::
 ++  poke
-  |=  $:  who=@p  to=@p
-          app=@tas  mark=@tas
+  |=  $:  who=@p
+          to=@p
+          app=@tas
+          mark=@tas
           payload=*
       ==
   %-  send-events
@@ -53,13 +58,5 @@
 ::
 ++  subscribe
   |=  [who=@p to=@p app=@tas =path]
-  %-  send-events
-  %+  ue-to-ae  who
-  ^-  (list unix-event)
-  :_  ~
-  :*  /g
-      %deal  [who who]  %subscriber
-      %raw-poke  %noun
-      %sub  to  app  path
-  ==
+  (poke who who app %subscriber-action [%sub to app path])
 --

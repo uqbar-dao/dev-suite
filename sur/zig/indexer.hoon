@@ -135,4 +135,12 @@
       timestamp=@da
       should-update-subs=?
   ==
+++  action
+  $%  [%set-catchup-indexer =dock]
+      [%set-sequencer =dock]
+      [%set-rollup =dock]
+      [%bootstrap =dock]
+      [%catchup =dock town-id=id:smart batch-id=id:smart]
+      [%consume-batch args=consume-batch-args]
+  ==
 --

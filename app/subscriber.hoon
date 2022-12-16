@@ -1,7 +1,7 @@
 :: This agent will subscribe to an agent and store all past subscriptions
 :: solid state subscriptions should obsolete this.
 ::
-/-  *subscriber
+/-  *zig-subscriber
 /+  dbug, default-agent
 ::
 |%

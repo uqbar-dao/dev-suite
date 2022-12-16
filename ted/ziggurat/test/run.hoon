@@ -148,7 +148,9 @@
   |=  payload=poke-payload:zig
   =/  m  (strand ,~)
   ^-  form:m
-  ;<  ~  bind:m  (poke:pyro payload)
+  ;<  ~  bind:m
+    %-  poke:pyro
+    payload(payload +:(slap-subject payload.payload))
   (pure:m ~)
 ::
 ++  run-steps

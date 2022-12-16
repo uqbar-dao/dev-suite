@@ -7,6 +7,7 @@
       ==
   ^-  test-write-step:zig
   :+  %poke
+    :-  who
     :^  who  %uqbar  %wallet-poke
     %-  crip
     """

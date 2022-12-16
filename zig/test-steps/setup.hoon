@@ -10,9 +10,13 @@
   :~  [%dojo [~nec ':rollup|activate'] ~]
   ::
       :+  %poke
-      [~nec %indexer %set-sequencer '[our %sequencer]']  ~
+        :-  ~nec
+        [~nec %indexer %indexer-action '[%set-sequencer [~nec %sequencer]]']
+      ~
   ::
-      [%poke [~nec %indexer %set-rollup '[our %rollup]'] ~]
+      :+  %poke
+        [~nec ~nec %indexer %indexer-action '[%set-rollup [~nec %rollup]]']
+      ~
   ::
       :+  %dojo
         :-  ~nec
@@ -20,6 +24,7 @@
       ~
   ::
       :+  %poke
+        :-  ~nec
         :^  ~nec  %uqbar  %wallet-poke
         '[%import-seed \'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove\' \'squid\' \'nickname\']'
       ~
@@ -30,16 +35,21 @@
 ++  setup-bud
   ^-  test-steps:zig
   :~  :+  %poke
-        [~bud %indexer %set-sequencer '[~nec %sequencer]']
-      ~
-  ::
-      [%poke [~bud %indexer %set-rollup '[~nec %rollup]'] ~]
-  ::
-      :+  %poke
-        [~bud %indexer %indexer-bootstrap '[~nec %indexer]']
+        :-  ~bud
+        [~bud %indexer %indexer-action '[%set-sequencer [~nec %sequencer]]']
       ~
   ::
       :+  %poke
+        [~bud ~bud %indexer %indexer-action '[%set-rollup [~nec %rollup]]']
+      ~
+  ::
+      :+  %poke
+        :-  ~bud
+        [~bud %indexer %indexer-action '[%bootstrap [~nec %indexer]]']
+      ~
+  ::
+      :+  %poke
+        :-  ~bud
         :^  ~bud  %uqbar  %wallet-poke
         '[%import-seed \'post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney\' \'squid\' \'nickname\']'
       ~
