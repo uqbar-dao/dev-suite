@@ -3,7 +3,6 @@
 |%
 +$  action
   $%  [%open town-id=id:smart =address:smart]
-      [%confirm me=address:smart]
   ==
 ::
 +$  configure
