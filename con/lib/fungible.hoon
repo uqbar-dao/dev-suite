@@ -146,6 +146,9 @@
     ==
     ::  locate receiver account
     =+  to-id=(hash-data this.context to.act town.context salt.giver)
+    ::  cannot give back to the account you're taking from
+    ::  (would double the amount of tokens)
+    ?>  !=(to-id from-account.act)
     ?~  receiver-account=(scry-state -)
       ::  if receiver doesn't have an account, issue one for them
       =+  [amount.act ~ metadata.noun.giver ~]
@@ -212,6 +215,9 @@
     ?>  (lte eth-block.context deadline.act)
     ::  locate receiver account
     =+  to-id=(hash-data this.context to.act town.context salt.giver)
+    ::  cannot give back to the account you're taking from
+    ::  (would double the amount of tokens)
+    ?>  !=(to-id from-account.act)
     ?~  receiver-account=(scry-state -)
       ::  if receiver doesn't have an account, issue one for them
       =+  [amount.act ~ metadata.noun.giver ~]
