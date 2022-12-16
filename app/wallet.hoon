@@ -10,8 +10,12 @@
 /*  smart-lib  %noun  /lib/zig/sys/smart-lib/noun
 |%
 +$  card  card:agent:gall
-+$  state-0
-  $:  %0
++$  versioned-state
+  $%  state-0
+      state-1
+  ==
++$  state-1
+  $:  %1
       ::  wallet holds a single seed at once
       ::  address-index notes where we are in derivation path
       seed=[mnem=@t pass=@t address-index=@ud]
@@ -38,7 +42,7 @@
   ==
 --
 ::
-=|  state-0
+=|  state-1
 =*  state  -
 ::
 %-  agent:dbug
@@ -48,14 +52,41 @@
 +*  this  .
     def   ~(. (default-agent this %|) bowl)
 ::
-++  on-init  `this(state [%0 ['' '' 0] ~ ~ ~ ~ ~ ~ ~ ~ ~])
+++  on-init  `this(state [%1 ['' '' 0] ~ ~ ~ ~ ~ ~ ~ ~ ~])
 ::
 ++  on-save  !>(state)
 ++  on-load
   |=  =old=vase
   ^-  (quip card _this)
-  =/  old-state  !<(state-0 old-vase)
-  `this(state old-state)
+  =/  old-state  !<(versioned-state old-vase)
+  ?:  ?=(%1 -.old-state)
+    `this(state old-state)
+  ?:  ?=(%0 -.old-state)
+    :-  ~
+    %=    this
+        state
+      ^-  state-1
+      :*  %1
+          seed.old-state
+          keys.old-state
+          nonces.old-state
+          signed-message-store.old-state
+          tokens.old-state
+          metadata-store.old-state
+          approved-origins=*(map (pair term wire) [rate=@ud bud=@ud])
+          %-  malt
+          %+  turn  old-unfinished-transaction-store.old-state
+          |=  [hash=@ux tx=transaction:smart action=supported-actions]
+          [hash [~ tx action]]
+          %-  ~(run by old-transaction-store.old-state)
+          |=  m=(map @ux [=transaction:smart =supported-actions =output:eng])
+          (~(run by m) some)
+          %-  ~(run by old-pending-store.old-state)
+          |=  m=(map @ux [=transaction:smart =supported-actions])
+          (~(run by m) some)
+      ==
+    ==
+  !!
 ::
 ++  on-watch
   |=  =path
