@@ -34,6 +34,7 @@
           [%add-test parse-add-test]
           [%add-and-run-test parse-add-test]
           [%add-and-queue-test parse-add-test]
+          [%save-test-to-file (ot ~[[%id (se %ux)] [%path pa]])]
       ::
           [%add-test-file parse-add-test-file]
           [%add-and-run-test-file parse-add-test-file]

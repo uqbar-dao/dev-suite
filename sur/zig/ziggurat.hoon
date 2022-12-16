@@ -133,22 +133,22 @@
           [%run-queue ~]  ::  can be used as [%$ %run-queue ~]
           [%clear-queue ~]
           [%queue-test id=@ux]
-          ::
+      ::
           [%add-custom-step test-id=@ux tag=@tas =path]
           [%delete-custom-step test-id=@ux tag=@tas]
-          ::
+      ::
           [%add-app-to-dashboard app=@tas sur=path mold-name=@t mar=path]
           [%delete-app-from-dashboard app=@tas]
-          ::
+      ::
           [%add-town-sequencer town-id=@ux who=@p]
           [%delete-town-sequencer town-id=@ux]
-          ::
+      ::
           [%stop-pyro-ships ~]
           [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> [~nec ~bud]
           [%start-pyro-snap snap=path]
       ::
           [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
-          ::
+      ::
           [%add-user-file file=path]
           [%delete-user-file file=path]
       ==

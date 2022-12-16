@@ -3,7 +3,7 @@
 Document describes current best practices for use and testing of `%pyro` and `%ziggurat`.
 As these projects are in a state of heavy development, this document will likely go out of date unless updated.
 
-Last updated as of Dec 2 2022
+Last updated as of Dec 15 2022
 
 ## Broad overview
 
@@ -114,7 +114,7 @@ Finally, some `test-globals` will be accessible by `test-steps`.
 `addresses:test-globals` is the `(map @p @ux)` defined in `%ziggurat` app state and set with the `%set-virtualnet-addresses` action.
 The `addresses:test-globals` map is useful for easy access and pairing between virtualships and their testnet addresses.
 `test-results:` are also accessible, so that the results of a previous `test-step` is usable in the current one (TODO).
-`test-globals` also includes `our`, `now`, and `project`.
+`test-globals` also includes `our=@p`, `now=@da`, and `project=@tas`.
 
 ## Deploying contracts
 
@@ -148,22 +148,22 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 ```hoon
 :ziggurat &ziggurat-action [%foo %new-project ~]
 
-::  Setup virtaulship testnet, like following [README](https://github.com/uqbar-dao/uqbar-core/blob/master/readme.md).
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%setup /zig/test-steps/setup/hoon]
+::  Setup virtualship testnet, like following https://github.com/uqbar-dao/uqbar-core/blob/master/readme.md
+:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%setup /zig/test-steps/setup/hoon]
 
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-nec /zig/test-steps/scry-nec/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-bud /zig/test-steps/scry-bud/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-clay /zig/test-steps/scry-clay/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%scry-nec /zig/test-steps/scry-nec/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%scry-bud /zig/test-steps/scry-bud/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%scry-clay /zig/test-steps/scry-clay/hoon]
 
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%subscribe-nec /zig/test-steps/subscribe-nec/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%subscribe-nec /zig/test-steps/subscribe-nec/hoon]
 
 ::  The same ZIGS send done in three ways:
 ::   Straight up,
 ::   Using custom-test-steps,
 ::   Using the `addresses` test global.
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec /zig/test-steps/send-nec/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec-custom /zig/test-steps/send-nec-custom/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec-addresses /zig/test-steps/send-nec-addresses/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%send-nec /zig/test-steps/send-nec/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%send-nec-custom /zig/test-steps/send-nec-custom/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%send-nec-addresses /zig/test-steps/send-nec-addresses/hoon]
 
 :ziggurat &ziggurat-action [%foo %start-pyro-ships ~[~nec ~bud]]
 :ziggurat &ziggurat-action [%$ %run-queue ~]
@@ -173,14 +173,16 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 :ziggurat &ziggurat-action [%foo %stop-pyro-ships ~]
 ```
 
-An alternative to `send-nec`:
+### `send-nec` from the virtualship Dojo
+
 ```hoon
 :pyro|dojo ~nec ":uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]"
 :pyro|dojo ~nec ":uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xa99c.4c8e.1c8d.abb8.e870.81e8.8c96.2cf5 gas=[rate=1 bud=1.000.000]]"
 :pyro|dojo ~nec ":sequencer|batch"
 ```
 
-To interact with snapshots:
+### Interaction with snapshots
+
 ```hoon
 :pyro &action [%snap-ships /my-snapshot/0 ~[~nec ~bud]]
 :pyro &action [%restore-snap /my-snapshot/0]
@@ -193,21 +195,31 @@ Disclaimer: these currently have a bunch of jet mismatches when you boot them.
 May be super slow!
 This is getting fixed in an OTA soon.
 To activate it use
-```
+```hoon
 :ziggurat &ziggurat-action [%foo %start-pyro-snap /testnet]
 ```
 
-The following makes use of the `addresses` test global, which maps from virtualships to their corresponding virtualnet addresses:
-```hoon
-:ziggurat &ziggurat-action [%foo %add-and-run-test `%send-nec ~[/zig/sur/zig/indexer/hoon] send-nec:help]
-```
+### Alternative `test-steps` input
 
-However, here it does not yet work because `%poke-wallet-transaction` passes in the `transaction` as an `@t` and it is never properly transformed (TODO):
+Test steps can also be added by directly inputting them.
+This is useful for commandline testing or for frontends.
+For example, an equivalent to adding and queueing `%send-nec` above would be:
 ```hoon
-:ziggurat &ziggurat-action [%foo %add-and-run-test `%send-nec-custom ~[/zig/sur/zig/indexer/hoon] send-nec-custom:help]
+=test-surs (~(put by *(map @tas path)) %indexer /sur/zig/indexer)
+=test-steps ~[[%scry [~nec 'update:indexer' %gx %indexer /batch-order/0x0/noun] '[%batch-order batch-order=~[0xd85a.d919.9806.cbc2.b841.eb0d.854d.22af]]']]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-nec-direct test-surs test-steps]
 ```
-
-It also does not yet work for transforming `%dojo` arguments: another TODO.
+A `test-steps` added this way is assigned a test id like any other test.
+It can be saved to a file by looking up this id.
+As of this writing is was `0x3825.4e68.9717.b400.b727.fdee.5c7b.90e0`; look it up using:
+```hoon
+=zig -build-file /=zig=/sur/zig/ziggurat/hoon
+.^(projects:zig %gx /=ziggurat=/projects/noun)
+```
+Then save via:
+```hoon
+:ziggurat &ziggurat-action [%foo %save-test-to-file 0x3825.4e68.9717.b400.b727.fdee.5c7b.90e0 /zig/test-steps/my-scry-nec/hoon]
+```
 
 ## Configuring Testnet Snapshot For Quick-Boot
 
