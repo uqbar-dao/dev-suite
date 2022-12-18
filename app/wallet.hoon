@@ -52,7 +52,16 @@
 +*  this  .
     def   ~(. (default-agent this %|) bowl)
 ::
-++  on-init  `this(state [%1 ['' '' 0] ~ ~ ~ ~ ~ ~ ~ ~ ~])
+++  on-init
+  ^-  (quip card _this)
+  :_  this(state *state-1)
+  ::  auto-populate %wallet with a random seed on install
+  :_  ~
+  :*  %pass  /self-poke
+      %agent  [our.bowl %wallet]
+      %poke  %wallet-poke
+      !>([%generate-hot-wallet '' 'wallet'])
+  ==
 ::
 ++  on-save  !>(state)
 ++  on-load
