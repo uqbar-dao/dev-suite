@@ -43,7 +43,7 @@
           volume            1.000.000.000.000.000.000
       ==
   :_  ~
-  :*  %pass  /pokur-wallet-poke
+  :*  %pass  /faucet-wallet-poke
       %agent  [our.bowl %uqbar]
       %poke  %wallet-poke
       !>([%approve-origin [%faucet /gifts] [1 1.000.000]])
