@@ -455,7 +455,6 @@
       (watch-for-batches our.bowl 0x0)
     ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
     =/  upd  !<(update:ui q.cage.sign)
-    ~&  >>  upd
     ?.  ?=(%batch-order -.upd)  `this
     ?~  batch-order.upd         `this
     =/  batch-hash=@ux  (rear batch-order.upd)
