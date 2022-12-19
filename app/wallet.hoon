@@ -87,9 +87,13 @@
           %+  turn  old-unfinished-transaction-store.old-state
           |=  [hash=@ux tx=transaction:smart action=supported-actions]
           [hash [~ tx action]]
+      ::
           %-  ~(run by old-transaction-store.old-state)
           |=  m=(map @ux [=transaction:smart =supported-actions =output:eng])
-          (~(run by m) some)
+          %-  ~(run by m)
+          |=  [[=transaction:smart =supported-actions =output:eng]]
+          [~ 0x0 transaction supported-actions output]
+      ::
           %-  ~(run by old-pending-store.old-state)
           |=  m=(map @ux [=transaction:smart =supported-actions])
           (~(run by m) some)
@@ -154,7 +158,7 @@
       ::  TODO save nonces/tokens from HW wallets too
       ::  for now treat this as a nuke of the wallet
       %=  state
-        nonces                ~
+        nonces                [[addr [[0x0 ~(wyt by sent)] ~ ~]] ~ ~]
         tokens                tokens
         signed-message-store  ~
         metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
@@ -180,7 +184,7 @@
       ::  TODO save nonces/tokens from HW wallets too
       ::  for now treat this as a nuke of the wallet
       %=  state
-        nonces                ~
+        nonces                [[addr [[0x0 ~(wyt by sent)] ~ ~]] ~ ~]
         tokens                tokens
         signed-message-store  ~
         metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
@@ -200,20 +204,27 @@
         (weld "m/44'/60'/0'/0/" (scow %ud address-index.seed.state))
       =+  addr=(address-from-prv:key:ethereum prv:core)
       ::  get transaction history for this new address
-      =/  sent  (get-sent-history addr %.n [our now]:bowl)
+      =/  sent    (get-sent-history addr %.n [our now]:bowl)
+      =/  tokens  (make-tokens [addr ~(tap in ~(key by keys))] [our now]:bowl)
       :-  ~
       %=  state
-        seed  seed(address-index +(address-index.seed))
-        keys  (~(put by keys) addr [`prv:core nick.act])
+        tokens  tokens
+        nonces  (~(put by nonces) addr [[0x0 ~(wyt by sent)] ~ ~])
+        seed    seed(address-index +(address-index.seed))
+        keys    (~(put by keys) addr [`prv:core nick.act])
         transaction-store  (~(put by transaction-store) addr sent)
       ==
     ::
         %add-tracked-address
       ::  get transaction history for this new address
       =/  sent  (get-sent-history address.act %.n [our now]:bowl)
+      =/  tokens
+        (make-tokens [address.act ~(tap in ~(key by keys))] [our now]:bowl)
       :-  ~
       %=  state
-        keys  (~(put by keys) address.act [~ nick.act])
+        tokens  tokens
+        nonces  (~(put by nonces) address.act [[0x0 ~(wyt by sent)] ~ ~])
+        keys    (~(put by keys) address.act [~ nick.act])
         transaction-store  (~(put by transaction-store) address.act sent)
       ==
     ::
@@ -443,6 +454,11 @@
       :_  this  ::  attempt to re-sub
       (watch-for-batches our.bowl 0x0)
     ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
+    =/  upd  !<(update:ui q.cage.sign)
+    ~&  >>  upd
+    ?.  ?=(%batch-order -.upd)  `this
+    ?~  batch-order.upd         `this
+    =/  batch-hash=@ux  (rear batch-order.upd)
     ::  get latest tokens and nfts held
     =/  addrs=(list address:smart)  ~(tap in ~(key by keys))
     =/  new-tokens
@@ -478,12 +494,13 @@
       ~&  >>>  "%wallet: couldn't find transaction hash for update!"
       $(unfinished t.unfinished, still-looking [i.unfinished still-looking])
     ::  put latest version of tx into transaction-store
-    =/  updated=[@ux =origin transaction:smart supported-actions output:eng]
+    =/  updated=[@ux finished-transaction]
       =+  found=(~(got by transactions.tx-latest) hash.i.unfinished)
       ::  add 200 to finished status code to get wallet status equivalent
       =.  status.transaction.found  (add 200 status.transaction.found)
       :*  hash.i.unfinished
           origin.i.unfinished
+          batch-hash
           transaction.found
           action.i.unfinished
           output.found
@@ -498,7 +515,7 @@
       [(notify-origin-card our.bowl updated) cards]
         transaction-store
       %+  ~(jab by transaction-store)  address.caller.tx.i.unfinished
-      |=  m=(map @ux [origin transaction:smart supported-actions output:eng])
+      |=  m=(map @ux finished-transaction)
       (~(put by m) updated)
     ==
   ::
@@ -668,7 +685,7 @@
         :-  'finished'
         %-  pairs:enjs
         %+  turn  ~(tap by transaction-store.state)
-        |=  [a=@ux m=(map @ux [origin transaction:smart supported-actions output:eng])]
+        |=  [a=@ux m=(map @ux finished-transaction)]
         :-  (scot %ux a)
         %-  pairs:enjs
         (turn ~(tap by m) transaction-with-output:parsing)

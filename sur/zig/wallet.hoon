@@ -33,7 +33,10 @@
 ::
 +$  transaction-store
   %+  map  address:smart
-  (map @ux [=origin =transaction:smart action=supported-actions =output:eng])
+  (map @ux finished-transaction)
+
++$  finished-transaction
+  [=origin batch=@ux =transaction:smart action=supported-actions =output:eng]
 ::
 +$  pending-store
   %+  map  address:smart
@@ -73,12 +76,7 @@
           =transaction:smart
           action=supported-actions
       ==
-      $:  %finished-transaction
-          =origin
-          =transaction:smart
-          action=supported-actions
-          =output:eng
-      ==
+      [%finished-transaction finished-transaction]
   ==
 ::
 ::  sent to web interface
@@ -89,10 +87,7 @@
       [%tx-status hash=@ux =transaction:smart action=supported-actions]
       $:  %finished-tx
           hash=@ux
-          =origin
-          =transaction:smart
-          action=supported-actions
-          =output:eng
+          finished-transaction
       ==
   ==
 ::
