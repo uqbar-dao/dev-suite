@@ -122,11 +122,6 @@ Contracts can be deployed to the virtualship testnet for a project using the `%d
 ```hoon
 :ziggurat &ziggurat-action [%foo %deploy-contract town-id=0x0 /con/compiled/nft/jam]
 ```
-As of 221213, this operation requires your fake/devship be running with at least 4GB of loom.
-You must use [Urbit 1.13 or newer binaries](https://github.com/urbit/urbit/releases) and use the `--loom 32` flag when launching your fake/devship, e.g.:
-```bash
-urbit --loom 32 nec
-```
 
 ## Custom inputs
 
@@ -157,13 +152,15 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 
 :ziggurat &ziggurat-action [%foo %add-and-queue-test `%subscribe-nec /zig/test-steps/subscribe-nec/hoon]
 
-::  The same ZIGS send done in three ways:
+::  The same ZIGS send done in four ways:
 ::   Straight up,
 ::   Using custom-test-steps,
 ::   Using the `addresses` test global.
+::   Using the canonical form to send, sign, and batch a transaction.
 :ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec /zig/test-steps/send-nec/hoon]
 :ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec-custom /zig/test-steps/send-nec-custom/hoon]
 :ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec-addresses /zig/test-steps/send-nec-addresses/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%send-nec-test-results /zig/test-steps/send-nec-test-results/hoon]
 
 :ziggurat &ziggurat-action [%foo %start-pyro-ships ~[~nec ~bud]]
 :ziggurat &ziggurat-action [%$ %run-queue ~]

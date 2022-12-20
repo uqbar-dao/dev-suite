@@ -277,7 +277,11 @@
   ^-  shown-test-result
   %+  turn  test-result
   |=  [success=? expected=@t result=vase]
-  [success expected (crip (noah result))]
+  =/  res-text=@t  (crip (noah result))
+  :+  success  expected
+  ?:  (lte 1.024 (met 3 res-text))  '<elided>'
+  res-text
+
 ::
 ::  project states for templates
 ::

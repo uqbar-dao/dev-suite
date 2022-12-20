@@ -408,11 +408,13 @@
                   ?>  ?=([* ~] new-test-result)
                   =/  new-pending=(set @ux)
                     %~  key  by
-                    !<(map @ux *) result:i:new-test-result)
+                    !<((map @ux *) result:i:new-test-result)
                   =/  diff-pending=(list @ux)
                     ~(tap in (~(dif in new-pending) old-pending))
                   ?>  ?=([@ ~] diff-pending)
-                  [%submit from={<address>} hash=i:diff-pending gas=[rate=1 bud=1.000.000]]
+                  :^  %submit  from={<address>}
+                    hash=i:diff-pending
+                  gas=[rate=1 bud=1.000.000]
                   """
                 ~
             ::
