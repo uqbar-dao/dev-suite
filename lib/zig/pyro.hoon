@@ -58,5 +58,5 @@
 ::
 ++  subscribe
   |=  [who=@p to=@p app=@tas =path]
-  (poke who who app %subscriber-action [%sub to app path])
+  (poke who who %subscriber %subscriber-action [%sub to app path])
 --

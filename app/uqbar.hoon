@@ -118,7 +118,7 @@
     ^-  (quip card _this)
     |^
     =^  cards  state
-      ?+    mark  ~|("%uqbar: rejecting erroneous poke" !!)
+      ?+    mark  ~|("%uqbar: rejecting erroneous poke {<mark>}" !!)
           %uqbar-action  (handle-action !<(action:u vase))
           %uqbar-write   (handle-write !<(write:u vase))
           %wallet-poke   (handle-wallet-poke !<(wallet-poke:w vase))
