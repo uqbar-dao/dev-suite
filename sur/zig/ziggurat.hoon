@@ -76,7 +76,9 @@
 +$  custom-step-compiled  (each transform=vase @t)
 ::
 +$  test-results  (list test-result)
-+$  test-result   (list [success=? expected=@t result=@t])
++$  test-result   (list [success=? expected=@t result=vase])
++$  shown-test-results  (list shown-test-result)
++$  shown-test-result   (list [success=? expected=@t result=@t])
 ::
 +$  template  ?(%fungible %nft %blank)
 ::

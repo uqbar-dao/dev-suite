@@ -267,6 +267,18 @@
   |=  =tank
   (of-wall:format (wash [0 80] tank))
 ::
+++  show-test-results
+  |=  =test-results
+  ^-  shown-test-results
+  (turn test-results show-test-result)
+::
+++  show-test-result
+  |=  =test-result
+  ^-  shown-test-result
+  %+  turn  test-result
+  |=  [success=? expected=@t result=vase]
+  [success expected (crip (noah result))]
+::
 ::  project states for templates
 ::
 :: ++  fungible-template-project
@@ -1053,11 +1065,11 @@
   ^-  json
   :-  %a
   %+  turn  test-result
-  |=  [success=? expected=@t result=@t]
+  |=  [success=? expected=@t result=vase]
   %-  pairs
   :^    ['success' %b success]
       ['expected' %s expected]
-    ['result' %s result]
+    ['result' %s (crip (noah result))]
   ~
 ::
 ++  dbug-dashboards-to-json

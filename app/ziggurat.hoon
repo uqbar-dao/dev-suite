@@ -353,8 +353,7 @@
       =/  =project  (~(got by projects) project.act)
       =/  who=@p
         (~(got by town-sequencers:project) town-id.act)
-      =/  address=@ta
-        (scot %ux (~(got by virtualnet-addresses) who))
+      =/  address=@ux  (~(got by virtualnet-addresses) who)
       =/  deploy-contract-path=path  ::  TODO: unhardcode
         /zig/custom-step-definitions/deploy-contract/hoon
       =/  scry-path=path
@@ -379,14 +378,18 @@
             (compile-custom-step %deploy-contract hoon subject)
         ::
             :~  :+  %scry
-                  [who '(map @ux *)' %gx %wallet /pending-store/[address]/noun]
+                  :-  who
+                  :^  '(map @ux *)'  %gx  %wallet
+                  /pending-store/(scot %ux address)/noun
                 ''
             ::
                 :^  %custom-write  %deploy-contract
                 (crip "[{<who>} {<path.act>} ~]")  ~
             ::
                 :+  %scry
-                  [who '(map @ux *)' %gx %wallet /pending-store/[address]/noun]
+                  :-  who
+                  :^  '(map @ux *)'  %gx  %wallet
+                  /pending-store/(scot %ux address)/noun
                 ''
             ::
                 :+  %poke
@@ -394,14 +397,22 @@
                   :^  ~nec  %uqbar  %wallet-poke
                   %-  crip
                   """
-                  =*  test-results  test-results:test-globals
-                  ?>  ?=([* * * ~] test-results)
-                  =+  ~(key by !<(old-pending=(map @ux *) i.t.t.test-results))
-                  =+  ~(key by !<(new-pending=(map @ux *) i.test-results))
-                  =/  diff-pending=(set @ux)  (~(dif in new-pending) old-pending)
-                  ?>  =(1 ~(wyt in diff-pending))
-                  =*  deploy-tx -.diff-pending
-                  [%submit from={<address>} hash=deploy-tx gas=[rate=1 bud=1.000.000]]
+                  =/  old-test-result=test-result:zig
+                    (snag 2 test-results:test-globals)
+                  ?>  ?=([* ~] old-test-result)
+                  =/  old-pending=(set @ux)
+                    %~  key  by
+                    !<((map @ux *) result:i:old-test-result)
+                  =/  new-test-result=test-result:zig
+                    (snag 0 test-results:test-globals)
+                  ?>  ?=([* ~] new-test-result)
+                  =/  new-pending=(set @ux)
+                    %~  key  by
+                    !<(map @ux *) result:i:new-test-result)
+                  =/  diff-pending=(list @ux)
+                    ~(tap in (~(dif in new-pending) old-pending))
+                  ?>  ?=([@ ~] diff-pending)
+                  [%submit from={<address>} hash=i:diff-pending gas=[rate=1 bud=1.000.000]]
                   """
                 ~
             ::
@@ -781,7 +792,7 @@
         =/  =project  (~(got by projects) project-name)
         =/  =test     (~(got by tests.project) test-id)
         ~&  >  "%ziggurat: test done {<test-id>}"
-        ~&  >  test-results
+        ~&  >  (show-test-results test-results)
         =.  tests.project
           %+  ~(put by tests.project)  test-id
           test(results test-results)
