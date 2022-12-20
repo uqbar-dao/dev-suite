@@ -156,19 +156,20 @@
       =/  tokens  (make-tokens ~[addr] [our now]:bowl)
       ::  sub to batch updates
       :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
-      ::  clear all existing state, except for public keys imported from HW wallets
-      ::  TODO save nonces/tokens from HW wallets too
-      ::  for now treat this as a nuke of the wallet
+      ::  clear all existing state, except for
+      ::  public keys imported from HW wallets
+      ::  treat this as a nuke of the wallet
       %=  state
-        nonces                [[addr [[0x0 ~(wyt by sent)] ~ ~]] ~ ~]
-        tokens                tokens
-        signed-message-store  ~
-        metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
         pending-store         ~
-        seed  [mnemonic.act password.act 0]
+        signed-message-store  ~
+        tokens                tokens
+        seed                  [mnemonic.act password.act 0]
+        nonces                [[addr [[0x0 ~(wyt by sent)] ~ ~]] ~ ~]
+        metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
         unfinished-transaction-store  ~
         transaction-store  [[addr sent] ~ ~]
-        keys  (~(put by *(map address:smart [(unit @ux) @t])) addr [`private-key:core nick.act])
+        keys  %+  ~(put by *(map address:smart [(unit @ux) @t]))
+              addr  [`private-key:core nick.act]
       ==
     ::
         %generate-hot-wallet
@@ -182,24 +183,26 @@
       =/  tokens  (make-tokens ~[addr] [our now]:bowl)
       ::  sub to batch updates
       :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
-      ::  clear all existing state, except for public keys imported from HW wallets
-      ::  TODO save nonces/tokens from HW wallets too
-      ::  for now treat this as a nuke of the wallet
+      ::  clear all existing state, except for
+      ::  public keys imported from HW wallets
+      ::  treat this as a nuke of the wallet
       %=  state
-        nonces                [[addr [[0x0 ~(wyt by sent)] ~ ~]] ~ ~]
-        tokens                tokens
-        signed-message-store  ~
-        metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
         pending-store         ~
-        seed  [(crip mnem) password.act 0]
+        signed-message-store  ~
+        tokens                tokens
+        seed                  [(crip mnem) password.act 0]
+        nonces                [[addr [[0x0 ~(wyt by sent)] ~ ~]] ~ ~]
+        metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
         unfinished-transaction-store  ~
         transaction-store  [[addr sent] ~ ~]
-        keys  (~(put by *(map address:smart [(unit @ux) @t])) addr [`private-key:core nick.act])
+        keys  %+  ~(put by *(map address:smart [(unit @ux) @t]))
+              addr  [`private-key:core nick.act]
       ==
     ::
         %derive-new-address
       ::  if hdpath input is empty, use address-index+1 to get next
-      =/  new-seed  (to-seed:bip39 (trip mnem.seed.state) (trip pass.seed.state))
+      =/  new-seed
+        (to-seed:bip39 (trip mnem.seed.state) (trip pass.seed.state))
       =/  core
         %-  derive-path:(from-seed:bip32 [64 new-seed])
         ?:  !=("" hdpath.act)  hdpath.act
@@ -252,7 +255,8 @@
       =/  hash  (sham typed-message)
       =/  signature
         ?~  priv.keypair
-          !!  ::  put it into some temporary thing for cold storage. Make it pending
+          ::  put it into some temporary thing for cold storage. Make it pending
+          !!
         %+  ecdsa-raw-sign:secp256k1:secp:crypto
         hash  u.priv.keypair
       :-  ~
@@ -263,8 +267,8 @@
       ==
     ::
         %set-nonce  ::  for testing/debugging
-      =+  acc=(~(gut by nonces.state) address.act ~)
-      `state(nonces (~(put by nonces) address.act (~(put by acc) town.act new.act)))
+      =-  `state(nonces (~(put by nonces) address.act -))
+      (~(put by (~(gut by nonces.state) address.act ~)) [town new]:act)
     ::
         %approve-origin
       `state(approved-origins (~(put by approved-origins) +.act))
@@ -391,7 +395,8 @@
         ?-    -.action.act
             %give
           ::  Standard fungible token %give
-          =/  from=asset  (~(got by `book`(~(got by tokens.state) from.act)) item.action.act)
+          =/  from=asset
+            (~(got by `book`(~(got by tokens.state) from.act)) item.action.act)
           ?>  ?=(%token -.from)
           [%give to.action.act amount.action.act item.action.act]
         ::
@@ -404,7 +409,10 @@
           =/  data-hoon  (ream ;;(@t +.action.act))
           =+  gun=(~(mint ut p.smart-lib-vase) %noun data-hoon)
           =/  res=book:zink
-            (zebra:zink 200.000 ~ *chain-state-scry:zink [q.smart-lib-vase q.gun] %.y)
+            %:  zebra:zink
+                200.000  ~  *chain-state-scry:zink
+                [q.smart-lib-vase q.gun]  %.y
+            ==
           ?.  ?=(%& -.p.res)
             ~|("wallet: failed to compile custom action!" !!)
           =+  noun=(need p.p.res)
@@ -470,8 +478,9 @@
     ::  update status, then insert in tx-store mapping
     ::  and build an update card with its new status.
     =|  cards=(list card)
-    =|  still-looking=(list [hash=@ux =origin tx=transaction:smart action=supported-actions])
-    =/  unfinished=(list [hash=@ux =origin tx=transaction:smart action=supported-actions])
+    =|  still-looking=(list [@ux origin transaction:smart supported-actions])
+    =/  unfinished
+      ^-  (list [hash=@ux =origin tx=transaction:smart act=supported-actions])
       ~(tap by unfinished-transaction-store)
     |-
     ?~  unfinished
@@ -480,8 +489,12 @@
             metadata-store  new-metadata
             unfinished-transaction-store  (malt still-looking)
           ==
-      :+  [%give %fact ~[/book-updates] %wallet-frontend-update !>(`wallet-frontend-update`[%new-book new-tokens])]
-        [%give %fact ~[/metadata-updates] %wallet-frontend-update !>(`wallet-frontend-update`[%new-metadata new-metadata])]
+      :+  :^  %give  %fact  ~[/book-updates]
+          :-  %wallet-frontend-update
+          !>(`wallet-frontend-update`[%new-book new-tokens])
+        :^  %give  %fact  ~[/metadata-updates]
+        :-  %wallet-frontend-update
+        !>(`wallet-frontend-update`[%new-metadata new-metadata])
       cards
     =/  tx-latest=update:ui
       .^  update:ui
@@ -503,7 +516,7 @@
           origin.i.unfinished
           batch-hash
           transaction.found
-          action.i.unfinished
+          act.i.unfinished
           output.found
       ==
     ::  when we have a finished transaction, use transaction origin to
