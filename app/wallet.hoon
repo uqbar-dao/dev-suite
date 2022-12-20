@@ -68,9 +68,11 @@
   |=  =old=vase
   ^-  (quip card _this)
   =/  old-state  !<(versioned-state old-vase)
-  ?:  ?=(%1 -.old-state)
+  ?-    -.old-state
+      %1
     `this(state old-state)
-  ?:  ?=(%0 -.old-state)
+  ::
+      %0
     :-  ~
     %=    this
         state
@@ -99,7 +101,7 @@
           (~(run by m) some)
       ==
     ==
-  !!
+  ==
 ::
 ++  on-watch
   |=  =path
