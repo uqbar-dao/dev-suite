@@ -37,12 +37,18 @@
     io    ~(. agentio bowl)
 ::
 ++  on-init
-  :-  ~
-  %=  this
-      gas               [rate=1 budget=1.000.000]
-      timeout-duration  ~h1
-      volume            1.000.000.000.000.000.000
+  :_  %=  this
+          gas               [rate=1 budget=1.000.000]
+          timeout-duration  ~h1
+          volume            1.000.000.000.000.000.000
+      ==
+  :_  ~
+  :*  %pass  /faucet-wallet-poke
+      %agent  [our.bowl %uqbar]
+      %poke  %wallet-poke
+      !>([%approve-origin [%faucet /gifts] [1 1.000.000]])
   ==
+::
 ++  on-save  !>(state)
 ++  on-load
   |=  old-vase=vase
@@ -63,59 +69,38 @@
   ++  handle-action
     |=  =action:f
     ^-  (quip card _this)
-    ?-    -.action
-        %open
-      =,  bowl
-      ?:  =(%pawn (clan:title src))
-        ~|("%faucet: comets cannot use the faucet! get a planet!" !!)
-      =/  par
-        ?:  =(%earl (clan:title src))
-          (sein:title our now src)
-        src
-      ?~  town-info=(~(get by town-infos) town-id.action)
-        ~|("%faucet: invalid town. Valid towns: {<~(key by town-infos)>}" !!)
-      =/  [unlock=@da count=@ud]
-        (~(gut by on-timeout) par [*@da 0])
-      ?:  (gth unlock now)
-        ~|("%faucet: must wait until after {<unlock>} to acquire more zigs." !!)
-      =/  until=@da  (add now.bowl (mul timeout-duration (pow 2 count)))
-      :_  %=    this
-              on-timeout
-            %+  ~(put by on-timeout)  par
-            [until ?:((gte count 12) count +(count))]
-          ==
-      :+  =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]
-          :-  %wallet-poke
-          !>  ^-  wallet-poke:w
-          :*  %transaction
-              from=address.u.town-info
-              contract=zigs-contract.u.town-info
-              town=town-id.action
-              :^    %give
-                  to=address.action
-                amount=volume
-              grain=zigs-account.u.town-info
-          ==
-        =-  [%pass /self-poke %agent [our.bowl %faucet] %poke -]
-        [%faucet-action !>(`action:f`[%confirm address.u.town-info])]
-      ~
-    ::
-        %confirm
-      ?>  =(src.bowl our.bowl)
-      ::  make faucet auto-complete transaction in wallet
-      :_  this
-      =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]~
-      :-  %wallet-poke
-      !>  ^-  wallet-poke:w
-      :*  %submit
-          from=me.action
-          ::  take first transaction in wallet pending store and slam it through
-          ::  assumes that faucet operator never uses wallet for other things!
-          =-  -.-:~(tap by .^((map @ux [transaction:smart supported-actions:w]) %gx -))
-          /(scot %p our.bowl)/wallet/(scot %da now.bowl)/pending-store/(scot %ux me.action)/noun
-          gas
-      ==
-    ==
+    =,  bowl
+    ?:  =(%pawn (clan:title src))
+      ~|("%faucet: comets cannot use the faucet! get a planet!" !!)
+    =/  par
+      ?:  =(%earl (clan:title src))
+        (sein:title our now src)
+      src
+    ?~  town-info=(~(get by town-infos) town-id.action)
+      ~|("%faucet: invalid town. Valid towns: {<~(key by town-infos)>}" !!)
+    =/  [unlock=@da count=@ud]
+      (~(gut by on-timeout) par [*@da 0])
+    ?:  (gth unlock now)
+      ~|("%faucet: must wait until after {<unlock>} to acquire more zigs." !!)
+    =/  until=@da  (add now.bowl (mul timeout-duration (pow 2 count)))
+    :_  %=    this
+            on-timeout
+          %+  ~(put by on-timeout)  par
+          [until ?:((gte count 12) count +(count))]
+        ==
+    =-  [%pass /transaction-poke %agent [our.bowl %wallet] %poke -]~
+    :-  %wallet-poke
+    !>  ^-  wallet-poke:w
+        :*  %transaction
+            origin=`[%faucet /gifts]
+            from=address.u.town-info
+            contract=zigs-contract.u.town-info
+            town=town-id.action
+            :^    %give
+                to=address.action
+              amount=volume
+            grain=zigs-account.u.town-info
+        ==
   ::
   ++  handle-configure
     |=  c=configure:f

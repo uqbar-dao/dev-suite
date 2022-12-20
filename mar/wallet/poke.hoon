@@ -9,7 +9,9 @@
     ^-  wallet-poke
     %-  wallet-poke
     |^
-    (process jon)
+    =/  procd  (process jon)
+    ?.  ?=(%transaction -.procd)  procd
+    [%transaction origin=~ +.procd]
     ++  process
       %-  of
       :~  [%import-seed (ot ~[[%mnemonic so] [%password so] [%nick so]])]

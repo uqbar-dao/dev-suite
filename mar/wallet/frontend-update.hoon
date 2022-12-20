@@ -29,7 +29,7 @@
     ::
         %tx-status
       %-  frond
-      (transaction-no-output:parsing +.upd)
+      (transaction-no-output:parsing hash.upd ~ +.+.upd)
     ::
         %finished-tx
       %-  frond

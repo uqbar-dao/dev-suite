@@ -16,14 +16,25 @@
   [%give %fact ~[/tx-updates] %wallet-frontend-update !>(-)]
 ::
 ++  finished-tx-update-card
-  |=  in=[@ux transaction:smart supported-actions output:eng]
+  |=  in=[@ux finished-transaction]
   ^-  card
   =+  `wallet-frontend-update`[%finished-tx in]
   [%give %fact ~[/tx-updates] %wallet-frontend-update !>(-)]
 ::
+++  notify-origin-card
+  |=  [our=@p in=[@ux finished-transaction]]
+  ^-  card
+  ?~  origin.in  !!
+  :*  %pass  q.u.origin.in
+      %agent  [our p.u.origin.in]
+      %poke  %wallet-update
+      !>  ^-  wallet-update
+      [%finished-transaction +.in]
+  ==
+::
 ++  get-sent-history
   |=  [=address:smart newest=? our=@p now=@da]
-  ^-  (map @ux [transaction:smart supported-actions output:eng])
+  ^-  (map @ux finished-transaction)
   =/  transaction-history=update:ui
     .^  update:ui
         %gx
@@ -34,10 +45,14 @@
   ?~  transaction-history  ~
   ?.  ?=(%transaction -.transaction-history)  ~
   %-  ~(urn by transactions.transaction-history)
-  |=  [hash=@ux @ * =transaction:smart =output:eng]
-  :+  transaction(status (add 200 `@`status.transaction))
-    [%noun calldata.transaction]
-  output
+  |=  [hash=@ux t=transaction-update-value:ui]
+  ^-  finished-transaction
+  :*  ~
+      batch-id.location.t
+      transaction.t(status (add 200 `@`status.transaction.t))
+      [%noun calldata.transaction.t]
+      output.t
+  ==
 ::
 ++  watch-for-batches
   |=  [our=@p town=@ux]
@@ -238,15 +253,16 @@
     |=([prop=@tas val=@t] [prop [%s val]])
   ::
   ++  transaction-with-output
-    |=  [hash=@ux t=transaction:smart action=supported-actions o=output:eng]
+    |=  [hash=@ux f=finished-transaction]
     :-  (scot %ux hash)
     %-  pairs
-    :~  ['transaction' (transaction hash t action)]
-        ['output' (output o)]
+    :~  ['transaction' (transaction hash transaction.f action.f)]
+        ['batch' [%s (scot %ux batch.f)]]
+        ['output' (output output.f)]
     ==
   ::
   ++  transaction-no-output
-    |=  [hash=@ux t=transaction:smart action=supported-actions]
+    |=  [hash=@ux =origin t=transaction:smart action=supported-actions]
     :-  (scot %ux hash)
     (transaction hash t action)
   ::
