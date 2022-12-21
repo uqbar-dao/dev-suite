@@ -196,9 +196,7 @@
     results-vase(p [%face %test-results p.results-vase])
   |-
   ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
-  ;<  ~  bind:m
-    ?~  snapshot-ships  (pure:(strand ,~) ~)
-    (block-on-previous-step:test ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
+  ;<  ~  bind:m  (block-on-previous-step:test ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
     %:  take-snapshot:test
