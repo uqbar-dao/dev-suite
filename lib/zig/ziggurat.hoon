@@ -281,7 +281,6 @@
   :+  success  expected
   ?:  (lte 1.024 (met 3 res-text))  '<elided>'
   res-text
-
 ::
 ::  project states for templates
 ::
@@ -1024,7 +1023,7 @@
   :~  ['who' %s (scot %p who.payload)]
       ['app' %s app.payload]
       ['mark' %s mark.payload]
-      :: ['payload' %s payload.payload] :: TODO
+      ['payload' %s payload.payload]
   ==
 ::
 ++  dojo-payload-to-json

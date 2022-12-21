@@ -12,7 +12,7 @@
       to=@p
       app=@tas
       mark=@tas
-      payload=*
+      payload=@t
   ==
 ::
 ++  ted
@@ -22,7 +22,7 @@
   =/  args  !<((unit arg-mold) args-vase)
   ?~  args
     ~&  >>>  "Usage:"
-    ~&  >>>  "-zig!ziggurat-test-poke who=@p to=@p app=@tas mark=@tas payload=*"
+    ~&  >>>  "-zig!ziggurat-test-poke who=@p to=@p app=@tas mark=@tas payload=@t"
     (pure:m !>(~))
   ;<  ~  bind:m  (poke:pyro [who to app mark payload]:u.args)
   (pure:m !>(~))

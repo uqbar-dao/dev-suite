@@ -159,8 +159,7 @@
     ==
   ?.  ?=(^ scry-noun)  (pure:m !>(~))
   =+  fact-set=(fall ;;((unit (set @t)) scry-noun) *(set @t))
-  ?:  (~(has in fact-set) expected)
-    (pure:m !>(expected))
+  ?:  (~(has in fact-set) expected)  (pure:m !>(expected))
   (pure:m !>((crip (noah !>(~(tap in fact-set))))))
 ::
 ++  send-pyro-subscription
@@ -201,8 +200,7 @@
     %-  slop  :_  subject
     results-vase(p [%face %test-results p.results-vase])
   |-
-  ;<  ~  bind:m
-    ?~(snapshot-ships (pure:(strand ,~) ~) (sleep ~s1))  :: TODO: unhardcode; tune time to allow previous step to continue processing
+  ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
     (block-on-previous-step:test ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
@@ -305,10 +303,9 @@
       %subscribe
     ;<  ~  bind:m  (send-pyro-subscription payload.test-step)
     ;<  trs=test-results:zig  bind:m
-      %:  run-steps
-          project-id  test-id
-          `test-steps:zig`expected.test-step  ~
-      ==
+      %-  run-steps
+      :^  project-id  test-id
+      `test-steps:zig`expected.test-step  ~
     ?~  tr=(test-results-of-reads-to-test-result trs)
       ~|("ziggurat-test-run: %subscribe expected can only contain %scrys, %subscribes, %waits" !!)
     %=  $
