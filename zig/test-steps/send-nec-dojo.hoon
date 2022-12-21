@@ -57,10 +57,11 @@
         '=tx-hash ?>  =(1 ~(wyt in diff-pending))  -.diff-pending'
       ~
   ::
-      :+  %dojo  ::  TODO: back to poke
+      :+  %poke
         :-  who
+        :^  who  %uqbar  %wallet-poke
         %-  crip
-        ":uqbar &wallet-poke [%submit from={<address>} hash=tx-hash gas=[rate=1 bud=1.000.000]]"
+        "[%transaction ~ from={<address>} contract={<contract>} town=0x0 action=[%give to={<to>} amount=123.456 item={<item>}]]"
       ~
   ::
       :+  %dojo  [who ':sequencer|batch']
