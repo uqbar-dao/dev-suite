@@ -136,10 +136,10 @@ Thus, the following must occur:
 5. Sign that pending transaction and send it to the sequencer,
 6. Tell the sequencer to process the batch.
 
-Rather than requiring every virtualship testnet write `test-steps` do the common work, use the `custom-write-step` [`zig/custom-step-definitions/send-wallet-transaction.hoon`](https://github.com/uqbar-dao/uqbar-core/blob/ec6f90032ab3b6383c3d691b40d6e99a332c8644/zig/custom-step-definitions/send-wallet-transaction.hoon).
-For an example of usage, see [`zig/test-steps/send-nec.hoon`]()
+Rather than requiring every virtualship testnet write `test-steps` do the common work, use the `custom-write-step` [`zig/custom-step-definitions/send-wallet-transaction.hoon`](https://github.com/uqbar-dao/uqbar-core/blob/077403cc2eef02baea59f3d6f8b0e08fb7fd78a3/zig/custom-step-definitions/send-wallet-transaction.hoon).
+For an example of usage, see [`zig/test-steps/send-nec.hoon`](https://github.com/uqbar-dao/uqbar-core/blob/077403cc2eef02baea59f3d6f8b0e08fb7fd78a3/zig/test-steps/send-nec.hoon)
 
-More examples can be found in the [`zig/custom-step-definitions/` dir](https://github.com/uqbar-dao/uqbar-core/tree/ec6f90032ab3b6383c3d691b40d6e99a332c8644/zig/custom-step-definitions).
+More examples can be found in the [`zig/custom-step-definitions/` dir](https://github.com/uqbar-dao/uqbar-core/tree/077403cc2eef02baea59f3d6f8b0e08fb7fd78a3/zig/custom-step-definitions).
 
 Custom steps are labeled by a `tag=@tas` -- the name of the step that will be referenced when calling it.
 A custom step is a core whose `$` arm takes in arguments and an `expected` (either a `@t` if a `custom-read-step` or a `(list test-read-step)` if a `custom-write-step`) and must return a `(list test-step)`.
