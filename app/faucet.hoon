@@ -64,6 +64,8 @@
   ?+  mark  (on-poke:def mark vase)
     %faucet-action     (handle-action !<(action:f vase))
     %faucet-configure  (handle-configure !<(configure:f vase))
+    ::  can safely ignore updates from wallet about status of transactions
+    %wallet-update     `this
   ==
   ::
   ++  handle-action

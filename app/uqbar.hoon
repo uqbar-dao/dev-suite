@@ -3,6 +3,7 @@
 ::  The agent for interacting with Uqbar. Provides read/write layer for userspace agents.
 ::
 /-  spider,
+    f=zig-faucet,
     u=zig-uqbar,
     ui=zig-indexer,
     w=zig-wallet
@@ -196,6 +197,17 @@
             indexer-sources
           (~(gas by *(map id:smart (set dock))) towns.act)
         ==
+      ::
+          %open-faucet
+        ::  poke known sequencer for this town, will fail if they don't
+        ::  host a faucet.
+        :_  state
+        :_  ~
+        %+  ~(poke pass:io /poke-faucet)
+          [q:(~(got by sequencers) town.act) %faucet]
+        :-  %faucet-action
+        !>  ^-  action:f
+        [%open town.act send-to.act]
       ==
       ::
       ++  remove-from-ping-results
