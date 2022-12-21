@@ -101,12 +101,12 @@
     (mule-slap-subject mold-name.payload)
   ?:  ?=(%| -.compilation-result)
     ~&  %ziggurat-test-run^%scry-compilation-fail^p.compilation-result
-    (pure:m !>(p.compilation-result))
+    !!
   =*  scry-mold  p.compilation-result
   (pure:m (slym scry-mold +.scry-noun))
 ::
 ::  +send-pyro-dbug differs from +send-pyro-scry in that
-::   the return value of +send-pyro-dbug is a vase.
+::   the return value of the %pyro scry is a vase.
 ::   must throw out the type information -- which has been
 ::   lost anyways when it is forced into being a noun by the
 ::   %pyro scry.
@@ -132,7 +132,7 @@
     (mule-slap-subject mold-name.payload)
   ?:  ?=(%| -.compilation-result)
     ~&  %ziggurat-test-run^%dbug-compilation-fail^p.compilation-result
-    (pure:m !>(p.compilation-result))
+    !!
   =*  dbug-mold  p.compilation-result
   (pure:m (slym dbug-mold +.+.dbug-noun))
 ::
@@ -173,7 +173,7 @@
     (mule-slap-subject payload.payload)
   ?:  ?=(%| -.compilation-result)
     ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
-    (pure:m ~)
+    !!
   ;<  ~  bind:m
     %-  poke:pyro
     payload(payload +.p.compilation-result)
