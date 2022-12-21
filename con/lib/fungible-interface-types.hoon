@@ -122,11 +122,14 @@
     ^-  cord
     '''
     [
-      {"token": "ux"},
+      {"token-metadata": "ux"},
       {
         "mints": [
-          {"to": "ux"},
-          {"amount": "ud"}
+          "list",
+          [
+            {"to": "ux"},
+            {"amount": "ud"}
+          ]
         ]
       }
     ]
