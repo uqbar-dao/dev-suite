@@ -3,10 +3,10 @@
 ::  The agent for interacting with Uqbar. Provides read/write layer for userspace agents.
 ::
 /-  spider,
+    f=zig-faucet,
     u=zig-uqbar,
     ui=zig-indexer,
-    w=zig-wallet,
-    f=zig-faucet
+    w=zig-wallet
 /+  agentio,
     default-agent,
     dbug,
