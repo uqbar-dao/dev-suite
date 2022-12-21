@@ -95,7 +95,7 @@
       {"from": "ux"},
       {"to": "ux"},
       {"amount": "ud"},
-      {"from-account": "ux"}
+      {"from-account": "ux"},
       {"nonce": "ud"},
       {"deadline": "ud"},
       {
