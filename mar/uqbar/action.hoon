@@ -1,4 +1,5 @@
 /-  u=zig-uqbar
+=,  dejs:format
 ::
 |_  =action:u
 ++  grab
@@ -19,7 +20,7 @@
 ::
 ++  grow
   |%
-  ++  noun  write
+  ++  noun  action
   --
 ::
 ++  grad  %noun
