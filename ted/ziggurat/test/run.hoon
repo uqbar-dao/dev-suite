@@ -1,8 +1,8 @@
-/-  spider,
+/-  pyro,
+    spider,
     zig=zig-ziggurat
 /+  strandio,
     pyro=zig-pyro,
-    test=zig-ziggurat-test,
     zig-lib=zig-ziggurat
 ::
 =*  strand     strand:spider
@@ -179,6 +179,43 @@
     payload(payload +.p.compilation-result)
   (pure:m ~)
 ::
+++  take-snapshot
+  |=  $:  project-id=@t
+          test-id=(unit @ux)
+          step=@ud
+          snapshot-ships=(list @p)
+      ==
+  =/  m  (strand:spider ,~)
+  ^-  form:m
+  ?~  snapshot-ships  (pure:m ~)
+  ;<  ~  bind:m
+    %+  poke-our:strandio  %pyro
+    :-  %action
+    !>  ^-  pyro-action:pyro
+    :+  %snap-ships
+      ?~  test-id  /[project-id]/(scot %ud step)
+      /[project-id]/(scot %ux u.test-id)/(scot %ud step)
+    snapshot-ships
+  (pure:m ~)
+::
+++  block-on-previous-step
+  |=  [loop-duration=@dr done-duration=@dr]
+  =/  m  (strand:spider ,~)
+  ^-  form:m
+  |-
+  ;<  is-next-events-empty=?  bind:m
+    (scry:strandio ? /gx/pyro/is-next-events-empty/noun)
+  ;<  soonest-timer=(unit @da)  bind:m
+    (scry:strandio (unit @da) /gx/pyre/soonest-timer/noun)
+  ;<  now=@da  bind:m  get-time:strandio
+  ?.  is-next-events-empty
+    ;<  ~  bind:m  (wait:strandio (add now loop-duration))
+    $
+  ?~  soonest-timer                                  (pure:m)
+  ?:  (lth (add now done-duration) u.soonest-timer)  (pure:m)
+  ;<  ~  bind:m  (wait:strandio (add u.soonest-timer 1))  :: TODO: is this a good heuristic or should we wait longer?
+  $
+::
 ++  run-steps
   |=  $:  project-id=@t
           test-id=@ux
@@ -196,10 +233,10 @@
     results-vase(p [%face %test-results p.results-vase])
   |-
   ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
-  ;<  ~  bind:m  (block-on-previous-step:test ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
+  ;<  ~  bind:m  (block-on-previous-step ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
-    %:  take-snapshot:test
+    %:  take-snapshot
         project-id
         `test-id
         step-number

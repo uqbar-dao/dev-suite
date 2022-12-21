@@ -2,48 +2,73 @@
 /=  zig      /sur/zig/ziggurat
 ::
 |%
+++  who
+  ^-  @p
+  ~nec
+::
+++  address
+  ^-  @ux
+  (~(got by addresses:test-globals) who)
+::
+++  them
+  ^-  @p
+  ~bud
+::
+++  to
+  ^-  @ux
+  (~(got by addresses:test-globals) them)
+::
+++  contract
+  ^-  @ux
+  0x74.6361.7274.6e6f.632d.7367.697a
+::
+++  item
+  ^-  @ux
+  0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6
+::
 ++  $
   ^-  test-steps:zig
   :~  :+  %dojo
-        :-  ~nec
+        :-  who
         %-  crip
-        "=old-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70/noun)"
+        "=old-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/{<address>}/noun)"
       ~
   ::
       :+  %poke
-        :-  ~nec
-        :^  ~nec  %uqbar  %wallet-poke
-        '[%transaction ~ from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]'
-      ~
-  ::
-      :+  %dojo
-        :-  ~nec
+        :-  who
+        :^  who  %uqbar  %wallet-poke
         %-  crip
-        "=new-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70/noun)"
+        "[%transaction ~ from={<address>} contract={<contract>} town=0x0 action=[%give to={<to>} amount=123.456 item={<item>}]]"
       ~
   ::
       :+  %dojo
-        :-  ~nec
+        :-  who
+        %-  crip
+        "=new-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/{<address>}/noun)"
+      ~
+  ::
+      :+  %dojo
+        :-  who
         '=diff-pending (~(dif in new-pending) old-pending)'
       ~
   ::
       :+  %dojo
-        :-  ~nec
-        '=deploy-tx ?>  =(1 ~(wyt in diff-pending))  -.diff-pending'
+        :-  who
+        '=tx-hash ?>  =(1 ~(wyt in diff-pending))  -.diff-pending'
       ~
   ::
       :+  %dojo  ::  TODO: back to poke
-        :-  ~nec
+        :-  who
         %-  crip
-        ":uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=deploy-tx gas=[rate=1 bud=1.000.000]]"
+        ":uqbar &wallet-poke [%submit from={<address>} hash=tx-hash gas=[rate=1 bud=1.000.000]]"
       ~
   ::
-      :+  %dojo  [~nec ':sequencer|batch']
+      :+  %dojo  [who ':sequencer|batch']
       :_  ~
       :+  %scry
-        :-  ~nec
+        :-  who
         :^  'update:indexer'  %gx  %indexer
-        /newest/item/0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6/noun
+        /newest/item/(scot %ux item)/noun
       ''
   ==
 --
