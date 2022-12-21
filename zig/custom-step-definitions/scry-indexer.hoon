@@ -4,7 +4,8 @@
 |%
 ++  $
   |=  [indexer-path=path expected=@t]
-  ^-  test-read-step:zig
+  ^-  test-steps:zig
+  :_  ~
   :+  %scry
     :*  who=~nec  ::  hardcode: ~nec runs rollup/sequencer
         'update:indexer'

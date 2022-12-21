@@ -310,43 +310,24 @@
       %+  scry  vase
       %+  weld  /gx/ziggurat/custom-step-compiled/[project-id]
       /(scot %ux test-id)/[tag.test-step]/noun
-    =/  transformed-step=test-read-step:zig
-      !<  test-read-step:zig
+    =/  transformed-steps=test-steps:zig
+      !<  test-steps:zig
       %+  slam  transform
       %-  slop  :_  !>(expected.test-step)
       (slap-subject payload.test-step)  ::  TODO: +mule?
-    $(test-steps [transformed-step t.test-steps])
+    $(test-steps (weld transformed-steps t.test-steps))
   ::
       %custom-write
     ;<  transform=vase  bind:m
       %+  scry  vase
       %+  weld  /gx/ziggurat/custom-step-compiled/[project-id]
       /(scot %ux test-id)/[tag.test-step]/noun
-    =/  transformed-step=test-write-step:zig
-      !<  test-write-step:zig
+    =/  transformed-steps=test-steps:zig
+      !<  test-steps:zig
       %+  slam  transform
       %-  slop  :_  !>(expected.test-step)
       (slap-subject payload.test-step)  ::  TODO: +mule?
-    ::  execute code given as @t, e.g., transform
-    ::   `:*  %foo  %bar  ==`
-    ::   to
-    ::   `[%foo %bar]`
-    ::   TODO: consolidate logic
-    =?    transformed-step
-        ?=(%dojo -.transformed-step)
-      %=  transformed-step
-          payload.payload
-        %-  crip
-        (noah-slap-ream payload.payload.transformed-step)
-      ==
-    =?    transformed-step
-        ?=(%poke -.transformed-step)
-      %=  transformed-step
-          payload.payload
-        %-  crip
-        (noah-slap-ream payload.payload.transformed-step)
-      ==
-    $(test-steps [transformed-step t.test-steps])
+    $(test-steps (weld transformed-steps t.test-steps))
   ==
 ::
 ++  ted
