@@ -212,7 +212,6 @@
   ;<  =bowl:strand  bind:m  get-bowl
   ?-    -.test-step
       %wait
-    ~!  test-step
     ;<  ~  bind:m  (sleep until.test-step)
     =.  test-results  [~ test-results]
     %=  $
