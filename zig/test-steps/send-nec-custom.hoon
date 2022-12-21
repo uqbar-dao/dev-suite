@@ -30,12 +30,6 @@
         '=deploy-tx ?>  =(1 ~(wyt in diff-pending))  -.diff-pending'
       ~
   ::
-      :: :+  %poke
-      ::   :-  ~nec
-      ::   :^  ~nec  %uqbar  %wallet-poke
-      ::   '[%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=deploy-tx gas=[rate=1 bud=1.000.000]]'
-      :: ~
-  ::
       :+  %dojo  ::  TODO: back to poke
         :-  ~nec
         %-  crip

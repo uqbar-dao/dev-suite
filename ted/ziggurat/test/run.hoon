@@ -60,7 +60,6 @@
 ++  build-next-subject
   |=  [old-subject=vase results=vase =bowl:strand]
   ^-  vase
-  :: ~&  %ziggurat-test-run^%build-next-subject^(show-test-results:zig-lib !<(test-results:zig results))
   =+  !<  old=test-globals:zig
       (slap old-subject (ream 'test-globals'))
   =/  test-globals=vase
@@ -105,8 +104,6 @@
     (pure:m !>(p.compilation-result))
   =*  scry-mold  p.compilation-result
   (pure:m (slym scry-mold +.scry-noun))
-  :: =/  scry-mold=vase  (slap-subject mold-name.payload)
-  :: (pure:m (slym scry-mold +.scry-noun))
 ::
 ::  +send-pyro-dbug differs from +send-pyro-scry in that
 ::   the return value of +send-pyro-dbug is a vase.
@@ -138,8 +135,6 @@
     (pure:m !>(p.compilation-result))
   =*  dbug-mold  p.compilation-result
   (pure:m (slym dbug-mold +.+.dbug-noun))
-  :: =/  dbug-mold=vase  (slap-subject mold-name.payload)
-  :: (pure:m (slym dbug-mold +.+.dbug-noun))
 ::
 ++  read-pyro-subscription
   |=  [payload=read-sub-payload:zig expected=@t]
@@ -212,7 +207,6 @@
         step-number
         snapshot-ships
     ==
-  :: ~&  %ziggurat-test-run^%trs^(show-test-results:zig-lib test-results)
   ?~  test-steps  (pure:m (flop test-results))
   =*  test-step   i.test-steps
   ;<  =bowl:strand  bind:m  get-bowl

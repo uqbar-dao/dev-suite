@@ -41,13 +41,6 @@
         '=deploy-tx ?>  =(1 ~(wyt in diff-pending))  -.diff-pending'
       ~
   ::
-      :: :+  %poke
-      ::   :-  who
-      ::   :^  who  %uqbar  %wallet-poke
-      ::   %-  crip
-      ::   "[%submit from={<address>} hash=deploy-tx gas=[rate=1 bud=1.000.000]]"
-      :: ~
-  ::
       :+  %dojo  ::  TODO: back to poke
         :-  who
         %-  crip
