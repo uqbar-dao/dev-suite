@@ -18,7 +18,6 @@
     ++  process
       %-  of
       :~  [%new-project ul]
-          [%populate-template (ot ~[[%template (se %tas)] [%metadata parse-data]])]
           [%delete-project ul]
       ::
           [%save-file (ot ~[[%file pa] [%text so]])]
@@ -66,27 +65,6 @@
           [%version (at ~[ni ni ni])]
           [%website so]
           [%license so]
-      ==
-    ::
-    ++  parse-data
-      %-  ot
-      :~  [%id (se %ux)]
-          [%source (se %ux)]
-          [%holder (se %ux)]
-          [%town-id (se %ux)]
-          [%salt ni]
-          [%label (se %tas)]
-          [%noun so]  ::  note: reaming to form noun
-      ==
-    ::
-    ++  parse-data-without-id
-      %-  ot
-      :~  [%source (se %ux)]
-          [%holder (se %ux)]
-          [%town-id (se %ux)]
-          [%salt ni]
-          [%label (se %tas)]
-          [%noun so]
       ==
     ::
     ++  parse-test

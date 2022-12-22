@@ -2,7 +2,6 @@
 /+  engine-lib=zig-sys-engine,
     smart=zig-sys-smart
 |%
-+$  card  card:agent:gall
 +$  state-0
   $:  %0
       =projects
@@ -106,7 +105,6 @@
 +$  action
   $:  project=@t
       $%  [%new-project ~]
-          [%populate-template =template metadata=data:smart]  ::  TODO
           [%delete-project ~]
       ::
           [%save-file file=path text=@t]  ::  generates new file or overwrites existing

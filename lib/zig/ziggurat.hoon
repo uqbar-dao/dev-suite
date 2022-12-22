@@ -1,79 +1,40 @@
-/-  *zig-ziggurat,
-    eng=zig-engine,
-    ui=zig-indexer
+/-  eng=zig-engine,
+    ui=zig-indexer,
+    zig=zig-ziggurat
 /+  conq=zink-conq,
     dock=docket,
+    smart=zig-sys-smart,
     ui-lib=zig-indexer,
     zink=zink-zink
 |%
-::
-::  set parameters for our local test environment
-::
-++  first-contract-id       0xfafa.faf0
-++  designated-metadata-id  0xdada.dada
-++  designated-caller
-  |=  [=address:smart nonce=@ud]
-  ^-  caller:smart
-  [address nonce id.p:(designated-zigs-item address)]
-++  designated-town-id  0x0
-::  we set the designated caller to have 300 zigs
-++  designated-zigs-item
-  |=  =address:smart
-  ^-  item:smart
-  :*  %&
-      %:  hash-data:smart
-          zigs-contract-id:smart
-          address
-          designated-town-id
-          `@`'zigs'
-      ==
-      zigs-contract-id:smart
-      address
-      designated-town-id
-      `@`'zigs'
-      %account
-      [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
-  ==
-::
-++  starting-state
-  |=  =address:smart
-  ^-  chain:engine
-  :_  ~
-  =-  (put:big:engine ~ id.p.- -)
-  (designated-zigs-item address)
++$  card  card:agent:gall
 ::
 ::  utilities
 ::
-++  get-template
-  |=  [pat=path our=ship now=time]
-  ^-  @t
-  =/  pre=path  /(scot %p our)/zig/(scot %da now)/con
-  .^(@t %cx (weld pre pat))
-::
 ++  make-project-update
-  |=  [project-name=@t p=project our=@p now=@da]
+  |=  [project-name=@t p=project:zig our=@p now=@da]
   ^-  card
   =/  =path  /project/[project-name]
-  =/  update=project-update
+  =/  update=project-update:zig
     :_  p
     (get-state-to-json p our now)
   :^  %give  %fact  ~[path]
   :-  %ziggurat-project-update
-  !>(`project-update`update)
+  !>(`project-update:zig`update)
 ::
 ++  make-compile-contracts
   |=  [project=@t our=@p]
   ^-  card
   =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
   :-  %ziggurat-action
-  !>(`action`project^[%compile-contracts ~])
+  !>(`action:zig`project^[%compile-contracts ~])
 ::
 ++  make-compile-contract
   |=  [project=@t file=path our=@p]
   ^-  card
   =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
   :-  %ziggurat-action
-  !>(`action`project^[%compile-contract file])
+  !>(`action:zig`project^[%compile-contract file])
 ::
 ++  make-watch-for-file-changes
   |=  [project=@tas files=(list path) our=@p now=@da]
@@ -93,7 +54,7 @@
   ^-  card
   =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
   :-  %ziggurat-action
-  !>(`action`project^[%read-desk ~])
+  !>(`action:zig`project^[%read-desk ~])
 ::
 ++  make-save-jam
   |=  [project=@t file=path non=*]
@@ -130,7 +91,7 @@
   ^-  card
   :^  %pass  /self-poke  %agent
   :^  [our %ziggurat]  %poke  %ziggurat-action
-  !>([project %run-queue ~])
+  !>(`action:zig`[project %run-queue ~])
 ::
 ++  text-to-zebra-noun
   |=  [tex=@t smart-lib=vase]
@@ -159,15 +120,15 @@
 ::
 ++  save-compiled-contracts
   |=  $:  project=@t
-          build-results=(list [p=path q=build-result])
+          build-results=(list [p=path q=build-result:zig])
       ==
   ^-  [(list card) (list [path @t])]
   =|  cards=(list card)
   =|  errors=(list [path @t])
   |-
-  ?~  build-results  [cards errors]
-  =*  contract-path   p.i.build-results
-  =/  =build-result   q.i.build-results
+  ?~  build-results      [cards errors]
+  =*  contract-path       p.i.build-results
+  =/  =build-result:zig   q.i.build-results
   =/  save-result=(each card [path @t])
     %^  save-compiled-contract  project  contract-path
     build-result
@@ -184,7 +145,7 @@
 ++  save-compiled-contract
   |=  $:  project=@t
           contract-path=path
-          =build-result
+          =build-result:zig
       ==
   ^-  (each card [path @t])
   ?:  ?=(%| -.build-result)
@@ -199,7 +160,7 @@
           desk=path
           to-compile=(set path)
       ==
-  ^-  (list [path build-result])
+  ^-  (list [path build-result:zig])
   %+  turn  ~(tap in to-compile)
   |=  p=path
   ~&  "building {<p>}..."
@@ -207,7 +168,7 @@
 ::
 ++  build-contract-project
   |=  [smart-lib=vase desk=path to-compile=path]
-  ^-  build-result
+  ^-  build-result:zig
   ::
   ::  adapted from compile-contract:conq
   ::  this wacky design is to get a somewhat more helpful error print
@@ -268,416 +229,19 @@
   (of-wall:format (wash [0 80] tank))
 ::
 ++  show-test-results
-  |=  =test-results
-  ^-  shown-test-results
+  |=  =test-results:zig
+  ^-  shown-test-results:zig
   (turn test-results show-test-result)
 ::
 ++  show-test-result
-  |=  =test-result
-  ^-  shown-test-result
+  |=  =test-result:zig
+  ^-  shown-test-result:zig
   %+  turn  test-result
   |=  [success=? expected=@t result=vase]
   =/  res-text=@t  (crip (noah result))
   :+  success  expected
   ?:  (lte 1.024 (met 3 res-text))  '<elided>'
   res-text
-::
-::  project states for templates
-::
-:: ++  fungible-template-project
-::   |=  [current=project meta-rice=data:smart smart-lib-vase=vase]
-::   ^-  project
-::   ::  make fungible accounts and tests
-::   =/  metadata
-::     ;;  $:  name=@t
-::             symbol=@t
-::             decimals=@ud
-::             supply=@ud
-::             cap=(unit @ud)
-::             mintable=?
-::             minters=(pset:smart address:smart)
-::             deployer=address:smart
-::             salt=@
-::         ==
-::     (text-to-zebra-noun ;;(@t noun.meta-rice) smart-lib-vase)
-::   =/  dead-beef-account-id
-::     %:  hash-data:smart
-::         source.meta-rice
-::         user-address.current
-::         designated-town-id
-::         salt.metadata
-::     ==
-::   =/  dead-beef-account
-::     ^-  data:smart
-::     :*  dead-beef-account-id
-::         source.meta-rice
-::         user-address.current
-::         designated-town-id
-::         salt.metadata
-::         %account
-::         [200 ~ id.meta-rice 0]
-::     ==
-::   =/  cafe-babe-account-id
-::     %:  hash-data:smart
-::         source.meta-rice
-::         0xcafe.babe
-::         designated-town-id
-::         salt.metadata
-::     ==
-::   =/  cafe-babe-account
-::     ^-  data:smart
-::     :*  cafe-babe-account-id
-::         source.meta-rice
-::         0xcafe.babe
-::         designated-town-id
-::         salt.metadata
-::         %account
-::         [100 ~ id.meta-rice 0]
-::     ==
-::   =/  cafe-d00d-account-id
-::     %:  hash-data:smart
-::         source.meta-rice
-::         0xcafe.d00d
-::         designated-town-id
-::         salt.metadata
-::     ==
-::   =/  cafe-d00d-account
-::     ^-  data:smart
-::     :*  cafe-d00d-account-id
-::         source.meta-rice
-::         0xcafe.d00d
-::         designated-town-id
-::         salt.metadata
-::         %account
-::         [100 (make-pmap:smart ~[[0xdead.beef 50]]) id.meta-rice 0]
-::     ==
-::   =/  action-1=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[%give to=0xcafe.babe amount=30 from-account="
-::         (trip (scot %ux dead-beef-account-id))
-::         " to-account=`"
-::         (trip (scot %ux cafe-babe-account-id))
-::         "]"
-::     ==
-::   =/  yolk-1=calldata:smart
-::     =-  [;;(@tas -.-) +.-]
-::     q:(slap smart-lib-vase (ream action-1))
-::   =/  test-1=test
-::     =/  data-1
-::       '[balance=170 allowances=~ metadata=0xdada.dada nonce=0]'
-::     =/  data-2
-::       '[balance=130 allowances=~ metadata=0xdada.dada nonce=0]'
-::     :*  `'test-give'
-::         next-contract-id.current
-::         action-1
-::         yolk-1
-::         %-  malt
-::         :~  :+  dead-beef-account-id
-::               %&^dead-beef-account(noun q:(slap smart-lib-vase (ream data-1)))
-::             data-1
-::             :+  cafe-babe-account-id
-::               %&^cafe-babe-account(noun q:(slap smart-lib-vase (ream data-2)))
-::             data-2
-::         ==
-::         %0
-::         ~
-::     ==
-::   =/  action-2=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[%take to=0xcafe.babe amount=50 from-account="
-::         (trip (scot %ux cafe-d00d-account-id))
-::         " to-account=`"
-::         (trip (scot %ux cafe-babe-account-id))
-::         "]"
-::     ==
-::   =/  yolk-2=calldata:smart
-::     =-  [;;(@tas -.-) +.-]
-::     q:(slap smart-lib-vase (ream action-2))
-::   =/  test-2=test
-::     =/  data-1
-::       '[balance=50 allowances=(make-pmap ~[[0xdead.beef 0]]) metadata=0xdada.dada nonce=0]'
-::     =/  data-2
-::       '[balance=150 allowances=~ metadata=0xdada.dada nonce=0]'
-::     :*  `'test-take'
-::         next-contract-id.current
-::         action-2
-::         yolk-2
-::         %-  malt
-::         :~  :+  cafe-d00d-account-id
-::               %&^cafe-d00d-account(noun (text-to-zebra-noun data-1 smart-lib-vase))
-::             data-1
-::             :+  cafe-babe-account-id
-::               %&^cafe-babe-account(noun q:(slap smart-lib-vase (ream data-2)))
-::             data-2
-::         ==
-::         %0
-::         ~
-::     ==
-::   =/  action-3=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[%set-allowance who=0xcafe.babe amount=100 account="
-::         (trip (scot %ux dead-beef-account-id))
-::         "]"
-::     ==
-::   =/  yolk-3=calldata:smart
-::     =-  [;;(@tas -.-) +.-]
-::     q:(slap smart-lib-vase (ream action-3))
-::   =/  test-3=test
-::     =/  data-1
-::       '[balance=200 allowances=(make-pmap ~[[0xcafe.babe 100]]) metadata=0xdada.dada nonce=0]'
-::     :*  `'test-set-allowance'
-::         next-contract-id.current
-::         action-3
-::         yolk-3
-::         %-  malt
-::         :~  :+  dead-beef-account-id
-::               %&^dead-beef-account(noun (text-to-zebra-noun data-1 smart-lib-vase))
-::             data-1
-::         ==
-::         %0
-::         ~
-::     ==
-::   =/  fungible-contract-path=path  /con/fungible/hoon
-::   %=  current
-::       next-contract-id  (add next-contract-id.current 1)
-::       user-files
-::     (~(put in user-files.current) fungible-contract-path)
-::   ::
-::       to-compile
-::     %+  ~(put by to-compile.current)  fungible-contract-path
-::     next-contract-id.current
-::   ::
-::       tests
-::     (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
-::   ::
-::       noun-texts
-::     %-  ~(uni by noun-texts.current)
-::     %-  ~(gas by *(map id:smart @t))
-::     :~  [id.meta-rice ;;(@t noun.meta-rice)]
-::         [dead-beef-account-id '[balance=200 allowances=~ metadata=0xdada.dada nonce=0]']
-::         [cafe-babe-account-id '[balance=100 allowances=~ metadata=0xdada.dada nonce=0]']
-::         [cafe-d00d-account-id '[balance=100 allowances=(make-pmap ~[[0xdead.beef 50]]) metadata=0xdada.dada nonce=0]']
-::     ==
-::   ::
-::       p.chain
-::     =-  (uni:big:engine p.chain.current -)
-::     %+  gas:big:engine  *state:engine
-::     :~  [id.meta-rice %&^meta-rice(noun metadata)]
-::         [dead-beef-account-id %&^dead-beef-account]
-::         [cafe-babe-account-id %&^cafe-babe-account]
-::         [cafe-d00d-account-id %&^cafe-d00d-account]
-::     ==
-::   ==
-:: ++  nft-template-project
-::   |=  [current=project meta-rice=data:smart smart-lib-vase=vase]
-::   ^-  project
-::   ::  make fungible accounts and tests
-::   =/  metadata
-::     ;;  $:  name=@t
-::             symbol=@t
-::             properties=(pset:smart @tas)
-::             supply=@ud
-::             cap=(unit @ud)
-::             mintable=?
-::             minters=(pset:smart address:smart)
-::             deployer=address:smart
-::             salt=@
-::         ==
-::     (text-to-zebra-noun ;;(@t noun.meta-rice) smart-lib-vase)
-::   ::
-::   =/  props
-::     %-  ~(gas py:smart *(map @tas @t))
-::     %+  turn  ~(tap pn:smart properties.metadata)
-::     |=  prop=@tas
-::     [prop 'random_attribute']
-::   =/  props-tape=tape
-::     %-  zing
-::     :~  "properties=(make-pmap `(list [@tas @t])`~["
-::         ^-  tape
-::         %-  snip
-::         ^-  tape
-::         %-  zing
-::         %+  turn  ~(tap pn:smart properties.metadata)
-::         |=  prop=@tas
-::         %-  zing
-::         :~  "[%"  (trip (scot %tas prop))
-::             " 'random_attribute'] "
-::         ==
-::         "])"
-::     ==
-::   ::
-::   =/  nft-1-id
-::     %:  hash-data:smart
-::         source.meta-rice
-::         user-address.current
-::         designated-town-id
-::         (cat 3 salt.metadata (scot %ud 1))
-::     ==
-::   =/  nft-1
-::     ^-  data:smart
-::     :*  nft-1-id
-::         source.meta-rice
-::         user-address.current
-::         designated-town-id
-::         (cat 3 salt.metadata (scot %ud 1))
-::         %nft
-::         [1 'https://image.link' id.meta-rice ~ props &]
-::     ==
-::   =/  nft-1-text=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[id=1 uri='https://image.link' metadata=0xdada.dada allowances=~ "
-::         props-tape
-::         " transferrable=%.y]"
-::     ==
-::   =/  nft-2-id
-::     %:  hash-data:smart
-::         source.meta-rice
-::         0xcafe.babe
-::         designated-town-id
-::         (cat 3 salt.metadata (scot %ud 2))
-::     ==
-::   =/  nft-2
-::     ^-  data:smart
-::     :*  nft-2-id
-::         source.meta-rice
-::         0xcafe.babe
-::         designated-town-id
-::         (cat 3 salt.metadata (scot %ud 2))
-::         %nft
-::         [2 'https://image.link' id.meta-rice ~ props &]
-::     ==
-::   =/  nft-2-text=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[id=2 uri='https://image.link' metadata=0xdada.dada allowances=~ "
-::         props-tape
-::         " transferrable=%.y]"
-::     ==
-::   ::
-::   =/  action-1=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[%give to=0xcafe.babe item-id="
-::         (trip (scot %ux nft-1-id))
-::         "]"
-::     ==
-::   =/  yolk-1=calldata:smart
-::     =-  [;;(@tas -.-) +.-]
-::     q:(slap smart-lib-vase (ream action-1))
-::   =/  test-1=test
-::     :*  `'test-give'
-::         next-contract-id.current
-::         action-1
-::         yolk-1
-::         %-  malt
-::         :~  :+  nft-1-id
-::               %&^nft-1(holder 0xcafe.babe)
-::             nft-1-text
-::         ==
-::         %0
-::         ~
-::     ==
-::   ::
-::   =/  action-2=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[%give to=0xcafe.babe item-id="
-::         (trip (scot %ux nft-2-id))
-::         "]"
-::     ==
-::   =/  yolk-2=calldata:smart
-::     =-  [;;(@tas -.-) +.-]
-::     q:(slap smart-lib-vase (ream action-2))
-::   =/  test-2=test
-::     :*  `'test-give-dont-have'
-::         next-contract-id.current
-::         action-2
-::         yolk-2
-::         ~
-::         %6
-::         ~
-::     ==
-::   ::
-::   =/  action-3=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[%mint token=0xdada.dada mints=[to="
-::         (trip (scot %ux user-address.current))
-::         " uri='https://image.link' "
-::         props-tape
-::         " transferrable=%.y] ~]"
-::     ==
-::   =/  yolk-3=calldata:smart
-::     =-  [;;(@tas -.-) +.-]
-::     (text-to-zebra-noun action-3 smart-lib-vase)
-::   =/  nft-3-id
-::     %:  hash-data:smart
-::         source.meta-rice
-::         user-address.current
-::         designated-town-id
-::         (cat 3 salt.metadata (scot %ud 3))
-::     ==
-::   =/  nft-3
-::     ^-  data:smart
-::     :*  nft-3-id
-::         source.meta-rice
-::         user-address.current
-::         designated-town-id
-::         (cat 3 salt.metadata (scot %ud 3))
-::         %nft
-::         [3 'https://image.link' id.meta-rice ~ props &]
-::     ==
-::   =/  nft-3-text=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[id=3 uri='https://image.link' metadata=0xdada.dada allowances=~ "
-::         props-tape
-::         " transferrable=%.y]"
-::     ==
-::   =/  test-3=test
-::     :*  `'test-mint'
-::         next-contract-id.current
-::         action-3
-::         yolk-3
-::         (malt ~[[nft-3-id [%&^nft-3 nft-3-text]]])
-::         %0
-::         ~
-::     ==
-::   =/  nft-contract-path=path  /con/nft/hoon
-::   %=  current
-::       next-contract-id  (add next-contract-id.current 1)
-::       user-files
-::     (~(put in user-files.current) nft-contract-path)
-::   ::
-::       to-compile
-::     %+  ~(put by to-compile.current)  nft-contract-path
-::     next-contract-id.current
-::   ::
-::       tests
-::     (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
-::   ::
-::       noun-texts
-::     %-  ~(uni by noun-texts.current)
-::     %-  ~(gas by *(map id:smart @t))
-::     :~  [id.meta-rice ;;(@t noun.meta-rice)]
-::         ::  [1 'https://image.link' id.meta-rice ~ props &]
-::         [nft-1-id nft-1-text]
-::     ::
-::         [nft-2-id nft-2-text]
-::     ==
-::   ::
-::       p.chain
-::     =-  (uni:big:engine p.chain.current -)
-::     %+  gas:big:engine  *state:engine
-::     :~  [id.meta-rice %&^meta-rice(noun metadata)]
-::         [nft-1-id %&^nft-1]
-::         [nft-2-id %&^nft-2]
-::     ==
-::   ==
 ::
 ::  files we delete from zig desk to make new gall desk
 ::
@@ -749,7 +313,7 @@
   '''
 ::
 ++  get-state
-  |=  [p=project our=@p now=@da]
+  |=  [p=project:zig our=@p now=@da]
   ^-  (map @ux chain:eng)
   %-  ~(gas by *(map @ux chain:eng))
   %+  murn  ~(tap by town-sequencers.p)
@@ -810,7 +374,7 @@
   ==
 ::
 ++  project-to-json
-  |=  p=project
+  |=  p=project:zig
   =,  enjs:format
   ^-  json
   %-  pairs
@@ -832,22 +396,22 @@
   [(scot %ux town-id) (chain:enjs:ui-lib chain)]
 ::
 ++  get-state-to-json
-  |=  [p=project our=@p now=@da]
+  |=  [p=project:zig our=@p now=@da]
   ^-  json
   ?~  state=(get-state p our now)  ~
   (state-to-json state)
 ::
 ++  tests-to-json
-  |=  =tests
+  |=  =tests:zig
   =,  enjs:format
   ^-  json
   %-  pairs
   %+  turn  ~(tap by tests)
-  |=  [id=@ux =test]
+  |=  [id=@ux =test:zig]
   [(scot %ux id) (test-to-json test)]
 ::
 ++  test-to-json
-  |=  =test
+  |=  =test:zig
   =,  enjs:format
   ^-  json
   %-  pairs
@@ -861,7 +425,7 @@
   ==
 ::
 ++  test-surs-to-json
-  |=  =test-surs
+  |=  =test-surs:zig
   ^-  json
   %-  pairs:enjs:format
   %+  turn  ~(tap by test-surs)
@@ -886,12 +450,12 @@
   [(crip (noah !>(`path`p))) %s error]
 ::
 ++  custom-step-definitions-to-json
-  |=  =custom-step-definitions
+  |=  =custom-step-definitions:zig
   =,  enjs:format
   ^-  json
   %-  pairs
   %+  turn  ~(tap by custom-step-definitions)
-  |=  [id=@tas p=^path com=custom-step-compiled]
+  |=  [id=@tas p=^path com=custom-step-compiled:zig]
   :-  id
   %-  pairs
   :+  ['path' (path p)]
@@ -899,7 +463,7 @@
   ~
 ::
 ++  custom-step-compiled-to-json
-  |=  =custom-step-compiled
+  |=  =custom-step-compiled:zig
   =,  enjs:format
   ^-  json
   %-  pairs
@@ -917,14 +481,14 @@
   [(scot %ux town-id) %s (scot %p who)]
 ::
 ++  test-steps-to-json
-  |=  =test-steps
+  |=  =test-steps:zig
   ^-  json
   :-  %a
   %+  turn  test-steps
-  |=([=test-step] (test-step-to-json test-step))
+  |=([=test-step:zig] (test-step-to-json test-step))
 ::
 ++  test-step-to-json
-  |=  =test-step
+  |=  =test-step:zig
   ^-  json
   ?:  ?=(?(%dojo %poke %subscribe %custom-write) -.test-step)
     (test-write-step-to-json test-step)
@@ -932,7 +496,7 @@
   (test-read-step-to-json test-step)
 ::
 ++  test-write-step-to-json
-  |=  test-step=test-write-step
+  |=  test-step=test-write-step:zig
   =,  enjs:format
   ^-  json
   %+  frond  -.test-step
@@ -964,7 +528,7 @@
   ==
 ::
 ++  test-read-step-to-json
-  |=  test-step=test-read-step
+  |=  test-step=test-read-step:zig
   =,  enjs:format
   ^-  json
   %+  frond  -.test-step
@@ -995,7 +559,7 @@
   ==
 ::
 ++  scry-payload-to-json
-  |=  payload=scry-payload
+  |=  payload=scry-payload:zig
   =,  enjs:format
   ^-  json
   %-  pairs
@@ -1007,7 +571,7 @@
   ==
 ::
 ++  dbug-payload-to-json
-  |=  payload=dbug-payload
+  |=  payload=dbug-payload:zig
   =,  enjs:format
   ^-  json
   %-  pairs
@@ -1016,7 +580,7 @@
   ~
 ::
 ++  poke-payload-to-json
-  |=  payload=poke-payload
+  |=  payload=poke-payload:zig
   =,  enjs:format
   ^-  json
   %-  pairs
@@ -1027,7 +591,7 @@
   ==
 ::
 ++  dojo-payload-to-json
-  |=  payload=dojo-payload
+  |=  payload=dojo-payload:zig
   =,  enjs:format
   ^-  json
   %-  pairs
@@ -1036,7 +600,7 @@
   ~
 ::
 ++  sub-payload-to-json
-  |=  payload=sub-payload
+  |=  payload=sub-payload:zig
   =,  enjs:format
   ^-  json
   %-  pairs
@@ -1047,23 +611,23 @@
   ==
 ::
 ++  write-expected-to-json
-  |=  test-read-steps=(list test-read-step)
+  |=  test-read-steps=(list test-read-step:zig)
   =,  enjs:format
   ^-  json
   :-  %a
   %+  turn  test-read-steps
-  |=([=test-read-step] (test-read-step-to-json test-read-step))
+  |=([=test-read-step:zig] (test-read-step-to-json test-read-step))
 ::
 ++  test-results-to-json
-  |=  =test-results
+  |=  =test-results:zig
   =,  enjs:format
   ^-  json
   :-  %a
   %+  turn  test-results
-  |=([=test-result] (test-result-to-json test-result))
+  |=([=test-result:zig] (test-result-to-json test-result))
 ::
 ++  test-result-to-json
-  |=  =test-result
+  |=  =test-result:zig
   =,  enjs:format
   ^-  json
   :-  %a
@@ -1076,15 +640,15 @@
   ~
 ::
 ++  dbug-dashboards-to-json
-  |=  dashboards=(map @tas dbug-dashboard)
+  |=  dashboards=(map @tas dbug-dashboard:zig)
   ^-  json
   %-  pairs:enjs:format
   %+  turn  ~(tap by dashboards)
-  |=  [app=@tas d=dbug-dashboard]
+  |=  [app=@tas d=dbug-dashboard:zig]
   [app (dbug-dashboard-to-json d)]
 ::
 ++  dbug-dashboard-to-json
-  |=  d=dbug-dashboard
+  |=  d=dbug-dashboard:zig
   =,  enjs:format
   ^-  json
   %-  pairs
