@@ -6,66 +6,61 @@
     smart=zig-sys-smart,
     ui-lib=zig-indexer,
     zink=zink-zink
-|%
+|_  =bowl:gall
 +$  card  card:agent:gall
 ::
 ::  utilities
 ::
 ++  make-project-update
-  |=  [project-name=@t p=project:zig our=@p now=@da]
+  |=  [project-name=@t =project:zig]
   ^-  card
-  =/  =path  /project/[project-name]
+  =/  p=path  /project/[project-name]
   =/  update=project-update:zig
-    :_  p
-    (get-state-to-json p our now)
-  :^  %give  %fact  ~[path]
+    :_  project
+    (get-state-to-json project)
+  :^  %give  %fact  ~[p]
   :-  %ziggurat-project-update
   !>(`project-update:zig`update)
 ::
 ++  make-compile-contracts
-  |=  [project=@t our=@p]
+  |=  [project-name=@t]
   ^-  card
-  =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
+  =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
   :-  %ziggurat-action
-  !>(`action:zig`project^[%compile-contracts ~])
+  !>(`action:zig`project-name^[%compile-contracts ~])
 ::
 ++  make-compile-contract
-  |=  [project=@t file=path our=@p]
+  |=  [project-name=@t file=path]
   ^-  card
-  =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
+  =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
   :-  %ziggurat-action
-  !>(`action:zig`project^[%compile-contract file])
+  !>(`action:zig`project-name^[%compile-contract file])
 ::
 ++  make-watch-for-file-changes
-  |=  [project=@tas files=(list path) our=@p now=@da]
+  |=  [project-name=@tas files=(list path)]
   ^-  card
-  =-  [%pass /clay/[project] %arvo %c %warp our project -]
-  :^  ~  %mult  da+now
+  =-  [%pass /clay/[project-name] %arvo %c %warp our.bowl project-name -]
+  :^  ~  %mult  da+now.bowl
   %-  ~(gas in *(set [care:clay path]))
   (turn files |=(p=path [%x p]))
 ::
-++  make-cancel-watch-for-file-changes
-  |=  [project=@tas files=(list path) our=@p now=@da]
-  ^-  card
-  [%pass /clay/[project] %arvo %c %warp our project ~]
-::
 ++  make-read-desk
-  |=  [project=@t our=@p]
+  |=  project-name=@t
   ^-  card
-  =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
+  =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
   :-  %ziggurat-action
-  !>(`action:zig`project^[%read-desk ~])
+  !>(`action:zig`project-name^[%read-desk ~])
 ::
 ++  make-save-jam
-  |=  [project=@t file=path non=*]
+  |=  [project-name=@t file=path non=*]
   ^-  card
   ?>  ?=(%jam (rear file))
   =-  [%pass /save-wire %arvo %c -]
   :-  %info
-  [`@tas`project %& [file %ins %noun !>(`@`(jam non))]~]
+  [`@tas`project-name %& [file %ins %noun !>(`@`(jam non))]~]
 ::
 ++  make-save-file
-  |=  [project=@t file=path text=@t]
+  |=  [project-name=@t file=path text=@t]
   ^-  card
   =/  file-type  (rear file)
   =/  mym=mime  :-  /application/x-urb-unknown
@@ -73,7 +68,7 @@
     %+  rash  text
     (star ;~(pose (cold '\0a' (jest '\0d\0a')) next))
   =-  [%pass /save-wire %arvo %c -]
-  :^  %info  `@tas`project  %&
+  :^  %info  `@tas`project-name  %&
   :_  ~  :+  file  %ins
   =*  reamed-text  q:(slap !>(~) (ream text))  ::  =* in case text unreamable
   ?+  file-type  [%mime !>(mym)] :: don't need to know mar if we have bytes :^)
@@ -87,26 +82,11 @@
   ==
 ::
 ++  make-run-queue
-  |=  [our=ship project=@t]
+  |=  project-name=@t
   ^-  card
   :^  %pass  /self-poke  %agent
-  :^  [our %ziggurat]  %poke  %ziggurat-action
-  !>(`action:zig`[project %run-queue ~])
-::
-++  text-to-zebra-noun
-  |=  [tex=@t smart-lib=vase]
-  ^-  *
-  ~|  "ziggurat: syntax error in custom data!"
-  =+  gun=(~(mint ut p.smart-lib) %noun (ream tex))
-  =/  res=book:zink
-    (zebra:zink 200.000 ~ *chain-state-scry:zink [q.smart-lib q.gun] %.y)
-  ~|  "ziggurat: failed to compile custom data!"
-  ?.  ?=(%& -.p.res)  !!
-  ~&  >>  "size: {<(met 3 (jam p.p.res))>}"
-  ?:  (gth (met 3 (jam p.p.res)) 5.000)
-    ~|("ziggurat: custom data noun too large, likely using a mold" !!)
-  ~|  "ziggurat: result of custom data compile was ~"
-  (need p.p.res)
+  :^  [our.bowl %ziggurat]  %poke  %ziggurat-action
+  !>(`action:zig`[project-name %run-queue ~])
 ::
 ++  convert-contract-hoon-to-jam
   |=  contract-hoon-path=path
@@ -119,7 +99,7 @@
   `path`(welp /con/compiled +.contract-hoon-path)
 ::
 ++  save-compiled-contracts
-  |=  $:  project=@t
+  |=  $:  project-name=@t
           build-results=(list [p=path q=build-result:zig])
       ==
   ^-  [(list card) (list [path @t])]
@@ -130,7 +110,7 @@
   =*  contract-path       p.i.build-results
   =/  =build-result:zig   q.i.build-results
   =/  save-result=(each card [path @t])
-    %^  save-compiled-contract  project  contract-path
+    %^  save-compiled-contract  project-name  contract-path
     build-result
   ?:  ?=(%| -.save-result)
     %=  $
@@ -143,7 +123,7 @@
   ==
 ::
 ++  save-compiled-contract
-  |=  $:  project=@t
+  |=  $:  project-name=@t
           contract-path=path
           =build-result:zig
       ==
@@ -153,7 +133,8 @@
   =/  contract-jam-path=path
     (need (convert-contract-hoon-to-jam contract-path))
   :-  %&
-  (make-save-jam project contract-jam-path p.build-result)
+  %^  make-save-jam  project-name  contract-jam-path
+  p.build-result
 ::
 ++  build-contract-projects
   |=  $:  smart-lib=vase
@@ -313,13 +294,13 @@
   '''
 ::
 ++  get-state
-  |=  [p=project:zig our=@p now=@da]
+  |=  =project:zig
   ^-  (map @ux chain:eng)
+  =/  now-ta=@ta   (scot %da now.bowl)
   %-  ~(gas by *(map @ux chain:eng))
-  %+  murn  ~(tap by town-sequencers.p)
+  %+  murn  ~(tap by town-sequencers.project)
   |=  [town-id=@ux who=@p]
   =/  who-ta=@ta   (scot %p who)
-  =/  now-ta=@ta   (scot %da now)
   =/  town-ta=@ta  (scot %ux town-id)
   =/  batch-order=update:ui
     %-  fall  :_  ~
@@ -327,7 +308,7 @@
     .^  noun
         %gx
         ;:  weld
-          /(scot %p our)/pyro/[now-ta]/i/[who-ta]/gx
+          /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
           /[who-ta]/indexer/[now-ta]/batch-order/[town-ta]
           /noun/noun
     ==  ==
@@ -341,7 +322,7 @@
     .^  noun
         %gx
         ;:  weld
-            /(scot %p our)/pyro/[now-ta]/i/[who-ta]/gx
+            /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
             /[who-ta]/indexer/[now-ta]/newest/batch-chain
             /[town-ta]/(scot %ux newest-batch)/noun/noun
     ==  ==
@@ -396,9 +377,9 @@
   [(scot %ux town-id) (chain:enjs:ui-lib chain)]
 ::
 ++  get-state-to-json
-  |=  [p=project:zig our=@p now=@da]
+  |=  =project:zig
   ^-  json
-  ?~  state=(get-state p our now)  ~
+  ?~  state=(get-state project)  ~
   (state-to-json state)
 ::
 ++  tests-to-json

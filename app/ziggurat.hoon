@@ -13,7 +13,7 @@
     pyro=zig-pyro,
     seq=zig-sequencer,
     smart=zig-sys-smart,
-    zig-lib=zig-ziggurat
+    ziggurat-lib=zig-ziggurat
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
 ::
@@ -29,7 +29,8 @@
 ^-  agent:gall
 |_  =bowl:gall
 +*  this  .
-    def   ~(. (default-agent this %|) bowl)
+    def      ~(. (default-agent this %|) bowl)
+    zig-lib  ~(. ziggurat-lib bowl)
 ::
 ++  on-init
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
@@ -78,7 +79,7 @@
     =/  name=@t  `@t`i.t.p
     ?~  proj=(~(get by projects) name)  `this
     :_  this
-    (make-project-update:zig-lib name u.proj [our now]:bowl)^~
+    (make-project-update:zig-lib name u.proj)^~
   ==
 ::
 ++  on-poke
@@ -187,9 +188,7 @@
       (add-test project-name name test-steps-file)
     =/  test-id=@ux  `@ux`(sham test)
     =.  tests.project  (~(put by tests.project) test-id test)
-    :-  :_  ~
-        %^  make-project-update:zig-lib  project-name
-        project  [our now]:bowl
+    :-  (make-project-update:zig-lib project-name project)^~
     %=  state
         projects
       (~(put by projects) project-name project)
@@ -286,7 +285,7 @@
               [%pass /mount-wire %arvo %c mount-task]
               [%pass /save-wire %arvo %c bill-task]
               [%pass /save-wire %arvo %c deletions-task]
-              (make-read-desk:zig-lib project.act our.bowl)
+              (make-read-desk:zig-lib project.act)
           ==
       %=  state
           projects
@@ -347,8 +346,7 @@
           to-compile.project
         (~(put in to-compile.project) file.act)
       ==
-      :-  :_  ~
-          (make-compile-contracts:zig-lib project.act our.bowl)
+      :-  (make-compile-contracts:zig-lib project.act)^~
       state(projects (~(put by projects) project.act project))
     ::
         %deploy-contract
@@ -395,9 +393,8 @@
         /zig/custom-step-definitions/send-wallet-transaction/hoon
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
-      :-  :_  (make-run-queue:zig-lib our.bowl project.act)^~
-          %^  make-project-update:zig-lib  project.act  project
-          [our now]:bowl
+      :-  :_  (make-run-queue:zig-lib project.act)^~
+          (make-project-update:zig-lib project.act project)
       %=  state
           projects
         (~(put by projects) project.act project)
@@ -421,7 +418,7 @@
       ~&  errors
       =.  errors.project  (~(gas by errors.project) errors)
       :-  :_  cards
-          (make-read-desk:zig-lib project.act our.bowl)
+          (make-read-desk:zig-lib project.act)
       state(projects (~(put by projects) project.act project))
     ::
         %compile-contract
@@ -442,12 +439,11 @@
         =.  errors.project
           (~(put by errors.project) p.save-result)
         :-  :_  ~
-            %^  make-project-update:zig-lib  project.act
-            project  [our now]:bowl
+            (make-project-update:zig-lib project.act project)
         %=  state
           projects  (~(put by projects) project.act project)
         ==
-      [(make-read-desk:zig-lib project.act our.bowl)^~ state]
+      [(make-read-desk:zig-lib project.act)^~ state]
     ::
         %read-desk
       ::  for internal use -- app calls itself to scry clay
@@ -456,10 +452,10 @@
       =.  dir.project
         =-  .^((list path) %ct -)
         /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)
-      :-  :+  %^  make-project-update:zig-lib  project.act
-                  project  [our now]:bowl
-            %^  make-watch-for-file-changes:zig-lib
-            project.act  dir.project  [our now]:bowl
+      :-  :+  %+  make-project-update:zig-lib  project.act
+              project
+            %+  make-watch-for-file-changes:zig-lib
+            project.act  dir.project
           ~
       state(projects (~(put by projects) project.act project))
     ::
@@ -469,16 +465,14 @@
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
       :-  :_  ~
-          %^  make-project-update:zig-lib  project.act
-          project  [our now]:bowl
+          (make-project-update:zig-lib project.act project)
       state(projects (~(put by projects) project.act project))
     ::
         %delete-test
       =/  =project:zig  (~(got by projects) project.act)
       =.  tests.project  (~(del by tests.project) id.act)
       :-  :_  ~
-          %^  make-project-update:zig-lib  project.act
-          project  [our now]:bowl
+          (make-project-update:zig-lib project.act project)
       %=  state
         projects  (~(put by projects) project.act project)
       ==
@@ -486,7 +480,7 @@
         %run-test
       :_  state(test-queue (~(put to test-queue) [project id]:act))
       ?:  =(| test-running)
-        (make-run-queue:zig-lib our.bowl project.act)^~
+        (make-run-queue:zig-lib project.act)^~
       ~&  >  "%ziggurat: another test is running, adding to queue"  ~
     ::
         %add-and-run-test
@@ -494,7 +488,7 @@
         (add-and-queue-test [project name path]:act)
       =?  cards  =(| test-running)
         %+  snoc  cards
-        (make-run-queue:zig-lib our.bowl project.act)
+        (make-run-queue:zig-lib project.act)
       [cards state]
     ::
         %run-queue
@@ -561,8 +555,7 @@
       =.  project
         project(tests (~(put by tests.project) test-id.act test))
       :-  :_  ~
-          %^  make-project-update:zig-lib  project.act
-          project  [our now]:bowl
+          (make-project-update:zig-lib project.act project)
       %=  state
         projects  (~(put by projects) project.act project)
       ==
@@ -575,8 +568,7 @@
       =.  project
         project(tests (~(put by tests.project) test-id.act test))
       :-  :_  ~
-          %^  make-project-update:zig-lib  project.act
-          project  [our now]:bowl
+          (make-project-update:zig-lib project.act project)
       %=  state
         projects  (~(put by projects) project.act project)
       ==
@@ -630,8 +622,7 @@
             mar-tube
         ==
       :-  :_  ~
-          %^  make-project-update:zig-lib  project.act
-          project  [our now]:bowl
+          (make-project-update:zig-lib project.act project)
       %=  state
         projects  (~(put by projects) project.act project)
       ==
@@ -641,8 +632,7 @@
       =.  dbug-dashboards.project
         (~(del by dbug-dashboards.project) app.act)
       :-  :_  ~
-          %^  make-project-update:zig-lib  project.act
-          project  [our now]:bowl
+          (make-project-update:zig-lib project.act project)
       %=  state
         projects  (~(put by projects) project.act project)
       ==
@@ -690,8 +680,7 @@
       =.  town-sequencers.project
         (~(put by town-sequencers.project) [town-id who]:act)
       :-  :_  ~
-          %^  make-project-update:zig-lib  project.act
-          project  [our now]:bowl
+          (make-project-update:zig-lib project.act project)
       state(projects (~(put by projects) project.act project))
     ::
         %delete-town-sequencer
@@ -699,8 +688,7 @@
       =.  town-sequencers.project
         (~(del by town-sequencers.project) town-id.act)
       :-  :_  ~
-          %^  make-project-update:zig-lib  project.act
-          project  [our now]:bowl
+          (make-project-update:zig-lib project.act project)
       %=  state
         projects  (~(put by projects) project.act project)
       ==
@@ -737,7 +725,7 @@
         [%info `@tas`project.act %& [/desk/docket-0 %ins %docket-0 !>(docket-0)]~]
       :_  state
       :^    [%pass /save-wire %arvo %c docket-task]
-          (make-compile-contracts:zig-lib project.act our.bowl)
+          (make-compile-contracts:zig-lib project.act)
         =-  [%pass /treaty-wire %agent [our.bowl %treaty] %poke -]
         [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
       ~
@@ -746,16 +734,14 @@
       =/  =project:zig  (~(got by projects) project.act)
       =.  user-files.project  (~(put in user-files.project) file.act)
       :-  :_  ~
-          %^  make-project-update:zig-lib  project.act
-          project  [our now]:bowl
+          (make-project-update:zig-lib project.act project)
       state(projects (~(put by projects) project.act project))
     ::
         %delete-user-file
       =/  =project:zig  (~(got by projects) project.act)
       =.  user-files.project  (~(del in user-files.project) file.act)
       :-  :_  ~
-          %^  make-project-update:zig-lib  project.act
-          project  [our now]:bowl
+          (make-project-update:zig-lib project.act project)
       %=  state
         projects  (~(put by projects) project.act project)
       ==
@@ -790,8 +776,7 @@
           test(results test-results)
         =/  cards=(list card)
           :_  ~
-          %^  make-project-update:zig-lib  project-name
-          project  [our now]:bowl
+          (make-project-update:zig-lib project-name project)
         =?  cards  ?=(^ test-queue)
           %+  snoc  cards
           :^  %pass  /self-wire  %agent
@@ -856,8 +841,8 @@
     ?:  .=  0
         %~  wyt  in
         (~(int in updated-files) to-compile.project)
-      (make-read-desk:zig-lib project-name our.bowl)
-    (make-compile-contracts:zig-lib project-name our.bowl)
+      (make-read-desk:zig-lib project-name)
+    (make-compile-contracts:zig-lib project-name)
   ==
 ::
 ++  on-peek
@@ -933,7 +918,7 @@
     ?~  project=(~(get by projects) i.t.t.p)  ``json+!>(~)
     :^  ~  ~  %json
     !>  ^-  json
-    (get-state-to-json:zig-lib u.project [our now]:bowl)
+    (get-state-to-json:zig-lib u.project)
   ::
       [%project-tests @ ~]
     ?~  project=(~(get by projects) i.t.t.p)
