@@ -4,7 +4,7 @@
 ::  unix timers (behn), terminal drivers (dill), and http requests/
 ::  responses (iris/eyre).
 ::
-/-  *pyro
+/-  *zig-pyro
 /+  dbug, default-agent
 ::
 %-  agent:dbug
