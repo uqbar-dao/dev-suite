@@ -17,7 +17,7 @@
   =/  p=path  /project/[project-name]
   =/  update=project-update:zig
     :_  project
-    (get-state-to-json project)
+    (get-state:enjs project)
   :^  %give  %fact  ~[p]
   :-  %ziggurat-project-update
   !>(`project-update:zig`update)
@@ -334,315 +334,282 @@
   ?~  chains                          ~  ::  for compiler
   `[town-id chain.i.chains]
 ::
-::  JSON parsing utils
+::  json
 ::
-++  item-to-json
-  |=  [=item:smart tex=@t]
+++  enjs
   =,  enjs:format
-  ^-  json
-  %-  pairs
-  %+  welp
-    :~  ['is-pact' %b ?=(%| -.item)]
-        ['source' %s (scot %ux source.p.item)]
-        ['holder' %s (scot %ux holder.p.item)]
-        ['town' %s (scot %ux town.p.item)]
+  |%
+  ++  project
+    |=  p=project:zig
+    ^-  json
+    %-  pairs
+    :~  ['dir' (dir dir.p)]
+        ['user_files' (dir ~(tap in user-files.p))]
+        ['to_compile' (dir ~(tap in to-compile.p))]
+        ['errors' (errors errors.p)]
+        ['town_sequencers' (town-sequencers town-sequencers.p)]
+        ['tests' (tests tests.p)]
+        ['dbug_dashboards' (dbug-dashboards dbug-dashboards.p)]
     ==
-  ?:  ?=(%| -.item)  ~
-  :~  ['salt' (numb salt.p.item)]
-      ['label' %s (scot %tas label.p.item)]
-      ['noun_text' %s tex]
-      ['noun' %s (crip (noah !>(noun.p.item)))]  ::  TODO: remove?
-  ==
-::
-++  project-to-json
-  |=  p=project:zig
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['dir' (dir-to-json dir.p)]
-      ['user_files' (dir-to-json ~(tap in user-files.p))]
-      ['to_compile' (dir-to-json ~(tap in to-compile.p))]
-      ['errors' (errors-to-json errors.p)]
-      ['town_sequencers' (town-sequencers-to-json town-sequencers.p)]
-      ['tests' (tests-to-json tests.p)]
-      ['dbug_dashboards' (dbug-dashboards-to-json dbug-dashboards.p)]
-  ==
-::
-++  state-to-json
-  |=  state=(map @ux chain:eng)
-  ^-  json
-  %-  pairs:enjs:format
-  %+  turn  ~(tap by state)
-  |=  [town-id=@ux =chain:eng]
-  [(scot %ux town-id) (chain:enjs:ui-lib chain)]
-::
-++  get-state-to-json
-  |=  =project:zig
-  ^-  json
-  ?~  state=(get-state project)  ~
-  (state-to-json state)
-::
-++  tests-to-json
-  |=  =tests:zig
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  %+  turn  ~(tap by tests)
-  |=  [id=@ux =test:zig]
-  [(scot %ux id) (test-to-json test)]
-::
-++  test-to-json
-  |=  =test:zig
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['name' %s ?~(name.test '' u.name.test)]
-      ['test-steps-file' (path test-steps-file.test)]
-      ['test-surs' (test-surs-to-json test-surs.test)]
-      ['subject' %s ?:(?=(%& -.subject.test) '' p.subject.test)]
-      ['custom-step-definitions' (custom-step-definitions-to-json custom-step-definitions.test)]
-      ['steps' (test-steps-to-json steps.test)]
-      ['results' (test-results-to-json results.test)]
-  ==
-::
-++  test-surs-to-json
-  |=  =test-surs:zig
-  ^-  json
-  %-  pairs:enjs:format
-  %+  turn  ~(tap by test-surs)
-  |=  [face=@tas p=path]
-  [face (path:enjs:format p)]
-::
-++  dir-to-json
-  |=  dir=(list path)
-  =,  enjs:format
-  ^-  json
-  :-  %a
-  %+  turn  dir
-  |=  p=^path
-  (path p)
-::
-++  errors-to-json
-  |=  errors=(map path @t)
-  ^-  json
-  %-  pairs:enjs:format
-  %+  turn  ~(tap by errors)
-  |=  [p=path error=@t]
-  [(crip (noah !>(`path`p))) %s error]
-::
-++  custom-step-definitions-to-json
-  |=  =custom-step-definitions:zig
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  %+  turn  ~(tap by custom-step-definitions)
-  |=  [id=@tas p=^path com=custom-step-compiled:zig]
-  :-  id
-  %-  pairs
-  :+  ['path' (path p)]
-    ['custom-step-compiled' (custom-step-compiled-to-json com)]
-  ~
-::
-++  custom-step-compiled-to-json
-  |=  =custom-step-compiled:zig
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :+  ['compiled-successfully' %b ?=(%& -.custom-step-compiled)]
-    ['compile-error' %s ?:(?=(%& -.custom-step-compiled) '' p.custom-step-compiled)]
-  ~
-::
-++  town-sequencers-to-json
-  |=  town-sequencers=(map @ux @p)
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  %+  turn  ~(tap by town-sequencers)
-  |=  [town-id=@ux who=@p]
-  [(scot %ux town-id) %s (scot %p who)]
-::
-++  test-steps-to-json
-  |=  =test-steps:zig
-  ^-  json
-  :-  %a
-  %+  turn  test-steps
-  |=([=test-step:zig] (test-step-to-json test-step))
-::
-++  test-step-to-json
-  |=  =test-step:zig
-  ^-  json
-  ?:  ?=(?(%dojo %poke %subscribe %custom-write) -.test-step)
-    (test-write-step-to-json test-step)
-  ?>  ?=(?(%scry %read-subscription %wait %custom-read) -.test-step)
-  (test-read-step-to-json test-step)
-::
-++  test-write-step-to-json
-  |=  test-step=test-write-step:zig
-  =,  enjs:format
-  ^-  json
-  %+  frond  -.test-step
-  ?-    -.test-step
-      %dojo
+  ::
+  ++  state
+    |=  state=(map @ux chain:eng)
+    ^-  json
     %-  pairs
-    :+  ['payload' (dojo-payload-to-json payload.test-step)]
-      ['expected' (write-expected-to-json expected.test-step)]
+    %+  turn  ~(tap by state)
+    |=  [town-id=@ux =chain:eng]
+    [(scot %ux town-id) (chain:enjs:ui-lib chain)]
+  ::
+  ++  get-state
+    |=  =project:zig
+    ^-  json
+    ?~  s=(^get-state project)  ~
+    (state s)
+  ::
+  ++  tests
+    |=  =tests:zig
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by tests)
+    |=  [id=@ux t=test:zig]
+    [(scot %ux id) (test t)]
+  ::
+  ++  test
+    |=  =test:zig
+    ^-  json
+    %-  pairs
+    :~  ['name' %s ?~(name.test '' u.name.test)]
+        ['test-steps-file' (path test-steps-file.test)]
+        ['test-surs' (test-surs test-surs.test)]
+        ['subject' %s ?:(?=(%& -.subject.test) '' p.subject.test)]
+        ['custom-step-definitions' (custom-step-definitions custom-step-definitions.test)]
+        ['steps' (test-steps steps.test)]
+        ['results' (test-results results.test)]
+    ==
+  ::
+  ++  test-surs
+    |=  =test-surs:zig
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by test-surs)
+    |=  [face=@tas p=^path]
+    [face (path p)]
+  ::
+  ++  dir
+    |=  dir=(list ^path)
+    ^-  json
+    :-  %a
+    %+  turn  dir
+    |=(p=^path (path p))
+  ::
+  ++  errors
+    |=  errors=(map ^path @t)
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by errors)
+    |=  [p=^path error=@t]
+    [(crip (noah !>(`^path`p))) %s error]
+  ::
+  ++  custom-step-definitions
+    |=  =custom-step-definitions:zig
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by custom-step-definitions)
+    |=  [id=@tas p=^path com=custom-step-compiled:zig]
+    :-  id
+    %-  pairs
+    :+  ['path' (path p)]
+      ['custom-step-compiled' (custom-step-compiled com)]
     ~
   ::
-      %poke
+  ++  custom-step-compiled
+    |=  =custom-step-compiled:zig
+    ^-  json
     %-  pairs
-    :+  ['payload' (poke-payload-to-json payload.test-step)]
-      ['expected' (write-expected-to-json expected.test-step)]
+    :+  ['compiled-successfully' %b ?=(%& -.custom-step-compiled)]
+      ['compile-error' %s ?:(?=(%& -.custom-step-compiled) '' p.custom-step-compiled)]
     ~
   ::
-      %subscribe
+  ++  town-sequencers
+    |=  town-sequencers=(map @ux @p)
+    ^-  json
     %-  pairs
-    :+  ['payload' (sub-payload-to-json payload.test-step)]
-      ['expected' (write-expected-to-json expected.test-step)]
-    ~
+    %+  turn  ~(tap by town-sequencers)
+    |=  [town-id=@ux who=@p]
+    [(scot %ux town-id) %s (scot %p who)]
   ::
-      %custom-write
-    %+  frond  tag.test-step
+  ++  test-steps
+    |=  =test-steps:zig
+    ^-  json
+    :-  %a
+    %+  turn  test-steps
+    |=([ts=test-step:zig] (test-step ts))
+  ::
+  ++  test-step
+    |=  =test-step:zig
+    ^-  json
+    ?:  ?=(?(%dojo %poke %subscribe %custom-write) -.test-step)
+      (test-write-step test-step)
+    ?>  ?=(?(%scry %read-subscription %wait %custom-read) -.test-step)
+    (test-read-step test-step)
+  ::
+  ++  test-write-step
+    |=  test-step=test-write-step:zig
+    ^-  json
+    %+  frond  -.test-step
+    ?-    -.test-step
+        %dojo
+      %-  pairs
+      :+  ['payload' (dojo-payload payload.test-step)]
+        ['expected' (write-expected expected.test-step)]
+      ~
+    ::
+        %poke
+      %-  pairs
+      :+  ['payload' (poke-payload payload.test-step)]
+        ['expected' (write-expected expected.test-step)]
+      ~
+    ::
+        %subscribe
+      %-  pairs
+      :+  ['payload' (sub-payload payload.test-step)]
+        ['expected' (write-expected expected.test-step)]
+      ~
+    ::
+        %custom-write
+      %+  frond  tag.test-step
+      %-  pairs
+      :+  ['payload' %s payload.test-step]
+        ['expected' (write-expected expected.test-step)]
+      ~
+    ==
+  ::
+  ++  test-read-step
+    |=  test-step=test-read-step:zig
+    ^-  json
+    %+  frond  -.test-step
+    ?-    -.test-step
+        %scry
+      %-  pairs
+      :+  ['payload' (scry-payload payload.test-step)]
+        ['expected' %s expected.test-step]
+      ~
+    ::
+        %dbug
+      %-  pairs
+      :+  ['payload' (dbug-payload payload.test-step)]
+        ['expected' %s expected.test-step]
+      ~
+    ::
+        %read-subscription  ~  ::  TODO
+    ::
+        %wait
+      (frond 'until' [%s (scot %dr until.test-step)])
+    ::
+        %custom-read
+      %+  frond  tag.test-step
+      %-  pairs
+      :+  ['payload' %s payload.test-step]
+        ['expected' %s expected.test-step]
+      ~
+    ==
+  ::
+  ++  scry-payload
+    |=  payload=scry-payload:zig
+    ^-  json
     %-  pairs
-    :+  ['payload' %s payload.test-step]
-      ['expected' (write-expected-to-json expected.test-step)]
-    ~
-  ==
-::
-++  test-read-step-to-json
-  |=  test-step=test-read-step:zig
-  =,  enjs:format
-  ^-  json
-  %+  frond  -.test-step
-  ?-    -.test-step
-      %scry
+    :~  ['who' %s (scot %p who.payload)]
+        ['mold-name' %s mold-name.payload]
+        ['care' %s care.payload]
+        ['app' %s app.payload]
+        ['path' (path path.payload)]
+    ==
+  ::
+  ++  dbug-payload
+    |=  payload=dbug-payload:zig
+    ^-  json
     %-  pairs
-    :+  ['payload' (scry-payload-to-json payload.test-step)]
-      ['expected' %s expected.test-step]
-    ~
-  ::
-      %dbug
-    %-  pairs
-    :+  ['payload' (dbug-payload-to-json payload.test-step)]
-      ['expected' %s expected.test-step]
-    ~
-  ::
-      %read-subscription  ~  ::  TODO
-  ::
-      %wait
-    (frond 'until' [%s (scot %dr until.test-step)])
-  ::
-      %custom-read
-    %+  frond  tag.test-step
-    %-  pairs
-    :+  ['payload' %s payload.test-step]
-      ['expected' %s expected.test-step]
-    ~
-  ==
-::
-++  scry-payload-to-json
-  |=  payload=scry-payload:zig
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['who' %s (scot %p who.payload)]
-      ['mold-name' %s mold-name.payload]
-      ['care' %s care.payload]
+    :+  ['who' %s (scot %p who.payload)]
       ['app' %s app.payload]
-      ['path' (path path.payload)]
-  ==
-::
-++  dbug-payload-to-json
-  |=  payload=dbug-payload:zig
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :+  ['who' %s (scot %p who.payload)]
-    ['app' %s app.payload]
-  ~
-::
-++  poke-payload-to-json
-  |=  payload=poke-payload:zig
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['who' %s (scot %p who.payload)]
-      ['app' %s app.payload]
-      ['mark' %s mark.payload]
+    ~
+  ::
+  ++  poke-payload
+    |=  payload=poke-payload:zig
+    ^-  json
+    %-  pairs
+    :~  ['who' %s (scot %p who.payload)]
+        ['app' %s app.payload]
+        ['mark' %s mark.payload]
+        ['payload' %s payload.payload]
+    ==
+  ::
+  ++  dojo-payload
+    |=  payload=dojo-payload:zig
+    ^-  json
+    %-  pairs
+    :+  ['who' %s (scot %p who.payload)]
       ['payload' %s payload.payload]
-  ==
-::
-++  dojo-payload-to-json
-  |=  payload=dojo-payload:zig
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :+  ['who' %s (scot %p who.payload)]
-    ['payload' %s payload.payload]
-  ~
-::
-++  sub-payload-to-json
-  |=  payload=sub-payload:zig
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['who' %s (scot %p who.payload)]
-      ['to' %s (scot %p to.payload)]
-      ['app' %s app.payload]
-      ['path' (path path.payload)]
-  ==
-::
-++  write-expected-to-json
-  |=  test-read-steps=(list test-read-step:zig)
-  =,  enjs:format
-  ^-  json
-  :-  %a
-  %+  turn  test-read-steps
-  |=([=test-read-step:zig] (test-read-step-to-json test-read-step))
-::
-++  test-results-to-json
-  |=  =test-results:zig
-  =,  enjs:format
-  ^-  json
-  :-  %a
-  %+  turn  test-results
-  |=([=test-result:zig] (test-result-to-json test-result))
-::
-++  test-result-to-json
-  |=  =test-result:zig
-  =,  enjs:format
-  ^-  json
-  :-  %a
-  %+  turn  test-result
-  |=  [success=? expected=@t result=vase]
-  %-  pairs
-  :^    ['success' %b success]
-      ['expected' %s expected]
-    ['result' %s (crip (noah result))]
-  ~
-::
-++  dbug-dashboards-to-json
-  |=  dashboards=(map @tas dbug-dashboard:zig)
-  ^-  json
-  %-  pairs:enjs:format
-  %+  turn  ~(tap by dashboards)
-  |=  [app=@tas d=dbug-dashboard:zig]
-  [app (dbug-dashboard-to-json d)]
-::
-++  dbug-dashboard-to-json
-  |=  d=dbug-dashboard:zig
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  [%sur (path sur.d)]
-      [%mold-name %s mold-name.d]
-      [%mar (path mar.d)]
-      [%did-mold-compile %b ?=(%& mold.d)]
-      [%did-mar-tube-compile %b ?=(^ mar-tube.d)]
-  ==
-::
-++  json-single-string-object
-  |=  [key=@t error=tape]
-  =,  enjs:format
-  ^-  json
-  (frond key [%s (crip error)])
+    ~
+  ::
+  ++  sub-payload
+    |=  payload=sub-payload:zig
+    ^-  json
+    %-  pairs
+    :~  ['who' %s (scot %p who.payload)]
+        ['to' %s (scot %p to.payload)]
+        ['app' %s app.payload]
+        ['path' (path path.payload)]
+    ==
+  ::
+  ++  write-expected
+    |=  test-read-steps=(list test-read-step:zig)
+    ^-  json
+    :-  %a
+    %+  turn  test-read-steps
+    |=  [trs=test-read-step:zig]
+    (test-read-step trs)
+  ::
+  ++  test-results
+    |=  =test-results:zig
+    ^-  json
+    :-  %a
+    %+  turn  test-results
+    |=([tr=test-result:zig] (test-result tr))
+  ::
+  ++  test-result
+    |=  =test-result:zig
+    ^-  json
+    :-  %a
+    %+  turn  test-result
+    |=  [success=? expected=@t result=vase]
+    %-  pairs
+    :^    ['success' %b success]
+        ['expected' %s expected]
+      ['result' %s (crip (noah result))]
+    ~
+  ::
+  ++  dbug-dashboards
+    |=  dashboards=(map @tas dbug-dashboard:zig)
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by dashboards)
+    |=  [app=@tas d=dbug-dashboard:zig]
+    [app (dbug-dashboard d)]
+  ::
+  ++  dbug-dashboard
+    |=  d=dbug-dashboard:zig
+    ^-  json
+    %-  pairs
+    :~  [%sur (path sur.d)]
+        [%mold-name %s mold-name.d]
+        [%mar (path mar.d)]
+        [%did-mold-compile %b ?=(%& mold.d)]
+        [%did-mar-tube-compile %b ?=(^ mar-tube.d)]
+    ==
+  ::
+  ++  single-string-object
+    |=  [key=@t error=^tape]
+    ^-  json
+    (frond key (tape error))
+  --
 --

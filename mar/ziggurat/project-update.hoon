@@ -1,19 +1,21 @@
-/+  *zig-ziggurat
-=,  enjs:format
-|_  upd=project-update
+/+  zig-lib=zig-ziggurat
+|_  =project-update:zig
+::
 ++  grab
   |%
-  ++  noun  project-update
+  ++  noun  project-update:zig
   --
+::
 ++  grow
   |%
-  ++  noun  upd
+  ++  noun  project-update
   ++  json
     ^-  ^json
-    =*  state    state.upd
-    =*  project  +.upd
-    =/  j=json  (project-to-json project)
+    =*  state    state.project-update
+    =*  project  +.project-update
+    =/  j=^json  (project:enjs:zig-lib project)
     j(p (~(put by p.j) %state state))
   --
+::
 ++  grad  %noun
 --

@@ -906,24 +906,23 @@
   ::  JSONS
   ::
       [%all-projects ~]
-    =,  enjs
     =;  =json  ``json+!>(json)
-    %-  pairs
+    %-  pairs:enjs:format
     %+  murn  ~(tap by projects)
     |=  [name=@t =project:zig]
     :-  ~  :-  name
-    (project-to-json:zig-lib project)
+    (project:enjs:zig-lib project)
   ::
       [%project-state @ ~]
     ?~  project=(~(get by projects) i.t.t.p)  ``json+!>(~)
     :^  ~  ~  %json
     !>  ^-  json
-    (get-state-to-json:zig-lib u.project)
+    (get-state:enjs:zig-lib u.project)
   ::
       [%project-tests @ ~]
     ?~  project=(~(get by projects) i.t.t.p)
       ``json+!>(~)
-    ``json+!>((tests-to-json:zig-lib tests.u.project))
+    ``json+!>((tests:enjs:zig-lib tests.u.project))
   ::
       [%project-user-files @ ~]
     ?~  project=(~(get by projects) i.t.t.p)
@@ -931,7 +930,7 @@
     :^  ~  ~  %json
     !>  ^-  json
     %+  frond:enjs:format  %user-files
-    (dir-to-json:zig-lib ~(tap in user-files.u.project))
+    (dir:enjs:zig-lib ~(tap in user-files.u.project))
   ::
       [%dashboard @ @ @ ~]
     =*  project-name  i.t.t.p
@@ -940,13 +939,13 @@
     :^  ~  ~  %json
     !>  ^-  json
     ?~  project=(~(get by projects) project-name)
-      %+  json-single-string-object:zig-lib  %error
+      %+  single-string-object:enjs:zig-lib  %error
       "project {<project-name>} not found; must register project with %new-project"
     ?~  dbug=(~(get by dbug-dashboards.u.project) app)
-      %+  json-single-string-object:zig-lib  %error
+      %+  single-string-object:enjs:zig-lib  %error
       "app {<app>} not found; must add app to dashboard with %add-app-to-dashboard"
     ?:  ?=(%| -.mold.u.dbug)
-      %+  json-single-string-object:zig-lib  %error
+      %+  single-string-object:enjs:zig-lib  %error
       "app {<app>} subject failed to build; fix sur file path and re-add with %add-app-to-dashboard. error message from build: {<p.mold.u.dbug>}"
     =/  now=@ta  (scot %da now.bowl)
     =/  dbug-noun=*
@@ -956,13 +955,13 @@
           /gx/[who]/[app]/[now]/dbug/state/noun/noun
       ==
     ?.  ?=(^ dbug-noun)
-      %+  json-single-string-object:zig-lib  %error
+      %+  single-string-object:enjs:zig-lib  %error
       "dbug scry failed: unexpected result from pyro"
     =*  mar-tube   mar-tube.u.dbug
     =*  dbug-mold  p.mold.u.dbug
     =/  dbug-vase=vase  (slym dbug-mold +.+.dbug-noun)
     ?~  mar-tube
-      %+  json-single-string-object:zig-lib  %state
+      %+  single-string-object:enjs:zig-lib  %state
       (noah dbug-vase)
     (frond:enjs:format %state !<(json (u.mar-tube dbug-vase)))
   ::
