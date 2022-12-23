@@ -1,12 +1,13 @@
-/-  pyro,
+/-  pyro=zig-pyro,
     spider,
     zig=zig-ziggurat
 /+  strandio,
-    pyro=zig-pyro,
+    pyro-lib=zig-pyro,
     zig-lib=zig-ziggurat
 ::
 =*  strand     strand:spider
 =*  get-bowl   get-bowl:strandio
+=*  poke-our   poke-our:strandio
 =*  scry       scry:strandio
 =*  sleep      sleep:strandio
 =*  watch-our  watch-our:strandio
@@ -74,7 +75,7 @@
   =/  m  (strand ,~)
   ^-  form:m
   ;<  ~  bind:m
-    %+  dojo:pyro  who.payload
+    %+  dojo:pyro-lib  who.payload
     (trip payload.payload)
     :: (noah-slap-ream payload.payload)  ::  TODO: enable transforming of dojo arguments like scries & pokes are transformed
   (pure:m ~)
@@ -161,7 +162,7 @@
   |=  payload=sub-payload:zig
   =/  m  (strand ,~)
   ^-  form:m
-  ;<  ~  bind:m  (subscribe:pyro payload)
+  ;<  ~  bind:m  (subscribe:pyro-lib payload)
   (pure:m ~)
 ::
 ++  send-pyro-poke
@@ -268,7 +269,7 @@
   ^-  form:m
   ?~  snapshot-ships  (pure:m ~)
   ;<  ~  bind:m
-    %+  poke-our:strandio  %pyro
+    %+  poke-our  %pyro
     :-  %action
     !>  ^-  pyro-action:pyro
     :+  %snap-ships
