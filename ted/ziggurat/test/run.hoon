@@ -180,7 +180,7 @@
       ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
       !!
     ;<  ~  bind:m
-      (poke:pyro payload(payload +.p.compilation-result))
+      (poke:pyro-lib payload(payload +.p.compilation-result))
     (pure:m ~)
   ::  mark not found: warn and attempt to fallback to
   ::   equivalent %dojo step rather than failing outright
