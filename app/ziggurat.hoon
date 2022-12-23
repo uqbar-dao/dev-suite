@@ -432,17 +432,17 @@
       ?:  =(& test-running)
         ~|("%ziggurat: queue already running" !!)
       =^  top  test-queue  ~(get to test-queue)
-      =*  project-id  -.top
-      =*  test-id     +.top
+      =*  project-name  -.top
+      =*  test-id        +.top
       ~&  >  "%ziggurat: running {<test-id>}"
-      =/  =project:zig  (~(got by projects) project-id)
+      =/  =project:zig  (~(got by projects) project-name)
       =/  =test:zig     (~(got by tests.project) test-id)
       ?:  ?=(%| -.subject.test)
         ~|("%ziggurat: test subject must compile before test can be run" !!)  ::  TODO: do better
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
-            project-id
+            project-name
             '-'
             ?^(name.test u.name.test (scot %ux test-id))
             '-'
@@ -454,13 +454,13 @@
           %ziggurat-test-run
         !>  ^-  (unit [@t @ux test-steps:zig vase (list @p)])
         :*  ~
-            project-id
+            project-name
             test-id
             steps.test
             p.subject.test
             ~[~nec ~bud]  :: TODO: remove hardcode and allow input of for-snapshot
         ==
-      =/  w=wire  /test/[project-id]/(scot %ux test-id)/[tid]
+      =/  w=wire  /test/[project-name]/(scot %ux test-id)/[tid]
       :_  state(test-running &)
       :+  :^  %pass  w  %agent
             [[our.bowl %spider] %watch /thread-result/[tid]]
@@ -636,7 +636,7 @@
       ::  should assert that desk.bill contains only our agent name,
       ::  and that clause has been filled out at least partially,
       ::  then poke treaty agent with publish
-      =/  project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =/  bill
         ;;  (list @tas)
         .^(* %cx /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)/desk/bill)
