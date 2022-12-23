@@ -1,4 +1,4 @@
-/-  pyro,
+/-  pyro=zig-pyro,
     spider,
     zig=zig-ziggurat
 /+  strandio,
@@ -7,6 +7,7 @@
 ::
 =*  strand     strand:spider
 =*  get-bowl   get-bowl:strandio
+=*  poke-our   poke-our:strandio
 =*  scry       scry:strandio
 =*  sleep      sleep:strandio
 =*  watch-our  watch-our:strandio
@@ -189,7 +190,7 @@
   ^-  form:m
   ?~  snapshot-ships  (pure:m ~)
   ;<  ~  bind:m
-    %+  poke-our:strandio  %pyro
+    %+  poke-our  %pyro
     :-  %action
     !>  ^-  pyro-action:pyro
     :+  %snap-ships

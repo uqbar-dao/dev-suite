@@ -98,12 +98,12 @@
   ++  add-test
     |=  $:  project-name=@t
             name=(unit @t)
-            surs=test-surs
-            =test-steps
+            surs=test-surs:zig
+            =test-steps:zig
         ==
-    ^-  [[(list card) test] _state]
-    =/  =project  (~(got by projects) project-name)
-    =/  addresses=^vase  !>(virtualnet-addresses)
+    ^-  [[(list card) test:zig] _state]
+    =/  =project:zig  (~(got by projects) project-name)
+    =/  addresses=vase  !>(virtualnet-addresses)
     =.  surs
       ?~  zig-val=(~(get by surs) %zig)
         (~(put by surs) %zig /sur/zig/ziggurat)
@@ -111,9 +111,9 @@
       ~|("%ziggurat: %zig face reserved for /sur/zig/ziggurat; got {<u.zig-val>}" !!)
     ?.  =(1 (lent (fand ~[/sur/zig/ziggurat] ~(val by surs))))
       ~|("%ziggurat: please use only %zig face for /sur/zig/ziggurat; got {<surs>}" !!)
-    =^  subject=(each ^vase @t)  state
+    =^  subject=(each vase @t)  state
       (compile-test-surs `@tas`project-name ~(tap by surs))
-    =/  =test
+    =/  =test:zig
       :*  name
           /
           surs
@@ -124,25 +124,33 @@
       ==
     =.  test
       %-  fall  :_  test
-      %-  add-custom-step
+      %-  add-custom-step:zig-lib
       :^  test  project-name  %scry-indexer
       /zig/custom-step-definitions/scry-indexer/hoon
     =.  test
       %-  fall  :_  test
-      %-  add-custom-step
+      %-  add-custom-step:zig-lib
       :^  test  project-name  %poke-wallet-transaction
       /zig/custom-step-definitions/poke-wallet-transaction/hoon
+    =.  test
+      %-  fall  :_  test
+      %-  add-custom-step:zig-lib
+      :^  test  project-name  %send-wallet-transaction
+      /zig/custom-step-definitions/send-wallet-transaction/hoon
     :_  state
     :_  test
     :_  ~
-    %^  make-project-update  project-name  project
-    [our now]:bowl
+    (make-project-update:zig-lib project-name project)
   ::
   ++  add-and-queue-test
-    |=  [project-name=@t name=(unit @t) =test-surs =test-steps]
+    |=  $:  project-name=@t
+            name=(unit @t)
+            =test-surs:zig
+            =test-steps:zig
+        ==
     ^-  (quip card _state)
-    =/  =project  (~(got by projects) project-name)
-    =^  [cards=(list card) =test]  state
+    =/  =project:zig  (~(got by projects) project-name)
+    =^  [cards=(list card) =test:zig]  state
         (add-test project-name name test-surs test-steps)
     =/  test-id=@ux  `@ux`(sham test)
     =.  tests.project  (~(put by tests.project) test-id test)
@@ -202,8 +210,8 @@
     =/  =project:zig  (~(got by projects) project-name)
     =^  =test:zig  state
       (add-test-file project-name name test-steps-file)
-    =/  =project  (~(got by projects) project-name)
-    =^  =test  state
+    =/  =project:zig  (~(got by projects) project-name)
+    =^  =test:zig  state
       (add-test-file project-name name test-steps-file)
     =/  test-id=@ux  `@ux`(sham test)
     =.  tests.project  (~(put by tests.project) test-id test)
@@ -502,7 +510,7 @@
       =^  cards  state
         (add-and-queue-test-file [project name path]:act)
       =?  cards  =(| test-running)
-        (snoc cards (make-run-queue our.bowl project.act))
+        (snoc cards (make-run-queue:zig-lib project.act))
       [cards state]
     ::
         %add-and-queue-test-file

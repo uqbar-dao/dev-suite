@@ -121,7 +121,7 @@
     '''
   ::  test-steps
     %+  roll  steps.test
-    |=  [=test-step test-steps-text=@t]
+    |=  [=test-step:zig test-steps-text=@t]
     %+  rap  3
     :~  test-steps-text
         '  ::\0a'
@@ -820,8 +820,8 @@
     ^-  $-(json [(unit @t) test-surs:zig test-steps:zig])
     %-  ot
     :^    [%name so:dejs-soft:format]
-        [%test-surs (ar pa)]
-      [%test-steps (ar parse-test-step)]
+        [%test-surs (om pa)]
+      [%test-steps (ar test-step)]
     ~
   ::
   ++  add-test-file
