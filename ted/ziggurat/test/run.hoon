@@ -2,7 +2,7 @@
     spider,
     zig=zig-ziggurat
 /+  strandio,
-    pyro=zig-pyro,
+    pyro-lib=zig-pyro,
     zig-lib=zig-ziggurat
 ::
 =*  strand     strand:spider
@@ -74,7 +74,7 @@
   =/  m  (strand ,~)
   ^-  form:m
   ;<  ~  bind:m
-    %+  dojo:pyro  who.payload
+    %+  dojo:pyro-lib  who.payload
     (trip payload.payload)
     :: (noah-slap-ream payload.payload)  ::  TODO: enable transforming of dojo arguments like scries & pokes are transformed
   (pure:m ~)
@@ -161,7 +161,7 @@
   |=  payload=sub-payload:zig
   =/  m  (strand ,~)
   ^-  form:m
-  ;<  ~  bind:m  (subscribe:pyro payload)
+  ;<  ~  bind:m  (subscribe:pyro-lib payload)
   (pure:m ~)
 ::
 ++  send-pyro-poke
@@ -175,7 +175,7 @@
     ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
     !!
   ;<  ~  bind:m
-    %-  poke:pyro
+    %-  poke:pyro-lib
     payload(payload +.p.compilation-result)
   (pure:m ~)
 ::

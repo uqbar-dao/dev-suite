@@ -94,6 +94,49 @@
   :-  %ziggurat-action
   !>(`action:zig`[project-name %run-queue ~])
 ::
+++  make-test-steps-file
+  |=  =test:zig
+  ^-  @t
+  %+  rap  3
+  :~
+  ::  imports
+    %+  roll  ~(tap by test-surs.test)
+    |=  [[face=@tas file=path] imports=@t]
+    %+  rap  3
+    :~  imports
+        '/=  '
+        face
+        '  '
+        (crip (noah !>(file)))
+        '\0a'
+    ==
+  ::  infix
+    '''
+    ::
+    |%
+    ++  $
+      ^-  test-steps:zig
+      :~
+
+    '''
+  ::  test-steps
+    %+  roll  steps.test
+    |=  [=test-step test-steps-text=@t]
+    %+  rap  3
+    :~  test-steps-text
+        '  ::\0a'
+        '    '
+        (crip (noah !>(test-step)))
+        '\0a'
+    ==
+  ::  suffix
+    '''
+      ==
+    --
+
+    '''
+  ==
+::
 ++  convert-contract-hoon-to-jam
   |=  contract-hoon-path=path
   ^-  (unit path)
@@ -722,13 +765,19 @@
         [%read-desk ul]
     ::
         [%add-test add-test]
+        [%add-and-run-test add-test]
+        [%add-and-queue-test add-test]
+        [%save-test-to-file (ot ~[[%id (se %ux)] [%path pa]])]
+    ::
+        [%add-test-file add-test-file]
+        [%add-and-run-test-file add-test-file]
+        [%add-and-queue-test-file add-test-file]
+    ::
         [%delete-test (ot ~[[%id (se %ux)]])]
         [%run-test (ot ~[[%id (se %ux)]])]
-        [%add-and-run-test add-test]
         [%run-queue ul]
         [%clear-queue ul]
         [%queue-test (ot ~[[%id (se %ux)]])]
-        [%add-and-queue-test add-test]
     ::
         [%add-custom-step add-custom-step]
         [%delete-custom-step (ot ~[[%test-id (se %ux)] [%tag (se %tas)]])]
@@ -768,6 +817,14 @@
     ==
   ::
   ++  add-test
+    ^-  $-(json [(unit @t) test-surs:zig test-steps:zig])
+    %-  ot
+    :^    [%name so:dejs-soft:format]
+        [%test-surs (ar pa)]
+      [%test-steps (ar parse-test-step)]
+    ~
+  ::
+  ++  add-test-file
     ^-  $-(json [name=(unit @t) test-steps-path=path])
     %-  ot
     :+  [%name so:dejs-soft:format]
