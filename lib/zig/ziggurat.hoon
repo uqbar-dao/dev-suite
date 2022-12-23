@@ -630,6 +630,8 @@
         [%save-file (ot ~[[%file pa] [%text so]])]
         [%delete-file (ot ~[[%file pa]])]
     ::
+        [%set-virtualnet-address (ot ~[[%who (se %p)] [%address (se %ux)]])]
+    ::
         [%register-contract-for-compilation (ot ~[[%file pa]])]
         [%deploy-contract deploy]
     ::
@@ -657,6 +659,7 @@
     ::
         [%stop-pyro-ships ul]
         [%start-pyro-ships (ot ~[[%ships (ar (se %p))]])]
+        [%start-pyro-snap (ot ~[[%snap pa]])]
     ::
         [%publish-app docket]
         [%add-user-file (ot ~[[%file pa]])]
