@@ -4,7 +4,8 @@
 ::
 /-  spider,
     zig=zig-ziggurat
-/+  dbug,
+/+  agentio,
+    dbug,
     default-agent,
     verb,
     conq=zink-conq,
@@ -30,6 +31,7 @@
 |_  =bowl:gall
 +*  this  .
     def      ~(. (default-agent this %|) bowl)
+    io       ~(. agentio bowl)
     zig-lib  ~(. ziggurat-lib bowl)
 ::
 ++  on-init
@@ -252,8 +254,8 @@
       ==
       :_  state(projects (~(put by projects) project.act project))
       :_  ~
-      =-  [%pass /del-wire %arvo %c -]
-      [%info `@tas`project.act %& [file.act %del ~]~]
+      %-  ~(arvo pass:io /del-wire)
+      [%c %info `@tas`project.act %& [file.act %del ~]~]
     ::
         %set-virtualnet-address
       =/  =project:zig  (~(got by projects) project.act)
@@ -460,12 +462,13 @@
             p.subject.test
             ~[~nec ~bud]  :: TODO: remove hardcode and allow input of for-snapshot
         ==
-      =/  w=wire  /test/[project-name]/(scot %ux test-id)/[tid]
+      =/  w=wire
+        /test/[project-name]/(scot %ux test-id)/[tid]
       :_  state(test-running &)
-      :+  :^  %pass  w  %agent
-            [[our.bowl %spider] %watch /thread-result/[tid]]
-        :^  %pass  w  %agent
-        [[our.bowl %spider] %poke %spider-start !>(start-args)]
+      :+  %+  ~(watch-our pass:io w)  %spider
+          /thread-result/[tid]
+        %+  ~(poke-our pass:io w)  %spider
+        [%spider-start !>(start-args)]
       ~
     ::
         %clear-queue
@@ -580,26 +583,19 @@
       =/  wach=(list card)
         %+  turn  ships.act
         |=  who=ship
-        :*  %pass  /ready/(scot %p who)  %agent
-            [our.bowl %pyro]
-            %watch  /ready/(scot %p who)
-        ==
+        =/  w=wire  /ready/(scot %p who)
+        (~(watch-our pass:io w) %pyro w)
       =/  init=(list card)
         :_  ~
-        :*  %pass  /  %agent
-            [our.bowl %pyro]
-            %poke  %aqua-events
-            !>((turn ships.act |=(who=ship [%init-ship who])))
-        ==
-      =/  subs=(list card) ::  start %subscriber app
+        %+  ~(poke-our pass:io /self-wire)  %pyro
+        :-  %aqua-events
+        !>((turn ships.act |=(who=ship [%init-ship who])))
+      =/  subs=(list card)  ::  start %subscriber app
         %+  turn  ships.act
         |=  who=ship
-        :*  %pass  /  %agent
-            [our.bowl %pyro]
-            %poke  %aqua-events
-            !>
-            (dojo-events:pyro who "|start %zig %subscriber")
-        ==
+        %+  ~(poke-our pass:io /self-wire)  %pyro
+        :-  %aqua-events
+        !>((dojo-events:pyro who "|start %zig %subscriber"))
       :-  :(weld wach init subs)
       %_    state
           pyro-ships-ready
@@ -627,9 +623,10 @@
     ::
         %start-pyro-snap
       :_  state(pyro-ships-ready ~)
-      :~  [%pass /restore %agent [our.bowl %pyro] %watch /effect/restore]
-          [%pass / %agent [our.bowl %pyro] %poke %action !>([%restore-snap snap.act])]
-      ==
+      :+  (~(watch-our pass:io /restore) /effect/restore)
+        %+  ~(poke-our pass:io /self-wire)  %pyro
+        [%action !>([%restore-snap snap.act])]
+      ~
     ::
         %publish-app  :: TODO
       ::  [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
@@ -656,9 +653,9 @@
       =/  docket-task
         [%info `@tas`project.act %& [/desk/docket-0 %ins %docket-0 !>(docket-0)]~]
       :_  state
-      :^    [%pass /save-wire %arvo %c docket-task]
+      :^    (~(arvo pass:io /save-wire) %c [docket-task])
           (make-compile-contracts:zig-lib project.act)
-        =-  [%pass /treaty-wire %agent [our.bowl %treaty] %poke -]
+        %+  ~(poke-our pass:io /treaty-wire)  %treaty
         [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
       ~
     ::
@@ -711,8 +708,8 @@
           (make-project-update:zig-lib project-name project)
         =?  cards  ?=(^ test-queue)
           %+  snoc  cards
-          :^  %pass  /self-wire  %agent
-          :^  [our dap]:bowl  %poke  %ziggurat-action
+          %-  ~(poke-self pass:io /self-wire)
+          :-  %ziggurat-action
           !>(`action:zig`[project-name %run-queue ~])
         :-  cards
         %=  this
@@ -728,15 +725,13 @@
       =/  who=@p  (slav %p i.t.w)
       =.  pyro-ships-ready  (~(put by pyro-ships-ready) who %.y)
       =/  leave=card
-        :^  %pass  /ready/(scot %p who)  %agent
-        [[our.bowl %pyro] %leave ~]
+        (~(leave-our pass:io /ready/(scot %p who)) %pyro)
       ?~  test-queue                         [leave^~ this]
       ?.  (~(all by pyro-ships-ready) same)  [leave^~ this]
       :_  this
       :+  leave
-        :^  %pass  /self-wire  %agent
-        :^  [our dap]:bowl  %poke  %ziggurat-action
-        !>(`action:zig`[%$ %run-queue ~])
+        %-  ~(poke-self pass:io /self-wire)
+        [%ziggurat-action !>(`action:zig`[%$ %run-queue ~])]
       ~
     ==
   ::
@@ -744,7 +739,7 @@
     ?+    -.sign  (on-agent:def w sign)
         %fact
       :_  this(pyro-ships-ready [[~nec %.y] ~ ~]) :: XX extremely hacky
-      [%pass /restore %agent [our.bowl %pyro] %leave ~]^~
+      (~(leave-our pass:io /restore) %pyro)^~
     ==
   ==
 ::

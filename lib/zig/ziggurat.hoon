@@ -1,12 +1,16 @@
 /-  eng=zig-engine,
     ui=zig-indexer,
     zig=zig-ziggurat
-/+  conq=zink-conq,
+/+  agentio,
+    conq=zink-conq,
     dock=docket,
     smart=zig-sys-smart,
     ui-lib=zig-indexer,
     zink=zink-zink
 |_  =bowl:gall
++*  this  .
+    io    ~(. agentio bowl)
+::
 +$  card  card:agent:gall
 ::
 ::  utilities
@@ -18,28 +22,28 @@
   =/  update=project-update:zig
     :_  project
     (get-state:enjs project)
-  :^  %give  %fact  ~[p]
-  :-  %ziggurat-project-update
-  !>(`project-update:zig`update)
+  %-  fact:io  :_  ~[p]
+  [%ziggurat-project-update !>(`project-update:zig`update)]
 ::
 ++  make-compile-contracts
   |=  [project-name=@t]
   ^-  card
-  =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
+  %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
   !>(`action:zig`project-name^[%compile-contracts ~])
 ::
 ++  make-compile-contract
   |=  [project-name=@t file=path]
   ^-  card
-  =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
+  %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
   !>(`action:zig`project-name^[%compile-contract file])
 ::
 ++  make-watch-for-file-changes
   |=  [project-name=@tas files=(list path)]
   ^-  card
-  =-  [%pass /clay/[project-name] %arvo %c %warp our.bowl project-name -]
+  %-  ~(warp-our pass:io /clay/[project-name])
+  :-  project-name
   :^  ~  %mult  da+now.bowl
   %-  ~(gas in *(set [care:clay path]))
   (turn files |=(p=path [%x p]))
@@ -47,7 +51,7 @@
 ++  make-read-desk
   |=  project-name=@t
   ^-  card
-  =-  [%pass /self-wire %agent [our.bowl %ziggurat] %poke -]
+  %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
   !>(`action:zig`project-name^[%read-desk ~])
 ::
@@ -55,8 +59,8 @@
   |=  [project-name=@t file=path non=*]
   ^-  card
   ?>  ?=(%jam (rear file))
-  =-  [%pass /save-wire %arvo %c -]
-  :-  %info
+  %-  ~(arvo pass:io /save-wire)
+  :+  %c  %info
   [`@tas`project-name %& [file %ins %noun !>(`@`(jam non))]~]
 ::
 ++  make-save-file
@@ -67,7 +71,9 @@
     %-  as-octt:mimes:html
     %+  rash  text
     (star ;~(pose (cold '\0a' (jest '\0d\0a')) next))
-  =-  [%pass /save-wire %arvo %c -]
+  %-  ~(arvo pass:io /save-wire)
+  :-  %c
+  :: =-  [%pass /save-wire %arvo %c -]
   :^  %info  `@tas`project-name  %&
   :_  ~  :+  file  %ins
   =*  reamed-text  q:(slap !>(~) (ream text))  ::  =* in case text unreamable
@@ -84,8 +90,8 @@
 ++  make-run-queue
   |=  project-name=@t
   ^-  card
-  :^  %pass  /self-poke  %agent
-  :^  [our.bowl %ziggurat]  %poke  %ziggurat-action
+  %-  ~(poke-self pass:io /self-wire)
+  :-  %ziggurat-action
   !>(`action:zig`[project-name %run-queue ~])
 ::
 ++  convert-contract-hoon-to-jam
