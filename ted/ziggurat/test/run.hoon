@@ -1,8 +1,8 @@
-/-  spider,
+/-  pyro,
+    spider,
     zig=zig-ziggurat
 /+  strandio,
-    pyro=zig-pyro,
-    test=zig-ziggurat-test,
+    pyro-lib=zig-pyro,
     zig-lib=zig-ziggurat
 ::
 =*  strand     strand:spider
@@ -74,7 +74,7 @@
   =/  m  (strand ,~)
   ^-  form:m
   ;<  ~  bind:m
-    %+  dojo:pyro  who.payload
+    %+  dojo:pyro-lib  who.payload
     (trip payload.payload)
     :: (noah-slap-ream payload.payload)  ::  TODO: enable transforming of dojo arguments like scries & pokes are transformed
   (pure:m ~)
@@ -161,7 +161,7 @@
   |=  payload=sub-payload:zig
   =/  m  (strand ,~)
   ^-  form:m
-  ;<  ~  bind:m  (subscribe:pyro payload)
+  ;<  ~  bind:m  (subscribe:pyro-lib payload)
   (pure:m ~)
 ::
 ++  send-pyro-poke
@@ -175,9 +175,46 @@
     ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
     !!
   ;<  ~  bind:m
-    %-  poke:pyro
+    %-  poke:pyro-lib
     payload(payload +.p.compilation-result)
   (pure:m ~)
+::
+++  take-snapshot
+  |=  $:  project-id=@t
+          test-id=(unit @ux)
+          step=@ud
+          snapshot-ships=(list @p)
+      ==
+  =/  m  (strand:spider ,~)
+  ^-  form:m
+  ?~  snapshot-ships  (pure:m ~)
+  ;<  ~  bind:m
+    %+  poke-our:strandio  %pyro
+    :-  %action
+    !>  ^-  pyro-action:pyro
+    :+  %snap-ships
+      ?~  test-id  /[project-id]/(scot %ud step)
+      /[project-id]/(scot %ux u.test-id)/(scot %ud step)
+    snapshot-ships
+  (pure:m ~)
+::
+++  block-on-previous-step
+  |=  [loop-duration=@dr done-duration=@dr]
+  =/  m  (strand:spider ,~)
+  ^-  form:m
+  |-
+  ;<  is-next-events-empty=?  bind:m
+    (scry:strandio ? /gx/pyro/is-next-events-empty/noun)
+  ;<  soonest-timer=(unit @da)  bind:m
+    (scry:strandio (unit @da) /gx/pyre/soonest-timer/noun)
+  ;<  now=@da  bind:m  get-time:strandio
+  ?.  is-next-events-empty
+    ;<  ~  bind:m  (wait:strandio (add now loop-duration))
+    $
+  ?~  soonest-timer                                  (pure:m)
+  ?:  (lth (add now done-duration) u.soonest-timer)  (pure:m)
+  ;<  ~  bind:m  (wait:strandio (add u.soonest-timer 1))  :: TODO: is this a good heuristic or should we wait longer?
+  $
 ::
 ++  run-steps
   |=  $:  project-id=@t
@@ -196,10 +233,10 @@
     results-vase(p [%face %test-results p.results-vase])
   |-
   ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
-  ;<  ~  bind:m  (block-on-previous-step:test ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
+  ;<  ~  bind:m  (block-on-previous-step ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
-    %:  take-snapshot:test
+    %:  take-snapshot
         project-id
         `test-id
         step-number
@@ -310,43 +347,24 @@
       %+  scry  vase
       %+  weld  /gx/ziggurat/custom-step-compiled/[project-id]
       /(scot %ux test-id)/[tag.test-step]/noun
-    =/  transformed-step=test-read-step:zig
-      !<  test-read-step:zig
+    =/  transformed-steps=test-steps:zig
+      !<  test-steps:zig
       %+  slam  transform
       %-  slop  :_  !>(expected.test-step)
       (slap-subject payload.test-step)  ::  TODO: +mule?
-    $(test-steps [transformed-step t.test-steps])
+    $(test-steps (weld transformed-steps t.test-steps))
   ::
       %custom-write
     ;<  transform=vase  bind:m
       %+  scry  vase
       %+  weld  /gx/ziggurat/custom-step-compiled/[project-id]
       /(scot %ux test-id)/[tag.test-step]/noun
-    =/  transformed-step=test-write-step:zig
-      !<  test-write-step:zig
+    =/  transformed-steps=test-steps:zig
+      !<  test-steps:zig
       %+  slam  transform
       %-  slop  :_  !>(expected.test-step)
       (slap-subject payload.test-step)  ::  TODO: +mule?
-    ::  execute code given as @t, e.g., transform
-    ::   `:*  %foo  %bar  ==`
-    ::   to
-    ::   `[%foo %bar]`
-    ::   TODO: consolidate logic
-    =?    transformed-step
-        ?=(%dojo -.transformed-step)
-      %=  transformed-step
-          payload.payload
-        %-  crip
-        (noah-slap-ream payload.payload.transformed-step)
-      ==
-    =?    transformed-step
-        ?=(%poke -.transformed-step)
-      %=  transformed-step
-          payload.payload
-        %-  crip
-        (noah-slap-ream payload.payload.transformed-step)
-      ==
-    $(test-steps [transformed-step t.test-steps])
+    $(test-steps (weld transformed-steps t.test-steps))
   ==
 ::
 ++  ted

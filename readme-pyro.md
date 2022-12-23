@@ -125,13 +125,24 @@ Contracts can be deployed to the virtualship testnet for a project using the `%d
 
 ## Custom inputs
 
-You can build custom inputs to `%pyro` ships.
-For examples, see the [`zig/custom-step-definitions/` dir](https://github.com/uqbar-dao/uqbar-core/tree/067f1552bbcc335db32550733b99338b33c6ed5d/zig/custom-step-definitions).
-(TODO: keep this link updated).
-These steps are labeled by a `tag=@tas` -- the name of the step that will be referenced when calling it.
-The code for a custom step lives in the `$` arm of a core.
-Please refer to the `zig/custom-step-definitions/` dir linked above for examples on how to write the `transform` and [Example usage](#example-usage) `%send-nec-custom` for usage of the custom steps.
-TODO: write more here.
+Custom steps are useful for reducing boilerplate when a certain `test-step` is used frequently.
+For example, to write to the virtualship testnet, a transaction is sent with a `%wallet-poke`.
+However, the transaction must also be signed, and the sequencer must submit a batch before the transaction is posted.
+Thus, the following must occur:
+1. Scry current pending transactions in the wallet,
+2. Send the transaction,
+3. Scry newly updated pending transactions in the wallet,
+4. Compute the diff on the pending transaction scries to find the our pending transaction hash,
+5. Sign that pending transaction and send it to the sequencer,
+6. Tell the sequencer to process the batch.
+
+Rather than requiring every virtualship testnet write `test-steps` do the common work, use the `custom-write-step` [`zig/custom-step-definitions/send-wallet-transaction.hoon`](https://github.com/uqbar-dao/uqbar-core/blob/077403cc2eef02baea59f3d6f8b0e08fb7fd78a3/zig/custom-step-definitions/send-wallet-transaction.hoon).
+For an example of usage, see [`zig/test-steps/send-nec.hoon`](https://github.com/uqbar-dao/uqbar-core/blob/077403cc2eef02baea59f3d6f8b0e08fb7fd78a3/zig/test-steps/send-nec.hoon)
+
+More examples can be found in the [`zig/custom-step-definitions/` dir](https://github.com/uqbar-dao/uqbar-core/tree/077403cc2eef02baea59f3d6f8b0e08fb7fd78a3/zig/custom-step-definitions).
+
+Custom steps are labeled by a `tag=@tas` -- the name of the step that will be referenced when calling it.
+A custom step is a core whose `$` arm takes in arguments and an `expected` (either a `@t` if a `custom-read-step` or a `(list test-read-step)` if a `custom-write-step`) and must return a `(list test-step)`.
 
 ## `dbug` dashboard
 
@@ -152,15 +163,11 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 
 :ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%subscribe-nec /zig/test-steps/subscribe-nec/hoon]
 
-::  The same ZIGS send done in four ways:
-::   Straight up,
-::   Using custom-test-steps,
-::   Using the `addresses` test global.
-::   Using the canonical form to send, sign, and batch a transaction.
+::  The same ZIGS send done in two ways:
+::   Using a custom-step-definition and pokes,
+::   Using Dojo commands.
 :ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%send-nec /zig/test-steps/send-nec/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%send-nec-custom /zig/test-steps/send-nec-custom/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%send-nec-addresses /zig/test-steps/send-nec-addresses/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%send-nec-test-results /zig/test-steps/send-nec-test-results/hoon]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%send-nec-dojo /zig/test-steps/send-nec-dojo/hoon]
 
 :ziggurat &ziggurat-action [%foo %start-pyro-ships ~[~nec ~bud]]
 :ziggurat &ziggurat-action [%$ %run-queue ~]

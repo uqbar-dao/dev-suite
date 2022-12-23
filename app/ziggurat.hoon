@@ -223,6 +223,11 @@
       %-  add-custom-step
       :^  test  project-name  %poke-wallet-transaction
       /zig/custom-step-definitions/poke-wallet-transaction/hoon
+    =.  test
+      %-  fall  :_  test
+      %-  add-custom-step
+      :^  test  project-name  %send-wallet-transaction
+      /zig/custom-step-definitions/send-wallet-transaction/hoon
     [test state]
   ::
   ++  add-and-queue-test-file
@@ -414,75 +419,43 @@
       =/  who=@p
         (~(got by town-sequencers:project) town-id.act)
       =/  address=@ux  (~(got by virtualnet-addresses) who)
-      =/  deploy-contract-path=path  ::  TODO: unhardcode
-        /zig/custom-step-definitions/deploy-contract/hoon
-      =/  scry-path=path
-        %-  weld  :_  deploy-contract-path
-        /(scot %p our.bowl)/[project.act]/(scot %da now.bowl)
       =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
-      =/  surs=(list [@tas path])  ~[[%zig /sur/zig/ziggurat]]
+      =/  surs=(list [@tas path])
+        :+  [%indexer /sur/zig/indexer]
+          [%zig /sur/zig/ziggurat]
+        ~
       =^  subject=(each ^vase @t)  state
         (compile-test-surs `@tas`project.act surs)
       ?>  ?=(%& -.subject)
-      =/  [surs=(list [face=@tas =path]) =hoon]
-        (parse-pile:conq (trip .^(@t %cx scry-path)))
       =/  =test
         :*  `test-name
             ~
             (~(gas by *test-surs) surs)
             subject
+            ~
         ::
-            %+  ~(put by *custom-step-definitions)
-              %deploy-contract
-            :-  deploy-contract-path
-            (compile-custom-step %deploy-contract hoon subject)
-        ::
-            :~  :+  %scry
-                  :-  who
-                  :^  '(map @ux *)'  %gx  %wallet
-                  /pending-store/(scot %ux address)/noun
-                ''
-            ::
-                :^  %custom-write  %deploy-contract
-                (crip "[{<who>} {<path.act>} ~]")  ~
-            ::
-                :+  %scry
-                  :-  who
-                  :^  '(map @ux *)'  %gx  %wallet
-                  /pending-store/(scot %ux address)/noun
-                ''
-            ::
-                :+  %poke
-                  :-  ~nec
-                  :^  ~nec  %uqbar  %wallet-poke
-                  %-  crip
-                  """
-                  =/  old-test-result=test-result:zig
-                    (snag 2 test-results:test-globals)
-                  ?>  ?=([* ~] old-test-result)
-                  =/  old-pending=(set @ux)
-                    %~  key  by
-                    !<((map @ux *) result:i:old-test-result)
-                  =/  new-test-result=test-result:zig
-                    (snag 0 test-results:test-globals)
-                  ?>  ?=([* ~] new-test-result)
-                  =/  new-pending=(set @ux)
-                    %~  key  by
-                    !<((map @ux *) result:i:new-test-result)
-                  =/  diff-pending=(list @ux)
-                    ~(tap in (~(dif in new-pending) old-pending))
-                  ?>  ?=([@ ~] diff-pending)
-                  :^  %submit  from={<address>}
-                    hash=i:diff-pending
-                  gas=[rate=1 bud=1.000.000]
-                  """
-                ~
-            ::
-                [%dojo [~nec ':sequencer|batch'] ~]
-            ==
+            :_  ~
+            :^  %custom-write  %send-wallet-transaction
+              %-  crip
+              %-  noah
+              !>  ^-  [@p test-write-step]
+              :-  who
+              :^  %custom-write  %deploy-contract
+              (crip "[{<who>} {<path.act>} ~]")  ~
+            ~
         ::
             ~
         ==
+      =.  test
+        %-  fall  :_  test
+        %-  add-custom-step
+        :^  test  project.act  %deploy-contract
+        /zig/custom-step-definitions/deploy-contract/hoon
+      =.  test
+        %-  fall  :_  test
+        %-  add-custom-step
+        :^  test  project.act  %send-wallet-transaction
+        /zig/custom-step-definitions/send-wallet-transaction/hoon
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
       :-  :_  (make-run-queue our.bowl project.act)^~

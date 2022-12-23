@@ -5,7 +5,8 @@
   |=  $:  [who=@p contract-jam-path=path non-default-publish-contract-id=(unit @ux)]
           expected=(list test-read-step:zig)
       ==
-  ^-  test-write-step:zig
+  ^-  test-steps:zig
+  :_  ~
   =/  publish-contract-id=@ux
     (fall non-default-publish-contract-id 0x1111.1111)
   =/  scry-path=path
