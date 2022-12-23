@@ -612,4 +612,179 @@
     ^-  json
     (frond key (tape error))
   --
+++  dejs
+  =,  dejs:format
+  |%
+  ++  uber-action
+    ^-  $-(json action:zig)
+    %-  ot
+    :~  [%project so]
+        [%action action]
+    ==
+  ::
+  ++  action
+    %-  of
+    :~  [%new-project ul]
+        [%delete-project ul]
+    ::
+        [%save-file (ot ~[[%file pa] [%text so]])]
+        [%delete-file (ot ~[[%file pa]])]
+    ::
+        [%register-contract-for-compilation (ot ~[[%file pa]])]
+        [%deploy-contract deploy]
+    ::
+        [%compile-contracts ul]
+        [%compile-contract (ot ~[[%path pa]])]
+        [%read-desk ul]
+    ::
+        [%add-test add-test]
+        [%delete-test (ot ~[[%id (se %ux)]])]
+        [%run-test (ot ~[[%id (se %ux)]])]
+        [%add-and-run-test add-test]
+        [%run-queue ul]
+        [%clear-queue ul]
+        [%queue-test (ot ~[[%id (se %ux)]])]
+        [%add-and-queue-test add-test]
+    ::
+        [%add-custom-step add-custom-step]
+        [%delete-custom-step (ot ~[[%test-id (se %ux)] [%tag (se %tas)]])]
+    ::
+        [%add-app-to-dashboard add-app-to-dashboard]
+        [%delete-app-from-dashboard (ot ~[[%app (se %tas)]])]
+    ::
+        [%add-town-sequencer (ot ~[[%town-id (se %ux)] [%who (se %p)]])]
+        [%delete-town-sequencer (ot ~[[%town-id (se %ux)]])]
+    ::
+        [%stop-pyro-ships ul]
+        [%start-pyro-ships (ot ~[[%ships (ar (se %p))]])]
+    ::
+        [%publish-app docket]
+        [%add-user-file (ot ~[[%file pa]])]
+        [%delete-user-file (ot ~[[%file pa]])]
+    ==
+  ::
+  ++  docket
+    ^-  $-(json [@t @t @ux @t [@ud @ud @ud] @t @t])
+    %-  ot
+    :~  [%title so]
+        [%info so]
+        [%color (se %ux)]
+        [%image so]
+        [%version (at ~[ni ni ni])]
+        [%website so]
+        [%license so]
+    ==
+  ::
+  ++  deploy
+    ^-  $-(json [town-id=@ux contract-jam=path])
+    %-  ot
+    :~  [%town-id (se %ux)]
+        [%path pa]
+    ==
+  ::
+  ++  add-test
+    ^-  $-(json [name=(unit @t) test-steps-path=path])
+    %-  ot
+    :+  [%name so:dejs-soft:format]
+      [%path pa]
+    ~
+  ::
+  ++  test-step
+    ^-  $-(json test-step:zig)
+    %-  of
+    (welp test-read-step-inner test-write-step-inner)
+  ::
+  ++  test-read-step
+    ^-  $-(json test-read-step:zig)
+    (of test-read-step-inner)
+  ::
+  ++  test-read-step-inner
+    :~  [%scry (ot ~[[%payload scry-payload] [%expected so]])]
+        [%dbug (ot ~[[%payload dbug-payload] [%expected so]])]
+        [%read-subscription (ot ~[[%payload read-sub-payload] [%expected so]])]
+        [%wait (ot ~[[%until (se %dr)]])]
+        [%custom-read (ot ~[[%tag (se %tas)] [%payload so] [%expected so]])]
+    ==
+  ::
+  ++  scry-payload
+    ^-  $-(json scry-payload:zig)
+    %-  ot
+    :~  [%who (se %p)]
+        [%mold-name so]
+        [%care (se %tas)]
+        [%app (se %tas)]
+        [%path pa]
+    ==
+  ::
+  ++  dbug-payload
+    ^-  $-(json dbug-payload:zig)
+    %-  ot
+    :^    [%who (se %p)]
+        [%mold-name so]
+      [%app (se %tas)]
+    ~
+  ::
+  ++  read-sub-payload
+    ^-  $-(json read-sub-payload:zig)
+    %-  ot
+    :~  [%who (se %p)]
+        [%to (se %p)]
+        [%app (se %tas)]
+        [%path pa]
+    ==
+  ::
+  ++  test-write-step
+    ^-  $-(json test-write-step:zig)
+    (of test-write-step-inner)
+  ::
+  ++  test-write-step-inner
+    :~  [%dojo (ot ~[[%payload dojo-payload] [%expected (ar test-read-step)]])]
+        [%poke (ot ~[[%payload poke-payload] [%expected (ar test-read-step)]])]
+        [%subscribe (ot ~[[%payload subscribe-payload] [%expected (ar test-read-step)]])]
+        [%custom-write (ot ~[[%tag (se %tas)] [%payload so] [%expected (ar test-read-step)]])]
+    ==
+  ::
+  ++  dojo-payload
+    ^-  $-(json dojo-payload:zig)
+    %-  ot
+    :+  [%who (se %p)]
+      [%payload so]
+    ~
+  ::
+  ++  poke-payload
+    ^-  $-(json poke-payload:zig)
+    %-  ot
+    :~  [%who (se %p)]
+        [%to (se %p)]
+        [%app (se %tas)]
+        [%mark (se %tas)]
+        [%payload so]
+    ==
+  ::
+  ++  subscribe-payload
+    ^-  $-(json sub-payload:zig)
+    %-  ot
+    :~  [%who (se %p)]
+        [%to (se %p)]
+        [%app (se %tas)]
+        [%path pa]
+    ==
+  ::
+  ++  add-custom-step
+    ^-  $-(json [test-id=@ux tag=@tas custom-step-file=path])
+    %-  ot
+    :^    [%test-id (se %ux)]
+        [%tag (se %tas)]
+      [%path pa]
+    ~
+  ::
+  ++  add-app-to-dashboard
+    ^-  $-(json [app=@tas sur=path mold-name=@t mar=path])
+    %-  ot
+    :~  [%app (se %tas)]
+        [%sur pa]
+        [%mold-name so]
+        [%mar pa]
+    ==
+  --
 --
