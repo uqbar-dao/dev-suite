@@ -334,6 +334,76 @@
   ?~  chains                          ~  ::  for compiler
   `[town-id chain.i.chains]
 ::
+++  compile-custom-step
+  |=  [tag=@tas =hoon subject=(each vase @t)]
+  ^-  (each vase @t)
+  ?:  ?=(%| -.subject)
+    ~|("%ziggurat: subject must compile from surs before adding custom step" !!)
+  =/  compilation-result
+    %-  mule
+    |.  (slap (slap p.subject hoon) (ream '$'))
+  ?:  ?=(%& -.compilation-result)  compilation-result
+  :-  %|
+  %-  crip
+  %+  roll  p.compilation-result
+  |=  [in=tank out=tape]
+  :(weld ~(ram re in) "\0a" out)
+::
+++  make-recompile-custom-steps-cards
+  |=  $:  project-name=@t
+          test-id=@ux
+          =custom-step-definitions:zig
+      ==
+  ^-  (list card)
+  %+  turn  ~(tap by custom-step-definitions)
+  |=  [tag=@tas [p=path *]]
+  :^  %pass  /self-wire  %agent
+  :^  [our dap]:bowl  %poke  %ziggurat-action
+  !>  ^-  action:zig
+  project-name^[%add-custom-step test-id tag p]
+::
+++  add-custom-step
+  |=  [=test:zig project-name=@tas tag=@tas p=path]
+  ^-  (unit test:zig)
+  =/  file-scry-path=path
+    :-  (scot %p our.bowl)
+    (weld /[project-name]/(scot %da now.bowl) p)
+  ?.  .^(? %cu file-scry-path)  ~
+  =/  [surs=(list [face=@tas =path]) =hoon]
+    (parse-pile:conq (trip .^(@t %cx file-scry-path)))
+  =/  compilation-result=(each vase @t)
+    (compile-custom-step tag hoon subject.test)
+  =.  custom-step-definitions.test
+    %+  ~(put by custom-step-definitions.test)  tag
+    [p compilation-result]
+  ~?  ?=(%| -.compilation-result)
+    %ziggurat^%custom-step-compilation-failed^p.compilation-result
+  `test
+::  scry %ca or fetch from local cache
+::
+++  scry-or-cache-ca
+  |=  [project-desk=@tas p=path =ca-scry-cache:zig]
+  |^  ^-  [vase ca-scry-cache:zig]
+  =/  scry-path=path
+    :-  (scot %p our.bowl)
+    (weld /[project-desk]/(scot %da now.bowl) p)
+  ?~  cache=(~(get by ca-scry-cache) [project-desk p])
+    scry-and-cache-ca
+  ?.  =(p.u.cache .^(@ %cz scry-path))
+    scry-and-cache-ca
+  [q.u.cache ca-scry-cache]
+  ::
+  ++  scry-and-cache-ca
+    ^-  [vase ca-scry-cache:zig]
+    =/  scry-path=path
+      :-  (scot %p our.bowl)
+      (weld /[project-desk]/(scot %da now.bowl) p)
+    =/  scry-vase=vase  .^(vase %ca scry-path)
+    :-  scry-vase
+    %+  ~(put by ca-scry-cache)  [project-desk p]
+    [`@ux`.^(@ %cz scry-path) scry-vase]
+  --
+::
 ::  json
 ::
 ++  enjs

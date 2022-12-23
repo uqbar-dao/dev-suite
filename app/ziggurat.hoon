@@ -93,52 +93,6 @@
     ==
   [cards this]
   ::
-  ++  compile-custom-step
-    |=  [tag=@tas =hoon subject=(each vase @t)]
-    ^-  (each vase @t)
-    ?:  ?=(%| -.subject)
-      ~|("%ziggurat: subject must compile from surs before adding custom step" !!)
-    =/  compilation-result
-      %-  mule
-      |.  (slap (slap p.subject hoon) (ream '$'))
-    ?:  ?=(%& -.compilation-result)  compilation-result
-    :-  %|
-    %-  crip
-    %+  roll  p.compilation-result
-    |=  [in=tank out=tape]
-    :(weld ~(ram re in) "\0a" out)
-  ::
-  ++  make-recompile-custom-steps-cards
-    |=  $:  project-name=@t
-            test-id=@ux
-            =custom-step-definitions:zig
-        ==
-    ^-  (list card)
-    %+  turn  ~(tap by custom-step-definitions)
-    |=  [tag=@tas [p=path *]]
-    :^  %pass  /self-wire  %agent
-    :^  [our dap]:bowl  %poke  %ziggurat-action
-    !>  ^-  action:zig
-    project-name^[%add-custom-step test-id tag p]
-  ::
-  ++  add-custom-step
-    |=  [=test:zig project-name=@tas tag=@tas p=path]
-    ^-  (unit test:zig)
-    =/  file-scry-path=path
-      :-  (scot %p our.bowl)
-      (weld /[project-name]/(scot %da now.bowl) p)
-    ?.  .^(? %cu file-scry-path)  ~
-    =/  [surs=(list [face=@tas =path]) =hoon]
-      (parse-pile:conq (trip .^(@t %cx file-scry-path)))
-    =/  compilation-result=(each vase @t)
-      (compile-custom-step tag hoon subject.test)
-    =.  custom-step-definitions.test
-      %+  ~(put by custom-step-definitions.test)  tag
-      [p compilation-result]
-    ~?  ?=(%| -.compilation-result)
-      %ziggurat^%custom-step-compilation-failed^p.compilation-result
-    `test
-  ::
   ++  add-test
     |=  [project-name=@tas name=(unit @t) p=path]
     ^-  [test:zig _state]
@@ -165,17 +119,17 @@
       ==
     =.  test
       %-  fall  :_  test
-      %-  add-custom-step
+      %-  add-custom-step:zig-lib
       :^  test  project-name  %scry-indexer
       /zig/custom-step-definitions/scry-indexer/hoon
     =.  test
       %-  fall  :_  test
-      %-  add-custom-step
+      %-  add-custom-step:zig-lib
       :^  test  project-name  %poke-wallet-transaction
       /zig/custom-step-definitions/poke-wallet-transaction/hoon
     =.  test
       %-  fall  :_  test
-      %-  add-custom-step
+      %-  add-custom-step:zig-lib
       :^  test  project-name  %send-wallet-transaction
       /zig/custom-step-definitions/send-wallet-transaction/hoon
     [test state]
@@ -196,30 +150,6 @@
         test-queue
       (~(put to test-queue) project-name test-id)
     ==
-  ::  scry %ca or fetch from local cache
-  ::
-  ++  scry-or-cache-ca
-    |=  [project-desk=@tas p=path =ca-scry-cache:zig]
-    |^  ^-  [vase ca-scry-cache:zig]
-    =/  scry-path=path
-      :-  (scot %p our.bowl)
-      (weld /[project-desk]/(scot %da now.bowl) p)
-    ?~  cache=(~(get by ca-scry-cache) [project-desk p])
-      scry-and-cache-ca
-    ?.  =(p.u.cache .^(@ %cz scry-path))
-      scry-and-cache-ca
-    [q.u.cache ca-scry-cache]
-    ::
-    ++  scry-and-cache-ca
-      ^-  [vase ca-scry-cache:zig]
-      =/  scry-path=path
-        :-  (scot %p our.bowl)
-        (weld /[project-desk]/(scot %da now.bowl) p)
-      =/  scry-vase=vase  .^(vase %ca scry-path)
-      :-  scry-vase
-      %+  ~(put by ca-scry-cache)  [project-desk p]
-      [`@ux`.^(@ %cz scry-path) scry-vase]
-    --
   ::
   ++  compile-test-surs
     |=  [project-desk=@tas surs=(list [face=@tas =path])]
@@ -237,7 +167,7 @@
         ?:  =(%test-globals face)
           ~|("%ziggurat: compilation failed; cannot use %test-globals: reserved and built into subject already" !!)
         =^  sur-hoon=vase  ca-scry-cache
-          %^  scry-or-cache-ca  project-desk
+          %^  scry-or-cache-ca:zig-lib  project-desk
           (snoc sur %hoon)  ca-scry-cache
         :_  ca-scry-cache
         %-  slop  :_  subject
@@ -334,7 +264,7 @@
       %-  zing
       %+  turn  ~(tap by tests.project)
       |=  [test-id=@ux =test:zig]
-      %^  make-recompile-custom-steps-cards
+      %^  make-recompile-custom-steps-cards:zig-lib
       project.act  test-id  custom-step-definitions.test
     ::
         %register-contract-for-compilation
@@ -383,12 +313,12 @@
         ==
       =.  test
         %-  fall  :_  test
-        %-  add-custom-step
+        %-  add-custom-step:zig-lib
         :^  test  project.act  %deploy-contract
         /zig/custom-step-definitions/deploy-contract/hoon
       =.  test
         %-  fall  :_  test
-        %-  add-custom-step
+        %-  add-custom-step:zig-lib
         :^  test  project.act  %send-wallet-transaction
         /zig/custom-step-definitions/send-wallet-transaction/hoon
       =/  test-id=@ux  `@ux`(sham test)
@@ -461,7 +391,8 @@
     ::
         %add-test
       =/  =project:zig  (~(got by projects) project.act)
-      =^  =test:zig  state  (add-test [project name path]:act)
+      =^  =test:zig  state
+        (add-test [project name path]:act)
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
       :-  :_  ~
@@ -551,7 +482,7 @@
       =/  =test:zig     (~(got by tests.project) test-id.act)
       =.  test
         %-  fall  :_  test
-        (add-custom-step test [project tag path]:act)
+        (add-custom-step:zig-lib test [project tag path]:act)
       =.  project
         project(tests (~(put by tests.project) test-id.act test))
       :-  :_  ~
@@ -585,7 +516,8 @@
         =/  sur-face=@tas  `@tas`(rear snipped)
         ?>  ?=(^ sur)
         =^  sur-hoon=vase  ca-scry-cache
-          (scry-or-cache-ca project.act sur ca-scry-cache)
+          %^  scry-or-cache-ca:zig-lib  project.act   sur
+          ca-scry-cache
         =/  subject=vase
           %-  slop  :_  !>(..zuse)
           sur-hoon(p [%face sur-face p.sur-hoon])
