@@ -501,7 +501,11 @@
         ['expected' %s expected.test-step]
       ~
     ::
-        %read-subscription  ~  ::  TODO
+        %read-subscription
+      %-  pairs
+      :+  ['payload' (sub-payload payload.test-step)]
+        ['expected' %s expected.test-step]
+      ~
     ::
         %wait
       (frond 'until' [%s (scot %dr until.test-step)])
@@ -529,7 +533,8 @@
     |=  payload=dbug-payload:zig
     ^-  json
     %-  pairs
-    :+  ['who' %s (scot %p who.payload)]
+    :^    ['who' %s (scot %p who.payload)]
+        ['mold-name' %s mold-name.payload]
       ['app' %s app.payload]
     ~
   ::
@@ -538,6 +543,7 @@
     ^-  json
     %-  pairs
     :~  ['who' %s (scot %p who.payload)]
+        ['to' %s (scot %p to.payload)]
         ['app' %s app.payload]
         ['mark' %s mark.payload]
         ['payload' %s payload.payload]
