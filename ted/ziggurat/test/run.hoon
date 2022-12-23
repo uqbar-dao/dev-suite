@@ -2,7 +2,8 @@
     zig=zig-ziggurat
 /+  strandio,
     pyro=zig-pyro,
-    test=zig-ziggurat-test
+    test=zig-ziggurat-test,
+    zig-lib=zig-ziggurat
 ::
 =*  strand     strand:spider
 =*  get-bowl   get-bowl:strandio
@@ -40,11 +41,21 @@
 ++  noah-slap-ream
   |=  payload=@t
   ^-  tape
+  =/  compilation-result  (mule-slap-subject payload)
+  ?:  ?=(%| -.compilation-result)  (trip payload)
+  (noah p.compilation-result)
+::
+++  mule-slap-subject
+  |=  payload=@t
+  ^-  (each vase @t)
   =/  compilation-result
     (mule |.((slap-subject payload)))
-  ?:  ?=(%| -.compilation-result)
-    (trip payload)
-  (noah p.compilation-result)
+  ?:  ?=(%& -.compilation-result)  compilation-result
+  :-  %|
+  %-  crip
+  %+  roll  p.compilation-result
+  |=  [in=tank out=tape]
+  :(weld ~(ram re in) "\0a" out)
 ::
 ++  build-next-subject
   |=  [old-subject=vase results=vase =bowl:strand]
@@ -86,11 +97,16 @@
         ==
     ==
   ?.  ?=(^ scry-noun)  (pure:m !>(`~`~))
-  =/  scry-mold=vase  (slap-subject mold-name.payload)
+  =/  compilation-result
+    (mule-slap-subject mold-name.payload)
+  ?:  ?=(%| -.compilation-result)
+    ~&  %ziggurat-test-run^%scry-compilation-fail^p.compilation-result
+    !!
+  =*  scry-mold  p.compilation-result
   (pure:m (slym scry-mold +.scry-noun))
 ::
 ::  +send-pyro-dbug differs from +send-pyro-scry in that
-::   the return value of +send-pyro-dbug is a vase.
+::   the return value of the %pyro scry is a vase.
 ::   must throw out the type information -- which has been
 ::   lost anyways when it is forced into being a noun by the
 ::   %pyro scry.
@@ -112,7 +128,12 @@
         /[who]/[app.payload]/[now]/dbug/state/noun/noun
     ==
   ?.  ?=(^ dbug-noun)  (pure:m !>(`~`~))
-  =/  dbug-mold=vase  (slap-subject mold-name.payload)
+  =/  compilation-result
+    (mule-slap-subject mold-name.payload)
+  ?:  ?=(%| -.compilation-result)
+    ~&  %ziggurat-test-run^%dbug-compilation-fail^p.compilation-result
+    !!
+  =*  dbug-mold  p.compilation-result
   (pure:m (slym dbug-mold +.+.dbug-noun))
 ::
 ++  read-pyro-subscription
@@ -133,41 +154,29 @@
     ==
   ?.  ?=(^ scry-noun)  (pure:m !>(~))
   =+  fact-set=(fall ;;((unit (set @t)) scry-noun) *(set @t))
-  ?:  (~(has in fact-set) expected)
-    (pure:m !>(expected))
+  ?:  (~(has in fact-set) expected)  (pure:m !>(expected))
   (pure:m !>((crip (noah !>(~(tap in fact-set))))))
 ::
 ++  send-pyro-subscription
   |=  payload=sub-payload:zig
   =/  m  (strand ,~)
   ^-  form:m
-  ;<  ~  bind:m
-    %+  dojo:pyro  who.payload
-    ;:  weld
-        ":subscriber &subscriber-action [%sub "
-        (scow %p to.payload)
-        " %"
-        (trip app.payload)
-        " "
-        (noah !>(`path`path.payload))
-        "]"
-    ==
+  ;<  ~  bind:m  (subscribe:pyro payload)
   (pure:m ~)
 ::
 ++  send-pyro-poke
   |=  payload=poke-payload:zig
   =/  m  (strand ,~)
   ^-  form:m
+
+  =/  compilation-result
+    (mule-slap-subject payload.payload)
+  ?:  ?=(%| -.compilation-result)
+    ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
+    !!
   ;<  ~  bind:m
-    %+  dojo:pyro  who.payload
-    ;:  weld
-        ":"
-        (trip app.payload)
-        " &"
-        (trip mark.payload)
-        " "
-        (noah-slap-ream payload.payload)
-    ==
+    %-  poke:pyro
+    payload(payload +.p.compilation-result)
   (pure:m ~)
 ::
 ++  run-steps
@@ -186,11 +195,8 @@
     %-  slop  :_  subject
     results-vase(p [%face %test-results p.results-vase])
   |-
-  ;<  ~  bind:m
-    ?~(snapshot-ships (pure:(strand ,~) ~) (sleep ~s1))  :: TODO: unhardcode; tune time to allow previous step to continue processing
-  ;<  ~  bind:m
-    ?~  snapshot-ships  (pure:(strand ,~) ~)
-    (block-on-previous-step:test ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
+  ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
+  ;<  ~  bind:m  (block-on-previous-step:test ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
     %:  take-snapshot:test
@@ -204,7 +210,6 @@
   ;<  =bowl:strand  bind:m  get-bowl
   ?-    -.test-step
       %wait
-    ~!  test-step
     ;<  ~  bind:m  (sleep until.test-step)
     =.  test-results  [~ test-results]
     %=  $
@@ -252,7 +257,7 @@
     =*  expected  expected.test-step
     =/  res-text=@t  (crip (noah result))
     =.  test-results
-      [[=(expected res-text) expected res-text]~ test-results]
+      [[=(expected res-text) expected result]~ test-results]
     %=  $
         test-steps    t.test-steps
         step-number   +(step-number)
@@ -266,7 +271,7 @@
     =*  expected  expected.test-step
     =/  res-text=@t  (crip (noah result))
     =.  test-results
-      [[=(expected res-text) expected res-text]~ test-results]
+      [[=(expected res-text) expected result]~ test-results]
     %=  $
         test-steps    t.test-steps
         step-number   +(step-number)
@@ -283,16 +288,15 @@
         test-steps    t.test-steps
         step-number   +(step-number)
         test-results
-      [[=(expected res-text) expected res-text]~ test-results]
+      [[=(expected res-text) expected result]~ test-results]
     ==
   ::
       %subscribe
     ;<  ~  bind:m  (send-pyro-subscription payload.test-step)
     ;<  trs=test-results:zig  bind:m
-      %:  run-steps
-          project-id  test-id
-          `test-steps:zig`expected.test-step  ~
-      ==
+      %-  run-steps
+      :^  project-id  test-id
+      `test-steps:zig`expected.test-step  ~
     ?~  tr=(test-results-of-reads-to-test-result trs)
       ~|("ziggurat-test-run: %subscribe expected can only contain %scrys, %subscribes, %waits" !!)
     %=  $
@@ -310,7 +314,7 @@
       !<  test-read-step:zig
       %+  slam  transform
       %-  slop  :_  !>(expected.test-step)
-      (slap-subject payload.test-step)
+      (slap-subject payload.test-step)  ::  TODO: +mule?
     $(test-steps [transformed-step t.test-steps])
   ::
       %custom-write
@@ -322,7 +326,7 @@
       !<  test-write-step:zig
       %+  slam  transform
       %-  slop  :_  !>(expected.test-step)
-      (slap-subject payload.test-step)
+      (slap-subject payload.test-step)  ::  TODO: +mule?
     ::  execute code given as @t, e.g., transform
     ::   `:*  %foo  %bar  ==`
     ::   to
@@ -333,16 +337,14 @@
       %=  transformed-step
           payload.payload
         %-  crip
-        %-  noah
-        (slap-subject payload.payload.transformed-step)
+        (noah-slap-ream payload.payload.transformed-step)
       ==
     =?    transformed-step
         ?=(%poke -.transformed-step)
       %=  transformed-step
           payload.payload
         %-  crip
-        %-  noah
-        (slap-subject payload.payload.transformed-step)
+        (noah-slap-ream payload.payload.transformed-step)
       ==
     $(test-steps [transformed-step t.test-steps])
   ==

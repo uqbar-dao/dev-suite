@@ -15,6 +15,7 @@
   =/  contract-jam=@  .^(@ %cx scry-path)
   =/  contract  [- +]:(cue contract-jam)
   :+  %poke
+    :-  who
     :^  who  %uqbar  %wallet-poke
     %-  crip
     """

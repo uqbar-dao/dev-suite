@@ -68,7 +68,7 @@
 +$  dbug-payload  [who=@p mold-name=@t app=@tas]
 +$  read-sub-payload  [who=@p to=@p app=@tas =path]
 +$  dojo-payload  [who=@p payload=@t]
-+$  poke-payload  [who=@p app=@tas mark=@tas payload=@t]
++$  poke-payload  [who=@p to=@p app=@tas mark=@tas payload=@t]
 +$  sub-payload  [who=@p to=@p app=@tas =path]
 ::
 +$  custom-step-definitions
@@ -76,7 +76,9 @@
 +$  custom-step-compiled  (each transform=vase @t)
 ::
 +$  test-results  (list test-result)
-+$  test-result   (list [success=? expected=@t result=@t])
++$  test-result   (list [success=? expected=@t result=vase])
++$  shown-test-results  (list shown-test-result)
++$  shown-test-result   (list [success=? expected=@t result=@t])
 ::
 +$  template  ?(%fungible %nft %blank)
 ::

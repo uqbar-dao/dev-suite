@@ -606,36 +606,6 @@
   ^-  (quip card:agent:gall _state)
   |^
   ?-    -.act
-      %dojo
-    :_  state
-    %-  send-events
-    ^-  (list aqua-event)
-    %+  turn
-      ^-  (list unix-event)
-      :~  [/d/term/1 %belt %ctl `@c`%e]
-          [/d/term/1 %belt %ctl `@c`%u]
-          [/d/term/1 %belt %txt ((list @c) ;;(tape command.act))]
-          [/d/term/1 %belt %ret ~]
-      ==
-    |=  ue=unix-event
-    [%event who.act ue]
-  ::
-      %task
-    :_  state
-    %-  send-events
-    ^-  (list aqua-event)
-    [%event who.act [[vane.act]~ task-arvo.act]]~ 
-  ::
-      %poke
-    :_  state
-    %-  send-events
-    ^-  (list aqua-event)
-    :_  ~
-    :*  %event  who.act  /g
-        %deal  [who to]:act  dap.act
-        %raw-poke  mark.act  noun.act
-    ==
-  ::
       %remove-ship
     =.  piers  (~(del by piers) who.act)
     `state

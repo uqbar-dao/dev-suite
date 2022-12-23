@@ -9,6 +9,7 @@
     *zig-ziggurat,
     conq=zink-conq,
     engine=zig-sys-engine,
+    pyro=zig-pyro,
     seq=zig-sequencer,
     smart=zig-sys-smart
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
@@ -436,35 +437,45 @@
             :-  deploy-contract-path
             (compile-custom-step %deploy-contract hoon subject)
         ::
-            :~  :+  %dojo
+            :~  :+  %scry
                   :-  who
-                  %-  crip
-                  "=old-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/{<address>}/noun)"
-                ~
+                  :^  '(map @ux *)'  %gx  %wallet
+                  /pending-store/(scot %ux address)/noun
+                ''
             ::
                 :^  %custom-write  %deploy-contract
                 (crip "[{<who>} {<path.act>} ~]")  ~
             ::
-                :+  %dojo
+                :+  %scry
                   :-  who
-                  %-  crip
-                  "=new-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/{<address>}/noun)"
-                ~
-            ::
-                :+  %dojo
-                  :-  who
-                  '=diff-pending (~(dif in new-pending) old-pending)'
-                ~
-            ::
-                :+  %dojo
-                  :-  who
-                  '=deploy-tx ?>  =(1 ~(wyt in diff-pending))  -.diff-pending'
-                ~
+                  :^  '(map @ux *)'  %gx  %wallet
+                  /pending-store/(scot %ux address)/noun
+                ''
             ::
                 :+  %poke
+                  :-  ~nec
                   :^  ~nec  %uqbar  %wallet-poke
                   %-  crip
-                  "[%submit from={<address>} hash=deploy-tx gas=[rate=1 bud=1.000.000]]"
+                  """
+                  =/  old-test-result=test-result:zig
+                    (snag 2 test-results:test-globals)
+                  ?>  ?=([* ~] old-test-result)
+                  =/  old-pending=(set @ux)
+                    %~  key  by
+                    !<((map @ux *) result:i:old-test-result)
+                  =/  new-test-result=test-result:zig
+                    (snag 0 test-results:test-globals)
+                  ?>  ?=([* ~] new-test-result)
+                  =/  new-pending=(set @ux)
+                    %~  key  by
+                    !<((map @ux *) result:i:new-test-result)
+                  =/  diff-pending=(list @ux)
+                    ~(tap in (~(dif in new-pending) old-pending))
+                  ?>  ?=([@ ~] diff-pending)
+                  :^  %submit  from={<address>}
+                    hash=i:diff-pending
+                  gas=[rate=1 bud=1.000.000]
+                  """
                 ~
             ::
                 [%dojo [~nec ':sequencer|batch'] ~]
@@ -763,8 +774,9 @@
         |=  who=ship
         :*  %pass  /  %agent
             [our.bowl %pyro]
-            %poke  %action
-            !>([%dojo who "|start %zig %subscriber"])
+            %poke  %aqua-events
+            !>
+            (dojo-events:pyro who "|start %zig %subscriber")
         ==
       :-  :(weld wach init subs)
       %_    state
@@ -872,7 +884,7 @@
         =/  =project  (~(got by projects) project-name)
         =/  =test     (~(got by tests.project) test-id)
         ~&  >  "%ziggurat: test done {<test-id>}"
-        ~&  >  test-results
+        ~&  >  (show-test-results test-results)
         =.  tests.project
           %+  ~(put by tests.project)  test-id
           test(results test-results)

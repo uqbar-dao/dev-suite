@@ -1,7 +1,7 @@
 :: This agent will subscribe to an agent and store all past subscriptions
 :: solid state subscriptions should obsolete this.
 ::
-/-  *subscriber
+/-  *zig-subscriber
 /+  dbug, default-agent
 ::
 |%
@@ -81,8 +81,7 @@
     =/  =ship  (slav %p i.wire)
     =*  app  i.t.wire
     =*  paf  t.t.wire
-    ~&  >  "{(scow %p our.bowl)}/subscriber: subscription received from {(scow %p ship)} for %{(trip app)} on wire"
-    ~&  >  paf
+    ~&  >  "{<our.bowl>}/subscriber: subscription received from {<ship>} for {<`@tas`app>} on wire {<`path`paf>}"
     |^  :: TODO this code is extremely ugly
     ?+    -.sign  (default sign)
         %fact

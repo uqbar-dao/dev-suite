@@ -37,10 +37,7 @@
   ==
 ::
 +$  pyro-action
-  $%  [%dojo who=@p command=tape]
-      [%task who=@p =vane =task-arvo] :: TODO should be a note-arvo but compiler complains
-      [%poke who=@p to=@p dap=term =mark =noun]
-      [%remove-ship who=ship]
+  $%  [%remove-ship who=ship]
       [%snap-ships =path hers=(list ship)]
       [%restore-snap =path]
       [%clear-snap =path]
