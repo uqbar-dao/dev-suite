@@ -146,7 +146,39 @@ A custom step is a core whose `$` arm takes in arguments and an `expected` (eith
 
 ## `dbug` dashboard
 
-TODO
+The `dbug` dashboard enables scrying out `+dbug` state from agents running on virtualships in a programmatic way.
+An alternative to the machinery here for a one-off `+dbug` is to run, e.g.
+```hoon
+:pyro|dojo ~nec ":my-agent +dbug
+```
+which will print `+dbug` state to the Dojo.
+
+The `dbug` dashboard requires set up before use.
+To set it up, poke `%ziggurat` with `%add-app-to-dashboard`.
+For example, to add the `%indexer` for project `'foo'`:
+```hoon
+:ziggurat &ziggurat-action [project=%foo %add-app-to-dashboard app=%indexer sur=/sur/zig/indexer/hoon mold-name='versioned-state:indexer' mar=/]
+```
+The `sur` field is required, and contains the definition of the mold given by `mold-name`: the agent state.
+The `mar` field is optional: if provided it should have a `+grow` arm to `json` from the agent state.
+
+After setting up, the scry path `/dashboard/[project-name]/[virtualship]/[app]` will be available.
+If there is an error in the set up or if the app hasn't been added to the dashboard, that scry path will return
+```json
+{"error": "text describing your error"}
+```
+If there are no errors and no `mar` field has been given during set up, the return will be something like
+```json
+{"state": "[state-field-0=0xdead.beef state-field-1='foo' state-field-2=100]"}
+```
+which is to say: a string description of the state.
+If a `mar` field has been given during set up, the return will be more nicely formatted `json`, e.g.
+```json
+{"state": {"state-field-0": "0xdead.beef", "state-field-1": "foo", "state-field-2": 100}}
+```
+as the `mar` file `+grow` `json` arm is applied.
+
+TODO: Add a fallback to the scry to return unformatted `+dbug` output without set up.
 
 ## Example usage
 
