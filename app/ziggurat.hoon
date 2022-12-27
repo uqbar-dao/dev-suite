@@ -171,13 +171,20 @@
     =/  file-scry-path=path
       :-  (scot %p our.bowl)
       (weld /[project-name]/(scot %da now.bowl) p)
-    =/  [surs=(list [face=@tas =path]) =hoon]
-      (parse-pile:conq (trip .^(@t %cx file-scry-path)))
+    =/  file-cord=@t  .^(@t %cx file-scry-path)
+    =/  [surs=(list [face=@tas =path]) =hair]
+      (parse-start-of-pile:zig-lib (trip file-cord))
     =^  subject=(each vase @t)  state
       (compile-test-surs `@tas`project-name surs)
     ?:  ?=(%| -.subject)  !!  ::  TODO: do better
-    =+  !<  =test-steps:zig
-        (slap (slap p.subject hoon) (ream '$'))
+    =/  test-steps-compilation-result=(each vase @t)
+      %^  compile-and-call-buc:zig-lib  p.hair  p.subject
+      %-  of-wain:format
+      (slag (dec p.hair) (to-wain:format file-cord))
+    ?:  ?=(%| -.test-steps-compilation-result)
+      ~&  "%ziggurat: test-steps compilation failed for {<`path`p>} with error {<p.test-steps-compilation-result>}"
+      !!
+    =+  !<(=test-steps:zig p.test-steps-compilation-result)
     =/  =test:zig
       :*  name
           p
@@ -240,6 +247,7 @@
         ?:  =(%test-globals face)
           ~|("%ziggurat: compilation failed; cannot use %test-globals: reserved and built into subject already" !!)
         =^  sur-hoon=vase  ca-scry-cache
+          %-  need  ::  TODO: handle error
           %^  scry-or-cache-ca:zig-lib  project-desk
           (snoc sur %hoon)  ca-scry-cache
         :_  ca-scry-cache
@@ -614,29 +622,24 @@
         %add-app-to-dashboard
       =/  =project:zig  (~(got by projects) project.act)
       =*  sur  sur.act
-      ::
-      =/  dbug-mold-result
-        %-  mule
-        |.
-        ::  make mold subject
-        ?~  snipped=(snip sur)  !!  ::  TODO: do better
-        =/  sur-face=@tas  `@tas`(rear snipped)
-        ?>  ?=(^ sur)
-        =^  sur-hoon=vase  ca-scry-cache
-          %^  scry-or-cache-ca:zig-lib  project.act   sur
-          ca-scry-cache
-        =/  subject=vase
-          %-  slop  :_  !>(..zuse)
-          sur-hoon(p [%face sur-face p.sur-hoon])
-        ::  make mold
-        (slap subject (ream mold-name.act))
+      ::  make mold subject
+      ?~  snipped=(snip sur)
+        ~&  "ziggurat: sur must be non null, not {<sur>}"
+        !!  ::  TODO: do better
+      =/  sur-face=@tas  `@tas`(rear snipped)
+      =^  sur-hoon=vase  ca-scry-cache
+        %-  need  ::  TODO: handle error
+        %^  scry-or-cache-ca:zig-lib  project.act   sur
+        ca-scry-cache
+      =/  subject=vase
+        %-  slop  :_  !>(..zuse)
+        sur-hoon(p [%face sur-face p.sur-hoon])
+      ::  make mold
       =/  dbug-mold
-        ?:  ?=(%& -.dbug-mold-result)  dbug-mold-result
-        :-  %|
-        %-  crip
-        %+  roll  p.dbug-mold-result
-        |=  [in=tank out=tape]
-        :(weld ~(ram re in) "\0a" out)
+        %^  mule-slap-subject:zig-lib  0  subject
+        mold-name.act
+      ~?  ?=(%| -.dbug-mold)
+        "%ziggurat: dbug mold build failed with error: {<p.dbug-mold>}"
       ::
       =/  mar-tube=(unit tube:clay)
         ?~  mar.act  ~
@@ -966,7 +969,7 @@
       [%dashboard @ @ @ ~]
     =*  project-name  i.t.t.p
     =*  who           i.t.t.t.p
-    =*  app           i.t.t.t.t.p
+    =*  app           `@tas`i.t.t.t.t.p
     :^  ~  ~  %json
     !>  ^-  json
     ?~  project=(~(get by projects) project-name)

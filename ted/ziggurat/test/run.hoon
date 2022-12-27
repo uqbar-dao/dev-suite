@@ -34,30 +34,6 @@
   ?.  =(1 (lent i.trs))  ~
   $(trs t.trs, tr [i.i.trs tr])
 ::
-++  slap-subject
-  |=  payload=@t
-  ^-  vase
-  (slap subject (ream payload))
-::
-++  noah-slap-ream
-  |=  payload=@t
-  ^-  tape
-  =/  compilation-result  (mule-slap-subject payload)
-  ?:  ?=(%| -.compilation-result)  (trip payload)
-  (noah p.compilation-result)
-::
-++  mule-slap-subject
-  |=  payload=@t
-  ^-  (each vase @t)
-  =/  compilation-result
-    (mule |.((slap-subject payload)))
-  ?:  ?=(%& -.compilation-result)  compilation-result
-  :-  %|
-  %-  crip
-  %+  roll  p.compilation-result
-  |=  [in=tank out=tape]
-  :(weld ~(ram re in) "\0a" out)
-::
 ++  build-next-subject
   |=  [old-subject=vase results=vase =bowl:strand]
   ^-  vase
@@ -77,7 +53,7 @@
   ;<  ~  bind:m
     %+  dojo:pyro-lib  who.payload
     (trip payload.payload)
-    :: (noah-slap-ream payload.payload)  ::  TODO: enable transforming of dojo arguments like scries & pokes are transformed
+    :: (noah-slap-ream:zig-lib 0 subject payload.payload)  ::  TODO: enable transforming of dojo arguments like scries & pokes are transformed
   (pure:m ~)
 ::
 ++  send-pyro-scry
@@ -99,7 +75,8 @@
     ==
   ?.  ?=(^ scry-noun)  (pure:m !>(`~`~))
   =/  compilation-result
-    (mule-slap-subject mold-name.payload)
+    %^  mule-slap-subject:zig-lib  0  subject
+    mold-name.payload
   ?:  ?=(%| -.compilation-result)
     ~&  %ziggurat-test-run^%scry-compilation-fail^p.compilation-result
     !!
@@ -130,7 +107,8 @@
     ==
   ?.  ?=(^ dbug-noun)  (pure:m !>(`~`~))
   =/  compilation-result
-    (mule-slap-subject mold-name.payload)
+    %^  mule-slap-subject:zig-lib  0  subject
+    mold-name.payload
   ?:  ?=(%| -.compilation-result)
     ~&  %ziggurat-test-run^%dbug-compilation-fail^p.compilation-result
     !!
@@ -175,7 +153,8 @@
   ?:  is-mar-found
     ::  found mark: proceed
     =/  compilation-result
-      (mule-slap-subject payload.payload)
+      %^  mule-slap-subject:zig-lib  0  subject
+      payload.payload
     ?:  ?=(%| -.compilation-result)
       ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
       !!
@@ -431,7 +410,7 @@
       !<  test-steps:zig
       %+  slam  transform
       %-  slop  :_  !>(expected.test-step)
-      (slap-subject payload.test-step)  ::  TODO: +mule?
+      (slap subject (ream payload.test-step))  ::  TODO: +mule?
     $(test-steps (weld transformed-steps t.test-steps))
   ::
       %custom-write
@@ -443,7 +422,7 @@
       !<  test-steps:zig
       %+  slam  transform
       %-  slop  :_  !>(expected.test-step)
-      (slap-subject payload.test-step)  ::  TODO: +mule?
+      (slap subject (ream payload.test-step))  ::  TODO: +mule?
     $(test-steps (weld transformed-steps t.test-steps))
   ==
 ::

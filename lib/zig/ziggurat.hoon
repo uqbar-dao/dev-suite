@@ -270,8 +270,204 @@
   |=  [success=? expected=@t result=vase]
   =/  res-text=@t  (crip (noah result))
   :+  success  expected
-  ?:  (lte 1.024 (met 3 res-text))  '<elided>'
+  ?:  (lte 1.024 (met 3 res-text))  '<elided>'  ::  TODO: unhardcode
   res-text
+::
+++  noah-slap-ream
+  |=  [number-sur-lines=@ud subject=vase payload=@t]
+  ^-  tape
+  =/  compilation-result
+    (mule-slap-subject number-sur-lines subject payload)
+  ?:  ?=(%| -.compilation-result)  (trip payload)
+  (noah p.compilation-result)
+::
+++  mule-slap-subject
+  |=  [number-sur-lines=@ud subject=vase payload=@t]
+  ^-  (each vase @t)
+  =/  compilation-result
+    (mule |.((slap subject (ream payload))))
+  ?:  ?=(%& -.compilation-result)  compilation-result
+  =/  error-tanks=(list tank)  (scag 2 p.compilation-result)
+  ?.  ?=([^ [%leaf ^] ~] error-tanks)
+    ~&  p.compilation-result^(get-formatted-error p.compilation-result)
+    :-  %|
+    (get-formatted-error (scag 1 p.compilation-result))
+  =/  [error-line-number=@ud col=@ud]
+    (parse-error-line-col p.i.t.error-tanks)
+  =/  real-line-number=@ud
+    (dec (add number-sur-lines error-line-number))
+  =/  modified-error-tanks=(list tank)
+    ~[i.error-tanks [%leaf "\{{<real-line-number>} {<col>}}"]]
+  :-  %|
+  (get-formatted-error (scag 2 modified-error-tanks))
+::
+++  parse-error-line-col
+  |=  line-col=tape
+  ^-  [@ud @ud]
+  =/  [=hair res=(unit [line-col=[@ud @ud] =nail])]
+    %.  [[1 1] line-col]
+    %-  full
+    %+  ifix  [kel ker]
+    ;~(plug dem:ag ;~(pfix ace dem:ag))
+  ?^  res  line-col.u.res
+  %-  mean  %-  flop
+  =/  lyn  p.hair
+  =/  col  q.hair
+  :~  leaf+"syntax error"
+      leaf+"\{{<lyn>} {<col>}}"
+      leaf+(runt [(dec col) '-'] "^")
+      leaf+(trip (snag (dec lyn) (to-wain:format (crip line-col))))
+  ==
+::
+++  compile-and-call-buc
+  |=  [number-sur-lines=@ud subject=vase payload=@t]
+  ^-  (each vase @t)
+  =/  hoon-compilation-result
+    (mule-slap-subject number-sur-lines subject payload)
+  ?:  ?=(%| -.hoon-compilation-result)
+    hoon-compilation-result
+  %^  mule-slap-subject  number-sur-lines
+  p.hoon-compilation-result  '$'
+::
+++  make-recompile-custom-steps-cards
+  |=  $:  project-name=@t
+          test-id=@ux
+          =custom-step-definitions:zig
+      ==
+  ^-  (list card)
+  %+  turn  ~(tap by custom-step-definitions)
+  |=  [tag=@tas [p=path *]]
+  :^  %pass  /self-wire  %agent
+  :^  [our dap]:bowl  %poke  %ziggurat-action
+  !>  ^-  action:zig
+  project-name^[%add-custom-step test-id tag p]
+::
+++  add-custom-step
+  |=  [=test:zig project-name=@tas tag=@tas p=path]
+  ^-  (unit test:zig)
+  =/  file-scry-path=path
+    :-  (scot %p our.bowl)
+    (weld /[project-name]/(scot %da now.bowl) p)
+  ?.  .^(? %cu file-scry-path)  ~
+  =/  file-cord=@t  .^(@t %cx file-scry-path)
+  =/  [surs=(list [face=@tas =path]) =hair]
+    (parse-start-of-pile (trip file-cord))
+  ?:  ?=(%| -.subject.test)
+    ~|("%ziggurat: subject must compile from surs before adding custom step" !!)
+  =/  compilation-result=(each vase @t)
+    %^  compile-and-call-buc  p.hair  p.subject.test
+    %-  of-wain:format
+    (slag (dec p.hair) (to-wain:format file-cord))
+  =.  custom-step-definitions.test
+    %+  ~(put by custom-step-definitions.test)  tag
+    [p compilation-result]
+  ~?  ?=(%| -.compilation-result)
+    %ziggurat^%custom-step-compilation-failed^p.compilation-result
+  `test
+::
+++  get-state
+  |=  =project:zig
+  ^-  (map @ux chain:eng)
+  =/  now-ta=@ta   (scot %da now.bowl)
+  %-  ~(gas by *(map @ux chain:eng))
+  %+  murn  ~(tap by town-sequencers.project)
+  |=  [town-id=@ux who=@p]
+  =/  who-ta=@ta   (scot %p who)
+  =/  town-ta=@ta  (scot %ux town-id)
+  =/  batch-order=update:ui
+    %-  fall  :_  ~
+    ;;  (unit update:ui)
+    .^  noun
+        %gx
+        ;:  weld
+          /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
+          /[who-ta]/indexer/[now-ta]/batch-order/[town-ta]
+          /noun/noun
+    ==  ==
+  ?~  batch-order                     ~
+  ?.  ?=(%batch-order -.batch-order)  ~
+  ?~  batch-order.batch-order         ~
+  =*  newest-batch  i.batch-order.batch-order
+  =/  batch-chain=update:ui
+    %-  fall  :_  ~
+    ;;  (unit update:ui)
+    .^  noun
+        %gx
+        ;:  weld
+            /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
+            /[who-ta]/indexer/[now-ta]/newest/batch-chain
+            /[town-ta]/(scot %ux newest-batch)/noun/noun
+    ==  ==
+  ?~  batch-chain                     ~
+  ?.  ?=(%batch-chain -.batch-chain)  ~
+  =/  chains=(list batch-chain-update-value:ui)
+    ~(val by chains.batch-chain)
+  ?.  =(1 (lent chains))              ~
+  ?~  chains                          ~  ::  for compiler
+  `[town-id chain.i.chains]
+::  scry %ca or fetch from local cache
+::
+++  scry-or-cache-ca
+  |=  [project-desk=@tas p=path =ca-scry-cache:zig]
+  |^  ^-  (unit [vase ca-scry-cache:zig])
+  =/  scry-path=path
+    :-  (scot %p our.bowl)
+    (weld /[project-desk]/(scot %da now.bowl) p)
+  ?~  cache=(~(get by ca-scry-cache) [project-desk p])
+    scry-and-cache-ca
+  ?.  =(p.u.cache .^(@ %cz scry-path))  scry-and-cache-ca
+  `[q.u.cache ca-scry-cache]
+  ::
+  ++  scry-and-cache-ca
+    ^-  (unit [vase ca-scry-cache:zig])
+    =/  scry-result
+      %-  mule
+      |.
+      =/  scry-path=path
+        :-  (scot %p our.bowl)
+        (weld /[project-desk]/(scot %da now.bowl) p)
+      =/  scry-vase=vase  .^(vase %ca scry-path)
+      :-  scry-vase
+      %+  ~(put by ca-scry-cache)  [project-desk p]
+      [`@ux`.^(@ %cz scry-path) scry-vase]
+    ?:  ?=(%& -.scry-result)  `p.scry-result
+    ~&  %ziggurat^%scry-and-cache-ca-fail
+    ~
+  --
+::
+::  abbreviated parser from lib/zink/conq.hoon:
+::   parse to end of imports, start of hoon.
+::   used to find start of hoon for compilation and to find
+::   proper line error number in case of error
+::   (see +mule-slap-subject)
+::
++$  small-start-of-pile  (list [face=term =path])
+::
+++  parse-start-of-pile
+  |=  tex=tape
+  ^-  [small-start-of-pile hair]
+  =/  [=hair res=(unit [=small-start-of-pile =nail])]
+    (start-of-pile-rule [1 1] tex)
+  ?^  res  [small-start-of-pile.u.res hair]
+  %-  mean  %-  flop
+  =/  lyn  p.hair
+  =/  col  q.hair
+  :~  leaf+"syntax error"
+      leaf+"\{{<lyn>} {<col>}}"
+      leaf+(runt [(dec col) '-'] "^")
+      leaf+(trip (snag (dec lyn) (to-wain:format (crip tex))))
+  ==
+::
+++  start-of-pile-rule
+  %+  ifix
+    :_  gay
+    ::  parse optional smart library import and ignore
+    ;~(plug gay (punt ;~(plug fas lus gap taut-rule:conq gap)))
+  ;~  plug
+  ::  only accept /= imports for contract libraries
+    %+  rune:conq  tis
+    ;~(plug sym ;~(pfix gap stap))
+  ==
 ::
 ::  files we delete from zig desk to make new gall desk
 ::
@@ -341,117 +537,6 @@
                                   :: [(list card) this]
   --
   '''
-::
-++  get-state
-  |=  =project:zig
-  ^-  (map @ux chain:eng)
-  =/  now-ta=@ta   (scot %da now.bowl)
-  %-  ~(gas by *(map @ux chain:eng))
-  %+  murn  ~(tap by town-sequencers.project)
-  |=  [town-id=@ux who=@p]
-  =/  who-ta=@ta   (scot %p who)
-  =/  town-ta=@ta  (scot %ux town-id)
-  =/  batch-order=update:ui
-    %-  fall  :_  ~
-    ;;  (unit update:ui)
-    .^  noun
-        %gx
-        ;:  weld
-          /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
-          /[who-ta]/indexer/[now-ta]/batch-order/[town-ta]
-          /noun/noun
-    ==  ==
-  ?~  batch-order                     ~
-  ?.  ?=(%batch-order -.batch-order)  ~
-  ?~  batch-order.batch-order         ~
-  =*  newest-batch  i.batch-order.batch-order
-  =/  batch-chain=update:ui
-    %-  fall  :_  ~
-    ;;  (unit update:ui)
-    .^  noun
-        %gx
-        ;:  weld
-            /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
-            /[who-ta]/indexer/[now-ta]/newest/batch-chain
-            /[town-ta]/(scot %ux newest-batch)/noun/noun
-    ==  ==
-  ?~  batch-chain                     ~
-  ?.  ?=(%batch-chain -.batch-chain)  ~
-  =/  chains=(list batch-chain-update-value:ui)
-    ~(val by chains.batch-chain)
-  ?.  =(1 (lent chains))              ~
-  ?~  chains                          ~  ::  for compiler
-  `[town-id chain.i.chains]
-::
-++  compile-custom-step
-  |=  [tag=@tas =hoon subject=(each vase @t)]
-  ^-  (each vase @t)
-  ?:  ?=(%| -.subject)
-    ~|("%ziggurat: subject must compile from surs before adding custom step" !!)
-  =/  compilation-result
-    %-  mule
-    |.  (slap (slap p.subject hoon) (ream '$'))
-  ?:  ?=(%& -.compilation-result)  compilation-result
-  :-  %|
-  %-  crip
-  %+  roll  p.compilation-result
-  |=  [in=tank out=tape]
-  :(weld ~(ram re in) "\0a" out)
-::
-++  make-recompile-custom-steps-cards
-  |=  $:  project-name=@t
-          test-id=@ux
-          =custom-step-definitions:zig
-      ==
-  ^-  (list card)
-  %+  turn  ~(tap by custom-step-definitions)
-  |=  [tag=@tas [p=path *]]
-  :^  %pass  /self-wire  %agent
-  :^  [our dap]:bowl  %poke  %ziggurat-action
-  !>  ^-  action:zig
-  project-name^[%add-custom-step test-id tag p]
-::
-++  add-custom-step
-  |=  [=test:zig project-name=@tas tag=@tas p=path]
-  ^-  (unit test:zig)
-  =/  file-scry-path=path
-    :-  (scot %p our.bowl)
-    (weld /[project-name]/(scot %da now.bowl) p)
-  ?.  .^(? %cu file-scry-path)  ~
-  =/  [surs=(list [face=@tas =path]) =hoon]
-    (parse-pile:conq (trip .^(@t %cx file-scry-path)))
-  =/  compilation-result=(each vase @t)
-    (compile-custom-step tag hoon subject.test)
-  =.  custom-step-definitions.test
-    %+  ~(put by custom-step-definitions.test)  tag
-    [p compilation-result]
-  ~?  ?=(%| -.compilation-result)
-    %ziggurat^%custom-step-compilation-failed^p.compilation-result
-  `test
-::  scry %ca or fetch from local cache
-::
-++  scry-or-cache-ca
-  |=  [project-desk=@tas p=path =ca-scry-cache:zig]
-  |^  ^-  [vase ca-scry-cache:zig]
-  =/  scry-path=path
-    :-  (scot %p our.bowl)
-    (weld /[project-desk]/(scot %da now.bowl) p)
-  ?~  cache=(~(get by ca-scry-cache) [project-desk p])
-    scry-and-cache-ca
-  ?.  =(p.u.cache .^(@ %cz scry-path))
-    scry-and-cache-ca
-  [q.u.cache ca-scry-cache]
-  ::
-  ++  scry-and-cache-ca
-    ^-  [vase ca-scry-cache:zig]
-    =/  scry-path=path
-      :-  (scot %p our.bowl)
-      (weld /[project-desk]/(scot %da now.bowl) p)
-    =/  scry-vase=vase  .^(vase %ca scry-path)
-    :-  scry-vase
-    %+  ~(put by ca-scry-cache)  [project-desk p]
-    [`@ux`.^(@ %cz scry-path) scry-vase]
-  --
 ::
 ::  json
 ::
