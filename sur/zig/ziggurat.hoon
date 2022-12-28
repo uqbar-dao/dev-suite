@@ -157,10 +157,18 @@
 ::  subscription update types
 ::
 +$  project-update
-  $:  state=json  ::  state=(map @ux chain:engine)
-      project
+  $%
+    $:  %error
+        project-name=@t
+        source=@tas
+        level=@tas
+        message=@t
+    ==
+  ::
+    $:  %update
+        project-name=@t
+        state=json  ::  state=(map @ux chain:engine)
+        project
+    ==
   ==
-::
-+$  test-update
-  [%result state-transition:engine]
 --

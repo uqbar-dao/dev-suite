@@ -15,15 +15,27 @@
 ::
 ::  utilities
 ::
+++  make-project-error
+  |=  [project-name=@t source=@tas level=@tas message=@t]
+  ^-  card
+  %-  fact:io  :_  ~[/project/[project-name]]
+  (make-project-error-cage project-name source level message)
+::
+++  make-project-error-cage
+  |=  [project-name=@t source=@tas level=@tas message=@t]
+  ^-  cage
+  ~&  %ziggurat^project-name^level^source^message
+  :-  %ziggurat-project-update
+  !>  ^-  project-update:zig
+  [%error project-name source level message]
+::
 ++  make-project-update
   |=  [project-name=@t =project:zig]
   ^-  card
-  =/  p=path  /project/[project-name]
-  =/  update=project-update:zig
-    :_  project
-    (get-state:enjs project)
-  %-  fact:io  :_  ~[p]
-  [%ziggurat-project-update !>(`project-update:zig`update)]
+  %-  fact:io  :_  ~[/project/[project-name]]
+  :-  %ziggurat-project-update
+  !>  ^-  project-update:zig
+  [%update project-name (get-state:enjs project) project]
 ::
 ++  make-compile-contracts
   |=  [project-name=@t]
