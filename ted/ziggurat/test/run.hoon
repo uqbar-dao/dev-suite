@@ -169,16 +169,95 @@
   |=  payload=poke-payload:zig
   =/  m  (strand ,~)
   ^-  form:m
-
-  =/  compilation-result
-    (mule-slap-subject payload.payload)
-  ?:  ?=(%| -.compilation-result)
-    ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
-    !!
+  ::  if %poke mark is not found it will fail
+  ;<  =bowl:strand  bind:m  get-bowl
+  |^
+  ?:  is-mar-found
+    ::  found mark: proceed
+    =/  compilation-result
+      (mule-slap-subject payload.payload)
+    ?:  ?=(%| -.compilation-result)
+      ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
+      !!
+    ;<  ~  bind:m
+      (poke:pyro-lib payload(payload +.p.compilation-result))
+    (pure:m ~)
+  ::  mark not found: warn and attempt to fallback to
+  ::   equivalent %dojo step rather than failing outright
+  ~&  %ziggurat-test-run^%poke-mark-not-found^mark.payload
   ;<  ~  bind:m
-    %-  poke:pyro-lib
-    payload(payload +.p.compilation-result)
+    (send-pyro-dojo convert-poke-to-dojo-payload)
   (pure:m ~)
+  ::
+  ++  is-mar-found
+    ^-  ?
+    =/  our=@ta  (scot %p our.bowl)
+    =/  who=@ta  (scot %p who.payload)
+    =/  now=@ta  (scot %da now.bowl)
+    ?~  desk=(find-desk-running-app app.payload our who now)
+      ~&  %ziggurat-test-run^%no-desk-running-app^app.payload
+      %.n
+    =/  mar-paths=(unit (list path))
+      ;;  (unit (list path))
+      .^  *
+          %gx
+          %+  weld  /[our]/pyro/[now]/i/[who]/ct
+          /[who]/[u.desk]/[now]/mar/noun
+      ==
+    ?~  mar-paths
+      ~&  %ziggurat-test-run^%poke-mark-not-found^mark.payload
+      !!
+    =/  mars=(set @tas)
+      %-  ~(gas in *(set @tas))
+      %+  murn  u.mar-paths
+      |=  p=path
+      ?~  p  ~
+      [~ `@tas`(rap 3 (join '-' (snip t.p)))]
+    (~(has in mars) mark.payload)
+  ::
+  ++  find-desk-running-app
+    |=  [app=@tas our=@ta who=@ta now=@ta]
+    ^-  (unit @tas)
+    =/  desks-scry=(unit (set @tas))
+      ;;  (unit (set @tas))
+      .^  *
+          %gx
+          %+  weld  /[our]/pyro/[now]/i/[who]/cd/[who]/base
+          /[now]/noun
+      ==
+    ?~  desks-scry  ~
+    =/  desks=(list @tas)  ~(tap in u.desks-scry)
+    |-
+    ?~  desks  ~
+    =*  desk  i.desks
+    =/  apps=(unit (set [@tas ?]))
+      ;;  (unit (set [@tas ?]))
+      .^  *
+          %gx
+          %+  weld  /[our]/pyro/[now]/i/[who]/ge/[who]/[desk]
+          /[now]/noun
+      ==
+    ?~  apps  $(desks t.desks)
+    ?:  %.  app
+        %~  has  in
+        %-  ~(gas in *(set @tas))
+        (turn ~(tap in u.apps) |=([a=@tas ?] a))
+      `desk
+    $(desks t.desks)
+  ::
+  ++  convert-poke-to-dojo-payload
+    ^-  dojo-payload:zig
+    =*  pp  payload
+    :-  who.pp
+    %+  rap  3
+    :~  ':'
+        ?:(=(who.pp to.pp) app.pp (rap 3 to.pp '|' app.pp ~))
+        ' &'
+        mark.pp
+        ' '
+        payload.pp
+    ==
+  --
 ::
 ++  take-snapshot
   |=  $:  project-id=@t
