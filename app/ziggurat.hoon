@@ -2,20 +2,27 @@
 ::
 ::  Contract Playground
 ::
-/-  spider
-/+  dbug,
+/-  spider,
+    zig=zig-ziggurat
+/+  agentio,
+    dbug,
     default-agent,
     verb,
-    *zig-ziggurat,
     conq=zink-conq,
+    dock=docket,
     engine=zig-sys-engine,
     pyro=zig-pyro,
     seq=zig-sequencer,
-    smart=zig-sys-smart
+    smart=zig-sys-smart,
+    ziggurat-lib=zig-ziggurat
 /*  smart-lib-noun  %noun  /lib/zig/sys/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/sys/hash-cache/noun
 ::
-=|  inflated-state-0
+|%
++$  card  card:agent:gall
+--
+::
+=|  inflated-state-0:zig
 =*  state  -
 ::
 %-  agent:dbug
@@ -23,11 +30,13 @@
 ^-  agent:gall
 |_  =bowl:gall
 +*  this  .
-    def   ~(. (default-agent this %|) bowl)
+    def      ~(. (default-agent this %|) bowl)
+    io       ~(. agentio bowl)
+    zig-lib  ~(. ziggurat-lib bowl)
 ::
 ++  on-init
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
-  =/  eng
+  =/  =eng:zig
     %~  engine  engine:engine
     ::  sigs off, hints off
     [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.n %.n]
@@ -55,89 +64,46 @@
   |=  =old=vase
   ::  on-load: pre-cue our compiled smart contract library
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
-  =/  eng
+  =/  =eng:zig
     %~  engine  engine:engine
     ::  sigs off, hints off
     [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.n %.n]
-  `this(state [!<(state-0 old-vase) eng smart-lib ~])
+  `this(state [!<(state-0:zig old-vase) eng smart-lib ~])
 ::
 ++  on-watch
-  |=  =path
+  |=  p=path
   ^-  (quip card _this)
-  ?+    path  !!
-      [%pyro-done ~]  `this
+  ?+    p  !!
+      [%pyro-done ~]       `this
       [%test-updates @ ~]  `this
       [%project @ ~]
     ::  serve updates about state of a given project
-    =/  name=@t  `@t`i.t.path
-    ?~  proj=(~(get by projects) name)
-      `this
-    [(make-project-update name u.proj [our now]:bowl)^~ this]
+    =/  name=@t  `@t`i.t.p
+    ?~  proj=(~(get by projects) name)  `this
+    :_  this
+    (make-project-update:zig-lib name u.proj)^~
   ==
 ::
 ++  on-poke
-  |=  [=mark =vase]
+  |=  [m=mark v=vase]
   ^-  (quip card _this)
   |^
   ::  TODO handle app project pokes in their own arm
   =^  cards  state
-    ?+  mark  !!
-      %ziggurat-action  (handle-poke !<(action vase))
+    ?+  m  (on-poke:def m v)
+      %ziggurat-action  (handle-poke !<(action:zig v))
     ==
   [cards this]
-  ::
-  ++  compile-custom-step
-    |=  [tag=@tas =hoon subject=(each ^vase @t)]
-    ^-  (each ^vase @t)
-    ?:  ?=(%| -.subject)
-      ~|("%ziggurat: subject must compile from surs before adding custom step" !!)
-    =/  compilation-result
-      %-  mule
-      |.  (slap (slap p.subject hoon) (ream '$'))
-    ?:  ?=(%& -.compilation-result)  compilation-result
-    :-  %|
-    %-  crip
-    %+  roll  p.compilation-result
-    |=  [in=tank out=tape]
-    :(weld ~(ram re in) "\0a" out)
-  ::
-  ++  make-recompile-custom-steps-cards
-    |=  [project-name=@t test-id=@ux =custom-step-definitions]
-    ^-  (list card)
-    %+  turn  ~(tap by custom-step-definitions)
-    |=  [tag=@tas [p=path *]]
-    :^  %pass  /self-wire  %agent
-    :^  [our dap]:bowl  %poke  %ziggurat-action
-    !>  ^-  action
-    project-name^[%add-custom-step test-id tag p]
-  ::
-  ++  add-custom-step
-    |=  [=test project-name=@tas tag=@tas p=path]
-    ^-  (unit ^test)
-    =/  file-scry-path=path
-      :-  (scot %p our.bowl)
-      (weld /[project-name]/(scot %da now.bowl) p)
-    ?.  .^(? %cu file-scry-path)  ~
-    =/  [surs=(list [face=@tas =path]) =hoon]
-      (parse-pile:conq (trip .^(@t %cx file-scry-path)))
-    =/  compilation-result=(each ^vase @t)
-      (compile-custom-step tag hoon subject.test)
-    =.  custom-step-definitions.test
-      %+  ~(put by custom-step-definitions.test)  tag
-      [p compilation-result]
-    ~?  ?=(%| -.compilation-result)
-      %ziggurat^%custom-step-compilation-failed^p.compilation-result
-    `test
   ::
   ++  add-test
     |=  $:  project-name=@t
             name=(unit @t)
-            surs=test-surs
-            =test-steps
+            surs=test-surs:zig
+            =test-steps:zig
         ==
-    ^-  [[(list card) test] _state]
-    =/  =project  (~(got by projects) project-name)
-    =/  addresses=^vase  !>(virtualnet-addresses)
+    ^-  [[(list card) test:zig] _state]
+    =/  =project:zig  (~(got by projects) project-name)
+    =/  addresses=vase  !>(virtualnet-addresses)
     =.  surs
       ?~  zig-val=(~(get by surs) %zig)
         (~(put by surs) %zig /sur/zig/ziggurat)
@@ -145,9 +111,9 @@
       ~|("%ziggurat: %zig face reserved for /sur/zig/ziggurat; got {<u.zig-val>}" !!)
     ?.  =(1 (lent (fand ~[/sur/zig/ziggurat] ~(val by surs))))
       ~|("%ziggurat: please use only %zig face for /sur/zig/ziggurat; got {<surs>}" !!)
-    =^  subject=(each ^vase @t)  state
+    =^  subject=(each vase @t)  state
       (compile-test-surs `@tas`project-name ~(tap by surs))
-    =/  =test
+    =/  =test:zig
       :*  name
           /
           surs
@@ -158,25 +124,33 @@
       ==
     =.  test
       %-  fall  :_  test
-      %-  add-custom-step
+      %-  add-custom-step:zig-lib
       :^  test  project-name  %scry-indexer
       /zig/custom-step-definitions/scry-indexer/hoon
     =.  test
       %-  fall  :_  test
-      %-  add-custom-step
+      %-  add-custom-step:zig-lib
       :^  test  project-name  %poke-wallet-transaction
       /zig/custom-step-definitions/poke-wallet-transaction/hoon
+    =.  test
+      %-  fall  :_  test
+      %-  add-custom-step:zig-lib
+      :^  test  project-name  %send-wallet-transaction
+      /zig/custom-step-definitions/send-wallet-transaction/hoon
     :_  state
     :_  test
     :_  ~
-    %^  make-project-update  project-name  project
-    [our now]:bowl
+    (make-project-update:zig-lib project-name project)
   ::
   ++  add-and-queue-test
-    |=  [project-name=@t name=(unit @t) =test-surs =test-steps]
+    |=  $:  project-name=@t
+            name=(unit @t)
+            =test-surs:zig
+            =test-steps:zig
+        ==
     ^-  (quip card _state)
-    =/  =project  (~(got by projects) project-name)
-    =^  [cards=(list card) =test]  state
+    =/  =project:zig  (~(got by projects) project-name)
+    =^  [cards=(list card) =test:zig]  state
         (add-test project-name name test-surs test-steps)
     =/  test-id=@ux  `@ux`(sham test)
     =.  tests.project  (~(put by tests.project) test-id test)
@@ -191,23 +165,23 @@
   ::
   ++  add-test-file
     |=  [project-name=@tas name=(unit @t) p=path]
-    ^-  [test _state]
+    ^-  [test:zig _state]
     ?~  p  !!  ::  TODO: do better
-    =/  =project  (~(got by projects) project-name)
+    =/  =project:zig  (~(got by projects) project-name)
     =/  file-scry-path=path
       :-  (scot %p our.bowl)
       (weld /[project-name]/(scot %da now.bowl) p)
     =/  [surs=(list [face=@tas =path]) =hoon]
       (parse-pile:conq (trip .^(@t %cx file-scry-path)))
-    =^  subject=(each ^vase @t)  state
+    =^  subject=(each vase @t)  state
       (compile-test-surs `@tas`project-name surs)
     ?:  ?=(%| -.subject)  !!  ::  TODO: do better
-    =+  !<  =test-steps
+    =+  !<  =test-steps:zig
         (slap (slap p.subject hoon) (ream '$'))
-    =/  =test
+    =/  =test:zig
       :*  name
           p
-          (~(gas by *test-surs) surs)
+          (~(gas by *test-surs:zig) surs)
           subject
           ~
           test-steps
@@ -215,17 +189,17 @@
       ==
     =.  test
       %-  fall  :_  test
-      %-  add-custom-step
+      %-  add-custom-step:zig-lib
       :^  test  project-name  %scry-indexer
       /zig/custom-step-definitions/scry-indexer/hoon
     =.  test
       %-  fall  :_  test
-      %-  add-custom-step
+      %-  add-custom-step:zig-lib
       :^  test  project-name  %poke-wallet-transaction
       /zig/custom-step-definitions/poke-wallet-transaction/hoon
     =.  test
       %-  fall  :_  test
-      %-  add-custom-step
+      %-  add-custom-step:zig-lib
       :^  test  project-name  %send-wallet-transaction
       /zig/custom-step-definitions/send-wallet-transaction/hoon
     [test state]
@@ -233,14 +207,15 @@
   ++  add-and-queue-test-file
     |=  [project-name=@t name=(unit @t) test-steps-file=path]
     ^-  (quip card _state)
-    =/  =project  (~(got by projects) project-name)
-    =^  =test  state
+    =/  =project:zig  (~(got by projects) project-name)
+    =^  =test:zig  state
+      (add-test-file project-name name test-steps-file)
+    =/  =project:zig  (~(got by projects) project-name)
+    =^  =test:zig  state
       (add-test-file project-name name test-steps-file)
     =/  test-id=@ux  `@ux`(sham test)
     =.  tests.project  (~(put by tests.project) test-id test)
-    :-  :_  ~
-        %^  make-project-update  project-name  project
-        [our now]:bowl
+    :-  (make-project-update:zig-lib project-name project)^~
     %=  state
         projects
       (~(put by projects) project-name project)
@@ -248,56 +223,32 @@
         test-queue
       (~(put to test-queue) project-name test-id)
     ==
-  ::  scry %ca or fetch from local cache
-  ::
-  ++  scry-or-cache-ca
-    |=  [project-desk=@tas p=path ca-scry-cache=_ca-scry-cache]
-    |^  ^-  [^vase _ca-scry-cache]
-    =/  scry-path=path
-      :-  (scot %p our.bowl)
-      (weld /[project-desk]/(scot %da now.bowl) p)
-    ?~  cache=(~(get by ca-scry-cache) [project-desk p])
-      scry-and-cache-ca
-    ?.  =(p.u.cache .^(@ %cz scry-path))
-      scry-and-cache-ca
-    [q.u.cache ca-scry-cache]
-    ::
-    ++  scry-and-cache-ca
-      ^-  [^vase _ca-scry-cache]
-      =/  scry-path=path
-        :-  (scot %p our.bowl)
-        (weld /[project-desk]/(scot %da now.bowl) p)
-      =/  v=^vase  .^(^vase %ca scry-path)
-      :-  v
-      %+  ~(put by ca-scry-cache)  [project-desk p]
-      [`@ux`.^(@ %cz scry-path) v]
-    --
   ::
   ++  compile-test-surs
     |=  [project-desk=@tas surs=(list [face=@tas =path])]
-    ^-  [(each ^vase @t) _state]
+    ^-  [(each vase @t) _state]
     =/  compilation-result
       %-  mule
       |.
-      =/  initial-test-globals=^vase
-        !>  ^-  test-globals
-        :^  our.bowl  now.bowl  *test-results
+      =/  initial-test-globals=vase
+        !>  ^-  test-globals:zig
+        :^  our.bowl  now.bowl  *test-results:zig
         [project-desk virtualnet-addresses]
-      =/  [subject=^vase c=_ca-scry-cache]
+      =/  [subject=vase c=ca-scry-cache:zig]
         %+  roll  surs
-        |:  [[face=`@tas`%$ sur=`path`/] [subject=`^vase`!>(..zuse) ca-scry-cache=ca-scry-cache]]
+        |:  [[face=`@tas`%$ sur=`path`/] [subject=`vase`!>(..zuse) ca-scry-cache=ca-scry-cache]]
         ?:  =(%test-globals face)
           ~|("%ziggurat: compilation failed; cannot use %test-globals: reserved and built into subject already" !!)
-        =^  sur-hoon=^vase  ca-scry-cache
-          %^  scry-or-cache-ca  project-desk  (snoc sur %hoon)
-          ca-scry-cache
+        =^  sur-hoon=vase  ca-scry-cache
+          %^  scry-or-cache-ca:zig-lib  project-desk
+          (snoc sur %hoon)  ca-scry-cache
         :_  ca-scry-cache
         %-  slop  :_  subject
         sur-hoon(p [%face face p.sur-hoon])
       :_  c
       %+  slop
         %=  initial-test-globals
-            p  [%face %test-globals p.initial-test-globals]
+          p  [%face %test-globals p.initial-test-globals]
         ==
       subject
     ?:  ?=(%& -.compilation-result)
@@ -311,12 +262,12 @@
     :(weld ~(ram re in) "\0a" out)
   ::
   ++  handle-poke
-    |=  act=action
+    |=  act=action:zig
     ^-  (quip card _state)
     ?>  =(our.bowl src.bowl)
     ?-    -.+.act
         %new-project
-      ?:  (~(has in (~(gas in *(set @t)) ~['fresh-piers' 'assembled'])) project.act)
+      ?:  (~(has in (~(gas in *(set @t)) ~['fresh-piers' 'assembled'])) project.act)  ::  TODO: still necessary?
         ~|("%ziggurat: choose a different project name, {<project.act>} is reserved" !!)
       ~&  desk
       ~&  >  "scrying..."
@@ -332,12 +283,12 @@
       =/  merge-task  [%merg `@tas`project.act our.bowl q.byk.bowl da+now.bowl %init]
       =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
       =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
-      =/  deletions-task  [%info `@tas`project.act %& (clean-desk project.act)]
+      =/  deletions-task  [%info `@tas`project.act %& (clean-desk:zig-lib project.act)]
       :-  :~  [%pass /merge-wire %arvo %c merge-task]
               [%pass /mount-wire %arvo %c mount-task]
               [%pass /save-wire %arvo %c bill-task]
               [%pass /save-wire %arvo %c deletions-task]
-              (make-read-desk project.act our.bowl)
+              (make-read-desk:zig-lib project.act)
           ==
       %=  state
           projects
@@ -352,32 +303,20 @@
         ==
       ==
     ::
-        %populate-template
-      !!  ::  TODO
-      :: ::  spawn some hardcoded example tests and grains for %fungible and %nft templates
-      :: =/  =project  (~(got by projects) project.act)
-      :: ?<  ?=(%blank template.act)
-      :: =.  project
-      ::   ?:  ?=(%fungible template.act)
-      ::     (fungible-template-project project metadata.act smart-lib-vase)
-      ::   (nft-template-project project metadata.act smart-lib-vase)
-      :: :-  (make-compile-contracts project.act our.bowl)^~
-      :: state(projects (~(put by projects) project.act project))
-    ::
         %delete-project
       ::  should show a warning on frontend before performing this one ;)
       `state(projects (~(del by projects) project.act))
     ::
         %save-file
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =.  user-files.project
         (~(put in user-files.project) file.act)
-      :-  (make-save-file [project file text]:act)^~
+      :-  (make-save-file:zig-lib [project file text]:act)^~
       state(projects (~(put by projects) project.act project))
     ::
         %delete-file
       ::  should show warning
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =:  user-files.project
         (~(del in user-files.project) file.act)
       ::
@@ -386,24 +325,23 @@
       ==
       :_  state(projects (~(put by projects) project.act project))
       :_  ~
-      =-  [%pass /del-wire %arvo %c -]
-      [%info `@tas`project.act %& [file.act %del ~]~]
+      %-  ~(arvo pass:io /del-wire)
+      [%c %info `@tas`project.act %& [file.act %del ~]~]
     ::
         %set-virtualnet-address
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =.  virtualnet-addresses
         (~(put by virtualnet-addresses) [who address]:act)
-      =/  addresses=^vase  !>(virtualnet-addresses)
       ::  rebuild project custom-step-definitions
       :_  state
       %-  zing
       %+  turn  ~(tap by tests.project)
-      |=  [test-id=@ux t=test]
-      %^  make-recompile-custom-steps-cards  project.act
-      test-id  custom-step-definitions.t
+      |=  [test-id=@ux =test:zig]
+      %^  make-recompile-custom-steps-cards:zig-lib
+      project.act  test-id  custom-step-definitions.test
     ::
         %register-contract-for-compilation
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       ?:  (~(has in to-compile.project) file.act)  `state
       =:  user-files.project
         (~(put in user-files.project) file.act)
@@ -411,26 +349,26 @@
           to-compile.project
         (~(put in to-compile.project) file.act)
       ==
-      :-  (make-compile-contracts project.act our.bowl)^~
+      :-  (make-compile-contracts:zig-lib project.act)^~
       state(projects (~(put by projects) project.act project))
     ::
         %deploy-contract
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =/  who=@p
-        (~(got by town-sequencers:project) town-id.act)
+        (~(got by town-sequencers.project) town-id.act)
       =/  address=@ux  (~(got by virtualnet-addresses) who)
       =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
       =/  surs=(list [@tas path])
         :+  [%indexer /sur/zig/indexer]
           [%zig /sur/zig/ziggurat]
         ~
-      =^  subject=(each ^vase @t)  state
+      =^  subject=(each vase @t)  state
         (compile-test-surs `@tas`project.act surs)
       ?>  ?=(%& -.subject)
-      =/  =test
+      =/  =test:zig
         :*  `test-name
             ~
-            (~(gas by *test-surs) surs)
+            (~(gas by *test-surs:zig) surs)
             subject
             ~
         ::
@@ -438,7 +376,7 @@
             :^  %custom-write  %send-wallet-transaction
               %-  crip
               %-  noah
-              !>  ^-  [@p test-write-step]
+              !>  ^-  [@p test-write-step:zig]
               :-  who
               :^  %custom-write  %deploy-contract
               (crip "[{<who>} {<path.act>} ~]")  ~
@@ -448,19 +386,18 @@
         ==
       =.  test
         %-  fall  :_  test
-        %-  add-custom-step
+        %-  add-custom-step:zig-lib
         :^  test  project.act  %deploy-contract
         /zig/custom-step-definitions/deploy-contract/hoon
       =.  test
         %-  fall  :_  test
-        %-  add-custom-step
+        %-  add-custom-step:zig-lib
         :^  test  project.act  %send-wallet-transaction
         /zig/custom-step-definitions/send-wallet-transaction/hoon
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
-      :-  :_  (make-run-queue our.bowl project.act)^~
-          %^  make-project-update  project.act  project
-          [our now]:bowl
+      :-  :_  (make-run-queue:zig-lib project.act)^~
+          (make-project-update:zig-lib project.act project)
       %=  state
           projects
         (~(put by projects) project.act project)
@@ -472,56 +409,62 @@
         %compile-contracts
       ::  for internal use -- app calls itself to scry clay
       ?>  ?=(%ziggurat dap.bowl)
-      =/  =project  (~(got by projects) project.act)
-      =/  build-results=(list (pair path build-result))
-        %^  build-contract-projects  smart-lib-vase
+      =/  =project:zig  (~(got by projects) project.act)
+      =/  build-results=(list (pair path build-result:zig))
+        %^  build-contract-projects:zig-lib  smart-lib-vase
           /(scot %p our.bowl)/[project.act]/(scot %da now.bowl)
         to-compile.project
       ~&  "done building, got errors:"
       =/  [cards=(list card) errors=(list [path @t])]
-        (save-compiled-contracts project.act build-results)
+        %+  save-compiled-contracts:zig-lib  project.act
+        build-results
       ~&  errors
       =.  errors.project  (~(gas by errors.project) errors)
-      :-  [(make-read-desk project.act our.bowl) cards]
+      :-  :_  cards
+          (make-read-desk:zig-lib project.act)
       state(projects (~(put by projects) project.act project))
     ::
         %compile-contract
       ::  for internal use -- app calls itself to scry clay
       ?>  ?=(%ziggurat dap.bowl)
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       ?~  path.act  !!
-      =/  =build-result
-        %^  build-contract-project  smart-lib-vase
+      =/  =build-result:zig
+        %^  build-contract-project:zig-lib  smart-lib-vase
           /(scot %p our.bowl)/[i.path.act]/(scot %da now.bowl)
         t.path.act
       ~&  "done building {<path>}, got errors:"
       =/  save-result=(each card [path @t])
-        (save-compiled-contract project.act t.path.act build-result)
+        %^  save-compiled-contract:zig-lib  project.act
+        t.path.act  build-result
       ?:  ?=(%| -.save-result)
         ~&  p.save-result
         =.  errors.project
           (~(put by errors.project) p.save-result)
-        :-  (make-project-update project.act project [our now]:bowl)^~
-        state(projects (~(put by projects) project.act project))
-      [(make-read-desk project.act our.bowl)^~ state]
+        :-  :_  ~
+            (make-project-update:zig-lib project.act project)
+        %=  state
+          projects  (~(put by projects) project.act project)
+        ==
+      [(make-read-desk:zig-lib project.act)^~ state]
     ::
         %read-desk
       ::  for internal use -- app calls itself to scry clay
       ?>  ?=(%ziggurat dap.bowl)
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =.  dir.project
         =-  .^((list path) %ct -)
         /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)
-      :-  :+  %^  make-project-update  project.act  project
-                  [our now]:bowl
-            %^  make-watch-for-file-changes  project.act
-            dir.project  [our now]:bowl
+      :-  :+  %+  make-project-update:zig-lib  project.act
+              project
+            %+  make-watch-for-file-changes:zig-lib
+            project.act  dir.project
           ~
       state(projects (~(put by projects) project.act project))
     ::
         %add-test
-      =/  =project  (~(got by projects) project.act)
-      =^  [cards=(list card) =test]  state
+      =/  =project:zig  (~(got by projects) project.act)
+      =^  [cards=(list card) =test:zig]  state
         (add-test [project name test-surs test-steps]:act)
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
@@ -533,7 +476,7 @@
         %-  add-and-queue-test
         [project name test-surs test-steps]:act
       =?  cards  =(| test-running)
-        (snoc cards (make-run-queue our.bowl project.act))
+        (snoc cards (make-run-queue:zig-lib project.act))
       [cards state]
     ::
         %add-and-queue-test
@@ -541,44 +484,51 @@
       [project name test-surs test-steps]:act
     ::
         %save-test-to-file
-      =/  =project  (~(got by projects) project.act)
-      =/  =test  (~(got by tests.project) id.act)
-      =/  file-text=@t  (make-test-steps-file test)
+      =/  =project:zig  (~(got by projects) project.act)
+      =/  =test:zig  (~(got by tests.project) id.act)
+      =/  file-text=@t  (make-test-steps-file:zig-lib test)
       =.  test-steps-file.test  path.act
       =.  tests.project  (~(put by tests.project) id.act test)
-      :-  (make-save-file project.act path.act file-text)^~
-      state(projects (~(put by projects) project.act project))
+      :-  :_  ~
+          %^  make-save-file:zig-lib  project.act  path.act
+          file-text
+      %=  state
+        projects  (~(put by projects) project.act project)
+      ==
     ::
         %add-test-file
-      =/  =project  (~(got by projects) project.act)
-      =^  =test  state  (add-test-file [project name path]:act)
+      =/  =project:zig  (~(got by projects) project.act)
+      =^  =test:zig  state
+        (add-test-file [project name path]:act)
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
       :-  :_  ~
-          %^  make-project-update  project.act  project
-          [our now]:bowl
+          (make-project-update:zig-lib project.act project)
       state(projects (~(put by projects) project.act project))
     ::
         %add-and-run-test-file
       =^  cards  state
         (add-and-queue-test-file [project name path]:act)
       =?  cards  =(| test-running)
-        (snoc cards (make-run-queue our.bowl project.act))
+        (snoc cards (make-run-queue:zig-lib project.act))
       [cards state]
     ::
         %add-and-queue-test-file
       (add-and-queue-test-file [project name path]:act)
     ::
         %delete-test
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =.  tests.project  (~(del by tests.project) id.act)
-      :-  (make-project-update project.act project [our now]:bowl)^~
-      state(projects (~(put by projects) project.act project))
+      :-  :_  ~
+          (make-project-update:zig-lib project.act project)
+      %=  state
+        projects  (~(put by projects) project.act project)
+      ==
     ::
         %run-test
       :_  state(test-queue (~(put to test-queue) [project id]:act))
       ?:  =(| test-running)
-        (make-run-queue our.bowl project.act)^~
+        (make-run-queue:zig-lib project.act)^~
       ~&  >  "%ziggurat: another test is running, adding to queue"  ~
     ::
         %run-queue
@@ -591,17 +541,17 @@
       ?:  =(& test-running)
         ~|("%ziggurat: queue already running" !!)
       =^  top  test-queue  ~(get to test-queue)
-      =*  project-id  -.top
-      =*  test-id     +.top
+      =*  project-name  -.top
+      =*  test-id        +.top
       ~&  >  "%ziggurat: running {<test-id>}"
-      =/  =project  (~(got by projects) project-id)
-      =/  =test     (~(got by tests.project) test-id)
+      =/  =project:zig  (~(got by projects) project-name)
+      =/  =test:zig     (~(got by tests.project) test-id)
       ?:  ?=(%| -.subject.test)
         ~|("%ziggurat: test subject must compile before test can be run" !!)  ::  TODO: do better
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
-            project-id
+            project-name
             '-'
             ?^(name.test u.name.test (scot %ux test-id))
             '-'
@@ -611,20 +561,21 @@
         :-  ~
         :^  `tid  byk.bowl(r da+now.bowl)
           %ziggurat-test-run
-        !>  ^-  (unit [@t @ux test-steps ^vase (list @p)])
+        !>  ^-  (unit [@t @ux test-steps:zig vase (list @p)])
         :*  ~
-            project-id
+            project-name
             test-id
             steps.test
             p.subject.test
             ~[~nec ~bud]  :: TODO: remove hardcode and allow input of for-snapshot
         ==
-      =/  w=wire  /test/[project-id]/(scot %ux test-id)/[tid]
+      =/  w=wire
+        /test/[project-name]/(scot %ux test-id)/[tid]
       :_  state(test-running &)
-      :+  :^  %pass  w  %agent
-            [[our.bowl %spider] %watch /thread-result/[tid]]
-        :^  %pass  w  %agent
-        [[our.bowl %spider] %poke %spider-start !>(start-args)]
+      :+  %+  ~(watch-our pass:io w)  %spider
+          /thread-result/[tid]
+        %+  ~(poke-our pass:io w)  %spider
+        [%spider-start !>(start-args)]
       ~
     ::
         %clear-queue
@@ -634,32 +585,34 @@
       `state(test-queue (~(put to test-queue) [project.act id.act]))
     ::
         %add-custom-step
-      =/  =project  (~(got by projects) project.act)
-      =/  =test     (~(got by tests.project) test-id.act)
+      =/  =project:zig  (~(got by projects) project.act)
+      =/  =test:zig     (~(got by tests.project) test-id.act)
       =.  test
         %-  fall  :_  test
-        (add-custom-step test [project tag path]:act)
+        (add-custom-step:zig-lib test [project tag path]:act)
       =.  project
         project(tests (~(put by tests.project) test-id.act test))
-      :-  (make-project-update project.act project [our now]:bowl)^~
+      :-  :_  ~
+          (make-project-update:zig-lib project.act project)
       %=  state
-          projects  (~(put by projects) project.act project)
+        projects  (~(put by projects) project.act project)
       ==
     ::
         %delete-custom-step
-      =/  =project  (~(got by projects) project.act)
-      =/  =test     (~(got by tests.project) test-id.act)
+      =/  =project:zig  (~(got by projects) project.act)
+      =/  =test:zig     (~(got by tests.project) test-id.act)
       =.  custom-step-definitions.test
         (~(del by custom-step-definitions.test) tag.act)
       =.  project
         project(tests (~(put by tests.project) test-id.act test))
-      :-  (make-project-update project.act project [our now]:bowl)^~
+      :-  :_  ~
+          (make-project-update:zig-lib project.act project)
       %=  state
-          projects  (~(put by projects) project.act project)
+        projects  (~(put by projects) project.act project)
       ==
     ::
         %add-app-to-dashboard
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =*  sur  sur.act
       ::
       =/  dbug-mold-result
@@ -669,9 +622,10 @@
         ?~  snipped=(snip sur)  !!  ::  TODO: do better
         =/  sur-face=@tas  `@tas`(rear snipped)
         ?>  ?=(^ sur)
-        =^  sur-hoon=^vase  ca-scry-cache
-          (scry-or-cache-ca project.act sur ca-scry-cache)
-        =/  subject=^vase
+        =^  sur-hoon=vase  ca-scry-cache
+          %^  scry-or-cache-ca:zig-lib  project.act   sur
+          ca-scry-cache
+        =/  subject=vase
           %-  slop  :_  !>(..zuse)
           sur-hoon(p [%face sur-face p.sur-hoon])
         ::  make mold
@@ -706,18 +660,20 @@
             dbug-mold
             mar-tube
         ==
-      :-  (make-project-update project.act project [our now]:bowl)^~
+      :-  :_  ~
+          (make-project-update:zig-lib project.act project)
       %=  state
-          projects  (~(put by projects) project.act project)
+        projects  (~(put by projects) project.act project)
       ==
     ::
         %delete-app-from-dashboard
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =.  dbug-dashboards.project
         (~(del by dbug-dashboards.project) app.act)
-      :-  (make-project-update project.act project [our now]:bowl)^~
+      :-  :_  ~
+          (make-project-update:zig-lib project.act project)
       %=  state
-          projects  (~(put by projects) project.act project)
+        projects  (~(put by projects) project.act project)
       ==
     ::
         %stop-pyro-ships
@@ -728,29 +684,22 @@
     ::
         %start-pyro-ships
       =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud]
-      =/  wach=(list card:agent:gall)
+      =/  wach=(list card)
         %+  turn  ships.act
         |=  who=ship
-        :*  %pass  /ready/(scot %p who)  %agent
-            [our.bowl %pyro]
-            %watch  /ready/(scot %p who)
-        ==
-      =/  init=(list card:agent:gall)
+        =/  w=wire  /ready/(scot %p who)
+        (~(watch-our pass:io w) %pyro w)
+      =/  init=(list card)
         :_  ~
-        :*  %pass  /  %agent
-            [our.bowl %pyro]
-            %poke  %aqua-events
-            !>((turn ships.act |=(who=ship [%init-ship who])))
-        ==
-      =/  subs=(list card:agent:gall) ::  start %subscriber app
+        %+  ~(poke-our pass:io /self-wire)  %pyro
+        :-  %aqua-events
+        !>((turn ships.act |=(who=ship [%init-ship who])))
+      =/  subs=(list card)  ::  start %subscriber app
         %+  turn  ships.act
         |=  who=ship
-        :*  %pass  /  %agent
-            [our.bowl %pyro]
-            %poke  %aqua-events
-            !>
-            (dojo-events:pyro who "|start %zig %subscriber")
-        ==
+        %+  ~(poke-our pass:io /self-wire)  %pyro
+        :-  %aqua-events
+        !>((dojo-events:pyro who "|start %zig %subscriber"))
       :-  :(weld wach init subs)
       %_    state
           pyro-ships-ready
@@ -759,31 +708,36 @@
       ==
     ::
         %add-town-sequencer
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =.  town-sequencers.project
         (~(put by town-sequencers.project) [town-id who]:act)
-      :-  (make-project-update project.act project [our now]:bowl)^~
+      :-  :_  ~
+          (make-project-update:zig-lib project.act project)
       state(projects (~(put by projects) project.act project))
     ::
         %delete-town-sequencer
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =.  town-sequencers.project
         (~(del by town-sequencers.project) town-id.act)
-      :-  (make-project-update project.act project [our now]:bowl)^~
-      state(projects (~(put by projects) project.act project))
+      :-  :_  ~
+          (make-project-update:zig-lib project.act project)
+      %=  state
+        projects  (~(put by projects) project.act project)
+      ==
     ::
         %start-pyro-snap
       :_  state(pyro-ships-ready ~)
-      :~  [%pass /restore %agent [our.bowl %pyro] %watch /effect/restore]
-          [%pass / %agent [our.bowl %pyro] %poke %action !>([%restore-snap snap.act])]
-      ==
+      :+  (~(watch-our pass:io /restore) /effect/restore)
+        %+  ~(poke-our pass:io /self-wire)  %pyro
+        [%action !>([%restore-snap snap.act])]
+      ~
     ::
         %publish-app  :: TODO
       ::  [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
       ::  should assert that desk.bill contains only our agent name,
       ::  and that clause has been filled out at least partially,
       ::  then poke treaty agent with publish
-      =/  project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =/  bill
         ;;  (list @tas)
         .^(* %cx /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)/desk/bill)
@@ -803,71 +757,64 @@
       =/  docket-task
         [%info `@tas`project.act %& [/desk/docket-0 %ins %docket-0 !>(docket-0)]~]
       :_  state
-      :^    [%pass /save-wire %arvo %c docket-task]
-          (make-compile-contracts project.act our.bowl)
-        =-  [%pass /treaty-wire %agent [our.bowl %treaty] %poke -]
+      :^    (~(arvo pass:io /save-wire) %c [docket-task])
+          (make-compile-contracts:zig-lib project.act)
+        %+  ~(poke-our pass:io /treaty-wire)  %treaty
         [%alliance-update-0 !>([%add our.bowl `@tas`project.act])]
       ~
     ::
         %add-user-file
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =.  user-files.project  (~(put in user-files.project) file.act)
-      :-  (make-project-update project.act project [our now]:bowl)^~
+      :-  :_  ~
+          (make-project-update:zig-lib project.act project)
       state(projects (~(put by projects) project.act project))
     ::
         %delete-user-file
-      =/  =project  (~(got by projects) project.act)
+      =/  =project:zig  (~(got by projects) project.act)
       =.  user-files.project  (~(del in user-files.project) file.act)
-      :-  (make-project-update project.act project [our now]:bowl)^~
-      state(projects (~(put by projects) project.act project))
+      :-  :_  ~
+          (make-project-update:zig-lib project.act project)
+      %=  state
+        projects  (~(put by projects) project.act project)
+      ==
     ==
-  ++  add-or-update-item
-    |=  [project-id=@t =item:smart]
-    ^-  (quip card _state)
-    ?>  ?=(%& -.item)
-    =,  p.item
-    =/  =project  (~(got by projects) project-id)
-    =/  noun-text  ;;(@t noun)
-    =/  =data:smart
-      =+  (text-to-zebra-noun noun-text smart-lib-vase)
-      [id source holder town salt label -]
-    :-  (make-project-update project-id project [our now]:bowl)^~
-    state(projects (~(put by projects) project-id project))
   --
 ::
 ++  on-agent
-  |=  [=wire =sign:agent:gall]
+  |=  [w=wire =sign:agent:gall]
   ^-  (quip card _this)
-  ?+    wire  (on-agent:def wire sign)
+  ?+    w  (on-agent:def w sign)
       [%test @ @ @ ~]
-    ?+    -.sign  (on-agent:def wire sign)
+    ?+    -.sign  (on-agent:def w sign)
         %kick      `this
         %poke-ack  `this
         %fact
-      =*  project-name  i.t.wire
-      =/  test-id=@ux   (slav %ux i.t.t.wire)
-      =/  tid=@ta       i.t.t.t.wire
-      ?+    p.cage.sign  (on-agent:def wire sign)
+      =*  project-name  i.t.w
+      =/  test-id=@ux   (slav %ux i.t.t.w)
+      =*  tid           i.t.t.t.w
+      ?+    p.cage.sign  (on-agent:def w sign)
           %thread-fail
-        ~&  ziggurat+thread-fail+project^test-id^tid
+        ~&  ziggurat+thread-fail+project-name^test-id^tid
         `this(test-running |)
       ::
           %thread-done
-        =+  !<(=test-results q.cage.sign)
-        =/  =project  (~(got by projects) project-name)
-        =/  =test     (~(got by tests.project) test-id)
+        =+  !<(=test-results:zig q.cage.sign)
+        =/  =project:zig  (~(got by projects) project-name)
+        =/  =test:zig     (~(got by tests.project) test-id)
         ~&  >  "%ziggurat: test done {<test-id>}"
-        ~&  >  (show-test-results test-results)
+        ~&  >  (show-test-results:zig-lib test-results)
         =.  tests.project
           %+  ~(put by tests.project)  test-id
           test(results test-results)
         =/  cards=(list card)
-          (make-project-update project-name project [our now]:bowl)^~
+          :_  ~
+          (make-project-update:zig-lib project-name project)
         =?  cards  ?=(^ test-queue)
           %+  snoc  cards
-          :^  %pass  /self-wire  %agent
-          :^  [our dap]:bowl  %poke  %ziggurat-action
-          !>([project-name %run-queue ~])
+          %-  ~(poke-self pass:io /self-wire)
+          :-  %ziggurat-action
+          !>(`action:zig`[project-name %run-queue ~])
         :-  cards
         %=  this
           projects  (~(put by projects) project-name project)
@@ -877,35 +824,33 @@
     ==
   ::
       [%ready @ ~]
-    ?+    -.sign  (on-agent:def wire sign)
+    ?+    -.sign  (on-agent:def w sign)
         %fact
-      =/  who=ship  (slav %p i.t.wire)
+      =/  who=@p  (slav %p i.t.w)
       =.  pyro-ships-ready  (~(put by pyro-ships-ready) who %.y)
-      =/  card=card:agent:gall
-        :^  %pass  /ready/(scot %p who)  %agent
-        [[our.bowl %pyro] %leave ~]
-      ?~  test-queue                         [card^~ this]
-      ?.  (~(all by pyro-ships-ready) same)  [card^~ this]
+      =/  leave=card
+        (~(leave-our pass:io /ready/(scot %p who)) %pyro)
+      ?~  test-queue                         [leave^~ this]
+      ?.  (~(all by pyro-ships-ready) same)  [leave^~ this]
       :_  this
-      :+  card
-        :^  %pass  /self-wire  %agent
-        :^  [our dap]:bowl  %poke  %ziggurat-action
-        !>([%$ %run-queue ~])
+      :+  leave
+        %-  ~(poke-self pass:io /self-wire)
+        [%ziggurat-action !>(`action:zig`[%$ %run-queue ~])]
       ~
     ==
   ::
       [%restore ~]
-    ?+    -.sign  (on-agent:def wire sign)
+    ?+    -.sign  (on-agent:def w sign)
         %fact
       :_  this(pyro-ships-ready [[~nec %.y] ~ ~]) :: XX extremely hacky
-      [%pass /restore %agent [our.bowl %pyro] %leave ~]^~
+      (~(leave-our pass:io /restore) %pyro)^~
     ==
   ==
 ::
 ++  on-arvo
-  |=  [=wire =sign-arvo:agent:gall]
+  |=  [w=wire =sign-arvo:agent:gall]
   ^-  (quip card _this)
-  ?+    wire  (on-arvo:def wire sign-arvo)
+  ?+    w  (on-arvo:def w sign-arvo)
       [%merge-wire ~]
     ?.  ?=(%clay -.sign-arvo)  !!
     ?.  ?=(%mere -.+.sign-arvo)  !!
@@ -916,10 +861,9 @@
     `this
   ::
       [%clay @ ~]
-    ~&  %ziggurat^%clay
     ?>  ?=([%clay %wris *] sign-arvo)
-    =*  project-name  i.t.wire
-    =/  project  (~(got by projects) project-name)
+    =*  project-name  i.t.w
+    =/  =project:zig  (~(got by projects) project-name)
     =/  updated-files=(set path)
       %-  ~(gas in *(set path))
       (turn ~(tap in q.sign-arvo) |=([@ p=path] p))
@@ -928,21 +872,21 @@
     ?:  .=  0
         %~  wyt  in
         (~(int in updated-files) to-compile.project)
-      (make-read-desk project-name our.bowl)
-    (make-compile-contracts project-name our.bowl)
+      (make-read-desk:zig-lib project-name)
+    (make-compile-contracts:zig-lib project-name)
   ==
 ::
 ++  on-peek
-  |=  =path
+  |=  p=path
   ^-  (unit (unit cage))
-  ?.  =(%x -.path)  ~
+  ?.  =(%x -.p)  ~
   =,  format
-  ?+    +.path  (on-peek:def path)
+  ?+    +.p  (on-peek:def p)
   ::
   ::  NOUNS
   ::
     ::   [%project-nock @ ~]
-    :: ?~  project=(~(get by projects) (slav %t i.t.t.path))
+    :: ?~  project=(~(get by projects) (slav %t i.t.t.p))
     ::   ``noun+!>(~)
     :: ?>  ?=(%& -.u.project)
     :: ?~  compiled.p.u.project
@@ -950,19 +894,20 @@
     :: ``noun+!>(compiled.p.u.project)
   ::
     ::   [%custom-step-definitions @ @ ~]
-    :: =/  =project  (~(got by projects) (slav %ux i.t.t.path))
-    :: =/  =test  (~(got by tests.project) (slav %ux i.t.t.t.path))
+    :: =/  =project  (~(got by projects) (slav %ux i.t.t.p))
+    :: =/  =test  (~(got by tests.project) (slav %ux i.t.t.t.p))
     :: :^  ~  ~  %noun
-    :: !>  ^-  custom-step-definitions
+    :: !>  ^-  custom-step-definitions:zig
     :: %-  ~(run by custom-step-definitions.test)
-    :: |=  [p=custom-step-definition q=custom-step-compiled]
+    :: |=  [p=custom-step-definition:zig q=custom-step-compiled:zig]
     :: :-  p
     :: ?:  ?=(%| -.q)  q  [%& *vase]
   ::
       [%custom-step-compiled @ @ @ ~]
-    =/  =project  (~(got by projects) i.t.t.path)
-    =/  =test  (~(got by tests.project) (slav %ux i.t.t.t.path))
-    =/  tag=@tas  `@tas`i.t.t.t.t.path
+    =/  =project:zig  (~(got by projects) i.t.t.p)
+    =/  =test:zig
+      (~(got by tests.project) (slav %ux i.t.t.t.p))
+    =/  tag=@tas  `@tas`i.t.t.t.t.p
     ?~  def=(~(get by custom-step-definitions.test) tag)
       ~|("%ziggurat: did not find {<tag>} custom-step-definition in {<~(key by custom-step-definitions.test)>}" !!)
     ?:  ?=(%| -.q.u.def)  ::  TODO: do better
@@ -971,20 +916,20 @@
   ::
       [%projects ~]
     :^  ~  ~  %noun
-    !>  ^-  ^projects
+    !>  ^-  projects:zig
     %-  ~(run by projects)
-    |=  =project
+    |=  =project:zig
     %=  project
         tests
       %-  ~(run by tests.project)
-      |=  =test
+      |=  =test:zig
       %=  test
           subject
         ?:(?=(%& -.subject.test) [%& *vase] subject.test)
       ::
           custom-step-definitions
         %-  ~(run by custom-step-definitions.test)
-        |=  [p=^path q=custom-step-compiled]
+        |=  [p=path q=custom-step-compiled:zig]
         [p ?:(?=(%& -.q) [%& *vase] q)]
       ==
     ==
@@ -992,47 +937,46 @@
   ::  JSONS
   ::
       [%all-projects ~]
-    =,  enjs
     =;  =json  ``json+!>(json)
-    %-  pairs
+    %-  pairs:enjs:format
     %+  murn  ~(tap by projects)
-    |=  [name=@t =project]
+    |=  [name=@t =project:zig]
     :-  ~  :-  name
-    (project-to-json project)
+    (project:enjs:zig-lib project)
   ::
       [%project-state @ ~]
-    ?~  project=(~(get by projects) i.t.t.path)  ``json+!>(~)
+    ?~  project=(~(get by projects) i.t.t.p)  ``json+!>(~)
     :^  ~  ~  %json
     !>  ^-  json
-    (get-state-to-json u.project [our now]:bowl)
+    (get-state:enjs:zig-lib u.project)
   ::
       [%project-tests @ ~]
-    ?~  project=(~(get by projects) i.t.t.path)
+    ?~  project=(~(get by projects) i.t.t.p)
       ``json+!>(~)
-    ``json+!>((tests-to-json tests.u.project))
+    ``json+!>((tests:enjs:zig-lib tests.u.project))
   ::
       [%project-user-files @ ~]
-    ?~  project=(~(get by projects) i.t.t.path)
+    ?~  project=(~(get by projects) i.t.t.p)
       ``json+!>(~)
     :^  ~  ~  %json
     !>  ^-  json
     %+  frond:enjs:format  %user-files
-    (dir-to-json ~(tap in user-files.u.project))
+    (dir:enjs:zig-lib ~(tap in user-files.u.project))
   ::
       [%dashboard @ @ @ ~]
-    =*  project-name  i.t.t.path
-    =*  who           i.t.t.t.path
-    =*  app           i.t.t.t.t.path
+    =*  project-name  i.t.t.p
+    =*  who           i.t.t.t.p
+    =*  app           i.t.t.t.t.p
     :^  ~  ~  %json
     !>  ^-  json
     ?~  project=(~(get by projects) project-name)
-      %+  json-single-string-object  %error
+      %+  single-string-object:enjs:zig-lib  %error
       "project {<project-name>} not found; must register project with %new-project"
     ?~  dbug=(~(get by dbug-dashboards.u.project) app)
-      %+  json-single-string-object  %error
+      %+  single-string-object:enjs:zig-lib  %error
       "app {<app>} not found; must add app to dashboard with %add-app-to-dashboard"
     ?:  ?=(%| -.mold.u.dbug)
-      %+  json-single-string-object  %error
+      %+  single-string-object:enjs:zig-lib  %error
       "app {<app>} subject failed to build; fix sur file path and re-add with %add-app-to-dashboard. error message from build: {<p.mold.u.dbug>}"
     =/  now=@ta  (scot %da now.bowl)
     =/  dbug-noun=*
@@ -1042,26 +986,27 @@
           /gx/[who]/[app]/[now]/dbug/state/noun/noun
       ==
     ?.  ?=(^ dbug-noun)
-      %+  json-single-string-object  %error
+      %+  single-string-object:enjs:zig-lib  %error
       "dbug scry failed: unexpected result from pyro"
     =*  mar-tube   mar-tube.u.dbug
     =*  dbug-mold  p.mold.u.dbug
     =/  dbug-vase=vase  (slym dbug-mold +.+.dbug-noun)
     ?~  mar-tube
-      (json-single-string-object %state (noah dbug-vase))
+      %+  single-string-object:enjs:zig-lib  %state
+      (noah dbug-vase)
     (frond:enjs:format %state !<(json (u.mar-tube dbug-vase)))
   ::
       [%file-exists @ ^]
-    =/  des=@ta    i.t.t.path
-    =/  pat=^path  `^path`t.t.t.path
-    =/  pre=^path  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
+    =/  des=@ta    i.t.t.p
+    =/  pat=path  `path`t.t.t.p
+    =/  pre=path  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
     ``json+!>(`json`[%b .^(? %cu (weld pre pat))])
   ::
   ::  APP-PROJECT JSON
   ::
       [%read-file @ ^]
-    =/  des=@ta    i.t.t.path
-    =/  pat=^path  `^path`t.t.t.path
+    =/  des=@ta    i.t.t.p
+    =/  pat=path  `path`t.t.t.p
     =/  pre  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
     =/  padh  (weld pre pat)
     =/  =mark  (rear pat)

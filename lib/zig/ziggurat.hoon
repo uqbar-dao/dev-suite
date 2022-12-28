@@ -1,118 +1,80 @@
-/-  *zig-ziggurat,
-    eng=zig-engine,
-    ui=zig-indexer
-/+  conq=zink-conq,
+/-  eng=zig-engine,
+    ui=zig-indexer,
+    zig=zig-ziggurat
+/+  agentio,
+    conq=zink-conq,
     dock=docket,
+    smart=zig-sys-smart,
     ui-lib=zig-indexer,
     zink=zink-zink
-|%
+|_  =bowl:gall
++*  this  .
+    io    ~(. agentio bowl)
 ::
-::  set parameters for our local test environment
-::
-++  first-contract-id       0xfafa.faf0
-++  designated-metadata-id  0xdada.dada
-++  designated-caller
-  |=  [=address:smart nonce=@ud]
-  ^-  caller:smart
-  [address nonce id.p:(designated-zigs-item address)]
-++  designated-town-id  0x0
-::  we set the designated caller to have 300 zigs
-++  designated-zigs-item
-  |=  =address:smart
-  ^-  item:smart
-  :*  %&
-      %:  hash-data:smart
-          zigs-contract-id:smart
-          address
-          designated-town-id
-          `@`'zigs'
-      ==
-      zigs-contract-id:smart
-      address
-      designated-town-id
-      `@`'zigs'
-      %account
-      [300.000.000.000.000.000.000 ~ `@ux`'zigs-metadata' 0]
-  ==
-::
-++  starting-state
-  |=  =address:smart
-  ^-  chain:engine
-  :_  ~
-  =-  (put:big:engine ~ id.p.- -)
-  (designated-zigs-item address)
++$  card  card:agent:gall
 ::
 ::  utilities
 ::
-++  get-template
-  |=  [pat=path our=ship now=time]
-  ^-  @t
-  =/  pre=path  /(scot %p our)/zig/(scot %da now)/con
-  .^(@t %cx (weld pre pat))
-::
 ++  make-project-update
-  |=  [project-name=@t p=project our=@p now=@da]
+  |=  [project-name=@t =project:zig]
   ^-  card
-  =/  =path  /project/[project-name]
-  =/  update=project-update
-    :_  p
-    (get-state-to-json p our now)
-  :^  %give  %fact  ~[path]
-  :-  %ziggurat-project-update
-  !>(`project-update`update)
+  =/  p=path  /project/[project-name]
+  =/  update=project-update:zig
+    :_  project
+    (get-state:enjs project)
+  %-  fact:io  :_  ~[p]
+  [%ziggurat-project-update !>(`project-update:zig`update)]
 ::
 ++  make-compile-contracts
-  |=  [project=@t our=@p]
+  |=  [project-name=@t]
   ^-  card
-  =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
+  %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
-  !>(`action`project^[%compile-contracts ~])
+  !>(`action:zig`project-name^[%compile-contracts ~])
 ::
 ++  make-compile-contract
-  |=  [project=@t file=path our=@p]
+  |=  [project-name=@t file=path]
   ^-  card
-  =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
+  %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
-  !>(`action`project^[%compile-contract file])
+  !>(`action:zig`project-name^[%compile-contract file])
 ::
 ++  make-watch-for-file-changes
-  |=  [project=@tas files=(list path) our=@p now=@da]
+  |=  [project-name=@tas files=(list path)]
   ^-  card
-  =-  [%pass /clay/[project] %arvo %c %warp our project -]
-  :^  ~  %mult  da+now
+  %-  ~(warp-our pass:io /clay/[project-name])
+  :-  project-name
+  :^  ~  %mult  da+now.bowl
   %-  ~(gas in *(set [care:clay path]))
   (turn files |=(p=path [%x p]))
 ::
-++  make-cancel-watch-for-file-changes
-  |=  [project=@tas files=(list path) our=@p now=@da]
-  ^-  card
-  [%pass /clay/[project] %arvo %c %warp our project ~]
-::
 ++  make-read-desk
-  |=  [project=@t our=@p]
+  |=  project-name=@t
   ^-  card
-  =-  [%pass /self-wire %agent [our %ziggurat] %poke -]
+  %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
-  !>(`action`project^[%read-desk ~])
+  !>(`action:zig`project-name^[%read-desk ~])
 ::
 ++  make-save-jam
-  |=  [project=@t file=path non=*]
+  |=  [project-name=@t file=path non=*]
   ^-  card
   ?>  ?=(%jam (rear file))
-  =-  [%pass /save-wire %arvo %c -]
-  :-  %info
-  [`@tas`project %& [file %ins %noun !>(`@`(jam non))]~]
+  %-  ~(arvo pass:io /save-wire)
+  :+  %c  %info
+  [`@tas`project-name %& [file %ins %noun !>(`@`(jam non))]~]
 ::
 ++  make-save-file
-  |=  [project=@t file=path text=@t]
+  |=  [project-name=@t file=path text=@t]
   ^-  card
   =/  file-type  (rear file)
   =/  mym=mime  :-  /application/x-urb-unknown
     %-  as-octt:mimes:html
     %+  rash  text
     (star ;~(pose (cold '\0a' (jest '\0d\0a')) next))
-  =-  [%pass /save-wire %arvo %c -]
-  :^  %info  `@tas`project  %&
+  %-  ~(arvo pass:io /save-wire)
+  :-  %c
+  :: =-  [%pass /save-wire %arvo %c -]
+  :^  %info  `@tas`project-name  %&
   :_  ~  :+  file  %ins
   =*  reamed-text  q:(slap !>(~) (ream text))  ::  =* in case text unreamable
   ?+  file-type  [%mime !>(mym)] :: don't need to know mar if we have bytes :^)
@@ -126,14 +88,14 @@
   ==
 ::
 ++  make-run-queue
-  |=  [our=ship project=@t]
+  |=  project-name=@t
   ^-  card
-  :^  %pass  /self-poke  %agent
-  :^  [our %ziggurat]  %poke  %ziggurat-action
-  !>([project %run-queue ~])
+  %-  ~(poke-self pass:io /self-wire)
+  :-  %ziggurat-action
+  !>(`action:zig`[project-name %run-queue ~])
 ::
 ++  make-test-steps-file
-  |=  =test
+  |=  =test:zig
   ^-  @t
   %+  rap  3
   :~
@@ -159,7 +121,7 @@
     '''
   ::  test-steps
     %+  roll  steps.test
-    |=  [=test-step test-steps-text=@t]
+    |=  [=test-step:zig test-steps-text=@t]
     %+  rap  3
     :~  test-steps-text
         '  ::\0a'
@@ -175,21 +137,6 @@
     '''
   ==
 ::
-++  text-to-zebra-noun
-  |=  [tex=@t smart-lib=vase]
-  ^-  *
-  ~|  "ziggurat: syntax error in custom data!"
-  =+  gun=(~(mint ut p.smart-lib) %noun (ream tex))
-  =/  res=book:zink
-    (zebra:zink 200.000 ~ *chain-state-scry:zink [q.smart-lib q.gun] %.y)
-  ~|  "ziggurat: failed to compile custom data!"
-  ?.  ?=(%& -.p.res)  !!
-  ~&  >>  "size: {<(met 3 (jam p.p.res))>}"
-  ?:  (gth (met 3 (jam p.p.res)) 5.000)
-    ~|("ziggurat: custom data noun too large, likely using a mold" !!)
-  ~|  "ziggurat: result of custom data compile was ~"
-  (need p.p.res)
-::
 ++  convert-contract-hoon-to-jam
   |=  contract-hoon-path=path
   ^-  (unit path)
@@ -201,18 +148,18 @@
   `path`(welp /con/compiled +.contract-hoon-path)
 ::
 ++  save-compiled-contracts
-  |=  $:  project=@t
-          build-results=(list [p=path q=build-result])
+  |=  $:  project-name=@t
+          build-results=(list [p=path q=build-result:zig])
       ==
   ^-  [(list card) (list [path @t])]
   =|  cards=(list card)
   =|  errors=(list [path @t])
   |-
-  ?~  build-results  [cards errors]
-  =*  contract-path   p.i.build-results
-  =/  =build-result   q.i.build-results
+  ?~  build-results      [cards errors]
+  =*  contract-path       p.i.build-results
+  =/  =build-result:zig   q.i.build-results
   =/  save-result=(each card [path @t])
-    %^  save-compiled-contract  project  contract-path
+    %^  save-compiled-contract  project-name  contract-path
     build-result
   ?:  ?=(%| -.save-result)
     %=  $
@@ -225,9 +172,9 @@
   ==
 ::
 ++  save-compiled-contract
-  |=  $:  project=@t
+  |=  $:  project-name=@t
           contract-path=path
-          =build-result
+          =build-result:zig
       ==
   ^-  (each card [path @t])
   ?:  ?=(%| -.build-result)
@@ -235,14 +182,15 @@
   =/  contract-jam-path=path
     (need (convert-contract-hoon-to-jam contract-path))
   :-  %&
-  (make-save-jam project contract-jam-path p.build-result)
+  %^  make-save-jam  project-name  contract-jam-path
+  p.build-result
 ::
 ++  build-contract-projects
   |=  $:  smart-lib=vase
           desk=path
           to-compile=(set path)
       ==
-  ^-  (list [path build-result])
+  ^-  (list [path build-result:zig])
   %+  turn  ~(tap in to-compile)
   |=  p=path
   ~&  "building {<p>}..."
@@ -250,7 +198,7 @@
 ::
 ++  build-contract-project
   |=  [smart-lib=vase desk=path to-compile=path]
-  ^-  build-result
+  ^-  build-result:zig
   ::
   ::  adapted from compile-contract:conq
   ::  this wacky design is to get a somewhat more helpful error print
@@ -311,416 +259,19 @@
   (of-wall:format (wash [0 80] tank))
 ::
 ++  show-test-results
-  |=  =test-results
-  ^-  shown-test-results
+  |=  =test-results:zig
+  ^-  shown-test-results:zig
   (turn test-results show-test-result)
 ::
 ++  show-test-result
-  |=  =test-result
-  ^-  shown-test-result
+  |=  =test-result:zig
+  ^-  shown-test-result:zig
   %+  turn  test-result
   |=  [success=? expected=@t result=vase]
   =/  res-text=@t  (crip (noah result))
   :+  success  expected
   ?:  (lte 1.024 (met 3 res-text))  '<elided>'
   res-text
-::
-::  project states for templates
-::
-:: ++  fungible-template-project
-::   |=  [current=project meta-rice=data:smart smart-lib-vase=vase]
-::   ^-  project
-::   ::  make fungible accounts and tests
-::   =/  metadata
-::     ;;  $:  name=@t
-::             symbol=@t
-::             decimals=@ud
-::             supply=@ud
-::             cap=(unit @ud)
-::             mintable=?
-::             minters=(pset:smart address:smart)
-::             deployer=address:smart
-::             salt=@
-::         ==
-::     (text-to-zebra-noun ;;(@t noun.meta-rice) smart-lib-vase)
-::   =/  dead-beef-account-id
-::     %:  hash-data:smart
-::         source.meta-rice
-::         user-address.current
-::         designated-town-id
-::         salt.metadata
-::     ==
-::   =/  dead-beef-account
-::     ^-  data:smart
-::     :*  dead-beef-account-id
-::         source.meta-rice
-::         user-address.current
-::         designated-town-id
-::         salt.metadata
-::         %account
-::         [200 ~ id.meta-rice 0]
-::     ==
-::   =/  cafe-babe-account-id
-::     %:  hash-data:smart
-::         source.meta-rice
-::         0xcafe.babe
-::         designated-town-id
-::         salt.metadata
-::     ==
-::   =/  cafe-babe-account
-::     ^-  data:smart
-::     :*  cafe-babe-account-id
-::         source.meta-rice
-::         0xcafe.babe
-::         designated-town-id
-::         salt.metadata
-::         %account
-::         [100 ~ id.meta-rice 0]
-::     ==
-::   =/  cafe-d00d-account-id
-::     %:  hash-data:smart
-::         source.meta-rice
-::         0xcafe.d00d
-::         designated-town-id
-::         salt.metadata
-::     ==
-::   =/  cafe-d00d-account
-::     ^-  data:smart
-::     :*  cafe-d00d-account-id
-::         source.meta-rice
-::         0xcafe.d00d
-::         designated-town-id
-::         salt.metadata
-::         %account
-::         [100 (make-pmap:smart ~[[0xdead.beef 50]]) id.meta-rice 0]
-::     ==
-::   =/  action-1=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[%give to=0xcafe.babe amount=30 from-account="
-::         (trip (scot %ux dead-beef-account-id))
-::         " to-account=`"
-::         (trip (scot %ux cafe-babe-account-id))
-::         "]"
-::     ==
-::   =/  yolk-1=calldata:smart
-::     =-  [;;(@tas -.-) +.-]
-::     q:(slap smart-lib-vase (ream action-1))
-::   =/  test-1=test
-::     =/  data-1
-::       '[balance=170 allowances=~ metadata=0xdada.dada nonce=0]'
-::     =/  data-2
-::       '[balance=130 allowances=~ metadata=0xdada.dada nonce=0]'
-::     :*  `'test-give'
-::         next-contract-id.current
-::         action-1
-::         yolk-1
-::         %-  malt
-::         :~  :+  dead-beef-account-id
-::               %&^dead-beef-account(noun q:(slap smart-lib-vase (ream data-1)))
-::             data-1
-::             :+  cafe-babe-account-id
-::               %&^cafe-babe-account(noun q:(slap smart-lib-vase (ream data-2)))
-::             data-2
-::         ==
-::         %0
-::         ~
-::     ==
-::   =/  action-2=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[%take to=0xcafe.babe amount=50 from-account="
-::         (trip (scot %ux cafe-d00d-account-id))
-::         " to-account=`"
-::         (trip (scot %ux cafe-babe-account-id))
-::         "]"
-::     ==
-::   =/  yolk-2=calldata:smart
-::     =-  [;;(@tas -.-) +.-]
-::     q:(slap smart-lib-vase (ream action-2))
-::   =/  test-2=test
-::     =/  data-1
-::       '[balance=50 allowances=(make-pmap ~[[0xdead.beef 0]]) metadata=0xdada.dada nonce=0]'
-::     =/  data-2
-::       '[balance=150 allowances=~ metadata=0xdada.dada nonce=0]'
-::     :*  `'test-take'
-::         next-contract-id.current
-::         action-2
-::         yolk-2
-::         %-  malt
-::         :~  :+  cafe-d00d-account-id
-::               %&^cafe-d00d-account(noun (text-to-zebra-noun data-1 smart-lib-vase))
-::             data-1
-::             :+  cafe-babe-account-id
-::               %&^cafe-babe-account(noun q:(slap smart-lib-vase (ream data-2)))
-::             data-2
-::         ==
-::         %0
-::         ~
-::     ==
-::   =/  action-3=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[%set-allowance who=0xcafe.babe amount=100 account="
-::         (trip (scot %ux dead-beef-account-id))
-::         "]"
-::     ==
-::   =/  yolk-3=calldata:smart
-::     =-  [;;(@tas -.-) +.-]
-::     q:(slap smart-lib-vase (ream action-3))
-::   =/  test-3=test
-::     =/  data-1
-::       '[balance=200 allowances=(make-pmap ~[[0xcafe.babe 100]]) metadata=0xdada.dada nonce=0]'
-::     :*  `'test-set-allowance'
-::         next-contract-id.current
-::         action-3
-::         yolk-3
-::         %-  malt
-::         :~  :+  dead-beef-account-id
-::               %&^dead-beef-account(noun (text-to-zebra-noun data-1 smart-lib-vase))
-::             data-1
-::         ==
-::         %0
-::         ~
-::     ==
-::   =/  fungible-contract-path=path  /con/fungible/hoon
-::   %=  current
-::       next-contract-id  (add next-contract-id.current 1)
-::       user-files
-::     (~(put in user-files.current) fungible-contract-path)
-::   ::
-::       to-compile
-::     %+  ~(put by to-compile.current)  fungible-contract-path
-::     next-contract-id.current
-::   ::
-::       tests
-::     (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
-::   ::
-::       noun-texts
-::     %-  ~(uni by noun-texts.current)
-::     %-  ~(gas by *(map id:smart @t))
-::     :~  [id.meta-rice ;;(@t noun.meta-rice)]
-::         [dead-beef-account-id '[balance=200 allowances=~ metadata=0xdada.dada nonce=0]']
-::         [cafe-babe-account-id '[balance=100 allowances=~ metadata=0xdada.dada nonce=0]']
-::         [cafe-d00d-account-id '[balance=100 allowances=(make-pmap ~[[0xdead.beef 50]]) metadata=0xdada.dada nonce=0]']
-::     ==
-::   ::
-::       p.chain
-::     =-  (uni:big:engine p.chain.current -)
-::     %+  gas:big:engine  *state:engine
-::     :~  [id.meta-rice %&^meta-rice(noun metadata)]
-::         [dead-beef-account-id %&^dead-beef-account]
-::         [cafe-babe-account-id %&^cafe-babe-account]
-::         [cafe-d00d-account-id %&^cafe-d00d-account]
-::     ==
-::   ==
-:: ++  nft-template-project
-::   |=  [current=project meta-rice=data:smart smart-lib-vase=vase]
-::   ^-  project
-::   ::  make fungible accounts and tests
-::   =/  metadata
-::     ;;  $:  name=@t
-::             symbol=@t
-::             properties=(pset:smart @tas)
-::             supply=@ud
-::             cap=(unit @ud)
-::             mintable=?
-::             minters=(pset:smart address:smart)
-::             deployer=address:smart
-::             salt=@
-::         ==
-::     (text-to-zebra-noun ;;(@t noun.meta-rice) smart-lib-vase)
-::   ::
-::   =/  props
-::     %-  ~(gas py:smart *(map @tas @t))
-::     %+  turn  ~(tap pn:smart properties.metadata)
-::     |=  prop=@tas
-::     [prop 'random_attribute']
-::   =/  props-tape=tape
-::     %-  zing
-::     :~  "properties=(make-pmap `(list [@tas @t])`~["
-::         ^-  tape
-::         %-  snip
-::         ^-  tape
-::         %-  zing
-::         %+  turn  ~(tap pn:smart properties.metadata)
-::         |=  prop=@tas
-::         %-  zing
-::         :~  "[%"  (trip (scot %tas prop))
-::             " 'random_attribute'] "
-::         ==
-::         "])"
-::     ==
-::   ::
-::   =/  nft-1-id
-::     %:  hash-data:smart
-::         source.meta-rice
-::         user-address.current
-::         designated-town-id
-::         (cat 3 salt.metadata (scot %ud 1))
-::     ==
-::   =/  nft-1
-::     ^-  data:smart
-::     :*  nft-1-id
-::         source.meta-rice
-::         user-address.current
-::         designated-town-id
-::         (cat 3 salt.metadata (scot %ud 1))
-::         %nft
-::         [1 'https://image.link' id.meta-rice ~ props &]
-::     ==
-::   =/  nft-1-text=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[id=1 uri='https://image.link' metadata=0xdada.dada allowances=~ "
-::         props-tape
-::         " transferrable=%.y]"
-::     ==
-::   =/  nft-2-id
-::     %:  hash-data:smart
-::         source.meta-rice
-::         0xcafe.babe
-::         designated-town-id
-::         (cat 3 salt.metadata (scot %ud 2))
-::     ==
-::   =/  nft-2
-::     ^-  data:smart
-::     :*  nft-2-id
-::         source.meta-rice
-::         0xcafe.babe
-::         designated-town-id
-::         (cat 3 salt.metadata (scot %ud 2))
-::         %nft
-::         [2 'https://image.link' id.meta-rice ~ props &]
-::     ==
-::   =/  nft-2-text=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[id=2 uri='https://image.link' metadata=0xdada.dada allowances=~ "
-::         props-tape
-::         " transferrable=%.y]"
-::     ==
-::   ::
-::   =/  action-1=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[%give to=0xcafe.babe item-id="
-::         (trip (scot %ux nft-1-id))
-::         "]"
-::     ==
-::   =/  yolk-1=calldata:smart
-::     =-  [;;(@tas -.-) +.-]
-::     q:(slap smart-lib-vase (ream action-1))
-::   =/  test-1=test
-::     :*  `'test-give'
-::         next-contract-id.current
-::         action-1
-::         yolk-1
-::         %-  malt
-::         :~  :+  nft-1-id
-::               %&^nft-1(holder 0xcafe.babe)
-::             nft-1-text
-::         ==
-::         %0
-::         ~
-::     ==
-::   ::
-::   =/  action-2=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[%give to=0xcafe.babe item-id="
-::         (trip (scot %ux nft-2-id))
-::         "]"
-::     ==
-::   =/  yolk-2=calldata:smart
-::     =-  [;;(@tas -.-) +.-]
-::     q:(slap smart-lib-vase (ream action-2))
-::   =/  test-2=test
-::     :*  `'test-give-dont-have'
-::         next-contract-id.current
-::         action-2
-::         yolk-2
-::         ~
-::         %6
-::         ~
-::     ==
-::   ::
-::   =/  action-3=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[%mint token=0xdada.dada mints=[to="
-::         (trip (scot %ux user-address.current))
-::         " uri='https://image.link' "
-::         props-tape
-::         " transferrable=%.y] ~]"
-::     ==
-::   =/  yolk-3=calldata:smart
-::     =-  [;;(@tas -.-) +.-]
-::     (text-to-zebra-noun action-3 smart-lib-vase)
-::   =/  nft-3-id
-::     %:  hash-data:smart
-::         source.meta-rice
-::         user-address.current
-::         designated-town-id
-::         (cat 3 salt.metadata (scot %ud 3))
-::     ==
-::   =/  nft-3
-::     ^-  data:smart
-::     :*  nft-3-id
-::         source.meta-rice
-::         user-address.current
-::         designated-town-id
-::         (cat 3 salt.metadata (scot %ud 3))
-::         %nft
-::         [3 'https://image.link' id.meta-rice ~ props &]
-::     ==
-::   =/  nft-3-text=@t
-::     %-  crip
-::     %-  zing
-::     :~  "[id=3 uri='https://image.link' metadata=0xdada.dada allowances=~ "
-::         props-tape
-::         " transferrable=%.y]"
-::     ==
-::   =/  test-3=test
-::     :*  `'test-mint'
-::         next-contract-id.current
-::         action-3
-::         yolk-3
-::         (malt ~[[nft-3-id [%&^nft-3 nft-3-text]]])
-::         %0
-::         ~
-::     ==
-::   =/  nft-contract-path=path  /con/nft/hoon
-::   %=  current
-::       next-contract-id  (add next-contract-id.current 1)
-::       user-files
-::     (~(put in user-files.current) nft-contract-path)
-::   ::
-::       to-compile
-::     %+  ~(put by to-compile.current)  nft-contract-path
-::     next-contract-id.current
-::   ::
-::       tests
-::     (malt ~[[0x1111.1111 test-1] [0x2222.2222 test-2] [0x3333.3333 test-3]])
-::   ::
-::       noun-texts
-::     %-  ~(uni by noun-texts.current)
-::     %-  ~(gas by *(map id:smart @t))
-::     :~  [id.meta-rice ;;(@t noun.meta-rice)]
-::         ::  [1 'https://image.link' id.meta-rice ~ props &]
-::         [nft-1-id nft-1-text]
-::     ::
-::         [nft-2-id nft-2-text]
-::     ==
-::   ::
-::       p.chain
-::     =-  (uni:big:engine p.chain.current -)
-::     %+  gas:big:engine  *state:engine
-::     :~  [id.meta-rice %&^meta-rice(noun metadata)]
-::         [nft-1-id %&^nft-1]
-::         [nft-2-id %&^nft-2]
-::     ==
-::   ==
 ::
 ::  files we delete from zig desk to make new gall desk
 ::
@@ -792,13 +343,13 @@
   '''
 ::
 ++  get-state
-  |=  [p=project our=@p now=@da]
+  |=  =project:zig
   ^-  (map @ux chain:eng)
+  =/  now-ta=@ta   (scot %da now.bowl)
   %-  ~(gas by *(map @ux chain:eng))
-  %+  murn  ~(tap by town-sequencers.p)
+  %+  murn  ~(tap by town-sequencers.project)
   |=  [town-id=@ux who=@p]
   =/  who-ta=@ta   (scot %p who)
-  =/  now-ta=@ta   (scot %da now)
   =/  town-ta=@ta  (scot %ux town-id)
   =/  batch-order=update:ui
     %-  fall  :_  ~
@@ -806,7 +357,7 @@
     .^  noun
         %gx
         ;:  weld
-          /(scot %p our)/pyro/[now-ta]/i/[who-ta]/gx
+          /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
           /[who-ta]/indexer/[now-ta]/batch-order/[town-ta]
           /noun/noun
     ==  ==
@@ -820,7 +371,7 @@
     .^  noun
         %gx
         ;:  weld
-            /(scot %p our)/pyro/[now-ta]/i/[who-ta]/gx
+            /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
             /[who-ta]/indexer/[now-ta]/newest/batch-chain
             /[town-ta]/(scot %ux newest-batch)/noun/noun
     ==  ==
@@ -832,315 +383,550 @@
   ?~  chains                          ~  ::  for compiler
   `[town-id chain.i.chains]
 ::
-::  JSON parsing utils
+++  compile-custom-step
+  |=  [tag=@tas =hoon subject=(each vase @t)]
+  ^-  (each vase @t)
+  ?:  ?=(%| -.subject)
+    ~|("%ziggurat: subject must compile from surs before adding custom step" !!)
+  =/  compilation-result
+    %-  mule
+    |.  (slap (slap p.subject hoon) (ream '$'))
+  ?:  ?=(%& -.compilation-result)  compilation-result
+  :-  %|
+  %-  crip
+  %+  roll  p.compilation-result
+  |=  [in=tank out=tape]
+  :(weld ~(ram re in) "\0a" out)
 ::
-++  item-to-json
-  |=  [=item:smart tex=@t]
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  %+  welp
-    :~  ['is-pact' %b ?=(%| -.item)]
-        ['source' %s (scot %ux source.p.item)]
-        ['holder' %s (scot %ux holder.p.item)]
-        ['town' %s (scot %ux town.p.item)]
-    ==
-  ?:  ?=(%| -.item)  ~
-  :~  ['salt' (numb salt.p.item)]
-      ['label' %s (scot %tas label.p.item)]
-      ['noun_text' %s tex]
-      ['noun' %s (crip (noah !>(noun.p.item)))]  ::  TODO: remove?
-  ==
-::
-++  project-to-json
-  |=  p=project
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['dir' (dir-to-json dir.p)]
-      ['user_files' (dir-to-json ~(tap in user-files.p))]
-      ['to_compile' (dir-to-json ~(tap in to-compile.p))]
-      ['errors' (errors-to-json errors.p)]
-      ['town_sequencers' (town-sequencers-to-json town-sequencers.p)]
-      ['tests' (tests-to-json tests.p)]
-      ['dbug_dashboards' (dbug-dashboards-to-json dbug-dashboards.p)]
-  ==
-::
-++  state-to-json
-  |=  state=(map @ux chain:eng)
-  ^-  json
-  %-  pairs:enjs:format
-  %+  turn  ~(tap by state)
-  |=  [town-id=@ux =chain:eng]
-  [(scot %ux town-id) (chain:enjs:ui-lib chain)]
-::
-++  get-state-to-json
-  |=  [p=project our=@p now=@da]
-  ^-  json
-  ?~  state=(get-state p our now)  ~
-  (state-to-json state)
-::
-++  tests-to-json
-  |=  =tests
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  %+  turn  ~(tap by tests)
-  |=  [id=@ux =test]
-  [(scot %ux id) (test-to-json test)]
-::
-++  test-to-json
-  |=  =test
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['name' %s ?~(name.test '' u.name.test)]
-      ['test-steps-file' (path test-steps-file.test)]
-      ['test-surs' (test-surs-to-json test-surs.test)]
-      ['subject' %s ?:(?=(%& -.subject.test) '' p.subject.test)]
-      ['custom-step-definitions' (custom-step-definitions-to-json custom-step-definitions.test)]
-      ['steps' (test-steps-to-json steps.test)]
-      ['results' (test-results-to-json results.test)]
-  ==
-::
-++  test-surs-to-json
-  |=  =test-surs
-  ^-  json
-  %-  pairs:enjs:format
-  %+  turn  ~(tap by test-surs)
-  |=  [face=@tas p=path]
-  [face (path:enjs:format p)]
-::
-++  dir-to-json
-  |=  dir=(list path)
-  =,  enjs:format
-  ^-  json
-  :-  %a
-  %+  turn  dir
-  |=  p=^path
-  (path p)
-::
-++  errors-to-json
-  |=  errors=(map path @t)
-  ^-  json
-  %-  pairs:enjs:format
-  %+  turn  ~(tap by errors)
-  |=  [p=path error=@t]
-  [(crip (noah !>(`path`p))) %s error]
-::
-++  custom-step-definitions-to-json
-  |=  =custom-step-definitions
-  =,  enjs:format
-  ^-  json
-  %-  pairs
+++  make-recompile-custom-steps-cards
+  |=  $:  project-name=@t
+          test-id=@ux
+          =custom-step-definitions:zig
+      ==
+  ^-  (list card)
   %+  turn  ~(tap by custom-step-definitions)
-  |=  [id=@tas p=^path com=custom-step-compiled]
-  :-  id
-  %-  pairs
-  :+  ['path' (path p)]
-    ['custom-step-compiled' (custom-step-compiled-to-json com)]
-  ~
+  |=  [tag=@tas [p=path *]]
+  :^  %pass  /self-wire  %agent
+  :^  [our dap]:bowl  %poke  %ziggurat-action
+  !>  ^-  action:zig
+  project-name^[%add-custom-step test-id tag p]
 ::
-++  custom-step-compiled-to-json
-  |=  =custom-step-compiled
+++  add-custom-step
+  |=  [=test:zig project-name=@tas tag=@tas p=path]
+  ^-  (unit test:zig)
+  =/  file-scry-path=path
+    :-  (scot %p our.bowl)
+    (weld /[project-name]/(scot %da now.bowl) p)
+  ?.  .^(? %cu file-scry-path)  ~
+  =/  [surs=(list [face=@tas =path]) =hoon]
+    (parse-pile:conq (trip .^(@t %cx file-scry-path)))
+  =/  compilation-result=(each vase @t)
+    (compile-custom-step tag hoon subject.test)
+  =.  custom-step-definitions.test
+    %+  ~(put by custom-step-definitions.test)  tag
+    [p compilation-result]
+  ~?  ?=(%| -.compilation-result)
+    %ziggurat^%custom-step-compilation-failed^p.compilation-result
+  `test
+::  scry %ca or fetch from local cache
+::
+++  scry-or-cache-ca
+  |=  [project-desk=@tas p=path =ca-scry-cache:zig]
+  |^  ^-  [vase ca-scry-cache:zig]
+  =/  scry-path=path
+    :-  (scot %p our.bowl)
+    (weld /[project-desk]/(scot %da now.bowl) p)
+  ?~  cache=(~(get by ca-scry-cache) [project-desk p])
+    scry-and-cache-ca
+  ?.  =(p.u.cache .^(@ %cz scry-path))
+    scry-and-cache-ca
+  [q.u.cache ca-scry-cache]
+  ::
+  ++  scry-and-cache-ca
+    ^-  [vase ca-scry-cache:zig]
+    =/  scry-path=path
+      :-  (scot %p our.bowl)
+      (weld /[project-desk]/(scot %da now.bowl) p)
+    =/  scry-vase=vase  .^(vase %ca scry-path)
+    :-  scry-vase
+    %+  ~(put by ca-scry-cache)  [project-desk p]
+    [`@ux`.^(@ %cz scry-path) scry-vase]
+  --
+::
+::  json
+::
+++  enjs
   =,  enjs:format
-  ^-  json
-  %-  pairs
-  :+  ['compiled-successfully' %b ?=(%& -.custom-step-compiled)]
-    ['compile-error' %s ?:(?=(%& -.custom-step-compiled) '' p.custom-step-compiled)]
-  ~
-::
-++  town-sequencers-to-json
-  |=  town-sequencers=(map @ux @p)
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  %+  turn  ~(tap by town-sequencers)
-  |=  [town-id=@ux who=@p]
-  [(scot %ux town-id) %s (scot %p who)]
-::
-++  test-steps-to-json
-  |=  =test-steps
-  ^-  json
-  :-  %a
-  %+  turn  test-steps
-  |=([=test-step] (test-step-to-json test-step))
-::
-++  test-step-to-json
-  |=  =test-step
-  ^-  json
-  ?:  ?=(?(%dojo %poke %subscribe %custom-write) -.test-step)
-    (test-write-step-to-json test-step)
-  ?>  ?=(?(%scry %read-subscription %wait %custom-read) -.test-step)
-  (test-read-step-to-json test-step)
-::
-++  test-write-step-to-json
-  |=  test-step=test-write-step
-  =,  enjs:format
-  ^-  json
-  %+  frond  -.test-step
-  ?-    -.test-step
-      %dojo
+  |%
+  ++  project
+    |=  p=project:zig
+    ^-  json
     %-  pairs
-    :+  ['payload' (dojo-payload-to-json payload.test-step)]
-      ['expected' (write-expected-to-json expected.test-step)]
+    :~  ['dir' (dir dir.p)]
+        ['user_files' (dir ~(tap in user-files.p))]
+        ['to_compile' (dir ~(tap in to-compile.p))]
+        ['errors' (errors errors.p)]
+        ['town_sequencers' (town-sequencers town-sequencers.p)]
+        ['tests' (tests tests.p)]
+        ['dbug_dashboards' (dbug-dashboards dbug-dashboards.p)]
+    ==
+  ::
+  ++  state
+    |=  state=(map @ux chain:eng)
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by state)
+    |=  [town-id=@ux =chain:eng]
+    [(scot %ux town-id) (chain:enjs:ui-lib chain)]
+  ::
+  ++  get-state
+    |=  =project:zig
+    ^-  json
+    ?~  s=(^get-state project)  ~
+    (state s)
+  ::
+  ++  tests
+    |=  =tests:zig
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by tests)
+    |=  [id=@ux t=test:zig]
+    [(scot %ux id) (test t)]
+  ::
+  ++  test
+    |=  =test:zig
+    ^-  json
+    %-  pairs
+    :~  ['name' %s ?~(name.test '' u.name.test)]
+        ['test-steps-file' (path test-steps-file.test)]
+        ['test-surs' (test-surs test-surs.test)]
+        ['subject' %s ?:(?=(%& -.subject.test) '' p.subject.test)]
+        ['custom-step-definitions' (custom-step-definitions custom-step-definitions.test)]
+        ['steps' (test-steps steps.test)]
+        ['results' (test-results results.test)]
+    ==
+  ::
+  ++  test-surs
+    |=  =test-surs:zig
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by test-surs)
+    |=  [face=@tas p=^path]
+    [face (path p)]
+  ::
+  ++  dir
+    |=  dir=(list ^path)
+    ^-  json
+    :-  %a
+    %+  turn  dir
+    |=(p=^path (path p))
+  ::
+  ++  errors
+    |=  errors=(map ^path @t)
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by errors)
+    |=  [p=^path error=@t]
+    [(crip (noah !>(`^path`p))) %s error]
+  ::
+  ++  custom-step-definitions
+    |=  =custom-step-definitions:zig
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by custom-step-definitions)
+    |=  [id=@tas p=^path com=custom-step-compiled:zig]
+    :-  id
+    %-  pairs
+    :+  ['path' (path p)]
+      ['custom-step-compiled' (custom-step-compiled com)]
     ~
   ::
-      %poke
+  ++  custom-step-compiled
+    |=  =custom-step-compiled:zig
+    ^-  json
     %-  pairs
-    :+  ['payload' (poke-payload-to-json payload.test-step)]
-      ['expected' (write-expected-to-json expected.test-step)]
+    :+  ['compiled-successfully' %b ?=(%& -.custom-step-compiled)]
+      ['compile-error' %s ?:(?=(%& -.custom-step-compiled) '' p.custom-step-compiled)]
     ~
   ::
-      %subscribe
+  ++  town-sequencers
+    |=  town-sequencers=(map @ux @p)
+    ^-  json
     %-  pairs
-    :+  ['payload' (sub-payload-to-json payload.test-step)]
-      ['expected' (write-expected-to-json expected.test-step)]
-    ~
+    %+  turn  ~(tap by town-sequencers)
+    |=  [town-id=@ux who=@p]
+    [(scot %ux town-id) %s (scot %p who)]
   ::
-      %custom-write
-    %+  frond  tag.test-step
+  ++  test-steps
+    |=  =test-steps:zig
+    ^-  json
+    :-  %a
+    %+  turn  test-steps
+    |=([ts=test-step:zig] (test-step ts))
+  ::
+  ++  test-step
+    |=  =test-step:zig
+    ^-  json
+    ?:  ?=(?(%dojo %poke %subscribe %custom-write) -.test-step)
+      (test-write-step test-step)
+    ?>  ?=(?(%scry %read-subscription %wait %custom-read) -.test-step)
+    (test-read-step test-step)
+  ::
+  ++  test-write-step
+    |=  test-step=test-write-step:zig
+    ^-  json
+    %+  frond  -.test-step
+    ?-    -.test-step
+        %dojo
+      %-  pairs
+      :+  ['payload' (dojo-payload payload.test-step)]
+        ['expected' (write-expected expected.test-step)]
+      ~
+    ::
+        %poke
+      %-  pairs
+      :+  ['payload' (poke-payload payload.test-step)]
+        ['expected' (write-expected expected.test-step)]
+      ~
+    ::
+        %subscribe
+      %-  pairs
+      :+  ['payload' (sub-payload payload.test-step)]
+        ['expected' (write-expected expected.test-step)]
+      ~
+    ::
+        %custom-write
+      %+  frond  tag.test-step
+      %-  pairs
+      :+  ['payload' %s payload.test-step]
+        ['expected' (write-expected expected.test-step)]
+      ~
+    ==
+  ::
+  ++  test-read-step
+    |=  test-step=test-read-step:zig
+    ^-  json
+    %+  frond  -.test-step
+    ?-    -.test-step
+        %scry
+      %-  pairs
+      :+  ['payload' (scry-payload payload.test-step)]
+        ['expected' %s expected.test-step]
+      ~
+    ::
+        %dbug
+      %-  pairs
+      :+  ['payload' (dbug-payload payload.test-step)]
+        ['expected' %s expected.test-step]
+      ~
+    ::
+        %read-subscription
+      %-  pairs
+      :+  ['payload' (sub-payload payload.test-step)]
+        ['expected' %s expected.test-step]
+      ~
+    ::
+        %wait
+      (frond 'until' [%s (scot %dr until.test-step)])
+    ::
+        %custom-read
+      %+  frond  tag.test-step
+      %-  pairs
+      :+  ['payload' %s payload.test-step]
+        ['expected' %s expected.test-step]
+      ~
+    ==
+  ::
+  ++  scry-payload
+    |=  payload=scry-payload:zig
+    ^-  json
     %-  pairs
-    :+  ['payload' %s payload.test-step]
-      ['expected' (write-expected-to-json expected.test-step)]
-    ~
-  ==
-::
-++  test-read-step-to-json
-  |=  test-step=test-read-step
-  =,  enjs:format
-  ^-  json
-  %+  frond  -.test-step
-  ?-    -.test-step
-      %scry
+    :~  ['who' %s (scot %p who.payload)]
+        ['mold-name' %s mold-name.payload]
+        ['care' %s care.payload]
+        ['app' %s app.payload]
+        ['path' (path path.payload)]
+    ==
+  ::
+  ++  dbug-payload
+    |=  payload=dbug-payload:zig
+    ^-  json
     %-  pairs
-    :+  ['payload' (scry-payload-to-json payload.test-step)]
-      ['expected' %s expected.test-step]
-    ~
-  ::
-      %dbug
-    %-  pairs
-    :+  ['payload' (dbug-payload-to-json payload.test-step)]
-      ['expected' %s expected.test-step]
-    ~
-  ::
-      %read-subscription  ~  ::  TODO
-  ::
-      %wait
-    (frond 'until' [%s (scot %dr until.test-step)])
-  ::
-      %custom-read
-    %+  frond  tag.test-step
-    %-  pairs
-    :+  ['payload' %s payload.test-step]
-      ['expected' %s expected.test-step]
-    ~
-  ==
-::
-++  scry-payload-to-json
-  |=  payload=scry-payload
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['who' %s (scot %p who.payload)]
-      ['mold-name' %s mold-name.payload]
-      ['care' %s care.payload]
+    :^    ['who' %s (scot %p who.payload)]
+        ['mold-name' %s mold-name.payload]
       ['app' %s app.payload]
-      ['path' (path path.payload)]
-  ==
-::
-++  dbug-payload-to-json
-  |=  payload=dbug-payload
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :+  ['who' %s (scot %p who.payload)]
-    ['app' %s app.payload]
-  ~
-::
-++  poke-payload-to-json
-  |=  payload=poke-payload
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['who' %s (scot %p who.payload)]
-      ['app' %s app.payload]
-      ['mark' %s mark.payload]
+    ~
+  ::
+  ++  poke-payload
+    |=  payload=poke-payload:zig
+    ^-  json
+    %-  pairs
+    :~  ['who' %s (scot %p who.payload)]
+        ['to' %s (scot %p to.payload)]
+        ['app' %s app.payload]
+        ['mark' %s mark.payload]
+        ['payload' %s payload.payload]
+    ==
+  ::
+  ++  dojo-payload
+    |=  payload=dojo-payload:zig
+    ^-  json
+    %-  pairs
+    :+  ['who' %s (scot %p who.payload)]
       ['payload' %s payload.payload]
-  ==
-::
-++  dojo-payload-to-json
-  |=  payload=dojo-payload
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :+  ['who' %s (scot %p who.payload)]
-    ['payload' %s payload.payload]
-  ~
-::
-++  sub-payload-to-json
-  |=  payload=sub-payload
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  ['who' %s (scot %p who.payload)]
-      ['to' %s (scot %p to.payload)]
-      ['app' %s app.payload]
-      ['path' (path path.payload)]
-  ==
-::
-++  write-expected-to-json
-  |=  test-read-steps=(list test-read-step)
-  =,  enjs:format
-  ^-  json
-  :-  %a
-  %+  turn  test-read-steps
-  |=([=test-read-step] (test-read-step-to-json test-read-step))
-::
-++  test-results-to-json
-  |=  =test-results
-  =,  enjs:format
-  ^-  json
-  :-  %a
-  %+  turn  test-results
-  |=([=test-result] (test-result-to-json test-result))
-::
-++  test-result-to-json
-  |=  =test-result
-  =,  enjs:format
-  ^-  json
-  :-  %a
-  %+  turn  test-result
-  |=  [success=? expected=@t result=vase]
-  %-  pairs
-  :^    ['success' %b success]
-      ['expected' %s expected]
-    ['result' %s (crip (noah result))]
-  ~
-::
-++  dbug-dashboards-to-json
-  |=  dashboards=(map @tas dbug-dashboard)
-  ^-  json
-  %-  pairs:enjs:format
-  %+  turn  ~(tap by dashboards)
-  |=  [app=@tas d=dbug-dashboard]
-  [app (dbug-dashboard-to-json d)]
-::
-++  dbug-dashboard-to-json
-  |=  d=dbug-dashboard
-  =,  enjs:format
-  ^-  json
-  %-  pairs
-  :~  [%sur (path sur.d)]
-      [%mold-name %s mold-name.d]
-      [%mar (path mar.d)]
-      [%did-mold-compile %b ?=(%& mold.d)]
-      [%did-mar-tube-compile %b ?=(^ mar-tube.d)]
-  ==
-::
-++  json-single-string-object
-  |=  [key=@t error=tape]
-  =,  enjs:format
-  ^-  json
-  (frond key [%s (crip error)])
+    ~
+  ::
+  ++  sub-payload
+    |=  payload=sub-payload:zig
+    ^-  json
+    %-  pairs
+    :~  ['who' %s (scot %p who.payload)]
+        ['to' %s (scot %p to.payload)]
+        ['app' %s app.payload]
+        ['path' (path path.payload)]
+    ==
+  ::
+  ++  write-expected
+    |=  test-read-steps=(list test-read-step:zig)
+    ^-  json
+    :-  %a
+    %+  turn  test-read-steps
+    |=  [trs=test-read-step:zig]
+    (test-read-step trs)
+  ::
+  ++  test-results
+    |=  =test-results:zig
+    ^-  json
+    :-  %a
+    %+  turn  test-results
+    |=([tr=test-result:zig] (test-result tr))
+  ::
+  ++  test-result
+    |=  =test-result:zig
+    ^-  json
+    :-  %a
+    %+  turn  test-result
+    |=  [success=? expected=@t result=vase]
+    %-  pairs
+    :^    ['success' %b success]
+        ['expected' %s expected]
+      ['result' %s (crip (noah result))]
+    ~
+  ::
+  ++  dbug-dashboards
+    |=  dashboards=(map @tas dbug-dashboard:zig)
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by dashboards)
+    |=  [app=@tas d=dbug-dashboard:zig]
+    [app (dbug-dashboard d)]
+  ::
+  ++  dbug-dashboard
+    |=  d=dbug-dashboard:zig
+    ^-  json
+    %-  pairs
+    :~  [%sur (path sur.d)]
+        [%mold-name %s mold-name.d]
+        [%mar (path mar.d)]
+        [%did-mold-compile %b ?=(%& mold.d)]
+        [%did-mar-tube-compile %b ?=(^ mar-tube.d)]
+    ==
+  ::
+  ++  single-string-object
+    |=  [key=@t error=^tape]
+    ^-  json
+    (frond key (tape error))
+  --
+++  dejs
+  =,  dejs:format
+  |%
+  ++  uber-action
+    ^-  $-(json action:zig)
+    %-  ot
+    :~  [%project so]
+        [%action action]
+    ==
+  ::
+  ++  action
+    %-  of
+    :~  [%new-project ul]
+        [%delete-project ul]
+    ::
+        [%save-file (ot ~[[%file pa] [%text so]])]
+        [%delete-file (ot ~[[%file pa]])]
+    ::
+        [%set-virtualnet-address (ot ~[[%who (se %p)] [%address (se %ux)]])]
+    ::
+        [%register-contract-for-compilation (ot ~[[%file pa]])]
+        [%deploy-contract deploy]
+    ::
+        [%compile-contracts ul]
+        [%compile-contract (ot ~[[%path pa]])]
+        [%read-desk ul]
+    ::
+        [%add-test add-test]
+        [%add-and-run-test add-test]
+        [%add-and-queue-test add-test]
+        [%save-test-to-file (ot ~[[%id (se %ux)] [%path pa]])]
+    ::
+        [%add-test-file add-test-file]
+        [%add-and-run-test-file add-test-file]
+        [%add-and-queue-test-file add-test-file]
+    ::
+        [%delete-test (ot ~[[%id (se %ux)]])]
+        [%run-test (ot ~[[%id (se %ux)]])]
+        [%run-queue ul]
+        [%clear-queue ul]
+        [%queue-test (ot ~[[%id (se %ux)]])]
+    ::
+        [%add-custom-step add-custom-step]
+        [%delete-custom-step (ot ~[[%test-id (se %ux)] [%tag (se %tas)]])]
+    ::
+        [%add-app-to-dashboard add-app-to-dashboard]
+        [%delete-app-from-dashboard (ot ~[[%app (se %tas)]])]
+    ::
+        [%add-town-sequencer (ot ~[[%town-id (se %ux)] [%who (se %p)]])]
+        [%delete-town-sequencer (ot ~[[%town-id (se %ux)]])]
+    ::
+        [%stop-pyro-ships ul]
+        [%start-pyro-ships (ot ~[[%ships (ar (se %p))]])]
+        [%start-pyro-snap (ot ~[[%snap pa]])]
+    ::
+        [%publish-app docket]
+        [%add-user-file (ot ~[[%file pa]])]
+        [%delete-user-file (ot ~[[%file pa]])]
+    ==
+  ::
+  ++  docket
+    ^-  $-(json [@t @t @ux @t [@ud @ud @ud] @t @t])
+    %-  ot
+    :~  [%title so]
+        [%info so]
+        [%color (se %ux)]
+        [%image so]
+        [%version (at ~[ni ni ni])]
+        [%website so]
+        [%license so]
+    ==
+  ::
+  ++  deploy
+    ^-  $-(json [town-id=@ux contract-jam=path])
+    %-  ot
+    :~  [%town-id (se %ux)]
+        [%path pa]
+    ==
+  ::
+  ++  add-test
+    ^-  $-(json [(unit @t) test-surs:zig test-steps:zig])
+    %-  ot
+    :^    [%name so:dejs-soft:format]
+        [%test-surs (om pa)]
+      [%test-steps (ar test-step)]
+    ~
+  ::
+  ++  add-test-file
+    ^-  $-(json [name=(unit @t) test-steps-path=path])
+    %-  ot
+    :+  [%name so:dejs-soft:format]
+      [%path pa]
+    ~
+  ::
+  ++  test-step
+    ^-  $-(json test-step:zig)
+    %-  of
+    (welp test-read-step-inner test-write-step-inner)
+  ::
+  ++  test-read-step
+    ^-  $-(json test-read-step:zig)
+    (of test-read-step-inner)
+  ::
+  ++  test-read-step-inner
+    :~  [%scry (ot ~[[%payload scry-payload] [%expected so]])]
+        [%dbug (ot ~[[%payload dbug-payload] [%expected so]])]
+        [%read-subscription (ot ~[[%payload read-sub-payload] [%expected so]])]
+        [%wait (ot ~[[%until (se %dr)]])]
+        [%custom-read (ot ~[[%tag (se %tas)] [%payload so] [%expected so]])]
+    ==
+  ::
+  ++  scry-payload
+    ^-  $-(json scry-payload:zig)
+    %-  ot
+    :~  [%who (se %p)]
+        [%mold-name so]
+        [%care (se %tas)]
+        [%app (se %tas)]
+        [%path pa]
+    ==
+  ::
+  ++  dbug-payload
+    ^-  $-(json dbug-payload:zig)
+    %-  ot
+    :^    [%who (se %p)]
+        [%mold-name so]
+      [%app (se %tas)]
+    ~
+  ::
+  ++  read-sub-payload
+    ^-  $-(json read-sub-payload:zig)
+    %-  ot
+    :~  [%who (se %p)]
+        [%to (se %p)]
+        [%app (se %tas)]
+        [%path pa]
+    ==
+  ::
+  ++  test-write-step
+    ^-  $-(json test-write-step:zig)
+    (of test-write-step-inner)
+  ::
+  ++  test-write-step-inner
+    :~  [%dojo (ot ~[[%payload dojo-payload] [%expected (ar test-read-step)]])]
+        [%poke (ot ~[[%payload poke-payload] [%expected (ar test-read-step)]])]
+        [%subscribe (ot ~[[%payload subscribe-payload] [%expected (ar test-read-step)]])]
+        [%custom-write (ot ~[[%tag (se %tas)] [%payload so] [%expected (ar test-read-step)]])]
+    ==
+  ::
+  ++  dojo-payload
+    ^-  $-(json dojo-payload:zig)
+    %-  ot
+    :+  [%who (se %p)]
+      [%payload so]
+    ~
+  ::
+  ++  poke-payload
+    ^-  $-(json poke-payload:zig)
+    %-  ot
+    :~  [%who (se %p)]
+        [%to (se %p)]
+        [%app (se %tas)]
+        [%mark (se %tas)]
+        [%payload so]
+    ==
+  ::
+  ++  subscribe-payload
+    ^-  $-(json sub-payload:zig)
+    %-  ot
+    :~  [%who (se %p)]
+        [%to (se %p)]
+        [%app (se %tas)]
+        [%path pa]
+    ==
+  ::
+  ++  add-custom-step
+    ^-  $-(json [test-id=@ux tag=@tas custom-step-file=path])
+    %-  ot
+    :^    [%test-id (se %ux)]
+        [%tag (se %tas)]
+      [%path pa]
+    ~
+  ::
+  ++  add-app-to-dashboard
+    ^-  $-(json [app=@tas sur=path mold-name=@t mar=path])
+    %-  ot
+    :~  [%app (se %tas)]
+        [%sur pa]
+        [%mold-name so]
+        [%mar pa]
+    ==
+  --
 --

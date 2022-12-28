@@ -20,7 +20,7 @@
 ::
 ::  We get ++unix-event and ++pill from /-pyro
 ::
-/-  *pyro
+/-  *zig-pyro
 /+  pill, default-agent, naive, dbug, verb
 /*  cached-pill  %noun  /zig/snapshots/pill/pill
 =,  pill-lib=pill

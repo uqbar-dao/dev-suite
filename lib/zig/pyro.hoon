@@ -1,4 +1,4 @@
-/-  *pyro,
+/-  *zig-pyro,
     spider
 /+  strandio
 ::
