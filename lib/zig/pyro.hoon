@@ -66,6 +66,7 @@
   ++  update
     |=  =^update
     ^-  json
+    ?~  update  ~
     ?-    -.update
         %fleet-snap
       (frond -.update (fleet-snap [path has-path]:update))

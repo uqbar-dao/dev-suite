@@ -53,11 +53,12 @@
   ==
 ::
 ++  update
+  $@  ~
   $%  [%fleet-snap =path has-path=?]
       [%fleets snap-paths=(set path)]
       [%ships ships=(set ship)]
       [%fresh-pier-keys ships=(set ship)]
-      [%fleet-sizes events=(map ship [events-done=@ud events-qued=@ud])]
+      [%fleet-sizes =path events=(map ship [events-done=@ud events-qued=@ud])]
       [%events events=(map ship [events-done=@ud events-qued=@ud])]
       [%fleet-ships =path ships=(set ship)]
   ==

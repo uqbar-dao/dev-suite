@@ -120,35 +120,55 @@
     |=  =path
     ^-  (unit (unit cage))
     ?+    path  ~
-        [%x %fleet-snap ^]  ``pyro-update+!>((~(has by fleet-snaps) t.t.path))
-        [%x %fleets ~]      ``pyro-update+!>(~(key by fleet-snaps))
-        [%x %ships ~]       ``pyro-update+!>(~(key by piers))
-        [%x %fresh-pier-keys ~]  ``pyro-update+!>(~(key by fresh-piers))
-        [%x %pill ~]        ``pill+!>(pil)
-        [%x %fleet-sizes ^]
-      ?~  fleet=(~(get by fleet-snaps) t.t.path)  ~
+        [%x %fleet-snap ^]
       :^  ~  ~  %pyro-update
-      !>
+      !>  ^-  update
+      [%fleet-snap t.t.path (~(has by fleet-snaps) t.t.path)]
+    ::
+        [%x %fleets ~]
+      :^  ~  ~  %pyro-update
+      !>(`update`[%fleets ~(key by fleet-snaps)])
+    ::
+        [%x %ships ~]
+      :^  ~  ~  %pyro-update
+      !>(`update`[%ships ~(key by piers)])
+    ::
+        [%x %fresh-pier-keys ~]
+      :^  ~  ~  %pyro-update
+      !>(`update`[%fresh-pier-keys ~(key by fresh-piers)])
+    ::
+        [%x %fleet-sizes ^]
+      =+  fleet=(~(get by fleet-snaps) t.t.path)
+      :^  ~  ~  %pyro-update
+      !>  ^-  update
+      ?~  fleet  ~
+      :+  %fleet-sizes  t.t.path
       %-  ~(run by u.fleet)
       |=  p=pier
       [(lent event-log.p) ~(wyt in next-events.p)]
     ::
-        [%x %is-next-events-empty ~]
-      :^  ~  ~  %noun
-      !>   ^-  ?
-      %+  levy  ~(val by piers)
-      |=([p=pier] =(0 ~(wyt in next-events.p)))
-    ::
         [%x %events ~]
       :^  ~  ~  %pyro-update
-      !>
+      !>  ^-  update
+      :-  %events
       %-  ~(run by piers)
       |=  p=pier
       [(lent event-log.p) ~(wyt in next-events.p)]
     ::
         [%x %fleet-ships ^]
       =+  sips=(~(get by fleet-snaps) t.t.path)
-      ?~  sips  ~  ``pyro-update+!>(~(key by u.sips))
+      :^  ~  ~  %pyro-update
+      !>  ^-  update
+      ?~  sips  ~
+      [%fleet-ships t.t.path ~(key by u.sips)]
+    ::
+        [%x %pill ~]  ``pill+!>(pil)
+    ::
+        [%x %is-next-events-empty ~]
+      :^  ~  ~  %noun
+      !>   ^-  ?
+      %+  levy  ~(val by piers)
+      |=([p=pier] =(0 ~(wyt in next-events.p)))
     ::
     ::  scry into running virtual ships
     ::  ship, care, ship, desk, time, path     
