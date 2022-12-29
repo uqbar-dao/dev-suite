@@ -491,23 +491,31 @@
         :_  ~
         %-  make-project-error:zig-lib
         [project.act %compile-contract %error (crip message)]
+      ::
       =/  =build-result:zig
         %^  build-contract-project:zig-lib  smart-lib-vase
           /(scot %p our.bowl)/[i.path.act]/(scot %da now.bowl)
         t.path.act
-      ~&  "done building {<path>}, got errors:"
+      ?:  ?=(%| -.build-result)
+        =/  message=tape
+          "compilation failed with error: {<p.build-result>}"
+        :_  state
+        :_  ~
+        %-  make-project-error:zig-lib
+        [project.act %compile-contract %error (crip message)]
+      ::
       =/  save-result=(each card [path @t])
         %^  save-compiled-contract:zig-lib  project.act
         t.path.act  build-result
       ?:  ?=(%| -.save-result)
-        ~&  p.save-result
-        =.  errors.project
-          (~(put by errors.project) p.save-result)
-        :-  :_  ~
-            (make-project-update:zig-lib project.act project)
-        %=  state
-          projects  (~(put by projects) project.act project)
-        ==
+        =/  message=tape
+          %+  "failed to save newly compiled contract with"
+          " error: {<p.save-result>}"
+        :_  state
+        :_  ~
+        %-  make-project-error:zig-lib
+        [project.act %compile-contract %error (crip message)]
+      ::
       :_  state
       :+  p.save-result
         (make-read-desk:zig-lib project.act)
