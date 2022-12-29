@@ -59,4 +59,26 @@
 ++  subscribe
   |=  [who=@p to=@p app=@tas =path]
   (poke who who %subscriber %subscriber-action [%sub to app path])
+::
+++  dejs
+  =,  dejs:format
+  |%
+  ++  action
+    %-  of
+    :~  [%remove-ship (ot ~[[%who (se %p)]])]
+        [%snap-ships (ot ~[[%path pa] [%hers (ar (se %p))]])]
+        [%restore-snap (ot ~[[%path pa]])]
+        [%clear-snap (ot ~[[%path pa]])]
+        [%export-snap (ot ~[[%path pa]])]
+        [%import-snap (ot ~[[%jam-file-path pa] [%snap-label pa]])]
+        [%export-fresh-piers ul]
+        [%import-fresh-piers (ot ~[[%jam-file-path pa]])]
+        [%clear-snaps ul]
+        :: [%pill ]
+        [%swap-files (ot ~[[%des (se %tas)]])]
+        [%wish (ot ~[[%hers (ar (se %p))] [%p so]])]
+        [%unpause-events (ot ~[[%hers (ar (se %p))]])]
+        [%pause-events (ot ~[[%hers (ar (se %p))]])]
+    ==
+  --
 --

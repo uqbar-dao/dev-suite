@@ -270,8 +270,8 @@
   ?~  snapshot-ships  (pure:m ~)
   ;<  ~  bind:m
     %+  poke-our  %pyro
-    :-  %action
-    !>  ^-  pyro-action:pyro
+    :-  %pyro-action
+    !>  ^-  action:pyro
     :+  %snap-ships
       ?~  test-id  /[project-id]/(scot %ud step)
       /[project-id]/(scot %ux u.test-id)/(scot %ud step)

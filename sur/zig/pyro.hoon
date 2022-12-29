@@ -32,11 +32,10 @@
 ::
 +$  aqua-event
   $%  [%init-ship who=ship]
-      [%pause-events who=ship]
       [%event who=ship ue=unix-event]
   ==
 ::
-+$  pyro-action
++$  action
   $%  [%remove-ship who=ship]
       [%snap-ships =path hers=(list ship)]
       [%restore-snap =path]
@@ -46,6 +45,11 @@
       [%export-fresh-piers ~]
       [%import-fresh-piers jam-file-path=path]
       [%clear-snaps ~]
+      [%pill =pill]
+      [%swap-files des=@tas]
+      [%wish hers=(list ship) p=@t]
+      [%unpause-events hers=(list ship)]
+      [%pause-events hers=(list ship)]  ::  TODO: do we need this at events And 
   ==
 ::
 +$  vane  ?(%a %b %c %d %e %g %i %j %k)
