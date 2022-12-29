@@ -1,36 +1,36 @@
 /-  zig=zig-ziggurat
 /+  zig-lib=zig-ziggurat
-|_  =project-update:zig
+|_  =update:zig
 ::
 ++  grab
   |%
-  ++  noun  project-update:zig
+  ++  noun  update:zig
   --
 ::
 ++  grow
   |%
-  ++  noun  project-update
+  ++  noun  update
   ++  json
     =,  enjs:format
     ^-  ^json
-    ?-    -.project-update
+    ?-    -.update
         %error
       %+  frond  %error
-      %+  frond  project-name.project-update
+      %+  frond  project-name.update
       %-  pairs
-      :~  [%project-name %s project-name.project-update]
-          [%source %s source.project-update]
-          [%level %s level.project-update]
-          [%message %s message.project-update]
+      :~  [%project-name %s project-name.update]
+          [%source %s source.update]
+          [%level %s level.update]
+          [%message %s message.update]
       ==
     ::
         %update
-      =*  state    state.project-update
-      =*  project  +.+.+.project-update
+      =*  state    state.update
+      =*  project  +.+.+.update
       =/  j=^json  (project:enjs:zig-lib project)
       =/  name-and-state=(list [@ta ^json])
         :+  [%state (state:enjs:zig-lib state)]
-          [%project-name %s project-name.project-update]
+          [%project-name %s project-name.update]
         ~
       %+  frond  %update
       ?~  j           (pairs name-and-state)

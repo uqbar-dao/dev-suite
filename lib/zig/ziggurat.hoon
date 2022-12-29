@@ -25,17 +25,17 @@
   |=  [project-name=@t source=@tas level=@tas message=@t]
   ^-  cage
   ~&  %ziggurat^project-name^level^source^message
-  :-  %ziggurat-project-update
-  !>  ^-  project-update:zig
+  :-  %ziggurat-update
+  !>  ^-  update:zig
   [%error project-name source level message]
 ::
 ++  make-project-update
   |=  [project-name=@t =project:zig]
   ^-  card
   %-  fact:io  :_  ~[/project/[project-name]]
-  :-  %ziggurat-project-update
-  !>  ^-  project-update:zig
-  [%update project-name (get-state project) project]
+  :-  %ziggurat-update
+  !>  ^-  update:zig
+  [%project project-name (get-state project) project]
 ::
 ++  make-compile-contracts
   |=  [project-name=@t]
@@ -356,26 +356,48 @@
 ::
 ++  add-custom-step
   |=  [=test:zig project-name=@tas tag=@tas p=path]
-  ^-  (unit test:zig)
+  ^-  [(list card) test:zig]
   =/  file-scry-path=path
     :-  (scot %p our.bowl)
     (weld /[project-name]/(scot %da now.bowl) p)
-  ?.  .^(? %cu file-scry-path)  ~
+  ?.  .^(? %cu file-scry-path)
+    =/  message=tape  "file {<`path`p>} not found"
+    :_  test
+    :_  ~
+    %-  make-project-error
+    :^  project-name  %add-custom-step  %error
+    (crip message)
   =/  file-cord=@t  .^(@t %cx file-scry-path)
   =/  [imports=(list [face=@tas =path]) =hair]
     (parse-start-of-pile (trip file-cord))
   ?:  ?=(%| -.subject.test)
-    ~|("%ziggurat: subject must compile from imports before adding custom step" !!)
+    =/  message=tape
+      %+  weld  "subject must compile from imports before"
+      " adding custom step"
+    :_  test
+    :_  ~
+    %-  make-project-error
+    :^  project-name  %add-custom-step  %error
+    (crip message)
   =/  compilation-result=(each vase @t)
     %^  compile-and-call-buc  p.hair  p.subject.test
     %-  of-wain:format
     (slag (dec p.hair) (to-wain:format file-cord))
-  =.  custom-step-definitions.test
+  ?:  ?=(%| -.compilation-result)
+    =/  message=tape
+      %+  weld  "compilation failed with error:"
+      " {<p.compilation-result>}"
+    :_  test
+    :_  ~
+    %-  make-project-error
+    :^  project-name  %add-custom-step  %error
+    (crip message)
+  :-  ~
+  %=  test
+      custom-step-definitions
     %+  ~(put by custom-step-definitions.test)  tag
     [p compilation-result]
-  ~?  ?=(%| -.compilation-result)
-    %ziggurat^%custom-step-compilation-failed^p.compilation-result
-  `test
+  ==
 ::
 ++  get-state
   |=  =project:zig

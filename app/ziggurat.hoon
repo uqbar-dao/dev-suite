@@ -137,24 +137,23 @@
           test-steps
           ~
       ==
-    =.  test
-      %-  fall  :_  test
+    =^  cards=(list card)  test
       %-  add-custom-step:zig-lib
       :^  test  project-name  %scry-indexer
       /zig/custom-step-definitions/scry-indexer/hoon
-    =.  test
-      %-  fall  :_  test
+    =/  all-cards=(list card)  cards
+    =^  cards=(list card)  test
       %-  add-custom-step:zig-lib
       :^  test  project-name  %poke-wallet-transaction
       /zig/custom-step-definitions/poke-wallet-transaction/hoon
-    =.  test
-      %-  fall  :_  test
+    =.  all-cards  (weld cards all-cards)
+    =^  cards=(list card)  test
       %-  add-custom-step:zig-lib
       :^  test  project-name  %send-wallet-transaction
       /zig/custom-step-definitions/send-wallet-transaction/hoon
     :_  state
     :_  test
-    :_  ~
+    :_  (weld cards all-cards)
     (make-project-update:zig-lib project-name project)
   ::
   ++  add-and-queue-test
@@ -230,22 +229,21 @@
           test-steps
           ~
       ==
-    =.  test
-      %-  fall  :_  test
+    =^  cards=(list card)  test
       %-  add-custom-step:zig-lib
       :^  test  project-name  %scry-indexer
       /zig/custom-step-definitions/scry-indexer/hoon
-    =.  test
-      %-  fall  :_  test
+    =/  all-cards=(list card)  cards
+    =^  cards=(list card)  test
       %-  add-custom-step:zig-lib
       :^  test  project-name  %poke-wallet-transaction
       /zig/custom-step-definitions/poke-wallet-transaction/hoon
-    =.  test
-      %-  fall  :_  test
+    =.  all-cards  (weld cards all-cards)
+    =^  cards=(list card)  test
       %-  add-custom-step:zig-lib
       :^  test  project-name  %send-wallet-transaction
       /zig/custom-step-definitions/send-wallet-transaction/hoon
-    [[~ test] state]
+    [[(weld cards all-cards) test] state]
   ::
   ++  add-and-queue-test-file
     |=  [project-name=@t name=(unit @t) test-steps-file=path]
@@ -443,20 +441,20 @@
         ::
             ~
         ==
-      =.  test
-        %-  fall  :_  test
+      =^  cards=(list card)  test
         %-  add-custom-step:zig-lib
         :^  test  project.act  %deploy-contract
         /zig/custom-step-definitions/deploy-contract/hoon
-      =.  test
-        %-  fall  :_  test
+      =/  all-cards=(list card)  cards
+      =^  cards=(list card)  test
         %-  add-custom-step:zig-lib
         :^  test  project.act  %send-wallet-transaction
         /zig/custom-step-definitions/send-wallet-transaction/hoon
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
-      :-  :_  (make-run-queue:zig-lib project.act)^~
-          (make-project-update:zig-lib project.act project)
+      :-  :+  (make-run-queue:zig-lib project.act)
+            (make-project-update:zig-lib project.act project)
+          (weld cards all-cards)
       %=  state
           projects
         (~(put by projects) project.act project)
@@ -678,12 +676,11 @@
         %add-custom-step
       =/  =project:zig  (~(got by projects) project.act)
       =/  =test:zig     (~(got by tests.project) test-id.act)
-      =.  test
-        %-  fall  :_  test
+      =^  cards=(list card)  test
         (add-custom-step:zig-lib test [project tag path]:act)
       =.  project
         project(tests (~(put by tests.project) test-id.act test))
-      :-  :_  ~
+      :-  :_  cards
           (make-project-update:zig-lib project.act project)
       %=  state
         projects  (~(put by projects) project.act project)

@@ -156,7 +156,7 @@
 ::
 ::  subscription update types
 ::
-+$  project-update
++$  update
   $%
     $:  %error
         project-name=@t
@@ -165,7 +165,7 @@
         message=@t
     ==
   ::
-    $:  %update
+    $:  %project
         project-name=@t
         state=(map @ux chain:engine)
         project
