@@ -120,14 +120,14 @@
     |=  =path
     ^-  (unit (unit cage))
     ?+    path  ~
-        [%x %fleet-snap ^]  ``noun+!>((~(has by fleet-snaps) t.t.path))
-        [%x %fleets ~]      ``noun+!>(~(key by fleet-snaps))
-        [%x %ships ~]       ``noun+!>(~(key by piers))
-        [%x %fresh-pier-keys ~]  ``noun+!>(~(key by fresh-piers))
+        [%x %fleet-snap ^]  ``pyro-update+!>((~(has by fleet-snaps) t.t.path))
+        [%x %fleets ~]      ``pyro-update+!>(~(key by fleet-snaps))
+        [%x %ships ~]       ``pyro-update+!>(~(key by piers))
+        [%x %fresh-pier-keys ~]  ``pyro-update+!>(~(key by fresh-piers))
         [%x %pill ~]        ``pill+!>(pil)
         [%x %fleet-sizes ^]
       ?~  fleet=(~(get by fleet-snaps) t.t.path)  ~
-      :^  ~  ~  %noun
+      :^  ~  ~  %pyro-update
       !>
       %-  ~(run by u.fleet)
       |=  p=pier
@@ -140,7 +140,7 @@
       |=([p=pier] =(0 ~(wyt in next-events.p)))
     ::
         [%x %events ~]
-      :^  ~  ~  %noun
+      :^  ~  ~  %pyro-update
       !>
       %-  ~(run by piers)
       |=  p=pier
@@ -148,7 +148,7 @@
     ::
         [%x %fleet-ships ^]
       =+  sips=(~(get by fleet-snaps) t.t.path)
-      ?~  sips  ~  ``noun+!>(~(key by u.sips))
+      ?~  sips  ~  ``pyro-update+!>(~(key by u.sips))
     ::
     ::  scry into running virtual ships
     ::  ship, care, ship, desk, time, path     

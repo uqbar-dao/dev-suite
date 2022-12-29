@@ -52,6 +52,16 @@
       [%pause-events hers=(list ship)]  ::  TODO: do we need this at events And 
   ==
 ::
+++  update
+  $%  [%fleet-snap =path has-path=?]
+      [%fleets snap-paths=(set path)]
+      [%ships ships=(set ship)]
+      [%fresh-pier-keys ships=(set ship)]
+      [%fleet-sizes events=(map ship [events-done=@ud events-qued=@ud])]
+      [%events events=(map ship [events-done=@ud events-qued=@ud])]
+      [%fleet-ships =path ships=(set ship)]
+  ==
+::
 +$  vane  ?(%a %b %c %d %e %g %i %j %k)
 ::
 +$  aqua-effects
