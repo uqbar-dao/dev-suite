@@ -97,18 +97,18 @@
   ++  add-test
     |=  $:  project-name=@t
             name=(unit @t)
-            surs=test-surs:zig
+            imports=test-imports:zig
             =test-steps:zig
         ==
     ^-  [[(list card) test:zig] _state]
     =/  =project:zig  (~(got by projects) project-name)
     =/  addresses=vase  !>(virtualnet-addresses)
-    =/  zig-val=(unit path)  (~(get by surs) %zig)
-    =.  surs
-      ?^  zig-val  surs
-      (~(put by surs) %zig /sur/zig/ziggurat)
+    =/  zig-val=(unit path)  (~(get by imports) %zig)
+    =.  imports
+      ?^  zig-val  imports
+      (~(put by imports) %zig /sur/zig/ziggurat)
     ?:  ?|  &(?=(^ zig-val) !=(/sur/zig/ziggurat u.zig-val))
-            !=(1 (lent (fand ~[/sur/zig/ziggurat] ~(val by surs))))
+            !=(1 (lent (fand ~[/sur/zig/ziggurat] ~(val by imports))))
         ==
       =/  message=tape
         %+  weld  "%zig face reserved for /sur/zig/ziggurat"
@@ -119,10 +119,10 @@
       %-  make-project-error:zig-lib
       [project-name %add-test %error (crip message)]
     =^  subject=(each vase @t)  state
-      (compile-test-surs `@tas`project-name ~(tap by surs))
+      (compile-test-imports `@tas`project-name ~(tap by imports))
     ?:  ?=(%| -.subject)
       =/  message=tape
-        "compilation of test-surs failed: {<p.subject>}"
+        "compilation of test-imports failed: {<p.subject>}"
       :_  state
       :_  *test:zig
       :_  ~
@@ -131,7 +131,7 @@
     =/  =test:zig
       :*  name
           /
-          surs
+          imports
           subject
           ~
           test-steps
@@ -160,13 +160,13 @@
   ++  add-and-queue-test
     |=  $:  project-name=@t
             name=(unit @t)
-            =test-surs:zig
+            =test-imports:zig
             =test-steps:zig
         ==
     ^-  (quip card _state)
     =/  =project:zig  (~(got by projects) project-name)
     =^  [cards=(list card) =test:zig]  state
-        (add-test project-name name test-surs test-steps)
+        (add-test project-name name test-imports test-steps)
     ?:  =(*test:zig test)
       [cards state]  ::  encountered error
     =/  test-id=@ux  `@ux`(sham test)
@@ -195,13 +195,13 @@
       :-  (scot %p our.bowl)
       (weld /[project-name]/(scot %da now.bowl) p)
     =/  file-cord=@t  .^(@t %cx file-scry-path)
-    =/  [surs=(list [face=@tas =path]) =hair]
+    =/  [imports=(list [face=@tas =path]) =hair]
       (parse-start-of-pile:zig-lib (trip file-cord))
     =^  subject=(each vase @t)  state
-      (compile-test-surs `@tas`project-name surs)
+      (compile-test-imports `@tas`project-name imports)
     ?:  ?=(%| -.subject)
       =/  message=tape
-        "compilation of test-surs failed: {<p.subject>}"
+        "compilation of test-imports failed: {<p.subject>}"
       :_  state
       :_  *test:zig
       :_  ~
@@ -224,7 +224,7 @@
     =/  =test:zig
       :*  name
           p
-          (~(gas by *test-surs:zig) surs)
+          (~(gas by *test-imports:zig) imports)
           subject
           ~
           test-steps
@@ -267,8 +267,8 @@
       (~(put to test-queue) project-name test-id)
     ==
   ::
-  ++  compile-test-surs
-    |=  [project-desk=@tas surs=(list [face=@tas =path])]
+  ++  compile-test-imports
+    |=  [project-desk=@tas imports=(list [face=@tas =path])]
     ^-  [(each vase @t) _state]
     =/  compilation-result
       %-  mule
@@ -278,7 +278,7 @@
         :^  our.bowl  now.bowl  *test-results:zig
         [project-desk virtualnet-addresses]
       =/  [subject=vase c=ca-scry-cache:zig]
-        %+  roll  surs
+        %+  roll  imports
         |:  [[face=`@tas`%$ sur=`path`/] [subject=`vase`!>(..zuse) ca-scry-cache=ca-scry-cache]]
         ?:  =(%test-globals face)
           !!  ::  TODO: do better  [[%| '%test-globals face is reserved'] state]
@@ -411,15 +411,15 @@
         (~(got by town-sequencers.project) town-id.act)
       =/  address=@ux  (~(got by virtualnet-addresses) who)
       =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
-      =/  surs=(list [@tas path])
+      =/  imports=(list [@tas path])
         :+  [%indexer /sur/zig/indexer]
           [%zig /sur/zig/ziggurat]
         ~
       =^  subject=(each vase @t)  state
-        (compile-test-surs `@tas`project.act surs)
+        (compile-test-imports `@tas`project.act imports)
       ?:  ?=(%| -.subject)
         =/  message=tape
-          "compilation of test-surs failed: {<p.subject>}"
+          "compilation of test-imports failed: {<p.subject>}"
         :_  state
         :_  ~
         %-  make-project-error:zig-lib
@@ -427,7 +427,7 @@
       =/  =test:zig
         :*  `test-name
             ~
-            (~(gas by *test-surs:zig) surs)
+            (~(gas by *test-imports:zig) imports)
             subject
             ~
         ::
@@ -529,7 +529,7 @@
         %add-test
       =/  =project:zig  (~(got by projects) project.act)
       =^  [cards=(list card) =test:zig]  state
-        (add-test [project name test-surs test-steps]:act)
+        (add-test [project name test-imports test-steps]:act)
       ?:  =(*test:zig test)
         [cards state]  ::  encountered error
       =/  test-id=@ux  `@ux`(sham test)
@@ -540,14 +540,14 @@
         %add-and-run-test
       =^  cards  state
         %-  add-and-queue-test
-        [project name test-surs test-steps]:act
+        [project name test-imports test-steps]:act
       =?  cards  =(| test-running)
         (snoc cards (make-run-queue:zig-lib project.act))
       [cards state]
     ::
         %add-and-queue-test
       %-  add-and-queue-test
-      [project name test-surs test-steps]:act
+      [project name test-imports test-steps]:act
     ::
         %save-test-to-file
       =/  =project:zig  (~(got by projects) project.act)

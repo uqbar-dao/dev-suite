@@ -35,7 +35,7 @@
 +$  test
   $:  name=(unit @t)  ::  optional
       test-steps-file=path
-      =test-surs
+      =test-imports
       subject=(each vase @t)
       =custom-step-definitions
       steps=test-steps
@@ -45,7 +45,7 @@
 +$  expected-diff
   (map id:smart [made=(unit item:smart) expected=(unit item:smart) match=(unit ?)])
 ::
-+$  test-surs  (map @tas path)
++$  test-imports  (map @tas path)
 ::
 +$  test-steps  (list test-step)
 +$  test-step  $%(test-read-step test-write-step)
@@ -119,9 +119,9 @@
           [%compile-contract =path]  ::  path of form /[desk]/path/to/contract, e.g., /zig/con/fungible/hoon
           [%read-desk ~]  ::  make-project-update, make-watch-for-file-changes
       ::
-          [%add-test name=(unit @t) =test-surs =test-steps]  ::  name optional
-          [%add-and-run-test name=(unit @t) =test-surs =test-steps]
-          [%add-and-queue-test name=(unit @t) =test-surs =test-steps]
+          [%add-test name=(unit @t) =test-imports =test-steps]  ::  name optional
+          [%add-and-run-test name=(unit @t) =test-imports =test-steps]
+          [%add-and-queue-test name=(unit @t) =test-imports =test-steps]
           [%save-test-to-file id=@ux =path]
       ::
           [%add-test-file name=(unit @t) =path]  ::  name optional

@@ -241,9 +241,9 @@ Test steps can also be added by directly inputting them.
 This is useful for commandline testing or for frontends.
 For example, an equivalent to adding and queueing `%send-nec` above would be:
 ```hoon
-=test-surs (~(put by *(map @tas path)) %indexer /sur/zig/indexer)
+=test-imports (~(put by *(map @tas path)) %indexer /sur/zig/indexer)
 =test-steps ~[[%scry [~nec 'update:indexer' %gx %indexer /batch-order/0x0/noun] '[%batch-order batch-order=~[0xd85a.d919.9806.cbc2.b841.eb0d.854d.22af]]']]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-nec-direct test-surs test-steps]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-nec-direct test-imports test-steps]
 ```
 A `test-steps` added this way is assigned a test id like any other test.
 It can be saved to a file by looking up this id.

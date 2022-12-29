@@ -112,7 +112,7 @@
   %+  rap  3
   :~
   ::  imports
-    %+  roll  ~(tap by test-surs.test)
+    %+  roll  ~(tap by test-imports.test)
     |=  [[face=@tas file=path] imports=@t]
     %+  rap  3
     :~  imports
@@ -362,10 +362,10 @@
     (weld /[project-name]/(scot %da now.bowl) p)
   ?.  .^(? %cu file-scry-path)  ~
   =/  file-cord=@t  .^(@t %cx file-scry-path)
-  =/  [surs=(list [face=@tas =path]) =hair]
+  =/  [imports=(list [face=@tas =path]) =hair]
     (parse-start-of-pile (trip file-cord))
   ?:  ?=(%| -.subject.test)
-    ~|("%ziggurat: subject must compile from surs before adding custom step" !!)
+    ~|("%ziggurat: subject must compile from imports before adding custom step" !!)
   =/  compilation-result=(each vase @t)
     %^  compile-and-call-buc  p.hair  p.subject.test
     %-  of-wain:format
@@ -590,18 +590,18 @@
     %-  pairs
     :~  ['name' %s ?~(name.test '' u.name.test)]
         ['test-steps-file' (path test-steps-file.test)]
-        ['test-surs' (test-surs test-surs.test)]
+        ['test-imports' (test-imports test-imports.test)]
         ['subject' %s ?:(?=(%& -.subject.test) '' p.subject.test)]
         ['custom-step-definitions' (custom-step-definitions custom-step-definitions.test)]
         ['steps' (test-steps steps.test)]
         ['results' (test-results results.test)]
     ==
   ::
-  ++  test-surs
-    |=  =test-surs:zig
+  ++  test-imports
+    |=  =test-imports:zig
     ^-  json
     %-  pairs
-    %+  turn  ~(tap by test-surs)
+    %+  turn  ~(tap by test-imports)
     |=  [face=@tas p=^path]
     [face (path p)]
   ::
@@ -908,10 +908,10 @@
     ==
   ::
   ++  add-test
-    ^-  $-(json [(unit @t) test-surs:zig test-steps:zig])
+    ^-  $-(json [(unit @t) test-imports:zig test-steps:zig])
     %-  ot
     :^    [%name so:dejs-soft:format]
-        [%test-surs (om pa)]
+        [%test-imports (om pa)]
       [%test-steps (ar test-step)]
     ~
   ::
