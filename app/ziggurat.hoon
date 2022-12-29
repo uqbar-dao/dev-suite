@@ -508,7 +508,10 @@
         %=  state
           projects  (~(put by projects) project.act project)
         ==
-      [(make-read-desk:zig-lib project.act)^~ state]
+      :_  state
+      :+  p.save-result
+        (make-read-desk:zig-lib project.act)
+      ~
     ::
         %read-desk
       ::  for internal use -- app calls itself to scry clay
