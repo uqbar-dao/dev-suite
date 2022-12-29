@@ -1,3 +1,4 @@
+/-  zig=zig-ziggurat
 /+  zig-lib=zig-ziggurat
 |_  =project-update:zig
 ::
@@ -10,12 +11,13 @@
   |%
   ++  noun  project-update
   ++  json
+    =,  enjs:format
     ^-  ^json
     ?-    -.project-update
         %error
-      %+  frond:enjs:format  %error
-      %+  frond:enjs:format  project-name.project
-      %+  pairs:enjs:format
+      %+  frond  %error
+      %+  frond  project-name.project
+      %+  pairs
       :~  [%project-name %s project-name.project]
           [%source %s source.project]
           [%level %s level.project]
@@ -26,14 +28,14 @@
       =*  state    state.project-update
       =*  project  +.project-update
       =/  j=^json  (project:enjs:zig-lib project)
-      %+  frond:enjs:format  %update
-      %=  j
-          p
-        %-  ~(gas by p.j)
+      =/  name-and-state=(list [@ta json])
         :+  [%state state]
           [%project-name %s project-name.project]
         ~
-      ==
+      %+  frond  %update
+      ?~  j           (pairs name-and-state)
+      ?.  ?=(%o -.j)  (pairs name-and-state)
+      j(p (~(gas by p.j) name-and-state))
     ==
   --
 ::
