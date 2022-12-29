@@ -641,11 +641,8 @@
     ~&  %pyro^%import-fresh-piers^jam-file-path.act^piers-hash^~(key by imported-fresh-piers)
     `state(fresh-piers imported-fresh-piers)
   ::
-      %clear-snaps
-    `state(fleet-snaps ~)
-  ::
-      %pill
-    (poke-pill pill.act)
+      %clear-snaps  `state(fleet-snaps ~)
+      %pill  (poke-pill pill.act)
   ::
       %swap-files
     ::  %pyro must have a functional pill containing %base BEFORE
