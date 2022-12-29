@@ -167,7 +167,7 @@
   ::
     $:  %update
         project-name=@t
-        state=json  ::  state=(map @ux chain:engine)
+        state=(map @ux chain:engine)
         project
     ==
   ==

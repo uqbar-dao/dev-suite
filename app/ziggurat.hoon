@@ -103,27 +103,21 @@
     ^-  [[(list card) test:zig] _state]
     =/  =project:zig  (~(got by projects) project-name)
     =/  addresses=vase  !>(virtualnet-addresses)
+    =/  zig-val=(unit path)  (~(get by surs) %zig)
     =.  surs
-      ?~  zig-val=(~(get by surs) %zig)
-        (~(put by surs) %zig /sur/zig/ziggurat)
-      ?:  =(/sur/zig/ziggurat u.zig-val)  surs
+      ?^  zig-val  surs
+      (~(put by surs) %zig /sur/zig/ziggurat)
+    ?:  ?|  &(?=(^ zig-val) !=(/sur/zig/ziggurat u.zig-val))
+            !=(1 (lent (fand ~[/sur/zig/ziggurat] ~(val by surs))))
+        ==
       =/  message=tape
         %+  weld  "%zig face reserved for /sur/zig/ziggurat"
-        " ; got {<u.zig-val>}"
+        " ; got {<zig-val>}"
       :_  state
       :_  *test:zig
       :_  ~
       %-  make-project-error:zig-lib
-      [project.act %add-test %error (crip message)]
-    ?.  =(1 (lent (fand ~[/sur/zig/ziggurat] ~(val by surs))))
-      =/  message=tape
-        %+  weld  "%zig face reserved for /sur/zig/ziggurat"
-        " ; got {<u.zig-val>}"
-      :_  state
-      :_  *test:zig
-      :_  ~
-      %-  make-project-error:zig-lib
-      [project.act %add-test %error (crip message)]
+      [project-name %add-test %error (crip message)]
     =^  subject=(each vase @t)  state
       (compile-test-surs `@tas`project-name ~(tap by surs))
     ?:  ?=(%| -.subject)
@@ -133,7 +127,7 @@
       :_  *test:zig
       :_  ~
       %-  make-project-error:zig-lib
-      [project.act %add-test %error (crip message)]
+      [project-name %add-test %error (crip message)]
     =/  =test:zig
       :*  name
           /
@@ -195,7 +189,7 @@
       :_  *test:zig
       :_  ~
       %-  make-project-error:zig-lib
-      [project.act %add-test-file %error (crip message)]
+      [project-name %add-test-file %error (crip message)]
     =/  =project:zig  (~(got by projects) project-name)
     =/  file-scry-path=path
       :-  (scot %p our.bowl)
@@ -212,7 +206,7 @@
       :_  *test:zig
       :_  ~
       %-  make-project-error:zig-lib
-      [project.act %add-test-file %error (crip message)]
+      [project-name %add-test-file %error (crip message)]
     =/  test-steps-compilation-result=(each vase @t)
       %^  compile-and-call-buc:zig-lib  p.hair  p.subject
       %-  of-wain:format
@@ -225,7 +219,7 @@
       :_  *test:zig
       :_  ~
       %-  make-project-error:zig-lib
-      [project.act %add-test-file %error (crip message)]
+      [project-name %add-test-file %error (crip message)]
     =+  !<(=test-steps:zig p.test-steps-compilation-result)
     =/  =test:zig
       :*  name
@@ -287,7 +281,7 @@
         %+  roll  surs
         |:  [[face=`@tas`%$ sur=`path`/] [subject=`vase`!>(..zuse) ca-scry-cache=ca-scry-cache]]
         ?:  =(%test-globals face)
-          [[%| '%test-globals face is reserved'] state]
+          !!  ::  TODO: do better  [[%| '%test-globals face is reserved'] state]
         =^  sur-hoon=vase  ca-scry-cache
           %-  need  ::  TODO: handle error
           %^  scry-or-cache-ca:zig-lib  project-desk
@@ -1058,7 +1052,7 @@
     ?~  project=(~(get by projects) i.t.t.p)  ``json+!>(~)
     :^  ~  ~  %json
     !>  ^-  json
-    (get-state:enjs:zig-lib u.project)
+    (state:enjs:zig-lib (get-state:zig-lib u.project))
   ::
       [%project-tests @ ~]
     ?~  project=(~(get by projects) i.t.t.p)

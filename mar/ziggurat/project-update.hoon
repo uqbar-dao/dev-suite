@@ -29,7 +29,7 @@
       =*  project  +.project-update
       =/  j=^json  (project:enjs:zig-lib project)
       =/  name-and-state=(list [@ta json])
-        :+  [%state state]
+        :+  [%state (state:enjs:zig-lib state)]
           [%project-name %s project-name.project]
         ~
       %+  frond  %update

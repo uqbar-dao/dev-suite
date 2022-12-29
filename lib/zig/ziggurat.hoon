@@ -35,7 +35,7 @@
   %-  fact:io  :_  ~[/project/[project-name]]
   :-  %ziggurat-project-update
   !>  ^-  project-update:zig
-  [%update project-name (get-state:enjs project) project]
+  [%update project-name (get-state project) project]
 ::
 ++  make-compile-contracts
   |=  [project-name=@t]
@@ -575,12 +575,6 @@
     %+  turn  ~(tap by state)
     |=  [town-id=@ux =chain:eng]
     [(scot %ux town-id) (chain:enjs:ui-lib chain)]
-  ::
-  ++  get-state
-    |=  =project:zig
-    ^-  json
-    ?~  s=(^get-state project)  ~
-    (state s)
   ::
   ++  tests
     |=  =tests:zig
