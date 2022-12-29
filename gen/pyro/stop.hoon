@@ -3,5 +3,5 @@
 /-  *pyro
 :-  %say
 |=  [* [her=ship ~] ~]
-:-  %action
+:-  %pyro-action
 [%remove-ship her]

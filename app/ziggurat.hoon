@@ -729,7 +729,7 @@
       :_  state(pyro-ships-ready ~)
       :+  (~(watch-our pass:io /restore) /effect/restore)
         %+  ~(poke-our pass:io /self-wire)  %pyro
-        [%action !>([%restore-snap snap.act])]
+        [%pyro-action !>([%restore-snap snap.act])]
       ~
     ::
         %publish-app  :: TODO
