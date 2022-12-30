@@ -1,4 +1,6 @@
-/-  engine=zig-engine, docket, wallet=zig-wallet
+/-  docket,
+    engine=zig-engine,
+    wallet=zig-wallet
 /+  engine-lib=zig-sys-engine,
     smart=zig-sys-smart
 |%
@@ -23,7 +25,6 @@
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
       to-compile=(set path)
-      errors=(map path @t)
       town-sequencers=(map @ux @p)
       =tests
       dbug-dashboards=(map app=@tas dbug-dashboard)
@@ -104,6 +105,7 @@
 ::
 +$  action
   $:  project=@t
+      request-id=(unit @ud)
       $%  [%new-project ~]
           [%delete-project ~]
       ::
@@ -156,19 +158,52 @@
 ::
 ::  subscription update types
 ::
++$  update-tag
+  $?  %project-names
+      %projects
+      %project
+      %state
+      %new-project
+      %add-test
+      %compile-contract
+      %delete-test
+      %run-queue
+      %add-custom-step
+      %delete-custom-step
+      %add-app-to-dashboard
+      %delete-app-from-dashboard
+      %add-town-sequencer
+      %delete-town-sequencer
+      %add-user-file
+      %delete-user-file
+      %custom-step-compiled
+  ==
++$  update-level  ?(%success error-level)
++$  error-level   ?(%info %warning %error)
++$  update-info
+  [project-name=@t source=@tas request-id=(unit @ud)]
+::
+++  data  |$(this (each this [level=error-level message=@t]))
+::
 +$  update
-  $%
-    $:  %error
-        project-name=@t
-        source=@tas
-        level=@tas
-        message=@t
-    ==
-  ::
-    $:  %project
-        project-name=@t
-        state=(map @ux chain:engine)
-        project
-    ==
+  $@  ~
+  $%  [%project-names update-info payload=(data ~) project-names=(set @t)]
+      [%projects update-info payload=(data ~) =projects]
+      [%project update-info payload=(data ~) project]
+      [%state update-info payload=(data ~) state=(map @ux chain:engine)]
+      [%new-project update-info payload=(data ~)]
+      [%add-test update-info payload=(data test) test-id=@ux]
+      [%compile-contract update-info payload=(data ~)]
+      [%delete-test update-info payload=(data ~) test-id=@ux]
+      [%run-queue update-info payload=(data ~)]
+      [%add-custom-step update-info payload=(data ~) test-id=@ux tag=@tas]
+      [%delete-custom-step update-info payload=(data ~) test-id=@ux tag=@tas]
+      [%add-app-to-dashboard update-info payload=(data ~) app=@tas sur=path mold-name=@t mar=path]
+      [%delete-app-from-dashboard update-info payload=(data ~) app=@tas]
+      [%add-town-sequencer update-info payload=(data ~) town-id=@ux who=@p]
+      [%delete-town-sequencer update-info payload=(data ~) town-id=@ux]
+      [%add-user-file update-info payload=(data ~) file=path]
+      [%delete-user-file update-info payload=(data ~) file=path]
+      [%custom-step-compiled update-info payload=(data ~) test-id=@ux tag=@tas]
   ==
 --

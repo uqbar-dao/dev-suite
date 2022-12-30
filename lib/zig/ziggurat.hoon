@@ -15,41 +15,72 @@
 ::
 ::  utilities
 ::
-++  make-project-error
-  |=  [project-name=@t source=@tas level=@tas message=@t]
-  ^-  card
-  %-  fact:io  :_  ~[/project/[project-name]]
-  (make-project-error-cage project-name source level message)
-::
-++  make-project-error-cage
-  |=  [project-name=@t source=@tas level=@tas message=@t]
-  ^-  cage
-  ~&  %ziggurat^project-name^level^source^message
-  :-  %ziggurat-update
-  !>  ^-  update:zig
-  [%error project-name source level message]
-::
 ++  make-project-update
-  |=  [project-name=@t =project:zig]
+  |=  [=update-info:zig =project:zig]
   ^-  card
-  %-  fact:io  :_  ~[/project/[project-name]]
+  %-  fact:io  :_  ~[/project/[project-name.update-info]]
   :-  %ziggurat-update
   !>  ^-  update:zig
-  [%project project-name (get-state project) project]
+  [%project update-info [%& ~] project]
+::
+++  make-state-update
+  |=  [=update-info:zig =project:zig]
+  ^-  card
+  %-  fact:io  :_  ~[/project/[project-name.update-info]]
+  :-  %ziggurat-update
+  !>  ^-  update:zig
+  [%state update-info [%& ~] (get-state project)]
+::
+++  make-update
+  |=  [tag=update-tag:zig =update-info:zig data=* other=*]
+  ^-  card
+  %-  fact:io  :_  ~[/project/[project-name.update-info]]
+  (make-update-cage tag update-info data other)
+::
+++  make-update-cage
+  |=  [tag=update-tag:zig =update-info:zig data=* other=*]
+  ^-  cage
+  :-  %ziggurat-update
+  !>  ;;  update:zig
+  [tag update-info [%& data] other]
+::
+++  make-error
+  |=  $:  tag=update-tag:zig
+          =update-info:zig
+          level=error-level:zig
+          message=@t
+          other=(unit *)
+      ==
+  ^-  card
+  %-  fact:io  :_  ~[/project/[project-name.update-info]]
+  (make-error-cage tag update-info level message other)
+::
+++  make-error-cage
+  |=  $:  tag=update-tag:zig
+          =update-info:zig
+          level=error-level:zig
+          message=@t
+          other=(unit *)
+      ==
+  ^-  cage
+  :-  %ziggurat-update
+  !>  ;;  update:zig
+  ?~  other  [tag update-info [%| level message]]
+  [tag update-info [%| level message] u.other]
 ::
 ++  make-compile-contracts
-  |=  [project-name=@t]
+  |=  [project-name=@t request-id=(unit @ud)]
   ^-  card
   %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
-  !>(`action:zig`project-name^[%compile-contracts ~])
+  !>(`action:zig`project-name^request-id^[%compile-contracts ~])
 ::
 ++  make-compile-contract
-  |=  [project-name=@t file=path]
+  |=  [project-name=@t file=path request-id=(unit @ud)]
   ^-  card
   %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
-  !>(`action:zig`project-name^[%compile-contract file])
+  !>(`action:zig`project-name^request-id^[%compile-contract file])
 ::
 ++  make-watch-for-file-changes
   |=  [project-name=@tas files=(list path)]
@@ -61,11 +92,11 @@
   (turn files |=(p=path [%x p]))
 ::
 ++  make-read-desk
-  |=  project-name=@t
+  |=  [project-name=@t request-id=(unit @ud)]
   ^-  card
   %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
-  !>(`action:zig`project-name^[%read-desk ~])
+  !>(`action:zig`project-name^request-id^[%read-desk ~])
 ::
 ++  make-save-jam
   |=  [project-name=@t file=path non=*]
@@ -100,11 +131,11 @@
   ==
 ::
 ++  make-run-queue
-  |=  project-name=@t
+  |=  [project-name=@t request-id=(unit @ud)]
   ^-  card
   %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
-  !>(`action:zig`[project-name %run-queue ~])
+  !>(`action:zig`project-name^request-id^[%run-queue ~])
 ::
 ++  make-test-steps-file
   |=  =test:zig
@@ -345,6 +376,7 @@
   |=  $:  project-name=@t
           test-id=@ux
           =custom-step-definitions:zig
+          request-id=(unit @ud)
       ==
   ^-  (list card)
   %+  turn  ~(tap by custom-step-definitions)
@@ -352,10 +384,15 @@
   :^  %pass  /self-wire  %agent
   :^  [our dap]:bowl  %poke  %ziggurat-action
   !>  ^-  action:zig
-  project-name^[%add-custom-step test-id tag p]
+  project-name^request-id^[%add-custom-step test-id tag p]
 ::
 ++  add-custom-step
-  |=  [=test:zig project-name=@tas tag=@tas p=path]
+  |=  $:  =test:zig
+          project-name=@tas
+          tag=@tas
+          p=path
+          request-id=(unit @ud)
+      ==
   ^-  [(list card) test:zig]
   =/  file-scry-path=path
     :-  (scot %p our.bowl)
@@ -364,9 +401,9 @@
     =/  message=tape  "file {<`path`p>} not found"
     :_  test
     :_  ~
-    %-  make-project-error
-    :^  project-name  %add-custom-step  %error
-    (crip message)
+    %+  make-error  %add-custom-step
+    :^  [project-name %add-custom-step request-id]
+    %error  (crip message)  `[(sham test) tag]
   =/  file-cord=@t  .^(@t %cx file-scry-path)
   =/  [imports=(list [face=@tas =path]) =hair]
     (parse-start-of-pile (trip file-cord))
@@ -376,9 +413,9 @@
       " adding custom step"
     :_  test
     :_  ~
-    %-  make-project-error
-    :^  project-name  %add-custom-step  %error
-    (crip message)
+    %+  make-error  %add-custom-step
+    :^  [project-name %add-custom-step request-id]
+    %error  (crip message)  `[(sham test) tag]
   =/  compilation-result=(each vase @t)
     %^  compile-and-call-buc  p.hair  p.subject.test
     %-  of-wain:format
@@ -389,9 +426,9 @@
       " {<p.compilation-result>}"
     :_  test
     :_  ~
-    %-  make-project-error
-    :^  project-name  %add-custom-step  %error
-    (crip message)
+    %+  make-error  %add-custom-step
+    :^  [project-name %add-custom-step request-id]
+    %error  (crip message)  `[(sham test) tag]
   :-  ~
   %=  test
       custom-step-definitions
@@ -577,6 +614,107 @@
 ++  enjs
   =,  enjs:format
   |%
+  ++  update
+    |=  =update:zig
+    ^-  json
+    ?~  update  ~
+    =/  update-info=(list [@t json])
+      :^    ['project_name' %s project-name.update]
+          ['source' %s source.update]
+        :-  'request_id'
+        ?~(request-id.update ~ (numb u.request-id.update))
+      ~
+    %+  frond  -.update
+    %-  pairs
+    %+  weld  update-info
+    =*  payload  -.+.+.update  ::  TODO: remove this hack
+    ?>  ?=([@ *] payload)
+    ?:  ?=(%| -.payload)  (error +.payload)
+    ?-    -.update
+        %project-names
+      :+  ['project_names' (set-cords project-names.update)]
+        [%data ~]
+      ~
+    ::
+        %projects
+      :+  ['projects' (projects projects.update)]
+        [%data ~]
+      ~
+    ::
+        %project
+      :+  ['project' (project +.+.+.update)]
+        [%data ~]
+      ~
+    ::
+        %state
+      :+  ['state' (state state.update)]
+        [%data ~]
+      ~
+    ::
+      ::   ?(%new-project %compile-contract %run-queue)
+      :: ['data' ~]~
+    ::
+        %add-test
+      :+  ['test_id' %s (scot %ux test-id.update)]
+        :-  'data'
+        %+  frond  %test  (test p.payload.update)
+      ~
+    ::
+        %delete-test
+      :+  ['test_id' %s (scot %ux test-id.update)]
+        ['data' ~]
+      ~
+    ::
+        ?(%add-custom-step %delete-custom-step %custom-step-compiled)
+      :^    ['tag' %s tag.update]
+          ['test_id' %s (scot %ux test-id.update)]
+        ['data' ~]
+      ~
+    ::
+        %add-app-to-dashboard
+      :~  ['app' %s app.update]
+          ['sur' (path sur.update)]
+          ['mold_name' %s mold-name.update]
+          ['mar' (path mar.update)]
+          ['data' ~]
+      ==
+    ::
+        %delete-app-from-dashboard
+      :+  ['app' %s app.update]
+        ['data' ~]
+      ~
+    ::
+        %add-town-sequencer
+      :^    ['town_id' %s (scot %ux town-id.update)]
+          ['who' %s (scot %p who.update)]
+        ['data' ~]
+      ~
+    ::
+        %delete-town-sequencer
+      :+  ['town_id' %s (scot %ux town-id.update)]
+        ['data' ~]
+      ~
+    ::
+        ?(%add-user-file %delete-user-file)
+      :+  ['file' (path file.update)]
+        ['data' ~]
+      ~
+    ==
+  ::
+  ++  error
+    |=  [level=error-level:zig message=@t]
+    ^-  (list [@t json])
+    :+  ['level' %s `@tas`level]
+      ['message' %s message]
+    ~
+  ::
+  ++  projects
+    |=  ps=projects:zig
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by ps)
+    |=([p-name=@t p=project:zig] [p-name (project p)])
+  ::
   ++  project
     |=  p=project:zig
     ^-  json
@@ -584,7 +722,6 @@
     :~  ['dir' (dir dir.p)]
         ['user_files' (dir ~(tap in user-files.p))]
         ['to_compile' (dir ~(tap in to-compile.p))]
-        ['errors' (errors errors.p)]
         ['town_sequencers' (town-sequencers town-sequencers.p)]
         ['tests' (tests tests.p)]
         ['dbug_dashboards' (dbug-dashboards dbug-dashboards.p)]
@@ -611,10 +748,10 @@
     ^-  json
     %-  pairs
     :~  ['name' %s ?~(name.test '' u.name.test)]
-        ['test-steps-file' (path test-steps-file.test)]
-        ['test-imports' (test-imports test-imports.test)]
+        ['test_steps_file' (path test-steps-file.test)]
+        ['test_imports' (test-imports test-imports.test)]
         ['subject' %s ?:(?=(%& -.subject.test) '' p.subject.test)]
-        ['custom-step-definitions' (custom-step-definitions custom-step-definitions.test)]
+        ['custom_step_definitions' (custom-step-definitions custom-step-definitions.test)]
         ['steps' (test-steps steps.test)]
         ['results' (test-results results.test)]
     ==
@@ -634,14 +771,6 @@
     %+  turn  dir
     |=(p=^path (path p))
   ::
-  ++  errors
-    |=  errors=(map ^path @t)
-    ^-  json
-    %-  pairs
-    %+  turn  ~(tap by errors)
-    |=  [p=^path error=@t]
-    [(crip (noah !>(`^path`p))) %s error]
-  ::
   ++  custom-step-definitions
     |=  =custom-step-definitions:zig
     ^-  json
@@ -651,15 +780,15 @@
     :-  id
     %-  pairs
     :+  ['path' (path p)]
-      ['custom-step-compiled' (custom-step-compiled com)]
+      ['custom_step_compiled' (custom-step-compiled com)]
     ~
   ::
   ++  custom-step-compiled
     |=  =custom-step-compiled:zig
     ^-  json
     %-  pairs
-    :+  ['compiled-successfully' %b ?=(%& -.custom-step-compiled)]
-      ['compile-error' %s ?:(?=(%& -.custom-step-compiled) '' p.custom-step-compiled)]
+    :+  ['compiled_successfully' %b ?=(%& -.custom-step-compiled)]
+      ['compile_error' %s ?:(?=(%& -.custom-step-compiled) '' p.custom-step-compiled)]
     ~
   ::
   ++  town-sequencers
@@ -755,7 +884,7 @@
     ^-  json
     %-  pairs
     :~  ['who' %s (scot %p who.payload)]
-        ['mold-name' %s mold-name.payload]
+        ['mold_name' %s mold-name.payload]
         ['care' %s care.payload]
         ['app' %s app.payload]
         ['path' (path path.payload)]
@@ -766,7 +895,7 @@
     ^-  json
     %-  pairs
     :^    ['who' %s (scot %p who.payload)]
-        ['mold-name' %s mold-name.payload]
+        ['mold_name' %s mold-name.payload]
       ['app' %s app.payload]
     ~
   ::
@@ -838,12 +967,19 @@
     |=  d=dbug-dashboard:zig
     ^-  json
     %-  pairs
-    :~  [%sur (path sur.d)]
-        [%mold-name %s mold-name.d]
-        [%mar (path mar.d)]
-        [%did-mold-compile %b ?=(%& mold.d)]
-        [%did-mar-tube-compile %b ?=(^ mar-tube.d)]
+    :~  ['sur' (path sur.d)]
+        ['mold_name' %s mold-name.d]
+        ['mar' (path mar.d)]
+        ['did_mold_compile' %b ?=(%& mold.d)]
+        ['did_mar_tube_compile' %b ?=(^ mar-tube.d)]
     ==
+  ::
+  ++  set-cords
+    |=  cords=(set @t)
+    ^-  json
+    :-  %a
+    %+  turn  ~(tap in cords)
+    |=([cord=@t] [%s cord])
   ::
   ++  single-string-object
     |=  [key=@t error=^tape]
@@ -857,6 +993,7 @@
     ^-  $-(json action:zig)
     %-  ot
     :~  [%project so]
+        [%request-id ni:dejs-soft:format]
         [%action action]
     ==
   ::

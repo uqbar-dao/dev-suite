@@ -120,7 +120,7 @@ The `addresses:test-globals` map is useful for easy access and pairing between v
 
 Contracts can be deployed to the virtualship testnet for a project using the `%deploy-contract` poke:
 ```hoon
-:ziggurat &ziggurat-action [%foo %deploy-contract town-id=0x0 /con/compiled/nft/jam]
+:ziggurat &ziggurat-action [%foo ~ %deploy-contract town-id=0x0 /con/compiled/nft/jam]
 ```
 
 ## Custom inputs
@@ -157,7 +157,7 @@ The `dbug` dashboard requires set up before use.
 To set it up, poke `%ziggurat` with `%add-app-to-dashboard`.
 For example, to add the `%indexer` for project `'foo'`:
 ```hoon
-:ziggurat &ziggurat-action [project=%foo %add-app-to-dashboard app=%indexer sur=/sur/zig/indexer/hoon mold-name='versioned-state:indexer' mar=/]
+:ziggurat &ziggurat-action [project=%foo ~ %add-app-to-dashboard app=%indexer sur=/sur/zig/indexer/hoon mold-name='versioned-state:indexer' mar=/]
 ```
 The `sur` field is required, and contains the definition of the mold given by `mold-name`: the agent state.
 The `mar` field is optional: if provided it should have a `+grow` arm to `json` from the agent state.
@@ -184,29 +184,29 @@ TODO: Add a fallback to the scry to return unformatted `+dbug` output without se
 
 Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 ```hoon
-:ziggurat &ziggurat-action [%foo %new-project ~]
+:ziggurat &ziggurat-action [%foo ~ %new-project ~]
 
 ::  Setup virtualship testnet, like following https://github.com/uqbar-dao/uqbar-core/blob/master/readme.md
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%setup /zig/test-steps/setup/hoon]
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%setup /zig/test-steps/setup/hoon]
 
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%scry-nec /zig/test-steps/scry-nec/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%scry-bud /zig/test-steps/scry-bud/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%scry-clay /zig/test-steps/scry-clay/hoon]
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%scry-nec /zig/test-steps/scry-nec/hoon]
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%scry-bud /zig/test-steps/scry-bud/hoon]
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%scry-clay /zig/test-steps/scry-clay/hoon]
 
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%subscribe-nec /zig/test-steps/subscribe-nec/hoon]
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%subscribe-nec /zig/test-steps/subscribe-nec/hoon]
 
 ::  The same ZIGS send done in two ways:
 ::   Using a custom-step-definition and pokes,
 ::   Using Dojo commands.
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%send-nec /zig/test-steps/send-nec/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%send-nec-dojo /zig/test-steps/send-nec-dojo/hoon]
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%send-nec /zig/test-steps/send-nec/hoon]
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%send-nec-dojo /zig/test-steps/send-nec-dojo/hoon]
 
-:ziggurat &ziggurat-action [%foo %start-pyro-ships ~[~nec ~bud]]
-:ziggurat &ziggurat-action [%$ %run-queue ~]
+:ziggurat &ziggurat-action [%foo ~ %start-pyro-ships ~[~nec ~bud]]
+:ziggurat &ziggurat-action [%$ ~ %run-queue ~]
 
 ::  Tell `%ziggurat` not to run any more tests right now.
 ::   Also resets state when `%start-pyro-ships` is called again.
-:ziggurat &ziggurat-action [%foo %stop-pyro-ships ~]
+:ziggurat &ziggurat-action [%foo ~ %stop-pyro-ships ~]
 ```
 
 ### `send-nec` from the virtualship Dojo
