@@ -520,48 +520,47 @@
       (make-read-desk:zig-lib [project request-id]:act)
     ::
         %compile-contract
-      !!
-      :: ::  for internal use -- app calls itself to scry clay
-      :: ?>  ?=(%ziggurat dap.bowl)
-      :: =/  =project:zig  (~(got by projects) project.act)
-      :: ?~  path.act
-      ::   =/  message=tape  "contract path must not be empty"
-      ::   :_  state
-      ::   :_  ~
-      ::   %+  make-error:zig-lib  %compile-contract
-      ::   :^  [project -.+.+ request-id]:act  %error
-      ::   (crip message)  ~
-      :: ::
-      :: =/  =build-result:zig
-      ::   %^  build-contract-project:zig-lib  smart-lib-vase
-      ::     /(scot %p our.bowl)/[i.path.act]/(scot %da now.bowl)
-      ::   t.path.act
-      :: ?:  ?=(%| -.build-result)
-      ::   =/  message=tape
-      ::     "compilation failed with error: {<p.build-result>}"
-      ::   :_  state
-      ::   :_  ~
-      ::   %+  make-error:zig-lib  %compile-contract
-      ::   :^  [project -.+.+ request-id]:act  %error
-      ::   (crip message)  ~
-      :: ::
-      :: =/  save-result=(each card [path @t])
-      ::   %^  save-compiled-contract:zig-lib  project.act
-      ::   t.path.act  build-result
-      :: ?:  ?=(%| -.save-result)
-      ::   =/  message=tape
-      ::     %+  "failed to save newly compiled contract with"
-      ::     " error: {<p.save-result>}"
-      ::   :_  state
-      ::   :_  ~
-      ::   %+  make-error:zig-lib  %compile-contract
-      ::   :^  [project -.+.+ request-id]:act  %error
-      ::   (crip message)  ~
-      :: ::
-      :: :_  state
-      :: :+  p.save-result
-      ::   (make-read-desk:zig-lib [project request-id]:act)
-      :: ~
+      ::  for internal use -- app calls itself to scry clay
+      ?>  ?=(%ziggurat dap.bowl)
+      =/  =project:zig  (~(got by projects) project.act)
+      ?~  path.act
+        =/  message=tape  "contract path must not be empty"
+        :_  state
+        :_  ~
+        %+  make-error:zig-lib  %compile-contract
+        :^  [project -.+.+ request-id]:act  %error
+        (crip message)  ~
+      ::
+      =/  =build-result:zig
+        %^  build-contract-project:zig-lib  smart-lib-vase
+          /(scot %p our.bowl)/[i.path.act]/(scot %da now.bowl)
+        t.path.act
+      ?:  ?=(%| -.build-result)
+        =/  message=tape
+          "compilation failed with error: {<p.build-result>}"
+        :_  state
+        :_  ~
+        %+  make-error:zig-lib  %compile-contract
+        :^  [project -.+.+ request-id]:act  %error
+        (crip message)  ~
+      ::
+      =/  save-result=(each card [path @t])
+        %^  save-compiled-contract:zig-lib  project.act
+        t.path.act  build-result
+      ?:  ?=(%| -.save-result)
+        =/  message=tape
+          %+  weld  "failed to save newly compiled contract"
+          " with error: {<p.save-result>}"
+        :_  state
+        :_  ~
+        %+  make-error:zig-lib  %compile-contract
+        :^  [project -.+.+ request-id]:act  %error
+        (crip message)  ~
+      ::
+      :_  state
+      :+  p.save-result
+        (make-read-desk:zig-lib [project request-id]:act)
+      ~
     ::
         %read-desk
       ::  for internal use -- app calls itself to scry clay
