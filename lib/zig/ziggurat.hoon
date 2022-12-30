@@ -21,7 +21,7 @@
   %-  fact:io  :_  ~[/project/[project-name.update-info]]
   :-  %ziggurat-update
   !>  ^-  update:zig
-  [%project update-info [%& ~] project]
+  [%project update-info [%& ~] (show-project project)]
 ::
 ++  make-state-update
   |=  [=update-info:zig =project:zig]
@@ -73,13 +73,13 @@
     |=  =projects:zig
     ^-  vase
     !>  ^-  update:zig
-    [%projects update-info [%& ~] projects]
+    [%projects update-info [%& ~] (show-projects projects)]
   ::
   ++  project
     |=  =project:zig
     ^-  vase
     !>  ^-  update:zig
-    [%project update-info [%& ~] project]
+    [%project update-info [%& ~] (show-project project)]
   ::
   ++  state
     |=  state=(map @ux chain:eng)
@@ -96,7 +96,7 @@
     |=  [=test:zig test-id=@ux]
     ^-  vase
     !>  ^-  update:zig
-    [%add-test update-info [%& test] test-id]
+    [%add-test update-info [%& (show-test test)] test-id]
   ::
   ++  compile-contract
     ^-  vase
@@ -189,13 +189,13 @@
     |=  [message=@t =projects:zig]
     ^-  vase
     !>  ^-  update:zig
-    [%projects update-info [%| level message] projects]
+    [%projects update-info [%| level message] (show-projects projects)]
   ::
   ++  project
     |=  [message=@t =project:zig]
     ^-  vase
     !>  ^-  update:zig
-    [%project update-info [%| level message] project]
+    [%project update-info [%| level message] (show-project project)]
   ::
   ++  state
     |=  [message=@t state=(map @ux chain:eng)]
@@ -561,6 +561,53 @@
   |=  =tank
   (of-wall:format (wash [0 80] tank))
 ::
+++  show-projects
+  |=  =projects:zig
+  ^-  shown-projects:zig
+  %-  ~(gas by *shown-projects:zig)
+  %+  turn  ~(tap by projects)
+  |=  [project-name=@t =project:zig]
+  [project-name (show-project project)]
+::
+++  show-project
+  |=  =project:zig
+  ^-  shown-project:zig
+  :*  dir=dir.project
+      user-files=user-files.project
+      to-compile=to-compile.project
+      town-sequencers=town-sequencers.project
+      tests=(show-tests tests.project)
+      dbug-dashboards=(show-dbug-dashboards dbug-dashboards.project)
+  ==
+::
+++  show-tests
+  |=  =tests:zig
+  ^-  shown-tests:zig
+  %-  ~(gas by *shown-tests:zig)
+  %+  turn  ~(tap by tests)
+  |=  [test-id=@ux =test:zig]
+  [test-id (show-test test)]
+::
+++  show-test
+  |=  =test:zig
+  ^-  shown-test:zig
+  :*  name=name.test
+      test-steps-file=test-steps-file.test
+      test-imports=test-imports.test
+      subject=?:(?=(%& -.subject.test) [%& *vase] subject.test)
+      custom-step-definitions=(show-custom-step-definitions custom-step-definitions.test)
+      steps=steps.test
+      results=(show-test-results results.test)
+  ==
+::
+++  show-custom-step-definitions
+  |=  =custom-step-definitions:zig
+  ^-  custom-step-definitions:zig
+  %-  ~(run by custom-step-definitions)
+  |=  [p=path c=custom-step-compiled:zig]
+  :-  p
+  ?:  ?=(%& -.c)  [%& *vase]  c
+::
 ++  show-test-results
   |=  =test-results:zig
   ^-  shown-test-results:zig
@@ -575,6 +622,23 @@
   :+  success  expected
   ?:  (lte 1.024 (met 3 res-text))  '<elided>'  ::  TODO: unhardcode
   res-text
+::
+++  show-dbug-dashboards
+  |=  dds=(map @tas dbug-dashboard:zig)
+  ^-  (map @tas dbug-dashboard:zig)
+  %-  ~(run by dds)
+  |=(dd=dbug-dashboard:zig (show-dbug-dashboard dd))
+::
+++  show-dbug-dashboard
+  |=  dd=dbug-dashboard:zig
+  ^-  dbug-dashboard:zig
+  %=  dd
+      mold
+    ?:  ?=(%& -.mold.dd)  [%& *vase]  mold.dd
+  ::
+      mar-tube
+    ?~  mar-tube.dd  ~  `*tube:clay
+  ==
 ::
 ++  noah-slap-ream
   |=  [number-sur-lines=@ud subject=vase payload=@t]
@@ -592,9 +656,8 @@
   ?:  ?=(%& -.compilation-result)  compilation-result
   =/  error-tanks=(list tank)  (scag 2 p.compilation-result)
   ?.  ?=([^ [%leaf ^] ~] error-tanks)
-    ~&  p.compilation-result^(get-formatted-error p.compilation-result)
     :-  %|
-    (get-formatted-error (scag 1 p.compilation-result))
+    (get-formatted-error (scag 2 p.compilation-result))
   =/  [error-line-number=@ud col=@ud]
     (parse-error-line-col p.i.t.error-tanks)
   =/  real-line-number=@ud
@@ -897,12 +960,12 @@
       ~
     ::
         %projects
-      :+  ['projects' (projects projects.update)]
+      :+  ['projects' (shown-projects projects.update)]
         [%data ~]
       ~
     ::
         %project
-      :+  ['project' (project +.+.+.update)]
+      :+  ['project' (shown-project +.+.+.update)]
         [%data ~]
       ~
     ::
@@ -917,7 +980,7 @@
         %add-test
       :+  ['test_id' %s (scot %ux test-id.update)]
         :-  'data'
-        (frond %test (test p.payload.update))
+        (frond %test (shown-test p.payload.update))
       ~
     ::
         %delete-test
@@ -997,6 +1060,26 @@
         ['dbug_dashboards' (dbug-dashboards dbug-dashboards.p)]
     ==
   ::
+  ++  shown-projects
+    |=  ps=shown-projects:zig
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by ps)
+    |=  [p-name=@t p=shown-project:zig]
+    [p-name (shown-project p)]
+  ::
+  ++  shown-project
+    |=  p=shown-project:zig
+    ^-  json
+    %-  pairs
+    :~  ['dir' (dir dir.p)]
+        ['user_files' (dir ~(tap in user-files.p))]
+        ['to_compile' (dir ~(tap in to-compile.p))]
+        ['town_sequencers' (town-sequencers town-sequencers.p)]
+        ['tests' (shown-tests tests.p)]
+        ['dbug_dashboards' (dbug-dashboards dbug-dashboards.p)]
+    ==
+  ::
   ++  state
     |=  state=(map @ux chain:eng)
     ^-  json
@@ -1024,6 +1107,27 @@
         ['custom_step_definitions' (custom-step-definitions custom-step-definitions.test)]
         ['test_steps' (test-steps steps.test)]
         ['test_results' (test-results results.test)]
+    ==
+  ::
+  ++  shown-tests
+    |=  tests=shown-tests:zig
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by tests)
+    |=  [id=@ux t=shown-test:zig]
+    [(scot %ux id) (shown-test t)]
+  ::
+  ++  shown-test
+    |=  test=shown-test:zig
+    ^-  json
+    %-  pairs
+    :~  ['name' %s ?~(name.test '' u.name.test)]
+        ['test_steps_file' (path test-steps-file.test)]
+        ['test_imports' (test-imports test-imports.test)]
+        ['subject' %s ?:(?=(%& -.subject.test) '' p.subject.test)]
+        ['custom_step_definitions' (custom-step-definitions custom-step-definitions.test)]
+        ['test_steps' (test-steps steps.test)]
+        ['test_results' (shown-test-results results.test)]
     ==
   ::
   ++  test-imports

@@ -75,14 +75,14 @@
   ^-  (quip card _this)
   ?+    p  (on-watch:def p)
       [%pyro-done ~]  `this
-      [%project @ ~]
-    ::  serve updates about state of a given project
-    =/  name=@t  `@t`i.t.p
-    ?~  proj=(~(get by projects) name)  `this
-    :_  this
-    :_  ~
-    %+  make-project-update:zig-lib
-    [name %on-watch-project ~]  u.proj
+      [%project @ ~]  `this
+    :: ::  serve updates about state of a given project
+    :: =/  name=@t  `@t`i.t.p
+    :: ?~  proj=(~(get by projects) name)  `this
+    :: :_  this
+    :: :_  ~
+    :: %+  make-project-update:zig-lib
+    :: [name %on-watch-project ~]  u.proj
   ==
 ::
 ++  on-poke
@@ -1101,9 +1101,6 @@
   ?.  =(%x -.p)  ~
   =,  format
   ?+    +.p  (on-peek:def p)
-  ::
-  ::  NOUNS
-  ::
       [%project-names ~]
     :^  ~  ~  %ziggurat-update
     !>  ^-  update:zig
@@ -1112,47 +1109,17 @@
   ::
       [%projects ~]
     :^  ~  ~  %ziggurat-update
-    !>  ^-  update:zig
-    :^  %projects  ['' %projects ~]  [%& ~]
-    %-  ~(run by projects)
-    |=  =project:zig
-    %=  project
-        tests
-      %-  ~(run by tests.project)
-      |=  =test:zig
-      %=  test
-          subject
-        ?:(?=(%& -.subject.test) [%& *vase] subject.test)
-      ::
-          custom-step-definitions
-        %-  ~(run by custom-step-definitions.test)
-        |=  [p=path q=custom-step-compiled:zig]
-        [p ?:(?=(%& -.q) [%& *vase] q)]
-      ==
-    ==
+    %.  projects
+    ~(projects make-update-vase:zig-lib ['' %projects ~])
   ::
       [%project @ ~]
     =*  project-name  i.t.t.p
     =/  project=(unit project:zig)
       (~(get by projects) project-name)
     :^  ~  ~  %ziggurat-update
-    !>  ^-  update:zig
-    ?~  project  ~
-    :^  %project  [project-name %project ~]  [%& ~]
-    %=  u.project
-        tests
-      %-  ~(run by tests.u.project)
-      |=  =test:zig
-      %=  test
-          subject
-        ?:(?=(%& -.subject.test) [%& *vase] subject.test)
-      ::
-          custom-step-definitions
-        %-  ~(run by custom-step-definitions.test)
-        |=  [p=path q=custom-step-compiled:zig]
-        [p ?:(?=(%& -.q) [%& *vase] q)]
-      ==
-    ==
+    ?~  project  !>(`update:zig`~)
+    %.  u.project
+    ~(project make-update-vase:zig-lib [project-name %project ~])
   ::
       [%state @ ~]
     =*  project-name  i.t.t.p

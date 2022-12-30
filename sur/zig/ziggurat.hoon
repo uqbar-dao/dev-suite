@@ -77,8 +77,6 @@
 ::
 +$  test-results  (list test-result)
 +$  test-result   (list [success=? expected=@t result=vase])
-+$  shown-test-results  (list shown-test-result)
-+$  shown-test-result   (list [success=? expected=@t result=@t])
 ::
 +$  template  ?(%fungible %nft %blank)
 ::
@@ -189,11 +187,11 @@
 +$  update
   $@  ~
   $%  [%project-names update-info payload=(data ~) project-names=(set @t)]
-      [%projects update-info payload=(data ~) =projects]
-      [%project update-info payload=(data ~) project]
+      [%projects update-info payload=(data ~) projects=shown-projects]
+      [%project update-info payload=(data ~) shown-project]
       [%state update-info payload=(data ~) state=(map @ux chain:engine)]
       [%new-project update-info payload=(data ~)]
-      [%add-test update-info payload=(data test) test-id=@ux]
+      [%add-test update-info payload=(data shown-test) test-id=@ux]
       [%compile-contract update-info payload=(data ~)]
       [%delete-test update-info payload=(data ~) test-id=@ux]
       [%run-queue update-info payload=(data ~)]
@@ -208,4 +206,26 @@
       [%custom-step-compiled update-info payload=(data ~) test-id=@ux tag=@tas]
       [%test-results update-info payload=(data shown-test-results) test-id=@ux thread-id=@t =test-steps]
   ==
+::
++$  shown-projects  (map @t shown-project)
++$  shown-project
+  $:  dir=(list path)
+      user-files=(set path)  ::  not on list -> grayed out in GUI
+      to-compile=(set path)
+      town-sequencers=(map @ux @p)
+      tests=shown-tests
+      dbug-dashboards=(map app=@tas dbug-dashboard)
+  ==
++$  shown-tests  (map @ux shown-test)
++$  shown-test
+  $:  name=(unit @t)  ::  optional
+      test-steps-file=path
+      =test-imports
+      subject=(each vase @t)
+      =custom-step-definitions
+      steps=test-steps
+      results=shown-test-results
+  ==
++$  shown-test-results  (list shown-test-result)
++$  shown-test-result   (list [success=? expected=@t result=@t])
 --
