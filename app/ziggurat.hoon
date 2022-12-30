@@ -75,14 +75,14 @@
   ^-  (quip card _this)
   ?+    p  (on-watch:def p)
       [%pyro-done ~]  `this
-      [%project @ ~]  `this
-    :: ::  serve updates about state of a given project
-    :: =/  name=@t  `@t`i.t.p
-    :: ?~  proj=(~(get by projects) name)  `this
-    :: :_  this
-    :: :_  ~
-    :: %+  make-project-update:zig-lib
-    :: [name %on-watch-project ~]  u.proj
+      [%project @ ~]
+    ::  serve updates about state of a given project
+    =/  name=@t  `@t`i.t.p
+    ?~  proj=(~(get by projects) name)  `this
+    :_  this
+    :_  ~
+    %+  make-project-update:zig-lib
+    [name %on-watch-project ~]  u.proj
   ==
 ::
 ++  on-poke
