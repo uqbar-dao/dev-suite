@@ -69,14 +69,14 @@
   [tag update-info [%| level message] u.other]
 ::
 ++  make-compile-contracts
-  |=  [project-name=@t request-id=(unit @ud)]
+  |=  [project-name=@t request-id=(unit @t)]
   ^-  card
   %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
   !>(`action:zig`project-name^request-id^[%compile-contracts ~])
 ::
 ++  make-compile-contract
-  |=  [project-name=@t file=path request-id=(unit @ud)]
+  |=  [project-name=@t file=path request-id=(unit @t)]
   ^-  card
   %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
@@ -92,7 +92,7 @@
   (turn files |=(p=path [%x p]))
 ::
 ++  make-read-desk
-  |=  [project-name=@t request-id=(unit @ud)]
+  |=  [project-name=@t request-id=(unit @t)]
   ^-  card
   %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
@@ -131,7 +131,7 @@
   ==
 ::
 ++  make-run-queue
-  |=  [project-name=@t request-id=(unit @ud)]
+  |=  [project-name=@t request-id=(unit @t)]
   ^-  card
   %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
@@ -376,7 +376,7 @@
   |=  $:  project-name=@t
           test-id=@ux
           =custom-step-definitions:zig
-          request-id=(unit @ud)
+          request-id=(unit @t)
       ==
   ^-  (list card)
   %+  turn  ~(tap by custom-step-definitions)
@@ -391,7 +391,7 @@
           project-name=@tas
           tag=@tas
           p=path
-          request-id=(unit @ud)
+          request-id=(unit @t)
       ==
   ^-  [(list card) test:zig]
   =/  file-scry-path=path
@@ -622,7 +622,7 @@
       :^    ['project_name' %s project-name.update]
           ['source' %s source.update]
         :-  'request_id'
-        ?~(request-id.update ~ (numb u.request-id.update))
+        ?~(request-id.update ~ [%s u.request-id.update])
       ~
     %+  frond  -.update
     %-  pairs
@@ -993,7 +993,7 @@
     ^-  $-(json action:zig)
     %-  ot
     :~  [%project so]
-        [%request-id ni:dejs-soft:format]
+        [%request-id so:dejs-soft:format]
         [%action action]
     ==
   ::

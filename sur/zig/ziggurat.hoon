@@ -105,7 +105,7 @@
 ::
 +$  action
   $:  project=@t
-      request-id=(unit @ud)
+      request-id=(unit @t)
       $%  [%new-project ~]
           [%delete-project ~]
       ::
@@ -181,7 +181,7 @@
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
 +$  update-info
-  [project-name=@t source=@tas request-id=(unit @ud)]
+  [project-name=@t source=@tas request-id=(unit @t)]
 ::
 ++  data  |$(this (each this [level=error-level message=@t]))
 ::

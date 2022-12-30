@@ -99,7 +99,7 @@
             name=(unit @t)
             imports=test-imports:zig
             =test-steps:zig
-            request-id=(unit @ud)
+            request-id=(unit @t)
         ==
     ^-  [[(list card) test:zig] _state]
     =/  =project:zig  (~(got by projects) project-name)
@@ -168,7 +168,7 @@
             name=(unit @t)
             =test-imports:zig
             =test-steps:zig
-            request-id=(unit @ud)
+            request-id=(unit @t)
         ==
     ^-  (quip card _state)
     =/  =project:zig  (~(got by projects) project-name)
@@ -197,7 +197,7 @@
     |=  $:  project-name=@tas
             name=(unit @t)
             p=path
-            request-id=(unit @ud)
+            request-id=(unit @t)
         ==
     ^-  [[(list card) test:zig] _state]
     ?~  p
@@ -273,7 +273,7 @@
     |=  $:  project-name=@t
             name=(unit @t)
             test-steps-file=path
-            request-id=(unit @ud)
+            request-id=(unit @t)
         ==
     ^-  (quip card _state)
     =/  =project:zig  (~(got by projects) project-name)
