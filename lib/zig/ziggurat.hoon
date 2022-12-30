@@ -31,42 +31,302 @@
   !>  ^-  update:zig
   [%state update-info [%& ~] (get-state project)]
 ::
-++  make-update
-  |=  [tag=update-tag:zig =update-info:zig data=* other=*]
+:: ++  make-update
+::   |=  [tag=update-tag:zig =update-info:zig data=* other=(unit *)]
+::   ^-  card
+::   %-  fact:io  :_  ~[/project/[project-name.update-info]]
+::   (make-update-cage tag update-info data other)
+:: ::
+:: ++  make-update-cage
+::   |=  [tag=update-tag:zig =update-info:zig data=* other=(unit *)]
+::   ^-  cage
+::   :-  %ziggurat-update
+::   !>  ^-  update:zig
+::   ?~  other  [tag update-info [%& data]]
+::   [tag update-info [%& data] other]
+:: ::
+:: ++  make-error
+::   |=  $:  tag=update-tag:zig
+::           =update-info:zig
+::           level=error-level:zig
+::           message=@t
+::           other=(unit *)
+::       ==
+::   ^-  card
+::   %-  fact:io  :_  ~[/project/[project-name.update-info]]
+::   (make-error-cage tag update-info level message other)
+::
+++  update-vase-to-card
+  |=  [project-name=@t v=vase]
   ^-  card
-  %-  fact:io  :_  ~[/project/[project-name.update-info]]
-  (make-update-cage tag update-info data other)
+  (fact:io [%ziggurat-update v] ~[/project/[project-name]])
 ::
-++  make-update-cage
-  |=  [tag=update-tag:zig =update-info:zig data=* other=*]
-  ^-  cage
-  :-  %ziggurat-update
-  !>  ;;  update:zig
-  [tag update-info [%& data] other]
+++  make-update-vase
+  |_  =update-info:zig
+  ++  project-names
+    |=  project-names=(set @t)
+    ^-  vase
+    !>  ^-  update:zig
+    [%project-names update-info [%& ~] project-names]
+  ::
+  ++  projects
+    |=  =projects:zig
+    ^-  vase
+    !>  ^-  update:zig
+    [%projects update-info [%& ~] projects]
+  ::
+  ++  project
+    |=  =project:zig
+    ^-  vase
+    !>  ^-  update:zig
+    [%project update-info [%& ~] project]
+  ::
+  ++  state
+    |=  state=(map @ux chain:eng)
+    ^-  vase
+    !>  ^-  update:zig
+    [%state update-info [%& ~] state]
+  ::
+  ++  new-project
+    ^-  vase
+    !>  ^-  update:zig
+    [%new-project update-info [%& ~]]
+  ::
+  ++  add-test
+    |=  [=test:zig test-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-test update-info [%& test] test-id]
+  ::
+  ++  compile-contract
+    ^-  vase
+    !>  ^-  update:zig
+    [%compile-contract update-info [%& ~]]
+  ::
+  ++  delete-test
+    |=  test-id=@ux
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-test update-info [%& ~] test-id]
+  ::
+  ++  run-queue
+    ^-  vase
+    !>  ^-  update:zig
+    [%run-queue update-info [%& ~]]
+  ::
+  ++  add-custom-step
+    |=  [test-id=@ux tag=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-custom-step update-info [%& ~] test-id tag]
+  ::
+  ++  delete-custom-step
+    |=  [test-id=@ux tag=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-custom-step update-info [%& ~] test-id tag]
+  ::
+  ++  add-app-to-dashboard
+    |=  [app=@tas sur=path mold-name=@t mar=path]
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %add-app-to-dashboard  update-info  [%& ~]
+    [app sur mold-name mar]
+  ::
+  ++  delete-app-from-dashboard
+    |=  app=@tas
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-app-from-dashboard update-info [%& ~] app]
+  ::
+  ++  add-town-sequencer
+    |=  [town-id=@ux who=@p]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-town-sequencer update-info [%& ~] town-id who]
+  ::
+  ++  delete-town-sequencer
+    |=  town-id=@ux
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-town-sequencer update-info [%& ~] town-id]
+  ::
+  ++  add-user-file
+    |=  file=path
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-user-file update-info [%& ~] file]
+  ::
+  ++  delete-user-file
+    |=  file=path
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-user-file update-info [%& ~] file]
+  ::
+  ++  custom-step-compiled
+    |=  [test-id=@ux tag=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%custom-step-compiled update-info [%& ~] test-id tag]
+  ::
+  ++  test-results
+    |=  [=shown-test-results:zig test-id=@ux thread-id=@t =test-steps:zig]
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %test-results  update-info  [%& shown-test-results]
+    [test-id thread-id test-steps]
+  --
 ::
-++  make-error
-  |=  $:  tag=update-tag:zig
-          =update-info:zig
-          level=error-level:zig
-          message=@t
-          other=(unit *)
-      ==
-  ^-  card
-  %-  fact:io  :_  ~[/project/[project-name.update-info]]
-  (make-error-cage tag update-info level message other)
+++  make-error-vase
+  |_  [=update-info:zig level=error-level:zig]
+  ++  project-names
+    |=  [message=@t project-names=(set @t)]
+    ^-  vase
+    !>  ^-  update:zig
+    [%project-names update-info [%| level message] project-names]
+  ::
+  ++  projects
+    |=  [message=@t =projects:zig]
+    ^-  vase
+    !>  ^-  update:zig
+    [%projects update-info [%| level message] projects]
+  ::
+  ++  project
+    |=  [message=@t =project:zig]
+    ^-  vase
+    !>  ^-  update:zig
+    [%project update-info [%| level message] project]
+  ::
+  ++  state
+    |=  [message=@t state=(map @ux chain:eng)]
+    ^-  vase
+    !>  ^-  update:zig
+    [%state update-info [%| level message] state]
+  ::
+  ++  new-project
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%new-project update-info [%| level message]]
+  ::
+  ++  add-test
+    |=  [message=@t test-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-test update-info [%| level message] test-id]
+  ::
+  ++  compile-contract
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%compile-contract update-info [%| level message]]
+  ::
+  ++  delete-test
+    |=  [message=@t test-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-test update-info [%| level message] test-id]
+  ::
+  ++  run-queue
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%run-queue update-info [%| level message]]
+  ::
+  ++  add-custom-step
+    |=  [message=@t test-id=@ux tag=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-custom-step update-info [%| level message] test-id tag]
+  ::
+  ++  delete-custom-step
+    |=  [message=@t test-id=@ux tag=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-custom-step update-info [%| level message] test-id tag]
+  ::
+  ++  add-app-to-dashboard
+    |=  [message=@t app=@tas sur=path mold-name=@t mar=path]
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %add-app-to-dashboard  update-info  [%| level message]
+    [app sur mold-name mar]
+  ::
+  ++  delete-app-from-dashboard
+    |=  [message=@t app=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-app-from-dashboard update-info [%| level message] app]
+  ::
+  ++  add-town-sequencer
+    |=  [message=@t town-id=@ux who=@p]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-town-sequencer update-info [%| level message] town-id who]
+  ::
+  ++  delete-town-sequencer
+    |=  [message=@t town-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-town-sequencer update-info [%| level message] town-id]
+  ::
+  ++  add-user-file
+    |=  [message=@t file=path]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-user-file update-info [%| level message] file]
+  ::
+  ++  delete-user-file
+    |=  [message=@t file=path]
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-user-file update-info [%| level message] file]
+  ::
+  ++  custom-step-compiled
+    |=  [message=@t test-id=@ux tag=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%custom-step-compiled update-info [%| level message] test-id tag]
+  ::
+  ++  test-results
+    |=  [message=@t test-id=@ux thread-id=@t =test-steps:zig]
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %test-results  update-info  [%| level message]
+    [test-id thread-id test-steps]
+  --
 ::
-++  make-error-cage
-  |=  $:  tag=update-tag:zig
-          =update-info:zig
-          level=error-level:zig
-          message=@t
-          other=(unit *)
-      ==
-  ^-  cage
-  :-  %ziggurat-update
-  !>  ;;  update:zig
-  ?~  other  [tag update-info [%| level message]]
-  [tag update-info [%| level message] u.other]
+:: ++  make-error-cage
+::   |=  $:  tag=update-tag:zig
+::           =update-info:zig
+::           level=error-level:zig
+::           message=@t
+::           other=(unit *)
+::       ==
+::   ^-  cage
+::   ~&  %ziggurat^update-info^level^message
+::   :-  %ziggurat-update
+::   !>  ^-  update:zig
+::   ?~  other  [tag update-info [%| level message]]
+::   [tag update-info [%| level message] u.other]
+::   :: =/  micmicd
+::   ::   ;;
+::   ::     ?-    tag
+::   ::         %project-names  (set @t)
+::   ::         %projects  projects:zig
+::   ::         %project  project:zig
+::   ::         %state  (map @ux chain:engine)
+::   ::         ?(%add-test %delete-test)  @ux
+::   ::         ?(%add-custom-step %delete-custom-step %custom-step-compiled)  [@ux @tas]
+::   ::         %add-app-to-dashboard  [@tas path @t path]
+::   ::         %delete-app-from-dashboard  @tas
+::   ::         %add-town-sequencer  [@ux @p]
+::   ::         %delete-town-sequencer  @ux
+::   ::         ?(%add-user-file %delete-user-file)  path
+::   ::         %test-results  [@ux @t test-steps:zig]
+::   ::     ==
+::   ::   other
+::   :: [tag update-info [%| level message] micmicd]
 ::
 ++  make-compile-contracts
   |=  [project-name=@t request-id=(unit @t)]
@@ -394,6 +654,9 @@
           request-id=(unit @t)
       ==
   ^-  [(list card) test:zig]
+  =/  add-custom-error
+    %~  add-custom-step  make-error-vase
+    [[project-name %add-custom-step request-id] %error]
   =/  file-scry-path=path
     :-  (scot %p our.bowl)
     (weld /[project-name]/(scot %da now.bowl) p)
@@ -401,9 +664,8 @@
     =/  message=tape  "file {<`path`p>} not found"
     :_  test
     :_  ~
-    %+  make-error  %add-custom-step
-    :^  [project-name %add-custom-step request-id]
-    %error  (crip message)  `[(sham test) tag]
+    %+  update-vase-to-card  project-name
+    (add-custom-error (crip message) [`@ux`(sham test) tag])
   =/  file-cord=@t  .^(@t %cx file-scry-path)
   =/  [imports=(list [face=@tas =path]) =hair]
     (parse-start-of-pile (trip file-cord))
@@ -413,9 +675,8 @@
       " adding custom step"
     :_  test
     :_  ~
-    %+  make-error  %add-custom-step
-    :^  [project-name %add-custom-step request-id]
-    %error  (crip message)  `[(sham test) tag]
+    %+  update-vase-to-card  project-name
+    (add-custom-error (crip message) [`@ux`(sham test) tag])
   =/  compilation-result=(each vase @t)
     %^  compile-and-call-buc  p.hair  p.subject.test
     %-  of-wain:format
@@ -426,9 +687,8 @@
       " {<p.compilation-result>}"
     :_  test
     :_  ~
-    %+  make-error  %add-custom-step
-    :^  [project-name %add-custom-step request-id]
-    %error  (crip message)  `[(sham test) tag]
+    %+  update-vase-to-card  project-name
+    (add-custom-error (crip message) [`@ux`(sham test) tag])
   :-  ~
   %=  test
       custom-step-definitions
@@ -657,7 +917,7 @@
         %add-test
       :+  ['test_id' %s (scot %ux test-id.update)]
         :-  'data'
-        %+  frond  %test  (test p.payload.update)
+        (frond %test (test p.payload.update))
       ~
     ::
         %delete-test
@@ -699,6 +959,16 @@
       :+  ['file' (path file.update)]
         ['data' ~]
       ~
+    ::
+        %test-results
+      :~  ['test_id' %s (scot %ux test-id.update)]
+          ['thread_id' %s thread-id.update]
+          ['test_steps' (test-steps test-steps.update)]
+      ::
+          :-  'data'
+          %+  frond  %test-results
+          (shown-test-results p.payload.update)
+      ==
     ==
   ::
   ++  error
@@ -752,8 +1022,8 @@
         ['test_imports' (test-imports test-imports.test)]
         ['subject' %s ?:(?=(%& -.subject.test) '' p.subject.test)]
         ['custom_step_definitions' (custom-step-definitions custom-step-definitions.test)]
-        ['steps' (test-steps steps.test)]
-        ['results' (test-results results.test)]
+        ['test_steps' (test-steps steps.test)]
+        ['test_results' (test-results results.test)]
     ==
   ::
   ++  test-imports
@@ -953,6 +1223,25 @@
     :^    ['success' %b success]
         ['expected' %s expected]
       ['result' %s (crip (noah result))]
+    ~
+  ::
+  ++  shown-test-results
+    |=  =shown-test-results:zig
+    ^-  json
+    :-  %a
+    %+  turn  shown-test-results
+    |=([str=shown-test-result:zig] (shown-test-result str))
+  ::
+  ++  shown-test-result
+    |=  =shown-test-result:zig
+    ^-  json
+    :-  %a
+    %+  turn  shown-test-result
+    |=  [success=? expected=@t result=@t]
+    %-  pairs
+    :^    ['success' %b success]
+        ['expected' %s expected]
+      ['result' %s result]
     ~
   ::
   ++  dbug-dashboards

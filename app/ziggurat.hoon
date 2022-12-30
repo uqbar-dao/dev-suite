@@ -80,7 +80,9 @@
     =/  name=@t  `@t`i.t.p
     ?~  proj=(~(get by projects) name)  `this
     :_  this
-    (make-project-update:zig-lib [name %on-watch-project ~] u.proj)^~
+    :_  ~
+    %+  make-project-update:zig-lib
+    [name %on-watch-project ~]  u.proj
   ==
 ::
 ++  on-poke
@@ -103,7 +105,9 @@
         ==
     ^-  [[(list card) test:zig] _state]
     =/  =project:zig  (~(got by projects) project-name)
-    =/  addresses=vase  !>(virtualnet-addresses)
+    =/  add-test-error
+      %~  add-test  make-error-vase:zig-lib
+      [[project-name %add-test request-id] %error]
     =/  zig-val=(unit path)  (~(get by imports) %zig)
     =.  imports
       ?^  zig-val  imports
@@ -117,9 +121,8 @@
       :_  state
       :_  *test:zig
       :_  ~
-      %+  make-error:zig-lib  %add-test
-      :^  [project-name %add-test request-id]  %error
-      (crip message)  `0x0
+      %+  update-vase-to-card:zig-lib  project-name
+      (add-test-error (crip message) 0x0)
     =^  subject=(each vase @t)  state
       (compile-test-imports `@tas`project-name ~(tap by imports))
     ?:  ?=(%| -.subject)
@@ -128,9 +131,8 @@
       :_  state
       :_  *test:zig
       :_  ~
-      %+  make-error:zig-lib  %add-test
-      :^  [project-name %add-test request-id]  %error
-      (crip message)  `0x0
+      %+  update-vase-to-card:zig-lib  project-name
+      (add-test-error (crip message) 0x0)
     =/  =test:zig
       :*  name
           /
@@ -160,8 +162,10 @@
     :_  state
     :_  test
     :_  (weld cards all-cards)
-    %+  make-project-update:zig-lib
-    [project-name %add-test request-id]  project
+    %+  update-vase-to-card:zig-lib  project-name
+    %+  %~  add-test  make-update-vase:zig-lib
+        [project-name %add-test request-id]
+    test  `@ux`(sham test)
   ::
   ++  add-and-queue-test
     |=  $:  project-name=@t
@@ -200,14 +204,16 @@
             request-id=(unit @t)
         ==
     ^-  [[(list card) test:zig] _state]
+    =/  add-test-error
+      %~  add-test  make-error-vase:zig-lib
+      [[project-name %add-test-file request-id] %error]
     ?~  p
       =/  message=tape  "test-steps path must not be empty"
       :_  state
       :_  *test:zig
       :_  ~
-      %+  make-error:zig-lib  %add-test
-      :^  [project-name %add-test-file request-id]  %error
-      (crip message)  `0x0
+      %+  update-vase-to-card:zig-lib  project-name
+      (add-test-error (crip message) 0x0)
     =/  =project:zig  (~(got by projects) project-name)
     =/  file-scry-path=path
       :-  (scot %p our.bowl)
@@ -223,9 +229,8 @@
       :_  state
       :_  *test:zig
       :_  ~
-      %+  make-error:zig-lib  %add-test
-      :^  [project-name %add-test-file request-id]  %error
-      (crip message)  `0x0
+      %+  update-vase-to-card:zig-lib  project-name
+      (add-test-error (crip message) 0x0)
     =/  test-steps-compilation-result=(each vase @t)
       %^  compile-and-call-buc:zig-lib  p.hair  p.subject
       %-  of-wain:format
@@ -237,9 +242,8 @@
       :_  state
       :_  *test:zig
       :_  ~
-      %+  make-error:zig-lib  %add-test
-      :^  [project-name %add-test-file request-id]  %error
-      (crip message)  `0x0
+      %+  update-vase-to-card:zig-lib  project-name
+      (add-test-error (crip message) 0x0)
     =+  !<(=test-steps:zig p.test-steps-compilation-result)
     =/  =test:zig
       :*  name
@@ -285,9 +289,10 @@
     =/  test-id=@ux  `@ux`(sham test)
     =.  tests.project  (~(put by tests.project) test-id test)
     :-  :_  cards
-        %+  make-project-update:zig-lib
-          [project-name %add-and-queue-test-file request-id]
-        project
+        %+  update-vase-to-card:zig-lib  project-name
+        %+  %~  add-test  make-update-vase:zig-lib
+            [project-name %add-and-queue-test-file request-id]
+        test  test-id
     %=  state
         projects
       (~(put by projects) project-name project)
@@ -340,14 +345,16 @@
     ?>  =(our.bowl src.bowl)
     ?-    -.+.+.act
         %new-project
+      =/  new-project-error
+        %~  new-project  make-error-vase:zig-lib
+        [[project -.+.+ request-id]:act %error]
       ?:  (~(has in (~(gas in *(set @t)) ~['fresh-piers' 'assembled'])) project.act)  ::  TODO: still necessary?
         =/  message=tape
           "{<`@tas`project.act>} face reserved"
         :_  state
         :_  ~
-        %+  make-error:zig-lib  %new-project
-        :^  [project -.+.+ request-id]:act  %error
-        (crip message)  ~
+        %+  update-vase-to-card:zig-lib  project.act
+        (new-project-error (crip message))
       ~&  desk
       ~&  >  "scrying..."
       =/  desks=(set desk)
@@ -359,9 +366,8 @@
         =/  message=tape  "project desk already exists"
         :_  state
         :_  ~
-        %+  make-error:zig-lib  %new-project
-        :^  [project -.+.+ request-id]:act  %error
-        (crip message)  ~
+        %+  update-vase-to-card:zig-lib  project.act
+        (new-project-error (crip message))
       ::  merge new desk, mount desk
       ::  currently using ziggurat desk as template -- should refine this
       =/  merge-task  [%merg `@tas`project.act our.bowl q.byk.bowl da+now.bowl %init]
@@ -441,6 +447,9 @@
     ::
         %deploy-contract
       =/  =project:zig  (~(got by projects) project.act)
+      =/  add-test-error
+        %~  add-test  make-error-vase:zig-lib
+        [[project -.+.+ request-id]:act %error]
       =/  who=@p
         (~(got by town-sequencers.project) town-id.act)
       =/  address=@ux  (~(got by virtualnet-addresses) who)
@@ -456,9 +465,8 @@
           "compilation of test-imports failed: {<p.subject>}"
         :_  state
         :_  ~
-        %+  make-error:zig-lib  %add-test
-        :^  [project -.+.+ request-id]:act  %error
-        (crip message)  `0x0
+        %+  update-vase-to-card:zig-lib  project.act
+        (add-test-error (crip message) 0x0)
       =/  =test:zig
         :*  `test-name
             ~
@@ -492,8 +500,10 @@
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
       :-  :+  (make-run-queue:zig-lib [project request-id]:act)
-            %+  make-project-update:zig-lib
-            [project -.+.+ request-id]:act  project
+            %+  update-vase-to-card:zig-lib  project.act
+            %+  %~  add-test  make-update-vase:zig-lib
+                [project -.+.+ request-id]:act
+            test  test-id
           (weld cards all-cards)
       %=  state
           projects
@@ -523,13 +533,15 @@
       ::  for internal use -- app calls itself to scry clay
       ?>  ?=(%ziggurat dap.bowl)
       =/  =project:zig  (~(got by projects) project.act)
+      =/  compile-contract-error
+        %~  compile-contract  make-error-vase:zig-lib
+        [[project -.+.+ request-id]:act %error]
       ?~  path.act
         =/  message=tape  "contract path must not be empty"
         :_  state
         :_  ~
-        %+  make-error:zig-lib  %compile-contract
-        :^  [project -.+.+ request-id]:act  %error
-        (crip message)  ~
+        %+  update-vase-to-card:zig-lib  project.act
+        (compile-contract-error (crip message))
       ::
       =/  =build-result:zig
         %^  build-contract-project:zig-lib  smart-lib-vase
@@ -540,9 +552,8 @@
           "compilation failed with error: {<p.build-result>}"
         :_  state
         :_  ~
-        %+  make-error:zig-lib  %compile-contract
-        :^  [project -.+.+ request-id]:act  %error
-        (crip message)  ~
+        %+  update-vase-to-card:zig-lib  project.act
+        (compile-contract-error (crip message))
       ::
       =/  save-result=(each card [path @t])
         %^  save-compiled-contract:zig-lib  project.act
@@ -553,9 +564,8 @@
           " with error: {<p.save-result>}"
         :_  state
         :_  ~
-        %+  make-error:zig-lib  %compile-contract
-        :^  [project -.+.+ request-id]:act  %error
-        (crip message)  ~
+        %+  update-vase-to-card:zig-lib  project.act
+        (compile-contract-error (crip message))
       ::
       :_  state
       :+  p.save-result
@@ -621,10 +631,15 @@
         [cards state]  ::  encountered error
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
-      :-  :_  cards
-          %+  make-project-update:zig-lib
-          [project -.+.+ request-id]:act  project
-      state(projects (~(put by projects) project.act project))
+      :_
+        %=  state
+          projects  (~(put by projects) project.act project)
+        ==
+      :_  cards
+      %+  update-vase-to-card:zig-lib  project.act
+      %+  %~  add-test  make-update-vase:zig-lib
+          [project -.+.+ request-id]:act
+      test  test-id
     ::
         %add-and-run-test-file
       =^  cards  state
@@ -642,12 +657,15 @@
         %delete-test
       =/  =project:zig  (~(got by projects) project.act)
       =.  tests.project  (~(del by tests.project) id.act)
-      :-  :_  ~
-          %+  make-project-update:zig-lib
-          [project -.+.+ request-id]:act  project
-      %=  state
-        projects  (~(put by projects) project.act project)
-      ==
+      :_
+        %=  state
+          projects  (~(put by projects) project.act project)
+        ==
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      %-  %~  delete-test  make-update-vase:zig-lib
+          [project -.+.+ request-id]:act
+      id.act
     ::
         %run-test
       :_  state(test-queue (~(put to test-queue) [project id]:act))
@@ -656,36 +674,35 @@
       ~&  >  "%ziggurat: another test is running, adding to queue"  ~
     ::
         %run-queue
+      =/  run-queue-error
+        %~  run-queue  make-error-vase:zig-lib
+        [[project -.+.+ request-id]:act %error]
       ?:  =(~ pyro-ships-ready)
         =/  message=tape
           "must run %start-pyro-ships before tests"
         :_  state
         :_  ~
-        %+  make-error:zig-lib  %run-queue
-        :^  [project -.+.+ request-id]:act  %warning
-        (crip message)  ~
+        %+  update-vase-to-card:zig-lib  project.act
+        (run-queue-error(level %warning) (crip message))
       ?:  !(~(all by pyro-ships-ready) same)
         =/  message=tape
           "%pyro ships aren't ready; will run when ready"
         :_  state
         :_  ~
-        %+  make-error:zig-lib  %run-queue
-        :^  [project -.+.+ request-id]:act  %info
-        (crip message)  ~
+        %+  update-vase-to-card:zig-lib  project.act
+        (run-queue-error(level %info) (crip message))
       ?:  =(~ test-queue)
         =/  message=tape  "no tests in queue"
         :_  state
         :_  ~
-        %+  make-error:zig-lib  %run-queue
-        :^  [project -.+.+ request-id]:act  %warning
-        (crip message)  ~
+        %+  update-vase-to-card:zig-lib  project.act
+        (run-queue-error(level %warning) (crip message))
       ?:  =(& test-running)
         =/  message=tape  "queue already running"
         :_  state
         :_  ~
-        %+  make-error:zig-lib  %run-queue
-        :^  [project -.+.+ request-id]:act  %info
-        (crip message)  ~
+        %+  update-vase-to-card:zig-lib  project.act
+        (run-queue-error(level %info) (crip message))
       =^  top  test-queue  ~(get to test-queue)
       =*  project-name  -.top
       =*  test-id        +.top
@@ -697,9 +714,8 @@
           "test subject must compile before test can be run"
         :_  state
         :_  ~
-        %+  make-error:zig-lib  %run-queue
-        :^  [project -.+.+ request-id]:act  %error
-        (crip message)  ~
+        %+  update-vase-to-card:zig-lib  project.act
+        (run-queue-error (crip message))
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
@@ -744,12 +760,15 @@
         [project tag path request-id]:act
       =.  project
         project(tests (~(put by tests.project) test-id.act test))
-      :-  :_  cards
-          %+  make-project-update:zig-lib
-          [project -.+.+ request-id]:act  project
-      %=  state
-        projects  (~(put by projects) project.act project)
-      ==
+      :_
+        %=  state
+          projects  (~(put by projects) project.act project)
+        ==
+      :_  cards
+      %+  update-vase-to-card:zig-lib  project.act
+      %-  %~  add-custom-step  make-update-vase:zig-lib
+          [project -.+.+ request-id]:act
+      [test-id tag]:act
     ::
         %delete-custom-step
       =/  =project:zig  (~(got by projects) project.act)
@@ -758,24 +777,30 @@
         (~(del by custom-step-definitions.test) tag.act)
       =.  project
         project(tests (~(put by tests.project) test-id.act test))
-      :-  :_  ~
-          %+  make-project-update:zig-lib
-          [project -.+.+ request-id]:act  project
-      %=  state
-        projects  (~(put by projects) project.act project)
-      ==
+      :_
+        %=  state
+          projects  (~(put by projects) project.act project)
+        ==
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      %-  %~  delete-custom-step  make-update-vase:zig-lib
+          [project -.+.+ request-id]:act
+      [test-id tag]:act
     ::
         %add-app-to-dashboard
       =/  =project:zig  (~(got by projects) project.act)
+      =/  add-app-error
+        %~  add-app-to-dashboard  make-error-vase:zig-lib
+        [[project -.+.+ request-id]:act %error]
       =*  sur  sur.act
       ::  make mold subject
       ?~  snipped=(snip sur)
         =/  message=tape  "sur must be nonnull, got {<sur>}"
         :_  state
         :_  ~
-        %+  make-error:zig-lib  %add-app-to-dashboard
-        :^  [project -.+.+ request-id]:act  %error
-        (crip message)  `[app sur mold-name mar]:act
+        %+  update-vase-to-card:zig-lib  project.act
+        %+  add-app-error  (crip message)
+        [app sur mold-name mar]:act
       =/  sur-face=@tas  `@tas`(rear snipped)
       =^  sur-hoon=vase  ca-scry-cache
         %-  need  ::  TODO: handle error
@@ -813,23 +838,29 @@
             dbug-mold
             mar-tube
         ==
-      :-  :_  ~
-          %+  make-project-update:zig-lib
-          [project -.+.+ request-id]:act  project
-      %=  state
-        projects  (~(put by projects) project.act project)
-      ==
+      :_
+        %=  state
+          projects  (~(put by projects) project.act project)
+        ==
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      %-  %~  add-app-to-dashboard  make-update-vase:zig-lib
+          [project -.+.+ request-id]:act
+      [app sur mold-name mar]:act
     ::
         %delete-app-from-dashboard
       =/  =project:zig  (~(got by projects) project.act)
       =.  dbug-dashboards.project
         (~(del by dbug-dashboards.project) app.act)
-      :-  :_  ~
-          %+  make-project-update:zig-lib
-          [project -.+.+ request-id]:act  project
-      %=  state
-        projects  (~(put by projects) project.act project)
-      ==
+      :_
+        %=  state
+          projects  (~(put by projects) project.act project)
+        ==
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      %-  %~  delete-app-from-dashboard  make-update-vase:zig-lib
+          [project -.+.+ request-id]:act
+      app.act
     ::
         %stop-pyro-ships
       :_  state(pyro-ships-ready ~)
@@ -866,21 +897,29 @@
       =/  =project:zig  (~(got by projects) project.act)
       =.  town-sequencers.project
         (~(put by town-sequencers.project) [town-id who]:act)
-      :-  :_  ~
-          %+  make-project-update:zig-lib
-          [project -.+.+ request-id]:act  project
-      state(projects (~(put by projects) project.act project))
+      :_
+        %=  state
+          projects  (~(put by projects) project.act project)
+        ==
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      %-  %~  add-town-sequencer  make-update-vase:zig-lib
+          [project -.+.+ request-id]:act
+      [town-id who]:act
     ::
         %delete-town-sequencer
       =/  =project:zig  (~(got by projects) project.act)
       =.  town-sequencers.project
         (~(del by town-sequencers.project) town-id.act)
-      :-  :_  ~
-          %+  make-project-update:zig-lib
-          [project -.+.+ request-id]:act  project
-      %=  state
-        projects  (~(put by projects) project.act project)
-      ==
+      :_
+        %=  state
+          projects  (~(put by projects) project.act project)
+        ==
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      %-  %~  delete-town-sequencer  make-update-vase:zig-lib
+          [project -.+.+ request-id]:act
+      town-id.act
     ::
         %start-pyro-snap
       :_  state(pyro-ships-ready ~)
@@ -924,20 +963,28 @@
         %add-user-file
       =/  =project:zig  (~(got by projects) project.act)
       =.  user-files.project  (~(put in user-files.project) file.act)
-      :-  :_  ~
-          %+  make-project-update:zig-lib
-          [project -.+.+ request-id]:act  project
-      state(projects (~(put by projects) project.act project))
+      :_
+        %=  state
+          projects  (~(put by projects) project.act project)
+        ==
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      %-  %~  add-user-file  make-update-vase:zig-lib
+          [project -.+.+ request-id]:act
+      file.act
     ::
         %delete-user-file
       =/  =project:zig  (~(got by projects) project.act)
       =.  user-files.project  (~(del in user-files.project) file.act)
-      :-  :_  ~
-          %+  make-project-update:zig-lib
-          [project -.+.+ request-id]:act  project
-      %=  state
-        projects  (~(put by projects) project.act project)
-      ==
+      :_
+        %=  state
+          projects  (~(put by projects) project.act project)
+        ==
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      %-  %~  delete-user-file  make-update-vase:zig-lib
+          [project -.+.+ request-id]:act
+      file.act
     ==
   --
 ::
@@ -953,25 +1000,35 @@
       =*  project-name  i.t.w
       =/  test-id=@ux   (slav %ux i.t.t.w)
       =*  tid           i.t.t.t.w
+      =/  =project:zig  (~(got by projects) project-name)
+      =/  =test:zig     (~(got by tests.project) test-id)
       ?+    p.cage.sign  (on-agent:def w sign)
           %thread-fail
-        ~&  ziggurat+thread-fail+project-name^test-id^tid
-        `this(test-running |)
+        :: ~&  ziggurat+thread-fail+project-name^test-id^tid
+        =/  test-results-error
+          %~  test-results  make-error-vase:zig-lib
+          [[project-name %ziggurat-test-run-thread-fail ~] %error]
+        :_  this(test-running |)
+        :_  ~
+        %+  update-vase-to-card:zig-lib  project-name
+        %+  test-results-error  'thread failed'
+        [test-id tid steps.test]
       ::
           %thread-done
         =+  !<(=test-results:zig q.cage.sign)
-        =/  =project:zig  (~(got by projects) project-name)
-        =/  =test:zig     (~(got by tests.project) test-id)
+        =/  =shown-test-results:zig
+          (show-test-results:zig-lib test-results)
         ~&  >  "%ziggurat: test done {<test-id>}"
-        ~&  >  (show-test-results:zig-lib test-results)
+        ~&  >  shown-test-results
         =.  tests.project
           %+  ~(put by tests.project)  test-id
           test(results test-results)
         =/  cards=(list card)
           :_  ~
-          %+  make-project-update:zig-lib
-            [project-name %ziggurat-test-run-thread-done ~]
-          project
+          %+  update-vase-to-card:zig-lib  project-name
+          %-  %~  test-results  make-update-vase:zig-lib
+              [project-name %ziggurat-test-run-thread-done ~]
+          [shown-test-results test-id tid steps.test]
         =?  cards  ?=(^ test-queue)
           %+  snoc  cards
           %-  ~(poke-self pass:io /self-wire)
@@ -1114,22 +1171,23 @@
     =/  =project:zig  (~(got by projects) project-name)
     =/  =test:zig
       (~(got by tests.project) (slav %ux test-id))
+    =/  custom-step-error
+      %~  custom-step-compiled  make-error-vase:zig-lib
+      [[project-name %custom-step-compiled ~] %error]
     ?~  def=(~(get by custom-step-definitions.test) tag)
       =/  message=tape
         %+  weld  "did not find {<tag>} custom-step-definition"
         " in {<~(key by custom-step-definitions.test)>}"
-      :+  ~  ~
-      %+  make-error-cage:zig-lib  %custom-step-compiled
-      :^    [project-name %custom-step-compiled ~]  %error
-      (crip message)  `[(slav %ux test-id) tag]
+      :^  ~  ~  %ziggurat-update
+      %+  custom-step-error  (crip message)
+      [(slav %ux test-id) tag]
     ?:  ?=(%| -.q.u.def)  ::  TODO: do better
       =/  message=tape
         %+  weld  "compilation of {<tag>} failed; fix and"
         "try again. error message: {<p.q.u.def>}"
-      :+  ~  ~
-      %+  make-error-cage:zig-lib  %custom-step-compiled
-      :^    [project-name %custom-step-compiled ~]  %error
-      (crip message)  `[(slav %ux test-id) tag]
+      :^  ~  ~  %ziggurat-update
+      %+  custom-step-error  (crip message)
+      [(slav %ux test-id) tag]
     ``noun+!>(`vase`p.q.u.def)
   ::
   ::     [%project-tests @ ~]

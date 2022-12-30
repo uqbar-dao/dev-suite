@@ -177,6 +177,7 @@
       %add-user-file
       %delete-user-file
       %custom-step-compiled
+      %test-results
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -205,5 +206,6 @@
       [%add-user-file update-info payload=(data ~) file=path]
       [%delete-user-file update-info payload=(data ~) file=path]
       [%custom-step-compiled update-info payload=(data ~) test-id=@ux tag=@tas]
+      [%test-results update-info payload=(data shown-test-results) test-id=@ux thread-id=@t =test-steps]
   ==
 --
