@@ -31,31 +31,6 @@
   !>  ^-  update:zig
   [%state update-info [%& ~] (get-state project)]
 ::
-:: ++  make-update
-::   |=  [tag=update-tag:zig =update-info:zig data=* other=(unit *)]
-::   ^-  card
-::   %-  fact:io  :_  ~[/project/[project-name.update-info]]
-::   (make-update-cage tag update-info data other)
-:: ::
-:: ++  make-update-cage
-::   |=  [tag=update-tag:zig =update-info:zig data=* other=(unit *)]
-::   ^-  cage
-::   :-  %ziggurat-update
-::   !>  ^-  update:zig
-::   ?~  other  [tag update-info [%& data]]
-::   [tag update-info [%& data] other]
-:: ::
-:: ++  make-error
-::   |=  $:  tag=update-tag:zig
-::           =update-info:zig
-::           level=error-level:zig
-::           message=@t
-::           other=(unit *)
-::       ==
-::   ^-  card
-::   %-  fact:io  :_  ~[/project/[project-name.update-info]]
-::   (make-error-cage tag update-info level message other)
-::
 ++  update-vase-to-card
   |=  [project-name=@t v=vase]
   ^-  card
@@ -90,7 +65,7 @@
   ++  new-project
     ^-  vase
     !>  ^-  update:zig
-    [%new-project update-info [%& ~]]
+    [%new-project update-info [%& ~] ~]
   ::
   ++  add-test
     |=  [=test:zig test-id=@ux]
@@ -101,7 +76,7 @@
   ++  compile-contract
     ^-  vase
     !>  ^-  update:zig
-    [%compile-contract update-info [%& ~]]
+    [%compile-contract update-info [%& ~] ~]
   ::
   ++  delete-test
     |=  test-id=@ux
@@ -112,7 +87,7 @@
   ++  run-queue
     ^-  vase
     !>  ^-  update:zig
-    [%run-queue update-info [%& ~]]
+    [%run-queue update-info [%& ~] ~]
   ::
   ++  add-custom-step
     |=  [test-id=@ux tag=@tas]
@@ -175,6 +150,12 @@
     !>  ^-  update:zig
     :^  %test-results  update-info  [%& shown-test-results]
     [test-id thread-id test-steps]
+  ::
+  ++  dir
+    |=  dir=(list path)
+    ^-  vase
+    !>  ^-  update:zig
+    [%dir update-info [%& dir] ~]
   --
 ::
 ++  make-error-vase
@@ -207,7 +188,7 @@
     |=  message=@t
     ^-  vase
     !>  ^-  update:zig
-    [%new-project update-info [%| level message]]
+    [%new-project update-info [%| level message] ~]
   ::
   ++  add-test
     |=  [message=@t test-id=@ux]
@@ -219,7 +200,7 @@
     |=  message=@t
     ^-  vase
     !>  ^-  update:zig
-    [%compile-contract update-info [%| level message]]
+    [%compile-contract update-info [%| level message] ~]
   ::
   ++  delete-test
     |=  [message=@t test-id=@ux]
@@ -231,7 +212,7 @@
     |=  message=@t
     ^-  vase
     !>  ^-  update:zig
-    [%run-queue update-info [%| level message]]
+    [%run-queue update-info [%| level message] ~]
   ::
   ++  add-custom-step
     |=  [message=@t test-id=@ux tag=@tas]
@@ -294,39 +275,13 @@
     !>  ^-  update:zig
     :^  %test-results  update-info  [%| level message]
     [test-id thread-id test-steps]
+  ::
+  ++  dir
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%dir update-info [%| level message] ~]
   --
-::
-:: ++  make-error-cage
-::   |=  $:  tag=update-tag:zig
-::           =update-info:zig
-::           level=error-level:zig
-::           message=@t
-::           other=(unit *)
-::       ==
-::   ^-  cage
-::   ~&  %ziggurat^update-info^level^message
-::   :-  %ziggurat-update
-::   !>  ^-  update:zig
-::   ?~  other  [tag update-info [%| level message]]
-::   [tag update-info [%| level message] u.other]
-::   :: =/  micmicd
-::   ::   ;;
-::   ::     ?-    tag
-::   ::         %project-names  (set @t)
-::   ::         %projects  projects:zig
-::   ::         %project  project:zig
-::   ::         %state  (map @ux chain:engine)
-::   ::         ?(%add-test %delete-test)  @ux
-::   ::         ?(%add-custom-step %delete-custom-step %custom-step-compiled)  [@ux @tas]
-::   ::         %add-app-to-dashboard  [@tas path @t path]
-::   ::         %delete-app-from-dashboard  @tas
-::   ::         %add-town-sequencer  [@ux @p]
-::   ::         %delete-town-sequencer  @ux
-::   ::         ?(%add-user-file %delete-user-file)  path
-::   ::         %test-results  [@ux @t test-steps:zig]
-::   ::     ==
-::   ::   other
-::   :: [tag update-info [%| level message] micmicd]
 ::
 ++  make-compile-contracts
   |=  [project-name=@t request-id=(unit @t)]
@@ -953,6 +908,7 @@
     =*  payload  -.+.+.update  ::  TODO: remove this hack
     ?>  ?=([@ *] payload)
     ?:  ?=(%| -.payload)  (error +.payload)
+    ~!  update
     ?-    -.update
         %project-names
       :+  ['project_names' (set-cords project-names.update)]
@@ -974,8 +930,8 @@
         [%data ~]
       ~
     ::
-      ::   ?(%new-project %compile-contract %run-queue)
-      :: ['data' ~]~
+        ?(%new-project %compile-contract %run-queue)
+      ['data' ~]~
     ::
         %add-test
       :+  ['test_id' %s (scot %ux test-id.update)]
@@ -1032,6 +988,9 @@
           %+  frond  %test-results
           (shown-test-results p.payload.update)
       ==
+    ::
+        %dir
+      `(list [@t json])`['data' (frond %dir (dir p.payload.update))]~
     ==
   ::
   ++  error

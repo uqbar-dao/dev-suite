@@ -176,6 +176,7 @@
       %delete-user-file
       %custom-step-compiled
       %test-results
+      %dir
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -190,11 +191,11 @@
       [%projects update-info payload=(data ~) projects=shown-projects]
       [%project update-info payload=(data ~) shown-project]
       [%state update-info payload=(data ~) state=(map @ux chain:engine)]
-      [%new-project update-info payload=(data ~)]
+      [%new-project update-info payload=(data ~) ~]
       [%add-test update-info payload=(data shown-test) test-id=@ux]
-      [%compile-contract update-info payload=(data ~)]
+      [%compile-contract update-info payload=(data ~) ~]
       [%delete-test update-info payload=(data ~) test-id=@ux]
-      [%run-queue update-info payload=(data ~)]
+      [%run-queue update-info payload=(data ~) ~]
       [%add-custom-step update-info payload=(data ~) test-id=@ux tag=@tas]
       [%delete-custom-step update-info payload=(data ~) test-id=@ux tag=@tas]
       [%add-app-to-dashboard update-info payload=(data ~) app=@tas sur=path mold-name=@t mar=path]
@@ -205,6 +206,7 @@
       [%delete-user-file update-info payload=(data ~) file=path]
       [%custom-step-compiled update-info payload=(data ~) test-id=@ux tag=@tas]
       [%test-results update-info payload=(data shown-test-results) test-id=@ux thread-id=@t =test-steps]
+      [%dir update-info payload=(data (list path)) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)

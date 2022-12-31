@@ -163,9 +163,9 @@
     :_  test
     :_  (weld cards all-cards)
     %+  update-vase-to-card:zig-lib  project-name
-    %+  %~  add-test  make-update-vase:zig-lib
-        [project-name %add-test request-id]
-    test  `@ux`(sham test)
+    %.  [test `@ux`(sham test)]
+    %~  add-test  make-update-vase:zig-lib
+    [project-name %add-test request-id]
   ::
   ++  add-and-queue-test
     |=  $:  project-name=@t
@@ -290,9 +290,9 @@
     =.  tests.project  (~(put by tests.project) test-id test)
     :-  :_  cards
         %+  update-vase-to-card:zig-lib  project-name
-        %+  %~  add-test  make-update-vase:zig-lib
-            [project-name %add-and-queue-test-file request-id]
-        test  test-id
+        %.  [test test-id]
+        %~  add-test  make-update-vase:zig-lib
+        [project-name %add-and-queue-test-file request-id]
     %=  state
         projects
       (~(put by projects) project-name project)
@@ -379,7 +379,10 @@
               [%pass /save-wire %arvo %c bill-task]
               [%pass /save-wire %arvo %c deletions-task]
               (make-read-desk:zig-lib [project request-id]:act)
-              ::  make-project-update  TODO add a make-update here for %new-project
+          ::
+              %+  update-vase-to-card:zig-lib  project.act
+              %~  new-project  make-update-vase:zig-lib
+              [project -.+.+ request-id]:act
           ==
       %=  state
           projects
@@ -501,9 +504,9 @@
       =.  tests.project  (~(put by tests.project) test-id test)
       :-  :+  (make-run-queue:zig-lib [project request-id]:act)
             %+  update-vase-to-card:zig-lib  project.act
-            %+  %~  add-test  make-update-vase:zig-lib
-                [project -.+.+ request-id]:act
-            test  test-id
+            %.  [test test-id]
+            %~  add-test  make-update-vase:zig-lib
+            [project -.+.+ request-id]:act
           (weld cards all-cards)
       %=  state
           projects
@@ -579,10 +582,12 @@
       =.  dir.project
         =-  .^((list path) %ct -)
         /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)
-      :-  :+  %+  make-project-update:zig-lib
-              [project -.+.+ request-id]:act  project
-            %+  make-watch-for-file-changes:zig-lib
-            project.act  dir.project
+      :-  :+  %+  make-watch-for-file-changes:zig-lib
+              project.act  dir.project
+            %+  update-vase-to-card:zig-lib  project.act
+            %.  dir.project
+            %~  dir  make-update-vase:zig-lib
+            [project -.+.+ request-id]:act
           ~
       state(projects (~(put by projects) project.act project))
     ::
@@ -637,9 +642,9 @@
         ==
       :_  cards
       %+  update-vase-to-card:zig-lib  project.act
-      %+  %~  add-test  make-update-vase:zig-lib
-          [project -.+.+ request-id]:act
-      test  test-id
+      %.  [test test-id]
+      %~  add-test  make-update-vase:zig-lib
+      [project -.+.+ request-id]:act
     ::
         %add-and-run-test-file
       =^  cards  state
@@ -663,9 +668,9 @@
         ==
       :_  ~
       %+  update-vase-to-card:zig-lib  project.act
-      %-  %~  delete-test  make-update-vase:zig-lib
-          [project -.+.+ request-id]:act
-      id.act
+      %.  id.act
+      %~  delete-test  make-update-vase:zig-lib
+      [project -.+.+ request-id]:act
     ::
         %run-test
       :_  state(test-queue (~(put to test-queue) [project id]:act))
@@ -766,9 +771,9 @@
         ==
       :_  cards
       %+  update-vase-to-card:zig-lib  project.act
-      %-  %~  add-custom-step  make-update-vase:zig-lib
-          [project -.+.+ request-id]:act
-      [test-id tag]:act
+      %.  [test-id tag]:act
+      %~  add-custom-step  make-update-vase:zig-lib
+      [project -.+.+ request-id]:act
     ::
         %delete-custom-step
       =/  =project:zig  (~(got by projects) project.act)
@@ -783,9 +788,9 @@
         ==
       :_  ~
       %+  update-vase-to-card:zig-lib  project.act
-      %-  %~  delete-custom-step  make-update-vase:zig-lib
-          [project -.+.+ request-id]:act
-      [test-id tag]:act
+      %.  [test-id tag]:act
+      %~  delete-custom-step  make-update-vase:zig-lib
+      [project -.+.+ request-id]:act
     ::
         %add-app-to-dashboard
       =/  =project:zig  (~(got by projects) project.act)
@@ -844,9 +849,9 @@
         ==
       :_  ~
       %+  update-vase-to-card:zig-lib  project.act
-      %-  %~  add-app-to-dashboard  make-update-vase:zig-lib
-          [project -.+.+ request-id]:act
-      [app sur mold-name mar]:act
+      %.  [app sur mold-name mar]:act
+      %~  add-app-to-dashboard  make-update-vase:zig-lib
+      [project -.+.+ request-id]:act
     ::
         %delete-app-from-dashboard
       =/  =project:zig  (~(got by projects) project.act)
@@ -858,9 +863,9 @@
         ==
       :_  ~
       %+  update-vase-to-card:zig-lib  project.act
-      %-  %~  delete-app-from-dashboard  make-update-vase:zig-lib
-          [project -.+.+ request-id]:act
-      app.act
+      %.  app.act
+      %~  delete-app-from-dashboard  make-update-vase:zig-lib
+      [project -.+.+ request-id]:act
     ::
         %stop-pyro-ships
       :_  state(pyro-ships-ready ~)
@@ -903,9 +908,9 @@
         ==
       :_  ~
       %+  update-vase-to-card:zig-lib  project.act
-      %-  %~  add-town-sequencer  make-update-vase:zig-lib
-          [project -.+.+ request-id]:act
-      [town-id who]:act
+      %.  [town-id who]:act
+      %~  add-town-sequencer  make-update-vase:zig-lib
+      [project -.+.+ request-id]:act
     ::
         %delete-town-sequencer
       =/  =project:zig  (~(got by projects) project.act)
@@ -917,9 +922,9 @@
         ==
       :_  ~
       %+  update-vase-to-card:zig-lib  project.act
-      %-  %~  delete-town-sequencer  make-update-vase:zig-lib
-          [project -.+.+ request-id]:act
-      town-id.act
+      %.  town-id.act
+      %~  delete-town-sequencer  make-update-vase:zig-lib
+      [project -.+.+ request-id]:act
     ::
         %start-pyro-snap
       :_  state(pyro-ships-ready ~)
@@ -969,9 +974,9 @@
         ==
       :_  ~
       %+  update-vase-to-card:zig-lib  project.act
-      %-  %~  add-user-file  make-update-vase:zig-lib
-          [project -.+.+ request-id]:act
-      file.act
+      %.  file.act
+      %~  add-user-file  make-update-vase:zig-lib
+      [project -.+.+ request-id]:act
     ::
         %delete-user-file
       =/  =project:zig  (~(got by projects) project.act)
@@ -982,9 +987,9 @@
         ==
       :_  ~
       %+  update-vase-to-card:zig-lib  project.act
-      %-  %~  delete-user-file  make-update-vase:zig-lib
-          [project -.+.+ request-id]:act
-      file.act
+      %.  file.act
+      %~  delete-user-file  make-update-vase:zig-lib
+      [project -.+.+ request-id]:act
     ==
   --
 ::
@@ -1026,9 +1031,9 @@
         =/  cards=(list card)
           :_  ~
           %+  update-vase-to-card:zig-lib  project-name
-          %-  %~  test-results  make-update-vase:zig-lib
-              [project-name %ziggurat-test-run-thread-done ~]
-          [shown-test-results test-id tid steps.test]
+          %.  [shown-test-results test-id tid steps.test]
+          %~  test-results  make-update-vase:zig-lib
+          [project-name %ziggurat-test-run-thread-done ~]
         =?  cards  ?=(^ test-queue)
           %+  snoc  cards
           %-  ~(poke-self pass:io /self-wire)
