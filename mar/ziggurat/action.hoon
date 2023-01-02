@@ -6,10 +6,7 @@
 ++  grab
   |%
   ++  noun  action:zig
-  ++  json
-    |=  jon=^json
-    ^-  action:zig
-    (action:zig uber-action:dejs:zig-lib jon)
+  ++  json  uber-action:dejs:zig-lib
   --
 ::
 ++  grow
