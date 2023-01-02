@@ -1,6 +1,5 @@
 ::  Usage: :pyro|dojo ~dev "|start %zig %sequencer"
 ::
-/-  *pyro
 /+  pyro=zig-pyro
 :-  %say
 |=  [* [her=ship command=tape ~] ~]
