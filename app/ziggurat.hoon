@@ -1007,20 +1007,28 @@
       =*  tid           i.t.t.t.w
       =/  =project:zig  (~(got by projects) project-name)
       =/  =test:zig     (~(got by tests.project) test-id)
+      =/  test-results-error
+        %~  test-results  make-error-vase:zig-lib
+        [[project-name %ziggurat-test-run-thread-fail ~] %error]
       ?+    p.cage.sign  (on-agent:def w sign)
           %thread-fail
-        :: ~&  ziggurat+thread-fail+project-name^test-id^tid
-        =/  test-results-error
-          %~  test-results  make-error-vase:zig-lib
-          [[project-name %ziggurat-test-run-thread-fail ~] %error]
         :_  this(test-running |)
         :_  ~
         %+  update-vase-to-card:zig-lib  project-name
-        %+  test-results-error  'thread failed'
+        %+  test-results-error  'thread crashed'
         [test-id tid steps.test]
       ::
           %thread-done
-        =+  !<(=test-results:zig q.cage.sign)
+        =+  !<(result=(each test-results:zig @t) q.cage.sign)
+        ?:  ?=(%| -.result)
+          =/  message=tape
+            "thread fail with error: {<p.result>}"
+          :_  this(test-running |)
+          :_  ~
+          %+  update-vase-to-card:zig-lib  project-name
+          %+  test-results-error  (crip message)
+          [test-id tid steps.test]
+        =*  test-results  p.result
         =/  =shown-test-results:zig
           (show-test-results:zig-lib test-results)
         ~&  >  "%ziggurat: test done {<test-id>}"

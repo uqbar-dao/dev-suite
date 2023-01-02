@@ -58,7 +58,7 @@
 ::
 ++  send-pyro-scry
   |=  payload=scry-payload:zig
-  =/  m  (strand ,vase)
+  =/  m  (strand ,(each vase @t))
   ^-  form:m
   ;<  =bowl:strand  bind:m  get-bowl
   =/  who=@ta  (scot %p who.payload)
@@ -73,15 +73,19 @@
             /noun
         ==
     ==
-  ?.  ?=(^ scry-noun)  (pure:m !>(`~`~))
+  ?.  ?=(^ scry-noun)
+    %-  pure:m
+    [%| (cat 3 'scry failed: ' (crip (noah !>(payload))))]
   =/  compilation-result
     %^  mule-slap-subject:zig-lib  0  subject
     mold-name.payload
   ?:  ?=(%| -.compilation-result)
     ~&  %ziggurat-test-run^%scry-compilation-fail^p.compilation-result
-    !!
+    %-  pure:m
+    :-  %|
+    (cat 3 'scry-compilation-fail\0a' p.compilation-result)
   =*  scry-mold  p.compilation-result
-  (pure:m (slym scry-mold +.scry-noun))
+  (pure:m [%& (slym scry-mold +.scry-noun)])
 ::
 ::  +send-pyro-dbug differs from +send-pyro-scry in that
 ::   the return value of the %pyro scry is a vase.
@@ -94,7 +98,7 @@
 ::
 ++  send-pyro-dbug
   |=  payload=dbug-payload:zig
-  =/  m  (strand ,vase)
+  =/  m  (strand ,(each vase @t))
   ^-  form:m
   ;<  =bowl:strand  bind:m  get-bowl
   =/  who=@ta  (scot %p who.payload)
@@ -105,15 +109,19 @@
         %+  weld  /(scot %p our.bowl)/pyro/[now]/i/[who]/gx
         /[who]/[app.payload]/[now]/dbug/state/noun/noun
     ==
-  ?.  ?=(^ dbug-noun)  (pure:m !>(`~`~))
+  ?.  ?=(^ dbug-noun)
+    %-  pure:m
+    [%| (cat 3 'dbug failed: ' (crip (noah !>(payload))))]
   =/  compilation-result
     %^  mule-slap-subject:zig-lib  0  subject
     mold-name.payload
   ?:  ?=(%| -.compilation-result)
     ~&  %ziggurat-test-run^%dbug-compilation-fail^p.compilation-result
-    !!
+    %-  pure:m
+    :-  %|
+    (cat 3 'dbug-compilation-fail\0a' p.compilation-result)
   =*  dbug-mold  p.compilation-result
-  (pure:m (slym dbug-mold +.+.dbug-noun))
+  (pure:m [%& (slym dbug-mold +.+.dbug-noun)])
 ::
 ++  read-pyro-subscription
   |=  [payload=read-sub-payload:zig expected=@t]
@@ -145,7 +153,7 @@
 ::
 ++  send-pyro-poke
   |=  payload=poke-payload:zig
-  =/  m  (strand ,~)
+  =/  m  (strand ,(each ~ @t))
   ^-  form:m
   ::  if %poke mark is not found it will fail
   ;<  =bowl:strand  bind:m  get-bowl
@@ -157,16 +165,18 @@
       payload.payload
     ?:  ?=(%| -.compilation-result)
       ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
-      !!
+      %-  pure:m
+      :-  %|
+      (cat 3 'poke-compilation-fail\0a' p.compilation-result)
     ;<  ~  bind:m
       (poke:pyro-lib payload(payload +.p.compilation-result))
-    (pure:m ~)
+    (pure:m [%& ~])
   ::  mark not found: warn and attempt to fallback to
   ::   equivalent %dojo step rather than failing outright
   ~&  %ziggurat-test-run^%poke-mark-not-found^mark.payload
   ;<  ~  bind:m
     (send-pyro-dojo convert-poke-to-dojo-payload)
-  (pure:m ~)
+  (pure:m [%& ~])
   ::
   ++  is-mar-found
     ^-  ?
@@ -281,7 +291,7 @@
           =test-steps:zig
           snapshot-ships=(list @p)
       ==
-  =/  m  (strand ,test-results:zig)
+  =/  m  (strand ,(each test-results:zig @t))
   ^-  form:m
   =|  =test-results:zig
   =|  step-number=@ud
@@ -301,7 +311,7 @@
         step-number
         snapshot-ships
     ==
-  ?~  test-steps  (pure:m (flop test-results))
+  ?~  test-steps  (pure:m [%& (flop test-results)])
   =*  test-step   i.test-steps
   ;<  =bowl:strand  bind:m  get-bowl
   ?-    -.test-step
@@ -317,10 +327,12 @@
   ::
       %dojo
     ;<  ~  bind:m  (send-pyro-dojo payload.test-step)
-    ;<  trs=test-results:zig  bind:m
+    ;<  result-from-expected=(each test-results:zig @t)  bind:m
       %-  run-steps
       :^  project-id  test-id
       `test-steps:zig`expected.test-step  ~
+    ?:  ?=(%| -.result-from-expected)  !!
+    =*  trs  p.result-from-expected
     ?~  tr=(test-results-of-reads-to-test-result trs)
       ~|("ziggurat-test-run: %dojo expected can only contain %scrys, %subscribes, %waits" !!)
     =.  test-results  [u.tr test-results]
@@ -332,11 +344,15 @@
     ==
   ::
       %poke
-    ;<  ~  bind:m  (send-pyro-poke payload.test-step)
-    ;<  trs=test-results:zig  bind:m
+    ;<  poke-result=(each ~ @t)  bind:m
+      (send-pyro-poke payload.test-step)
+    ?:  ?=(%| -.poke-result)  (pure:m [%| p.poke-result])
+    ;<  result-from-expected=(each test-results:zig @t)  bind:m
       %-  run-steps
       :^  project-id  test-id
       `test-steps:zig`expected.test-step  ~
+    ?:  ?=(%| -.result-from-expected)  !!
+    =*  trs  p.result-from-expected
     ?~  tr=(test-results-of-reads-to-test-result trs)
       ~|("ziggurat-test-run: %poke expected can only contain %scrys, %subscribes, %waits" !!)
     =.  test-results  [u.tr test-results]
@@ -348,8 +364,10 @@
     ==
   ::
       %scry
-    ;<  result=vase  bind:m
+    ;<  scry-result=(each vase @t)  bind:m
       (send-pyro-scry payload.test-step)
+    ?:  ?=(%| -.scry-result)  (pure:m [%| p.scry-result])
+    =*  result    p.scry-result
     =*  expected  expected.test-step
     =/  res-text=@t  (crip (noah result))
     =.  test-results
@@ -362,8 +380,10 @@
     ==
   ::
       %dbug
-    ;<  result=vase  bind:m
+    ;<  dbug-result=(each vase @t)  bind:m
       (send-pyro-dbug payload.test-step)
+    ?:  ?=(%| -.dbug-result)  (pure:m [%| p.dbug-result])
+    =*  result    p.dbug-result
     =*  expected  expected.test-step
     =/  res-text=@t  (crip (noah result))
     =.  test-results
@@ -389,10 +409,12 @@
   ::
       %subscribe
     ;<  ~  bind:m  (send-pyro-subscription payload.test-step)
-    ;<  trs=test-results:zig  bind:m
+    ;<  result-from-expected=(each test-results:zig @t)  bind:m
       %-  run-steps
       :^  project-id  test-id
       `test-steps:zig`expected.test-step  ~
+    ?:  ?=(%| -.result-from-expected)  !!
+    =*  trs  p.result-from-expected
     ?~  tr=(test-results-of-reads-to-test-result trs)
       ~|("ziggurat-test-run: %subscribe expected can only contain %scrys, %subscribes, %waits" !!)
     %=  $
@@ -444,7 +466,7 @@
   =.  subject  (build-next-subject subject.u.args !>(`~`~) bowl)
   ::
   ;<  ~  bind:m  (watch-our /effect %pyro /effect)
-  ;<  =test-results:zig  bind:m
+  ;<  result=(each test-results:zig @t)  bind:m
     (run-steps project-id test-id test-steps snapshot-ships)
-  (pure:m !>(`test-results:zig`test-results))
+  (pure:m !>(`(each test-results:zig @t)`result))
 --
