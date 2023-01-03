@@ -259,16 +259,19 @@ TODO: Add a fallback to the scry to return unformatted `+dbug` output without se
 
 ## Building the `%pyro` pill
 
-A pill can either be freshly built and loaded into pyro, or outputted to unix to share around the network
+A pill can either be freshly built and loaded into pyro, or output to Unix to share around the network:
 ```hoon
-:pyro &pill +zig!solid %base %zig
+=p +zig!solid %base %zig
 
-.pill/pill +zig!solid %base %zig
+:pyro %pyro-action [%pill p]
+
+.pill/pill p
 ```
 
 The latter is recommended - we store ours in `zig/snapshots/pill.pill`, and ship it with the ziggurat desk.
 
-Only newly created ships will use the most recently-supplied pill, so if you replace an existing pill, you need to restart ships if you want them to use it.
+Only newly created virtualships will use the most recently-supplied pill.
+As a result, if you replace an existing pill, you need to restart virtualships if you want them to use it.
 
 ### Other considerations
 
@@ -304,7 +307,7 @@ First go into ames - ctrl+F "13" and replace with "23" to boost the packet size 
 
 ```hoon
 |commit %base
-:pyro &pill +zig!solid %base %zig
+:pyro &pyro-action [%pill +zig!solid %base %zig]
 :pyro|init ~nec
 :pyro|dojo ~nec ":rollup|activate"
 :pyro|dojo ~nec ":sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608"
