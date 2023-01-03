@@ -1,3 +1,13 @@
+::  development tool to see `update:zig`s that result from
+::   pokes to `app/ziggurat.hoon`.
+::   usage:
+::   1. create project
+::   2. run this thread to print out `update:zig`s for
+::      that project
+::   3. press Backspace to detatch thread
+::   4. run whatever pokes/test-steps;
+::      `update:zig`s will be output
+::
 /-  spider
 /+  strandio,
     pyro=zig-pyro
