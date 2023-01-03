@@ -140,6 +140,18 @@ There are some weird things about this:
 
 Here are two examples, the first of a scry to clay for a file, and the second a scry to gall for `%indexer` state:
 
+```hoon
+;;((unit wain) .^(noun %gx /=pyro=/i/~nec/cx/~nec/zig/(scot %da now)/desk/bill/noun))
+
+=ui -build-file /=zig=/sur/zig/indexer/hoon
+;;((unit update:ui) .^(noun %gx /=pyro=/i/~nec/gx/~nec/indexer/(scot %da now)/batch-order/0x0/noun/noun))
+```
+
+To avoid the overly-verbose scries, you can also use the `+scry` generator which will automatically format agent scries (care of `%gx`) into pyro-ships.
+```
++zig!pyro/scry ~nec %sequencer /status/noun
+```
+
 ### `update:zig`
 
 Many pokes will result in an error or change in state that frontends or other apps need to know about.
@@ -160,18 +172,6 @@ In addition, scries will also often return `update:zig`.
   * `level`: like a logging level (info, warning, error): how severe was this failure,
   * `message`: an description of the error.
 * other optional metadata that should be reported whether a success or a failure.
-
-```hoon
-;;((unit wain) .^(noun %gx /=pyro=/i/~nec/cx/~nec/zig/(scot %da now)/desk/bill/noun))
-
-=ui -build-file /=zig=/sur/zig/indexer/hoon
-;;((unit update:ui) .^(noun %gx /=pyro=/i/~nec/gx/~nec/indexer/(scot %da now)/batch-order/0x0/noun/noun))
-```
-
-To avoid the overly-verbose scries, you can also use the `+scry` generator which will automatically format agent scries (care of `%gx`) into pyro-ships.
-```
-+zig!pyro/scry ~nec %sequencer /status/noun
-```
 
 ## Test steps
 
