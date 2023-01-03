@@ -155,7 +155,7 @@ In addition, scries will also often return `update:zig`.
   * `source`: where did this `update` or error originate from?
   * `request-id`: pokes may include a `(unit @t)`, an optional `request-id` to make finding the resulting update easier; if a poke caused this `update`, and it included a `request-id`, it is copied here.
 * `payload`: a piece of data or an error.
-  If the `update` is reporting successm this may contain data about the updated state.
+  If the `update` is reporting a success this may contain data about the updated state.
   If the `update` is reporting a failure, this includes a:
   * `level`: like a logging level (info, warning, error): how severe was this failure,
   * `message`: an description of the error.
