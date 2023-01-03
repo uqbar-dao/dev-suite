@@ -156,6 +156,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%dir update-info [%& dir] ~]
+  ::
+  ++  dashboard
+    |=  jon=json
+    ^-  vase
+    !>  ^-  update:zig
+    [%dashboard update-info [%& jon] ~]
   --
 ::
 ++  make-error-vase
@@ -281,6 +287,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%dir update-info [%| level message] ~]
+  ::
+  ++  dashboard
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%dashboard update-info [%| level message] ~]
   --
 ::
 ++  make-compile-contracts
@@ -991,6 +1003,9 @@
     ::
         %dir
       `(list [@t json])`['data' (frond %dir (dir p.payload.update))]~
+    ::
+        %dashboard
+      ['data' p.payload.update]~
     ==
   ::
   ++  error

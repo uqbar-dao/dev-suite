@@ -177,6 +177,7 @@
       %custom-step-compiled
       %test-results
       %dir
+      %dashboard
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -207,6 +208,7 @@
       [%custom-step-compiled update-info payload=(data ~) test-id=@ux tag=@tas]
       [%test-results update-info payload=(data shown-test-results) test-id=@ux thread-id=@t =test-steps]
       [%dir update-info payload=(data (list path)) ~]
+      [%dashboard update-info payload=(data json) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)

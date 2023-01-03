@@ -1187,17 +1187,28 @@
     =*  project-name  i.t.t.p
     =*  who           i.t.t.t.p
     =*  app           `@tas`i.t.t.t.t.p
-    :^  ~  ~  %json
-    !>  ^-  json
+    =/  dashboard-error
+      %~  dashboard  make-error-vase:zig-lib
+      [[project-name %dashboard ~] %error]
+    :^  ~  ~  %ziggurat-update
     ?~  project=(~(get by projects) project-name)
-      %+  single-string-object:enjs:zig-lib  %error
-      "project {<project-name>} not found; must register project with %new-project"
+      %-  dashboard-error
+      %-  crip
+      %+  weld  "project {<project-name>} not found;"
+      " must register project with %new-project"
     ?~  dbug=(~(get by dbug-dashboards.u.project) app)
-      %+  single-string-object:enjs:zig-lib  %error
-      "app {<app>} not found; must add app to dashboard with %add-app-to-dashboard"
+      %-  dashboard-error
+      %-  crip
+      %+  weld  "app {<app>} not found; must add app to"
+      " dashboard with %add-app-to-dashboard"
     ?:  ?=(%| -.mold.u.dbug)
-      %+  single-string-object:enjs:zig-lib  %error
-      "app {<app>} subject failed to build; fix sur file path and re-add with %add-app-to-dashboard. error message from build: {<p.mold.u.dbug>}"
+      %-  dashboard-error
+      %-  crip
+      ;:  weld
+          "app {<app>} subject failed to build; fix sur"
+          " file path and re-add with %add-app-to-dashboard."
+          " error message from build: {<p.mold.u.dbug>}"
+      ==
     =/  now=@ta  (scot %da now.bowl)
     =/  dbug-noun=*
       .^  *
@@ -1206,15 +1217,16 @@
           /gx/[who]/[app]/[now]/dbug/state/noun/noun
       ==
     ?.  ?=(^ dbug-noun)
-      %+  single-string-object:enjs:zig-lib  %error
-      "dbug scry failed: unexpected result from pyro"
+      %-  dashboard-error
+      'dbug scry failed: unexpected result from pyro'
     =*  mar-tube   mar-tube.u.dbug
     =*  dbug-mold  p.mold.u.dbug
     =/  dbug-vase=vase  (slym dbug-mold +.+.dbug-noun)
-    ?~  mar-tube
-      %+  single-string-object:enjs:zig-lib  %state
-      (noah dbug-vase)
-    (frond:enjs:format %state !<(json (u.mar-tube dbug-vase)))
+    %-  %~  dashboard  make-update-vase:zig-lib
+        [project-name %dashboard ~]
+    %+  frond:enjs:format  %state
+    ?~  mar-tube  [%s (crip (noah dbug-vase))]
+    !<(json (u.mar-tube dbug-vase))
   ::
       [%file-exists @ ^]
     =/  des=@ta    i.t.t.p
