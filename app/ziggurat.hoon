@@ -343,11 +343,13 @@
     |=  act=action:zig
     ^-  (quip card _state)
     ?>  =(our.bowl src.bowl)
-    ?-    -.+.+.act
+    =*  tag  -.+.+.act
+    =/  =update-info:zig  [project.act tag request-id.act]
+    ?-    tag
         %new-project
       =/  new-project-error
         %~  new-project  make-error-vase:zig-lib
-        [[project -.+.+ request-id]:act %error]
+        [update-info %error]
       ?:  (~(has in (~(gas in *(set @t)) ~['fresh-piers' 'assembled'])) project.act)  ::  TODO: still necessary?
         =/  message=tape
           "{<`@tas`project.act>} face reserved"
@@ -382,7 +384,7 @@
           ::
               %+  update-vase-to-card:zig-lib  project.act
               %~  new-project  make-update-vase:zig-lib
-              [project -.+.+ request-id]:act
+              update-info
           ==
       %=  state
           projects
@@ -452,7 +454,7 @@
       =/  =project:zig  (~(got by projects) project.act)
       =/  add-test-error
         %~  add-test  make-error-vase:zig-lib
-        [[project -.+.+ request-id]:act %error]
+        [update-info %error]
       =/  who=@p
         (~(got by town-sequencers.project) town-id.act)
       =/  address=@ux  (~(got by virtualnet-addresses) who)
@@ -506,7 +508,7 @@
             %+  update-vase-to-card:zig-lib  project.act
             %.  [test test-id]
             %~  add-test  make-update-vase:zig-lib
-            [project -.+.+ request-id]:act
+            update-info
           (weld cards all-cards)
       %=  state
           projects
@@ -538,7 +540,7 @@
       =/  =project:zig  (~(got by projects) project.act)
       =/  compile-contract-error
         %~  compile-contract  make-error-vase:zig-lib
-        [[project -.+.+ request-id]:act %error]
+        [update-info %error]
       ?~  path.act
         =/  message=tape  "contract path must not be empty"
         :_  state
@@ -587,7 +589,7 @@
             %+  update-vase-to-card:zig-lib  project.act
             %.  dir.project
             %~  dir  make-update-vase:zig-lib
-            [project -.+.+ request-id]:act
+            update-info
           ~
       state(projects (~(put by projects) project.act project))
     ::
@@ -644,7 +646,7 @@
       %+  update-vase-to-card:zig-lib  project.act
       %.  [test test-id]
       %~  add-test  make-update-vase:zig-lib
-      [project -.+.+ request-id]:act
+      update-info
     ::
         %add-and-run-test-file
       =^  cards  state
@@ -670,7 +672,7 @@
       %+  update-vase-to-card:zig-lib  project.act
       %.  id.act
       %~  delete-test  make-update-vase:zig-lib
-      [project -.+.+ request-id]:act
+      update-info
     ::
         %run-test
       :_  state(test-queue (~(put to test-queue) [project id]:act))
@@ -681,7 +683,7 @@
         %run-queue
       =/  run-queue-error
         %~  run-queue  make-error-vase:zig-lib
-        [[project -.+.+ request-id]:act %error]
+        [update-info %error]
       ?:  =(~ pyro-ships-ready)
         =/  message=tape
           "must run %start-pyro-ships before tests"
@@ -709,11 +711,11 @@
         %+  update-vase-to-card:zig-lib  project.act
         (run-queue-error(level %info) (crip message))
       =^  top  test-queue  ~(get to test-queue)
-      =*  project-name  -.top
-      =*  test-id        +.top
-      ~&  >  "%ziggurat: running {<test-id>}"
-      =/  =project:zig  (~(got by projects) project-name)
-      =/  =test:zig     (~(got by tests.project) test-id)
+      =*  next-project-name  -.top
+      =*  next-test-id        +.top
+      ~&  >  "%ziggurat: running {<next-test-id>}"
+      =/  =project:zig  (~(got by projects) next-project-name)
+      =/  =test:zig     (~(got by tests.project) next-test-id)
       ?:  ?=(%| -.subject.test)
         =/  message=tape
           "test subject must compile before test can be run"
@@ -724,9 +726,9 @@
       =/  tid=@ta
         %+  rap  3
         :~  'ted-'
-            project-name
+            next-project-name
             '-'
-            ?^(name.test u.name.test (scot %ux test-id))
+            ?^(name.test u.name.test (scot %ux next-test-id))
             '-'
             (scot %uw (sham eny.bowl))
         ==
@@ -736,14 +738,14 @@
           %ziggurat-test-run
         !>  ^-  (unit [@t @ux test-steps:zig vase (list @p)])
         :*  ~
-            project-name
-            test-id
+            next-project-name
+            next-test-id
             steps.test
             p.subject.test
             ~[~nec ~bud]  :: TODO: remove hardcode and allow input of for-snapshot
         ==
       =/  w=wire
-        /test/[project-name]/(scot %ux test-id)/[tid]
+        /test/[next-project-name]/(scot %ux next-test-id)/[tid]
       :_  state(test-running &)
       :+  %+  ~(watch-our pass:io w)  %spider
           /thread-result/[tid]
@@ -773,7 +775,7 @@
       %+  update-vase-to-card:zig-lib  project.act
       %.  [test-id tag]:act
       %~  add-custom-step  make-update-vase:zig-lib
-      [project -.+.+ request-id]:act
+      update-info
     ::
         %delete-custom-step
       =/  =project:zig  (~(got by projects) project.act)
@@ -790,13 +792,13 @@
       %+  update-vase-to-card:zig-lib  project.act
       %.  [test-id tag]:act
       %~  delete-custom-step  make-update-vase:zig-lib
-      [project -.+.+ request-id]:act
+      update-info
     ::
         %add-app-to-dashboard
       =/  =project:zig  (~(got by projects) project.act)
       =/  add-app-error
         %~  add-app-to-dashboard  make-error-vase:zig-lib
-        [[project -.+.+ request-id]:act %error]
+        [update-info %error]
       =*  sur  sur.act
       ::  make mold subject
       ?~  snipped=(snip sur)
@@ -851,7 +853,7 @@
       %+  update-vase-to-card:zig-lib  project.act
       %.  [app sur mold-name mar]:act
       %~  add-app-to-dashboard  make-update-vase:zig-lib
-      [project -.+.+ request-id]:act
+      update-info
     ::
         %delete-app-from-dashboard
       =/  =project:zig  (~(got by projects) project.act)
@@ -865,7 +867,7 @@
       %+  update-vase-to-card:zig-lib  project.act
       %.  app.act
       %~  delete-app-from-dashboard  make-update-vase:zig-lib
-      [project -.+.+ request-id]:act
+      update-info
     ::
         %stop-pyro-ships
       :_  state(pyro-ships-ready ~)
@@ -910,7 +912,7 @@
       %+  update-vase-to-card:zig-lib  project.act
       %.  [town-id who]:act
       %~  add-town-sequencer  make-update-vase:zig-lib
-      [project -.+.+ request-id]:act
+      update-info
     ::
         %delete-town-sequencer
       =/  =project:zig  (~(got by projects) project.act)
@@ -924,7 +926,7 @@
       %+  update-vase-to-card:zig-lib  project.act
       %.  town-id.act
       %~  delete-town-sequencer  make-update-vase:zig-lib
-      [project -.+.+ request-id]:act
+      update-info
     ::
         %start-pyro-snap
       :_  state(pyro-ships-ready ~)
@@ -976,7 +978,7 @@
       %+  update-vase-to-card:zig-lib  project.act
       %.  file.act
       %~  add-user-file  make-update-vase:zig-lib
-      [project -.+.+ request-id]:act
+      update-info
     ::
         %delete-user-file
       =/  =project:zig  (~(got by projects) project.act)
@@ -989,7 +991,7 @@
       %+  update-vase-to-card:zig-lib  project.act
       %.  file.act
       %~  delete-user-file  make-update-vase:zig-lib
-      [project -.+.+ request-id]:act
+      update-info
     ==
   --
 ::
