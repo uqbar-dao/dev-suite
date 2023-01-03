@@ -1,17 +1,16 @@
 /-  zig=zig-ziggurat
 /+  zig-lib=zig-ziggurat
+|_  =update:zig
 ::
-=,  dejs:format
-|_  =action:zig
 ++  grab
   |%
-  ++  noun  action:zig
-  ++  json  uber-action:dejs:zig-lib
+  ++  noun  update:zig
   --
 ::
 ++  grow
   |%
-  ++  noun  action
+  ++  noun  update
+  ++  json  (update:enjs:zig-lib update)
   --
 ::
 ++  grad  %noun

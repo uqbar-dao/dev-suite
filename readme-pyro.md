@@ -3,17 +3,29 @@
 Document describes current best practices for use and testing of `%pyro` and `%ziggurat`.
 As these projects are in a state of heavy development, this document will likely go out of date unless updated.
 
-Last updated as of Dec 15 2022
+Last updated as of Jan 02, 2023.
+
+##  Contents
+
+* [Broad overview](#broad-overview)
+* [Example usage](#example-usage)
+* [`%pyro` ship I/O](#pyro-ship-io)
+* [Test steps](#test-steps)
+* [Custom inputs](#custom-inputs)
+* [Deploying contracts](#deploying-contracts)
+* [`dbug` dashboard](#dbug-dashboard)
+* [Building the `%pyro` pill](#building-the-pyro-pill)
+* [Configuring testnet snapshot for quick-boot](#configuring-testnet-snapshot-for-quick-boot)
 
 ## Broad overview
 
 `%ziggurat` is the backend for an IDE and testing environment.
 `%pyro` is a ship virtualizer used to run a network of virtual ships and used by `%ziggurat`.
 
-`%pyro` requires a pill to initialize virtual ships.
-It is paired with `%pyre`, an app that plays the role of the runtime for `%pyro`.
-For example, `%pyre` picks up ames packets sent from one virtualship and passes them to the intended recipient.
+`%pyro` is paired with `%pyre`, an app that plays the role of the runtime for `%pyro`.
+For example, `%pyre` picks up ames packets sent from one virtualship and passes them to the recipient virtualship.
 
+`%pyro` requires a pill to initialize virtual ships.
 After `%pyro` has loaded a pill, the initial startup of ships also takes some time.
 However, subsequent restarts of those ships takes much less time. Furthermore, you can cache the state of an entire fleet.
 
@@ -25,40 +37,82 @@ Each `test-step` may optionally have expectations.
 
 By default we run `~nec` and `~bud` as virtualships.
 
-## Building the `%pyro` pill
+## Example usage
 
-A pill can either be freshly built and loaded into pyro, or outputted to unix to share around the network
+Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 ```hoon
-:pyro &pill +zig!solid %base %zig
+:ziggurat &ziggurat-action [%foo ~ %new-project ~]
 
-.pill/pill +zig!solid %base %zig
+::  Setup virtualship testnet, like following https://github.com/uqbar-dao/uqbar-core/blob/master/readme.md
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%setup /zig/test-steps/setup/hoon]
+
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%scry-nec /zig/test-steps/scry-nec/hoon]
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%scry-bud /zig/test-steps/scry-bud/hoon]
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%scry-clay /zig/test-steps/scry-clay/hoon]
+
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%subscribe-nec /zig/test-steps/subscribe-nec/hoon]
+
+::  The same ZIGS send done in two ways:
+::   Using a custom-step-definition and pokes,
+::   Using Dojo commands.
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%send-nec /zig/test-steps/send-nec/hoon]
+:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%send-nec-dojo /zig/test-steps/send-nec-dojo/hoon]
+
+:ziggurat &ziggurat-action [%foo ~ %start-pyro-ships ~[~nec ~bud]]
+:ziggurat &ziggurat-action [%$ ~ %run-queue ~]
+
+::  Tell `%ziggurat` not to run any more tests right now.
+::   Also resets state when `%start-pyro-ships` is called again.
+:ziggurat &ziggurat-action [%foo ~ %stop-pyro-ships ~]
 ```
 
-The latter is recommended - we store ours in `zig/snapshots/pill.pill`, and ship it with the ziggurat desk.
+### `send-nec` from the virtualship Dojo
 
-Only newly created ships will use the most recently-supplied pill, so if you replace an existing pill, you need to restart ships if you want them to use it.
+```hoon
+:pyro|dojo ~nec ":uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]"
+:pyro|dojo ~nec ":uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xa99c.4c8e.1c8d.abb8.e870.81e8.8c96.2cf5 gas=[rate=1 bud=1.000.000]]"
+:pyro|dojo ~nec ":sequencer|batch"
+```
 
-## Other considerations
+### Interaction with snapshots
 
-### Ames speedboost on fakeships
+```hoon
+:pyro &action [%snap-ships /my-snapshot/0 ~[~nec ~bud]]
+:pyro &action [%restore-snap /my-snapshot/0]
+:pyro &action [%clear-snap /my-snapshot/0]
+```
+where the `/my-snapshot/0` here is just a `path` label of the snapshot.
 
-Ames divides packets into ~1kB because that is what routers on the internet handle.
-You can speed up virtual ames by increasing the size of packets, but only on a fakeship.
-When planning to dev on a fakeship, find-and-replace `13` to `23` in arvo/sys/vane/ames.hoon`.
-After this change, create your pill.
-For large ames sends (e.g. downloading a desk), this will significantly speed things up.
+We pre-cache a special `/testnet` snapshot which loads a virtual testnet for you.
+Disclaimer: these currently have a bunch of jet mismatches when you boot them.
+May be super slow!
+This is getting fixed in an OTA soon.
+To activate it use
+```hoon
+:ziggurat &ziggurat-action [%foo %start-pyro-snap /testnet]
+```
 
-### `desk.ship`
+### Alternative `test-steps` input
 
-The distributor of a desk is specified in `desk.ship`.
-When booting from a pill, the new ship will try to contact that ship and ask for a remote install.
-To be performant you must have `desk.ship` be one of the ships you are running in the virtual net, or your ships will constantly ping that offline ship.
-Deleting `desk.ship` defaults to `~zod`.
-A downside of specifying a live ship in `desk.ship` is that your ship will succeed at remote installing your repo, which takes time.
-This indicates we should either:
-1. Update how we make pills/load in `%zig` desk,
-2. Get Tlon to accept an update to `desk.ship` behavior where no `desk.ship` defaults to no remote install on pill boot rather than `~zod` (the bring-your-own-boot-sequence (BYOBS) project should eliminate most of this toruble soon)
-3. Load in a `.jam` file `+on-init` that has pre-booted ships, if possible (research TODO).
+Test steps can also be added by directly inputting them.
+This is useful for commandline testing or for frontends.
+For example, an equivalent to adding and queueing `%send-nec` above would be:
+```hoon
+=test-imports (~(put by *(map @tas path)) %indexer /sur/zig/indexer)
+=test-steps ~[[%scry [~nec 'update:indexer' %gx %indexer /batch-order/0x0/noun] '[%batch-order batch-order=~[0xd85a.d919.9806.cbc2.b841.eb0d.854d.22af]]']]
+:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-nec-direct test-imports test-steps]
+```
+A `test-steps` added this way is assigned a test id like any other test.
+It can be saved to a file by looking up this id.
+As of this writing is was `0x3825.4e68.9717.b400.b727.fdee.5c7b.90e0`; look it up using:
+```hoon
+=zig -build-file /=zig=/sur/zig/ziggurat/hoon
+.^(projects:zig %gx /=ziggurat=/projects/noun)
+```
+Then save via:
+```hoon
+:ziggurat &ziggurat-action [%foo %save-test-to-file 0x3825.4e68.9717.b400.b727.fdee.5c7b.90e0 /zig/test-steps/my-scry-nec/hoon]
+```
 
 ## `%pyro` ship I/O
 
@@ -95,10 +149,31 @@ Here are two examples, the first of a scry to clay for a file, and the second a 
 
 To avoid the overly-verbose scries, you can also use the `+scry` generator which will automatically format agent scries (care of `%gx`) into pyro-ships.
 ```
-+zig!pyro/scry ~nec %sequencer /status/noun 
++zig!pyro/scry ~nec %sequencer /status/noun
 ```
 
-##  Test steps
+### `update:zig`
+
+Many pokes will result in an error or change in state that frontends or other apps need to know about.
+`%ziggurat` returns `update`s that specify the changed state or the error that occurred.
+Frontends or apps should subscribe to `/project/[project-name]` to receive these `update`s.
+
+In addition, scries will also often return `update:zig`.
+
+`update:zig` takes the form of:
+* A tag, indicating the action or scry that triggered the update or the piece of state that changed,
+* `update-info:zig`, which itself contains metadata about the state/triggering action:
+  * `project-name`,
+  * `source`: where did this `update` or error originate from?
+  * `request-id`: pokes may include a `(unit @t)`, an optional `request-id` to make finding the resulting update easier; if a poke caused this `update`, and it included a `request-id`, it is copied here.
+* `payload`: a piece of data or an error.
+  If the `update` is reporting a success this may contain data about the updated state.
+  If the `update` is reporting a failure, this includes a:
+  * `level`: like a logging level (info, warning, error): how severe was this failure,
+  * `message`: an description of the error.
+* other optional metadata that should be reported whether a success or a failure.
+
+## Test steps
 
 `test-steps` are sequences of `test-step`s: a command to do something that optionally has an expected result.
 E.g., a `test-step` can be a `%poke` or a `%scry`.
@@ -115,13 +190,6 @@ Finally, some `test-globals` will be accessible by `test-steps`.
 The `addresses:test-globals` map is useful for easy access and pairing between virtualships and their testnet addresses.
 `test-results:` are also accessible, so that the results of a previous `test-step` is usable in the current one (TODO).
 `test-globals` also includes `our=@p`, `now=@da`, and `project=@tas`.
-
-## Deploying contracts
-
-Contracts can be deployed to the virtualship testnet for a project using the `%deploy-contract` poke:
-```hoon
-:ziggurat &ziggurat-action [%foo %deploy-contract town-id=0x0 /con/compiled/nft/jam]
-```
 
 ## Custom inputs
 
@@ -144,88 +212,90 @@ More examples can be found in the [`zig/custom-step-definitions/` dir](https://g
 Custom steps are labeled by a `tag=@tas` -- the name of the step that will be referenced when calling it.
 A custom step is a core whose `$` arm takes in arguments and an `expected` (either a `@t` if a `custom-read-step` or a `(list test-read-step)` if a `custom-write-step`) and must return a `(list test-step)`.
 
+## Deploying contracts
+
+Contracts can be deployed to the virtualship testnet for a project using the `%deploy-contract` poke:
+```hoon
+:ziggurat &ziggurat-action [%foo ~ %deploy-contract town-id=0x0 /con/compiled/nft/jam]
+```
+
 ## `dbug` dashboard
 
-TODO
-
-## Example usage
-
-Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
+The `dbug` dashboard enables programmatically scrying out `+dbug` state from agents running on virtualships.
+An alternative to the machinery here for a one-off `+dbug` is to run, e.g.
 ```hoon
-:ziggurat &ziggurat-action [%foo %new-project ~]
-
-::  Setup virtualship testnet, like following https://github.com/uqbar-dao/uqbar-core/blob/master/readme.md
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%setup /zig/test-steps/setup/hoon]
-
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%scry-nec /zig/test-steps/scry-nec/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%scry-bud /zig/test-steps/scry-bud/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%scry-clay /zig/test-steps/scry-clay/hoon]
-
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%subscribe-nec /zig/test-steps/subscribe-nec/hoon]
-
-::  The same ZIGS send done in two ways:
-::   Using a custom-step-definition and pokes,
-::   Using Dojo commands.
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%send-nec /zig/test-steps/send-nec/hoon]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test-file `%send-nec-dojo /zig/test-steps/send-nec-dojo/hoon]
-
-:ziggurat &ziggurat-action [%foo %start-pyro-ships ~[~nec ~bud]]
-:ziggurat &ziggurat-action [%$ %run-queue ~]
-
-::  Tell `%ziggurat` not to run any more tests right now.
-::   Also resets state when `%start-pyro-ships` is called again.
-:ziggurat &ziggurat-action [%foo %stop-pyro-ships ~]
+:pyro|dojo ~nec ":my-agent +dbug"
 ```
+which will print `+dbug` state to the Dojo.
 
-### `send-nec` from the virtualship Dojo
-
+The `dbug` dashboard requires set up before use.
+To set it up, poke `%ziggurat` with `%add-app-to-dashboard`.
+For example, to add the `%indexer` for project `'foo'`:
 ```hoon
-:pyro|dojo ~nec ":uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]"
-:pyro|dojo ~nec ":uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xa99c.4c8e.1c8d.abb8.e870.81e8.8c96.2cf5 gas=[rate=1 bud=1.000.000]]"
-:pyro|dojo ~nec ":sequencer|batch"
+:ziggurat &ziggurat-action [project=%foo ~ %add-app-to-dashboard app=%indexer sur=/sur/zig/indexer/hoon mold-name='versioned-state:indexer' mar=/]
 ```
+The `sur` field is required, and contains the definition of the mold given by `mold-name`: the agent state.
+The `mar` field is optional: if provided it should have a `+grow` arm to `json` from the agent state.
 
-### Interaction with snapshots
+After setting up, the scry path `/dashboard/[project-name]/[virtualship]/[app]` will be available.
+The scry will return an [`update:zig`](#update-zig): either an error of the current state of the app.
+If no mar field was given during set up, the state will be rendered as a `json` string.
+If a mar field was supplied, it will be used to format the state by applying the `json` `+grow` arm.
 
-```hoon
-:pyro &action [%snap-ships /my-snapshot/0 ~[~nec ~bud]]
-:pyro &action [%restore-snap /my-snapshot/0]
-:pyro &action [%clear-snap /my-snapshot/0]
-```
-where the `/my-snapshot/0` here is just a `path` label of the snapshot.
-
-We pre-cache a special `/testnet` snapshot which loads a virtual testnet for you.
-Disclaimer: these currently have a bunch of jet mismatches when you boot them.
-May be super slow!
-This is getting fixed in an OTA soon.
-To activate it use
-```hoon
-:ziggurat &ziggurat-action [%foo %start-pyro-snap /testnet]
-```
-
-### Alternative `test-steps` input
-
-Test steps can also be added by directly inputting them.
-This is useful for commandline testing or for frontends.
-For example, an equivalent to adding and queueing `%send-nec` above would be:
-```hoon
-=test-surs (~(put by *(map @tas path)) %indexer /sur/zig/indexer)
-=test-steps ~[[%scry [~nec 'update:indexer' %gx %indexer /batch-order/0x0/noun] '[%batch-order batch-order=~[0xd85a.d919.9806.cbc2.b841.eb0d.854d.22af]]']]
-:ziggurat &ziggurat-action [%foo %add-and-queue-test `%scry-nec-direct test-surs test-steps]
-```
-A `test-steps` added this way is assigned a test id like any other test.
-It can be saved to a file by looking up this id.
-As of this writing is was `0x3825.4e68.9717.b400.b727.fdee.5c7b.90e0`; look it up using:
+Continuing the example above, scry out the state of the `%indexer` running on the virtual `~nec`:
 ```hoon
 =zig -build-file /=zig=/sur/zig/ziggurat/hoon
-.^(projects:zig %gx /=ziggurat=/projects/noun)
-```
-Then save via:
-```hoon
-:ziggurat &ziggurat-action [%foo %save-test-to-file 0x3825.4e68.9717.b400.b727.fdee.5c7b.90e0 /zig/test-steps/my-scry-nec/hoon]
+.^(update:zig %gx /=ziggurat=/dashboard/foo/~nec/indexer/noun)
 ```
 
-## Configuring Testnet Snapshot For Quick-Boot
+For an example of an error output, intentionally misspell the `mold-name` in the setup step (here, the final `r` is missing in `versioned-state:indexer`):
+```hoon
+:ziggurat &ziggurat-action [project=%foo ~ %add-app-to-dashboard app=%indexer sur=/sur/zig/indexer/hoon mold-name='versioned-state:indexe' mar=/]
+=zig -build-file /=zig=/sur/zig/ziggurat/hoon
+.^(update:zig %gx /=ziggurat=/dashboard/foo/~nec/indexer/noun)
+```
+
+TODO: Add a fallback to the scry to return unformatted `+dbug` output without set up.
+
+## Building the `%pyro` pill
+
+A pill can either be freshly built and loaded into pyro, or output to Unix to share around the network:
+```hoon
+=p +zig!solid %base %zig
+
+:pyro %pyro-action [%pill p]
+
+.pill/pill p
+```
+
+The latter is recommended - we store ours in `zig/snapshots/pill.pill`, and ship it with the ziggurat desk.
+
+Only newly created virtualships will use the most recently-supplied pill.
+As a result, if you replace an existing pill, you need to restart virtualships if you want them to use it.
+
+### Other considerations
+
+#### Ames speedboost on fakeships
+
+Ames divides packets into ~1kB because that is what routers on the internet handle.
+You can speed up virtual ames by increasing the size of packets, but only on a fakeship.
+When planning to dev on a fakeship, find-and-replace `13` to `23` in arvo/sys/vane/ames.hoon`.
+After this change, create your pill.
+For large ames sends (e.g. downloading a desk), this will significantly speed things up.
+
+#### `desk.ship`
+
+The distributor of a desk is specified in `desk.ship`.
+When booting from a pill, the new ship will try to contact that ship and ask for a remote install.
+To be performant you must have `desk.ship` be one of the ships you are running in the virtual net, or your ships will constantly ping that offline ship.
+Deleting `desk.ship` defaults to `~zod`.
+A downside of specifying a live ship in `desk.ship` is that your ship will succeed at remote installing your repo, which takes time.
+This indicates we should either:
+1. Update how we make pills/load in `%zig` desk,
+2. Get Tlon to accept an update to `desk.ship` behavior where no `desk.ship` defaults to no remote install on pill boot rather than `~zod` (the bring-your-own-boot-sequence (BYOBS) project should eliminate most of this toruble soon)
+3. Load in a `.jam` file `+on-init` that has pre-booted ships, if possible (research TODO).
+
+## Configuring testnet snapshot for quick-boot
 
 Testnet snap last updated: Dec 6 2022
 
@@ -237,7 +307,7 @@ First go into ames - ctrl+F "13" and replace with "23" to boost the packet size 
 
 ```hoon
 |commit %base
-:pyro &pill +zig!solid %base %zig
+:pyro &pyro-action [%pill +zig!solid %base %zig]
 :pyro|init ~nec
 :pyro|dojo ~nec ":rollup|activate"
 :pyro|dojo ~nec ":sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608"

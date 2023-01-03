@@ -1,4 +1,6 @@
-/-  engine=zig-engine, docket, wallet=zig-wallet
+/-  docket,
+    engine=zig-engine,
+    wallet=zig-wallet
 /+  engine-lib=zig-sys-engine,
     smart=zig-sys-smart
 |%
@@ -23,7 +25,6 @@
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
       to-compile=(set path)
-      errors=(map path @t)
       town-sequencers=(map @ux @p)
       =tests
       dbug-dashboards=(map app=@tas dbug-dashboard)
@@ -35,7 +36,7 @@
 +$  test
   $:  name=(unit @t)  ::  optional
       test-steps-file=path
-      =test-surs
+      =test-imports
       subject=(each vase @t)
       =custom-step-definitions
       steps=test-steps
@@ -45,7 +46,7 @@
 +$  expected-diff
   (map id:smart [made=(unit item:smart) expected=(unit item:smart) match=(unit ?)])
 ::
-+$  test-surs  (map @tas path)
++$  test-imports  (map @tas path)
 ::
 +$  test-steps  (list test-step)
 +$  test-step  $%(test-read-step test-write-step)
@@ -76,8 +77,6 @@
 ::
 +$  test-results  (list test-result)
 +$  test-result   (list [success=? expected=@t result=vase])
-+$  shown-test-results  (list shown-test-result)
-+$  shown-test-result   (list [success=? expected=@t result=@t])
 ::
 +$  template  ?(%fungible %nft %blank)
 ::
@@ -104,6 +103,7 @@
 ::
 +$  action
   $:  project=@t
+      request-id=(unit @t)
       $%  [%new-project ~]
           [%delete-project ~]
       ::
@@ -119,9 +119,9 @@
           [%compile-contract =path]  ::  path of form /[desk]/path/to/contract, e.g., /zig/con/fungible/hoon
           [%read-desk ~]  ::  make-project-update, make-watch-for-file-changes
       ::
-          [%add-test name=(unit @t) =test-surs =test-steps]  ::  name optional
-          [%add-and-run-test name=(unit @t) =test-surs =test-steps]
-          [%add-and-queue-test name=(unit @t) =test-surs =test-steps]
+          [%add-test name=(unit @t) =test-imports =test-steps]  ::  name optional
+          [%add-and-run-test name=(unit @t) =test-imports =test-steps]
+          [%add-and-queue-test name=(unit @t) =test-imports =test-steps]
           [%save-test-to-file id=@ux =path]
       ::
           [%add-test-file name=(unit @t) =path]  ::  name optional
@@ -156,11 +156,80 @@
 ::
 ::  subscription update types
 ::
-+$  project-update
-  $:  state=json  ::  state=(map @ux chain:engine)
-      project
++$  update-tag
+  $?  %project-names
+      %projects
+      %project
+      %state
+      %new-project
+      %add-test
+      %compile-contract
+      %delete-test
+      %run-queue
+      %add-custom-step
+      %delete-custom-step
+      %add-app-to-dashboard
+      %delete-app-from-dashboard
+      %add-town-sequencer
+      %delete-town-sequencer
+      %add-user-file
+      %delete-user-file
+      %custom-step-compiled
+      %test-results
+      %dir
+      %dashboard
+  ==
++$  update-level  ?(%success error-level)
++$  error-level   ?(%info %warning %error)
++$  update-info
+  [project-name=@t source=@tas request-id=(unit @t)]
+::
+++  data  |$(this (each this [level=error-level message=@t]))
+::
++$  update
+  $@  ~
+  $%  [%project-names update-info payload=(data ~) project-names=(set @t)]
+      [%projects update-info payload=(data ~) projects=shown-projects]
+      [%project update-info payload=(data ~) shown-project]
+      [%state update-info payload=(data ~) state=(map @ux chain:engine)]
+      [%new-project update-info payload=(data ~) ~]
+      [%add-test update-info payload=(data shown-test) test-id=@ux]
+      [%compile-contract update-info payload=(data ~) ~]
+      [%delete-test update-info payload=(data ~) test-id=@ux]
+      [%run-queue update-info payload=(data ~) ~]
+      [%add-custom-step update-info payload=(data ~) test-id=@ux tag=@tas]
+      [%delete-custom-step update-info payload=(data ~) test-id=@ux tag=@tas]
+      [%add-app-to-dashboard update-info payload=(data ~) app=@tas sur=path mold-name=@t mar=path]
+      [%delete-app-from-dashboard update-info payload=(data ~) app=@tas]
+      [%add-town-sequencer update-info payload=(data ~) town-id=@ux who=@p]
+      [%delete-town-sequencer update-info payload=(data ~) town-id=@ux]
+      [%add-user-file update-info payload=(data ~) file=path]
+      [%delete-user-file update-info payload=(data ~) file=path]
+      [%custom-step-compiled update-info payload=(data ~) test-id=@ux tag=@tas]
+      [%test-results update-info payload=(data shown-test-results) test-id=@ux thread-id=@t =test-steps]
+      [%dir update-info payload=(data (list path)) ~]
+      [%dashboard update-info payload=(data json) ~]
   ==
 ::
-+$  test-update
-  [%result state-transition:engine]
++$  shown-projects  (map @t shown-project)
++$  shown-project
+  $:  dir=(list path)
+      user-files=(set path)  ::  not on list -> grayed out in GUI
+      to-compile=(set path)
+      town-sequencers=(map @ux @p)
+      tests=shown-tests
+      dbug-dashboards=(map app=@tas dbug-dashboard)
+  ==
++$  shown-tests  (map @ux shown-test)
++$  shown-test
+  $:  name=(unit @t)  ::  optional
+      test-steps-file=path
+      =test-imports
+      subject=(each vase @t)
+      =custom-step-definitions
+      steps=test-steps
+      results=shown-test-results
+  ==
++$  shown-test-results  (list shown-test-result)
++$  shown-test-result   (list [success=? expected=@t result=@t])
 --
