@@ -870,10 +870,15 @@
       update-info
     ::
         %stop-pyro-ships
-      :_  state(pyro-ships-ready ~)
-      :~  [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
+      =.  pyro-ships-ready  ~
+      :_  state
+      :^    [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
           [%give %kick [/pyro-done]~ ~]
-      ==
+        %+  update-vase-to-card:zig-lib  ''
+        %.  pyro-ships-ready
+        %~  pyro-ships-ready  make-update-vase:zig-lib
+        ['' %pyro-ships-ready ~]
+      ~
     ::
         %start-pyro-ships
       =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud]
@@ -1067,9 +1072,13 @@
       ?~  test-queue                         [leave^~ this]
       ?.  (~(all by pyro-ships-ready) same)  [leave^~ this]
       :_  this
-      :+  leave
-        %-  ~(poke-self pass:io /self-wire)
-        [%ziggurat-action !>(`action:zig`%$^~^[%run-queue ~])]
+      :^    leave
+          %-  ~(poke-self pass:io /self-wire)
+          [%ziggurat-action !>(`action:zig`%$^~^[%run-queue ~])]
+        %+  update-vase-to-card:zig-lib  ''
+        %.  pyro-ships-ready
+        %~  pyro-ships-ready  make-update-vase:zig-lib
+        ['' %pyro-ships-ready ~]
       ~
     ==
   ::
@@ -1135,6 +1144,13 @@
     ?~  project  !>(`update:zig`~)
     %.  u.project
     ~(project make-update-vase:zig-lib [project-name %project ~])
+  ::
+      [%pyro-ships-ready ~]
+    :^  ~  ~  %ziggurat-update
+    %.  pyro-ships-ready
+    %~  pyro-ships-ready  make-update-vase:zig-lib
+    ['' %pyro-ships-ready ~]
+  ::
   ::
       [%state @ ~]
     =*  project-name  i.t.t.p
