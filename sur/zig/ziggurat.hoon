@@ -8,7 +8,7 @@
   $:  %0
       =projects
       virtualnet-addresses=(map @p address:smart)
-      pyro-ships-ready=(map ship ?)
+      pyro-ships-ready=(map @p ?)
       test-queue=(qeu [project=@t test-id=@ux])
       test-running=?
   ==
@@ -178,6 +178,7 @@
       %test-results
       %dir
       %dashboard
+      %pyro-ships-ready
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -209,6 +210,7 @@
       [%test-results update-info payload=(data shown-test-results) test-id=@ux thread-id=@t =test-steps]
       [%dir update-info payload=(data (list path)) ~]
       [%dashboard update-info payload=(data json) ~]
+      [%pyro-ships-ready update-info payload=(data (map @p ?)) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)

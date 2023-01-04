@@ -162,6 +162,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%dashboard update-info [%& jon] ~]
+  ::
+  ++  pyro-ships-ready
+    |=  pyro-ships-ready=(map @p ?)
+    ^-  vase
+    !>  ^-  update:zig
+    [%pyro-ships-ready update-info [%& pyro-ships-ready] ~]
   --
 ::
 ++  make-error-vase
@@ -293,6 +299,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%dashboard update-info [%| level message] ~]
+  ::
+  ++  pyro-ships-ready
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%pyro-ships-ready update-info [%| level message] ~]
   --
 ::
 ++  make-compile-contracts
@@ -1006,6 +1018,12 @@
     ::
         %dashboard
       ['data' p.payload.update]~
+    ::
+        %pyro-ships-ready
+      :_  ~
+      :-  'data'
+      %+  frond  %pyro-ships-ready
+      (pyro-ships-ready p.payload.update)
     ==
   ::
   ++  error
@@ -1347,6 +1365,13 @@
     :-  %a
     %+  turn  ~(tap in cords)
     |=([cord=@t] [%s cord])
+  ::
+  ++  pyro-ships-ready
+    |=  pyro-ships-ready=(map @p ?)
+    %-  pairs
+    %+  turn  ~(tap by pyro-ships-ready)
+    |=  [who=@p is-ready=?]
+    [(scot %p who) [%b is-ready]]
   ::
   ++  single-string-object
     |=  [key=@t error=^tape]
