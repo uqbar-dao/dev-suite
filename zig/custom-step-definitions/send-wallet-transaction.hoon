@@ -7,7 +7,8 @@
           expected=(list test-read-step:zig)
       ==
   ^-  test-steps:zig
-  =/  address=@ux  (~(got by addresses:test-globals) who)
+  =/  address=@ux
+    (~(got by config:test-globals) [~ who %address])
   :~  :+  %scry
         :-  who
         :^  '(map @ux *)'  %gx  %wallet

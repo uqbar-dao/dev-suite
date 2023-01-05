@@ -51,8 +51,10 @@
     :*  %0
         ~
     ::
-        %-  ~(gas by *(map @p address:smart))
-        ~[[~nec nec-address] [~bud bud-address]]
+        %-  ~(gas by *configs:zig)
+        :+  [[~ ~nec %address] nec-address]
+          [[~ ~bud %address] bud-address]
+        ~
     ::
         ~
         ~
@@ -310,7 +312,7 @@
       =/  initial-test-globals=vase
         !>  ^-  test-globals:zig
         :^  our.bowl  now.bowl  *test-results:zig
-        [project-desk virtualnet-addresses]
+        [project-desk configs]
       =/  [subject=vase c=ca-scry-cache:zig]
         %+  roll  imports
         |:  [[face=`@tas`%$ sur=`path`/] [subject=`vase`!>(..zuse) ca-scry-cache=ca-scry-cache]]
@@ -387,12 +389,14 @@
               update-info
           ==
       %=  state
+          configs  ::  TODO: generalize: read in configuration file
+        (~(put by configs) [`project.act ~nec %sequencer] 0x0)
+      ::
           projects
         %+  ~(put by projects)  project.act
         :*  dir=~  ::  populated by +make-read-desk / %read-desk
             user-files=(~(put in *(set path)) /app/[project.act]/hoon)
             to-compile=~
-            town-sequencers=(~(put by *(map @ux @p)) 0x0 ~nec)
             tests=~
             dbug-dashboards=~
         ==
@@ -423,12 +427,37 @@
       %-  ~(arvo pass:io /del-wire)
       [%c %info `@tas`project.act %& [file.act %del ~]~]
     ::
-        %set-virtualnet-address
-      =/  =project:zig  (~(got by projects) project.act)
-      =.  virtualnet-addresses
-        (~(put by virtualnet-addresses) [who address]:act)
-      ::  rebuild project custom-step-definitions
+        %add-config
+      =/  project-name=(unit @t)
+        ?:(=('' project.act) ~ `project.act)
+      =.  configs
+        (~(put by configs) [project-name [who what]:act] item.act)
       :_  state
+      :-  %+  update-vase-to-card:zig-lib  project.act
+          %.  [who what item]:act
+          %~  add-config  make-update-vase:zig-lib
+          update-info
+      ?~  project-name  ~
+      =/  =project:zig  (~(got by projects) u.project-name)
+      %-  zing
+      %+  turn  ~(tap by tests.project)
+      |=  [test-id=@ux =test:zig]
+      %-  make-recompile-custom-steps-cards:zig-lib
+      :^  project.act  test-id  custom-step-definitions.test
+      request-id.act
+    ::
+        %delete-config
+      =/  project-name=(unit @t)
+        ?:(=('' project.act) ~ `project.act)
+      =.  configs
+        (~(del by configs) project-name [who what]:act)
+      :_  state
+      :-  %+  update-vase-to-card:zig-lib  project.act
+          %.  [who what]:act
+          %~  delete-config  make-update-vase:zig-lib
+          update-info
+      ?~  project-name  ~
+      =/  =project:zig  (~(got by projects) u.project-name)
       %-  zing
       %+  turn  ~(tap by tests.project)
       |=  [test-id=@ux =test:zig]
@@ -455,9 +484,18 @@
       =/  add-test-error
         %~  add-test  make-error-vase:zig-lib
         [update-info %error]
-      =/  who=@p
-        (~(got by town-sequencers.project) town-id.act)
-      =/  address=@ux  (~(got by virtualnet-addresses) who)
+      =/  who=(unit @p)
+        %^  town-id-to-sequencer-host:zig-lib  project.act
+        town-id.act  configs
+      ?~  who
+        =/  message=tape
+          %+  weld  "could not find host for town-id"
+          " {<town-id.act>} amongst {<configs>}"
+        :_  state
+        :_  ~
+        %+  update-vase-to-card:zig-lib  project.act
+        (add-test-error (crip message) 0x0)
+      =/  address=@ux  (~(got by configs) [~ u.who %address])
       =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
       =/  imports=(list [@tas path])
         :+  [%indexer /sur/zig/indexer]
@@ -484,9 +522,9 @@
               %-  crip
               %-  noah
               !>  ^-  [@p test-write-step:zig]
-              :-  who
+              :-  u.who
               :^  %custom-write  %deploy-contract
-              (crip "[{<who>} {<path.act>} ~]")  ~
+              (crip "[{<u.who>} {<path.act>} ~]")  ~
             ~
         ::
             ~
@@ -905,34 +943,6 @@
         (turn ships.act |=(=ship [ship %.n]))
       ==
     ::
-        %add-town-sequencer
-      =/  =project:zig  (~(got by projects) project.act)
-      =.  town-sequencers.project
-        (~(put by town-sequencers.project) [town-id who]:act)
-      :_
-        %=  state
-          projects  (~(put by projects) project.act project)
-        ==
-      :_  ~
-      %+  update-vase-to-card:zig-lib  project.act
-      %.  [town-id who]:act
-      %~  add-town-sequencer  make-update-vase:zig-lib
-      update-info
-    ::
-        %delete-town-sequencer
-      =/  =project:zig  (~(got by projects) project.act)
-      =.  town-sequencers.project
-        (~(del by town-sequencers.project) town-id.act)
-      :_
-        %=  state
-          projects  (~(put by projects) project.act project)
-        ==
-      :_  ~
-      %+  update-vase-to-card:zig-lib  project.act
-      %.  town-id.act
-      %~  delete-town-sequencer  make-update-vase:zig-lib
-      update-info
-    ::
         %start-pyro-snap
       :_  state(pyro-ships-ready ~)
       :+  (~(watch-our pass:io /restore) /effect/restore)
@@ -1160,7 +1170,7 @@
     !>  ^-  update:zig
     ?~  project  ~
     :^  %state  [project-name %state ~]  [%& ~]
-    (get-state:zig-lib u.project)
+    (get-state:zig-lib project-name u.project configs)
   ::
       [%custom-step-compiled @ @ @ ~]
     =*  project-name  i.t.t.p

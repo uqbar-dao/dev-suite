@@ -7,7 +7,8 @@
 +$  state-0
   $:  %0
       =projects
-      virtualnet-addresses=(map @p address:smart)
+      =configs
+      :: virtualnet-addresses=(map @p address:smart)
       pyro-ships-ready=(map @p ?)
       test-queue=(qeu [project=@t test-id=@ux])
       test-running=?
@@ -25,7 +26,6 @@
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
       to-compile=(set path)
-      town-sequencers=(map @ux @p)
       =tests
       dbug-dashboards=(map app=@tas dbug-dashboard)
   ==
@@ -42,6 +42,9 @@
       steps=test-steps
       results=test-results
   ==
+::
++$  configs
+  (map [project-name=(unit @t) who=@p what=@tas] @)
 ::
 +$  expected-diff
   (map id:smart [made=(unit item:smart) expected=(unit item:smart) match=(unit ?)])
@@ -96,7 +99,8 @@
       now=@da
       =test-results
       project=@tas
-      addresses=(map @p address:smart)
+      =configs
+      :: addresses=(map @p address:smart)
   ==
 ::
 +$  ca-scry-cache  (map [@tas path] (pair @ux vase))
@@ -110,7 +114,9 @@
           [%save-file file=path text=@t]  ::  generates new file or overwrites existing
           [%delete-file file=path]
       ::
-          [%set-virtualnet-address who=@p =address:smart]
+          :: [%set-virtualnet-address who=@p =address:smart]
+          [%add-config who=@p what=@tas item=@]
+          [%delete-config who=@p what=@tas]
       ::
           [%register-contract-for-compilation file=path]
           [%deploy-contract town-id=@ux =path]
@@ -140,9 +146,6 @@
           [%add-app-to-dashboard app=@tas sur=path mold-name=@t mar=path]
           [%delete-app-from-dashboard app=@tas]
       ::
-          [%add-town-sequencer town-id=@ux who=@p]
-          [%delete-town-sequencer town-id=@ux]
-      ::
           [%stop-pyro-ships ~]
           [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> [~nec ~bud]
           [%start-pyro-snap snap=path]
@@ -162,6 +165,8 @@
       %project
       %state
       %new-project
+      %add-config
+      %delete-config
       %add-test
       %compile-contract
       %delete-test
@@ -170,8 +175,6 @@
       %delete-custom-step
       %add-app-to-dashboard
       %delete-app-from-dashboard
-      %add-town-sequencer
-      %delete-town-sequencer
       %add-user-file
       %delete-user-file
       %custom-step-compiled
@@ -194,6 +197,8 @@
       [%project update-info payload=(data ~) shown-project]
       [%state update-info payload=(data ~) state=(map @ux chain:engine)]
       [%new-project update-info payload=(data ~) ~]
+      [%add-config update-info payload=(data [who=@p what=@tas item=@]) ~]
+      [%delete-config update-info payload=(data [who=@p what=@tas]) ~]
       [%add-test update-info payload=(data shown-test) test-id=@ux]
       [%compile-contract update-info payload=(data ~) ~]
       [%delete-test update-info payload=(data ~) test-id=@ux]
@@ -202,8 +207,6 @@
       [%delete-custom-step update-info payload=(data ~) test-id=@ux tag=@tas]
       [%add-app-to-dashboard update-info payload=(data ~) app=@tas sur=path mold-name=@t mar=path]
       [%delete-app-from-dashboard update-info payload=(data ~) app=@tas]
-      [%add-town-sequencer update-info payload=(data ~) town-id=@ux who=@p]
-      [%delete-town-sequencer update-info payload=(data ~) town-id=@ux]
       [%add-user-file update-info payload=(data ~) file=path]
       [%delete-user-file update-info payload=(data ~) file=path]
       [%custom-step-compiled update-info payload=(data ~) test-id=@ux tag=@tas]
@@ -218,7 +221,6 @@
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
       to-compile=(set path)
-      town-sequencers=(map @ux @p)
       tests=shown-tests
       dbug-dashboards=(map app=@tas dbug-dashboard)
   ==

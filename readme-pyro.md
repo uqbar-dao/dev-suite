@@ -185,10 +185,15 @@ Examples can be seen in the `zig/test-steps/` dir](https://github.com/uqbar-dao/
 
 The subject of a `test-steps` is defined by the `/=` imports at the top of the `test-steps` file.
 In addition, this subject will be applied for [`custom-step-definitions`](#custom-inputs), so those dependencies must be included in `test-steps`.
-Finally, some `test-globals` will be accessible by `test-steps`.
-`addresses:test-globals` is the `(map @p @ux)` defined in `%ziggurat` app state and set with the `%set-virtualnet-addresses` action.
-The `addresses:test-globals` map is useful for easy access and pairing between virtualships and their testnet addresses.
-`test-results:` are also accessible, so that the results of a previous `test-step` is usable in the current one (TODO).
+Finally, some `test-globals` will be accessible by `test-steps` (see sur/zig/ziggurat.hoon):
+
+`configs:test-globals` is a `(map [project-name=(unit @t) who=@p what=@tas] @)` that stores general data that can be added to with `%add-config`.
+It is loaded with some useful items by default, as well:
+* The default testnet address associated with that `@p` is stored at `[project-name=~ who=@p what=%address]`,
+* The host running the `%sequencer` for a town given by the `map` value is stored at `[project-name=[~ @t] who=@p what=%sequencer]`.
+
+`test-results:test-globals` are also accessible, so that the results of a previous `test-step` is usable in the current one.
+See zig/custom-step-definitions/send-wallet-transaction.hoon for an example of how `test-results:test-globals` can be used.
 `test-globals` also includes `our=@p`, `now=@da`, and `project=@tas`.
 
 ## Custom inputs
