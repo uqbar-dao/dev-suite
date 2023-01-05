@@ -21,7 +21,7 @@
 ::  We get ++unix-event and ++pill from /-pyro
 ::
 /-  *zig-pyro
-/+  pill, default-agent, naive, dbug, verb
+/+  pyro=zig-pyro, pill, default-agent, naive, dbug, verb
 /*  cached-pill  %noun  /zig/snapshots/pill/pill
 =,  pill-lib=pill
 =>  $~  |%
@@ -669,7 +669,6 @@
       %unpause-events
     =.  this  apex-aqua  =<  abet-aqua
     ^+  this
-    ::  =.  this  start-azimuth-timer
     %+  turn-ships  hers.act
     |=  [who=ship thus=_this]
     =.  this  thus
@@ -678,12 +677,21 @@
       %pause-events
     =.  this  apex-aqua  =<  abet-aqua
     ^+  this
-    ::  =.  this  stop-azimuth-timer
     %+  turn-ships  hers.act
     |=  [who=ship thus=_this]
     =.  this  thus
     stop-processing-events:(pe who)
-  ::  %touch-file
+  ::
+      %commit
+    =/  pak  (park:pyro p.byk.hid desk.act r.byk.hid)
+    :_  state
+    %+  turn  hers.act
+    |=  =ship
+    ^-  card:agent:gall
+    :*  %pass  /  %agent  [our.hid %pyro]
+        %poke  %aqua-events
+        !>([%event ship /c/commit/(scot %p ship) pak]~)
+    ==
   ::  %start-app/%poke-app
   ==
   ::

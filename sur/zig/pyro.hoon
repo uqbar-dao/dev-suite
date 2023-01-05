@@ -36,7 +36,8 @@
   ==
 ::
 +$  action
-  $%  [%remove-ship who=ship]
+  $%  ::  snapshot pokes
+      ::
       [%snap-ships =path hers=(list ship)]
       [%restore-snap =path]
       [%clear-snap =path]
@@ -45,11 +46,17 @@
       [%export-fresh-piers ~]
       [%import-fresh-piers jam-file-path=path]
       [%clear-snaps ~]
+      ::  pill
+      ::
       [%pill =pill]
+      ::  ship management
+      ::
       [%swap-files des=@tas]
       [%wish hers=(list ship) p=@t]
+      [%remove-ship who=ship]
       [%unpause-events hers=(list ship)]
       [%pause-events hers=(list ship)]  ::  TODO: do we need this at events And 
+      [%commit =desk hers=(list ship)]
   ==
 ::
 ++  update

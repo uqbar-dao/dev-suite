@@ -60,6 +60,39 @@
   |=  [who=@p to=@p app=@tas =path]
   (poke who who %subscriber %subscriber-action [%sub to app path])
 ::
+++  park
+  |=  [=ship =desk =case]
+  ^-  $>(%park task:clay)
+  =*  page  page:clay
+  =*  lobe  lobe:clay
+  =*  dome  dome:clay
+  =*  tako  tako:clay
+  ::
+  =/  desk-path  /(scot %p ship)/[desk]/(scot case)
+  =/  =dome  .^(dome:clay %cv desk-path)
+  =/  =tako  (~(got by hit.dome) let.dome)
+  =/  pol=(map path lobe)
+    q:.^(yaki:clay %cs (weld desk-path /yaki/(scot %uv tako)))
+  ::
+  :*  %park  desk
+      ^-  yoki:clay
+      :-  %&
+      ^-  yuki:clay
+      :-  *(list tako:clay)
+      %-  ~(gas by *(map path [%| lobe])) :: lobes hit cache, pages don't
+      %+  turn  ~(tap by pol)
+      |=  [=path =lobe]
+      [path %|^lobe]
+  ::
+      ^-  rang:clay
+      :-  *(map tako:clay yaki:clay)
+      %-  ~(gas by *(map lobe page))
+      %+  turn  ~(tap by pol)
+      |=  [=path =lobe]
+      :: TODO: can we scry these out in bulk? Massive speed boost
+      [lobe (rear path) .^(* %cx (weld desk-path path))]
+  ==
+::
 ++  enjs
   =,  enjs:format
   |%
