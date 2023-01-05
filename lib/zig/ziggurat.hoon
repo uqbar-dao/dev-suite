@@ -854,6 +854,22 @@
     ;~(plug sym ;~(pfix gap stap))
   ==
 ::
+++  add-test-error-to-edit-test
+  |=  add-test-card=card
+  ^-  card
+  ?.  ?=(%give -.add-test-card)    add-test-card
+  ?.  ?=(%fact -.p.add-test-card)  add-test-card
+  %=  add-test-card
+      cage.p
+    =*  cage  cage.p.add-test-card
+    :-  p.cage
+    !>  ^-  update:zig
+    =+  !<(=update:zig q.cage)
+    ?~  update  ~
+    ?.  ?=(%add-test -.update)  update
+    :-  %edit-test  +.update
+  ==
+::
 ::  files we delete from zig desk to make new gall desk
 ::
 ++  clean-desk

@@ -666,7 +666,9 @@
       =^  [cards=(list card) =test:zig]  state
         (add-test [project name test-imports test-steps request-id]:act)
       ?:  =(*test:zig test)
-        [cards state]  ::  encountered error  ::  TODO: properly report %edit-test
+        :_  state  ::  encountered error
+        ?~  cards  ~
+        ~[(add-test-error-to-edit-test:zig-lib i.cards)]
       =*  test-id  id.act
       =.  tests.project  (~(put by tests.project) test-id test)
       :_  %=  state
