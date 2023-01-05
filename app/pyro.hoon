@@ -103,17 +103,20 @@
     :: /effect/blit  subscribe to all effects of a certain kind (e.g. blits)
     :: /effects/~dev subscribe to all effects of a given ship in list form
     :: /events/~dev  subscribe to all events of a given ship
+    :: /event/~dev/* subscribe to all events of a given ship and wire
     :: /boths/~dev   subscribe to all events and effects of a given ship
     ?:  ?=([?(%effects %effect) ~] path)
       `this
     ?:  ?=([%effect @ ~] path)
       `this
+    ?:  ?=([%event @ ^] path)
+      ?~  (slaw %p i.t.path)
+        ~|([%aqua-bad-subscribe-path-ship path] !!)
+      `this
     ?.  ?=([?(%effects %effect %events %boths %ready) @ ~] path)
-      ~|  [%aqua-bad-subscribe-path path]
-      !!
+      ~|([%aqua-bad-subscribe-path path] !!)
     ?~  (slaw %p i.t.path)
-      ~|  [%aqua-bad-subscribe-path-ship path]
-      !!
+      ~|([%aqua-bad-subscribe-path-ship path] !!) 
     `this
   ::
   ++  on-peek
@@ -372,17 +375,6 @@
 ++  abet-aqua
   ^-  (quip card:agent:gall _state)
   ::
-  ::  interecept %request effects to handle azimuth subscription
-  ::
-  ::  =.  this
-  ::    %-  emit-cards
-  ::    %-  zing
-  ::    %+  turn  ~(tap by unix-effects)
-  ::    |=  [=ship ufs=(list unix-effect)]
-  ::    %+  murn  ufs
-  ::    |=  uf=unix-effect
-  ::    (router:aqua-azimuth our.hid ship uf azi.piers)
-  ::
   =.  this
     =/  =path  /effect
     %-  emit-cards
@@ -428,6 +420,16 @@
   ::
   =.  this
     %-  emit-cards
+    %-  zing
+    %+  turn  ~(tap by unix-events)
+    |=  [=ship utes=(list unix-timed-event)]
+    %+  turn  utes
+    |=  ut=unix-timed-event
+    =/  =path  (weld /event/(scot %p ship) p.ue.ut)
+    [%give %fact ~[path] %aqua-event !>(`aqua-event`[%event ship ue.ut])]
+  ::
+  =.  this
+    %-  emit-cards
     %+  turn  ~(tap by unix-boths)
     |=  [=ship bo=(list unix-both)]
     =/  =path  /boths/(scot %p ship)
@@ -439,24 +441,6 @@
   |=  ms=(list card:agent:gall)
   =.  cards  (weld ms cards)
   this
-::
-::  Run all events on all ships until all queues are empty
-::
-++  plow-all
-  |-  ^+  this
-  =/  who
-    =/  pers  ~(tap by piers)
-    |-  ^-  (unit ship)
-    ?~  pers
-      ~
-    ?:  &(?=(^ next-events.q.i.pers) processing-events.q.i.pers)
-      `p.i.pers
-    $(pers t.pers)
-  ~?  aqua-debug=|  plowing=who
-  ?~  who
-    this
-  =.  this  abet-pe:plow:(pe u.who)
-  $
 ::
 ::  Apply a list of events tagged by ship
 ::
@@ -774,7 +758,22 @@
   |=  [hers=(list arg) fun=$-([arg _this] _(pe))]
   |-  ^+  this
   ?~  hers
-    plow-all
+    ::  Run all events on all ships until all queues are empty
+    |-
+    =/  who
+      =/  pers  ~(tap by piers)
+      |-  ^-  (unit ship)
+      ?~  pers
+        ~
+      ?:  &(?=(^ next-events.q.i.pers) processing-events.q.i.pers)
+        `p.i.pers
+      $(pers t.pers)
+    ~?  aqua-debug=|  plowing=who
+    ?~  who
+      :: TODO emit a card here or something
+      this
+    =.  this  abet-pe:plow:(pe u.who)
+    $
   =.  this
     abet-pe:plow:(fun i.hers this)
   $(hers t.hers, this this)
