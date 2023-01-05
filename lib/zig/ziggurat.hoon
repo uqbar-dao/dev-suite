@@ -78,6 +78,12 @@
     !>  ^-  update:zig
     [%compile-contract update-info [%& ~] ~]
   ::
+  ++  edit-test
+    |=  [=test:zig test-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    [%edit-test update-info [%& (show-test test)] test-id]
+  ::
   ++  delete-test
     |=  test-id=@ux
     ^-  vase
@@ -213,6 +219,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%compile-contract update-info [%| level message] ~]
+  ::
+  ++  edit-test
+    |=  [message=@t test-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    [%edit-test update-info [%| level message] test-id]
   ::
   ++  delete-test
     |=  [message=@t test-id=@ux]
@@ -958,6 +970,12 @@
       ['data' ~]~
     ::
         %add-test
+      :+  ['test_id' %s (scot %ux test-id.update)]
+        :-  'data'
+        (frond %test (shown-test p.payload.update))
+      ~
+    ::
+        %edit-test
       :+  ['test_id' %s (scot %ux test-id.update)]
         :-  'data'
         (frond %test (shown-test p.payload.update))
