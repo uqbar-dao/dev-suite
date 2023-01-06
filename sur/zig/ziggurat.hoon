@@ -63,10 +63,13 @@
       [%subscribe payload=sub-payload expected=(list test-read-step)]
       [%custom-write tag=@tas payload=@t expected=(list test-read-step)]
   ==
-+$  scry-payload
-  [who=@p mold-name=@t care=@tas app=@tas =path]
+::  read payloads
+::
++$  scry-payload  [who=@p mold-name=@t care=@tas app=@tas =path]
 +$  dbug-payload  [who=@p mold-name=@t app=@tas]
 +$  read-sub-payload  [who=@p to=@p app=@tas =path]
+::  write payloads
+::
 +$  dojo-payload  [who=@p payload=@t]
 +$  poke-payload  [who=@p to=@p app=@tas mark=@tas payload=@t]
 +$  sub-payload  [who=@p to=@p app=@tas =path]
