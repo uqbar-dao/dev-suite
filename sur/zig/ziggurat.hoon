@@ -110,11 +110,11 @@
 +$  action
   $:  project=@t
       request-id=(unit @t)
-      $%  [%new-project sync-ships=(set @p)]
+      $%  [%new-project sync-ships=(list @p)]
           [%delete-project ~]
       ::
-          [%add-sync-desk-vships ships=(set @p)]
-          [%delete-sync-desk-vships ships=(set @p)]
+          [%add-sync-desk-vships ships=(list @p)]
+          [%delete-sync-desk-vships ships=(list @p)]
       ::
           [%save-file file=path text=@t]  ::  generates new file or overwrites existing
           [%delete-file file=path]

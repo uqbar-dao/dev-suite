@@ -61,9 +61,7 @@
         ~
         |
     ==
-  =^  cards  state
-    (load-config:zig-lib %zig state)
-  [cards this]
+  [~ this]
 ::
 ++  on-save  !>(-.state)
 ::
@@ -242,7 +240,7 @@
       (add-test-error (crip message) 0x0)
     =/  test-steps-compilation-result=(each vase @t)
       %-  compile-and-call-arm:zig-lib
-      :^  %$  p.hair  p.subject
+      :^  '$'  p.hair  p.subject
       %-  of-wain:format
       (slag (dec p.hair) (to-wain:format file-cord))
     ?:  ?=(%| -.test-steps-compilation-result)
@@ -337,18 +335,25 @@
             /(scot %p our.bowl)/[dap.bowl]/(scot %da now.bowl)
         ==
       ?:  (~(has in desks) project.act)  ::  TODO: start project using this desk?
-        =/  message=tape  "project desk already exists"
+        ?:  (~(has by projects) project.act)  !!  ::  TODO: do better
+        =.  projects
+          (~(put by projects) project.act *project:zig)
+        =^  cards  state
+          (load-config:zig-lib project.act state)
         :_  state
-        :_  ~
-        %+  update-vase-to-card:zig-lib  project.act
-        (new-project-error (crip message))
+        :_  cards
+        (make-read-desk:zig-lib [project request-id]:act)
+      =.  sync-desk-to-vship
+        %-  ~(gas ju sync-desk-to-vship)
+        %+  turn  sync-ships.act
+        |=(who=@p [project.act who])
       ::  merge new desk, mount desk
       ::  currently using ziggurat desk as template -- should refine this
       =/  merge-task  [%merg `@tas`project.act our.bowl q.byk.bowl da+now.bowl %init]
       =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
       =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
       =/  deletions-task  [%info `@tas`project.act %& (clean-desk:zig-lib project.act)]
-      :-  :~  [%pass /merge-wire %arvo %c merge-task]
+      :-  :~  [%pass /merge-wire/[project.act]/(scot %ud (jam sync-ships.act)) %arvo %c merge-task]
               [%pass /mount-wire %arvo %c mount-task]
               [%pass /save-wire %arvo %c bill-task]
               [%pass /save-wire %arvo %c deletions-task]
@@ -364,11 +369,6 @@
         %+  ~(put by configs)  project.act
         %.  [[~nec %sequencer] 0x0]
         ~(put by (~(gut by configs) project.act ~))
-      ::
-          sync-desk-to-vship
-        %-  ~(gas ju sync-desk-to-vship)
-        %+  turn  ~(tap in sync-ships.act)
-        |=(who=@p [project.act who])
       ::
           projects
         %+  ~(put by projects)  project.act
@@ -389,7 +389,7 @@
       %=  state
           sync-desk-to-vship
         %-  ~(gas ju sync-desk-to-vship)
-        %+  turn  ~(tap in ships.act)
+        %+  turn  ships.act
         |=(who=@p [project.act who])
       ==
     ::
@@ -397,15 +397,14 @@
       :-  ~
       %=  state
           sync-desk-to-vship
-        =/  ships=(list @p)  ~(tap in ships.act)
         |-
-        ?~  ships  sync-desk-to-vship
+        ?~  ships.act  sync-desk-to-vship
         %=  $
-            ships  t.ships
+            ships.act  t.ships.act
         ::
             sync-desk-to-vship
-          %+  ~(del ju sync-desk-to-vship)
-          project.act  i.ships
+          %-  ~(del ju sync-desk-to-vship)
+          [project i.ships]:act
         ==
       ==
     ::
@@ -1103,12 +1102,18 @@
   |=  [w=wire =sign-arvo:agent:gall]
   ^-  (quip card _this)
   ?+    w  (on-arvo:def w sign-arvo)
-      [%merge-wire ~]
+      [%merge-wire @ @ ~]
     ?.  ?=(%clay -.sign-arvo)  !!
     ?.  ?=(%mere -.+.sign-arvo)  !!
     ?:  -.p.+.sign-arvo
       ~&  >  "new desk successful"
-      `this
+      =*  project-name  i.t.w
+      =/  sync-ships=(list @p)
+        ;;  (list @p)  (cue (slav %ud i.t.t.w))
+        :_  this
+        %+  turn  sync-ships
+        |=  who=@p
+        (sync-desk-to-virtualship:zig-lib who project-name)
     ~&  >>>  "failed to make new desk"
     `this
   ::
@@ -1136,30 +1141,33 @@
     ?^  error.sign-arvo  !!  ::  TODO: do better
     =/  who=@p            (slav %p i.t.w)
     =*  desk              i.t.t.w
-    =/  install=?         `?`(slav %ud i.t.t.t.w)
-    =/  apps=(list @tas)  (cue (slav %ud i.t.t.t.t.w))
+    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
+    =/  apps=(list @tas)
+      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
     :_  this
-    (~(on-wake-commit cis:zig-lib who desk install apps))
+    ~(on-wake-commit cis:zig-lib who desk install apps)
   ::
       [%installing @ @ @ @ ~]
     ?>  ?=([%behn %wake *] sign-arvo)
     ?^  error.sign-arvo  !!  ::  TODO: do better
     =/  who=@p            (slav %p i.t.w)
     =*  desk              i.t.t.w
-    =/  install=?         `?`i.t.t.t.w
-    =/  apps=(list @tas)  (cue (slav %ud i.t.t.t.t.w))
+    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
+    =/  apps=(list @tas)
+      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
     :_  this
-    (~(on-wake-install cis:zig-lib who desk install apps))
+    ~(on-wake-install cis:zig-lib who desk install apps)
   ::
       [%starting @ @ @ @ ~]
     ?>  ?=([%behn %wake *] sign-arvo)
     ?^  error.sign-arvo  !!  ::  TODO: do better
     =/  who=@p            (slav %p i.t.w)
     =*  desk              i.t.t.w
-    =/  install=?         `?`i.t.t.t.w
-    =/  apps=(list @tas)  (cue (slav %ud i.t.t.t.t.w))
+    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
+    =/  apps=(list @tas)
+      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
     :_  this
-    (~(on-wake-start cis:zig-lib who desk install apps))
+    ~(on-wake-start cis:zig-lib who desk install apps)
   ==
 ::
 ++  on-peek

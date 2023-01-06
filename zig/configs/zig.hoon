@@ -13,13 +13,13 @@
 ++  make-config
   ^-  config:zig
   %-  ~(gas by *config:zig)
-  ~[[~nec %sequencer] 0x0]
+  [[~nec %sequencer] 0x0]~
 ::
 ++  make-virtualships-to-sync
-  ^-  (set @p)
-  (~(gas in *(set @p)) ~[~nec ~bud])
+  ^-  (list @p)
+  ~[~nec ~bud ~wes]
 ::
-++  make-setup-state
+++  make-setup
   |^  ^-  (map @p test-steps:zig)
   %-  ~(gas by *(map @p test-steps:zig))
   :^    [~nec make-setup-nec]
@@ -64,7 +64,6 @@
       :^  who  %uqbar  %wallet-poke
       '[%import-seed \'post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney\' \'squid\' \'nickname\']'
     ~
-    ==
   ::
   ++  make-setup-wes
     ^-  test-steps:zig
@@ -73,8 +72,7 @@
     :+  %poke
       :-  who
       :^  who  %uqbar  %wallet-poke
-      '[%import-seed \'flee alter erode parrot turkey harvest pass combine casual interest receive album coyote shrug envelope turtle broken purity wear else fluid transaction theme buyer
-\' \id\' \'nickname\']'
+      '[%import-seed \'flee alter erode parrot turkey harvest pass combine casual interest receive album coyote shrug envelope turtle broken purity wear else fluid transaction theme buyer\' \'squid\' \'nickname\']'
     ~
   ::
   ++  make-setup-chain-user
