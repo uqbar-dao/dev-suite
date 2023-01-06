@@ -151,12 +151,6 @@
     ::
         [%x %pill ~]  ``pill+!>(pil)
     ::
-        [%x %is-next-events-empty ~]
-      :^  ~  ~  %noun
-      !>   ^-  ?
-      %+  levy  ~(val by piers)
-      |=([p=pier] =(0 ~(wyt in next-events.p)))
-    ::
     ::  scry into running virtual ships
     ::  ship, care, ship, desk, time, path     
         [%x %i @ @ @ @ @ *]

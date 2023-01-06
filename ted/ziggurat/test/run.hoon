@@ -158,24 +158,23 @@
   ::  if %poke mark is not found it will fail
   ;<  =bowl:strand  bind:m  get-bowl
   |^
-  ?:  is-mar-found
-    ::  found mark: proceed
-    =/  compilation-result
-      %^  mule-slap-subject:zig-lib  0  subject
-      payload.payload
-    ?:  ?=(%| -.compilation-result)
-      ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
-      %-  pure:m
-      :-  %|
-      (cat 3 'poke-compilation-fail\0a' p.compilation-result)
+  ?:  !is-mar-found
+    ::  mark not found: warn and attempt to fallback to dojo step
+    ~&  %ziggurat-test-run^%poke-mark-not-found^mark.payload
     ;<  ~  bind:m
-      (poke:pyro-lib payload(payload +.p.compilation-result))
+      (send-pyro-dojo convert-poke-to-dojo-payload)
     (pure:m [%& ~])
-  ::  mark not found: warn and attempt to fallback to
-  ::   equivalent %dojo step rather than failing outright
-  ~&  %ziggurat-test-run^%poke-mark-not-found^mark.payload
+  ::  found mark: proceed
+  =/  compilation-result
+    %^  mule-slap-subject:zig-lib  0  subject
+    payload.payload
+  ?:  ?=(%| -.compilation-result)
+    ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
+    %-  pure:m
+    :-  %|
+    (cat 3 'poke-compilation-fail\0a' p.compilation-result)
   ;<  ~  bind:m
-    (send-pyro-dojo convert-poke-to-dojo-payload)
+    (poke:pyro-lib payload(payload +.p.compilation-result))
   (pure:m [%& ~])
   ::
   ++  is-mar-found
@@ -268,18 +267,13 @@
   (pure:m ~)
 ::
 ++  block-on-previous-step
-  |=  [loop-duration=@dr done-duration=@dr]
+  |=  done-duration=@dr
   =/  m  (strand:spider ,~)
   ^-  form:m
   |-
-  ;<  is-next-events-empty=?  bind:m
-    (scry:strandio ? /gx/pyro/is-next-events-empty/noun)
   ;<  soonest-timer=(unit @da)  bind:m
     (scry:strandio (unit @da) /gx/pyre/soonest-timer/noun)
   ;<  now=@da  bind:m  get-time:strandio
-  ?.  is-next-events-empty
-    ;<  ~  bind:m  (wait:strandio (add now loop-duration))
-    $
   ?~  soonest-timer                                  (pure:m)
   ?:  (lth (add now done-duration) u.soonest-timer)  (pure:m)
   ;<  ~  bind:m  (wait:strandio (add u.soonest-timer 1))  :: TODO: is this a good heuristic or should we wait longer?
@@ -302,7 +296,7 @@
     results-vase(p [%face %test-results p.results-vase])
   |-
   ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
-  ;<  ~  bind:m  (block-on-previous-step ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
+  ;<  ~  bind:m  (block-on-previous-step ~m1)
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
     %:  take-snapshot

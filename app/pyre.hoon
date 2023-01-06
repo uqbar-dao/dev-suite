@@ -103,7 +103,6 @@
   |=  =path
   ^-  (unit (unit cage))
   ?+    path  ~
-      [%x %behn-piers ~]  ``noun+!>(`_behn-piers`behn-piers)
       [%x %soonest-timer ~]
     :^  ~  ~  %noun
     !>  ^-  (unit @da)
