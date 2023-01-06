@@ -661,6 +661,26 @@
       %-  add-and-queue-test-file
       [project name path request-id]:act
     ::
+        %edit-test
+      =/  =project:zig  (~(got by projects) project.act)
+      =^  [cards=(list card) =test:zig]  state
+        (add-test [project name test-imports test-steps request-id]:act)
+      ?:  =(*test:zig test)
+        :_  state  ::  encountered error
+        ?~  cards  ~
+        ~[(add-test-error-to-edit-test:zig-lib i.cards)]
+      =*  test-id  id.act
+      =.  tests.project  (~(put by tests.project) test-id test)
+      :_  %=  state
+              projects
+            (~(put by projects) project.act project)
+          ==
+      :_  (slag 1 cards)
+      %+  update-vase-to-card:zig-lib  project.act
+      %.  [test test-id]
+      %~  edit-test  make-update-vase:zig-lib
+      update-info
+    ::
         %delete-test
       =/  =project:zig  (~(got by projects) project.act)
       =.  tests.project  (~(del by tests.project) id.act)
