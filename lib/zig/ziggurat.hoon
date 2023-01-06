@@ -1443,6 +1443,7 @@
         [%add-test add-test]
         [%add-and-run-test add-test]
         [%add-and-queue-test add-test]
+        [%edit-test edit-test]
         [%save-test-to-file (ot ~[[%id (se %ux)] [%path pa]])]
     ::
         [%add-test-file add-test-file]
@@ -1499,6 +1500,16 @@
         [%test-imports (om pa)]
       [%test-steps (ar test-step)]
     ~
+  ::
+  ++  edit-test
+    ^-  $-(json [@ux (unit @t) test-imports:zig test-steps:zig])
+    %-  ot
+    :*  [%id (se %ux)]
+        [%name so:dejs-soft:format]
+        [%test-imports (om pa)]
+        [%test-steps (ar test-step)]
+        ~
+    ==
   ::
   ++  add-test-file
     ^-  $-(json [name=(unit @t) test-steps-path=path])
