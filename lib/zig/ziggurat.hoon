@@ -856,11 +856,14 @@
   |=  [project-name=@t =configs:zig]
   ^-  (map @ux @p)
   %-  ~(gas by *(map @ux @p))
-  %+  murn  ~(tap by configs)
-  |=  [[pn=(unit @t) who=@p what=@tas] item=@]
-  ?~  pn                    ~
-  ?.  =(project-name u.pn)  ~
-  ?.  ?=(%sequencer what)   ~
+  %-  zing
+  %+  turn  ~(tap by configs)
+  |=  [pn=@t =config:zig]
+  ?:  =('' pn)             ~
+  ?.  =(project-name pn)   ~
+  %+  murn  ~(tap by config)
+  |=  [[who=@p what=@tas] item=@]
+  ?.  ?=(%sequencer what)  ~
   `[`@ux`item who]
 ::
 ::  files we delete from zig desk to make new gall desk

@@ -8,7 +8,6 @@
   $:  %0
       =projects
       =configs
-      :: virtualnet-addresses=(map @p address:smart)
       pyro-ships-ready=(map @p ?)
       test-queue=(qeu [project=@t test-id=@ux])
       test-running=?
@@ -43,8 +42,8 @@
       results=test-results
   ==
 ::
-+$  configs
-  (map [project-name=(unit @t) who=@p what=@tas] @)
++$  configs  (map project-name=@t config)
++$  config   (map [who=@p what=@tas] @)
 ::
 +$  expected-diff
   (map id:smart [made=(unit item:smart) expected=(unit item:smart) match=(unit ?)])

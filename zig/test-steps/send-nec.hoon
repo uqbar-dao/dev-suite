@@ -8,7 +8,8 @@
 ::
 ++  address
   ^-  @ux
-  (~(got by config:test-globals) [~ who %address])
+  %.  [who %address]
+  ~(got by (~(got by configs:test-globals) ''))
 ::
 ++  them
   ^-  @p
@@ -16,7 +17,8 @@
 ::
 ++  to
   ^-  @ux
-  (~(got by config:test-globals) [~ them %address])
+  %.  [them %address]
+  ~(got by (~(got by configs:test-globals) ''))
 ::
 ++  contract
   ^-  @ux

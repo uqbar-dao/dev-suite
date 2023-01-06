@@ -8,7 +8,8 @@
       ==
   ^-  test-steps:zig
   =/  address=@ux
-    (~(got by config:test-globals) [~ who %address])
+    %.   [who %address]
+    ~(got by (~(got by configs:test-globals) ''))
   :~  :+  %scry
         :-  who
         :^  '(map @ux *)'  %gx  %wallet

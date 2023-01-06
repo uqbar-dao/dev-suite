@@ -14,7 +14,7 @@
     """
     :*  %transaction
         origin=~
-        from={<(~(got by configs:test-globals) [~ who %address])>}
+        from={<(~(got by (~(got by configs:test-globals) '')) [who %address])>}
         contract={<contract>}
         town=0x0  ::  harcode
         action=[%text {<transaction>}]  ::  TODO: how to transform within the %text?

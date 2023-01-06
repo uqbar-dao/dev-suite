@@ -51,9 +51,10 @@
     :*  %0
         ~
     ::
-        %-  ~(gas by *configs:zig)
-        :+  [[~ ~nec %address] nec-address]
-          [[~ ~bud %address] bud-address]
+        %+  ~(put by *configs:zig)  ''
+        %-  ~(gas by *config:zig)
+        :+  [[~nec %address] nec-address]
+          [[~bud %address] bud-address]
         ~
     ::
         ~
@@ -390,7 +391,9 @@
           ==
       %=  state
           configs  ::  TODO: generalize: read in configuration file
-        (~(put by configs) [`project.act ~nec %sequencer] 0x0)
+        %+  ~(put by configs)  project.act
+        %.  [[~nec %sequencer] 0x0]
+        ~(put by (~(gut by configs) project.act ~))
       ::
           projects
         %+  ~(put by projects)  project.act
@@ -428,17 +431,17 @@
       [%c %info `@tas`project.act %& [file.act %del ~]~]
     ::
         %add-config
-      =/  project-name=(unit @t)
-        ?:(=('' project.act) ~ `project.act)
       =.  configs
-        (~(put by configs) [project-name [who what]:act] item.act)
+        %+  ~(put by configs)  project.act
+        %.  [[who what]:act item.act]
+        ~(put by (~(gut by configs) project.act ~))
       :_  state
       :-  %+  update-vase-to-card:zig-lib  project.act
           %.  [who what item]:act
           %~  add-config  make-update-vase:zig-lib
           update-info
-      ?~  project-name  ~
-      =/  =project:zig  (~(got by projects) u.project-name)
+      ?:  =('' project.act)  ~
+      =/  =project:zig  (~(got by projects) project.act)
       %-  zing
       %+  turn  ~(tap by tests.project)
       |=  [test-id=@ux =test:zig]
@@ -447,17 +450,17 @@
       request-id.act
     ::
         %delete-config
-      =/  project-name=(unit @t)
-        ?:(=('' project.act) ~ `project.act)
       =.  configs
-        (~(del by configs) project-name [who what]:act)
+        %+  ~(put by configs)  project.act
+        %.  [who what]:act
+        ~(del by (~(gut by configs) project.act ~))
       :_  state
       :-  %+  update-vase-to-card:zig-lib  project.act
           %.  [who what]:act
           %~  delete-config  make-update-vase:zig-lib
           update-info
-      ?~  project-name  ~
-      =/  =project:zig  (~(got by projects) u.project-name)
+      ?:  =('' project.act)  ~
+      =/  =project:zig  (~(got by projects) project.act)
       %-  zing
       %+  turn  ~(tap by tests.project)
       |=  [test-id=@ux =test:zig]
@@ -495,7 +498,8 @@
         :_  ~
         %+  update-vase-to-card:zig-lib  project.act
         (add-test-error (crip message) 0x0)
-      =/  address=@ux  (~(got by configs) [~ u.who %address])
+      =/  address=@ux
+        (~(got by (~(got by configs) '')) [u.who %address])
       =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
       =/  imports=(list [@tas path])
         :+  [%indexer /sur/zig/indexer]
@@ -1261,6 +1265,9 @@
     =/  pat=path  `path`t.t.t.p
     =/  pre=path  /(scot %p our.bowl)/(scot %tas des)/(scot %da now.bowl)
     ``json+!>(`json`[%b .^(? %cu (weld pre pat))])
+  ::
+      [%test-queue ~]
+    ``noun+!>(test-queue)
   ::
   ::  APP-PROJECT JSON
   ::
