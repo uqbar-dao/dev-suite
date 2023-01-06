@@ -1,9 +1,11 @@
 /-  eng=zig-engine,
+    pyro=zig-pyro,
     ui=zig-indexer,
     zig=zig-ziggurat
 /+  agentio,
     conq=zink-conq,
     dock=docket,
+    pyro-lib=zig-pyro,
     smart=zig-sys-smart,
     ui-lib=zig-indexer,
     zink=zink-zink
@@ -65,9 +67,10 @@
     [%state update-info [%& ~] state]
   ::
   ++  new-project
+    |=  =sync-desk-to-vship:zig
     ^-  vase
     !>  ^-  update:zig
-    [%new-project update-info [%& ~] ~]
+    [%new-project update-info [%& sync-desk-to-vship] ~]
   ::
   ++  add-config
     |=  [who=@p what=@tas item=@]
@@ -665,15 +668,15 @@
       leaf+(trip (snag (dec lyn) (to-wain:format (crip line-col))))
   ==
 ::
-++  compile-and-call-buc
-  |=  [number-sur-lines=@ud subject=vase payload=@t]
+++  compile-and-call-arm
+  |=  [arm=@tas number-sur-lines=@ud subject=vase payload=@t]
   ^-  (each vase @t)
   =/  hoon-compilation-result
     (mule-slap-subject number-sur-lines subject payload)
   ?:  ?=(%| -.hoon-compilation-result)
     hoon-compilation-result
   %^  mule-slap-subject  number-sur-lines
-  p.hoon-compilation-result  '$'
+  p.hoon-compilation-result  arm
 ::
 ++  make-recompile-custom-steps-cards
   |=  $:  project-name=@t
@@ -721,7 +724,8 @@
     %+  update-vase-to-card  project-name
     (add-custom-error (crip message) [`@ux`(sham test) tag])
   =/  compilation-result=(each vase @t)
-    %^  compile-and-call-buc  p.hair  p.subject.test
+    %-  compile-and-call-arm
+    :^  %$  p.hair  p.subject.test
     %-  of-wain:format
     (slag (dec p.hair) (to-wain:format file-cord))
   ?:  ?=(%| -.compilation-result)
@@ -866,6 +870,279 @@
   ?.  ?=(%sequencer what)  ~
   `[`@ux`item who]
 ::
+++  scry-virtualship-desks
+  |=  virtualship=@p
+  ^-  (set @tas)
+  =/  now=@ta  (scot %da now.bowl)
+  =/  who=@ta  (scot %p virtualship)
+  =/  desks=*
+    .^  *
+        %gx
+        :-  (scot %p our.bowl)
+        /pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
+    ==
+  (fall ;;((unit (set @tas)) desks) ~)
+::
+++  virtualship-desk-exists
+  |=  [virtualship=@p desk=@tas]
+  ^-  ?
+  (~(has in (scry-virtualship-desks virtualship)) desk)
+::
+++  virtualship-is-running-app
+  |=  [virtualship=@p app=@tas]
+  ^-  ?
+  =/  now=@ta  (scot %da now.bowl)
+  =/  who=@ta  (scot %p virtualship)
+  =/  is-app-running=*
+    .^  *
+        %gx
+        :-  (scot %p our.bowl)
+        /pyro/[now]/i/[who]/gu/[who]/[app]/[now]/noun
+    ==
+  (fall ;;((unit ?) is-app-running) %.n)
+::
+++  sync-desk-to-virtualship
+  |=  [who=@p project-name=@tas]
+  ^-  card
+  %+  %~  poke-our  pass:io
+      /sync/(scot %da now.bowl)/[project-name]/(scot %p who)
+      %pyro
+  :-  %aqua-events
+  !>  ^-  aqua-event:pyro
+  :^  %event  who  /c/commit/(scot %p who)
+  (park:pyro-lib our.bowl project-name %da now.bowl)
+::
+++  send-pyro-dojo
+  |=  [who=@p command=tape]
+  ^-  card
+  %+  %~  poke-our  pass:io
+      /dojo/(scot %p who)/(scot %ux `@ux`(jam command))
+    %pyro
+  :-  %aqua-events
+  !>  ^-  (list aqua-event:pyro)
+  (dojo-events:pyro-lib who command)
+::
+++  cis
+  |_  $:  who=@p
+          desk=@tas
+          install=?
+          start-apps=(list @tas)
+      ==
+  ++  commit-poll-duration   ~s1
+  ++  install-poll-duration  ~s1
+  ++  start-poll-duration    (div ~s1 10)
+  ++  setup-poll-duration    ~s5
+  ++  commit-wait   (add now.bowl commit-poll-duration)
+  ++  install-wait  (add now.bowl install-poll-duration)
+  ++  start-wait    (add now.bowl start-poll-duration)
+  ++  committing-wire  `wire`[%committing base-wire]
+  ++  installing-wire  `wire`[%installing base-wire]
+  ++  starting-wire    `wire`[%starting base-wire]
+  ++  setuping-wire    `wire`[%setuping base-wire]
+  ::
+  ++  base-wire
+    ^-  wire
+    %+  weld  /(scot %p who)/[desk]/(scot %ud install)
+    /(scot %ux `@ux`(jam start-apps))
+  ::
+  ++  get-final-app-to-install
+    ^-  @tas
+    =/  bill-path=path
+      :-  (scot %p our.bowl)
+      /[desk]/(scot %da now.bowl)/desk/bill
+    (rear .^((list @tas) %cx bill-path))
+  ::
+  ++  commit
+    ^-  (list card)
+    =*  w  committing-wire
+    :+  (~(wait pass:io w) commit-wait)
+      (sync-desk-to-virtualship who desk)
+    ~
+  ::
+  ++  on-wake-commit
+    ^-  (list card)
+    ?.  (virtualship-desk-exists who desk)
+      ::  not done: keep waiting
+      ~[(~(wait pass:io committing-wire) commit-wait)]
+    ::  done: install if desired, else %run-queue
+    ?.  install
+      :_  ~
+      %-  ~(poke-self pass:io /self-wire)
+      [%ziggurat-action !>(`action:zig`''^~^[%run-queue ~])]
+    :+  (~(wait pass:io installing-wire) install-wait)
+      (send-pyro-dojo who "|install our {<desk>}")
+    ~
+  ::
+  ++  on-wake-install
+    ^-  (list card)
+    ::  if the final app is installed -> install done
+    =/  app=@tas  get-final-app-to-install
+    ?.  (virtualship-is-running-app who app)
+      ::  not done: keep waiting
+      ~[(~(wait pass:io installing-wire) install-wait)]
+    ::  done: start apps if desired, else %run-queue
+    ?~  start-apps
+      :_  ~
+      %-  ~(poke-self pass:io /self-wire)
+      [%ziggurat-action !>(`action:zig`''^~^[%run-queue ~])]
+    =*  app   i.start-apps
+    :+  (~(wait pass:io starting-wire) start-wait)
+      %+  send-pyro-dojo  who
+      "|start {<`@tas`desk>} {<`@tas`app>}"
+    ~
+  ::
+  ++  on-wake-start
+    ^-  (list card)
+    ?~  start-apps  ~
+    =*  starting-app  i.start-apps
+    =*  rest-of-apps  t.start-apps
+    ?.  (virtualship-is-running-app who starting-app)
+      ::  not done: keep waiting
+      ~[(~(wait pass:io starting-wire) start-wait)]
+    ::  done: start next app if more, else %run-queue
+    ?~  rest-of-apps
+      :_  ~
+      %-  ~(poke-self pass:io /self-wire)
+      [%ziggurat-action !>(`action:zig`''^~^[%run-queue ~])]
+    =*  next-app   i.rest-of-apps
+    :+  %.  start-wait
+        %~  wait  pass:io
+        starting-wire(start-apps rest-of-apps)
+      %+  send-pyro-dojo  who
+      "|start {<`@tas`desk>} {<`@tas`next-app>}"
+    ~
+  --
+::
+++  compile-test-imports
+  |=  $:  project-desk=@tas
+          imports=(list [face=@tas =path])
+          state=[state-0:zig inflated-state-0:zig]
+      ==
+  ^-  [(each vase @t) state-0:zig inflated-state-0:zig]
+  =/  compilation-result
+    %-  mule
+    |.
+    =/  initial-test-globals=vase
+      !>  ^-  test-globals:zig
+      :^  our.bowl  now.bowl  *test-results:zig
+      [project-desk configs:state]
+    =/  [subject=vase c=ca-scry-cache:zig]
+      %+  roll  imports
+      |:  [[face=`@tas`%$ sur=`path`/] [subject=`vase`!>(..zuse) ca-scry-cache=ca-scry-cache:state]]
+      ?:  =(%test-globals face)
+        !!  ::  TODO: do better  [[%| '%test-globals face is reserved'] state]
+      =^  sur-hoon=vase  ca-scry-cache
+        %-  need  ::  TODO: handle error
+        %^  scry-or-cache-ca  project-desk
+        (snoc sur %hoon)  ca-scry-cache
+      :_  ca-scry-cache
+      %-  slop  :_  subject
+      sur-hoon(p [%face face p.sur-hoon])
+    :_  c
+    %+  slop
+      %=  initial-test-globals
+        p  [%face %test-globals p.initial-test-globals]
+      ==
+    subject
+  ?:  ?=(%& -.compilation-result)
+    :-  [%& -.p.compilation-result]
+    state(ca-scry-cache +.p.compilation-result)
+  :_  state
+  :-  %|
+  %-  crip
+  %+  roll  p.compilation-result
+  |=  [in=tank out=tape]
+  :(weld ~(ram re in) "\0a" out)
+::
+++  load-config
+  |=  [project-name=@tas state=[state-0:zig inflated-state-0:zig]]
+  ^-  [(list card) state-0:zig inflated-state-0:zig]
+  ::  TODO: add errors
+  =/  config-file-path=path
+    %+  weld  /(scot %p our.bowl)/[project-name]
+    /(scot %da now.bowl)/zig/configs/[project-name]/hoon
+  ?.  .^(? %cu config-file-path)  !!  ::  TODO: do better
+  =/  file-cord=@t  .^(@t %cx config-file-path)
+  =/  [imports=(list [face=@tas =path]) =hair]
+    (parse-start-of-pile (trip file-cord))
+  =^  subject=(each vase @t)  state
+    (compile-test-imports project-name imports state)
+  ?:  ?=(%| -.subject)  !!  ::  TODO: do better
+  =/  config-core
+    %^  mule-slap-subject  p.hair  p.subject
+    %-  of-wain:format
+    (slag (dec p.hair) (to-wain:format file-cord))
+  ?:  ?=(%| -.config-core)  !!  ::  TODO: do better
+  ::
+  =/  config-result
+    (mule-slap-subject p.hair p.config-core %make-config)
+  ?:  ?=(%| -.config-result)  !!  ::  TODO: do better
+  ::
+  =/  virtualships-to-sync-result
+    %^  mule-slap-subject  p.hair  p.config-core
+    %make-virtualships-to-sync
+  ?:  ?=(%| -.virtualships-to-sync-result)  !!  ::  TODO: do better
+  ::
+  =/  install-result
+    %^  mule-slap-subject  p.hair  p.config-core
+    %make-install
+  ?:  ?=(%| -.install-result)  !!  ::  TODO: do better
+  ::
+  =/  start-apps-result
+    %^  mule-slap-subject  p.hair  p.config-core
+    %make-start-apps
+  ?:  ?=(%| -.start-apps-result)  !!  ::  TODO: do better
+  ::
+  =/  setup-result
+    %^  mule-slap-subject  p.hair  p.config-core
+    %make-setup
+  ?:  ?=(%| -.setup-result)  !!  ::  TODO: do better
+  ::
+  =+  !<(=config:zig p.config-result)
+  =+  !<(virtualships-to-sync=(set @p) p.config-result)
+  =+  !<(install=? p.install-result)
+  =+  !<(start-apps=(list @tas) p.start-apps-result)
+  =+  !<(setups=(map @p test-steps:zig) p.setup-result)
+  ::  TODO: warn if not all setup keys are on vship-to-sync as these
+  ::  test-steps will NOT BE RUN
+  =/  vships=(list @p)  ~(tap in virtualships-to-sync)
+  =/  cards=(list card)
+    %+  murn  vships
+    |=  who=@p
+    ?~  setup=(~(get by setups) who)  ~
+    :-  ~
+    %-  ~(poke-self pass:io /self-wire)
+    :-  %ziggurat-action
+    !>  ^-  action:zig
+    :*  project-name
+        ~
+        %add-and-queue-test
+        `(crip "setup-{<project-name>}-{<who>}")
+        (~(gas by *test-imports:zig) imports)
+        u.setup
+    ==
+  =.  cards
+    |-
+    ?~  vships  cards
+    =*  who   i.vships
+    =*  desk  project-name
+    %+  weld  cards
+    ~(commit cis who desk install start-apps)
+  :-  cards
+  %=  state
+      test-queue  ~  ::  TODO: save and restore after? Check for running?
+  ::
+      sync-desk-to-vship
+    %-  ~(gas ju sync-desk-to-vship.state)
+    %+  turn  ~(tap in virtualships-to-sync)
+    |=(who=@p [project-name who])
+  ::
+      configs
+    %+  ~(put by configs.state)  project-name
+    %.  ~(tap by config)
+    ~(gas by (~(gut by configs.state) project-name ~))
+  ==
+::
 ::  files we delete from zig desk to make new gall desk
 ::
 ++  clean-desk
@@ -926,10 +1203,10 @@
   ++  on-watch  on-watch:default  :: |=(=path [(list card) this])
   ++  on-leave  on-leave:default  :: |=(=path [(list card) this])
   ++  on-peek   on-peek:default   :: |=(=path [(list card) this])
-  ++  on-agent  on-agent:default  :: |=  [=wire =sign:agent:gall] 
+  ++  on-agent  on-agent:default  :: |=  [=wire =sign:agent:gall]
                                   :: [(list card) this]
   ++  on-arvo   on-arvo:default   :: |=([=wire =sign-arvo] [(list card) this])
-  ++  on-fail   on-fail:default   :: |=  [=term =tang] 
+  ++  on-fail   on-fail:default   :: |=  [=term =tang]
                                   :: %-  (slog leaf+"{<dap.bowl>}" >term< tang)
                                   :: [(list card) this]
   --
@@ -978,7 +1255,13 @@
         [%data ~]
       ~
     ::
-        ?(%new-project %compile-contract %run-queue)
+        %new-project
+      :_  ~
+      :-  'data'
+      %-  sync-desk-to-vship
+      sync-desk-to-vship.p.payload.update
+    ::
+        ?(%compile-contract %run-queue)
       ['data' ~]~
     ::
         %add-config
@@ -1388,10 +1671,21 @@
   ::
   ++  pyro-ships-ready
     |=  pyro-ships-ready=(map @p ?)
+    ^-  json
     %-  pairs
     %+  turn  ~(tap by pyro-ships-ready)
     |=  [who=@p is-ready=?]
     [(scot %p who) [%b is-ready]]
+  ::
+  ++  sync-desk-to-vship
+    |=  =sync-desk-to-vship:zig
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by sync-desk-to-vship)
+    |=  [desk=@tas ships=(set @p)]
+    :+  desk  %a
+    %+  turn  ~(tap in ships)
+    |=(who=@p [%s (scot %p who)])
   --
 ++  dejs
   =,  dejs:format
@@ -1406,7 +1700,7 @@
   ::
   ++  action
     %-  of
-    :~  [%new-project ul]
+    :~  [%new-project (ot ~[[%sync-ships (as (se %p))]])]
         [%delete-project ul]
     ::
         [%save-file (ot ~[[%file pa] [%text so]])]

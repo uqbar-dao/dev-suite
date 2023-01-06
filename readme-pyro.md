@@ -58,7 +58,7 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 :ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%send-nec /zig/test-steps/send-nec/hoon]
 :ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%send-nec-dojo /zig/test-steps/send-nec-dojo/hoon]
 
-:ziggurat &ziggurat-action [%foo ~ %start-pyro-ships ~[~nec ~bud]]
+:ziggurat &ziggurat-action [%foo ~ %start-pyro-ships ~[~nec ~bud ~wes]]
 :ziggurat &ziggurat-action [%$ ~ %run-queue ~]
 
 ::  Tell `%ziggurat` not to run any more tests right now.
@@ -77,7 +77,7 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 ### Interaction with snapshots
 
 ```hoon
-:pyro &action [%snap-ships /my-snapshot/0 ~[~nec ~bud]]
+:pyro &action [%snap-ships /my-snapshot/0 ~[~nec ~bud ~wes]]
 :pyro &action [%restore-snap /my-snapshot/0]
 :pyro &action [%clear-snap /my-snapshot/0]
 ```
@@ -326,7 +326,7 @@ First go into ames - ctrl+F "13" and replace with "23" to boost the packet size 
 :pyro|dojo ~bud ":indexer &indexer-bootstrap [~nec %indexer]"
 :pyro|dojo ~nec ":uqbar &wallet-poke [%import-seed 'post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney' 'squid' 'nickname]"
 
-:pyro &action [%snap-ships /testnet ~[~nec ~bud]]
+:pyro &action [%snap-ships /testnet ~[~nec ~bud ~wes]]
 :pyro &action [%export-snap /testnet]
 |unmount %zig
 |mount %zig

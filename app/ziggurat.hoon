@@ -3,6 +3,7 @@
 ::  Contract Playground
 ::
 /-  spider,
+    pyro=zig-pyro,
     zig=zig-ziggurat
 /+  agentio,
     dbug,
@@ -11,7 +12,7 @@
     conq=zink-conq,
     dock=docket,
     engine=zig-sys-engine,
-    pyro=zig-pyro,
+    pyro-lib=zig-pyro,
     seq=zig-sequencer,
     smart=zig-sys-smart,
     ziggurat-lib=zig-ziggurat
@@ -44,9 +45,7 @@
     0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
   =*  bud-address
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
-  :-  ~
-  %_    this
-      state
+  =.  state
     :_  [eng smart-lib ~]
     :*  %0
         ~
@@ -59,10 +58,15 @@
     ::
         ~
         ~
+        ~
         |
     ==
-  ==
+  =^  cards  state
+    (load-config:zig-lib %zig state)
+  [cards this]
+::
 ++  on-save  !>(-.state)
+::
 ++  on-load
   |=  =old=vase
   ::  on-load: pre-cue our compiled smart contract library
@@ -127,7 +131,8 @@
       %+  update-vase-to-card:zig-lib  project-name
       (add-test-error (crip message) 0x0)
     =^  subject=(each vase @t)  state
-      (compile-test-imports `@tas`project-name ~(tap by imports))
+      %^  compile-test-imports:zig-lib  `@tas`project-name
+      ~(tap by imports)  state
     ?:  ?=(%| -.subject)
       =/  message=tape
         "compilation of test-imports failed: {<p.subject>}"
@@ -225,7 +230,8 @@
     =/  [imports=(list [face=@tas =path]) =hair]
       (parse-start-of-pile:zig-lib (trip file-cord))
     =^  subject=(each vase @t)  state
-      (compile-test-imports `@tas`project-name imports)
+      %^  compile-test-imports:zig-lib  `@tas`project-name
+      imports  state
     ?:  ?=(%| -.subject)
       =/  message=tape
         "compilation of test-imports failed: {<p.subject>}"
@@ -235,7 +241,8 @@
       %+  update-vase-to-card:zig-lib  project-name
       (add-test-error (crip message) 0x0)
     =/  test-steps-compilation-result=(each vase @t)
-      %^  compile-and-call-buc:zig-lib  p.hair  p.subject
+      %-  compile-and-call-arm:zig-lib
+      :^  %$  p.hair  p.subject
       %-  of-wain:format
       (slag (dec p.hair) (to-wain:format file-cord))
     ?:  ?=(%| -.test-steps-compilation-result)
@@ -304,44 +311,6 @@
       (~(put to test-queue) project-name test-id)
     ==
   ::
-  ++  compile-test-imports
-    |=  [project-desk=@tas imports=(list [face=@tas =path])]
-    ^-  [(each vase @t) _state]
-    =/  compilation-result
-      %-  mule
-      |.
-      =/  initial-test-globals=vase
-        !>  ^-  test-globals:zig
-        :^  our.bowl  now.bowl  *test-results:zig
-        [project-desk configs]
-      =/  [subject=vase c=ca-scry-cache:zig]
-        %+  roll  imports
-        |:  [[face=`@tas`%$ sur=`path`/] [subject=`vase`!>(..zuse) ca-scry-cache=ca-scry-cache]]
-        ?:  =(%test-globals face)
-          !!  ::  TODO: do better  [[%| '%test-globals face is reserved'] state]
-        =^  sur-hoon=vase  ca-scry-cache
-          %-  need  ::  TODO: handle error
-          %^  scry-or-cache-ca:zig-lib  project-desk
-          (snoc sur %hoon)  ca-scry-cache
-        :_  ca-scry-cache
-        %-  slop  :_  subject
-        sur-hoon(p [%face face p.sur-hoon])
-      :_  c
-      %+  slop
-        %=  initial-test-globals
-          p  [%face %test-globals p.initial-test-globals]
-        ==
-      subject
-    ?:  ?=(%& -.compilation-result)
-      :-  [%& -.p.compilation-result]
-      state(ca-scry-cache +.p.compilation-result)
-    :_  state
-    :-  %|
-    %-  crip
-    %+  roll  p.compilation-result
-    |=  [in=tank out=tape]
-    :(weld ~(ram re in) "\0a" out)
-  ::
   ++  handle-poke
     |=  act=action:zig
     ^-  (quip card _state)
@@ -386,6 +355,7 @@
               (make-read-desk:zig-lib [project request-id]:act)
           ::
               %+  update-vase-to-card:zig-lib  project.act
+              %.  sync-desk-to-vship
               %~  new-project  make-update-vase:zig-lib
               update-info
           ==
@@ -394,6 +364,11 @@
         %+  ~(put by configs)  project.act
         %.  [[~nec %sequencer] 0x0]
         ~(put by (~(gut by configs) project.act ~))
+      ::
+          sync-desk-to-vship
+        %-  ~(gas ju sync-desk-to-vship)
+        %+  turn  ~(tap in sync-ships.act)
+        |=(who=@p [project.act who])
       ::
           projects
         %+  ~(put by projects)  project.act
@@ -408,6 +383,31 @@
         %delete-project
       ::  should show a warning on frontend before performing this one ;)
       `state(projects (~(del by projects) project.act))
+    ::
+        %add-sync-desk-vships
+      :-  ~
+      %=  state
+          sync-desk-to-vship
+        %-  ~(gas ju sync-desk-to-vship)
+        %+  turn  ~(tap in ships.act)
+        |=(who=@p [project.act who])
+      ==
+    ::
+        %delete-sync-desk-vships
+      :-  ~
+      %=  state
+          sync-desk-to-vship
+        =/  ships=(list @p)  ~(tap in ships.act)
+        |-
+        ?~  ships  sync-desk-to-vship
+        %=  $
+            ships  t.ships
+        ::
+            sync-desk-to-vship
+          %+  ~(del ju sync-desk-to-vship)
+          project.act  i.ships
+        ==
+      ==
     ::
         %save-file
       =/  =project:zig  (~(got by projects) project.act)
@@ -506,7 +506,8 @@
           [%zig /sur/zig/ziggurat]
         ~
       =^  subject=(each vase @t)  state
-        (compile-test-imports `@tas`project.act imports)
+        %^  compile-test-imports:zig-lib  `@tas`project.act
+        imports  state
       ?:  ?=(%| -.subject)
         =/  message=tape
           "compilation of test-imports failed: {<p.subject>}"
@@ -923,7 +924,7 @@
       ~
     ::
         %start-pyro-ships
-      =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud]
+      =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud ~wes]
       =/  wach=(list card)
         %+  turn  ships.act
         |=  who=ship
@@ -934,13 +935,7 @@
         %+  ~(poke-our pass:io /self-wire)  %pyro
         :-  %aqua-events
         !>((turn ships.act |=(who=ship [%init-ship who])))
-      =/  subs=(list card)  ::  start %subscriber app
-        %+  turn  ships.act
-        |=  who=ship
-        %+  ~(poke-our pass:io /self-wire)  %pyro
-        :-  %aqua-events
-        !>((dojo-events:pyro who "|start %zig %subscriber"))
-      :-  :(weld wach init subs)
+      :-  (weld wach init)
       %_    state
           pyro-ships-ready
         %-  ~(gas by *(map ship ?))
@@ -1125,12 +1120,46 @@
       %-  ~(gas in *(set path))
       (turn ~(tap in q.sign-arvo) |=([@ p=path] p))
     :_  this
-    :_  ~
-    ?:  .=  0
-        %~  wyt  in
-        (~(int in updated-files) to-compile.project)
-      (make-read-desk:zig-lib project-name ~)
-    (make-compile-contracts:zig-lib project-name ~)
+    :-  ?:  .=  0
+            %~  wyt  in
+            (~(int in updated-files) to-compile.project)
+          (make-read-desk:zig-lib project-name ~)
+        (make-compile-contracts:zig-lib project-name ~)
+    %+  turn
+      %~  tap  in
+      (~(get ju sync-desk-to-vship) project-name)
+    |=  who=@p
+    (sync-desk-to-virtualship:zig-lib who project-name)
+  ::
+      [%committing @ @ @ @ ~]
+    ?>  ?=([%behn %wake *] sign-arvo)
+    ?^  error.sign-arvo  !!  ::  TODO: do better
+    =/  who=@p            (slav %p i.t.w)
+    =*  desk              i.t.t.w
+    =/  install=?         `?`(slav %ud i.t.t.t.w)
+    =/  apps=(list @tas)  (cue (slav %ud i.t.t.t.t.w))
+    :_  this
+    (~(on-wake-commit cis:zig-lib who desk install apps))
+  ::
+      [%installing @ @ @ @ ~]
+    ?>  ?=([%behn %wake *] sign-arvo)
+    ?^  error.sign-arvo  !!  ::  TODO: do better
+    =/  who=@p            (slav %p i.t.w)
+    =*  desk              i.t.t.w
+    =/  install=?         `?`i.t.t.t.w
+    =/  apps=(list @tas)  (cue (slav %ud i.t.t.t.t.w))
+    :_  this
+    (~(on-wake-install cis:zig-lib who desk install apps))
+  ::
+      [%starting @ @ @ @ ~]
+    ?>  ?=([%behn %wake *] sign-arvo)
+    ?^  error.sign-arvo  !!  ::  TODO: do better
+    =/  who=@p            (slav %p i.t.w)
+    =*  desk              i.t.t.w
+    =/  install=?         `?`i.t.t.t.w
+    =/  apps=(list @tas)  (cue (slav %ud i.t.t.t.t.w))
+    :_  this
+    (~(on-wake-start cis:zig-lib who desk install apps))
   ==
 ::
 ++  on-peek
