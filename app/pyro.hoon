@@ -2,23 +2,9 @@
 ::
 ::  usage:
 ::  |start %zig %pyro
-::  :pyro +solid %base %zig
-::  swap files is NOT working - maybe it is? you have to restart your ships to see the changes
-::  :pyro &aqua-events [%init-ship ~dev]~  OR  :pyro|init ~dev
-::  :pyro &action [%dojo ~dev "(add 2 2)"]     OR  :pyro|dojo ~dev "(add 2 2)"
-::  +zig!pyro/scry ~dev %sequencer /status/noun
-::
-::  Then try stuff:
-::  XX :aqua [%init ~[~bud ~dev]]
-::  XX :aqua [%dojo ~[~bud ~dev] "[our eny (add 3 5)]"]
-::  XX :aqua [%dojo ~[~bud] "|hi ~dev"]
-::  XX :aqua [%wish ~[~bud ~dev] '(add 2 3)']
-::  XX :aqua [%peek ~[~bud] /cx/~bud/base/(scot %da now)/app/curl/hoon]
-::  XX :aqua [%dojo ~[~bud ~dev] '|mount %']
-::  XX :aqua [%file ~[~bud ~dev] %/sys/vane]
-::  XX :aqua [%pause-events ~[~bud ~dev]]
-::
-::  We get ++unix-event and ++pill from /-pyro
+::  :pyro|init ~dev
+::  :pyro|dojo ~dev "(add 2 2)"
+::  +zig!pyro/scry ~dev %sequencer /status/nou
 ::
 /-  *zig-pyro
 /+  pyro=zig-pyro, pill, default-agent, naive, dbug, verb
@@ -251,7 +237,6 @@
     |=  ues=(list unix-event)
     ^+  ..abet-pe
     =.  next-events  (~(gas to next-events) ues)
-    :: ~&  %pyro-push^[who now.hid log=(lent event-log.pier-data) new=~(wyt in next-events.pier-data)]^.^((map @p (unit @da)) %gx /(scot %p our.hid)/pyre/(scot %da now.hid)/behn-piers/noun)
     ..abet-pe
   ::
   ::  Send cards to host arvo
@@ -300,7 +285,6 @@
     ?.  ?=([@ @ @ @ *] pax)  ~
     ::  alter timestamp to match %pyro fake-time
     =.  i.t.t.t.pax  (scot %da scry-time)
-    ~&  >>  `path`pax
     ::  execute scry
     =/  pek  (slum scry [[~ ~] & pax])
     =+  ;;(res=(unit (cask)) pek)
@@ -455,7 +439,7 @@
   ::
       %init-ship
     ?:  (~(has by fresh-piers) who:ae)
-      ~&  [%aqua %cached-init +.ae]
+      ~&  [%pyro %cached-init +.ae]
       =.  this  abet-pe:yaho:[ae (pe who.ae)]
       (pe who.ae)
     =.  this  abet-pe:(publish-effect:(pe who.ae) [/ %sleep ~])

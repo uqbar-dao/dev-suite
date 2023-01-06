@@ -93,18 +93,20 @@
 ::
 +$  unix-effect
   %+  pair  wire
-  $%  [%blit p=(list blit:dill)]
-      [%send p=lane:ames q=@]
-      [%doze p=(unit @da)]
-      [%ergo p=@tas q=mode:clay]
-      [%sleep ~]
-      [%restore ~]
-      [%kill ~]
-      [%init ~]
-      [%request id=@ud request=request:http]
-      [%poke-ack p=(unit tang)]
+  $%  ::  vere effects (%gifts) that %pyre can handle
+      [%send p=lane:ames q=@]                 ::  ames send packet
+      [%doze p=(unit @da)]                    ::  behn set timer
+      [%blit p=(list blit:dill)]              ::  dill console effect
+      [%request id=@ud request=request:http]  ::  iris request
+      [%poke-ack p=(unit tang)]               ::  gall agent poke-ack
+      ::  pyro specific effects
+      [%sleep ~]                              :: reset runtime
+      [%restore ~]                            :: restore snap
+      [%kill ~]                               :: stop ship
+      [%init ~]                               :: start ship
   ==
 ::
+:: TODO this should be a set for multiple timers per ship
 +$  behn-pier  next-timer=(unit @da)
 +$  iris-pier  http-requests=(set @ud)
 ::
