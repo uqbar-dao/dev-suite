@@ -63,8 +63,6 @@
     =|  cards=(list card:agent:gall)
     |-
     ?-  -.old
-    ::  wipe fleets and piers rather than give them falsely nulled azimuth state
-    ::
         %0
       [cards this(state old)]
     ==
