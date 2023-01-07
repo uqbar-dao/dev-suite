@@ -385,7 +385,11 @@
       `state(projects (~(del by projects) project.act))
     ::
         %add-sync-desk-vships
-      :-  ~
+      :-
+        :-  (make-read-desk:zig-lib [project request-id]:act)
+        %+  turn  ships.act
+        |=  who=@p
+        (sync-desk-to-virtualship:zig-lib who project.act)
       %=  state
           sync-desk-to-vship
         %-  ~(gas ju sync-desk-to-vship)
@@ -394,7 +398,7 @@
       ==
     ::
         %delete-sync-desk-vships
-      :-  ~
+      :-  (make-cancel-watch-for-file-changes:zig-lib)^~
       %=  state
           sync-desk-to-vship
         |-

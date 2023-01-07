@@ -335,6 +335,13 @@
   %-  ~(gas in *(set [care:clay path]))
   (turn files |=(p=path [%x p]))
 ::
+++  make-cancel-watch-for-file-changes
+  |=  project-name=@tas
+  ^-  card
+  %-  ~(warp-our pass:io /clay/[project-name])
+  :-  project-name
+  ~
+::
 ++  make-read-desk
   |=  [project-name=@t request-id=(unit @t)]
   ^-  card
