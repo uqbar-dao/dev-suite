@@ -157,6 +157,7 @@
   ^-  form:m
   ::  if %poke mark is not found it will fail
   ;<  =bowl:strand  bind:m  get-bowl
+  |^
   ?:  is-mar-found
     ::  found mark: proceed
     =/  compilation-result
