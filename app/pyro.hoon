@@ -4,7 +4,7 @@
 ::  |start %zig %pyro
 ::  :pyro|init ~dev
 ::  :pyro|dojo ~dev "(add 2 2)"
-::  +zig!pyro/scry ~dev %sequencer /status/nou
+::  +zig!pyro/scry ~dev %sequencer /status/noun
 ::
 /-  *zig-pyro
 /+  pyro=zig-pyro, pill, default-agent, naive, dbug, verb
