@@ -949,12 +949,12 @@
     ^-  json
     ?~  update  ~
     =/  update-info=(list [@t json])
+      :-  [%type %s -.update]
       :^    ['project_name' %s project-name.update]
           ['source' %s source.update]
         :-  'request_id'
         ?~(request-id.update ~ [%s u.request-id.update])
       ~
-    %+  frond  -.update
     %-  pairs
     %+  weld  update-info
     =*  payload  -.+.+.update  ::  TODO: remove this hack
