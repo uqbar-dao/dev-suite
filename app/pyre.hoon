@@ -20,20 +20,21 @@
   :_  this
   :: :-  [%pass /connect %arvo %e %connect [~ /'~pyro'] %pyro]~
   %+  turn
-    :~  [/ames/restore /effect/restore]
-        [/ames/send /effect/send]
-        ::
+    ::  /effect/kill and /effect/restore are %pyro events
+    :~  [/ames/send /effect/send]
+        [/ames/restore /effect/restore]
+    ::
         [/behn/sleep /effect/sleep]
-        [/behn/restore /effect/restore]
         [/behn/doze /effect/doze]
         [/behn/kill /effect/kill]
-        ::
+        [/behn/restore /effect/restore]
+    ::
         [/dill/blit /effect/blit]
-        ::
+    ::
         [/iris/request /effect/request]
         [/iris/sleep /effect/sleep]
-        [/iris/restore /effect/restore]
         [/iris/kill /effect/kill]
+        [/iris/restore /effect/restore]
     ==
   |=  [=wire =path]
   [%pass wire %agent [our.bowl %pyro] %watch path]
@@ -63,11 +64,11 @@
     ?+    -.sign  (on-agent:def wire sign)
         %fact
       =+  ef=!<([aqua-effect] q.cage.sign)
+      ~&  >  "on-agent wire {<p.ufs.ef>}"
       =^  cards  behn-piers
         ?+    -.q.ufs.ef  [~ behn-piers]
             %sleep    abet:sleep:(behn:hc who.ef)
             %doze     abet:(doze:(behn:hc who.ef) ufs.ef)
-            ::  note that %restore and %kill are pyro, not behn, events
             %restore  abet:restore:(behn:hc who.ef)
             %kill     `(~(del by behn-piers) who.ef)
         ==
@@ -118,6 +119,7 @@
   ^-  (quip card _this)
   ?+    -.sign-arvo  (on-arvo:def)
       %behn
+    ~&  >  "on-arvo wire {<wire>}"
     ?>  ?=([%behn %wake *] sign-arvo)
     ?>  ?=([@ *] wire)
     =/  who  (,@p (slav %p i.wire))
@@ -165,7 +167,7 @@
     |=  who=@p
     ^-  (list card:agent:gall)
     %-  emit-aqua-events
-    [%event who [/a/newt/0v1n.2m9vh %born ~]]~
+    [%event who [/a/newt %born ~]]~
   ::
   ++  send
     ::  XX unix-timed events need now
@@ -237,7 +239,7 @@
     ^+  ..abet
     =.  this
       %-  emit-aqua-events
-      [%event who [/b/behn/0v1n.2m9vh %born ~]]~
+      [%event who [/b/behn %born ~]]~
     ..abet
   ::
   ++  doze
@@ -248,14 +250,14 @@
         ..abet
       cancel-timer
     ?~  next-timer
-      (set-timer u.tim)
-    (set-timer:cancel-timer u.tim)
+      (set-timer way u.tim)
+    (set-timer:cancel-timer way u.tim)
   ::
   ++  set-timer
-    |=  tim=@da
+    |=  [way=wire tim=@da]
     ~?  debug=|  [who=who %setting-timer tim]
     =.  next-timer  `tim
-    =.  this  (emit-cards [%pass /(scot %p who) %arvo %b %wait tim]~)
+    =.  this  (emit-cards [%pass [(scot %p who) way] %arvo %b %wait tim]~)
     ..abet
   ::
   ++  cancel-timer
@@ -268,18 +270,19 @@
   ++  take-wake
     |=  [way=wire error=(unit tang)]
     ~?  debug=|  [who=who %aqua-behn-wake now.bowl error=error]
+    ~&  >  "take-wake wire {<way>}"
     =.  next-timer  ~
     =.  this
       %-  emit-aqua-events
       ?^  error
         ::  Should pass through errors to aqua, but doesn't
         ::
-        %-  (slog leaf+"aqua-behn: timer failed" u.error)
+        %-  (slog leaf+"pyro-behn: timer failed" u.error)
         ~
       :_  ~
       ^-  aqua-event
       :+  %event  who
-      [/b/behn/0v1n.2m9vh [%wake ~]]
+      [[%b way] [%wake ~]]
     ..abet
   --
 ++  dill
@@ -337,7 +340,7 @@
     ^+  ..abet
     =.  this
       %-  emit-aqua-events
-      [%event who [/i/http/0v1n.2m9vh %born ~]]~
+      [%event who [/i/http %born ~]]~
       ..abet
   ::
   ++  request

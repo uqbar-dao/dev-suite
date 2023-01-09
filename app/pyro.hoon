@@ -655,12 +655,6 @@
   ::  %start-app/%poke-app
   ==
   ::
-  ++  send-events
-    |=  events=(list aqua-event)
-    ^-  (list card:agent:gall)
-    =+  [%aqua-events !>(events)]
-    [%pass /self-poke %agent [our %pyro] %poke -]~
-  ::
   ::  Load a pill and assemble arvo.  Doesn't send any of the initial
   ::  events.
   ::
