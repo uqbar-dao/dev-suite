@@ -157,24 +157,24 @@
   ^-  form:m
   ::  if %poke mark is not found it will fail
   ;<  =bowl:strand  bind:m  get-bowl
-  |^
-  ?:  !is-mar-found
-    ::  mark not found: warn and attempt to fallback to dojo step
-    ~&  %ziggurat-test-run^%poke-mark-not-found^mark.payload
+  ?:  is-mar-found
+    ::  found mark: proceed
+    =/  compilation-result
+      %^  mule-slap-subject:zig-lib  0  subject
+      payload.payload
+    ?:  ?=(%| -.compilation-result)
+      ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
+      %-  pure:m
+      :-  %|
+      (cat 3 'poke-compilation-fail\0a' p.compilation-result)
     ;<  ~  bind:m
-      (send-pyro-dojo convert-poke-to-dojo-payload)
+      (poke:pyro-lib payload(payload +.p.compilation-result))
     (pure:m [%& ~])
-  ::  found mark: proceed
-  =/  compilation-result
-    %^  mule-slap-subject:zig-lib  0  subject
-    payload.payload
-  ?:  ?=(%| -.compilation-result)
-    ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
-    %-  pure:m
-    :-  %|
-    (cat 3 'poke-compilation-fail\0a' p.compilation-result)
+  ::  mark not found: warn and attempt to fallback to
+  ::   equivalent %dojo step rather than failing outright
+  ~&  %ziggurat-test-run^%poke-mark-not-found^mark.payload
   ;<  ~  bind:m
-    (poke:pyro-lib payload(payload +.p.compilation-result))
+    (send-pyro-dojo convert-poke-to-dojo-payload)
   (pure:m [%& ~])
   ::
   ++  is-mar-found
