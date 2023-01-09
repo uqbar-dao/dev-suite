@@ -1217,66 +1217,76 @@
   ++  test-write-step
     |=  test-step=test-write-step:zig
     ^-  json
-    %+  frond  -.test-step
     ?-    -.test-step
         %dojo
       %-  pairs
-      :+  ['payload' (dojo-payload payload.test-step)]
+      :^    ['type' %s -.test-step]
+          ['payload' (dojo-payload payload.test-step)]
         ['expected' (write-expected expected.test-step)]
       ~
     ::
         %poke
       %-  pairs
-      :+  ['payload' (poke-payload payload.test-step)]
+      :^    ['type' %s -.test-step]
+          ['payload' (poke-payload payload.test-step)]
         ['expected' (write-expected expected.test-step)]
       ~
     ::
         %subscribe
       %-  pairs
-      :+  ['payload' (sub-payload payload.test-step)]
+      :^    ['type' %s -.test-step]
+          ['payload' (sub-payload payload.test-step)]
         ['expected' (write-expected expected.test-step)]
       ~
     ::
         %custom-write
-      %+  frond  tag.test-step
       %-  pairs
-      :+  ['payload' %s payload.test-step]
-        ['expected' (write-expected expected.test-step)]
-      ~
+      :~  ['type' %s -.test-step]
+          ['tag' %s tag.test-step]
+          ['payload' %s payload.test-step]
+          ['expected' (write-expected expected.test-step)]
+      ==
     ==
   ::
   ++  test-read-step
     |=  test-step=test-read-step:zig
     ^-  json
-    %+  frond  -.test-step
     ?-    -.test-step
         %scry
       %-  pairs
-      :+  ['payload' (scry-payload payload.test-step)]
+      :^    ['type' %s -.test-step]
+          ['payload' (scry-payload payload.test-step)]
         ['expected' %s expected.test-step]
       ~
     ::
         %dbug
       %-  pairs
-      :+  ['payload' (dbug-payload payload.test-step)]
+      :^    ['type' %s -.test-step]
+          ['payload' (dbug-payload payload.test-step)]
         ['expected' %s expected.test-step]
       ~
     ::
         %read-subscription
       %-  pairs
-      :+  ['payload' (sub-payload payload.test-step)]
+      :^    ['type' %s -.test-step]
+          ['payload' (sub-payload payload.test-step)]
         ['expected' %s expected.test-step]
       ~
     ::
         %wait
-      (frond 'until' [%s (scot %dr until.test-step)])
+      %-  pairs
+      :+  ['type' %s -.test-step]
+        ['until' %s (scot %dr until.test-step)]
+      ~
     ::
         %custom-read
       %+  frond  tag.test-step
       %-  pairs
-      :+  ['payload' %s payload.test-step]
-        ['expected' %s expected.test-step]
-      ~
+      :~  ['type' %s -.test-step]
+          ['tag' %s tag.test-step]
+          ['payload' %s payload.test-step]
+          ['expected' %s expected.test-step]
+      ==
     ==
   ::
   ++  scry-payload
