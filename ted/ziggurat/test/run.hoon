@@ -1,16 +1,11 @@
 /-  pyro=zig-pyro,
     spider,
     zig=zig-ziggurat
-/+  strandio,
+/+  *strandio,
     pyro-lib=zig-pyro,
     zig-lib=zig-ziggurat
 ::
 =*  strand     strand:spider
-=*  get-bowl   get-bowl:strandio
-=*  poke-our   poke-our:strandio
-=*  scry       scry:strandio
-=*  sleep      sleep:strandio
-=*  watch-our  watch-our:strandio
 ::
 =/  m  (strand ,vase)
 =|  subject=vase
@@ -267,17 +262,34 @@
     snapshot-ships
   (pure:m ~)
 ::
+++  wait-for-test-step
+  |=  wait=(unit aqua-effect:pyro)
+  =/  m  (strand:spider ,~)
+  ^-  form:m
+  ?~  wait  (pure:m)
+  |-  ^-  form:m
+  ;<  [her=ship =unix-effect:pyro]  bind:m  take-unix-effect
+  ?:  =(+.wait unix-effect)  (pure:m ~)
+  $
+::
+++  take-unix-effect
+  =/  m  (strand ,[ship unix-effect:pyro])
+  ^-  form:m
+  ;<  [=path =cage]  bind:m  (take-fact-prefix /effect)
+  ?>  ?=(%aqua-effect p.cage) :: TODO do we need this line?
+  (pure:m !<([aqua-effect:pyro] q.cage))
+::
 ++  block-on-previous-step
   |=  done-duration=@dr
   =/  m  (strand:spider ,~)
   ^-  form:m
   |-
   ;<  soonest-timer=(unit @da)  bind:m
-    (scry:strandio (unit @da) /gx/pyre/soonest-timer/noun)
-  ;<  now=@da  bind:m  get-time:strandio
+    (scry (unit @da) /gx/pyre/soonest-timer/noun)
+  ;<  now=@da  bind:m  get-time
   ?~  soonest-timer                                  (pure:m)
   ?:  (lth (add now done-duration) u.soonest-timer)  (pure:m)
-  ;<  ~  bind:m  (wait:strandio (add u.soonest-timer 1))  :: TODO: is this a good heuristic or should we wait longer?
+  ;<  ~  bind:m  (wait (add u.soonest-timer 1))  :: TODO: is this a good heuristic or should we wait longer?
   $
 ::
 ++  run-steps
@@ -296,8 +308,8 @@
     %-  slop  :_  subject
     results-vase(p [%face %test-results p.results-vase])
   |-
-  ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
-  ;<  ~  bind:m  (block-on-previous-step ~m1)
+  :: ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
+  :: ;<  ~  bind:m  (block-on-previous-step ~m1)
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
     %:  take-snapshot
@@ -322,6 +334,7 @@
   ::
       %dojo
     ;<  ~  bind:m  (send-pyro-dojo payload.test-step)
+    ;<  ~  bind:m  (wait-for-test-step wait-for.test-step)
     ;<  result-from-expected=(each test-results:zig @t)  bind:m
       %-  run-steps
       :^  project-id  test-id
@@ -341,6 +354,7 @@
       %poke
     ;<  poke-result=(each ~ @t)  bind:m
       (send-pyro-poke payload.test-step)
+    ;<  ~  bind:m  (wait-for-test-step wait-for.test-step)
     ?:  ?=(%| -.poke-result)  (pure:m [%| p.poke-result])
     ;<  result-from-expected=(each test-results:zig @t)  bind:m
       %-  run-steps

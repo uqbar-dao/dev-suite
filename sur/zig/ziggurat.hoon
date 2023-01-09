@@ -1,6 +1,7 @@
 /-  docket,
     engine=zig-engine,
-    wallet=zig-wallet
+    wallet=zig-wallet,
+    pyro=zig-pyro
 /+  engine-lib=zig-sys-engine,
     smart=zig-sys-smart
 |%
@@ -58,9 +59,18 @@
       [%custom-read tag=@tas payload=@t expected=@t]
   ==
 +$  test-write-step
-  $%  [%dojo payload=dojo-payload expected=(list test-read-step)]
-      [%poke payload=poke-payload expected=(list test-read-step)]
+  $%  $:  %dojo
+          payload=dojo-payload
+          expected=(list test-read-step)
+          wait-for=(unit aqua-effect:pyro)
+      ==
+      $:  %poke
+          payload=poke-payload
+          expected=(list test-read-step)
+          wait-for=(unit aqua-effect:pyro)
+      ==
       [%subscribe payload=sub-payload expected=(list test-read-step)]
+      :: TODO wait-for should be here
       [%custom-write tag=@tas payload=@t expected=(list test-read-step)]
   ==
 ::  read payloads
