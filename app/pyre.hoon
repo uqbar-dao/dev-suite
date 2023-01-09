@@ -64,7 +64,6 @@
     ?+    -.sign  (on-agent:def wire sign)
         %fact
       =+  ef=!<([aqua-effect] q.cage.sign)
-      ~&  >  "on-agent wire {<p.ufs.ef>}"
       =^  cards  behn-piers
         ?+    -.q.ufs.ef  [~ behn-piers]
             %sleep    abet:sleep:(behn:hc who.ef)
@@ -119,7 +118,6 @@
   ^-  (quip card _this)
   ?+    -.sign-arvo  (on-arvo:def)
       %behn
-    ~&  >  "on-arvo wire {<wire>}"
     ?>  ?=([%behn %wake *] sign-arvo)
     ?>  ?=([@ *] wire)
     =/  who  (,@p (slav %p i.wire))
@@ -167,7 +165,7 @@
     |=  who=@p
     ^-  (list card:agent:gall)
     %-  emit-aqua-events
-    [%event who [/a/newt %born ~]]~
+    [%event who [/a/newt/0v1n.2m9vh %born ~]]~
   ::
   ++  send
     ::  XX unix-timed events need now
@@ -239,7 +237,7 @@
     ^+  ..abet
     =.  this
       %-  emit-aqua-events
-      [%event who [/b/behn %born ~]]~
+      [%event who [/b/behn/0v1n.2m9vh %born ~]]~
     ..abet
   ::
   ++  doze
@@ -250,14 +248,14 @@
         ..abet
       cancel-timer
     ?~  next-timer
-      (set-timer way u.tim)
-    (set-timer:cancel-timer way u.tim)
+      (set-timer u.tim)
+    (set-timer:cancel-timer u.tim)
   ::
   ++  set-timer
-    |=  [way=wire tim=@da]
+    |=  tim=@da
     ~?  debug=|  [who=who %setting-timer tim]
     =.  next-timer  `tim
-    =.  this  (emit-cards [%pass [(scot %p who) way] %arvo %b %wait tim]~)
+    =.  this  (emit-cards [%pass /(scot %p who) %arvo %b %wait tim]~)
     ..abet
   ::
   ++  cancel-timer
@@ -270,7 +268,6 @@
   ++  take-wake
     |=  [way=wire error=(unit tang)]
     ~?  debug=|  [who=who %aqua-behn-wake now.bowl error=error]
-    ~&  >  "take-wake wire {<way>}"
     =.  next-timer  ~
     =.  this
       %-  emit-aqua-events
@@ -282,7 +279,7 @@
       :_  ~
       ^-  aqua-event
       :+  %event  who
-      [[%b way] [%wake ~]]
+      [/b/behn/0v1n.2m9vh [%wake ~]]
     ..abet
   --
 ++  dill
@@ -340,7 +337,7 @@
     ^+  ..abet
     =.  this
       %-  emit-aqua-events
-      [%event who [/i/http %born ~]]~
+      [%event who [/i/http/0v1n.2m9vh %born ~]]~
       ..abet
   ::
   ++  request
