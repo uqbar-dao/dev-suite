@@ -59,7 +59,8 @@
         ~
         ~
         ~
-        |
+        %.n
+        ~
     ==
   [~ this]
 ::
@@ -315,6 +316,14 @@
     ?>  =(our.bowl src.bowl)
     =*  tag  -.+.+.act
     =/  =update-info:zig  [project.act tag request-id.act]
+    ~&  %z^%on-poke^update-info^cis-running
+    ?:  &(?=(^ cis-running) !=(cis-running request-id.act))
+      :_  state
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      %.  'currently setting up new project; try again later'
+      %~  poke  make-error-vase:zig-lib
+      [update-info %error]
     ?-    tag
         %new-project
       =/  new-project-error
@@ -340,9 +349,14 @@
           (~(put by projects) project.act *project:zig)
         =^  cards  state
           (load-config:zig-lib project.act state)
+        ~&  %z^%new-project^cis-running
         :_  state
-        :_  cards
-        (make-read-desk:zig-lib [project request-id]:act)
+        :+  (make-read-desk:zig-lib [project request-id]:act)
+          %+  update-vase-to-card:zig-lib  project.act
+          %.  sync-desk-to-vship
+          %~  new-project  make-update-vase:zig-lib
+          update-info
+        cards
       =.  sync-desk-to-vship
         %-  ~(gas ju sync-desk-to-vship)
         %+  turn  sync-ships.act
@@ -566,7 +580,6 @@
     ::
         %compile-contracts
       ::  for internal use -- app calls itself to scry clay
-      ?>  ?=(%ziggurat dap.bowl)
       =/  =project:zig  (~(got by projects) project.act)
       =/  build-results=(list (pair path build-result:zig))
         %^  build-contract-projects:zig-lib  smart-lib-vase
@@ -582,7 +595,6 @@
     ::
         %compile-contract
       ::  for internal use -- app calls itself to scry clay
-      ?>  ?=(%ziggurat dap.bowl)
       =/  =project:zig  (~(got by projects) project.act)
       =/  compile-contract-error
         %~  compile-contract  make-error-vase:zig-lib
@@ -625,7 +637,6 @@
     ::
         %read-desk
       ::  for internal use -- app calls itself to scry clay
-      ?>  ?=(%ziggurat dap.bowl)
       =/  =project:zig  (~(got by projects) project.act)
       =.  dir.project
         =-  .^((list path) %ct -)
@@ -1148,8 +1159,10 @@
     =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
     =/  apps=(list @tas)
       ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    :_  this
-    ~(on-wake-commit cis:zig-lib who desk install apps)
+    =^  cards  cis-running
+      %~  on-wake-commit  cis:zig-lib
+      [who desk install apps (need cis-running)]
+    [cards this]
   ::
       [%installing @ @ @ @ ~]
     ?>  ?=([%behn %wake *] sign-arvo)
@@ -1159,8 +1172,10 @@
     =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
     =/  apps=(list @tas)
       ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    :_  this
-    ~(on-wake-install cis:zig-lib who desk install apps)
+    =^  cards  cis-running
+      %~  on-wake-install  cis:zig-lib
+      [who desk install apps (need cis-running)]
+    [cards this]
   ::
       [%starting @ @ @ @ ~]
     ?>  ?=([%behn %wake *] sign-arvo)
@@ -1170,8 +1185,10 @@
     =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
     =/  apps=(list @tas)
       ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    :_  this
-    ~(on-wake-start cis:zig-lib who desk install apps)
+    =^  cards  cis-running
+      %~  on-wake-start  cis:zig-lib
+      [who desk install apps (need cis-running)]
+    [cards this]
   ==
 ::
 ++  on-peek

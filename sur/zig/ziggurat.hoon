@@ -12,6 +12,7 @@
       pyro-ships-ready=(map @p ?)
       test-queue=(qeu [project=@t test-id=@ux])
       test-running=?
+      cis-running=(unit @t)
   ==
 +$  inflated-state-0
   $:  state-0
@@ -186,6 +187,7 @@
       %dir
       %dashboard
       %pyro-ships-ready
+      %poke
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -218,6 +220,7 @@
       [%dir update-info payload=(data (list path)) ~]
       [%dashboard update-info payload=(data json) ~]
       [%pyro-ships-ready update-info payload=(data (map @p ?)) ~]
+      [%poke update-info payload=(data ~) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)

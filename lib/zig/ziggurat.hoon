@@ -173,6 +173,11 @@
     ^-  vase
     !>  ^-  update:zig
     [%pyro-ships-ready update-info [%& pyro-ships-ready] ~]
+  ::
+  ++  poke
+    ^-  vase
+    !>  ^-  update:zig
+    [%poke update-info [%& ~] ~]
   --
 ::
 ++  make-error-vase
@@ -310,6 +315,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%pyro-ships-ready update-info [%| level message] ~]
+  ::
+  ++  poke
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%poke update-info [%| level message] ~]
   --
 ::
 ++  make-compile-contracts
@@ -936,6 +947,7 @@
           desk=@tas
           install=?
           start-apps=(list @tas)
+          cis-name=@t
       ==
   ++  commit-poll-duration   ~s1
   ++  install-poll-duration  ~s1
@@ -959,60 +971,65 @@
       /[desk]/(scot %da now.bowl)/desk/bill
     (rear .^((list @tas) %cx bill-path))
   ::
+  ++  run-queue
+    ^-  [(list card) (unit @t)]
+    :_  ~
+    :_  ~
+    %-  ~(poke-self pass:io /self-wire)
+    [%ziggurat-action !>(`action:zig`''^~^[%run-queue ~])]
+  ::
   ++  commit
-    ^-  (list card)
+    ^-  [(list card) (unit @t)]
     =*  w  committing-wire
     ~&  %commit-cis^%wait^w
+    :_  `cis-name
     :+  (~(wait pass:io w) commit-wait)
       (sync-desk-to-virtualship who desk)
     ~
   ::
   ++  on-wake-commit
-    ^-  (list card)
+    ^-  [(list card) (unit @t)]
     ?.  (virtualship-desk-exists who desk)
       ::  not done: keep waiting
+      :_  `cis-name
       ~[(~(wait pass:io committing-wire) commit-wait)]
     ::  done: install if desired, else %run-queue
-    ?.  install
-      :_  ~
-      %-  ~(poke-self pass:io /self-wire)
-      [%ziggurat-action !>(`action:zig`''^~^[%run-queue ~])]
+    ?.  install  run-queue
+    :_  `cis-name
     :+  (~(wait pass:io installing-wire) install-wait)
       (send-pyro-dojo who "|install our {<desk>}")
     ~
   ::
   ++  on-wake-install
-    ^-  (list card)
+    ^-  [(list card) (unit @t)]
     ::  if the final app is installed -> install done
     =/  app=@tas  get-final-app-to-install
     ?.  (virtualship-is-running-app who app)
       ::  not done: keep waiting
+      :_  `cis-name
       ~[(~(wait pass:io installing-wire) install-wait)]
     ::  done: start apps if desired, else %run-queue
-    ?~  start-apps
-      :_  ~
-      %-  ~(poke-self pass:io /self-wire)
-      [%ziggurat-action !>(`action:zig`''^~^[%run-queue ~])]
+    ?~  start-apps  run-queue
     =*  app   i.start-apps
+    :_  `cis-name
     :+  (~(wait pass:io starting-wire) start-wait)
       %+  send-pyro-dojo  who
       "|start {<`@tas`desk>} {<`@tas`app>}"
     ~
   ::
   ++  on-wake-start
-    ^-  (list card)
-    ?~  start-apps  ~
+    ^-  [(list card) (unit @t)]
+    ?~  start-apps  run-queue  ::  no more apps to start: %run-queue
     =*  starting-app  i.start-apps
     =*  rest-of-apps  t.start-apps
     ?.  (virtualship-is-running-app who starting-app)
       ::  not done: keep waiting
+      :_  `cis-name
       ~[(~(wait pass:io starting-wire) start-wait)]
     ::  done: start next app if more, else %run-queue
-    ?~  rest-of-apps
-      :_  ~
-      %-  ~(poke-self pass:io /self-wire)
-      [%ziggurat-action !>(`action:zig`''^~^[%run-queue ~])]
+    ?~  rest-of-apps  run-queue
     =*  next-app   i.rest-of-apps
+    :_  `cis-name
     :+  %.  start-wait
         %~  wait  pass:io
         starting-wire(start-apps rest-of-apps)
@@ -1113,19 +1130,20 @@
   =+  !<(setups=(map @p test-steps:zig) p.setup-result)
   ::  TODO: warn if not all setup keys are on vship-to-sync as these
   ::  test-steps will NOT BE RUN
+  =/  cis-name=@t  (crip "setup-{<project-name>}")
   =/  cards=(list card)
     %+  murn  virtualships-to-sync
     |=  who=@p
     ?~  setup=(~(get by setups) who)  ~
-    ~&  %load-config^%ziggurat-action^(crip "setup-{<project-name>}-{<who>}")
+    ~&  %load-config^%ziggurat-action^cis-name^who
     :-  ~
     %-  ~(poke-self pass:io /self-wire)
     :-  %ziggurat-action
     !>  ^-  action:zig
     :*  project-name
-        ~
+        `cis-name
         %add-and-queue-test
-        `(crip "setup-{<project-name>}-{<who>}")
+        `(rap 3 cis-name '-' (scot %p who) ~)
         (~(gas by *test-imports:zig) imports)
         u.setup
     ==
@@ -1135,17 +1153,19 @@
     =*  who   i.virtualships-to-sync
     ~&  %load-config^%cis^who
     =*  desk  project-name
+    =^  cis-cards  cis-running.state
+      ~(commit cis who desk install start-apps cis-name)
     %=  $
         virtualships-to-sync  t.virtualships-to-sync
     ::
         cards
-      %+  weld  cards
-      ~(commit cis who desk install start-apps)
+      %+  weld  cards  cis-cards
     ==
   ~&  %load-config^(lent cards)
   :-  cards
   %=  state
-      test-queue  ~  ::  TODO: save and restore after? Check for running?
+      test-queue   ~  ::  TODO: save and restore after? Check for running?
+      cis-running  `cis-name
   ::
       sync-desk-to-vship
     %-  ~(gas ju sync-desk-to-vship.state)
@@ -1352,6 +1372,9 @@
       :-  'data'
       %+  frond  %pyro-ships-ready
       (pyro-ships-ready p.payload.update)
+    ::
+        %poke
+      ['data' ~]~
     ==
   ::
   ++  error
