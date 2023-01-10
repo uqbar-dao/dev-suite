@@ -1083,166 +1083,215 @@
   |=  [=update-info:zig state=inflated-state-0:zig]
   ^-  [(list card) inflated-state-0:zig]
   =*  project-name  project-name.update-info
-  ::  TODO: add errors
   =/  new-project-error
     %~  new-project  make-error-vase
     [update-info(source %load-config) %error]
   =/  config-file-path=path
     %+  weld  /(scot %p our.bowl)/[project-name]
     /(scot %da now.bowl)/zig/configs/[project-name]/hoon
-  ?.  .^(? %cu config-file-path)  !!  ::  TODO: do better
-  =/  file-cord=@t  .^(@t %cx config-file-path)
-  =/  [imports=(list [face=@tas =path]) =hair]
-    (parse-start-of-pile (trip file-cord))
-  =^  subject=(each vase @t)  state
-    (compile-test-imports project-name imports state)
-  ?:  ?=(%| -.subject)
-    =/  message=tape
-      %+  weld  "config imports conpilation failed with"
-      " error: {<p.subject>}"
-    :_  state
-    :_  ~
-    %+  update-vase-to-card  project-name
-    (new-project-error (crip message))
-  =/  config-core
-    %^  mule-slap-subject  p.hair  p.subject
-    %-  of-wain:format
-    (slag (dec p.hair) (to-wain:format file-cord))
-  ?:  ?=(%| -.config-core)
-    =/  message=tape
-      "config compilation failed with: {<p.config-core>}"
-    :_  state
-    :_  ~
-    %+  update-vase-to-card  project-name
-    (new-project-error (crip message))
+  |^
+  ?.  .^(? %cu config-file-path)
+    (build-cards-and-state build-default-config)
+  =/  result  get-config-from-file
+  ?:  ?=(%| -.result)  p.result
+  (build-cards-and-state p.result)
   ::
-  =/  config-result
-    (mule-slap-subject p.hair p.config-core %make-config)
-  ?:  ?=(%| -.config-result)
-    =/  message=tape
-      "failed to call +make-config arm: {<p.config-result>}"
-    :_  state
-    :_  ~
-    %+  update-vase-to-card  project-name
-    (new-project-error (crip message))
-  ::
-  =/  virtualships-to-sync-result
-    %^  mule-slap-subject  p.hair  p.config-core
-    %make-virtualships-to-sync
-  ?:  ?=(%| -.virtualships-to-sync-result)
-    =/  message=tape
-      %+  weld  "failed to call +make-virtualships-to-sync"
-      " arm: {<p.virtualships-to-sync-result>}"
-    :_  state
-    :_  ~
-    %+  update-vase-to-card  project-name
-    (new-project-error (crip message))
-  ::
-  =/  install-result
-    %^  mule-slap-subject  p.hair  p.config-core
-    %make-install
-  ?:  ?=(%| -.install-result)
-    =/  message=tape
-      "failed to call +make-install arm: {<p.install-result>}"
-    :_  state
-    :_  ~
-    %+  update-vase-to-card  project-name
-    (new-project-error (crip message))
-  ::
-  =/  start-apps-result
-    %^  mule-slap-subject  p.hair  p.config-core
-    %make-start-apps
-  ?:  ?=(%| -.start-apps-result)
-    =/  message=tape
-      %+  weld  "failed to call +make-start-apps arm:"
-      " {<p.start-apps-result>}"
-    :_  state
-    :_  ~
-    %+  update-vase-to-card  project-name
-    (new-project-error (crip message))
-  ::
-  =/  setup-result
-    %^  mule-slap-subject  p.hair  p.config-core
-    %make-setup
-  ?:  ?=(%| -.setup-result)
-    =/  message=tape
-      "failed to call +make-setup arm: {<p.setup-result>}"
-    :_  state
-    :_  ~
-    %+  update-vase-to-card  project-name
-    (new-project-error (crip message))
-  ::
-  =+  !<(=config:zig p.config-result)
-  =+  !<(virtualships-to-sync=(list @p) p.virtualships-to-sync-result)
-  =+  !<(install=? p.install-result)
-  =+  !<(start-apps=(list @tas) p.start-apps-result)
-  =+  !<(setups=(map @p test-steps:zig) p.setup-result)
-  ::  TODO: warn if not all setup keys are on vship-to-sync as these
-  ::  test-steps will NOT BE RUN
-  =/  setups-not-run=(set @p)
-    %-  ~(dif in ~(key by setups))
-    (~(gas in *(set @p)) virtualships-to-sync)
-  =/  cards=(list card)
-    ?:  =(0 ~(wyt in setups-not-run))  ~
-    =/  message=tape
-      ;:  weld
-        "+make-setup will only run for virtualships that"
-        " are set to sync. The following will not be run:"
-        " {<setups-not-run>}. To have them run, add to"
-        " +make-virtualships-to-sync in /zig/configs"
-        "/{<project-name>} and run %new-project again"
-      ==
-    :_  ~
-    %+  update-vase-to-card  project-name
-    (new-project-error(level %warning) (crip message))
-  =/  cis-name=@t  (cat 3 'setup-' project-name)
-  =.  cards
-    %+  weld  cards
-    %+  murn  virtualships-to-sync
-    |=  who=@p
-    ?~  setup=(~(get by setups) who)  ~
-    ~&  %load-config^%ziggurat-action^cis-name^who
-    :-  ~
-    %-  ~(poke-self pass:io /self-wire)
-    :-  %ziggurat-action
-    !>  ^-  action:zig
-    :*  project-name
-        `cis-name
-        %add-and-queue-test
-        `(rap 3 cis-name '-' (scot %p who) ~)
-        (~(gas by *test-imports:zig) imports)
-        u.setup
+  ++  build-default-config
+    ^-  $:  config:zig
+            (list @p)
+            ?
+            (list @tas)
+            (map @p test-steps:zig)
+            (list [@tas path])
+        ==
+    =/  =update:zig
+      .^(update:zig %gx (scry:io %ziggurat /pyro-ships-ready))
+    =/  ships=(list @p)
+      ?~  update                          ~
+      ?.  ?=(%pyro-ships-ready -.update)  ~
+      ?.  ?=(%& -.payload.update)         ~
+      ~(tap in ~(key by p.payload.update))
+    :*  ~
+        ships
+        %.y
+        ~
+        ~
+        ~
     ==
-  =.  cards
-    |-
-    ?~  virtualships-to-sync  cards
-    =*  who   i.virtualships-to-sync
-    ~&  %load-config^%cis^who
-    =*  desk  project-name
-    =^  cis-cards  cis-running.state
-      ~(commit cis who desk install start-apps cis-name)
-    %=  $
-        virtualships-to-sync  t.virtualships-to-sync
+  ::
+  ++  get-config-from-file
+    ^-  (each [config:zig (list @p) ? (list @tas) (map @p test-steps:zig) (list [@tas path])] [(list card) inflated-state-0:zig])
+    =/  file-cord=@t  .^(@t %cx config-file-path)
+    =/  [imports=(list [face=@tas =path]) =hair]
+      (parse-start-of-pile (trip file-cord))
+    =^  subject=(each vase @t)  state
+      (compile-test-imports project-name imports state)
+    ?:  ?=(%| -.subject)
+      =/  message=tape
+        %+  weld  "config imports conpilation failed with"
+        " error: {<p.subject>}"
+      :-  %|
+      :_  state
+      :_  ~
+      %+  update-vase-to-card  project-name
+      (new-project-error (crip message))
+    =/  config-core
+      %^  mule-slap-subject  p.hair  p.subject
+      %-  of-wain:format
+      (slag (dec p.hair) (to-wain:format file-cord))
+    ?:  ?=(%| -.config-core)
+      =/  message=tape
+        "config compilation failed with: {<p.config-core>}"
+      :-  %|
+      :_  state
+      :_  ~
+      %+  update-vase-to-card  project-name
+      (new-project-error (crip message))
     ::
-        cards
-      %+  weld  cards  cis-cards
+    =/  config-result
+      (mule-slap-subject p.hair p.config-core %make-config)
+    ?:  ?=(%| -.config-result)
+      =/  message=tape
+        "failed to call +make-config arm: {<p.config-result>}"
+      :-  %|
+      :_  state
+      :_  ~
+      %+  update-vase-to-card  project-name
+      (new-project-error (crip message))
+    ::
+    =/  virtualships-to-sync-result
+      %^  mule-slap-subject  p.hair  p.config-core
+      %make-virtualships-to-sync
+    ?:  ?=(%| -.virtualships-to-sync-result)
+      =/  message=tape
+        %+  weld  "failed to call +make-virtualships-to-sync"
+        " arm: {<p.virtualships-to-sync-result>}"
+      :-  %|
+      :_  state
+      :_  ~
+      %+  update-vase-to-card  project-name
+      (new-project-error (crip message))
+    ::
+    =/  install-result
+      %^  mule-slap-subject  p.hair  p.config-core
+      %make-install
+    ?:  ?=(%| -.install-result)
+      =/  message=tape
+        "failed to call +make-install arm: {<p.install-result>}"
+      :-  %|
+      :_  state
+      :_  ~
+      %+  update-vase-to-card  project-name
+      (new-project-error (crip message))
+    ::
+    =/  start-apps-result
+      %^  mule-slap-subject  p.hair  p.config-core
+      %make-start-apps
+    ?:  ?=(%| -.start-apps-result)
+      =/  message=tape
+        %+  weld  "failed to call +make-start-apps arm:"
+        " {<p.start-apps-result>}"
+      :-  %|
+      :_  state
+      :_  ~
+      %+  update-vase-to-card  project-name
+      (new-project-error (crip message))
+    ::
+    =/  setup-result
+      %^  mule-slap-subject  p.hair  p.config-core
+      %make-setup
+    ?:  ?=(%| -.setup-result)
+      =/  message=tape
+        "failed to call +make-setup arm: {<p.setup-result>}"
+      :-  %|
+      :_  state
+      :_  ~
+      %+  update-vase-to-card  project-name
+      (new-project-error (crip message))
+    ::
+    :*  %&
+        !<(config:zig p.config-result)
+        !<((list @p) p.virtualships-to-sync-result)
+        !<(? p.install-result)
+        !<((list @tas) p.start-apps-result)
+        !<((map @p test-steps:zig) p.setup-result)
+        imports
     ==
-  ~&  %load-config^(lent cards)
-  :-  cards
-  %=  state
-      test-queue   ~  ::  TODO: save and restore after? Check for running?
-      cis-running  `cis-name
   ::
-      sync-desk-to-vship
-    %-  ~(gas ju sync-desk-to-vship.state)
-    %+  turn  virtualships-to-sync
-    |=(who=@p [project-name who])
-  ::
-      configs
-    %+  ~(put by configs.state)  project-name
-    %.  ~(tap by config)
-    ~(gas by (~(gut by configs.state) project-name ~))
-  ==
+  ++  build-cards-and-state
+    |=  $:  =config:zig
+            virtualships-to-sync=(list @p)
+            install=?
+            start-apps=(list @tas)
+            setups=(map @p test-steps:zig)
+            imports=(list [@tas path])
+        ==
+    ^-  [(list card) inflated-state-0:zig]
+    =/  setups-not-run=(set @p)
+      %-  ~(dif in ~(key by setups))
+      (~(gas in *(set @p)) virtualships-to-sync)
+    =/  cards=(list card)
+      ?:  =(0 ~(wyt in setups-not-run))  ~
+      =/  message=tape
+        ;:  weld
+          "+make-setup will only run for virtualships that"
+          " are set to sync. The following will not be run:"
+          " {<setups-not-run>}. To have them run, add to"
+          " +make-virtualships-to-sync in /zig/configs"
+          "/{<project-name>} and run %new-project again"
+        ==
+      :_  ~
+      %+  update-vase-to-card  project-name
+      (new-project-error(level %warning) (crip message))
+    =/  cis-name=@t  (cat 3 'setup-' project-name)
+    =.  cards
+      %+  weld  cards
+      %+  murn  virtualships-to-sync
+      |=  who=@p
+      ?~  setup=(~(get by setups) who)  ~
+      ~&  %load-config^%ziggurat-action^cis-name^who
+      :-  ~
+      %-  ~(poke-self pass:io /self-wire)
+      :-  %ziggurat-action
+      !>  ^-  action:zig
+      :*  project-name
+          `cis-name
+          %add-and-queue-test
+          `(rap 3 cis-name '-' (scot %p who) ~)
+          (~(gas by *test-imports:zig) imports)
+          u.setup
+      ==
+    =.  cards
+      |-
+      ?~  virtualships-to-sync  cards
+      =*  who   i.virtualships-to-sync
+      ~&  %load-config^%cis^who
+      =*  desk  project-name
+      =^  cis-cards  cis-running.state
+        ~(commit cis who desk install start-apps cis-name)
+      %=  $
+          virtualships-to-sync  t.virtualships-to-sync
+      ::
+          cards
+        %+  weld  cards  cis-cards
+      ==
+    ~&  %load-config^(lent cards)
+    :-  cards
+    %=  state
+        test-queue   ~  ::  TODO: save and restore after? Check for running?
+        cis-running  `cis-name
+    ::
+        sync-desk-to-vship
+      %-  ~(gas ju sync-desk-to-vship.state)
+      %+  turn  virtualships-to-sync
+      |=(who=@p [project-name who])
+    ::
+        configs
+      %+  ~(put by configs.state)  project-name
+      %.  ~(tap by config)
+      ~(gas by (~(gut by configs.state) project-name ~))
+    ==
+  --
 ::
 ::  files we delete from zig desk to make new gall desk
 ::
