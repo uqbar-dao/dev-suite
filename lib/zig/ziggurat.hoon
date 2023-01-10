@@ -922,7 +922,6 @@
 ++  sync-desk-to-virtualship
   |=  [who=@p project-name=@tas]
   ^-  card
-  ~&  %sync-desk^/sync/(scot %da now.bowl)/[project-name]/(scot %p who)
   %+  %~  poke-our  pass:io
       /sync/(scot %da now.bowl)/[project-name]/(scot %p who)
       %pyro

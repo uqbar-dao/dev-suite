@@ -335,8 +335,6 @@
       =/  new-project-error
         %~  new-project  make-error-vase:zig-lib
         [update-info %error]
-      ~&  desk
-      ~&  >  "scrying..."
       =/  desks=(set desk)
         .^  (set desk)
             %cd
@@ -363,7 +361,6 @@
           (~(put by projects) project.act *project:zig)
         =^  cards  state
           (load-config:zig-lib update-info state)
-        ~&  %z^%new-project^cis-running
         :_  state
         :+  (make-read-desk:zig-lib [project request-id]:act)
           %+  update-vase-to-card:zig-lib  project.act
@@ -1135,7 +1132,6 @@
     ?.  ?=(%clay -.sign-arvo)  !!
     ?.  ?=(%mere -.+.sign-arvo)  !!
     ?:  -.p.+.sign-arvo
-      ~&  >  "new desk successful"
       =*  project-name  i.t.w
       =/  sync-ships=(list @p)
         ;;  (list @p)  (cue (slav %ud i.t.t.w))
