@@ -1,15 +1,6 @@
 /=  zig  /sur/zig/ziggurat
 ::
 |%
-::
-++  make-install
-  ^-  ?
-  %.y
-::
-++  make-start-apps
-  ^-  (list @tas)
-  ~[%subscriber]
-::
 ++  make-config
   ^-  config:zig
   %-  ~(gas by *config:zig)
@@ -18,6 +9,14 @@
 ++  make-virtualships-to-sync
   ^-  (list @p)
   ~[~nec ~bud ~wes]
+::
+++  make-install
+  ^-  ?
+  %.y
+::
+++  make-start-apps
+  ^-  (list @tas)
+  ~[%subscriber]
 ::
 ++  make-setup
   |^  ^-  (map @p test-steps:zig)

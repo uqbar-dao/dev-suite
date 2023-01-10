@@ -329,13 +329,6 @@
       =/  new-project-error
         %~  new-project  make-error-vase:zig-lib
         [update-info %error]
-      ?:  (~(has in (~(gas in *(set @t)) ~['fresh-piers' 'assembled'])) project.act)  ::  TODO: still necessary?
-        =/  message=tape
-          "{<`@tas`project.act>} face reserved"
-        :_  state
-        :_  ~
-        %+  update-vase-to-card:zig-lib  project.act
-        (new-project-error (crip message))
       ~&  desk
       ~&  >  "scrying..."
       =/  desks=(set desk)
@@ -348,7 +341,7 @@
         =.  projects
           (~(put by projects) project.act *project:zig)
         =^  cards  state
-          (load-config:zig-lib project.act state)
+          (load-config:zig-lib update-info state)
         ~&  %z^%new-project^cis-running
         :_  state
         :+  (make-read-desk:zig-lib [project request-id]:act)
