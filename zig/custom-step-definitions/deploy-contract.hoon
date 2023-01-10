@@ -15,18 +15,19 @@
     /[project:test-globals]/(scot %da now:test-globals)
   =/  contract-jam=@  .^(@ %cx scry-path)
   =/  contract  [- +]:(cue contract-jam)
-  :+  %poke
-    :-  who
-    :^  who  %uqbar  %wallet-poke
-    %-  crip
-    """
-    :*  %transaction
-        origin=~
-        from={<(~(got by addresses:test-globals) who)>}
-        contract={<publish-contract-id>}
-        town=0x0  ::  harcode
-        [%noun [%deploy mutable=%.n cont={<contract>} interface=~ types=~]]
-    ==
-    """
+  :^    %poke
+      :-  who
+      :^  who  %uqbar  %wallet-poke
+      %-  crip
+      """
+      :*  %transaction
+          origin=~
+          from={<(~(got by addresses:test-globals) who)>}
+          contract={<publish-contract-id>}
+          town=0x0  ::  harcode
+          [%noun [%deploy mutable=%.n cont={<contract>} interface=~ types=~]]
+      ==
+     """
+    ~
   expected
 --

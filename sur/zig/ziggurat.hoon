@@ -61,13 +61,13 @@
 +$  test-write-step
   $%  $:  %dojo
           payload=dojo-payload
+          wait-for=(unit $-(aqua-effect:pyro ?))
           expected=(list test-read-step)
-          wait-for=(unit aqua-effect:pyro)
       ==
       $:  %poke
           payload=poke-payload
+          wait-for=(unit $-(aqua-effect:pyro ?))
           expected=(list test-read-step)
-          wait-for=(unit aqua-effect:pyro)
       ==
       [%subscribe payload=sub-payload expected=(list test-read-step)]
       :: TODO wait-for should be here

@@ -28,32 +28,33 @@
         /pending-store/(scot %ux address)/noun
       ''
   ::
-      :+  %poke
-        :-  who
-        :^  who  %uqbar  %wallet-poke
-        %-  crip
-        """
-        =/  old-test-result=test-result:zig
-          (snag 2 test-results:test-globals)
-        ?>  ?=([* ~] old-test-result)
-        =/  old-pending=(set @ux)
-          %~  key  by
-          !<((map @ux *) result:i:old-test-result)
-        =/  new-test-result=test-result:zig
-          (snag 0 test-results:test-globals)
-        ?>  ?=([* ~] new-test-result)
-        =/  new-pending=(set @ux)
-          %~  key  by
-          !<((map @ux *) result:i:new-test-result)
-        =/  diff-pending=(list @ux)
-          ~(tap in (~(dif in new-pending) old-pending))
-        ?>  ?=([@ ~] diff-pending)
-        :^  %submit  from={<address>}
-          hash=i:diff-pending
-        gas=[rate=1 bud=1.000.000]
-        """
+      :^    %poke
+          :-  who
+          :^  who  %uqbar  %wallet-poke
+          %-  crip
+          """
+          =/  old-test-result=test-result:zig
+            (snag 2 test-results:test-globals)
+          ?>  ?=([* ~] old-test-result)
+          =/  old-pending=(set @ux)
+            %~  key  by
+            !<((map @ux *) result:i:old-test-result)
+          =/  new-test-result=test-result:zig
+            (snag 0 test-results:test-globals)
+          ?>  ?=([* ~] new-test-result)
+          =/  new-pending=(set @ux)
+            %~  key  by
+            !<((map @ux *) result:i:new-test-result)
+          =/  diff-pending=(list @ux)
+            ~(tap in (~(dif in new-pending) old-pending))
+          ?>  ?=([@ ~] diff-pending)
+          :^  %submit  from={<address>}
+            hash=i:diff-pending
+          gas=[rate=1 bud=1.000.000]
+          """
+        ~
       ~
   ::
-      [%dojo [who ':sequencer|batch'] ~]
+      [%dojo [who ':sequencer|batch'] ~ ~]
   ==
 --

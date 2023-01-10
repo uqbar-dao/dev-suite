@@ -263,20 +263,21 @@
   (pure:m ~)
 ::
 ++  wait-for-test-step
-  |=  wait=(unit aqua-effect:pyro)
+  |=  wait=(unit $-(aqua-effect:pyro ?))
   =/  m  (strand:spider ,~)
   ^-  form:m
   ?~  wait  (pure:m)
   |-  ^-  form:m
-  ;<  [her=ship =unix-effect:pyro]  bind:m  take-unix-effect
-  ?:  =(+.wait unix-effect)  (pure:m ~)
+  ;<  =aqua-effect:pyro  bind:m  take-unix-effect
+  ?:  (u.wait aqua-effect)  (pure:m ~)
   $
 ::
 ++  take-unix-effect
+  ::  TODO this will silently fail if it runs out of effects
   =/  m  (strand ,[ship unix-effect:pyro])
   ^-  form:m
   ;<  [=path =cage]  bind:m  (take-fact-prefix /effect)
-  ?>  ?=(%aqua-effect p.cage) :: TODO do we need this line?
+  ?>  ?=(%aqua-effect p.cage)
   (pure:m !<([aqua-effect:pyro] q.cage))
 ::
 ++  block-on-previous-step
