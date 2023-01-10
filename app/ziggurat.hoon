@@ -316,8 +316,14 @@
     ?>  =(our.bowl src.bowl)
     =*  tag  -.+.+.act
     =/  =update-info:zig  [project.act tag request-id.act]
-    ~&  %z^%on-poke^update-info^cis-running
-    ?:  &(?=(^ cis-running) !=(cis-running request-id.act))
+    ?:  ?&  !=(0 ~(wyt by cis-running))
+            ?|  ?=(~ request-id.act)
+            ::
+                ?!
+                %.  u.request-id.act
+                %~  has  in
+                (~(gas in *(set @t)) ~(val by cis-running))
+        ==  ==
       :_  state
       :_  ~
       %+  update-vase-to-card:zig-lib  project.act
@@ -1169,7 +1175,7 @@
       ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
     =^  cards  cis-running
       %~  on-wake-commit  cis:zig-lib
-      [who desk install apps (need cis-running)]
+      [who desk install apps cis-running]
     [cards this]
   ::
       [%installing @ @ @ @ ~]
@@ -1182,7 +1188,7 @@
       ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
     =^  cards  cis-running
       %~  on-wake-install  cis:zig-lib
-      [who desk install apps (need cis-running)]
+      [who desk install apps cis-running]
     [cards this]
   ::
       [%starting @ @ @ @ ~]
@@ -1195,7 +1201,7 @@
       ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
     =^  cards  cis-running
       %~  on-wake-start  cis:zig-lib
-      [who desk install apps (need cis-running)]
+      [who desk install apps cis-running]
     [cards this]
   ==
 ::

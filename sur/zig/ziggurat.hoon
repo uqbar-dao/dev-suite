@@ -12,7 +12,7 @@
       pyro-ships-ready=(map @p ?)
       test-queue=(qeu [project=@t test-id=@ux])
       test-running=?
-      cis-running=(unit @t)
+      cis-running=(map @p @t)
   ==
 +$  inflated-state-0
   $:  state-0
