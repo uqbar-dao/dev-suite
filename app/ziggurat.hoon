@@ -336,8 +336,23 @@
             %cd
             /(scot %p our.bowl)/[dap.bowl]/(scot %da now.bowl)
         ==
-      ?:  (~(has in desks) project.act)  ::  TODO: start project using this desk?
-        ?:  (~(has by projects) project.act)  !!  ::  TODO: do better
+      ?:  (~(has in desks) project.act)
+        ?:  (~(has by projects) project.act)
+          ::  TODO: replace this with loading a snapshot of init state?
+          =/  ships=(list @p)
+            ~(tap in ~(key by pyro-ships-ready))
+          =.  projects  (~(del by projects) project.act)
+          =^  stop-cards  state
+            %^  handle-poke  project.act  request-id.act
+            [%stop-pyro-ships ~]
+          =^  start-cards  state
+            %^  handle-poke  project.act  request-id.act
+            [%start-pyro-ships ships]
+          =/  re-call=(list card)
+            :_  ~
+            (~(poke-self pass:io /self-wire) m v)
+          :_  state
+          :(weld stop-cards start-cards re-call)
         =.  projects
           (~(put by projects) project.act *project:zig)
         =^  cards  state
