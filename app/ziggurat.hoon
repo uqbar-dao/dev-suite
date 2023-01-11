@@ -1226,6 +1226,12 @@
     :^  %state  [project-name %state ~]  [%& ~]
     (get-state:zig-lib u.project)
   ::
+      [%test-queue ~]
+    :^  ~  ~  %ziggurat-update
+    %.  test-queue
+    %~  test-queue  make-update-vase:zig-lib
+    ['' %test-queue ~]
+  ::
       [%custom-step-compiled @ @ @ ~]
     =*  project-name  i.t.t.p
     =*  test-id       i.t.t.t.p
