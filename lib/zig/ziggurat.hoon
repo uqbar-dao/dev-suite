@@ -442,6 +442,127 @@
     '''
   ==
 ::
+++  make-configs-file
+  |=  $:  =config:zig
+          vships-to-sync=(list @p)
+          install=?
+          start-apps=(list @tas)
+          setup=(map @p test-steps:zig)
+          imports-list=(list [@tas path])
+      ==
+  |^  ^-  @t
+  %+  rap  3
+  :~
+  ::  imports
+    %+  roll  imports-list
+    |=  [[face=@tas file=path] imports=@t]
+    %+  rap  3
+    :~  imports
+        '/=  '
+        face
+        '  '
+        (crip (noah !>(file)))
+        '\0a'
+    ==
+  ::  infix
+    '''
+    ::
+    |%
+    ++  make-config
+      ^-  config:zig
+      %-  ~(gas by *config:zig)
+
+    '''
+    '  '
+    (crip (noah !>(`(list [[@p @tas] @])`~(tap by config))))
+    '\0a'
+    '''
+    ::
+    ++  make-virtualships-to-sync
+      ^-  (list @p)
+
+    '''
+    '  '
+    (crip (noah !>(`(list @p)`vships-to-sync)))
+    '\0a'
+    '''
+    ::
+    ++  make-install
+      ^-  ?
+
+    '''
+    '  '
+    (crip (noah !>(`?`install)))
+    '\0a'
+    '''
+    ::
+    ++  make-start-apps
+      ^-  (list @tas)
+
+    '''
+    '  '
+    (crip (noah !>(`(list @tas)`start-apps)))
+    '\0a'
+    make-make-setup
+  ::  suffix
+    '''
+    --
+
+    '''
+  ==
+  ::
+  ++  make-make-setup
+    ^-  @t
+    ?:  =(0 ~(wyt by setup))
+      '''
+      ::
+      ++  make-setup
+        ^-  (map @p test-steps:zig)
+        ~
+
+      '''
+    ~&  "TODO: bother ~hosted-fornet to finish implementing non-null setup case! Just needs a roll to add arms for ++make-setup-* and testing"
+    !!
+    :: %+  rap  3
+    :: :~
+    ::   '''
+    ::   \0a::
+    ::   ++  make-setup
+    ::     |^  ^-  (map @p test-steps:zig)
+    ::     %-  ~(gas by *(map @p test-steps:zig))
+    ::     :~
+
+    ::   '''
+    :: ::  [~zod make-setup-zod] pairs
+    ::   %+  roll  vships-to-sync
+    ::   |=  [who=@p test-steps-text=@t]
+    ::   =/  noah-who=tape  (noah !>(`@p`who))
+    ::   %+  rap  3
+    ::   :~  test-steps-text
+    ::       '    ['
+    ::       (crip noah-who)
+    ::       ' make-setup-'
+    ::       (crip (slag 1 noah-who))
+    ::       ']\0a'
+    ::   ==
+    :: ::  suffix of main
+    ::   '''
+    ::   ==
+    ::   ::
+    ::  ::  test-steps
+    ::    %+  roll  test-steps
+    ::    |=  [=test-step:zig test-steps-text=@t]
+    ::    %+  rap  3
+    ::    :~  test-steps-text
+    ::        '  ::\0a'
+    ::        '    '
+    ::        (crip (noah !>(test-step)))
+    ::        '\0a'
+    ::    ==
+    ::   '''
+    :: ==
+  --
+::
 ++  convert-contract-hoon-to-jam
   |=  contract-hoon-path=path
   ^-  (unit path)
@@ -1076,6 +1197,33 @@
   |=  [in=tank out=tape]
   :(weld ~(ram re in) "\0a" out)
 ::
+++  build-default-config
+  |=  =config:zig
+  ^-  $:  config:zig
+          (list @p)
+          ?
+          (list @tas)
+          (map @p test-steps:zig)
+          (list [@tas path])
+      ==
+  =+  .^  =update:zig
+          %gx
+          (scry:io %ziggurat /pyro-ships-ready/noun)
+      ==
+  =/  ships=(list @p)
+    ?~  update                          ~
+    ?.  ?=(%pyro-ships-ready -.update)  ~
+    ?.  ?=(%& -.payload.update)         ~
+    %-  sort  :_  lth
+    ~(tap in ~(key by p.payload.update))
+  :*  config
+      ships
+      %.y
+      ~
+      ~
+      [%zig /sur/zig/ziggurat]~
+  ==
+::
 ++  load-config
   |=  [=update-info:zig state=inflated-state-0:zig]
   ^-  [(list card) inflated-state-0:zig]
@@ -1088,35 +1236,10 @@
     /(scot %da now.bowl)/zig/configs/[project-name]/hoon
   |^
   ?.  .^(? %cu config-file-path)
-    (build-cards-and-state build-default-config)
+    (build-cards-and-state (build-default-config ~))
   =/  result  get-config-from-file
   ?:  ?=(%| -.result)  p.result
   (build-cards-and-state p.result)
-  ::
-  ++  build-default-config
-    ^-  $:  config:zig
-            (list @p)
-            ?
-            (list @tas)
-            (map @p test-steps:zig)
-            (list [@tas path])
-        ==
-    =+  .^  =update:zig
-            %gx
-            (scry:io %ziggurat /pyro-ships-ready/noun)
-        ==
-    =/  ships=(list @p)
-      ?~  update                          ~
-      ?.  ?=(%pyro-ships-ready -.update)  ~
-      ?.  ?=(%& -.payload.update)         ~
-      ~(tap in ~(key by p.payload.update))
-    :*  ~
-        ships
-        %.y
-        ~
-        ~
-        ~
-    ==
   ::
   ++  get-config-from-file
     ^-  (each [config:zig (list @p) ? (list @tas) (map @p test-steps:zig) (list [@tas path])] [(list card) inflated-state-0:zig])
@@ -1857,6 +1980,7 @@
     %-  of
     :~  [%new-project (ot ~[[%sync-ships (ar (se %p))]])]
         [%delete-project ul]
+        [%save-config-to-file ul]
     ::
         [%save-file (ot ~[[%file pa] [%text so]])]
         [%delete-file (ot ~[[%file pa]])]

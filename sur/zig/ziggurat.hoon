@@ -113,6 +113,7 @@
       request-id=(unit @t)
       $%  [%new-project sync-ships=(list @p)]
           [%delete-project ~]
+          [%save-config-to-file ~]
       ::
           [%add-sync-desk-vships ships=(list @p)]
           [%delete-sync-desk-vships ships=(list @p)]

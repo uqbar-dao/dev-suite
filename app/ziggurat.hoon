@@ -409,6 +409,19 @@
       ::  should show a warning on frontend before performing this one ;)
       `state(projects (~(del by projects) project.act))
     ::
+        %save-config-to-file
+      ::  frontend should warn about overwriting
+      =/  file-text=@t
+        %-  make-configs-file:zig-lib
+        %-  build-default-config:zig-lib
+        (~(got by configs) project.act)
+      =/  file-path=path  /zig/configs/[project.act]/hoon
+      :_  state
+      :+  %^  make-save-file:zig-lib  project.act
+          file-path  file-text
+        (make-read-desk:zig-lib [project request-id]:act)
+      ~
+    ::
         %add-sync-desk-vships
       :-
         :-  (make-read-desk:zig-lib [project request-id]:act)
@@ -691,9 +704,10 @@
       =/  file-text=@t  (make-test-steps-file:zig-lib test)
       =.  test-steps-file.test  path.act
       =.  tests.project  (~(put by tests.project) id.act test)
-      :-  :_  ~
-          %^  make-save-file:zig-lib  project.act  path.act
-          file-text
+      :-  :+  %^  make-save-file:zig-lib  project.act
+                  path.act  file-text
+            (make-read-desk:zig-lib [project request-id]:act)
+           ~
       %=  state
         projects  (~(put by projects) project.act project)
       ==
