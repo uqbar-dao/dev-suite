@@ -174,6 +174,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%pyro-ships-ready update-info [%& pyro-ships-ready] ~]
+  ::
+  ++  test-queue
+    |=  queue=(qeu [@t @ux])
+    ^-  vase
+    !>  ^-  update:zig
+    [%test-queue update-info [%& queue] ~]
   --
 ::
 ++  make-error-vase
@@ -317,6 +323,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%pyro-ships-ready update-info [%| level message] ~]
+  ::
+  ++  test-queue
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%test-queue update-info [%| level message] ~]
   --
 ::
 ++  make-compile-contracts
@@ -1058,6 +1070,12 @@
       :-  'data'
       %+  frond  %pyro-ships-ready
       (pyro-ships-ready p.payload.update)
+    ::
+        %test-queue
+      :_  ~
+      :-  'data'
+      %+  frond  %test-queue
+      (test-queue p.payload.update)
     ==
   ::
   ++  error
@@ -1417,10 +1435,15 @@
     |=  [who=@p is-ready=?]
     [(scot %p who) [%b is-ready]]
   ::
-  ++  single-string-object
-    |=  [key=@t error=^tape]
-    ^-  json
-    (frond key (tape error))
+  ++  test-queue
+    |=  test-queue=(qeu [@t @ux])
+    :-  %a
+    %+  turn  ~(tap to test-queue)
+    |=  [project=@t test-id=@ux]
+    %-  pairs
+    :+  [%project-name %s project]
+      [%test-id %s (scot %ux test-id)]
+    ~
   --
 ++  dejs
   =,  dejs:format

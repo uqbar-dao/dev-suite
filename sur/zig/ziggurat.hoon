@@ -181,6 +181,7 @@
       %dir
       %dashboard
       %pyro-ships-ready
+      %test-queue
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -214,6 +215,7 @@
       [%dir update-info payload=(data (list path)) ~]
       [%dashboard update-info payload=(data json) ~]
       [%pyro-ships-ready update-info payload=(data (map @p ?)) ~]
+      [%test-queue update-info payload=(data (qeu [@t @ux])) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)

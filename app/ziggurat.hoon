@@ -188,14 +188,17 @@
       [cards state]  ::  encountered error
     =/  test-id=@ux  `@ux`(sham test)
     =.  tests.project  (~(put by tests.project) test-id test)
-    :-  cards
-    %=  state
-        projects
-      (~(put by projects) project-name project)
-    ::
-        test-queue
+    =.  test-queue
       (~(put to test-queue) project-name test-id)
-    ==
+    :_  %=  state
+            projects
+          (~(put by projects) project-name project)
+        ==
+    :_  cards
+    %+  update-vase-to-card:zig-lib  project-name
+    %.  test-queue
+    %~  test-queue  make-update-vase:zig-lib
+    [project-name %add-and-queue-test request-id]
   ::
   ++  add-test-file
     |=  $:  project-name=@tas
@@ -288,18 +291,21 @@
       [cards state]  ::  encountered error
     =/  test-id=@ux  `@ux`(sham test)
     =.  tests.project  (~(put by tests.project) test-id test)
-    :-  :_  cards
-        %+  update-vase-to-card:zig-lib  project-name
-        %.  [test test-id]
-        %~  add-test  make-update-vase:zig-lib
-        [project-name %add-and-queue-test-file request-id]
-    %=  state
-        projects
-      (~(put by projects) project-name project)
-    ::
-        test-queue
+    =.  test-queue
       (~(put to test-queue) project-name test-id)
-    ==
+    :_  %=  state
+            projects
+          (~(put by projects) project-name project)
+        ==
+    :+  %+  update-vase-to-card:zig-lib  project-name
+        %.  test-queue
+        %~  test-queue  make-update-vase:zig-lib
+        [project-name %add-and-queue-test-file request-id]
+      %+  update-vase-to-card:zig-lib  project-name
+      %.  [test test-id]
+      %~  add-test  make-update-vase:zig-lib
+      [project-name %add-and-queue-test-file request-id]
+    cards
   ::
   ++  compile-test-imports
     |=  [project-desk=@tas imports=(list [face=@tas =path])]
@@ -504,19 +510,21 @@
         request-id.act
       =/  test-id=@ux  `@ux`(sham test)
       =.  tests.project  (~(put by tests.project) test-id test)
-      :-  :+  (make-run-queue:zig-lib [project request-id]:act)
-            %+  update-vase-to-card:zig-lib  project.act
-            %.  [test test-id]
-            %~  add-test  make-update-vase:zig-lib
-            update-info
-          (weld cards all-cards)
-      %=  state
-          projects
-        (~(put by projects) project.act project)
-      ::
-          test-queue
+      =.  test-queue
         (~(put to test-queue) project.act test-id)
-      ==
+      :_  %=  state
+              projects
+            (~(put by projects) project.act project)
+          ==
+      :^    (make-run-queue:zig-lib [project request-id]:act)
+          %+  update-vase-to-card:zig-lib  project.act
+          %.  test-queue
+          ~(test-queue make-update-vase:zig-lib update-info)
+        %+  update-vase-to-card:zig-lib  project.act
+        %.  [test test-id]
+        %~  add-test  make-update-vase:zig-lib
+        update-info
+      (weld cards all-cards)
     ::
         %compile-contracts
       ::  for internal use -- app calls itself to scry clay
@@ -695,10 +703,21 @@
       update-info
     ::
         %run-test
-      :_  state(test-queue (~(put to test-queue) [project id]:act))
+      =.  test-queue  (~(put to test-queue) [project id]:act)
+      =/  cards=(list card)
+        :+  %+  update-vase-to-card:zig-lib  project.act
+            %.  test-queue
+            %~  test-queue  make-update-vase:zig-lib
+            update-info
+          %+  update-vase-to-card:zig-lib  project.act
+          ~(run-queue make-update-vase:zig-lib update-info)
+        ~
+      :_  state
       ?:  =(| test-running)
-        (make-run-queue:zig-lib [project request-id]:act)^~
-      ~&  >  "%ziggurat: another test is running, adding to queue"  ~
+        %+  snoc  cards
+        (make-run-queue:zig-lib [project request-id]:act)
+      ~&  >  "%ziggurat: another test is running, adding to queue"
+      cards
     ::
         %run-queue
       =/  run-queue-error
@@ -767,17 +786,32 @@
       =/  w=wire
         /test/[next-project-name]/(scot %ux next-test-id)/[tid]
       :_  state(test-running &)
-      :+  %+  ~(watch-our pass:io w)  %spider
+      :^    %+  update-vase-to-card:zig-lib  project.act
+            %.  test-queue
+            %~  test-queue  make-update-vase:zig-lib
+            update-info
+          %+  ~(watch-our pass:io w)  %spider
           /thread-result/[tid]
         %+  ~(poke-our pass:io w)  %spider
         [%spider-start !>(start-args)]
       ~
     ::
         %clear-queue
-      `state(test-queue ~)
+      =.  test-queue  ~
+      :_  state
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      %.  test-queue
+      ~(test-queue make-update-vase:zig-lib update-info)
     ::
         %queue-test
-      `state(test-queue (~(put to test-queue) [project.act id.act]))
+      =.  test-queue
+        (~(put to test-queue) [project.act id.act])
+      :_  state
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      %.  test-queue
+      ~(test-queue make-update-vase:zig-lib update-info)
     ::
         %add-custom-step
       =/  =project:zig  (~(got by projects) project.act)
@@ -1070,10 +1104,14 @@
           %~  test-results  make-update-vase:zig-lib
           [project-name %ziggurat-test-run-thread-done ~]
         =?  cards  ?=(^ test-queue)
-          %+  snoc  cards
-          %-  ~(poke-self pass:io /self-wire)
-          :-  %ziggurat-action
-          !>(`action:zig`project-name^~^[%run-queue ~])
+          %+  weld  cards
+          :+  %-  ~(poke-self pass:io /self-wire)
+              :-  %ziggurat-action
+              !>(`action:zig`project-name^~^[%run-queue ~])
+            %+  update-vase-to-card:zig-lib  project-name
+            %~  run-queue  make-update-vase:zig-lib
+            [project-name %ziggurat-test-run-thread-done ~]
+          ~
         :-  cards
         %=  this
           projects  (~(put by projects) project-name project)
@@ -1092,14 +1130,20 @@
       ?~  test-queue                         [leave^~ this]
       ?.  (~(all by pyro-ships-ready) same)  [leave^~ this]
       :_  this
-      :^    leave
+      :~  leave
+      ::
           %-  ~(poke-self pass:io /self-wire)
           [%ziggurat-action !>(`action:zig`%$^~^[%run-queue ~])]
-        %+  update-vase-to-card:zig-lib  ''
-        %.  pyro-ships-ready
-        %~  pyro-ships-ready  make-update-vase:zig-lib
-        ['' %pyro-ships-ready ~]
-      ~
+      ::
+          %+  update-vase-to-card:zig-lib  ''
+          %.  pyro-ships-ready
+          %~  pyro-ships-ready  make-update-vase:zig-lib
+          ['' %pyro-ships-ready ~]
+      ::
+          %+  update-vase-to-card:zig-lib  ''
+          %~  run-queue  make-update-vase:zig-lib
+          ['' %pyro-ships-ready ~]
+      ==
     ==
   ::
       [%restore ~]
