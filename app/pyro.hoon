@@ -248,7 +248,7 @@
     ?.  processing-events
       ..abet-pe
     =^  ue  next-events  ~(get to next-events)
-    =/  poke-arm  (mox +23.snap)
+    =/  poke-arm  (mox +23.snap) :: see +poke in arvo.hoon
     ?>  ?=(%0 -.poke-arm)
     =/  poke  p.poke-arm
     =.  tym  (max +(tym) now.hid)
@@ -268,7 +268,7 @@
   ::
   ++  peek
     |=  p=*
-    ::  grab scry axis from snapshot
+    ::  grab scry axis from snapshot, see +peek in arvo.hoon
     =/  res  (mox +22.snap)
     ?.  ?=(%0 -.res)  ~
     =/  scry  p.res
@@ -287,7 +287,7 @@
   ::
   ++  wish
     |=  txt=@t
-    =/  res  (mox +10.snap)
+    =/  res  (mox +10.snap) :: see +wish in arvo.hoon
     ?>  ?=(%0 -.res)
     =/  wish  p.res
     ~&  [who=who %wished (slum wish txt)]
@@ -705,21 +705,8 @@
 ::  Run a callback function against a list of ships, aggregating state
 ::  and plowing all ships at the end.
 ::
-::    I think we should use patterns like this more often.  Because we
-::    don't, here's some points to be aware.
-::
-::    `fun` must take `this` as a parameter, since it needs to be
-::    downstream of previous state changes.  You could use `state` as
-::    the state variable, but it muddles the code and it's not clear
-::    whether it's better.  You could use the `_(pe)` core if you're
-::    sure you'll never need to refer to anything outside of your pier,
-::    but I don't think we can guarantee that.
-::
 ::    The callback function must start with `=.  this  thus`, or else
-::    you don't get the new state.  Would be great if you could hot-swap
-::    that context in here, but we don't know where to put it unless we
-::    restrict the callbacks to always have `this` at a particular axis,
-::    and that doesn't feel right
+::    you don't get the new state.
 ::
 ++  turn-plow
   |*  arg=mold
@@ -748,9 +735,6 @@
 ::
 ++  turn-ships   (turn-plow ship)
 ++  turn-events  (turn-plow aqua-event)
-::
-::  Check whether we have a snapshot
-::
 ::
 ::  Trivial scry for mock
 ::
