@@ -74,6 +74,7 @@
       ?+  mark  ~|([%aqua-bad-mark mark] !!)
         %aqua-events  (poke-aqua-events:ac !<((list aqua-event) vase))
         %pyro-action  (poke-action:ac our.bowl !<(action vase))
+        %pill         (poke-pill:ac !<(pill vase))
       ==
     [cards this]
   ::
@@ -486,7 +487,6 @@
 ++  poke-action
   |=  [our=ship act=action]
   ^-  (quip card:agent:gall _state)
-  |^
   ?-    -.act
       %remove-ship
     =.  piers  (~(del by piers) who.act)
@@ -602,7 +602,6 @@
     `state(fresh-piers imported-fresh-piers)
   ::
       %clear-snaps  `state(fleet-snaps ~)
-      %pill  (poke-pill pill.act)
   ::
       %swap-files
     ::  %pyro must have a functional pill containing %base BEFORE
@@ -654,55 +653,54 @@
     ==
   ::  %start-app/%poke-app
   ==
-  ::
-  ::  Load a pill and assemble arvo.  Doesn't send any of the initial
-  ::  events.
-  ::
-  ++  poke-pill
-    |=  p=pill
-    ^-  (quip card:agent:gall _state)
-    ?<  ?=(%ivory -.p)
-    =.  userspace-ova.p
-      ::  if there is an azimuth-snapshot in the pill, we stub it out,
-      ::  since it would interfere with aqua's azimuth simulation.
-      ::
-      ^+  userspace-ova.p
-      %+  turn  userspace-ova.p
-      |=  e=unix-event:pill-lib
-      ^+  e
-      ?.  ?=(%park -.q.e)   e
-      ?.  ?=(%& -.yok.q.e)  e
-      =-  e(q.p.yok.q -)
-      ^-  (map path (each page lobe:clay))
-      %-  ~(urn by q.p.yok.q.e)
-      |=  [=path fil=(each page lobe:clay)]
-      ^+  fil
-      ?.  =(/app/azimuth/version-0/azimuth-snapshot path)  fil
-      ?:  ?=(%| -.fil)  fil
-      &+azimuth-snapshot+[%0 [0x0 0] *^state:naive ~ ~]
-    =.  this  apex-aqua  =<  abet-aqua
-    =.  pil  p
-    ~&  lent=(met 3 (jam boot-ova.pil))
-    =/  res=toon :: (each * (list tank))
-      (mock [boot-ova.pil [2 [0 3] [0 2]]] scry)
-    =.  fleet-snaps  ~
-    ?-  -.res
-        %0
-      ~&  >  "successfully assembled pill"
-      =.  assembled  +7.p.res
-      =.  fresh-piers  ~
-      this
+::
+::  Load a pill and assemble arvo.  Doesn't send any of the initial
+::  events.
+::
+++  poke-pill
+  |=  p=pill
+  ^-  (quip card:agent:gall _state)
+  ?<  ?=(%ivory -.p)
+  =.  userspace-ova.p
+    ::  if there is an azimuth-snapshot in the pill, we stub it out,
+    ::  since it would interfere with aqua's azimuth simulation.
     ::
-        %1
-      ~&  [%vere-blocked p.res]
-      this
-    ::
-        %2
-      ~&  %vere-fail
-      %-  (slog p.res)
-      this
-    ==
-  --
+    ^+  userspace-ova.p
+    %+  turn  userspace-ova.p
+    |=  e=unix-event:pill-lib
+    ^+  e
+    ?.  ?=(%park -.q.e)   e
+    ?.  ?=(%& -.yok.q.e)  e
+    =-  e(q.p.yok.q -)
+    ^-  (map path (each page lobe:clay))
+    %-  ~(urn by q.p.yok.q.e)
+    |=  [=path fil=(each page lobe:clay)]
+    ^+  fil
+    ?.  =(/app/azimuth/version-0/azimuth-snapshot path)  fil
+    ?:  ?=(%| -.fil)  fil
+    &+azimuth-snapshot+[%0 [0x0 0] *^state:naive ~ ~]
+  =.  this  apex-aqua  =<  abet-aqua
+  =.  pil  p
+  ~&  lent=(met 3 (jam boot-ova.pil))
+  =/  res=toon :: (each * (list tank))
+    (mock [boot-ova.pil [2 [0 3] [0 2]]] scry)
+  =.  fleet-snaps  ~
+  ?-  -.res
+      %0
+    ~&  >  "successfully assembled pill"
+    =.  assembled  +7.p.res
+    =.  fresh-piers  ~
+    this
+  ::
+      %1
+    ~&  [%vere-blocked p.res]
+    this
+  ::
+      %2
+    ~&  %vere-fail
+    %-  (slog p.res)
+    this
+  ==
 ::
 ::  Run a callback function against a list of ships, aggregating state
 ::  and plowing all ships at the end.

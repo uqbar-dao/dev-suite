@@ -46,9 +46,6 @@
       [%export-fresh-piers ~]
       [%import-fresh-piers jam-file-path=path]
       [%clear-snaps ~]
-      ::  pill
-      ::
-      [%pill =pill]
       ::  ship management
       ::
       [%swap-files des=@tas]
