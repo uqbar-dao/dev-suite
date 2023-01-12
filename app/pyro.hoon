@@ -52,7 +52,7 @@
       def        ~(. (default-agent this %|) bowl)
   ++  on-init
     :_  this
-    [%pass / %agent [our dap]:bowl %poke %pyro-action !>([%pill cached-pill])]~
+    [%pass / %agent [our dap]:bowl %poke %pill !>(cached-pill)]~
     :: [%pass / %agent [our dap]:bowl %poke %pyro-action !>([%import-fresh-piers /zig/lib/py/fresh-piers/jam])]
   ++  on-save  !>(state)
   ++  on-load
@@ -471,7 +471,6 @@
             [/e/http-server/0v1n.2m9vh %born ~]
             [/e/http-server/0v1n.2m9vh %live 8.080 `8.445]
             [/a/newt/0v1n.2m9vh %born ~]
-            [/d/term/1 %hail ~]
         ==
       ==
     =.  this  abet-pe:ahoy:[ae initted]
