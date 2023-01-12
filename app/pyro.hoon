@@ -58,7 +58,6 @@
   ++  on-load
     |=  old-vase=vase
     ^-  step:agent:gall
-    ~&  prep=%aqua
     =+  !<(old=versioned-state old-vase)
     =|  cards=(list card)
     |-
@@ -108,11 +107,6 @@
     |=  =path
     ^-  (unit (unit cage))
     ?+    path  ~
-        [%x %fleet-snap ^]
-      :^  ~  ~  %pyro-update
-      !>  ^-  update
-      [%fleet-snap t.t.path (~(has by fleet-snaps) t.t.path)]
-    ::
         [%x %fleets ~]
       :^  ~  ~  %pyro-update
       !>(`update`[%fleets ~(key by fleet-snaps)])
@@ -520,8 +514,10 @@
       (publish-effect:(pe who) [/ %restore ~])
     abet-aqua
   ::
-      %clear-snap
+      %delete-snap
     `state(fleet-snaps (~(del by fleet-snaps) path.act))
+  ::
+      %clear-snaps  `state(fleet-snaps ~)
   ::
       %export-snap
     :: all snapshots are put in /=zig=/zig/snapshots/[path]/jam
@@ -593,8 +589,6 @@
       ;;((map ship [pier (list unix-both)]) (cue jammed))
     ~&  %pyro^%import-fresh-piers^jam-file-path.act^piers-hash^~(key by imported-fresh-piers)
     `state(fresh-piers imported-fresh-piers)
-  ::
-      %clear-snaps  `state(fleet-snaps ~)
   ::
       %swap-files
     ::  %pyro must have a functional pill containing %base BEFORE

@@ -30,12 +30,14 @@
       ::
       [%snap-ships =path hers=(list ship)]
       [%restore-snap =path]
-      [%clear-snap =path]
+      [%delete-snap =path]
+      [%clear-snaps ~]
+      ::  snapshot import/exports
+      ::
       [%export-snap =path]
       [%import-snap jam-file-path=path snap-label=path]
       [%export-fresh-piers ~]
       [%import-fresh-piers jam-file-path=path]
-      [%clear-snaps ~]
       ::  ship management
       ::
       [%swap-files des=@tas]
@@ -48,8 +50,7 @@
 ::
 ++  update
   $@  ~
-  $%  [%fleet-snap =path has-path=?]
-      [%fleets snap-paths=(set path)]
+  $%  [%fleets snap-paths=(set path)]
       [%ships ships=(set ship)]
       [%fresh-pier-keys ships=(set ship)]
       [%fleet-sizes =path events=(map ship [events-done=@ud events-qued=@ud])]

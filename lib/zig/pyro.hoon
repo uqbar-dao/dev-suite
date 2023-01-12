@@ -138,9 +138,6 @@
     ^-  json
     ?~  update  ~
     ?-    -.update
-        %fleet-snap
-      (frond -.update (fleet-snap [path has-path]:update))
-    ::
         %fleets
       (frond -.update (fleets snap-paths.update))
     ::
@@ -159,14 +156,6 @@
         %fleet-ships
       (frond -.update (fleet-ships [path ships]:update))
     ==
-  ::
-  ++  fleet-snap
-    |=  [p=^path has-path=?]
-    ^-  json
-    %-  pairs
-    :+  [%path (path p)]
-      [%has-path [%b has-path]]
-    ~
   ::
   ++  fleets
     |=  snap-paths=(set ^path)
