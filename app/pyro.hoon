@@ -443,36 +443,30 @@
       %-  push-events:apex:(pe who.ae)
       ^-  (list unix-event)
       %-  zing
-      :~
-        :~  [/ %wack 0]  ::  eny
-            :: [/ %verb `|]  :: possible verb
-            :^  /  %wyrd  [~.nonce /aqua] :: dummy runtime version + nonce
-            ^-  (list (pair term @))
-            :~  zuse+zuse
-                lull+lull
-                arvo+arvo
-                hoon+hoon-version
-                nock+4
-            ==
-            [/ %whom who.ae]  ::  who
-        ==
-        ::
-        kernel-ova.pil  :: load compiler
-        ::
-        :_  ~
-        :^  /d/term/1  %boot  &
-        [%fake who.ae]
-        ::
-        userspace-ova.pil  :: load os
-        ::
-        ::  XX start vanes - does this actually start the vanes?
-        :~  [/b/behn/0v1n.2m9vh %born ~]
-            [/i/http-client/0v1n.2m9vh %born ~]
-            [/e/http-server/0v1n.2m9vh %born ~]
-            [/e/http-server/0v1n.2m9vh %live 8.080 `8.445]
-            [/a/newt/0v1n.2m9vh %born ~]
-        ==
-      ==
+      :~  :~  [/ %wack 0]                       ::  eny
+              :: [/ %verb `|]                   ::  possible verb
+              :^  /  %wyrd  [~.nonce /aqua]     ::  dummy runtime version+nonce
+              ^-  (list (pair term @))
+              :~  zuse+zuse
+                  lull+lull
+                  arvo+arvo
+                  hoon+hoon-version
+                  nock+4
+              ==
+              [/ %whom who.ae]                  ::  who
+          ==
+          ::
+          kernel-ova.pil                        ::  load compiler
+          ::
+          userspace-ova.pil                     :: load os
+          ::
+          :~  [/d/term/1 %boot & %fake who.ae]  ::  start vanes
+              [/b/behn/0v1n.2m9vh %born ~]
+              [/i/http-client/0v1n.2m9vh %born ~]
+              [/e/http-server/0v1n.2m9vh %born ~]
+              [/e/http-server/0v1n.2m9vh %live 8.080 `8.445]
+              [/a/newt/0v1n.2m9vh %born ~]
+      ==  ==
     =.  this  abet-pe:ahoy:[ae initted]
     (pe who.ae)
   ::
@@ -650,11 +644,9 @@
         %poke  %aqua-events
         !>([%event ship /c/commit/(scot %p ship) pak]~)
     ==
-  ::  %start-app/%poke-app
   ==
 ::
-::  Load a pill and assemble arvo.  Doesn't send any of the initial
-::  events.
+::  Load a pill and assemble arvo.  Doesn't send any initial events
 ::
 ++  poke-pill
   |=  p=pill
@@ -681,7 +673,7 @@
   =.  this  apex-aqua  =<  abet-aqua
   =.  pil  p
   ~&  lent=(met 3 (jam boot-ova.pil))
-  =/  res=toon :: (each * (list tank))
+  =/  res=toon
     (mock [boot-ova.pil [2 [0 3] [0 2]]] scry)
   =.  fleet-snaps  ~
   ?-  -.res
@@ -721,7 +713,7 @@
       ?:  &(?=(^ next-events.q.i.pers) processing-events.q.i.pers)
         `p.i.pers
       $(pers t.pers)
-    ?~  who  this  :: TODO emit a card here or something
+    ?~  who  this
     =.  this  abet-pe:plow:(pe u.who)
     $
   =.  this
