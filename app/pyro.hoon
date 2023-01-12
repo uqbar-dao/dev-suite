@@ -1,6 +1,7 @@
 ::  An ~~inferno~~ of virtual ships.  Put in some fish and watch them die!
+::  Use with %pyre, the virutal runtime, for the best experience
 ::
-::  usage:
+::  Usage:
 ::  |start %zig %pyro
 ::  :pyro|init ~dev
 ::  :pyro|dojo ~dev "(add 2 2)"
@@ -80,7 +81,7 @@
     |=  =path
     ^-  step:agent:gall
     ::  /ready/~dev    subscribe to when a ship has fully booted
-    ::   /effect       subscribe to effects one by one
+    ::  /effect        subscribe to effects one by one
     ::  /effects       subscribe to effects in list form
     ::  /effect/~dev   subscribe to all effects of a given ship
     ::  /effect/blit   subscribe to all effects of a certain kind (e.g. blits)
