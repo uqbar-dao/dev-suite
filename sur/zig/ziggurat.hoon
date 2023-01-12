@@ -128,7 +128,6 @@
           [%add-and-run-test-file name=(unit @t) =path]
           [%add-and-queue-test-file name=(unit @t) =path]
       ::
-          [%edit-test id=@ux name=(unit @t) =test-imports =test-steps]
           [%delete-test id=@ux]
           [%run-test id=@ux]
           [%run-queue ~]  ::  can be used as [%$ %run-queue ~]
@@ -164,7 +163,6 @@
       %state
       %new-project
       %add-test
-      %edit-test
       %compile-contract
       %delete-test
       %run-queue
@@ -198,7 +196,6 @@
       [%new-project update-info payload=(data ~) ~]
       [%add-test update-info payload=(data shown-test) test-id=@ux]
       [%compile-contract update-info payload=(data ~) ~]
-      [%edit-test update-info payload=(data shown-test) test-id=@ux]
       [%delete-test update-info payload=(data ~) test-id=@ux]
       [%run-queue update-info payload=(data ~) ~]
       [%add-custom-step update-info payload=(data ~) test-id=@ux tag=@tas]
