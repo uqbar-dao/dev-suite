@@ -4,4 +4,4 @@
 :-  %say
 |=  [* [her=ship ~] ~]
 :-  %pyro-action
-[%kill-ship her]
+[%kill-ships ~[her]]

@@ -248,7 +248,7 @@
     ?:  =(~ next-events)
       ..abet-pe
     ?.  processing-events
-      ..abet-pe
+      ~&(%pyro^%not-plowing-events^who=who ..abet-pe)
     =^  ue  next-events  ~(get to next-events)
     =/  poke-arm  (mox +23.snap) :: see +poke in arvo.hoon
     ?>  ?=(%0 -.poke-arm)
@@ -300,8 +300,8 @@
   ::  Start/stop processing events.  When stopped, events are added to
   ::  our queue but not processed.
   ::
-  ++  start-processing-events  .(processing-events &)
-  ++  stop-processing-events  .(processing-events |)
+  ++  unpause  .(processing-events &)
+  ++  pause    .(processing-events |)
   ::
   ::  Handle all the effects produced by a single event.
   ::
@@ -431,6 +431,7 @@
   ?-  -.ae
   ::
       %init-ship
+    =.  this  abet-pe:unpause:(pe who.ae)
     ?:  (~(has by fresh-piers) who:ae)
       ~&  [%pyro %cached-init +.ae]
       =.  this  abet-pe:yaho:[ae (pe who.ae)]
@@ -473,7 +474,6 @@
         ==
       ==
     =.  this  abet-pe:ahoy:[ae initted]
-    =.  this  abet-pe:start-processing-events:(pe who.ae)
     (pe who.ae)
   ::
       %event  (push-events:(pe who.ae) [ue.ae]~)
@@ -483,18 +483,20 @@
   |=  [our=ship act=action]
   ^-  (quip card _state)
   ?-    -.act
-      %kill-ship
-    ~&  [%pyro %kill-ship who.act]
-    =.  this   abet-pe:(publish-effect:(pe who.act) [/ %kill ~])
-    =.  piers  (~(del by piers) who.act)
+      %kill-ships
+    =.  this
+      %+  turn-ships  hers.act
+      |=  [who=ship thus=_this]
+      ~&  [%pyro %killing who]
+      =.  this  thus
+      (publish-effect:(pe who) [/ %kill ~])
+    =.  piers
+      %-  ~(dif by piers)
+      %-  ~(gas by *fleet)
+      (turn hers.act |=(=ship [ship *pier]))
     `state
   ::
       %snap-ships
-    =.  this
-      %+  turn-ships  (turn ~(tap by piers) head)
-      |=  [who=ship thus=_this]
-      =.  this  thus
-      ..abet-pe:(pe who)
     =.  fleet-snaps
       %+  ~(put by fleet-snaps)  path.act
       %-  malt
@@ -628,7 +630,7 @@
     %+  turn-ships  hers.act
     |=  [who=ship thus=_this]
     =.  this  thus
-    start-processing-events:(pe who)
+    unpause:(pe who)
   ::
       %pause-events
     =.  this  apex-aqua  =<  abet-aqua
@@ -636,7 +638,7 @@
     %+  turn-ships  hers.act
     |=  [who=ship thus=_this]
     =.  this  thus
-    stop-processing-events:(pe who)
+    pause:(pe who)
   ::
       %commit
     =/  pak  (park:pyro p.byk.bowl desk.act r.byk.bowl)
@@ -715,15 +717,11 @@
     =/  who
       =/  pers  ~(tap by piers)
       |-  ^-  (unit ship)
-      ?~  pers
-        ~
+      ?~  pers  ~
       ?:  &(?=(^ next-events.q.i.pers) processing-events.q.i.pers)
         `p.i.pers
       $(pers t.pers)
-    ~?  aqua-debug=|  plowing=who
-    ?~  who
-      :: TODO emit a card here or something
-      this
+    ?~  who  this  :: TODO emit a card here or something
     =.  this  abet-pe:plow:(pe u.who)
     $
   =.  this

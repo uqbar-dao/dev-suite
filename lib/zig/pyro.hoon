@@ -1,9 +1,8 @@
 /-  *zig-pyro,
     spider
-/+  strandio
+/+  *strandio
 ::
 =*  strand    strand:spider
-=*  poke-our  poke-our:strandio
 ::
 |%
 ++  send-events
@@ -11,6 +10,25 @@
   =/  m  (strand ,~)
   ^-  form:m
   (poke-our %pyro %aqua-events !>(events))
+::
+++  take-unix-effect
+  =/  m  (strand ,[ship unix-effect])
+  ^-  form:m
+  ;<  [=path =cage]  bind:m  (take-fact-prefix /effect)
+  ?>  ?=(%aqua-effect p.cage)
+  (pure:m !<([aqua-effect] q.cage))
+::
+++  reset-ships
+  |=  hers=(list ship)
+  =/  m  (strand ,~)
+  ^-  form:m
+  ;<  ~  bind:m
+    %^  poke-our  %pyro  %pyro-action
+    !>([%kill-ships hers])
+  ;<  ~  bind:m
+    %^  poke-our  %pyro  %aqua-events
+    !>((zing (turn hers |=(=ship [%event ship %init-ship ~]~))))
+  (pure:m ~)
 ::
 ++  ue-to-ae
   |=  [who=ship what=(list unix-event)]
@@ -33,6 +51,25 @@
       [/d/term/1 %belt %ret ~]
   ==
 ::
+++  wait-for-output
+  |=  [=ship =tape]
+  =/  m  (strand ,~)
+  ^-  form:m
+  ~&  >  "waiting for output: {tape}"
+  |-  ^-  form:m
+  ;<  [her=^ship uf=unix-effect]  bind:m  take-unix-effect
+  ?:  ?&  =(ship her)
+          ?=(%blit -.q.uf)
+        ::
+          %+  lien  p.q.uf
+          |=  =blit:dill
+          ?.  ?=(%lin -.blit)
+            |
+          !=(~ (find tape p.blit))
+      ==
+    (pure:m ~)
+  $
+::
 ++  poke
   |=  $:  who=@p
           to=@p
@@ -50,11 +87,11 @@
   ==
 ::
 ++  task
-  |=  [who=@p =vane =task-arvo]
+  |=  [who=@p =care:clay =task-arvo]
   %-  send-events
   %+  ue-to-ae  who
   ^-  (list unix-event)
-  [[vane]~ task-arvo]~ 
+  [[care]~ task-arvo]~ 
 ::
 ++  subscribe
   |=  [who=@p to=@p app=@tas =path]

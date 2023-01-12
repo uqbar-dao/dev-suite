@@ -40,7 +40,7 @@
       ::
       [%swap-files des=@tas]
       [%wish hers=(list ship) p=@t]
-      [%kill-ship who=ship]
+      [%kill-ships hers=(list ship)]
       [%unpause-events hers=(list ship)]
       [%pause-events hers=(list ship)]  ::  TODO: do we need this at events And 
       [%commit =desk hers=(list ship)]
@@ -56,8 +56,6 @@
       [%events events=(map ship [events-done=@ud events-qued=@ud])]
       [%fleet-ships =path ships=(set ship)]
   ==
-::
-+$  vane  ?(%a %b %c %d %e %g %i %j %k)
 ::
 +$  aqua-effects
   [who=ship ufs=(list unix-effect)]
