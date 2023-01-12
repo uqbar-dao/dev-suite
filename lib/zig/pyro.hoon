@@ -138,23 +138,17 @@
     ^-  json
     ?~  update  ~
     ?-    -.update
-        %fleets
+        %snaps
       (frond -.update (fleets snap-paths.update))
     ::
         %ships
       (frond -.update (set-ships ships.update))
     ::
-        %fresh-pier-keys
+        %fresh-piers
       (frond -.update (frond %ships (set-ships ships.update)))
     ::
-        %fleet-sizes
-      (frond -.update (events events.update))
-    ::
-        %events
-      (events events.update)
-    ::
-        %fleet-ships
-      (frond -.update (fleet-ships [path ships]:update))
+        %snap-ships
+      (frond -.update (snap-ships [path ships]:update))
     ==
   ::
   ++  fleets
@@ -162,20 +156,7 @@
     ^-  json
     (frond %snap-paths (set-paths snap-paths))
   ::
-  ++  events
-    |=  events=(map @p [events-done=@ud events-qued=@ud])
-    ^-  json
-    %+  frond  %events
-    %-  pairs
-    %+  turn  ~(tap by events)
-    |=  [who=@p events-done=@ud events-qued=@ud]
-    :-  (scot %p who)
-    %-  pairs
-    :+  [%events-done (numb events-done)]
-      [%events-qued (numb events-qued)]
-    ~
-  ::
-  ++  fleet-ships
+  ++  snap-ships
     |=  [p=^path ships=(set @p)]
     ^-  json
     %-  pairs

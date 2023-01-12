@@ -50,12 +50,10 @@
 ::
 ++  update
   $@  ~
-  $%  [%fleets snap-paths=(set path)]
+  $%  [%snaps snap-paths=(set path)]
+      [%snap-ships =path ships=(set ship)]
       [%ships ships=(set ship)]
-      [%fresh-pier-keys ships=(set ship)]
-      [%fleet-sizes =path events=(map ship [events-done=@ud events-qued=@ud])]
-      [%events events=(map ship [events-done=@ud events-qued=@ud])]
-      [%fleet-ships =path ships=(set ship)]
+      [%fresh-piers ships=(set ship)]
   ==
 ::
 +$  aqua-effects

@@ -107,47 +107,30 @@
     |=  =path
     ^-  (unit (unit cage))
     ?+    path  ~
-        [%x %fleets ~]
+        [%x %snaps ~]
       :^  ~  ~  %pyro-update
-      !>(`update`[%fleets ~(key by fleet-snaps)])
+      !>(`update`[%snaps ~(key by fleet-snaps)]) :: TODO should be (list (pair path (list ship))
     ::
         [%x %ships ~]
       :^  ~  ~  %pyro-update
-      !>(`update`[%ships ~(key by piers)])
+      !>(`update`[%ships ~(key by piers)]) :: TODO should be ~(tap by piers)
     ::
-        [%x %fresh-pier-keys ~]
+        [%x %fresh-piers ~]
       :^  ~  ~  %pyro-update
-      !>(`update`[%fresh-pier-keys ~(key by fresh-piers)])
+      !>(`update`[%fresh-piers ~(key by fresh-piers)]) :: TODO should be ~(tap by fresh-piers)
     ::
-        [%x %fleet-sizes ^]
-      =+  fleet=(~(get by fleet-snaps) t.t.path)
-      :^  ~  ~  %pyro-update
-      !>  ^-  update
-      ?~  fleet  ~
-      :+  %fleet-sizes  t.t.path
-      %-  ~(run by u.fleet)
-      |=  p=pier
-      [(lent event-log.p) ~(wyt in next-events.p)]
-    ::
-        [%x %events ~]
-      :^  ~  ~  %pyro-update
-      !>  ^-  update
-      :-  %events
-      %-  ~(run by piers)
-      |=  p=pier
-      [(lent event-log.p) ~(wyt in next-events.p)]
-    ::
-        [%x %fleet-ships ^]
+        [%x %snap-ships ^]
       =+  sips=(~(get by fleet-snaps) t.t.path)
       :^  ~  ~  %pyro-update
       !>  ^-  update
       ?~  sips  ~
-      [%fleet-ships t.t.path ~(key by u.sips)]
+      [%snap-ships t.t.path ~(key by u.sips)]
     ::
         [%x %pill ~]  ``pill+!>(pil)
     ::
     ::  scry into running virtual ships
-    ::  ship, care, ship, desk, time, path     
+    ::  ship, care, ship, desk, time, path
+    ::  NOTE put /noun/noun at the end   
         [%x %i @ @ @ @ @ *]
       =/  who  (slav %p i.t.t.path)
       :^  ~  ~  %noun  !>
