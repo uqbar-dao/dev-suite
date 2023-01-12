@@ -262,16 +262,12 @@
       (publish-effect u.sof)
     $(effects t.effects)
   ::
-  ::  Give effect to our subscribers
-  ::
   ++  publish-effect
     |=  uf=unix-effect
     ^+  ..abet-pe
     =.  unix-effects  (~(add ja unix-effects) who uf)
     =.  unix-boths  (~(add ja unix-boths) who [%effect uf])
     ..abet-pe
-  ::
-  ::  Give event to our subscribers
   ::
   ++  publish-event
     |=  ute=unix-timed-event
@@ -280,8 +276,6 @@
     =.  unix-events  (~(add ja unix-events) who ute)
     =.  unix-boths  (~(add ja unix-boths) who [%event ute])
     ..abet-pe
-  ::
-  ::  Peek
   ::
   ++  peek
     |=  pax=path
@@ -296,8 +290,6 @@
     =/  pek  (slum p.scry [[~ ~] & pax])
     =+  ;;(res=(unit (cask)) pek)
     (bind res tail)
-  ::
-  ::  Wish
   ::
   ++  wish
     |=  txt=@t
