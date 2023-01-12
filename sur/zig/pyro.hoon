@@ -105,7 +105,6 @@
       [%init ~]                               :: start ship
   ==
 ::
-:: TODO this should be a set for multiple timers per ship
 +$  behn-pier  next-timer=(unit @da)
 +$  iris-pier  http-requests=(set @ud)
 ::

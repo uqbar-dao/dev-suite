@@ -262,24 +262,6 @@
     snapshot-ships
   (pure:m ~)
 ::
-++  wait-for-test-step
-  |=  wait=(unit $-(aqua-effect:pyro ?))
-  =/  m  (strand:spider ,~)
-  ^-  form:m
-  ?~  wait  (pure:m)
-  |-  ^-  form:m
-  ;<  =aqua-effect:pyro  bind:m  take-unix-effect
-  ?:  (u.wait aqua-effect)  (pure:m ~)
-  $
-::
-++  take-unix-effect
-  ::  TODO this will silently fail if it runs out of effects
-  =/  m  (strand ,[ship unix-effect:pyro])
-  ^-  form:m
-  ;<  [=path =cage]  bind:m  (take-fact-prefix /effect)
-  ?>  ?=(%aqua-effect p.cage)
-  (pure:m !<([aqua-effect:pyro] q.cage))
-::
 ++  block-on-previous-step
   |=  done-duration=@dr
   =/  m  (strand:spider ,~)
@@ -309,8 +291,8 @@
     %-  slop  :_  subject
     results-vase(p [%face %test-results p.results-vase])
   |-
-  :: ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
-  :: ;<  ~  bind:m  (block-on-previous-step ~m1)
+  ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
+  ;<  ~  bind:m  (block-on-previous-step ~m1)
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
     %:  take-snapshot
@@ -335,7 +317,6 @@
   ::
       %dojo
     ;<  ~  bind:m  (send-pyro-dojo payload.test-step)
-    ;<  ~  bind:m  (wait-for-test-step wait-for.test-step)
     ;<  result-from-expected=(each test-results:zig @t)  bind:m
       %-  run-steps
       :^  project-id  test-id
@@ -355,7 +336,6 @@
       %poke
     ;<  poke-result=(each ~ @t)  bind:m
       (send-pyro-poke payload.test-step)
-    ;<  ~  bind:m  (wait-for-test-step wait-for.test-step)
     ?:  ?=(%| -.poke-result)  (pure:m [%| p.poke-result])
     ;<  result-from-expected=(each test-results:zig @t)  bind:m
       %-  run-steps
