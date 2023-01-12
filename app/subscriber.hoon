@@ -76,14 +76,16 @@
     =*  app  i.t.t.path
     :^  ~  ~  %noun
     !>  ^-  @t
-    %-  get-formatted-error
-    :_  ~
-    %-  sell
-    .^  vase
-        %gx
-        :-  (scot %p our.bowl)
-        /[app]/(scot %da now.bowl)/dbug/state/noun
-    ==
+    =/  agent-state=vase
+      .^  vase
+          %gx
+          :-  (scot %p our.bowl)
+          /[app]/(scot %da now.bowl)/dbug/state/noun
+      ==
+    =/  noah-state=@t  (crip (noah agent-state))
+    ?:  (lth 10.000 (met 3 noah-state))
+      noah-state
+    (get-formatted-error (sell agent-state) ~)
   ==
   ::
   ++  get-formatted-error
