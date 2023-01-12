@@ -197,6 +197,7 @@
   ::
   ++  apex
     =.  pier-data  *pier
+    =.  processing-events.pier-data  %.y
     =.  snap  assembled
     ~&  pill-size=(met 3 (jam snap))
     ..abet-pe
@@ -206,7 +207,7 @@
   ++  ahoy
     =?  fresh-piers  !(~(has by fresh-piers) who)
       %+  ~(put by fresh-piers)  who
-      [pier-data (~(get ja unix-boths) who)]
+      [pier-data(processing-events %.y) (~(get ja unix-boths) who)]
     =-  ..ahoy:(emit-cards -)
     [%give %fact ~[/ready/(scot %p who)] %noun !>(%.y)]~
   ::
