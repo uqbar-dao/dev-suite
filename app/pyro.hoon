@@ -133,6 +133,12 @@
       :^  ~  ~  %noun  !>
       ?.  (~(has by piers) who)  ~
       (peek:(pe who) t.t.t.path)
+    ::
+        [%x %t @ @ @ @ @ *]
+      =/  who  (slav %p i.t.t.path)
+      :^  ~  ~  %noun  !>
+      ?.  (~(has by piers) who)  ~
+      (peek:(pe who) t.t.t.path)
     ==
   ++  on-leave  on-leave:def
   ++  on-agent  on-agent:def
@@ -241,43 +247,6 @@
       (handle-effects ;;((list ovum) -.p.poke-result))
     $
   ::
-  ::  Peek
-  ::
-  ++  peek
-    |=  p=*
-    ::  grab scry axis from snapshot, see +peek in arvo.hoon
-    =/  res  (mox +22.snap)
-    ?.  ?=(%0 -.res)  ~
-    =/  scry  p.res
-    ::  get path from input
-    =/  pax  (path p)
-    ::  validate path
-    ?.  ?=([@ @ @ @ *] pax)  ~
-    ::  alter timestamp to match %pyro fake-time
-    =.  i.t.t.t.pax  (scot %da scry-time)
-    ::  execute scry
-    =/  pek  (slum scry [[~ ~] & pax])
-    =+  ;;(res=(unit (cask)) pek)
-    (bind res tail)
-  ::
-  ::  Wish
-  ::
-  ++  wish
-    |=  txt=@t
-    =/  res  (mox +10.snap) :: see +wish in arvo.hoon
-    ?>  ?=(%0 -.res)
-    =/  wish  p.res
-    ~&  [who=who %wished (slum wish txt)]
-    ..abet-pe
-  ::
-  ++  mox  |=(* (mock [snap +<] scry))
-  ::
-  ::  Start/stop processing events.  When stopped, events are added to
-  ::  our queue but not processed.
-  ::
-  ++  unpause  .(processing-events &)
-  ++  pause    .(processing-events |)
-  ::
   ::  Handle all the effects produced by a single event.
   ::
   ++  handle-effects
@@ -311,6 +280,40 @@
     =.  unix-events  (~(add ja unix-events) who ute)
     =.  unix-boths  (~(add ja unix-boths) who [%event ute])
     ..abet-pe
+  ::
+  ::  Peek
+  ::
+  ++  peek
+    |=  pax=path
+    ::  validate path
+    ?.  ?=([@ @ @ @ *] pax)  ~
+    ::  alter timestamp to match %pyro fake-time
+    =.  i.t.t.t.pax  (scot %da scry-time)
+    ::  grab scry axis from snapshot, see +peek in arvo.hoon
+    =+  scry=(mox +22.snap)
+    ?.  ?=(%0 -.scry)  ~
+    ::  execute scry
+    =/  pek  (slum p.scry [[~ ~] & pax])
+    =+  ;;(res=(unit (cask)) pek)
+    (bind res tail)
+  ::
+  ::  Wish
+  ::
+  ++  wish
+    |=  txt=@t
+    =/  res  (mox +10.snap) :: see +wish in arvo.hoon
+    ?>  ?=(%0 -.res)
+    =/  wish  p.res
+    ~&  [who=who %wished (slum wish txt)]
+    ..abet-pe
+  ::
+  ++  mox  |=(* (mock [snap +<] scry))
+  ::
+  ::  Start/stop processing events.  When stopped, events are added to
+  ::  our queue but not processed.
+  ::
+  ++  unpause  .(processing-events &)
+  ++  pause    .(processing-events |)
   --
 ::
 ::  ++apex-aqua and ++abet-aqua must bookend calls from gall
