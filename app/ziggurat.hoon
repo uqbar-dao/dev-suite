@@ -394,7 +394,6 @@
             to-compile=~
             town-sequencers=(~(put by *(map @ux @p)) 0x0 ~nec)
             tests=~
-            dbug-dashboards=~
         ==
       ==
     ::
@@ -814,81 +813,6 @@
       %~  delete-custom-step  make-update-vase:zig-lib
       update-info
     ::
-        %add-app-to-dashboard
-      =/  =project:zig  (~(got by projects) project.act)
-      =/  add-app-error
-        %~  add-app-to-dashboard  make-error-vase:zig-lib
-        [update-info %error]
-      =*  sur  sur.act
-      ::  make mold subject
-      ?~  snipped=(snip sur)
-        =/  message=tape  "sur must be nonnull, got {<sur>}"
-        :_  state
-        :_  ~
-        %+  update-vase-to-card:zig-lib  project.act
-        %+  add-app-error  (crip message)
-        [app sur mold-name mar]:act
-      =/  sur-face=@tas  `@tas`(rear snipped)
-      =^  sur-hoon=vase  ca-scry-cache
-        %-  need  ::  TODO: handle error
-        %^  scry-or-cache-ca:zig-lib  project.act   sur
-        ca-scry-cache
-      =/  subject=vase
-        %-  slop  :_  !>(..zuse)
-        sur-hoon(p [%face sur-face p.sur-hoon])
-      ::  make mold
-      =/  dbug-mold
-        %^  mule-slap-subject:zig-lib  0  subject
-        mold-name.act
-      ~?  ?=(%| -.dbug-mold)
-        "%ziggurat: dbug mold build failed with error: {<p.dbug-mold>}"
-      ::
-      =/  mar-tube=(unit tube:clay)
-        ?~  mar.act  ~
-        =/  tube-res
-          %-  mule
-          |.
-          .^  tube:clay
-              %cc
-              %+  weld  /(scot %p our.bowl)/[i.mar.act]/(scot %da now.bowl)
-              t.mar.act
-          ==
-        ?:  ?=(%| -.tube-res)  ~
-        `p.tube-res
-      ::
-      ~&  "%ziggurat: added {<app.act>} to dashboard with mold, mar: {<?=(%& -.dbug-mold)>} {<?=(^ mar-tube)>}"
-      =.  dbug-dashboards.project
-        %+  ~(put by dbug-dashboards.project)  app.act
-        :*  sur
-            mold-name.act
-            mar.act
-            dbug-mold
-            mar-tube
-        ==
-      :_
-        %=  state
-          projects  (~(put by projects) project.act project)
-        ==
-      :_  ~
-      %+  update-vase-to-card:zig-lib  project.act
-      %.  [app sur mold-name mar]:act
-      %~  add-app-to-dashboard  make-update-vase:zig-lib
-      update-info
-    ::
-        %delete-app-from-dashboard
-      =/  =project:zig  (~(got by projects) project.act)
-      =.  dbug-dashboards.project
-        (~(del by dbug-dashboards.project) app.act)
-      :_
-        %=  state
-          projects  (~(put by projects) project.act project)
-        ==
-      :_  ~
-      %+  update-vase-to-card:zig-lib  project.act
-      %.  app.act
-      %~  delete-app-from-dashboard  make-update-vase:zig-lib
-      update-info
-    ::
         %stop-pyro-ships
       =.  pyro-ships-ready  ~
       :_  state
@@ -1221,50 +1145,25 @@
   ::   %+  frond:enjs:format  %user-files
   ::   (dir:enjs:zig-lib ~(tap in user-files.u.project))
   ::
-      [%dashboard @ @ @ ~]
-    =*  project-name  i.t.t.p
-    =*  who           i.t.t.t.p
-    =*  app           `@tas`i.t.t.t.t.p
-    =/  dashboard-error
-      %~  dashboard  make-error-vase:zig-lib
-      [[project-name %dashboard ~] %error]
-    :^  ~  ~  %ziggurat-update
-    ?~  project=(~(get by projects) project-name)
-      %-  dashboard-error
-      %-  crip
-      %+  weld  "project {<project-name>} not found;"
-      " must register project with %new-project"
-    ?~  dbug=(~(get by dbug-dashboards.u.project) app)
-      %-  dashboard-error
-      %-  crip
-      %+  weld  "app {<app>} not found; must add app to"
-      " dashboard with %add-app-to-dashboard"
-    ?:  ?=(%| -.mold.u.dbug)
-      %-  dashboard-error
-      %-  crip
-      ;:  weld
-          "app {<app>} subject failed to build; fix sur"
-          " file path and re-add with %add-app-to-dashboard."
-          " error message from build: {<p.mold.u.dbug>}"
-      ==
+      [%pyro-agent-state @ @ ~]
+    =*  who      i.t.t.p
+    =*  app      `@tas`i.t.t.t.p
     =/  now=@ta  (scot %da now.bowl)
-    =/  dbug-noun=*
+    =/  agent-state-noun=*
       .^  *
           %gx
-          %+  weld  /(scot %p our.bowl)/pyro/[now]/i/[who]
-          /gx/[who]/[app]/[now]/dbug/state/noun/noun
+          %+  weld  /(scot %p our.bowl)/pyro/[now]/i/[who]/gx
+          /[who]/subscriber/[now]/agent-state/[app]/noun/noun
       ==
-    ?.  ?=(^ dbug-noun)
-      %-  dashboard-error
-      'dbug scry failed: unexpected result from pyro'
-    =*  mar-tube   mar-tube.u.dbug
-    =*  dbug-mold  p.mold.u.dbug
-    =/  dbug-vase=vase  (slym dbug-mold +.+.dbug-noun)
-    %-  %~  dashboard  make-update-vase:zig-lib
-        [project-name %dashboard ~]
-    %+  frond:enjs:format  %state
-    ?~  mar-tube  [%s (crip (noah dbug-vase))]
-    !<(json (u.mar-tube dbug-vase))
+    :^  ~  ~  %ziggurat-update
+    ?~  agent-state-noun
+      %.  (crip "scry for /{<who>}/{<app>} failed")
+      %~  pyro-agent-state  make-error-vase:zig-lib
+      [['' %pyro-agent-state ~] %error]
+    =/  agent-state=@t  (need ;;((unit @t) agent-state-noun))
+    %.  agent-state
+    %~  pyro-agent-state  make-update-vase:zig-lib
+    ['' %pyro-agent-state ~]
   ::
       [%file-exists @ ^]
     =/  des=@ta    i.t.t.p

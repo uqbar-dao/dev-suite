@@ -107,19 +107,6 @@
     !>  ^-  update:zig
     [%delete-custom-step update-info [%& ~] test-id tag]
   ::
-  ++  add-app-to-dashboard
-    |=  [app=@tas sur=path mold-name=@t mar=path]
-    ^-  vase
-    !>  ^-  update:zig
-    :^  %add-app-to-dashboard  update-info  [%& ~]
-    [app sur mold-name mar]
-  ::
-  ++  delete-app-from-dashboard
-    |=  app=@tas
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-app-from-dashboard update-info [%& ~] app]
-  ::
   ++  add-town-sequencer
     |=  [town-id=@ux who=@p]
     ^-  vase
@@ -163,17 +150,17 @@
     !>  ^-  update:zig
     [%dir update-info [%& dir] ~]
   ::
-  ++  dashboard
-    |=  jon=json
-    ^-  vase
-    !>  ^-  update:zig
-    [%dashboard update-info [%& jon] ~]
-  ::
   ++  pyro-ships-ready
     |=  pyro-ships-ready=(map @p ?)
     ^-  vase
     !>  ^-  update:zig
     [%pyro-ships-ready update-info [%& pyro-ships-ready] ~]
+  ::
+  ++  pyro-agent-state
+    |=  agent-state=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%pyro-agent-state update-info [%& agent-state] ~]
   --
 ::
 ++  make-error-vase
@@ -250,19 +237,6 @@
     !>  ^-  update:zig
     [%delete-custom-step update-info [%| level message] test-id tag]
   ::
-  ++  add-app-to-dashboard
-    |=  [message=@t app=@tas sur=path mold-name=@t mar=path]
-    ^-  vase
-    !>  ^-  update:zig
-    :^  %add-app-to-dashboard  update-info  [%| level message]
-    [app sur mold-name mar]
-  ::
-  ++  delete-app-from-dashboard
-    |=  [message=@t app=@tas]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-app-from-dashboard update-info [%| level message] app]
-  ::
   ++  add-town-sequencer
     |=  [message=@t town-id=@ux who=@p]
     ^-  vase
@@ -306,17 +280,17 @@
     !>  ^-  update:zig
     [%dir update-info [%| level message] ~]
   ::
-  ++  dashboard
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%dashboard update-info [%| level message] ~]
-  ::
   ++  pyro-ships-ready
     |=  message=@t
     ^-  vase
     !>  ^-  update:zig
     [%pyro-ships-ready update-info [%| level message] ~]
+  ::
+  ++  pyro-agent-state
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%pyro-agent-state update-info [%| level message] ~]
   --
 ::
 ++  make-compile-contracts
@@ -568,7 +542,6 @@
       to-compile=to-compile.project
       town-sequencers=town-sequencers.project
       tests=(show-tests tests.project)
-      dbug-dashboards=(show-dbug-dashboards dbug-dashboards.project)
   ==
 ::
 ++  show-tests
@@ -613,23 +586,6 @@
   :+  success  expected
   ?:  (lte 1.024 (met 3 res-text))  '<elided>'  ::  TODO: unhardcode
   res-text
-::
-++  show-dbug-dashboards
-  |=  dds=(map @tas dbug-dashboard:zig)
-  ^-  (map @tas dbug-dashboard:zig)
-  %-  ~(run by dds)
-  |=(dd=dbug-dashboard:zig (show-dbug-dashboard dd))
-::
-++  show-dbug-dashboard
-  |=  dd=dbug-dashboard:zig
-  ^-  dbug-dashboard:zig
-  %=  dd
-      mold
-    ?:  ?=(%& -.mold.dd)  [%& *vase]  mold.dd
-  ::
-      mar-tube
-    ?~  mar-tube.dd  ~  `*tube:clay
-  ==
 ::
 ++  noah-slap-ream
   |=  [number-sur-lines=@ud subject=vase payload=@t]
@@ -1008,19 +964,6 @@
         ['data' ~]
       ~
     ::
-        %add-app-to-dashboard
-      :~  ['app' %s app.update]
-          ['sur' (path sur.update)]
-          ['mold_name' %s mold-name.update]
-          ['mar' (path mar.update)]
-          ['data' ~]
-      ==
-    ::
-        %delete-app-from-dashboard
-      :+  ['app' %s app.update]
-        ['data' ~]
-      ~
-    ::
         %add-town-sequencer
       :^    ['town_id' %s (scot %ux town-id.update)]
           ['who' %s (scot %p who.update)]
@@ -1050,14 +993,16 @@
         %dir
       `(list [@t json])`['data' (frond %dir (dir p.payload.update))]~
     ::
-        %dashboard
-      ['data' p.payload.update]~
-    ::
         %pyro-ships-ready
       :_  ~
       :-  'data'
       %+  frond  %pyro-ships-ready
       (pyro-ships-ready p.payload.update)
+    ::
+        %pyro-agent-state
+      :_  ~
+      :-  'data'
+      (frond %pyro-agent-state [%s p.payload.update])
     ==
   ::
   ++  error
@@ -1083,7 +1028,6 @@
         ['to_compile' (dir ~(tap in to-compile.p))]
         ['town_sequencers' (town-sequencers town-sequencers.p)]
         ['tests' (tests tests.p)]
-        ['dbug_dashboards' (dbug-dashboards dbug-dashboards.p)]
     ==
   ::
   ++  shown-projects
@@ -1103,7 +1047,6 @@
         ['to_compile' (dir ~(tap in to-compile.p))]
         ['town_sequencers' (town-sequencers town-sequencers.p)]
         ['tests' (shown-tests tests.p)]
-        ['dbug_dashboards' (dbug-dashboards dbug-dashboards.p)]
     ==
   ::
   ++  state
@@ -1384,25 +1327,6 @@
       ['result' %s result]
     ~
   ::
-  ++  dbug-dashboards
-    |=  dashboards=(map @tas dbug-dashboard:zig)
-    ^-  json
-    %-  pairs
-    %+  turn  ~(tap by dashboards)
-    |=  [app=@tas d=dbug-dashboard:zig]
-    [app (dbug-dashboard d)]
-  ::
-  ++  dbug-dashboard
-    |=  d=dbug-dashboard:zig
-    ^-  json
-    %-  pairs
-    :~  ['sur' (path sur.d)]
-        ['mold_name' %s mold-name.d]
-        ['mar' (path mar.d)]
-        ['did_mold_compile' %b ?=(%& mold.d)]
-        ['did_mar_tube_compile' %b ?=(^ mar-tube.d)]
-    ==
-  ::
   ++  set-cords
     |=  cords=(set @t)
     ^-  json
@@ -1468,9 +1392,6 @@
     ::
         [%add-custom-step add-custom-step]
         [%delete-custom-step (ot ~[[%test-id (se %ux)] [%tag (se %tas)]])]
-    ::
-        [%add-app-to-dashboard add-app-to-dashboard]
-        [%delete-app-from-dashboard (ot ~[[%app (se %tas)]])]
     ::
         [%add-town-sequencer (ot ~[[%town-id (se %ux)] [%who (se %p)]])]
         [%delete-town-sequencer (ot ~[[%town-id (se %ux)]])]
@@ -1616,14 +1537,5 @@
         [%tag (se %tas)]
       [%path pa]
     ~
-  ::
-  ++  add-app-to-dashboard
-    ^-  $-(json [app=@tas sur=path mold-name=@t mar=path])
-    %-  ot
-    :~  [%app (se %tas)]
-        [%sur pa]
-        [%mold-name so]
-        [%mar pa]
-    ==
   --
 --
