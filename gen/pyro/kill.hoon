@@ -1,4 +1,5 @@
 :: Stop a pyro ship
+:: Usage: :pyro|kill ~nec
 ::
 :-  %say
 |=  [* [her=ship ~] ~]
