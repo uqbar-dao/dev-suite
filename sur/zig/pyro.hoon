@@ -78,6 +78,7 @@
 +$  unix-effect
   %+  pair  wire
   $%  ::  vere effects (%gifts) that %pyre can handle
+      ::
       [%send p=lane:ames q=@]                 ::  ames send packet
       [%doze p=(unit @da)]                    ::  behn set timer
       [%ergo p=@tas q=mode:clay]              ::  clay ???
@@ -86,6 +87,7 @@
       [%request id=@ud request=request:http]  ::  iris request
       [%poke-ack p=(unit tang)]               ::  gall agent poke-ack
       ::  pyro specific effects
+      ::
       [%sleep ~]                              :: reset runtime
       [%restore ~]                            :: restore snap
       [%kill ~]                               :: stop ship
