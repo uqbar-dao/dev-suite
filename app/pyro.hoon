@@ -50,10 +50,8 @@
       def        ~(. (default-agent this %|) bowl)
   ++  on-init
     :_  this
-    :~  [%pass / %agent [our dap]:bowl %poke %pyro-action !>([%pill cached-pill])]
-        [%pass / %agent [our dap]:bowl %poke %pyro-action !>([%import-snap /testnet/jam /testnet])]
-        :: [%pass / %agent [our dap]:bowl %poke %pyro-action !>([%import-fresh-piers /zig/lib/py/fresh-piers/jam])]
-    ==
+    [%pass / %agent [our dap]:bowl %poke %pyro-action !>([%pill cached-pill])]~
+    :: [%pass / %agent [our dap]:bowl %poke %pyro-action !>([%import-fresh-piers /zig/lib/py/fresh-piers/jam])]
   ++  on-save  !>(state)
   ++  on-load
     |=  old-vase=vase

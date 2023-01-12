@@ -44,7 +44,10 @@
     0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
   =*  bud-address
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
-  :-  ~
+  =/  =card  :^  %pass  /  %agent  
+             :^  [our.bowl %pyro]  %poke  %pyro-action
+             !>([%import-snap /testnet/jam /testnet])
+  :-  [card ~]
   %_    this
       state
     :_  [eng smart-lib ~]
