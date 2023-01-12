@@ -7,6 +7,8 @@
 ::  :pyro|dojo ~dev "(add 2 2)"
 ::  +zig!pyro/scry ~dev %sequencer /status/noun
 ::
+::  Use a custom pill: :pyro +solid
+::
 /-  *zig-pyro
 /+  pyro=zig-pyro, pill, default-agent, naive, dbug, verb
 /*  cached-pill  %noun  /zig/snapshots/pill/pill
@@ -33,7 +35,7 @@
           $:  snap=*
               event-log=(list unix-timed-event)
               next-events=(qeu unix-event)
-              processing-events=?
+              processing-events=$~(%.n ?)
               scry-time=@da
           ==
         +$  card  card:agent:gall
@@ -471,8 +473,8 @@
             [/d/term/1 %hail ~]
         ==
       ==
-    =.  this
-      abet-pe:ahoy:[ae initted]
+    =.  this  abet-pe:ahoy:[ae initted]
+    =.  this  abet-pe:start-processing-events:(pe who.ae)
     (pe who.ae)
   ::
       %event  (push-events:(pe who.ae) [ue.ae]~)
