@@ -11,31 +11,32 @@
 /*  cached-pill  %noun  /zig/snapshots/pill/pill
 =,  pill-lib=pill
 =>  $~  |%
-    +$  versioned-state
-      $%  state-0
-      ==
-    +$  state-0
-      $:  %0
-          pil=$>(%pill pill)  ::  the boot sequence a new fakeship will use
-          assembled=*
-          tym=@da  ::  a fake time, starting at *@da and manually ticked up
-          fresh-piers=(map =ship [=pier boths=(list unix-both)])
-          fleet-snaps=(map path fleet)
-          piers=fleet
-      ==
-    ::  XX temporarily shadowed, fix and remove
-    ::
-    +$  pill  pill:pill-lib
-    ::
-    +$  fleet  (map ship pier)
-    +$  pier
-      $:  snap=*
-          event-log=(list unix-timed-event)
-          next-events=(qeu unix-event)
-          processing-events=?
-          scry-time=@da
-      ==
-    --
+        +$  versioned-state
+          $%  state-0
+          ==
+        +$  state-0
+          $:  %0
+              pil=$>(%pill pill)  ::  the boot sequence a new fakeship will use
+              assembled=*
+              tym=@da  ::  a fake time, starting at *@da and manually ticked up
+              fresh-piers=(map =ship [=pier boths=(list unix-both)])
+              fleet-snaps=(map path fleet)
+              piers=fleet
+          ==
+        ::  XX temporarily shadowed, fix and remove
+        ::
+        +$  pill  pill:pill-lib
+        ::
+        +$  fleet  (map ship pier)
+        +$  pier
+          $:  snap=*
+              event-log=(list unix-timed-event)
+              next-events=(qeu unix-event)
+              processing-events=?
+              scry-time=@da
+          ==
+        +$  card  card:agent:gall
+        --
 ::
 =|  state-0
 =*  state  -
@@ -45,8 +46,7 @@
   ^-  agent:gall
   |_  =bowl:gall
   +*  this       .
-      aqua-core  +>
-      ac         ~(. aqua-core bowl)
+      ac         ~(. +> bowl)
       def        ~(. (default-agent this %|) bowl)
   ++  on-init
     :_  this
@@ -60,7 +60,7 @@
     ^-  step:agent:gall
     ~&  prep=%aqua
     =+  !<(old=versioned-state old-vase)
-    =|  cards=(list card:agent:gall)
+    =|  cards=(list card)
     |-
     ?-  -.old
         %0
@@ -81,15 +81,15 @@
   ++  on-watch
     |=  =path
     ^-  step:agent:gall
-    :: /ready/~dev   subscribe to when a ship has fully booted
-    :: /effect       subscribe to effects one by one
-    :: /effects      subscribe to effects in list form
-    :: /effect/~dev  subscribe to all effects of a given ship
-    :: /effect/blit  subscribe to all effects of a certain kind (e.g. blits)
-    :: /effects/~dev subscribe to all effects of a given ship in list form
-    :: /events/~dev  subscribe to all events of a given ship
-    :: /event/~dev/* subscribe to all events of a given ship and wire
-    :: /boths/~dev   subscribe to all events and effects of a given ship
+    ::  /ready/~dev    subscribe to when a ship has fully booted
+    ::   /effect       subscribe to effects one by one
+    ::  /effects       subscribe to effects in list form
+    ::  /effect/~dev   subscribe to all effects of a given ship
+    ::  /effect/blit   subscribe to all effects of a certain kind (e.g. blits)
+    ::  /effects/~dev  subscribe to all effects of a given ship in list form
+    ::  /events/~dev   subscribe to all events of a given ship
+    ::  /event/~dev/*  subscribe to all events of a given ship and wire
+    ::  /boths/~dev    subscribe to all events and effects of a given ship
     ?:  ?=([?(%effects %effect) ~] path)
       `this
     ?:  ?=([%effect @ ~] path)
@@ -173,8 +173,10 @@
 =|  unix-effects=(jar ship unix-effect)
 =|  unix-events=(jar ship unix-timed-event)
 =|  unix-boths=(jar ship unix-both)
-=|  cards=(list card:agent:gall)
-|_  hid=bowl:gall  ::  TODO: hid -> bowl
+=|  cards=(list card)
+|_  =bowl:gall
+::
+++  this  .
 ::
 ::  Represents a single ship's state.
 ::
@@ -205,14 +207,14 @@
     =?  fresh-piers  !(~(has by fresh-piers) who)
       %+  ~(put by fresh-piers)  who
       [pier-data (~(get ja unix-boths) who)]
-    =/  =card:agent:gall  [%give %fact ~[/ready/(scot %p who)] %noun !>(%.y)]
-    ..ahoy:(emit-cards ~[card])
+    =-  ..ahoy:(emit-cards -)
+    [%give %fact ~[/ready/(scot %p who)] %noun !>(%.y)]~
   ::
   ::  restore post-pill ship for re-use
   ::
   ++  yaho
     =/  fresh  (~(got by fresh-piers) who)
-    =/  =card:agent:gall  [%give %fact ~[/ready/(scot %p who)] %noun !>(%.y)]
+    =/  =card  [%give %fact ~[/ready/(scot %p who)] %noun !>(%.y)]
     =.  pier-data  pier.fresh
     =.  boths.fresh  (flop boths.fresh)
     |-
@@ -235,7 +237,7 @@
   ::  Send cards to host arvo
   ::
   ++  emit-cards
-    |=  ms=(list card:agent:gall)
+    |=  ms=(list card)
     =.  this  (^emit-cards ms)
     ..abet-pe
   ::
@@ -251,7 +253,7 @@
     =/  poke-arm  (mox +23.snap) :: see +poke in arvo.hoon
     ?>  ?=(%0 -.poke-arm)
     =/  poke  p.poke-arm
-    =.  tym  (max +(tym) now.hid)
+    =.  tym  (max +(tym) now.bowl)
     =/  poke-result  (mule |.((slum poke tym ue)))
     ?:  ?=(%| -.poke-result)
       %-  (slog >%aqua-crash< >guest=who< p.poke-result)
@@ -336,8 +338,6 @@
     ..abet-pe
   --
 ::
-++  this  .
-::
 ::  ++apex-aqua and ++abet-aqua must bookend calls from gall
 ::
 ++  apex-aqua
@@ -350,7 +350,7 @@
   this
 ::
 ++  abet-aqua
-  ^-  (quip card:agent:gall _state)
+  ^-  (quip card _state)
   ::
   =.  this
     =/  =path  /effect
@@ -415,7 +415,7 @@
   [(flop cards) state]
 ::
 ++  emit-cards
-  |=  ms=(list card:agent:gall)
+  |=  ms=(list card)
   =.  cards  (weld ms cards)
   this
 ::
@@ -423,7 +423,7 @@
 ::
 ++  poke-aqua-events
   |=  events=(list aqua-event)
-  ^-  (quip card:agent:gall _state)
+  ^-  (quip card _state)
   =.  this  apex-aqua  =<  abet-aqua
   %+  turn-events  events
   |=  [ae=aqua-event thus=_this]
@@ -476,19 +476,16 @@
       abet-pe:ahoy:[ae initted]
     (pe who.ae)
   ::
-      %event
-    ~?  &(aqua-debug=| !?=(?(%belt %hear) -.q.ue.ae))
-      raw-event=[who.ae -.q.ue.ae]
-    ~?  &(debug=| ?=(%receive -.q.ue.ae))
-      raw-event=[who.ae ue.ae]
-    (push-events:(pe who.ae) [ue.ae]~)
+      %event  (push-events:(pe who.ae) [ue.ae]~)
   ==
 ::
 ++  poke-action
   |=  [our=ship act=action]
-  ^-  (quip card:agent:gall _state)
+  ^-  (quip card _state)
   ?-    -.act
-      %remove-ship
+      %kill-ship
+    ~&  [%pyro %kill-ship who.act]
+    =.  this   abet-pe:(publish-effect:(pe who.act) [/ %kill ~])
     =.  piers  (~(del by piers) who.act)
     `state
   ::
@@ -556,7 +553,7 @@
       .^  @
           %cx
           %+  welp
-            /(scot %p our.hid)/zig/(scot %da now.hid)/zig/snapshots
+            /(scot %p our.bowl)/zig/(scot %da now.bowl)/zig/snapshots
           jam-file-path.act
       ==
     =/  cued=*  (cue jammed)
@@ -564,7 +561,7 @@
     =.  fleet-snaps
       (~(put by fleet-snaps) snap-label.act f)
     :_  state
-    [%pass / %agent [our.hid %hood] %poke %helm-meld !>(~)]~
+    [%pass / %agent [our.bowl %hood] %poke %helm-meld !>(~)]~
   ::
       %export-fresh-piers
     ?~  fresh-piers  ~&(%pyro^%no-fresh-piers !!)
@@ -591,8 +588,8 @@
       .^  @
           %cx
           %+  welp
-            :-  (scot %p our.hid)
-            /[i.jam-file-path.act]/(scot %da now.hid)
+            :-  (scot %p our.bowl)
+            /[i.jam-file-path.act]/(scot %da now.bowl)
           t.jam-file-path.act
       ==
     =/  piers-hash=@ux  (mug jammed)
@@ -613,7 +610,7 @@
       %-  unix-event:pill-lib
       ::  take all files from a userspace desk
       %+  %*(. file-ovum:pill-lib directories ~[/])
-      des.act  /(scot %p our.hid)/[des.act]/(scot %da now.hid)
+      des.act  /(scot %p our.bowl)/[des.act]/(scot %da now.bowl)
     =^  ms  state  (poke-pill pil)
     (emit-cards ms)
   ::
@@ -642,12 +639,12 @@
     stop-processing-events:(pe who)
   ::
       %commit
-    =/  pak  (park:pyro p.byk.hid desk.act r.byk.hid)
+    =/  pak  (park:pyro p.byk.bowl desk.act r.byk.bowl)
     :_  state
     %+  turn  hers.act
     |=  =ship
-    ^-  card:agent:gall
-    :*  %pass  /  %agent  [our.hid %pyro]
+    ^-  card
+    :*  %pass  /  %agent  [our.bowl %pyro]
         %poke  %aqua-events
         !>([%event ship /c/commit/(scot %p ship) pak]~)
     ==
@@ -659,7 +656,7 @@
 ::
 ++  poke-pill
   |=  p=pill
-  ^-  (quip card:agent:gall _state)
+  ^-  (quip card _state)
   ?<  ?=(%ivory -.p)
   =.  userspace-ova.p
     ::  if there is an azimuth-snapshot in the pill, we stub it out,

@@ -50,7 +50,7 @@
       ::
       [%swap-files des=@tas]
       [%wish hers=(list ship) p=@t]
-      [%remove-ship who=ship]
+      [%kill-ship who=ship]
       [%unpause-events hers=(list ship)]
       [%pause-events hers=(list ship)]  ::  TODO: do we need this at events And 
       [%commit =desk hers=(list ship)]
