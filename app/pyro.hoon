@@ -10,36 +10,35 @@
 ::  Use a custom pill: :pyro +solid
 ::
 /-  *zig-pyro
-/+  pyro=zig-pyro, pill, default-agent, naive, dbug, verb
+/+  pyro=zig-pyro, pill-lib=pill, default-agent, naive, dbug, verb
 /*  cached-pill  %noun  /zig/snapshots/pill/pill
-=,  pill-lib=pill
-=>  $~  |%
-        +$  versioned-state
-          $%  state-0
-          ==
-        +$  state-0
-          $:  %0
-              pil=$>(%pill pill)  ::  the boot sequence a new fakeship will use
-              assembled=*
-              tym=@da  ::  a fake time, starting at *@da and manually ticked up
-              fresh-piers=(map =ship [=pier boths=(list unix-both)])
-              fleet-snaps=(map path fleet)
-              piers=fleet
-          ==
-        ::  XX temporarily shadowed, fix and remove
-        ::
-        +$  pill  pill:pill-lib
-        ::
-        +$  fleet  (map ship pier)
-        +$  pier
-          $:  snap=*
-              event-log=(list unix-timed-event)
-              next-events=(qeu unix-event)
-              processing-events=$~(%.n ?)
-              scry-time=@da
-          ==
-        +$  card  card:agent:gall
-        --
+=>  |%
+    +$  versioned-state
+      $%  state-0
+      ==
+    +$  state-0
+      $:  %0
+          pil=$>(%pill pill)  ::  the boot sequence a new fakeship will use
+          assembled=*
+          tym=@da  ::  a fake time, starting at *@da and manually ticked up
+          fresh-piers=(map =ship [=pier boths=(list unix-both)])
+          fleet-snaps=(map path fleet)
+          piers=fleet
+      ==
+    ::  XX temporarily shadowed, fix and remove
+    ::
+    +$  pill  pill:pill-lib
+    ::
+    +$  fleet  (map ship pier)
+    +$  pier
+      $:  snap=*
+          event-log=(list unix-timed-event)
+          next-events=(qeu unix-event)
+          processing-events=$~(%.n ?)
+          scry-time=@da
+      ==
+    +$  card  card:agent:gall
+    --
 ::
 =|  state-0
 =*  state  -
