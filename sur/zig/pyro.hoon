@@ -7,18 +7,9 @@
 ::  is `unix` if it has no ship associated with it, or `aqua` if it
 ::  does.  `timed` is added if it includes the time of the event.
 ::
-::  Short names are simply the first letter of each word plus `s` if
-::  it's a list.
-::
-/+  pill
-=,  pill-lib=pill
 |%
-++  ph-event
-  $%  [%test-done p=?]
-      aqua-event
-  ==
 ::
-+$  unix-event  ::NOTE  like unix-event:pill-lib but for all tasks
++$  unix-event  :: like unix-event:pill-lib but for all tasks
   %+  pair  wire
   $%  [%wack p=@]
       [%what p=(list (pair path (cask)))]
@@ -28,7 +19,6 @@
       [%verb p=(unit ?)]
       task-arvo
   ==
-+$  pill        pill:pill-lib
 ::
 +$  aqua-event
   $%  [%init-ship who=ship]
