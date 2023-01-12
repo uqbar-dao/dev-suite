@@ -18,16 +18,13 @@
       ==
     +$  state-0
       $:  %0
-          pil=$>(%pill pill)  ::  the boot sequence a new fakeship will use
+          pil=$>(%pill pill:pill-lib)  ::  the boot sequence a new fakeship will use
           assembled=*
           tym=@da  ::  a fake time, starting at *@da and manually ticked up
           fresh-piers=(map =ship [=pier boths=(list unix-both)])
           fleet-snaps=(map path fleet)
           piers=fleet
       ==
-    ::  XX temporarily shadowed, fix and remove
-    ::
-    +$  pill  pill:pill-lib
     ::
     +$  fleet  (map ship pier)
     +$  pier
@@ -73,7 +70,7 @@
       ?+  mark  ~|([%aqua-bad-mark mark] !!)
         %aqua-events  (poke-aqua-events:ac !<((list aqua-event) vase))
         %pyro-action  (poke-action:ac our.bowl !<(action vase))
-        %pill         (poke-pill:ac !<(pill vase))
+        %pill         (poke-pill:ac !<(pill:pill-lib vase))
       ==
     [cards this]
   ::
@@ -626,7 +623,7 @@
 ::  Load a pill and assemble arvo.  Doesn't send any initial events
 ::
 ++  poke-pill
-  |=  p=pill
+  |=  p=pill:pill-lib
   ^-  (quip card _state)
   ?<  ?=(%ivory -.p)
   =.  userspace-ova.p
