@@ -33,7 +33,10 @@
 ::
 +$  transaction-store
   %+  map  address:smart
-  (map @ux [=origin =transaction:smart action=supported-actions =output:eng])
+  (map @ux finished-transaction)
+
++$  finished-transaction
+  [=origin batch=@ux =transaction:smart action=supported-actions =output:eng]
 ::
 +$  pending-store
   %+  map  address:smart
@@ -73,12 +76,7 @@
           =transaction:smart
           action=supported-actions
       ==
-      $:  %finished-transaction
-          =origin
-          =transaction:smart
-          action=supported-actions
-          =output:eng
-      ==
+      [%finished-transaction finished-transaction]
   ==
 ::
 ::  sent to web interface
@@ -89,10 +87,7 @@
       [%tx-status hash=@ux =transaction:smart action=supported-actions]
       $:  %finished-tx
           hash=@ux
-          =origin
-          =transaction:smart
-          action=supported-actions
-          =output:eng
+          finished-transaction
       ==
   ==
 ::
@@ -192,4 +187,27 @@
       properties=(pmap:smart @tas @t)
       transferrable=?
   ==
+::
+::  historical app states
+::
++$  state-0
+  $:  %0
+      seed=[mnem=@t pass=@t address-index=@ud]
+      keys=(map address:smart [priv=(unit @ux) nick=@t])
+      nonces=(map address:smart (map town=@ux nonce=@ud))
+      =signed-message-store
+      tokens=(map address:smart =book)
+      =metadata-store
+      =old-unfinished-transaction-store
+      =old-transaction-store
+      =old-pending-store
+  ==
++$  old-unfinished-transaction-store
+  (list [hash=@ux tx=transaction:smart action=supported-actions])
++$  old-transaction-store
+  %+  map  address:smart
+  (map @ux [=transaction:smart action=supported-actions =output:eng])
++$  old-pending-store
+  %+  map  address:smart
+  (map @ux [=transaction:smart action=supported-actions])
 --

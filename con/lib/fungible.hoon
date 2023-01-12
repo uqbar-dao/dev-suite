@@ -1,5 +1,5 @@
-::  UQ| fungible token standard v0.3
-::  last updated: 2022/10/22
+::  UQ| fungible token standard v0.4
+::  last updated: 2022/12/21
 ::
 ::  Basic fungible token standard. This standard defines an account
 ::  model, where each address that owns tokens holds one `data` containing
@@ -146,6 +146,9 @@
     ==
     ::  locate receiver account
     =+  to-id=(hash-data this.context to.act town.context salt.giver)
+    ::  cannot give back to the account you're taking from
+    ::  (would double the amount of tokens)
+    ?>  !=(to-id from-account.act)
     ?~  receiver-account=(scry-state -)
       ::  if receiver doesn't have an account, issue one for them
       =+  [amount.act ~ metadata.noun.giver ~]
@@ -212,6 +215,9 @@
     ?>  (lte eth-block.context deadline.act)
     ::  locate receiver account
     =+  to-id=(hash-data this.context to.act town.context salt.giver)
+    ::  cannot give back to the account you're taking from
+    ::  (would double the amount of tokens)
+    ?>  !=(to-id from-account.act)
     ?~  receiver-account=(scry-state -)
       ::  if receiver doesn't have an account, issue one for them
       =+  [amount.act ~ metadata.noun.giver ~]

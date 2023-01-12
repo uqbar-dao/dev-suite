@@ -8,6 +8,7 @@
       [%add-source town=id:smart source=dock]
       [%remove-source town=id:smart source=dock]
       [%set-wallet-source app-name=@tas]  ::  to plug in a third-party wallet app
+      [%open-faucet town=id:smart send-to=address:smart]
       [%ping ~]
   ==
 ::
