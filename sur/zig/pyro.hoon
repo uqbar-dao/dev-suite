@@ -50,10 +50,10 @@
 ::
 ++  update
   $@  ~
-  $%  [%snaps snap-paths=(set path)]
-      [%snap-ships =path ships=(set ship)]
-      [%ships ships=(set ship)]
-      [%fresh-piers ships=(set ship)]
+  $%  [%snaps snap-paths=(list path)]
+      [%snap-ships =path ships=(list ship)]
+      [%ships ships=(list ship)]
+      [%fresh-piers ships=(list ship)]
   ==
 ::
 +$  aqua-effects

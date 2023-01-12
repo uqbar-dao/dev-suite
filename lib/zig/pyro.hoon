@@ -142,40 +142,40 @@
       (frond -.update (fleets snap-paths.update))
     ::
         %ships
-      (frond -.update (set-ships ships.update))
+      (frond -.update (list-ships ships.update))
     ::
         %fresh-piers
-      (frond -.update (frond %ships (set-ships ships.update)))
+      (frond -.update (frond %ships (list-ships ships.update)))
     ::
         %snap-ships
       (frond -.update (snap-ships [path ships]:update))
     ==
   ::
   ++  fleets
-    |=  snap-paths=(set ^path)
+    |=  snap-paths=(list ^path)
     ^-  json
-    (frond %snap-paths (set-paths snap-paths))
+    (frond %snap-paths (list-paths snap-paths))
   ::
   ++  snap-ships
-    |=  [p=^path ships=(set @p)]
+    |=  [p=^path ships=(list @p)]
     ^-  json
     %-  pairs
     :+  [%path (path p)]
-      [%ships (set-ships ships)]
+      [%ships (list-ships ships)]
     ~
   ::
-  ++  set-ships
-    |=  ships=(set @p)
+  ++  list-ships
+    |=  ships=(list @p)
     ^-  json
     :-  %a
-    %+  turn  ~(tap in ships)
+    %+  turn  ships
     |=(who=@p [%s (scot %p who)])
   ::
-  ++  set-paths
-    |=  paths=(set ^path)
+  ++  list-paths
+    |=  paths=(list ^path)
     ^-  json
     :-  %a
-    %+  turn  ~(tap in paths)
+    %+  turn  paths
     |=(p=^path (path p))
   --
 ::

@@ -109,22 +109,22 @@
     ?+    path  ~
         [%x %snaps ~]
       :^  ~  ~  %pyro-update
-      !>(`update`[%snaps ~(key by fleet-snaps)]) :: TODO should be (list (pair path (list ship))
+      !>(`update`[%snaps (turn ~(tap by fleet-snaps) head)])
     ::
         [%x %ships ~]
       :^  ~  ~  %pyro-update
-      !>(`update`[%ships ~(key by piers)]) :: TODO should be ~(tap by piers)
+      !>(`update`[%ships (turn ~(tap by piers) head)])
     ::
         [%x %fresh-piers ~]
       :^  ~  ~  %pyro-update
-      !>(`update`[%fresh-piers ~(key by fresh-piers)]) :: TODO should be ~(tap by fresh-piers)
+      !>(`update`[%fresh-piers (turn ~(tap by fresh-piers) head)])
     ::
         [%x %snap-ships ^]
       =+  sips=(~(get by fleet-snaps) t.t.path)
       :^  ~  ~  %pyro-update
       !>  ^-  update
       ?~  sips  ~
-      [%snap-ships t.t.path ~(key by u.sips)]
+      [%snap-ships t.t.path (turn ~(tap by u.sips) head)]
     ::
         [%x %pill ~]  ``pill+!>(pil)
     ::
