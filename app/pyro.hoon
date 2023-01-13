@@ -236,7 +236,7 @@
     ?:  ?=(%| -.poke-result)
       %-  (slog >%aqua-crash< >who=who< p.poke-result)
       $
-    =.  snap  !<(_arvo-adult [-:!>(arvo-adult) +.q.p.poke-result])
+    =.  snap  (hole _arvo-adult +.q.p.poke-result)
     =.  scry-time  tym
     =.  ..abet-pe  (publish-event tym ue)
     =.  ..abet-pe
@@ -645,7 +645,7 @@
   ?-  -.res
       %0
     ~&  >  "successfully assembled pill"
-    =.  assembled  !<(_arvo-adult [-:!>(arvo-adult) +7.p.res])
+    =.  assembled  (hole _arvo-adult +7.p.res)
     =.  fresh-piers  ~
     this
   ::
@@ -688,5 +688,12 @@
 ::
 ++  turn-ships   (turn-plow ship)
 ++  turn-events  (turn-plow aqua-event)
+::
+::  BEWARE: this is a "profoundly broken" piece of code, use with caution
+::
+++  hole
+  |*  [typ=mold val=*]
+  ^-  typ
+  !<(typ [-:!>(*typ) val])
 ::
 --
