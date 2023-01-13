@@ -289,9 +289,10 @@
       ~
     ?~  q.p.pek  ~
     :: success: make a (unit cage)
+    :: TODO clean this code
     :+  ~
       !<(mark (slam !>(|=(u=(unit (cask)) (head (need u)))) p.pek))
-    (slam !>(|=(u=(unit) (tail (need u)))) p.pek)
+    (slam !>(|=(u=(unit (cask)) (tail (need u)))) p.pek)
   ::
   ::  Start/stop processing events.  When stopped, events are added to
   ::  our queue but not processed.
@@ -577,9 +578,9 @@
     %+  turn-ships  hers.act
     |=  [who=ship thus=_this]
     =.  this  thus
-    ::  TODO the type tends to come back as * ? Not good
     =/  res=vase
       (slam [-:!>(wish:arvo-adult) wish:snap:pier-data:(pe who)] !>(p.act))
+    ::  TODO type is a vase, so q.res is a *. Should be molded somehow
     ~&  [who=who %wished q.res]
     (pe who)
   ::
