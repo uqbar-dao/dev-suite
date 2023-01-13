@@ -166,6 +166,7 @@
       %test-results
       %dir
       %pyro-ships-ready
+      %test-queue
       %pyro-agent-state
   ==
 +$  update-level  ?(%success error-level)
@@ -197,6 +198,7 @@
       [%test-results update-info payload=(data shown-test-results) test-id=@ux thread-id=@t =test-steps]
       [%dir update-info payload=(data (list path)) ~]
       [%pyro-ships-ready update-info payload=(data (map @p ?)) ~]
+      [%test-queue update-info payload=(data (qeu [@t @ux])) ~]
       [%pyro-agent-state update-info payload=(data @t) ~]
   ==
 ::
