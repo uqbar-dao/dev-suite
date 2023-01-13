@@ -44,7 +44,7 @@
   =/  test-globals=vase
     !>  ^-  test-globals:zig
     :^  our.bowl  now.bowl  !<(test-results:zig results)
-    [project addresses]:old
+    [project configs]:old
   %-  slop  :_  (slap old-subject (ream '+'))
   test-globals(p [%face %test-globals p.test-globals])
 ::

@@ -1,5 +1,7 @@
 /=  zig  /sur/zig/ziggurat
 ::
+/=  mip  /lib/mip
+::
 |%
 ++  $
   |=  $:  [who=@p contract=@ux transaction=@t]
@@ -14,7 +16,7 @@
     """
     :*  %transaction
         origin=~
-        from={<(~(got by addresses:test-globals) who)>}
+        from={<(~(got bi:mip configs:test-globals) 'global' [who %address])>}
         contract={<contract>}
         town=0x0  ::  harcode
         action=[%text {<transaction>}]  ::  TODO: how to transform within the %text?
