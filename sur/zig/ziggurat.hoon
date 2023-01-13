@@ -2,12 +2,13 @@
     engine=zig-engine,
     wallet=zig-wallet
 /+  engine-lib=zig-sys-engine,
+    mip,
     smart=zig-sys-smart
 |%
 +$  state-0
   $:  %0
       =projects
-      virtualnet-addresses=(map @p address:smart)
+      =configs
       pyro-ships-ready=(map @p ?)
       test-queue=(qeu [project=@t test-id=@ux])
       test-running=?
@@ -25,7 +26,6 @@
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
       to-compile=(set path)
-      town-sequencers=(map @ux @p)
       =tests
   ==
 ::
@@ -41,6 +41,9 @@
       steps=test-steps
       results=test-results
   ==
+::
++$  configs  (mip:mip project-name=@t [who=@p what=@tas] @)
++$  config   (map [who=@p what=@tas] @)
 ::
 +$  expected-diff
   (map id:smart [made=(unit item:smart) expected=(unit item:smart) match=(unit ?)])
@@ -87,7 +90,8 @@
       now=@da
       =test-results
       project=@tas
-      addresses=(map @p address:smart)
+      =configs
+      :: addresses=(map @p address:smart)
   ==
 ::
 +$  ca-scry-cache  (map [@tas path] (pair @ux vase))
@@ -101,7 +105,9 @@
           [%save-file file=path text=@t]  ::  generates new file or overwrites existing
           [%delete-file file=path]
       ::
-          [%set-virtualnet-address who=@p =address:smart]
+          :: [%set-virtualnet-address who=@p =address:smart]
+          [%add-config who=@p what=@tas item=@]
+          [%delete-config who=@p what=@tas]
       ::
           [%register-contract-for-compilation file=path]
           [%deploy-contract town-id=@ux =path]
@@ -129,9 +135,6 @@
           [%add-custom-step test-id=@ux tag=@tas =path]
           [%delete-custom-step test-id=@ux tag=@tas]
       ::
-          [%add-town-sequencer town-id=@ux who=@p]
-          [%delete-town-sequencer town-id=@ux]
-      ::
           [%stop-pyro-ships ~]
           [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> [~nec ~bud]
           [%start-pyro-snap snap=path]
@@ -151,6 +154,8 @@
       %project
       %state
       %new-project
+      %add-config
+      %delete-config
       %add-test
       %edit-test
       %compile-contract
@@ -158,8 +163,6 @@
       %run-queue
       %add-custom-step
       %delete-custom-step
-      %add-town-sequencer
-      %delete-town-sequencer
       %add-user-file
       %delete-user-file
       %custom-step-compiled
@@ -183,6 +186,8 @@
       [%project update-info payload=(data ~) shown-project]
       [%state update-info payload=(data ~) state=(map @ux chain:engine)]
       [%new-project update-info payload=(data ~) ~]
+      [%add-config update-info payload=(data [who=@p what=@tas item=@]) ~]
+      [%delete-config update-info payload=(data [who=@p what=@tas]) ~]
       [%add-test update-info payload=(data shown-test) test-id=@ux]
       [%compile-contract update-info payload=(data ~) ~]
       [%edit-test update-info payload=(data shown-test) test-id=@ux]
@@ -190,8 +195,6 @@
       [%run-queue update-info payload=(data ~) ~]
       [%add-custom-step update-info payload=(data ~) test-id=@ux tag=@tas]
       [%delete-custom-step update-info payload=(data ~) test-id=@ux tag=@tas]
-      [%add-town-sequencer update-info payload=(data ~) town-id=@ux who=@p]
-      [%delete-town-sequencer update-info payload=(data ~) town-id=@ux]
       [%add-user-file update-info payload=(data ~) file=path]
       [%delete-user-file update-info payload=(data ~) file=path]
       [%custom-step-compiled update-info payload=(data ~) test-id=@ux tag=@tas]
@@ -207,7 +210,6 @@
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
       to-compile=(set path)
-      town-sequencers=(map @ux @p)
       tests=shown-tests
   ==
 +$  shown-tests  (map @ux shown-test)

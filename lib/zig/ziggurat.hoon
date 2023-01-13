@@ -2,6 +2,7 @@
     ui=zig-indexer,
     zig=zig-ziggurat
 /+  agentio,
+    mip,
     conq=zink-conq,
     dock=docket,
     smart=zig-sys-smart,
@@ -24,12 +25,14 @@
   [%project update-info [%& ~] (show-project project)]
 ::
 ++  make-state-update
-  |=  [=update-info:zig =project:zig]
+  |=  [=update-info:zig =project:zig =configs:zig]
+  =*  project-name  project-name.update-info
   ^-  card
-  %-  fact:io  :_  ~[/project/[project-name.update-info]]
+  %-  fact:io  :_  ~[/project/[project-name]]
   :-  %ziggurat-update
   !>  ^-  update:zig
-  [%state update-info [%& ~] (get-state project)]
+  :^  %state  update-info  [%& ~]
+  (get-state project-name project configs)
 ::
 ++  update-vase-to-card
   |=  [project-name=@t v=vase]
@@ -66,6 +69,18 @@
     ^-  vase
     !>  ^-  update:zig
     [%new-project update-info [%& ~] ~]
+  ::
+  ++  add-config
+    |=  [who=@p what=@tas item=@]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-config update-info [%& who what item] ~]
+  ::
+  ++  delete-config
+    |=  [who=@p what=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-config update-info [%& who what] ~]
   ::
   ++  add-test
     |=  [=test:zig test-id=@ux]
@@ -106,18 +121,6 @@
     ^-  vase
     !>  ^-  update:zig
     [%delete-custom-step update-info [%& ~] test-id tag]
-  ::
-  ++  add-town-sequencer
-    |=  [town-id=@ux who=@p]
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-town-sequencer update-info [%& ~] town-id who]
-  ::
-  ++  delete-town-sequencer
-    |=  town-id=@ux
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-town-sequencer update-info [%& ~] town-id]
   ::
   ++  add-user-file
     |=  file=path
@@ -195,6 +198,18 @@
     !>  ^-  update:zig
     [%state update-info [%| level message] state]
   ::
+  ++  add-config
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-config update-info [%| level message] ~]
+  ::
+  ++  delete-config
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-config update-info [%| level message] ~]
+  ::
   ++  new-project
     |=  message=@t
     ^-  vase
@@ -242,18 +257,6 @@
     ^-  vase
     !>  ^-  update:zig
     [%delete-custom-step update-info [%| level message] test-id tag]
-  ::
-  ++  add-town-sequencer
-    |=  [message=@t town-id=@ux who=@p]
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-town-sequencer update-info [%| level message] town-id who]
-  ::
-  ++  delete-town-sequencer
-    |=  [message=@t town-id=@ux]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-town-sequencer update-info [%| level message] town-id]
   ::
   ++  add-user-file
     |=  [message=@t file=path]
@@ -552,7 +555,6 @@
   :*  dir=dir.project
       user-files=user-files.project
       to-compile=to-compile.project
-      town-sequencers=town-sequencers.project
       tests=(show-tests tests.project)
   ==
 ::
@@ -719,11 +721,13 @@
   ==
 ::
 ++  get-state
-  |=  =project:zig
+  |=  [project-name=@t =project:zig =configs:zig]
   ^-  (map @ux chain:eng)
   =/  now-ta=@ta   (scot %da now.bowl)
   %-  ~(gas by *(map @ux chain:eng))
-  %+  murn  ~(tap by town-sequencers.project)
+  %+  murn
+    %~  tap  by
+    (get-town-id-to-sequencer-map project-name configs)
   |=  [town-id=@ux who=@p]
   =/  who-ta=@ta   (scot %p who)
   =/  town-ta=@ta  (scot %ux town-id)
@@ -821,6 +825,23 @@
     %+  rune:conq  tis
     ;~(plug sym ;~(pfix gap stap))
   ==
+::
+++  town-id-to-sequencer-host
+  |=  [project-name=@t town-id=@ux =configs:zig]
+  ^-  (unit @p)
+  %.  town-id
+  %~  get  by
+  (get-town-id-to-sequencer-map project-name configs)
+::
+++  get-town-id-to-sequencer-map
+  |=  [project-name=@t =configs:zig]
+  ^-  (map @ux @p)
+  %-  ~(gas by *(map @ux @p))
+  %+  murn  ~(tap bi:mip configs)
+  |=  [pn=@t [who=@p what=@tas] item=@]
+  ?.  =(project-name pn)   ~
+  ?.  ?=(%sequencer what)  ~
+  `[`@ux`item who]
 ::
 ++  add-test-error-to-edit-test
   |=  add-test-card=card
@@ -953,6 +974,23 @@
         ?(%new-project %compile-contract %run-queue)
       ['data' ~]~
     ::
+        %add-config
+      :_  ~
+      :-  'data'
+      %-  pairs
+      :^    ['who' %s (scot %p who.p.payload.update)]
+          ['what' %s what.p.payload.update]
+        ['item' (numb item.p.payload.update)]
+      ~
+    ::
+        %delete-config
+      :_  ~
+      :-  'data'
+      %-  pairs
+      :+  ['who' %s (scot %p who.p.payload.update)]
+        ['what' %s what.p.payload.update]
+      ~
+    ::
         %add-test
       :+  ['test_id' %s (scot %ux test-id.update)]
         :-  'data'
@@ -973,17 +1011,6 @@
         ?(%add-custom-step %delete-custom-step %custom-step-compiled)
       :^    ['tag' %s tag.update]
           ['test_id' %s (scot %ux test-id.update)]
-        ['data' ~]
-      ~
-    ::
-        %add-town-sequencer
-      :^    ['town_id' %s (scot %ux town-id.update)]
-          ['who' %s (scot %p who.update)]
-        ['data' ~]
-      ~
-    ::
-        %delete-town-sequencer
-      :+  ['town_id' %s (scot %ux town-id.update)]
         ['data' ~]
       ~
     ::
@@ -1044,7 +1071,6 @@
     :~  ['dir' (dir dir.p)]
         ['user_files' (dir ~(tap in user-files.p))]
         ['to_compile' (dir ~(tap in to-compile.p))]
-        ['town_sequencers' (town-sequencers town-sequencers.p)]
         ['tests' (tests tests.p)]
     ==
   ::
@@ -1063,7 +1089,6 @@
     :~  ['dir' (dir dir.p)]
         ['user_files' (dir ~(tap in user-files.p))]
         ['to_compile' (dir ~(tap in to-compile.p))]
-        ['town_sequencers' (town-sequencers town-sequencers.p)]
         ['tests' (shown-tests tests.p)]
     ==
   ::
@@ -1151,14 +1176,6 @@
     :+  ['compiled_successfully' %b ?=(%& -.custom-step-compiled)]
       ['compile_error' %s ?:(?=(%& -.custom-step-compiled) '' p.custom-step-compiled)]
     ~
-  ::
-  ++  town-sequencers
-    |=  town-sequencers=(map @ux @p)
-    ^-  json
-    %-  pairs
-    %+  turn  ~(tap by town-sequencers)
-    |=  [town-id=@ux who=@p]
-    [(scot %ux town-id) %s (scot %p who)]
   ::
   ++  test-steps
     |=  =test-steps:zig
@@ -1388,14 +1405,15 @@
         [%save-file (ot ~[[%file pa] [%text so]])]
         [%delete-file (ot ~[[%file pa]])]
     ::
-        [%set-virtualnet-address (ot ~[[%who (se %p)] [%address (se %ux)]])]
-    ::
         [%register-contract-for-compilation (ot ~[[%file pa]])]
         [%deploy-contract deploy]
     ::
         [%compile-contracts ul]
         [%compile-contract (ot ~[[%path pa]])]
         [%read-desk ul]
+    ::
+        [%add-config (ot ~[[%who (se %p)] [%what (se %tas)] [%item ni]])]
+        [%delete-config (ot ~[[%who (se %p)] [%what (se %tas)]])]
     ::
         [%add-test add-test]
         [%add-and-run-test add-test]
@@ -1415,9 +1433,6 @@
     ::
         [%add-custom-step add-custom-step]
         [%delete-custom-step (ot ~[[%test-id (se %ux)] [%tag (se %tas)]])]
-    ::
-        [%add-town-sequencer (ot ~[[%town-id (se %ux)] [%who (se %p)]])]
-        [%delete-town-sequencer (ot ~[[%town-id (se %ux)]])]
     ::
         [%stop-pyro-ships ul]
         [%start-pyro-ships (ot ~[[%ships (ar (se %p))]])]

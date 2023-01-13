@@ -1,13 +1,17 @@
 /=  indexer  /sur/zig/indexer
 /=  zig      /sur/zig/ziggurat
 ::
+/=  mip      /lib/mip
+::
 |%
 ++  $
   |=  $:  [who=@p wallet-poke=test-write-step:zig]
           expected=(list test-read-step:zig)
       ==
   ^-  test-steps:zig
-  =/  address=@ux  (~(got by addresses:test-globals) who)
+  =/  address=@ux
+    %.  ['global' [who %address]]
+    ~(got bi:mip configs:test-globals)
   :~  :+  %scry
         :-  who
         :^  '(map @ux *)'  %gx  %wallet
