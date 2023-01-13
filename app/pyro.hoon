@@ -14,7 +14,7 @@
     pill-lib=pill,
     default-agent,
     naive, dbug, verb
-/=  arvo-core  /sys/arvo  
+/=  arvo-core  /sys/arvo
 /*  cached-pill  %noun  /zig/snapshots/pill/pill
 =>  |%
     ++  arvo-adult  ..^load:+>.arvo-core
@@ -132,12 +132,9 @@
     ::
     ::  scry into running virtual ships
     ::  ship, care, ship, desk, time, path
-    ::  NOTE put /noun/noun at the end   
         [%x %i @ @ @ @ @ *]
       =/  who  (slav %p i.t.t.path)
-      :^  ~  ~  %noun  !>
-      ?.  (~(has by piers) who)  ~
-      (scry:(pe who) t.t.t.path)
+      `(scry:(pe who) t.t.t.path)
     ::
     ==
   ++  on-leave  on-leave:def
@@ -279,6 +276,7 @@
   ::
   ++  scry
     |=  pax=path
+    ^-  (unit cage)
     ::  validate path
     ?.  ?=([@ @ @ @ *] pax)  ~
     ::  alter timestamp to match %pyro fake-time
@@ -289,8 +287,11 @@
     ?:  ?=(%| -.pek)
       %-  (slog >%aqua-crash< >who=who< p.pek)
       ~
-    =+  ;;(res=(unit [mark *]) q.p.pek)
-    (fall res ~)
+    ?~  +.p.pek  ~ :: TODO why not q.p.pek
+    :: coerce this into a (unit (pair mark vase))
+    :+  ~
+      !<(mark (slam !>(|=(u=(unit (cask)) (head (need u)))) p.pek))
+    (slam !>(|=(u=(unit) (tail (fall u ~)))) p.pek)
   ::
   ::  Start/stop processing events.  When stopped, events are added to
   ::  our queue but not processed.
