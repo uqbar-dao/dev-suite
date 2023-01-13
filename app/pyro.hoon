@@ -10,16 +10,21 @@
 ::  Use a custom pill: :pyro +solid
 ::
 /-  *zig-pyro
-/+  pyro=zig-pyro, pill-lib=pill, default-agent, naive, dbug, verb
+/+  pyro=zig-pyro,
+    pill-lib=pill,
+    default-agent,
+    naive, dbug, verb
+/=  arvo-core  /sys/arvo  
 /*  cached-pill  %noun  /zig/snapshots/pill/pill
 =>  |%
+    ++  arvo-adult  ..^load:+>.arvo-core
     +$  versioned-state
       $%  state-0
       ==
     +$  state-0
       $:  %0
           pil=$>(%pill pill:pill-lib)  ::  the boot sequence a new fakeship will use
-          assembled=*
+          assembled=_arvo-adult
           tym=@da  ::  a fake time, starting at *@da and manually ticked up
           fresh-piers=(map =ship [=pier boths=(list unix-both)])
           fleet-snaps=(map path fleet)
@@ -28,7 +33,7 @@
     ::
     +$  fleet  (map ship pier)
     +$  pier
-      $:  snap=*
+      $:  snap=_arvo-adult
           event-log=(list unix-timed-event)
           next-events=(qeu unix-event)
           processing-events=$~(%.n ?)
@@ -132,13 +137,8 @@
       =/  who  (slav %p i.t.t.path)
       :^  ~  ~  %noun  !>
       ?.  (~(has by piers) who)  ~
-      (peek:(pe who) t.t.t.path)
+      (scry:(pe who) t.t.t.path)
     ::
-        [%x %t @ @ @ @ @ *]
-      =/  who  (slav %p i.t.t.path)
-      :^  ~  ~  %noun  !>
-      ?.  (~(has by piers) who)  ~
-      (peek:(pe who) t.t.t.path)
     ==
   ++  on-leave  on-leave:def
   ++  on-agent  on-agent:def
@@ -225,26 +225,26 @@
   ::  Process the events in our queue.
   ::
   ++  plow
+    :: TODO this is a little slower than the untyped version
+    :: is there a way to speed it up?
     |-  ^+  ..abet-pe
     ?:  =(~ next-events)
       ..abet-pe
     ?.  processing-events
       ~&(%pyro^%not-plowing-events^who=who ..abet-pe)
     =^  ue  next-events  ~(get to next-events)
-    =/  poke-arm  (mox +23.snap) :: see +poke in arvo.hoon
-    ?>  ?=(%0 -.poke-arm)
-    =/  poke  p.poke-arm
     =.  tym  (max +(tym) now.bowl)
-    =/  poke-result  (mule |.((slum poke tym ue)))
+    =/  poke-result=(each vase tang)
+      (mule |.((slam [-:!>(poke:arvo-adult) poke:snap] !>([tym ue]))))
     ?:  ?=(%| -.poke-result)
-      %-  (slog >%aqua-crash< >guest=who< p.poke-result)
+      %-  (slog >%aqua-crash< >who=who< p.poke-result)
       $
-    =.  snap  +.p.poke-result
+    =.  snap  !<(_arvo-adult [-:!>(arvo-adult) +.q.p.poke-result])
     =.  scry-time  tym
     =.  ..abet-pe  (publish-event tym ue)
     =.  ..abet-pe
       ~|  ova=-.p.poke-result
-      (handle-effects ;;((list ovum) -.p.poke-result))
+      (handle-effects ;;((list ovum) -.q.p.poke-result))
     $
   ::
   ::  Handle all the effects produced by a single event.
@@ -277,29 +277,19 @@
     =.  unix-boths  (~(add ja unix-boths) who [%event ute])
     ..abet-pe
   ::
-  ++  peek
+  ++  scry
     |=  pax=path
     ::  validate path
     ?.  ?=([@ @ @ @ *] pax)  ~
     ::  alter timestamp to match %pyro fake-time
     =.  i.t.t.t.pax  (scot %da scry-time)
-    ::  grab scry axis from snapshot, see +peek in arvo.hoon
-    =+  scry=(mox +22.snap)
-    ?.  ?=(%0 -.scry)  ~
     ::  execute scry
-    =/  pek  (slum p.scry [[~ ~] & pax])
-    =+  ;;(res=(unit (cask)) pek)
-    (bind res tail)
-  ::
-  ++  wish
-    |=  txt=@t
-    =/  res  (mox +10.snap) :: see +wish in arvo.hoon
-    ?>  ?=(%0 -.res)
-    =/  wish  p.res
-    ~&  [who=who %wished (slum wish txt)]
-    ..abet-pe
-  ::
-  ++  mox  |=(* (mock [snap +<] scry))
+    =/  pek=(each vase tang)
+      (mule |.((slam [-:!>(peek:arvo-adult) peek:snap] !>([[~ ~] & pax]))))
+    ~&  >  -.pek
+    ~
+    :: =+  ;;(res=(unit (cask)) pek)
+    :: (bind res tail)
   ::
   ::  Start/stop processing events.  When stopped, events are added to
   ::  our queue but not processed.
@@ -585,7 +575,11 @@
     %+  turn-ships  hers.act
     |=  [who=ship thus=_this]
     =.  this  thus
-    (wish:(pe who) p.act)
+    ::  TODO the type tends to come back as * ? Not good
+    =/  res=vase
+      (slam [-:!>(wish:arvo-adult) wish:snap:pier-data:(pe who)] !>(p.act))
+    ~&  [who=who %wished q.res]
+    (pe who)
   ::
       %unpause-events
     =.  this  apex-aqua  =<  abet-aqua
@@ -643,12 +637,12 @@
   =.  pil  p
   ~&  lent=(met 3 (jam boot-ova.pil))
   =/  res=toon
-    (mock [boot-ova.pil [2 [0 3] [0 2]]] scry)
+    (mock [boot-ova.pil [2 [0 3] [0 2]]] |=([* *] ~))
   =.  fleet-snaps  ~
   ?-  -.res
       %0
     ~&  >  "successfully assembled pill"
-    =.  assembled  +7.p.res
+    =.  assembled  !<(_arvo-adult [-:!>(arvo-adult) +7.p.res])
     =.  fresh-piers  ~
     this
   ::
@@ -692,7 +686,4 @@
 ++  turn-ships   (turn-plow ship)
 ++  turn-events  (turn-plow aqua-event)
 ::
-::  Trivial scry for mock
-::
-++  scry  |=([* *] ~)
 --
