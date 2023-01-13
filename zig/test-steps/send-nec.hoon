@@ -1,6 +1,8 @@
 /=  indexer  /sur/zig/indexer
 /=  zig      /sur/zig/ziggurat
 ::
+/=  mip      /lib/mip
+::
 |%
 ++  who
   ^-  @p
@@ -8,8 +10,8 @@
 ::
 ++  address
   ^-  @ux
-  %.  [who %address]
-  ~(got by (~(got by configs:test-globals) ''))
+  %.  ['global' [who %address]]
+  ~(got bi:mip configs:test-globals)
 ::
 ++  them
   ^-  @p
@@ -17,8 +19,8 @@
 ::
 ++  to
   ^-  @ux
-  %.  [them %address]
-  ~(got by (~(got by configs:test-globals) ''))
+  %.  ['global' [them %address]]
+  ~(got bi:mip configs:test-globals)
 ::
 ++  contract
   ^-  @ux
