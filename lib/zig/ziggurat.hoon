@@ -2,6 +2,7 @@
     ui=zig-indexer,
     zig=zig-ziggurat
 /+  agentio,
+    mip,
     conq=zink-conq,
     dock=docket,
     smart=zig-sys-smart,
@@ -836,13 +837,9 @@
   |=  [project-name=@t =configs:zig]
   ^-  (map @ux @p)
   %-  ~(gas by *(map @ux @p))
-  %-  zing
-  %+  turn  ~(tap by configs)
-  |=  [pn=@t =config:zig]
-  ?:  =('' pn)             ~
+  %+  murn  ~(tap bi:mip configs)
+  |=  [pn=@t [who=@p what=@tas] item=@]
   ?.  =(project-name pn)   ~
-  %+  murn  ~(tap by config)
-  |=  [[who=@p what=@tas] item=@]
   ?.  ?=(%sequencer what)  ~
   `[`@ux`item who]
 ::

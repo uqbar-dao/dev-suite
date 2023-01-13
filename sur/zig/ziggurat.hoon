@@ -2,6 +2,7 @@
     engine=zig-engine,
     wallet=zig-wallet
 /+  engine-lib=zig-sys-engine,
+    mip,
     smart=zig-sys-smart
 |%
 +$  state-0
@@ -41,7 +42,7 @@
       results=test-results
   ==
 ::
-+$  configs  (map project-name=@t config)
++$  configs  (mip:mip project-name=@t [who=@p what=@tas] @)
 +$  config   (map [who=@p what=@tas] @)
 ::
 +$  expected-diff

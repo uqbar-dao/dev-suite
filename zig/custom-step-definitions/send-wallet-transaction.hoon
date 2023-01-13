@@ -1,6 +1,8 @@
 /=  indexer  /sur/zig/indexer
 /=  zig      /sur/zig/ziggurat
 ::
+/=  mip      /lib/mip
+::
 |%
 ++  $
   |=  $:  [who=@p wallet-poke=test-write-step:zig]
@@ -8,8 +10,8 @@
       ==
   ^-  test-steps:zig
   =/  address=@ux
-    %.   [who %address]
-    ~(got by (~(got by configs:test-globals) ''))
+    %.  ['global' [who %address]]
+    ~(got bi:mip configs:test-globals)
   :~  :+  %scry
         :-  who
         :^  '(map @ux *)'  %gx  %wallet

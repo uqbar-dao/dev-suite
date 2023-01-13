@@ -7,6 +7,7 @@
 /+  agentio,
     dbug,
     default-agent,
+    mip,
     verb,
     conq=zink-conq,
     dock=docket,
@@ -51,7 +52,7 @@
     :*  %0
         ~
     ::
-        %+  ~(put by *configs:zig)  ''
+        %+  ~(put by *configs:zig)  'global'
         %-  ~(gas by *config:zig)
         :+  [[~nec %address] nec-address]
           [[~bud %address] bud-address]
@@ -359,7 +360,7 @@
       =/  new-project-error
         %~  new-project  make-error-vase:zig-lib
         [update-info %error]
-      ?:  (~(has in (~(gas in *(set @t)) ~['fresh-piers' 'assembled'])) project.act)  ::  TODO: still necessary?
+      ?:  =('global' project.act)
         =/  message=tape
           "{<`@tas`project.act>} face reserved"
         :_  state
@@ -397,9 +398,8 @@
           ==
       %=  state
           configs  ::  TODO: generalize: read in configuration file
-        %+  ~(put by configs)  project.act
-        %.  [[~nec %sequencer] 0x0]
-        ~(put by (~(gut by configs) project.act ~))
+        %^  ~(put bi:mip configs)  project.act
+        [~nec %sequencer]  0x0
       ::
           projects
         %+  ~(put by projects)  project.act
@@ -437,9 +437,8 @@
     ::
         %add-config
       =.  configs
-        %+  ~(put by configs)  project.act
-        %.  [[who what]:act item.act]
-        ~(put by (~(gut by configs) project.act ~))
+        %^  ~(put bi:mip configs)  project.act
+        [who what]:act  item.act
       :_  state
       :-  %+  update-vase-to-card:zig-lib  project.act
           %.  [who what item]:act
@@ -456,9 +455,7 @@
     ::
         %delete-config
       =.  configs
-        %+  ~(put by configs)  project.act
-        %.  [who what]:act
-        ~(del by (~(gut by configs) project.act ~))
+        (~(del bi:mip configs) project.act [who what]:act)
       :_  state
       :-  %+  update-vase-to-card:zig-lib  project.act
           %.  [who what]:act
@@ -504,7 +501,7 @@
         %+  update-vase-to-card:zig-lib  project.act
         (add-test-error (crip message) 0x0)
       =/  address=@ux
-        (~(got by (~(got by configs) '')) [u.who %address])
+        (~(got bi:mip configs) 'global' [u.who %address])
       =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
       =/  imports=(list [@tas path])
         :+  [%indexer /sur/zig/indexer]

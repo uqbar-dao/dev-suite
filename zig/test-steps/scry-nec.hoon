@@ -1,6 +1,8 @@
 /=  indexer  /sur/zig/indexer
 /=  zig      /sur/zig/ziggurat
 ::
+/=  mip      /lib/mip
+::
 |%
 ++  $
   ^-  test-steps:zig
