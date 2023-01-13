@@ -11,6 +11,8 @@
 =*  scry       scry:strandio
 =*  sleep      sleep:strandio
 =*  watch-our  watch-our:strandio
+=*  wait       wait:strandio
+=*  get-time   get-time:strandio
 ::
 =/  m  (strand ,vase)
 =|  subject=vase
@@ -268,21 +270,16 @@
   (pure:m ~)
 ::
 ++  block-on-previous-step
-  |=  [loop-duration=@dr done-duration=@dr]
+  |=  done-duration=@dr
   =/  m  (strand:spider ,~)
   ^-  form:m
   |-
-  ;<  is-next-events-empty=?  bind:m
-    (scry:strandio ? /gx/pyro/is-next-events-empty/noun)
   ;<  soonest-timer=(unit @da)  bind:m
-    (scry:strandio (unit @da) /gx/pyre/soonest-timer/noun)
-  ;<  now=@da  bind:m  get-time:strandio
-  ?.  is-next-events-empty
-    ;<  ~  bind:m  (wait:strandio (add now loop-duration))
-    $
+    (scry (unit @da) /gx/pyre/soonest-timer/noun)
+  ;<  now=@da  bind:m  get-time
   ?~  soonest-timer                                  (pure:m)
   ?:  (lth (add now done-duration) u.soonest-timer)  (pure:m)
-  ;<  ~  bind:m  (wait:strandio (add u.soonest-timer 1))  :: TODO: is this a good heuristic or should we wait longer?
+  ;<  ~  bind:m  (wait (add u.soonest-timer 1))  :: TODO: is this a good heuristic or should we wait longer?
   $
 ::
 ++  run-steps
@@ -302,7 +299,7 @@
     results-vase(p [%face %test-results p.results-vase])
   |-
   ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
-  ;<  ~  bind:m  (block-on-previous-step ~s1 ~m1)  :: TODO: unhardcode; are these good numbers?
+  ;<  ~  bind:m  (block-on-previous-step ~m1)  :: TODO: unhardcode; are these good numbers?
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
     %:  take-snapshot
