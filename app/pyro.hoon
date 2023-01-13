@@ -287,11 +287,11 @@
     ?:  ?=(%| -.pek)
       %-  (slog >%aqua-crash< >who=who< p.pek)
       ~
-    ?~  +.p.pek  ~ :: TODO why not q.p.pek
-    :: coerce this into a (unit (pair mark vase))
+    ?~  q.p.pek  ~
+    :: success: make a (unit cage)
     :+  ~
       !<(mark (slam !>(|=(u=(unit (cask)) (head (need u)))) p.pek))
-    (slam !>(|=(u=(unit) (tail (fall u ~)))) p.pek)
+    (slam !>(|=(u=(unit) (tail (need u)))) p.pek)
   ::
   ::  Start/stop processing events.  When stopped, events are added to
   ::  our queue but not processed.
