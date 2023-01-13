@@ -1,11 +1,18 @@
 /-  pyro=zig-pyro,
     spider,
     zig=zig-ziggurat
-/+  *strandio,
+/+  strandio,
     pyro-lib=zig-pyro,
     zig-lib=zig-ziggurat
 ::
 =*  strand     strand:spider
+=*  get-bowl   get-bowl:strandio
+=*  poke-our   poke-our:strandio
+=*  scry       scry:strandio
+=*  sleep      sleep:strandio
+=*  watch-our  watch-our:strandio
+=*  wait       wait:strandio
+=*  get-time   get-time:strandio
 ::
 =/  m  (strand ,vase)
 =|  subject=vase

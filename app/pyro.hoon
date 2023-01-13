@@ -1,5 +1,5 @@
 ::  An ~~inferno~~ of virtual ships.  Put in some fish and watch them die!
-::  Use with %pyre, the virutal runtime, for the best experience
+::  Use with %pyre, the virtual runtime, for the best experience
 ::
 ::  Usage:
 ::  |start %zig %pyro
