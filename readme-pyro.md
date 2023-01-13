@@ -62,7 +62,6 @@ Else, a default setup is used.
 :ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%send-nec /zig/test-steps/send-nec/hoon]
 :ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%send-nec-dojo /zig/test-steps/send-nec-dojo/hoon]
 
-:ziggurat &ziggurat-action [%foo ~ %start-pyro-ships ~[~nec ~bud ~wes]]
 :ziggurat &ziggurat-action [%$ ~ %run-queue ~]
 
 ::  Tell `%ziggurat` not to run any more tests right now.
