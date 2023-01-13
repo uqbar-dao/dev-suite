@@ -191,7 +191,7 @@ The subject of a `test-steps` is defined by the `/=` imports at the top of the `
 In addition, this subject will be applied for [`custom-step-definitions`](#custom-inputs), so those dependencies must be included in `test-steps`.
 Finally, some `test-globals` will be accessible by `test-steps` (see sur/zig/ziggurat.hoon):
 
-`configs:test-globals` is a `(map [project-name=(unit @t) who=@p what=@tas] @)` that stores general data that can be added to with `%add-config`.
+`configs:test-globals` is a `(map project-name=@t (map [who=@p what=@tas] @)` (or a `(mip project-name=@t [who=@p what=@tas] @)` for short) that stores general data that can be added to with `%add-config`.
 It is loaded with some useful items by default, as well:
 * The default testnet address associated with that `@p` is stored at `[project-name=~ who=@p what=%address]`,
 * The host running the `%sequencer` for a town given by the `map` value is stored at `[project-name=[~ @t] who=@p what=%sequencer]`.

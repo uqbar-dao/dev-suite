@@ -2,6 +2,7 @@
     engine=zig-engine,
     wallet=zig-wallet
 /+  engine-lib=zig-sys-engine,
+    mip,
     smart=zig-sys-smart
 |%
 +$  state-0
@@ -28,7 +29,6 @@
       user-files=(set path)  ::  not on list -> grayed out in GUI
       to-compile=(set path)
       =tests
-      dbug-dashboards=(map app=@tas dbug-dashboard)
   ==
 ::
 +$  build-result  (each [bat=* pay=*] @t)
@@ -44,7 +44,7 @@
       results=test-results
   ==
 ::
-+$  configs  (map project-name=@t config)
++$  configs  (mip:mip project-name=@t [who=@p what=@tas] @)
 +$  config   (map [who=@p what=@tas] @)
 ::
 +$  sync-desk-to-vship  (jug @tas @p)
@@ -89,14 +89,6 @@
 +$  deploy-location  ?(%local testnet)
 +$  testnet  ship
 ::
-+$  dbug-dashboard
-  $:  sur=path
-      mold-name=@t
-      mar=path
-      mold=(each vase @t)
-      mar-tube=(unit tube:clay)
-  ==
-::
 +$  test-globals
   $:  our=@p
       now=@da
@@ -140,6 +132,7 @@
           [%add-and-run-test-file name=(unit @t) =path]
           [%add-and-queue-test-file name=(unit @t) =path]
       ::
+          [%edit-test id=@ux name=(unit @t) =test-imports =test-steps]
           [%delete-test id=@ux]
           [%run-test id=@ux]
           [%run-queue ~]  ::  can be used as [%$ %run-queue ~]
@@ -148,9 +141,6 @@
       ::
           [%add-custom-step test-id=@ux tag=@tas =path]
           [%delete-custom-step test-id=@ux tag=@tas]
-      ::
-          [%add-app-to-dashboard app=@tas sur=path mold-name=@t mar=path]
-          [%delete-app-from-dashboard app=@tas]
       ::
           [%stop-pyro-ships ~]
           [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> ~[~nec ~bud ~wes]
@@ -174,21 +164,21 @@
       %add-config
       %delete-config
       %add-test
+      %edit-test
       %compile-contract
       %delete-test
       %run-queue
       %add-custom-step
       %delete-custom-step
-      %add-app-to-dashboard
-      %delete-app-from-dashboard
       %add-user-file
       %delete-user-file
       %custom-step-compiled
       %test-results
       %dir
-      %dashboard
       %pyro-ships-ready
       %poke
+      %test-queue
+      %pyro-agent-state
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -208,20 +198,20 @@
       [%delete-config update-info payload=(data [who=@p what=@tas]) ~]
       [%add-test update-info payload=(data shown-test) test-id=@ux]
       [%compile-contract update-info payload=(data ~) ~]
+      [%edit-test update-info payload=(data shown-test) test-id=@ux]
       [%delete-test update-info payload=(data ~) test-id=@ux]
       [%run-queue update-info payload=(data ~) ~]
       [%add-custom-step update-info payload=(data ~) test-id=@ux tag=@tas]
       [%delete-custom-step update-info payload=(data ~) test-id=@ux tag=@tas]
-      [%add-app-to-dashboard update-info payload=(data ~) app=@tas sur=path mold-name=@t mar=path]
-      [%delete-app-from-dashboard update-info payload=(data ~) app=@tas]
       [%add-user-file update-info payload=(data ~) file=path]
       [%delete-user-file update-info payload=(data ~) file=path]
       [%custom-step-compiled update-info payload=(data ~) test-id=@ux tag=@tas]
       [%test-results update-info payload=(data shown-test-results) test-id=@ux thread-id=@t =test-steps]
       [%dir update-info payload=(data (list path)) ~]
-      [%dashboard update-info payload=(data json) ~]
       [%pyro-ships-ready update-info payload=(data (map @p ?)) ~]
       [%poke update-info payload=(data ~) ~]
+      [%test-queue update-info payload=(data (qeu [@t @ux])) ~]
+      [%pyro-agent-state update-info payload=(data @t) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)
@@ -230,7 +220,6 @@
       user-files=(set path)  ::  not on list -> grayed out in GUI
       to-compile=(set path)
       tests=shown-tests
-      dbug-dashboards=(map app=@tas dbug-dashboard)
   ==
 +$  shown-tests  (map @ux shown-test)
 +$  shown-test

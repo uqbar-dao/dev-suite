@@ -1,5 +1,7 @@
 /=  zig  /sur/zig/ziggurat
 ::
+/=  mip  /lib/mip
+::
 |%
 ++  make-config
   ^-  config:zig

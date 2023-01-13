@@ -1,5 +1,7 @@
 /=  zig  /sur/zig/ziggurat
 ::
+/=  mip  /lib/mip
+::
 |%
 ++  $
   |=  $:  [who=@p contract-jam-path=path non-default-publish-contract-id=(unit @ux)]
@@ -22,7 +24,7 @@
     """
     :*  %transaction
         origin=~
-        from={<(~(got by (~(got by configs:test-globals) '')) [who %address])>}
+        from={<(~(got bi:mip configs:test-globals) 'global' [who %address])>}
         contract={<publish-contract-id>}
         town=0x0  ::  harcode
         [%noun [%deploy mutable=%.n cont={<contract>} interface=~ types=~]]
