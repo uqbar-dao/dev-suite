@@ -7,18 +7,9 @@
 ::  is `unix` if it has no ship associated with it, or `aqua` if it
 ::  does.  `timed` is added if it includes the time of the event.
 ::
-::  Short names are simply the first letter of each word plus `s` if
-::  it's a list.
-::
-/+  pill
-=,  pill-lib=pill
 |%
-++  ph-event
-  $%  [%test-done p=?]
-      aqua-event
-  ==
 ::
-+$  unix-event  ::NOTE  like unix-event:pill-lib but for all tasks
++$  unix-event  :: like unix-event:pill-lib but for all tasks
   %+  pair  wire
   $%  [%wack p=@]
       [%what p=(list (pair path (cask)))]
@@ -28,7 +19,6 @@
       [%verb p=(unit ?)]
       task-arvo
   ==
-+$  pill        pill:pill-lib
 ::
 +$  aqua-event
   $%  [%init-ship who=ship]
@@ -40,20 +30,19 @@
       ::
       [%snap-ships =path hers=(list ship)]
       [%restore-snap =path]
-      [%clear-snap =path]
+      [%delete-snap =path]
+      [%clear-snaps ~]
+      ::  snapshot import/exports
+      ::
       [%export-snap =path]
       [%import-snap jam-file-path=path snap-label=path]
       [%export-fresh-piers ~]
       [%import-fresh-piers jam-file-path=path]
-      [%clear-snaps ~]
-      ::  pill
-      ::
-      [%pill =pill]
       ::  ship management
       ::
       [%swap-files des=@tas]
       [%wish hers=(list ship) p=@t]
-      [%remove-ship who=ship]
+      [%kill-ships hers=(list ship)]
       [%unpause-events hers=(list ship)]
       [%pause-events hers=(list ship)]  ::  TODO: do we need this at events And 
       [%commit =desk hers=(list ship)]
@@ -61,16 +50,11 @@
 ::
 ++  update
   $@  ~
-  $%  [%fleet-snap =path has-path=?]
-      [%fleets snap-paths=(set path)]
-      [%ships ships=(set ship)]
-      [%fresh-pier-keys ships=(set ship)]
-      [%fleet-sizes =path events=(map ship [events-done=@ud events-qued=@ud])]
-      [%events events=(map ship [events-done=@ud events-qued=@ud])]
-      [%fleet-ships =path ships=(set ship)]
+  $%  [%snaps snap-paths=(list path)]
+      [%snap-ships =path ships=(list ship)]
+      [%ships ships=(list ship)]
+      [%fresh-piers ships=(list ship)]
   ==
-::
-+$  vane  ?(%a %b %c %d %e %g %i %j %k)
 ::
 +$  aqua-effects
   [who=ship ufs=(list unix-effect)]
@@ -93,16 +77,21 @@
 ::
 +$  unix-effect
   %+  pair  wire
-  $%  [%blit p=(list blit:dill)]
-      [%send p=lane:ames q=@]
-      [%doze p=(unit @da)]
-      [%ergo p=@tas q=mode:clay]
-      [%sleep ~]
-      [%restore ~]
-      [%kill ~]
-      [%init ~]
-      [%request id=@ud request=request:http]
-      [%poke-ack p=(unit tang)]
+  $%  ::  vere effects (%gifts) that %pyre can handle
+      ::
+      [%send p=lane:ames q=@]                 ::  ames send packet
+      [%doze p=(unit @da)]                    ::  behn set timer
+      [%ergo p=@tas q=mode:clay]              ::  clay ???
+      [%blit p=(list blit:dill)]              ::  dill console effect
+      [%thus p=@ud q=(unit hiss:eyre)]        ::  eyre ???
+      [%request id=@ud request=request:http]  ::  iris request
+      [%poke-ack p=(unit tang)]               ::  gall agent poke-ack
+      ::  pyro specific effects
+      ::
+      [%sleep ~]                              :: reset runtime
+      [%restore ~]                            :: restore snap
+      [%kill ~]                               :: stop ship
+      [%init ~]                               :: start ship
   ==
 ::
 +$  behn-pier  next-timer=(unit @da)

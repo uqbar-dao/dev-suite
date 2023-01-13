@@ -1834,7 +1834,7 @@
     ^-  json
     %-  pairs
     :~  ['who' %s (scot %p who.payload)]
-        ['mold_name' %s mold-name.payload]
+        ['mold-name' %s mold-name.payload]
         ['care' %s care.payload]
         ['app' %s app.payload]
         ['path' (path path.payload)]
@@ -1845,7 +1845,7 @@
     ^-  json
     %-  pairs
     :^    ['who' %s (scot %p who.payload)]
-        ['mold_name' %s mold-name.payload]
+        ['mold-name' %s mold-name.payload]
       ['app' %s app.payload]
     ~
   ::

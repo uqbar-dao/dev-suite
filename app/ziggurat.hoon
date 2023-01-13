@@ -48,7 +48,11 @@
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
   =*  wes-address
     0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
-  =.  state
+  :-  :_  ~
+      %+  ~(poke-our pass:io /self-wire)  %pyro
+      [%pyro-action !>([%import-snap /testnet/jam /testnet])]
+  %_    this
+      state
     :_  [eng smart-lib ~]
     :*  %0
         ~
@@ -66,7 +70,7 @@
         %.n
         ~
     ==
-  [~ this]
+  ==
 ::
 ++  on-save  !>(-.state)
 ::

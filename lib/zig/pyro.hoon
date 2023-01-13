@@ -1,9 +1,8 @@
 /-  *zig-pyro,
     spider
-/+  strandio
+/+  *strandio
 ::
 =*  strand    strand:spider
-=*  poke-our  poke-our:strandio
 ::
 |%
 ++  send-events
@@ -11,6 +10,25 @@
   =/  m  (strand ,~)
   ^-  form:m
   (poke-our %pyro %aqua-events !>(events))
+::
+++  take-unix-effect
+  =/  m  (strand ,[ship unix-effect])
+  ^-  form:m
+  ;<  [=path =cage]  bind:m  (take-fact-prefix /effect)
+  ?>  ?=(%aqua-effect p.cage)
+  (pure:m !<([aqua-effect] q.cage))
+::
+++  reset-ships
+  |=  hers=(list ship)
+  =/  m  (strand ,~)
+  ^-  form:m
+  ;<  ~  bind:m
+    %^  poke-our  %pyro  %pyro-action
+    !>([%kill-ships hers])
+  ;<  ~  bind:m
+    %^  poke-our  %pyro  %aqua-events
+    !>((zing (turn hers |=(=ship [%event ship %init-ship ~]~))))
+  (pure:m ~)
 ::
 ++  ue-to-ae
   |=  [who=ship what=(list unix-event)]
@@ -33,6 +51,25 @@
       [/d/term/1 %belt %ret ~]
   ==
 ::
+++  wait-for-output
+  |=  [=ship =tape]
+  =/  m  (strand ,~)
+  ^-  form:m
+  ~&  >  "waiting for output: {tape}"
+  |-  ^-  form:m
+  ;<  [her=^ship uf=unix-effect]  bind:m  take-unix-effect
+  ?:  ?&  =(ship her)
+          ?=(%blit -.q.uf)
+        ::
+          %+  lien  p.q.uf
+          |=  =blit:dill
+          ?.  ?=(%lin -.blit)
+            |
+          !=(~ (find tape p.blit))
+      ==
+    (pure:m ~)
+  $
+::
 ++  poke
   |=  $:  who=@p
           to=@p
@@ -50,11 +87,11 @@
   ==
 ::
 ++  task
-  |=  [who=@p =vane =task-arvo]
+  |=  [who=@p =care:clay =task-arvo]
   %-  send-events
   %+  ue-to-ae  who
   ^-  (list unix-event)
-  [[vane]~ task-arvo]~ 
+  [[care]~ task-arvo]~ 
 ::
 ++  subscribe
   |=  [who=@p to=@p app=@tas =path]
@@ -101,74 +138,44 @@
     ^-  json
     ?~  update  ~
     ?-    -.update
-        %fleet-snap
-      (frond -.update (fleet-snap [path has-path]:update))
-    ::
-        %fleets
+        %snaps
       (frond -.update (fleets snap-paths.update))
     ::
         %ships
-      (frond -.update (set-ships ships.update))
+      (frond -.update (list-ships ships.update))
     ::
-        %fresh-pier-keys
-      (frond -.update (frond %ships (set-ships ships.update)))
+        %fresh-piers
+      (frond -.update (frond %ships (list-ships ships.update)))
     ::
-        %fleet-sizes
-      (frond -.update (events events.update))
-    ::
-        %events
-      (events events.update)
-    ::
-        %fleet-ships
-      (frond -.update (fleet-ships [path ships]:update))
+        %snap-ships
+      (frond -.update (snap-ships [path ships]:update))
     ==
   ::
-  ++  fleet-snap
-    |=  [p=^path has-path=?]
-    ^-  json
-    %-  pairs
-    :+  [%path (path p)]
-      [%has-path [%b has-path]]
-    ~
-  ::
   ++  fleets
-    |=  snap-paths=(set ^path)
+    |=  snap-paths=(list ^path)
     ^-  json
-    (frond %snap-paths (set-paths snap-paths))
+    (frond %snap-paths (list-paths snap-paths))
   ::
-  ++  events
-    |=  events=(map @p [events-done=@ud events-qued=@ud])
-    ^-  json
-    %+  frond  %events
-    %-  pairs
-    %+  turn  ~(tap by events)
-    |=  [who=@p events-done=@ud events-qued=@ud]
-    :-  (scot %p who)
-    %-  pairs
-    :+  [%events-done (numb events-done)]
-      [%events-qued (numb events-qued)]
-    ~
-  ::
-  ++  fleet-ships
-    |=  [p=^path ships=(set @p)]
+  ++  snap-ships
+    |=  [p=^path ships=(list @p)]
     ^-  json
     %-  pairs
     :+  [%path (path p)]
-      [%ships (set-ships ships)]
+      [%ships (list-ships ships)]
     ~
   ::
-  ++  set-ships
-    |=  ships=(set @p)
+  ++  list-ships
+    |=  ships=(list @p)
     ^-  json
     :-  %a
-    %+  turn  ~(tap in ships)
+    %+  turn  ships
     |=(who=@p [%s (scot %p who)])
   ::
-  ++  set-paths
-    |=  paths=(set ^path)
+  ++  list-paths
+    |=  paths=(list ^path)
     ^-  json
     :-  %a
-    %+  turn  ~(tap in paths)
+    %+  turn  paths
     |=(p=^path (path p))
   --
 ::
