@@ -757,6 +757,7 @@
   =/  compilation-result
     (mule |.((slap subject (ream payload))))
   ?:  ?=(%& -.compilation-result)  compilation-result
+  ~&  (get-formatted-error p.compilation-result)
   =/  error-tanks=(list tank)  (scag 2 p.compilation-result)
   ?.  ?=([^ [%leaf ^] ~] error-tanks)
     :-  %|
