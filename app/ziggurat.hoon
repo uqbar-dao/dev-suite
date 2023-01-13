@@ -3,6 +3,7 @@
 ::  Contract Playground
 ::
 /-  spider,
+    pyro=zig-pyro,
     zig=zig-ziggurat
 /+  agentio,
     dbug,
@@ -12,7 +13,7 @@
     conq=zink-conq,
     dock=docket,
     engine=zig-sys-engine,
-    pyro=zig-pyro,
+    pyro-lib=zig-pyro,
     seq=zig-sequencer,
     smart=zig-sys-smart,
     ziggurat-lib=zig-ziggurat
@@ -45,9 +46,7 @@
     0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
   =*  bud-address
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
-  :-  ~
-  %_    this
-      state
+  =.  state
     :_  [eng smart-lib ~]
     :*  %0
         ~
@@ -60,10 +59,14 @@
     ::
         ~
         ~
-        |
+        ~
+        %.n
+        ~
     ==
-  ==
+  [~ this]
+::
 ++  on-save  !>(-.state)
+::
 ++  on-load
   |=  =old=vase
   ::  on-load: pre-cue our compiled smart contract library
@@ -128,7 +131,8 @@
       %+  update-vase-to-card:zig-lib  project-name
       (add-test-error (crip message) 0x0)
     =^  subject=(each vase @t)  state
-      (compile-test-imports `@tas`project-name ~(tap by imports))
+      %^  compile-test-imports:zig-lib  `@tas`project-name
+      ~(tap by imports)  state
     ?:  ?=(%| -.subject)
       =/  message=tape
         "compilation of test-imports failed: {<p.subject>}"
@@ -229,7 +233,8 @@
     =/  [imports=(list [face=@tas =path]) =hair]
       (parse-start-of-pile:zig-lib (trip file-cord))
     =^  subject=(each vase @t)  state
-      (compile-test-imports `@tas`project-name imports)
+      %^  compile-test-imports:zig-lib  `@tas`project-name
+      imports  state
     ?:  ?=(%| -.subject)
       =/  message=tape
         "compilation of test-imports failed: {<p.subject>}"
@@ -239,7 +244,8 @@
       %+  update-vase-to-card:zig-lib  project-name
       (add-test-error (crip message) 0x0)
     =/  test-steps-compilation-result=(each vase @t)
-      %^  compile-and-call-buc:zig-lib  p.hair  p.subject
+      %-  compile-and-call-arm:zig-lib
+      :^  '$'  p.hair  p.subject
       %-  of-wain:format
       (slag (dec p.hair) (to-wain:format file-cord))
     ?:  ?=(%| -.test-steps-compilation-result)
@@ -311,50 +317,26 @@
       [project-name %add-and-queue-test-file request-id]
     cards
   ::
-  ++  compile-test-imports
-    |=  [project-desk=@tas imports=(list [face=@tas =path])]
-    ^-  [(each vase @t) _state]
-    =/  compilation-result
-      %-  mule
-      |.
-      =/  initial-test-globals=vase
-        !>  ^-  test-globals:zig
-        :^  our.bowl  now.bowl  *test-results:zig
-        [project-desk configs]
-      =/  [subject=vase c=ca-scry-cache:zig]
-        %+  roll  imports
-        |:  [[face=`@tas`%$ sur=`path`/] [subject=`vase`!>(..zuse) ca-scry-cache=ca-scry-cache]]
-        ?:  =(%test-globals face)
-          !!  ::  TODO: do better  [[%| '%test-globals face is reserved'] state]
-        =^  sur-hoon=vase  ca-scry-cache
-          %-  need  ::  TODO: handle error
-          %^  scry-or-cache-ca:zig-lib  project-desk
-          (snoc sur %hoon)  ca-scry-cache
-        :_  ca-scry-cache
-        %-  slop  :_  subject
-        sur-hoon(p [%face face p.sur-hoon])
-      :_  c
-      %+  slop
-        %=  initial-test-globals
-          p  [%face %test-globals p.initial-test-globals]
-        ==
-      subject
-    ?:  ?=(%& -.compilation-result)
-      :-  [%& -.p.compilation-result]
-      state(ca-scry-cache +.p.compilation-result)
-    :_  state
-    :-  %|
-    %-  crip
-    %+  roll  p.compilation-result
-    |=  [in=tank out=tape]
-    :(weld ~(ram re in) "\0a" out)
-  ::
   ++  handle-poke
     |=  act=action:zig
     ^-  (quip card _state)
     ?>  =(our.bowl src.bowl)
     =*  tag  -.+.+.act
     =/  =update-info:zig  [project.act tag request-id.act]
+    ?:  ?&  !=(0 ~(wyt by cis-running))
+            ?|  ?=(~ request-id.act)
+            ::
+                ?!
+                %.  u.request-id.act
+                %~  has  in
+                (~(gas in *(set @t)) ~(val by cis-running))
+        ==  ==
+      :_  state
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      %.  'currently setting up new project; try again later'
+      %~  poke  make-error-vase:zig-lib
+      [update-info %error]
     ?-    tag
         %new-project
       =/  new-project-error
@@ -367,32 +349,57 @@
         :_  ~
         %+  update-vase-to-card:zig-lib  project.act
         (new-project-error (crip message))
-      ~&  desk
-      ~&  >  "scrying..."
       =/  desks=(set desk)
         .^  (set desk)
             %cd
             /(scot %p our.bowl)/[dap.bowl]/(scot %da now.bowl)
         ==
-      ?:  (~(has in desks) project.act)  ::  TODO: start project using this desk?
-        =/  message=tape  "project desk already exists"
+      ?:  (~(has in desks) project.act)
+        ?:  (~(has by projects) project.act)
+          ::  TODO: replace this with loading a snapshot of init state?
+          =/  ships=(list @p)
+            ~(tap in ~(key by pyro-ships-ready))
+          =.  projects  (~(del by projects) project.act)
+          =^  stop-cards  state
+            %^  handle-poke  project.act  request-id.act
+            [%stop-pyro-ships ~]
+          =^  start-cards  state
+            %^  handle-poke  project.act  request-id.act
+            [%start-pyro-ships ships]
+          =/  re-call=(list card)
+            :_  ~
+            (~(poke-self pass:io /self-wire) m v)
+          :_  state
+          :(weld stop-cards start-cards re-call)
+        =.  projects
+          (~(put by projects) project.act *project:zig)
+        =^  cards  state
+          (load-config:zig-lib update-info state)
         :_  state
-        :_  ~
-        %+  update-vase-to-card:zig-lib  project.act
-        (new-project-error (crip message))
+        :+  (make-read-desk:zig-lib [project request-id]:act)
+          %+  update-vase-to-card:zig-lib  project.act
+          %.  sync-desk-to-vship
+          %~  new-project  make-update-vase:zig-lib
+          update-info
+        cards
+      =.  sync-desk-to-vship
+        %-  ~(gas ju sync-desk-to-vship)
+        %+  turn  sync-ships.act
+        |=(who=@p [project.act who])
       ::  merge new desk, mount desk
       ::  currently using ziggurat desk as template -- should refine this
       =/  merge-task  [%merg `@tas`project.act our.bowl q.byk.bowl da+now.bowl %init]
       =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
       =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
       =/  deletions-task  [%info `@tas`project.act %& (clean-desk:zig-lib project.act)]
-      :-  :~  [%pass /merge-wire %arvo %c merge-task]
+      :-  :~  [%pass /merge-wire/[project.act]/(scot %ud (jam sync-ships.act)) %arvo %c merge-task]
               [%pass /mount-wire %arvo %c mount-task]
               [%pass /save-wire %arvo %c bill-task]
               [%pass /save-wire %arvo %c deletions-task]
               (make-read-desk:zig-lib [project request-id]:act)
           ::
               %+  update-vase-to-card:zig-lib  project.act
+              %.  sync-desk-to-vship
               %~  new-project  make-update-vase:zig-lib
               update-info
           ==
@@ -413,6 +420,47 @@
         %delete-project
       ::  should show a warning on frontend before performing this one ;)
       `state(projects (~(del by projects) project.act))
+    ::
+        %save-config-to-file
+      ::  frontend should warn about overwriting
+      =/  file-text=@t
+        %-  make-configs-file:zig-lib
+        %-  build-default-config:zig-lib
+        (~(got by configs) project.act)
+      =/  file-path=path  /zig/configs/[project.act]/hoon
+      :_  state
+      :+  %^  make-save-file:zig-lib  project.act
+          file-path  file-text
+        (make-read-desk:zig-lib [project request-id]:act)
+      ~
+    ::
+        %add-sync-desk-vships
+      :-
+        :-  (make-read-desk:zig-lib [project request-id]:act)
+        %+  turn  ships.act
+        |=  who=@p
+        (sync-desk-to-virtualship:zig-lib who project.act)
+      %=  state
+          sync-desk-to-vship
+        %-  ~(gas ju sync-desk-to-vship)
+        %+  turn  ships.act
+        |=(who=@p [project.act who])
+      ==
+    ::
+        %delete-sync-desk-vships
+      :-  (make-cancel-watch-for-file-changes:zig-lib)^~
+      %=  state
+          sync-desk-to-vship
+        |-
+        ?~  ships.act  sync-desk-to-vship
+        %=  $
+            ships.act  t.ships.act
+        ::
+            sync-desk-to-vship
+          %-  ~(del ju sync-desk-to-vship)
+          [project i.ships]:act
+        ==
+      ==
     ::
         %save-file
       =/  =project:zig  (~(got by projects) project.act)
@@ -508,7 +556,8 @@
           [%zig /sur/zig/ziggurat]
         ~
       =^  subject=(each vase @t)  state
-        (compile-test-imports `@tas`project.act imports)
+        %^  compile-test-imports:zig-lib  `@tas`project.act
+        imports  state
       ?:  ?=(%| -.subject)
         =/  message=tape
           "compilation of test-imports failed: {<p.subject>}"
@@ -566,7 +615,6 @@
     ::
         %compile-contracts
       ::  for internal use -- app calls itself to scry clay
-      ?>  ?=(%ziggurat dap.bowl)
       =/  =project:zig  (~(got by projects) project.act)
       =/  build-results=(list (pair path build-result:zig))
         %^  build-contract-projects:zig-lib  smart-lib-vase
@@ -582,7 +630,6 @@
     ::
         %compile-contract
       ::  for internal use -- app calls itself to scry clay
-      ?>  ?=(%ziggurat dap.bowl)
       =/  =project:zig  (~(got by projects) project.act)
       =/  compile-contract-error
         %~  compile-contract  make-error-vase:zig-lib
@@ -625,7 +672,6 @@
     ::
         %read-desk
       ::  for internal use -- app calls itself to scry clay
-      ?>  ?=(%ziggurat dap.bowl)
       =/  =project:zig  (~(got by projects) project.act)
       =.  dir.project
         =-  .^((list path) %ct -)
@@ -669,9 +715,10 @@
       =/  file-text=@t  (make-test-steps-file:zig-lib test)
       =.  test-steps-file.test  path.act
       =.  tests.project  (~(put by tests.project) id.act test)
-      :-  :_  ~
-          %^  make-save-file:zig-lib  project.act  path.act
-          file-text
+      :-  :+  %^  make-save-file:zig-lib  project.act
+                  path.act  file-text
+            (make-read-desk:zig-lib [project request-id]:act)
+           ~
       %=  state
         projects  (~(put by projects) project.act project)
       ==
@@ -898,7 +945,7 @@
       ~
     ::
         %start-pyro-ships
-      =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud]
+      =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud ~wes]
       =/  wach=(list card)
         %+  turn  ships.act
         |=  who=ship
@@ -909,13 +956,7 @@
         %+  ~(poke-our pass:io /self-wire)  %pyro
         :-  %aqua-events
         !>((turn ships.act |=(who=ship [%init-ship who])))
-      =/  subs=(list card)  ::  start %subscriber app
-        %+  turn  ships.act
-        |=  who=ship
-        %+  ~(poke-our pass:io /self-wire)  %pyro
-        :-  %aqua-events
-        !>((dojo-events:pyro who "|start %zig %subscriber"))
-      :-  :(weld wach init subs)
+      :-  (weld wach init)
       %_    state
           pyro-ships-ready
         %-  ~(gas by *(map ship ?))
@@ -1093,12 +1134,17 @@
   |=  [w=wire =sign-arvo:agent:gall]
   ^-  (quip card _this)
   ?+    w  (on-arvo:def w sign-arvo)
-      [%merge-wire ~]
+      [%merge-wire @ @ ~]
     ?.  ?=(%clay -.sign-arvo)  !!
     ?.  ?=(%mere -.+.sign-arvo)  !!
     ?:  -.p.+.sign-arvo
-      ~&  >  "new desk successful"
-      `this
+      =*  project-name  i.t.w
+      =/  sync-ships=(list @p)
+        ;;  (list @p)  (cue (slav %ud i.t.t.w))
+        :_  this
+        %+  turn  sync-ships
+        |=  who=@p
+        (sync-desk-to-virtualship:zig-lib who project-name)
     ~&  >>>  "failed to make new desk"
     `this
   ::
@@ -1110,12 +1156,55 @@
       %-  ~(gas in *(set path))
       (turn ~(tap in q.sign-arvo) |=([@ p=path] p))
     :_  this
-    :_  ~
-    ?:  .=  0
-        %~  wyt  in
-        (~(int in updated-files) to-compile.project)
-      (make-read-desk:zig-lib project-name ~)
-    (make-compile-contracts:zig-lib project-name ~)
+    :-  ?:  .=  0
+            %~  wyt  in
+            (~(int in updated-files) to-compile.project)
+          (make-read-desk:zig-lib project-name ~)
+        (make-compile-contracts:zig-lib project-name ~)
+    %+  turn
+      %~  tap  in
+      (~(get ju sync-desk-to-vship) project-name)
+    |=  who=@p
+    (sync-desk-to-virtualship:zig-lib who project-name)
+  ::
+      [%committing @ @ @ @ ~]
+    ?>  ?=([%behn %wake *] sign-arvo)
+    ?^  error.sign-arvo  !!  ::  TODO: do better
+    =/  who=@p            (slav %p i.t.w)
+    =*  desk              i.t.t.w
+    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
+    =/  apps=(list @tas)
+      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
+    =^  cards  cis-running
+      %~  on-wake-commit  cis:zig-lib
+      [who desk install apps cis-running]
+    [cards this]
+  ::
+      [%installing @ @ @ @ ~]
+    ?>  ?=([%behn %wake *] sign-arvo)
+    ?^  error.sign-arvo  !!  ::  TODO: do better
+    =/  who=@p            (slav %p i.t.w)
+    =*  desk              i.t.t.w
+    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
+    =/  apps=(list @tas)
+      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
+    =^  cards  cis-running
+      %~  on-wake-install  cis:zig-lib
+      [who desk install apps cis-running]
+    [cards this]
+  ::
+      [%starting @ @ @ @ ~]
+    ?>  ?=([%behn %wake *] sign-arvo)
+    ?^  error.sign-arvo  !!  ::  TODO: do better
+    =/  who=@p            (slav %p i.t.w)
+    =*  desk              i.t.t.w
+    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
+    =/  apps=(list @tas)
+      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
+    =^  cards  cis-running
+      %~  on-wake-start  cis:zig-lib
+      [who desk install apps cis-running]
+    [cards this]
   ==
 ::
 ++  on-peek

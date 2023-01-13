@@ -13,6 +13,7 @@ Last updated as of Jan 02, 2023.
 * [Test steps](#test-steps)
 * [Custom inputs](#custom-inputs)
 * [Deploying contracts](#deploying-contracts)
+* [Project configuration](#project-configuration)
 * [`dbug` dashboard](#dbug-dashboard)
 * [Building the `%pyro` pill](#building-the-pyro-pill)
 * [Configuring testnet snapshot for quick-boot](#configuring-testnet-snapshot-for-quick-boot)
@@ -40,16 +41,19 @@ By default we run `~nec` and `~bud` as virtualships.
 ## Example usage
 
 Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
+The following starts virtualships and sets up the `%zig` desk on them.
+When `%new-project` is called, `%ziggurat` looks for the project/desk, and if it finds it, looks for a [configuration file](#project-configuration) at `/zig/configs/[project-name]/hoon`.
+If found, the project is setup according to that configuration.
+Else, a default setup is used.
 ```hoon
-:ziggurat &ziggurat-action [%foo ~ %new-project ~]
+:ziggurat &ziggurat-action [%$ ~ %start-pyro-ships ~[~nec ~bud ~wes]]
+:ziggurat &ziggurat-action [%zig ~ %new-project ~]
 
-::  Setup virtualship testnet, like following https://github.com/uqbar-dao/uqbar-core/blob/master/readme.md
-:ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%setup /zig/test-steps/setup/hoon]
+:ziggurat &ziggurat-action [%foo ~ %new-project ~[~bud ~wes]]
 
 :ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%scry-nec /zig/test-steps/scry-nec/hoon]
 :ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%scry-bud /zig/test-steps/scry-bud/hoon]
 :ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%scry-clay /zig/test-steps/scry-clay/hoon]
-
 :ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%subscribe-nec /zig/test-steps/subscribe-nec/hoon]
 
 ::  The same ZIGS send done in two ways:
@@ -58,7 +62,6 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 :ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%send-nec /zig/test-steps/send-nec/hoon]
 :ziggurat &ziggurat-action [%foo ~ %add-and-queue-test-file `%send-nec-dojo /zig/test-steps/send-nec-dojo/hoon]
 
-:ziggurat &ziggurat-action [%foo ~ %start-pyro-ships ~[~nec ~bud]]
 :ziggurat &ziggurat-action [%$ ~ %run-queue ~]
 
 ::  Tell `%ziggurat` not to run any more tests right now.
@@ -77,7 +80,7 @@ Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 ### Interaction with snapshots
 
 ```hoon
-:pyro &action [%snap-ships /my-snapshot/0 ~[~nec ~bud]]
+:pyro &action [%snap-ships /my-snapshot/0 ~[~nec ~bud ~wes]]
 :pyro &action [%restore-snap /my-snapshot/0]
 :pyro &action [%clear-snap /my-snapshot/0]
 ```
@@ -224,6 +227,24 @@ Contracts can be deployed to the virtualship testnet for a project using the `%d
 :ziggurat &ziggurat-action [%foo ~ %deploy-contract town-id=0x0 /con/compiled/nft/jam]
 ```
 
+## Project configuration
+
+Projects can be configured so that they are in a predictable state when imported.
+Configuration is accomplished by a `hoon` file that lives at `/zig/configs/[project-name]/hoon`.
+For example, see `/zig/configs/zig/hoon` that ships with this repository.
+
+The configuration file has a specified form.
+Imports may be specified using the `/=` rune at the top of the file.
+The file is then composed of a core with the following arms:
+
+Arm name                     | Return type               | Description
+---------------------------- | ------------------------- | -----------
+`+make-config`               | `config:zig`              | Set global state for the project, accessible during `test-steps`.
+`+make-virtualships-to-sync` | `(list @p)`               | Set virtualships to mirror the project desk on.
+`+make-install`              | `?`                       | Install the mirrored desk on synced virtualships?
+`+make-start-apps`           | `(list @tas)`             | Additionaly apps to start in the project on synced ships (that are not included in the project's `desk.bill`).
+`+make-setup`                | `(map @p test-steps:zig)` | Set the initial state on synced virtualships by running these `test-steps`.
+
 ## `dbug` dashboard
 
 The `dbug` dashboard enables programmatically scrying out `+dbug` state from agents running on virtualships.
@@ -266,12 +287,11 @@ TODO: Add a fallback to the scry to return unformatted `+dbug` output without se
 
 A pill can either be freshly built and loaded into pyro, or output to Unix to share around the network:
 ```hoon
-=p +zig!solid %base %zig
+:pyro %pyro-action [%pill +zig!solid %base]
 
-:pyro %pyro-action [%pill p]
-
-.pill/pill p
+.pill/pill +zig!solid %base
 ```
+Be cautious of storing the pill in Dojo memory: it can OOM your loom.
 
 The latter is recommended - we store ours in `zig/snapshots/pill.pill`, and ship it with the ziggurat desk.
 
@@ -312,7 +332,7 @@ First go into ames - ctrl+F "13" and replace with "23" to boost the packet size 
 
 ```hoon
 |commit %base
-:pyro &pyro-action [%pill +zig!solid %base %zig]
+:pyro &pyro-action [%pill +zig!solid %base]
 :pyro|init ~nec
 :pyro|dojo ~nec ":rollup|activate"
 :pyro|dojo ~nec ":sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608"
@@ -326,7 +346,7 @@ First go into ames - ctrl+F "13" and replace with "23" to boost the packet size 
 :pyro|dojo ~bud ":indexer &indexer-bootstrap [~nec %indexer]"
 :pyro|dojo ~nec ":uqbar &wallet-poke [%import-seed 'post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney' 'squid' 'nickname]"
 
-:pyro &action [%snap-ships /testnet ~[~nec ~bud]]
+:pyro &action [%snap-ships /testnet ~[~nec ~bud ~wes]]
 :pyro &action [%export-snap /testnet]
 |unmount %zig
 |mount %zig

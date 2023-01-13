@@ -9,9 +9,11 @@
   $:  %0
       =projects
       =configs
+      =sync-desk-to-vship
       pyro-ships-ready=(map @p ?)
       test-queue=(qeu [project=@t test-id=@ux])
       test-running=?
+      cis-running=(map @p @t)
   ==
 +$  inflated-state-0
   $:  state-0
@@ -44,6 +46,8 @@
 ::
 +$  configs  (mip:mip project-name=@t [who=@p what=@tas] @)
 +$  config   (map [who=@p what=@tas] @)
+::
++$  sync-desk-to-vship  (jug @tas @p)
 ::
 +$  expected-diff
   (map id:smart [made=(unit item:smart) expected=(unit item:smart) match=(unit ?)])
@@ -99,13 +103,16 @@
 +$  action
   $:  project=@t
       request-id=(unit @t)
-      $%  [%new-project ~]
+      $%  [%new-project sync-ships=(list @p)]
           [%delete-project ~]
+          [%save-config-to-file ~]
+      ::
+          [%add-sync-desk-vships ships=(list @p)]
+          [%delete-sync-desk-vships ships=(list @p)]
       ::
           [%save-file file=path text=@t]  ::  generates new file or overwrites existing
           [%delete-file file=path]
       ::
-          :: [%set-virtualnet-address who=@p =address:smart]
           [%add-config who=@p what=@tas item=@]
           [%delete-config who=@p what=@tas]
       ::
@@ -116,12 +123,12 @@
           [%compile-contract =path]  ::  path of form /[desk]/path/to/contract, e.g., /zig/con/fungible/hoon
           [%read-desk ~]  ::  make-project-update, make-watch-for-file-changes
       ::
-          [%add-test name=(unit @t) =test-imports =test-steps]  ::  name optional
+          [%add-test name=(unit @t) =test-imports =test-steps]
           [%add-and-run-test name=(unit @t) =test-imports =test-steps]
           [%add-and-queue-test name=(unit @t) =test-imports =test-steps]
           [%save-test-to-file id=@ux =path]
       ::
-          [%add-test-file name=(unit @t) =path]  ::  name optional
+          [%add-test-file name=(unit @t) =path]
           [%add-and-run-test-file name=(unit @t) =path]
           [%add-and-queue-test-file name=(unit @t) =path]
       ::
@@ -136,7 +143,7 @@
           [%delete-custom-step test-id=@ux tag=@tas]
       ::
           [%stop-pyro-ships ~]
-          [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> [~nec ~bud]
+          [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> ~[~nec ~bud ~wes]
           [%start-pyro-snap snap=path]
       ::
           [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
@@ -169,6 +176,7 @@
       %test-results
       %dir
       %pyro-ships-ready
+      %poke
       %test-queue
       %pyro-agent-state
   ==
@@ -185,7 +193,7 @@
       [%projects update-info payload=(data ~) projects=shown-projects]
       [%project update-info payload=(data ~) shown-project]
       [%state update-info payload=(data ~) state=(map @ux chain:engine)]
-      [%new-project update-info payload=(data ~) ~]
+      [%new-project update-info payload=(data =sync-desk-to-vship) ~]
       [%add-config update-info payload=(data [who=@p what=@tas item=@]) ~]
       [%delete-config update-info payload=(data [who=@p what=@tas]) ~]
       [%add-test update-info payload=(data shown-test) test-id=@ux]
@@ -201,6 +209,7 @@
       [%test-results update-info payload=(data shown-test-results) test-id=@ux thread-id=@t =test-steps]
       [%dir update-info payload=(data (list path)) ~]
       [%pyro-ships-ready update-info payload=(data (map @p ?)) ~]
+      [%poke update-info payload=(data ~) ~]
       [%test-queue update-info payload=(data (qeu [@t @ux])) ~]
       [%pyro-agent-state update-info payload=(data @t) ~]
   ==
