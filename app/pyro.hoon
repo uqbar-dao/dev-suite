@@ -285,11 +285,12 @@
     =.  i.t.t.t.pax  (scot %da scry-time)
     ::  execute scry
     =/  pek=(each vase tang)
-      (mule |.((slam [-:!>(peek:arvo-adult) peek:snap] !>([[~ ~] & pax]))))
-    ~&  >  -.pek
-    ~
-    :: =+  ;;(res=(unit (cask)) pek)
-    :: (bind res tail)
+      (mule |.((slam [-:!>(peek:arvo-adult) peek:snap] !>([`~ %.y pax]))))
+    ?:  ?=(%| -.pek)
+      %-  (slog >%aqua-crash< >who=who< p.pek)
+      ~
+    =+  ;;(res=(unit [mark *]) q.p.pek)
+    (fall res ~)
   ::
   ::  Start/stop processing events.  When stopped, events are added to
   ::  our queue but not processed.
