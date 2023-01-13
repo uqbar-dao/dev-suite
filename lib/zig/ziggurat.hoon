@@ -3,6 +3,7 @@
     ui=zig-indexer,
     zig=zig-ziggurat
 /+  agentio,
+    mip,
     conq=zink-conq,
     dock=docket,
     pyro-lib=zig-pyro,
@@ -95,6 +96,12 @@
     !>  ^-  update:zig
     [%compile-contract update-info [%& ~] ~]
   ::
+  ++  edit-test
+    |=  [=test:zig test-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    [%edit-test update-info [%& (show-test test)] test-id]
+  ::
   ++  delete-test
     |=  test-id=@ux
     ^-  vase
@@ -117,19 +124,6 @@
     ^-  vase
     !>  ^-  update:zig
     [%delete-custom-step update-info [%& ~] test-id tag]
-  ::
-  ++  add-app-to-dashboard
-    |=  [app=@tas sur=path mold-name=@t mar=path]
-    ^-  vase
-    !>  ^-  update:zig
-    :^  %add-app-to-dashboard  update-info  [%& ~]
-    [app sur mold-name mar]
-  ::
-  ++  delete-app-from-dashboard
-    |=  app=@tas
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-app-from-dashboard update-info [%& ~] app]
   ::
   ++  add-user-file
     |=  file=path
@@ -162,12 +156,6 @@
     !>  ^-  update:zig
     [%dir update-info [%& dir] ~]
   ::
-  ++  dashboard
-    |=  jon=json
-    ^-  vase
-    !>  ^-  update:zig
-    [%dashboard update-info [%& jon] ~]
-  ::
   ++  pyro-ships-ready
     |=  pyro-ships-ready=(map @p ?)
     ^-  vase
@@ -178,6 +166,18 @@
     ^-  vase
     !>  ^-  update:zig
     [%poke update-info [%& ~] ~]
+  ::
+  ++  test-queue
+    |=  queue=(qeu [@t @ux])
+    ^-  vase
+    !>  ^-  update:zig
+    [%test-queue update-info [%& queue] ~]
+  ::
+  ++  pyro-agent-state
+    |=  agent-state=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%pyro-agent-state update-info [%& agent-state] ~]
   --
 ::
 ++  make-error-vase
@@ -236,6 +236,12 @@
     !>  ^-  update:zig
     [%compile-contract update-info [%| level message] ~]
   ::
+  ++  edit-test
+    |=  [message=@t test-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    [%edit-test update-info [%| level message] test-id]
+  ::
   ++  delete-test
     |=  [message=@t test-id=@ux]
     ^-  vase
@@ -259,19 +265,6 @@
     ^-  vase
     !>  ^-  update:zig
     [%delete-custom-step update-info [%| level message] test-id tag]
-  ::
-  ++  add-app-to-dashboard
-    |=  [message=@t app=@tas sur=path mold-name=@t mar=path]
-    ^-  vase
-    !>  ^-  update:zig
-    :^  %add-app-to-dashboard  update-info  [%| level message]
-    [app sur mold-name mar]
-  ::
-  ++  delete-app-from-dashboard
-    |=  [message=@t app=@tas]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-app-from-dashboard update-info [%| level message] app]
   ::
   ++  add-user-file
     |=  [message=@t file=path]
@@ -304,12 +297,6 @@
     !>  ^-  update:zig
     [%dir update-info [%| level message] ~]
   ::
-  ++  dashboard
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%dashboard update-info [%| level message] ~]
-  ::
   ++  pyro-ships-ready
     |=  message=@t
     ^-  vase
@@ -321,6 +308,18 @@
     ^-  vase
     !>  ^-  update:zig
     [%poke update-info [%| level message] ~]
+  ::
+  ++  test-queue
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%test-queue update-info [%| level message] ~]
+  ::
+  ++  pyro-agent-state
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%pyro-agent-state update-info [%| level message] ~]
   --
 ::
 ++  make-compile-contracts
@@ -699,7 +698,6 @@
       user-files=user-files.project
       to-compile=to-compile.project
       tests=(show-tests tests.project)
-      dbug-dashboards=(show-dbug-dashboards dbug-dashboards.project)
   ==
 ::
 ++  show-tests
@@ -744,23 +742,6 @@
   :+  success  expected
   ?:  (lte 1.024 (met 3 res-text))  '<elided>'  ::  TODO: unhardcode
   res-text
-::
-++  show-dbug-dashboards
-  |=  dds=(map @tas dbug-dashboard:zig)
-  ^-  (map @tas dbug-dashboard:zig)
-  %-  ~(run by dds)
-  |=(dd=dbug-dashboard:zig (show-dbug-dashboard dd))
-::
-++  show-dbug-dashboard
-  |=  dd=dbug-dashboard:zig
-  ^-  dbug-dashboard:zig
-  %=  dd
-      mold
-    ?:  ?=(%& -.mold.dd)  [%& *vase]  mold.dd
-  ::
-      mar-tube
-    ?~  mar-tube.dd  ~  `*tube:clay
-  ==
 ::
 ++  noah-slap-ream
   |=  [number-sur-lines=@ud subject=vase payload=@t]
@@ -999,13 +980,9 @@
   |=  [project-name=@t =configs:zig]
   ^-  (map @ux @p)
   %-  ~(gas by *(map @ux @p))
-  %-  zing
-  %+  turn  ~(tap by configs)
-  |=  [pn=@t =config:zig]
-  ?:  =('' pn)             ~
+  %+  murn  ~(tap bi:mip configs)
+  |=  [pn=@t [who=@p what=@tas] item=@]
   ?.  =(project-name pn)   ~
-  %+  murn  ~(tap by config)
-  |=  [[who=@p what=@tas] item=@]
   ?.  ?=(%sequencer what)  ~
   `[`@ux`item who]
 ::
@@ -1418,6 +1395,22 @@
     ==
   --
 ::
+++  add-test-error-to-edit-test
+  |=  add-test-card=card
+  ^-  card
+  ?.  ?=(%give -.add-test-card)    add-test-card
+  ?.  ?=(%fact -.p.add-test-card)  add-test-card
+  %=  add-test-card
+      cage.p
+    =*  cage  cage.p.add-test-card
+    :-  p.cage
+    !>  ^-  update:zig
+    =+  !<(=update:zig q.cage)
+    ?~  update  ~
+    ?.  ?=(%add-test -.update)  update
+    :-  %edit-test  +.update
+  ==
+::
 ::  files we delete from zig desk to make new gall desk
 ::
 ++  clean-desk
@@ -1497,12 +1490,12 @@
     ^-  json
     ?~  update  ~
     =/  update-info=(list [@t json])
+      :-  [%type %s -.update]
       :^    ['project_name' %s project-name.update]
           ['source' %s source.update]
         :-  'request_id'
         ?~(request-id.update ~ [%s u.request-id.update])
       ~
-    %+  frond  -.update
     %-  pairs
     %+  weld  update-info
     =*  payload  -.+.+.update  ::  TODO: remove this hack
@@ -1562,6 +1555,12 @@
         (frond %test (shown-test p.payload.update))
       ~
     ::
+        %edit-test
+      :+  ['test_id' %s (scot %ux test-id.update)]
+        :-  'data'
+        (frond %test (shown-test p.payload.update))
+      ~
+    ::
         %delete-test
       :+  ['test_id' %s (scot %ux test-id.update)]
         ['data' ~]
@@ -1570,19 +1569,6 @@
         ?(%add-custom-step %delete-custom-step %custom-step-compiled)
       :^    ['tag' %s tag.update]
           ['test_id' %s (scot %ux test-id.update)]
-        ['data' ~]
-      ~
-    ::
-        %add-app-to-dashboard
-      :~  ['app' %s app.update]
-          ['sur' (path sur.update)]
-          ['mold_name' %s mold-name.update]
-          ['mar' (path mar.update)]
-          ['data' ~]
-      ==
-    ::
-        %delete-app-from-dashboard
-      :+  ['app' %s app.update]
         ['data' ~]
       ~
     ::
@@ -1604,9 +1590,6 @@
         %dir
       `(list [@t json])`['data' (frond %dir (dir p.payload.update))]~
     ::
-        %dashboard
-      ['data' p.payload.update]~
-    ::
         %pyro-ships-ready
       :_  ~
       :-  'data'
@@ -1615,6 +1598,17 @@
     ::
         %poke
       ['data' ~]~
+    ::
+        %test-queue
+      :_  ~
+      :-  'data'
+      %+  frond  %test-queue
+      (test-queue p.payload.update)
+    ::
+        %pyro-agent-state
+      :_  ~
+      :-  'data'
+      (frond %pyro-agent-state [%s p.payload.update])
     ==
   ::
   ++  error
@@ -1639,7 +1633,6 @@
         ['user_files' (dir ~(tap in user-files.p))]
         ['to_compile' (dir ~(tap in to-compile.p))]
         ['tests' (tests tests.p)]
-        ['dbug_dashboards' (dbug-dashboards dbug-dashboards.p)]
     ==
   ::
   ++  shown-projects
@@ -1658,7 +1651,6 @@
         ['user_files' (dir ~(tap in user-files.p))]
         ['to_compile' (dir ~(tap in to-compile.p))]
         ['tests' (shown-tests tests.p)]
-        ['dbug_dashboards' (dbug-dashboards dbug-dashboards.p)]
     ==
   ::
   ++  state
@@ -1764,66 +1756,76 @@
   ++  test-write-step
     |=  test-step=test-write-step:zig
     ^-  json
-    %+  frond  -.test-step
     ?-    -.test-step
         %dojo
       %-  pairs
-      :+  ['payload' (dojo-payload payload.test-step)]
+      :^    ['type' %s -.test-step]
+          ['payload' (dojo-payload payload.test-step)]
         ['expected' (write-expected expected.test-step)]
       ~
     ::
         %poke
       %-  pairs
-      :+  ['payload' (poke-payload payload.test-step)]
+      :^    ['type' %s -.test-step]
+          ['payload' (poke-payload payload.test-step)]
         ['expected' (write-expected expected.test-step)]
       ~
     ::
         %subscribe
       %-  pairs
-      :+  ['payload' (sub-payload payload.test-step)]
+      :^    ['type' %s -.test-step]
+          ['payload' (sub-payload payload.test-step)]
         ['expected' (write-expected expected.test-step)]
       ~
     ::
         %custom-write
-      %+  frond  tag.test-step
       %-  pairs
-      :+  ['payload' %s payload.test-step]
-        ['expected' (write-expected expected.test-step)]
-      ~
+      :~  ['type' %s -.test-step]
+          ['tag' %s tag.test-step]
+          ['payload' %s payload.test-step]
+          ['expected' (write-expected expected.test-step)]
+      ==
     ==
   ::
   ++  test-read-step
     |=  test-step=test-read-step:zig
     ^-  json
-    %+  frond  -.test-step
     ?-    -.test-step
         %scry
       %-  pairs
-      :+  ['payload' (scry-payload payload.test-step)]
+      :^    ['type' %s -.test-step]
+          ['payload' (scry-payload payload.test-step)]
         ['expected' %s expected.test-step]
       ~
     ::
         %dbug
       %-  pairs
-      :+  ['payload' (dbug-payload payload.test-step)]
+      :^    ['type' %s -.test-step]
+          ['payload' (dbug-payload payload.test-step)]
         ['expected' %s expected.test-step]
       ~
     ::
         %read-subscription
       %-  pairs
-      :+  ['payload' (sub-payload payload.test-step)]
+      :^    ['type' %s -.test-step]
+          ['payload' (sub-payload payload.test-step)]
         ['expected' %s expected.test-step]
       ~
     ::
         %wait
-      (frond 'until' [%s (scot %dr until.test-step)])
+      %-  pairs
+      :+  ['type' %s -.test-step]
+        ['until' %s (scot %dr until.test-step)]
+      ~
     ::
         %custom-read
       %+  frond  tag.test-step
       %-  pairs
-      :+  ['payload' %s payload.test-step]
-        ['expected' %s expected.test-step]
-      ~
+      :~  ['type' %s -.test-step]
+          ['tag' %s tag.test-step]
+          ['payload' %s payload.test-step]
+          ['expected' %s expected.test-step]
+      ==
     ==
   ::
   ++  scry-payload
@@ -1921,25 +1923,6 @@
       ['result' %s result]
     ~
   ::
-  ++  dbug-dashboards
-    |=  dashboards=(map @tas dbug-dashboard:zig)
-    ^-  json
-    %-  pairs
-    %+  turn  ~(tap by dashboards)
-    |=  [app=@tas d=dbug-dashboard:zig]
-    [app (dbug-dashboard d)]
-  ::
-  ++  dbug-dashboard
-    |=  d=dbug-dashboard:zig
-    ^-  json
-    %-  pairs
-    :~  ['sur' (path sur.d)]
-        ['mold_name' %s mold-name.d]
-        ['mar' (path mar.d)]
-        ['did_mold_compile' %b ?=(%& mold.d)]
-        ['did_mar_tube_compile' %b ?=(^ mar-tube.d)]
-    ==
-  ::
   ++  set-cords
     |=  cords=(set @t)
     ^-  json
@@ -1964,6 +1947,16 @@
     :+  desk  %a
     %+  turn  ~(tap in ships)
     |=(who=@p [%s (scot %p who)])
+  ::
+  ++  test-queue
+    |=  test-queue=(qeu [@t @ux])
+    :-  %a
+    %+  turn  ~(tap to test-queue)
+    |=  [project=@t test-id=@ux]
+    %-  pairs
+    :+  [%project-name %s project]
+      [%test-id %s (scot %ux test-id)]
+    ~
   --
 ++  dejs
   =,  dejs:format
@@ -1998,6 +1991,7 @@
         [%add-test add-test]
         [%add-and-run-test add-test]
         [%add-and-queue-test add-test]
+        [%edit-test edit-test]
         [%save-test-to-file (ot ~[[%id (se %ux)] [%path pa]])]
     ::
         [%add-test-file add-test-file]
@@ -2012,9 +2006,6 @@
     ::
         [%add-custom-step add-custom-step]
         [%delete-custom-step (ot ~[[%test-id (se %ux)] [%tag (se %tas)]])]
-    ::
-        [%add-app-to-dashboard add-app-to-dashboard]
-        [%delete-app-from-dashboard (ot ~[[%app (se %tas)]])]
     ::
         [%stop-pyro-ships ul]
         [%start-pyro-ships (ot ~[[%ships (ar (se %p))]])]
@@ -2051,6 +2042,16 @@
         [%test-imports (om pa)]
       [%test-steps (ar test-step)]
     ~
+  ::
+  ++  edit-test
+    ^-  $-(json [@ux (unit @t) test-imports:zig test-steps:zig])
+    %-  ot
+    :*  [%id (se %ux)]
+        [%name so:dejs-soft:format]
+        [%test-imports (om pa)]
+        [%test-steps (ar test-step)]
+        ~
+    ==
   ::
   ++  add-test-file
     ^-  $-(json [name=(unit @t) test-steps-path=path])
@@ -2147,14 +2148,5 @@
         [%tag (se %tas)]
       [%path pa]
     ~
-  ::
-  ++  add-app-to-dashboard
-    ^-  $-(json [app=@tas sur=path mold-name=@t mar=path])
-    %-  ot
-    :~  [%app (se %tas)]
-        [%sur pa]
-        [%mold-name so]
-        [%mar pa]
-    ==
   --
 --

@@ -54,7 +54,7 @@
 ++  on-watch  on-watch:def
 ++  on-peek
   |=  =path
-  ^-  (unit (unit cage))
+  |^  ^-  (unit (unit cage))
   ?+    path  (on-peek:def path)
       [%x %facts @ @ ^]
     =/  =ship  (slav %p i.t.t.path)
@@ -71,7 +71,32 @@
     :^  ~  ~  %noun
     =+  (~(get by signs) [ship app paf])
     ?~  -  !>(~)  !>((need -))
+  ::
+      [%x %agent-state @ ~]
+    =*  app  i.t.t.path
+    :^  ~  ~  %noun
+    !>  ^-  @t
+    =/  agent-state=vase
+      .^  vase
+          %gx
+          :-  (scot %p our.bowl)
+          /[app]/(scot %da now.bowl)/dbug/state/noun
+      ==
+    =/  noah-state=@t  (crip (noah agent-state))
+    ?:  (lth 10.000 (met 3 noah-state))
+      noah-state
+    (get-formatted-error (sell agent-state) ~)
   ==
+  ::
+  ++  get-formatted-error
+    |=  e=(list tank)
+    ^-  @t
+    %-  crip
+    %-  zing
+    %+  turn  (flop e)
+    |=  =tank
+    (of-wall:format (wash [0 80] tank))
+  --
 ::
 ++  on-agent
   |=  [=wire =sign]
