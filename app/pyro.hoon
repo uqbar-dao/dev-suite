@@ -231,8 +231,7 @@
     =/  poke-result=(each vase tang)
       (mule |.((slam [-:!>(poke:arvo-adult) poke:snap] !>([tym ue]))))
     ?:  ?=(%| -.poke-result)
-      %-  (slog >%aqua-crash< >who=who< p.poke-result)
-      $
+      ((slog >%aqua-crash< >who=who< p.poke-result) $)
     =.  snap  (hole _arvo-adult +.q.p.poke-result)
     =.  scry-time  tym
     =.  ..abet-pe  (publish-event tym ue)
