@@ -1,5 +1,5 @@
 ::  Scry into a pyro ship
-::  Usage: +zig!pyro/i json /~dev/gx/sequencer/status/noun/noun
+::  Usage: +zig!pyro/scry json /~dev/gx/sequencer/status/noun/noun
 ::  Note:  double /mark needed at the end of %gx scries, e.g. /noun/noun
 ::  TODO:  for some reason the mold doesn't work: json prints as noun
 ::
