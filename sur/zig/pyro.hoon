@@ -40,11 +40,10 @@
       [%import-fresh-piers jam-file-path=path]
       ::  ship management
       ::
-      [%swap-files des=@tas]
       [%wish hers=(list ship) p=@t]
       [%kill-ships hers=(list ship)]
       [%unpause-events hers=(list ship)]
-      [%pause-events hers=(list ship)]  ::  TODO: do we need this at events And 
+      [%pause-events hers=(list ship)]
       [%commit =desk hers=(list ship)]
   ==
 ::

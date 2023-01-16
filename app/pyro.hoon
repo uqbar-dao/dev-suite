@@ -277,7 +277,6 @@
   ++  scry
     |=  pax=path
     ^-  (unit cage)
-    ::  validate path
     ?.  ?=([@ @ @ @ *] pax)  ~
     ::  alter timestamp to match %pyro fake-time
     =.  i.t.t.t.pax  (scot %da scry-time)
@@ -285,8 +284,7 @@
     =/  pek=(each vase tang)
       (mule |.((slam [-:!>(peek:arvo-adult) peek:snap] !>([`~ %.y pax]))))
     ?:  ?=(%| -.pek)
-      %-  (slog >%aqua-crash< >who=who< p.pek)
-      ~
+      ((slog >%aqua-crash< >who=who< p.pek) ~)
     ?~  q.p.pek  ~
     :: success: make a (unit cage)
     :+  ~  :: TODO clean this code
@@ -557,20 +555,6 @@
     ~&  %pyro^%import-fresh-piers^jam-file-path.act^piers-hash^~(key by imported-fresh-piers)
     `state(fresh-piers imported-fresh-piers)
   ::
-      %swap-files
-    ::  %pyro must have a functional pill containing %base BEFORE
-    ::  another desk can be added with this poke!
-    =.  this  apex-aqua  =<  abet-aqua
-    ^+  this
-    =.  userspace-ova.pil
-      :_  ~
-      %-  unix-event:pill-lib
-      ::  take all files from a userspace desk
-      %+  %*(. file-ovum:pill-lib directories ~[/])
-      des.act  /(scot %p our.bowl)/[des.act]/(scot %da now.bowl)
-    =^  ms  state  (poke-pill pil)
-    (emit-cards ms)
-  ::
       %wish
     =.  this  apex-aqua  =<  abet-aqua
     ^+  this
@@ -579,7 +563,7 @@
     =.  this  thus
     =/  res=vase
       (slam [-:!>(wish:arvo-adult) wish:snap:pier-data:(pe who)] !>(p.act))
-    ::  TODO type is a vase, so q.res is a *. Should be molded somehow
+    ::  TODO type is a vase, so q.res is a noun. Should be molded somehow
     ~&  [who=who %wished q.res]
     (pe who)
   ::
@@ -617,45 +601,21 @@
   |=  p=pill:pill-lib
   ^-  (quip card _state)
   ?<  ?=(%ivory -.p)
-  =.  userspace-ova.p
-    ::  if there is an azimuth-snapshot in the pill, we stub it out,
-    ::  since it would interfere with aqua's azimuth simulation.
-    ::
-    ^+  userspace-ova.p
-    %+  turn  userspace-ova.p
-    |=  e=unix-event:pill-lib
-    ^+  e
-    ?.  ?=(%park -.q.e)   e
-    ?.  ?=(%& -.yok.q.e)  e
-    =-  e(q.p.yok.q -)
-    ^-  (map path (each page lobe:clay))
-    %-  ~(urn by q.p.yok.q.e)
-    |=  [=path fil=(each page lobe:clay)]
-    ^+  fil
-    ?.  =(/app/azimuth/version-0/azimuth-snapshot path)  fil
-    ?:  ?=(%| -.fil)  fil
-    &+azimuth-snapshot+[%0 [0x0 0] *^state:naive ~ ~]
   =.  this  apex-aqua  =<  abet-aqua
   =.  pil  p
   ~&  lent=(met 3 (jam boot-ova.pil))
   =/  res=toon
     (mock [boot-ova.pil [2 [0 3] [0 2]]] |=([* *] ~))
   =.  fleet-snaps  ~
-  ?-  -.res
+  ?-    -.res
       %0
     ~&  >  "successfully assembled pill"
     =.  assembled  (hole _arvo-adult +7.p.res)
     =.  fresh-piers  ~
     this
   ::
-      %1
-    ~&  [%vere-blocked p.res]
-    this
-  ::
-      %2
-    ~&  %vere-fail
-    %-  (slog p.res)
-    this
+      %1  ~&([%vere-blocked p.res] this)
+      %2  ~&(%vere-fail ((slog p.res) this))
   ==
 ::
 ::  Run a callback function against a list of ships, aggregating state

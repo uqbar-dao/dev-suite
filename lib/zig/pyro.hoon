@@ -193,8 +193,6 @@
         [%export-fresh-piers ul]
         [%import-fresh-piers (ot ~[[%jam-file-path pa]])]
         [%clear-snaps ul]
-        :: [%pill ]
-        [%swap-files (ot ~[[%des (se %tas)]])]
         [%wish (ot ~[[%hers (ar (se %p))] [%p so]])]
         [%unpause-events (ot ~[[%hers (ar (se %p))]])]
         [%pause-events (ot ~[[%hers (ar (se %p))]])]
