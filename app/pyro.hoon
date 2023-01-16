@@ -61,11 +61,8 @@
     |=  old-vase=vase
     ^-  step:agent:gall
     =+  !<(old=versioned-state old-vase)
-    =|  cards=(list card)
-    |-
     ?-  -.old
-        %0
-      [cards this(state old)]
+        %0  `this(state old)
     ==
   ::
   ++  on-poke
