@@ -14,7 +14,7 @@
     pill-lib=pill,
     default-agent,
     naive, dbug, verb
-/=  arvo-core  /sys/arvo
+/=  arvo-core  /lib/zig/sys/arvo
 /*  cached-pill  %noun  /zig/snapshots/pill/pill
 =>  |%
     ++  arvo-adult  ..^load:+>.arvo-core
