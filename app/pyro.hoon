@@ -289,8 +289,7 @@
       ~
     ?~  q.p.pek  ~
     :: success: make a (unit cage)
-    :: TODO clean this code
-    :+  ~
+    :+  ~  :: TODO clean this code
       !<(mark (slam !>(|=(u=(unit (cask)) (head (need u)))) p.pek))
     (slam !>(|=(u=(unit (cask)) (tail (need u)))) p.pek)
   ::
@@ -420,9 +419,9 @@
           ::
           kernel-ova.pil                        ::  load compiler
           ::
-          userspace-ova.pil                     :: load os
+          userspace-ova.pil                     ::  load os
           ::
-          :~  [/d/term/1 %boot & %fake who.ae]  ::  start vanes
+          :~  [/d/term/1 %boot & %fake who.ae]  ::  reset vanes
               [/b/behn/0v1n.2m9vh %born ~]
               [/i/http-client/0v1n.2m9vh %born ~]
               [/e/http-server/0v1n.2m9vh %born ~]
