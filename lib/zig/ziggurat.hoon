@@ -1975,6 +1975,9 @@
         [%delete-project ul]
         [%save-config-to-file ul]
     ::
+        [%add-sync-desk-vships (ot ~[[%ships (ar (se %p))]])]
+        [%delete-sync-desk-vships (ot ~[[%ships (ar (se %p))]])]
+    ::
         [%save-file (ot ~[[%file pa] [%text so]])]
         [%delete-file (ot ~[[%file pa]])]
     ::
