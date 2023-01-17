@@ -212,6 +212,7 @@
       [%poke update-info payload=(data ~) ~]
       [%test-queue update-info payload=(data (qeu [@t @ux])) ~]
       [%pyro-agent-state update-info payload=(data @t) ~]
+      [%sync-desk-to-vship update-info payload=(data sync-desk-to-vship) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)
