@@ -268,25 +268,9 @@
       /[project-id]/(scot %ux u.test-id)/(scot %ud step)
     snapshot-ships
   (pure:m ~)
-:: ::
-:: ++  block-on-previous-step
-::   |=  done-duration=@dr
-::   =/  m  (strand:spider ,~)
-::   ^-  form:m
-::   |-
-::   ;<  soonest-timer=(unit @da)  bind:m
-::     (scry (unit @da) /gx/pyre/soonest-timer/noun)
-::   :: ;<  now=@da  bind:m  get-time
-::   ;<  =bowl:strand  bind:m  get-bowl
-::   =*  now  now.bowl
-::   ?~  soonest-timer                                  (pure:m)
-::   ?:  (lth (add now done-duration) u.soonest-timer)  (pure:m)
-::   ;<  ~  bind:m  (wait (add u.soonest-timer 1))  :: TODO: is this a good heuristic or should we wait longer?
-::   ~&  %ztr^%block^now^.^((list [@da duct]) %bx /(scot %p our.bowl)//(scot %da now)/debug/timers)
-::   $
 ::
-++  block-on-previous-step  ::  TODO: remove reliance on snapshot-ships, which will not work for test-read-steps
-  |=  [done-duration=@dr ships=(list @p)]
+++  block-on-previous-step
+  |=  [done-duration=@dr project-id=@t]
   =/  m  (strand:spider ,~)
   ^-  form:m
   |-
@@ -294,14 +278,12 @@
   =*  now  now.bowl
   =/  timers=(list [@da duct])
     %+  filter-timers  now
-    (get-virtualship-timers ships our.bowl now)
+    (get-virtualship-timers project-id [our now]:bowl)
   ?~  timers                                       (pure:m ~)
   =*  soonest-timer  -.i.timers
   ?:  (lth (add now done-duration) soonest-timer)  (pure:m ~)
   ;<  ~  bind:m  (wait +(soonest-timer))  :: TODO: is this a good heuristic or should we wait longer?
-  :: ;<  soonest-behn-timer=(unit @da)  bind:m  ::  TODO: remove these debugging lines
-  ::   (scry (unit @da) /gx/pyre/soonest-timer/noun)
-  :: ~&  [%ztr %block now soonest-behn-timer `(list [@da duct])`timers]
+  :: ~&  [%ztr %block now `(list [@da duct])`timers]
   $
 ::
 ++  ignored-timer-prefixes
@@ -323,9 +305,11 @@
   timer
 ::
 ++  get-virtualship-timers
-  |=  [ships=(list @p) our=@p now=@da]
+  |=  [project-id=@t our=@p now=@da]
   ^-  (list [@da duct])
   =/  now-ta=@ta  (scot %da now)
+  =/  ships=(list @p)
+    (get-virtualships-synced-for-project project-id our now)
   %-  sort
   :_  |=([a=(pair @da duct) b=(pair @da duct)] (lth p.a p.b))
   %+  roll  ships
@@ -341,6 +325,20 @@
     ;;((unit (list [@da duct])) scry-noun)
   ?~  timers  all-timers
   (weld u.timers all-timers)
+::
+++  get-virtualships-synced-for-project
+  |=  [project-id=@t our=@p now=@da]
+  ^-  (list @p)
+  =+  .^  =update:zig
+          %gx
+          :-  (scot %p our)
+          /ziggurat/(scot %da now)/sync-desk-to-vship/noun
+      ==
+  ?~  update                            ~
+  ?.  ?=(%sync-desk-to-vship -.update)  ~  ::  TODO: throw error?
+  ?:  ?=(%| -.payload.update)           ~  ::  "
+  =*  sync-desk-to-vship  p.payload.update
+  ~(tap in (~(get ju sync-desk-to-vship) project-id))
 ::
 ++  run-steps
   |=  $:  project-id=@t
@@ -359,7 +357,7 @@
     results-vase(p [%face %test-results p.results-vase])
   |-
   ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
-  ;<  ~  bind:m  (block-on-previous-step ~m1 snapshot-ships)  :: TODO: unhardcode; are these good numbers?
+  ;<  ~  bind:m  (block-on-previous-step ~m1 project-id)  :: TODO: unhardcode; are these good numbers?
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
     %:  take-snapshot
