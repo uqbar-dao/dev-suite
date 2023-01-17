@@ -7,12 +7,12 @@
 ::
 =*  strand     strand:spider
 =*  get-bowl   get-bowl:strandio
+=*  get-time   get-time:strandio
 =*  poke-our   poke-our:strandio
 =*  scry       scry:strandio
 =*  sleep      sleep:strandio
 =*  watch-our  watch-our:strandio
 =*  wait       wait:strandio
-=*  get-time   get-time:strandio
 ::
 =/  m  (strand ,vase)
 =|  subject=vase
@@ -268,19 +268,79 @@
       /[project-id]/(scot %ux u.test-id)/(scot %ud step)
     snapshot-ships
   (pure:m ~)
+:: ::
+:: ++  block-on-previous-step
+::   |=  done-duration=@dr
+::   =/  m  (strand:spider ,~)
+::   ^-  form:m
+::   |-
+::   ;<  soonest-timer=(unit @da)  bind:m
+::     (scry (unit @da) /gx/pyre/soonest-timer/noun)
+::   :: ;<  now=@da  bind:m  get-time
+::   ;<  =bowl:strand  bind:m  get-bowl
+::   =*  now  now.bowl
+::   ?~  soonest-timer                                  (pure:m)
+::   ?:  (lth (add now done-duration) u.soonest-timer)  (pure:m)
+::   ;<  ~  bind:m  (wait (add u.soonest-timer 1))  :: TODO: is this a good heuristic or should we wait longer?
+::   ~&  %ztr^%block^now^.^((list [@da duct]) %bx /(scot %p our.bowl)//(scot %da now)/debug/timers)
+::   $
 ::
-++  block-on-previous-step
-  |=  done-duration=@dr
+++  block-on-previous-step  ::  TODO: remove reliance on snapshot-ships, which will not work for test-read-steps
+  |=  [done-duration=@dr ships=(list @p)]
   =/  m  (strand:spider ,~)
   ^-  form:m
   |-
-  ;<  soonest-timer=(unit @da)  bind:m
-    (scry (unit @da) /gx/pyre/soonest-timer/noun)
-  ;<  now=@da  bind:m  get-time
-  ?~  soonest-timer                                  (pure:m)
-  ?:  (lth (add now done-duration) u.soonest-timer)  (pure:m)
-  ;<  ~  bind:m  (wait (add u.soonest-timer 1))  :: TODO: is this a good heuristic or should we wait longer?
+  ;<  =bowl:strand  bind:m  get-bowl
+  =*  now  now.bowl
+  =/  timers=(list [@da duct])
+    %+  filter-timers  now
+    (get-virtualship-timers ships our.bowl now)
+  ?~  timers                                       (pure:m ~)
+  =*  soonest-timer  -.i.timers
+  ?:  (lth (add now done-duration) soonest-timer)  (pure:m ~)
+  ;<  ~  bind:m  (wait +(soonest-timer))  :: TODO: is this a good heuristic or should we wait longer?
+  :: ;<  soonest-behn-timer=(unit @da)  bind:m  ::  TODO: remove these debugging lines
+  ::   (scry (unit @da) /gx/pyre/soonest-timer/noun)
+  :: ~&  [%ztr %block now soonest-behn-timer `(list [@da duct])`timers]
   $
+::
+++  ignored-timer-prefixes
+  ^-  (list path)
+  :_  ~
+  /ames/pump
+::
+++  filter-timers
+  |=  [now=@da timers=(list [@da duct])]
+  ^-  (list [@da duct])
+  %+  murn  timers
+  |=  [time=@da d=duct]
+  ?~  d               `[time d]  ::  ?
+  ?:  (gth now time)  ~
+  =*  p  i.d
+  %+  roll  ignored-timer-prefixes
+  |:  [ignored-prefix=`path`/ timer=`(unit [@da duct])``[time d]]
+  ?:  =(ignored-prefix (scag (lent ignored-prefix) p))  ~
+  timer
+::
+++  get-virtualship-timers
+  |=  [ships=(list @p) our=@p now=@da]
+  ^-  (list [@da duct])
+  =/  now-ta=@ta  (scot %da now)
+  %-  sort
+  :_  |=([a=(pair @da duct) b=(pair @da duct)] (lth p.a p.b))
+  %+  roll  ships
+  |=  [who=@p all-timers=(list [@da duct])]
+  =/  who-ta=@ta  (scot %p who)
+  =/  scry-noun=*
+    .^  *
+        %gx
+        %+  weld  /(scot %p our)/pyro/[now-ta]/i/[who-ta]
+        /bx/[who-ta]//[now-ta]/debug/timers/noun
+    ==
+  =/  timers=(unit (list [@da duct]))
+    ;;((unit (list [@da duct])) scry-noun)
+  ?~  timers  all-timers
+  (weld u.timers all-timers)
 ::
 ++  run-steps
   |=  $:  project-id=@t
@@ -299,7 +359,7 @@
     results-vase(p [%face %test-results p.results-vase])
   |-
   ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
-  ;<  ~  bind:m  (block-on-previous-step ~m1)  :: TODO: unhardcode; are these good numbers?
+  ;<  ~  bind:m  (block-on-previous-step ~m1 snapshot-ships)  :: TODO: unhardcode; are these good numbers?
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
     %:  take-snapshot
