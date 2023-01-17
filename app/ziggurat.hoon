@@ -1255,6 +1255,12 @@
     %~  test-queue  make-update-vase:zig-lib
     ['' %test-queue ~]
   ::
+      [%sync-desk-to-vship ~]
+    :^  ~  ~  %ziggurat-update
+    %.  sync-desk-to-vship
+    %~  sync-desk-to-vship  make-update-vase:zig-lib
+    ['' %sync-desk-to-vship ~]
+  ::
       [%custom-step-compiled @ @ @ ~]
     =*  project-name  i.t.t.p
     =*  test-id       i.t.t.t.p

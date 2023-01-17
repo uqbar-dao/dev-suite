@@ -178,6 +178,13 @@
     ^-  vase
     !>  ^-  update:zig
     [%pyro-agent-state update-info [%& agent-state] ~]
+  ::
+  ++  sync-desk-to-vship
+    |=  =sync-desk-to-vship:zig
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %sync-desk-to-vship  update-info
+    [%& sync-desk-to-vship]  ~
   --
 ::
 ++  make-error-vase
@@ -320,6 +327,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%pyro-agent-state update-info [%| level message] ~]
+  ::
+  ++  sync-desk-to-vship
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%sync-desk-to-vship update-info [%| level message] ~]
   --
 ::
 ++  make-compile-contracts
@@ -1610,6 +1623,12 @@
       :_  ~
       :-  'data'
       (frond %pyro-agent-state [%s p.payload.update])
+    ::
+        %sync-desk-to-vship
+      :_  ~
+      :-  'data'
+      %+  frond  %sync-desk-to-vship
+      (sync-desk-to-vship p.payload.update)
     ==
   ::
   ++  error
@@ -1975,6 +1994,9 @@
     :~  [%new-project (ot ~[[%sync-ships (ar (se %p))]])]
         [%delete-project ul]
         [%save-config-to-file ul]
+    ::
+        [%add-sync-desk-vships (ot ~[[%ships (ar (se %p))]])]
+        [%delete-sync-desk-vships (ot ~[[%ships (ar (se %p))]])]
     ::
         [%save-file (ot ~[[%file pa] [%text so]])]
         [%delete-file (ot ~[[%file pa]])]
