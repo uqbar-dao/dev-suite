@@ -229,7 +229,7 @@
     =^  ue  next-events  ~(get to next-events)
     =.  tym  (max +(tym) now.bowl)
     =/  poke-result=(each vase tang)
-      (mule |.((slam [-:!>(poke:arvo-adult) poke:snap] !>([tym ue]))))
+      (mule |.((slym [-:!>(poke:arvo-adult) poke:snap] [tym ue])))
     ?:  ?=(%| -.poke-result)
       ((slog >%aqua-crash< >who=who< p.poke-result) $)
     =.  snap  (hole _arvo-adult +.q.p.poke-result)
@@ -278,14 +278,15 @@
     =.  i.t.t.t.pax  (scot %da scry-time)
     ::  execute scry
     =/  pek=(each vase tang)
-      (mule |.((slam [-:!>(peek:arvo-adult) peek:snap] !>([`~ %.y pax]))))
+      (mule |.((slym [-:!>(peek:arvo-adult) peek:snap] [`~ %&^pax])))
     ?:  ?=(%| -.pek)
       ((slog >%aqua-crash< >who=who< p.pek) ~)
     ?~  q.p.pek  ~
-    :: success: make a (unit cage)
-    :+  ~  :: TODO clean this code
-      !<(mark (slam !>(|=(u=(unit (cask)) (head (need u)))) p.pek))
-    (slam !>(|=(u=(unit (cask)) (tail (need u)))) p.pek)
+    :: success: make a (unit page) from a (vase (unit page))
+    :: TODO: we don't have all type information, p.p.pek is #t/u([p=@tas q=*])
+    :+  ~
+      !<(mark (slam !>(|=((unit page) (head (need +<)))) p.pek))
+    (slam !>(|=((unit page) (tail (need +<)))) p.pek)
   ::
   ::  Start/stop processing events.  When stopped, events are added to
   ::  our queue but not processed.
@@ -558,7 +559,7 @@
     |=  [who=ship thus=_this]
     =.  this  thus
     =/  res=vase
-      (slam [-:!>(wish:arvo-adult) wish:snap:pier-data:(pe who)] !>(p.act))
+      (slym [-:!>(wish:arvo-adult) wish:snap:pier-data:(pe who)] p.act)
     ::  TODO type is a vase, so q.res is a noun. Should be molded somehow
     ~&  [who=who %wished q.res]
     (pe who)
