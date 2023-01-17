@@ -284,6 +284,7 @@
     ?~  q.p.pek  ~
     :: success: make a (unit page) from a (vase (unit page))
     :: TODO: we don't have all type information, p.p.pek is #t/u([p=@tas q=*])
+    :: if I can somehow add the mold in there to get more type info that would work....not sure if I can do that
     :+  ~
       !<(mark (slam !>(|=((unit page) (head (need +<)))) p.pek))
     (slam !>(|=((unit page) (tail (need +<)))) p.pek)
