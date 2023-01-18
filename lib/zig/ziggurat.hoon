@@ -89,7 +89,8 @@
     |=  [=test:zig test-id=@ux]
     ^-  vase
     !>  ^-  update:zig
-    [%add-test update-info [%& (show-test test)] test-id]
+    :^  %add-test  update-info
+    [%& (show-test test test-id)]  test-id
   ::
   ++  compile-contract
     ^-  vase
@@ -100,7 +101,8 @@
     |=  [=test:zig test-id=@ux]
     ^-  vase
     !>  ^-  update:zig
-    [%edit-test update-info [%& (show-test test)] test-id]
+    :^  %edit-test  update-info
+    [%& (show-test test test-id)]  test-id
   ::
   ++  delete-test
     |=  test-id=@ux
@@ -719,10 +721,10 @@
   %-  ~(gas by *shown-tests:zig)
   %+  turn  ~(tap by tests)
   |=  [test-id=@ux =test:zig]
-  [test-id (show-test test)]
+  [test-id (show-test test test-id)]
 ::
 ++  show-test
-  |=  =test:zig
+  |=  [=test:zig test-id=@ux]
   ^-  shown-test:zig
   :*  name=name.test
       test-steps-file=test-steps-file.test
@@ -731,6 +733,7 @@
       custom-step-definitions=(show-custom-step-definitions custom-step-definitions.test)
       steps=steps.test
       results=(show-test-results results.test)
+      test-id=test-id
   ==
 ::
 ++  show-custom-step-definitions
@@ -1565,13 +1568,13 @@
         %add-test
       :+  ['test_id' %s (scot %ux test-id.update)]
         :-  'data'
-        (frond %test (shown-test p.payload.update))
+        (frond %test (shown-test [p.payload test-id]:update))
       ~
     ::
         %edit-test
       :+  ['test_id' %s (scot %ux test-id.update)]
         :-  'data'
-        (frond %test (shown-test p.payload.update))
+        (frond %test (shown-test [p.payload test-id]:update))
       ~
     ::
         %delete-test
@@ -1707,10 +1710,10 @@
     %-  pairs
     %+  turn  ~(tap by tests)
     |=  [id=@ux t=shown-test:zig]
-    [(scot %ux id) (shown-test t)]
+    [(scot %ux id) (shown-test t id)]
   ::
   ++  shown-test
-    |=  test=shown-test:zig
+    |=  [test=shown-test:zig test-id=@ux]
     ^-  json
     %-  pairs
     :~  ['name' %s ?~(name.test '' u.name.test)]
@@ -1720,6 +1723,7 @@
         ['custom_step_definitions' (custom-step-definitions custom-step-definitions.test)]
         ['test_steps' (test-steps steps.test)]
         ['test_results' (shown-test-results results.test)]
+        ['test_id' %s (scot %ux test-id)]
     ==
   ::
   ++  test-imports

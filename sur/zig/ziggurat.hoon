@@ -231,6 +231,7 @@
       =custom-step-definitions
       steps=test-steps
       results=shown-test-results
+      test-id=@ux
   ==
 +$  shown-test-results  (list shown-test-result)
 +$  shown-test-result   (list [success=? expected=@t result=@t])
