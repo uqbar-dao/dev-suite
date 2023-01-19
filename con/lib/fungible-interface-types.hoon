@@ -63,8 +63,7 @@
     [
       {"to": "ux"},
       {"amount": "ud"},
-      {"from-account": "ux"},
-      {"to-account": ["unit", "ux"]}
+      {"from-account": "ux"}
     ]
     '''
   ::
@@ -74,8 +73,7 @@
     [
       {"to": "ux"},
       {"amount": "ud"},
-      {"from-account": "ux"},
-      {"to-account": ["unit", "ux"]}
+      {"from-account": "ux"}
     ]
     '''
   ::
@@ -83,9 +81,9 @@
     ^-  cord
     '''
     [
-      {"who": "ux"},
+      {"to": "ux"},
       {"amount": "ud"},
-      {"account": "ux"},
+      {"from-account": "ux"},
       {"calldata": "*"}
     ]
     '''
@@ -94,10 +92,10 @@
     ^-  cord
     '''
     [
+      {"from": "ux"},
       {"to": "ux"},
-      {"from-account": "ux"},
-      {"to-account": ["unit", "ux"]},
       {"amount": "ud"},
+      {"from-account": "ux"},
       {"nonce": "ud"},
       {"deadline": "ud"},
       {
@@ -124,12 +122,14 @@
     ^-  cord
     '''
     [
-      {"token": "ux"},
+      {"token-metadata": "ux"},
       {
         "mints": [
-          {"to": "ux"},
-          {"account": ["unit", "ux"]},
-          {"amount": "ud"}
+          "list",
+          [
+            {"to": "ux"},
+            {"amount": "ud"}
+          ]
         ]
       }
     ]
