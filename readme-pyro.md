@@ -69,6 +69,57 @@ Else, a default setup is used.
 :ziggurat &ziggurat-action [%foo ~ %stop-pyro-ships ~]
 ```
 
+### Import %pokur, set up a table, and join it
+
+As a more real-world example, import the %pokur project (requires https://github.com/dr-frmr/pokur/pull/26 at least to work).
+
+```hoon
+|merge %zig our %base
+|mount %zig
+|merge %pokur our %base
+|mount %pokur
+
+::  copy in appropriate files to %zig and %pokur
+::  note that we have the proper escrow.jam and gen/sequencer/init.hoon in %ziggurat now, so do not need to do that nonsense
+
+|commit %zig
+|commit %pokur
+
+|install our %zig
+
+:ziggurat &ziggurat-action [%$ ~ %start-pyro-ships ~[~nec ~bud ~wes]]
+:ziggurat &ziggurat-action [%zig ~ %new-project ~]
+-zig!ziggurat-test-subscribe %pokur 1.000
+
+::  after ships are started and %zig dir is installed on them, hit the Backspace key to detatch the ziggurat-test-subscribe thread
+
+::  snapshot in case we want to restore to pre-%pokur-install state
+:pyro &pyro-action [%snap-ships /zig-setup-done ~[~nec ~bud ~wes]]
+
+::  set up %pokur, installing on ~nec, ~bud, ~wes, setting up ~nec as host, launching a table on ~bud
+:ziggurat &ziggurat-action [%pokur ~ %new-project ~]
+
+::  join the ~bud table from ~wes
+:ziggurat &ziggurat-action [%pokur ~ %add-and-queue-test-file `%wes-join-table /zig/test-steps/wes-join-table/hoon]
+:ziggurat &ziggurat-action [%$ ~ %run-queue ~]
+```
+
+Some other stuff you may want to do:
+
+```hoon
+::  if you want to restore to pre-%pokur-install state:
+:pyro &pyro-action [%restore-snap /zig-setup-done]
+
+::  if you want to inspect state of apps:
+:pyro|dojo ~bud ":pokur +dbug"
+
+::  if you want to join table with wes (you will have to plug in the actual id here):
+:pyro|dojo ~wes ":pokur &pokur-player-action [%join-table id=~2023.1.12..01.52.54..382a.0000.0000.0003 buy-in=1.000.000.000.000.000.000 public=%.y]"
+:pyro|dojo ~wes ":uqbar &wallet-poke [%submit from=0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d hash=[yourhash] gas=[rate=1 bud=1.000.000]]"
+:pyro|dojo ~nec ":sequencer|batch"
+```
+
+
 ### `send-nec` from the virtualship Dojo
 
 ```hoon
