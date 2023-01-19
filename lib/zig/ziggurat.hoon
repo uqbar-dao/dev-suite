@@ -180,10 +180,11 @@
     [%test-queue update-info [%& queue] ~]
   ::
   ++  pyro-agent-state
-    |=  agent-state=@t
+    |=  [agent-state=@t wex=boat:gall sup=bitt:gall]
     ^-  vase
     !>  ^-  update:zig
-    [%pyro-agent-state update-info [%& agent-state] ~]
+    :^  %pyro-agent-state  update-info
+    [%& agent-state wex sup]  ~
   ::
   ++  sync-desk-to-vship
     |=  =sync-desk-to-vship:zig
@@ -1625,7 +1626,11 @@
         %pyro-agent-state
       :_  ~
       :-  'data'
-      (frond %pyro-agent-state [%s p.payload.update])
+      %-  pairs
+      :^    [%pyro-agent-state %s agent-state.p.payload.update]
+          ['outgoing (wex)' (boat wex.p.payload.update)]
+        ['incoming (sup)' (bitt sup.p.payload.update)]
+      ~
     ::
         %sync-desk-to-vship
       :_  ~
@@ -1974,6 +1979,7 @@
   ::
   ++  test-queue
     |=  test-queue=(qeu [@t @ux])
+    ^-  json
     :-  %a
     %+  turn  ~(tap to test-queue)
     |=  [project=@t test-id=@ux]
@@ -1981,6 +1987,32 @@
     :+  [%project-name %s project]
       [%test-id %s (scot %ux test-id)]
     ~
+  ::
+  ++  boat
+    |=  =boat:gall
+    ^-  json
+    :-  %a
+    %+  turn  ~(tap by boat)
+    |=  [[w=wire who=@p app=@tas] [ack=? p=^path]]
+    %-  pairs
+    :~  [%wire (path w)]
+        [%ship %s (scot %p who)]
+        [%term %s app]
+        [%acked %b ack]
+        [%path (path p)]
+    ==
+  ::
+  ++  bitt
+    |=  =bitt:gall
+    ^-  json
+    :-  %a
+    %+  turn  ~(tap by bitt)
+    |=  [d=duct who=@p p=^path]
+    %-  pairs
+    :~  [%duct %a (turn d |=(w=wire (path w)))]
+        [%ship %s (scot %p who)]
+        [%path (path p)]
+    ==
   --
 ++  dejs
   =,  dejs:format

@@ -219,7 +219,7 @@
       [%pyro-ships-ready update-info payload=(data (map @p ?)) ~]
       [%poke update-info payload=(data ~) ~]
       [%test-queue update-info payload=(data (qeu [@t @ux])) ~]
-      [%pyro-agent-state update-info payload=(data @t) ~]
+      [%pyro-agent-state update-info payload=(data [agent-state=@t wex=boat:gall sup=bitt:gall]) ~]
       [%sync-desk-to-vship update-info payload=(data sync-desk-to-vship) ~]
   ==
 ::
