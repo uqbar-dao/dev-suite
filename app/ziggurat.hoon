@@ -1390,6 +1390,13 @@
       =-  (crip (spit-docket:mime:dock -))
       .^(docket:dock %cx padh)
     ==
+  ::
+      [%read-desks ~]
+    =/  pat  /(scot %p our.bowl)/base/(scot %da now.bowl)
+    :^  ~  ~  %json  !>
+    ^-  json
+    =/  desks  .^((set @t) %cd pat)
+    (set-cords:enjs:zig-lib desks)
   ==
 ::
 ++  on-leave  on-leave:def
