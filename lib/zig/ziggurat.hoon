@@ -18,6 +18,10 @@
 ::
 ::  utilities
 ::
+++  default-ships
+  ^-  (list @p)
+  ~[~nec ~wes ~bud]
+::
 ++  make-project-update
   |=  [=update-info:zig =project:zig]
   ^-  card
@@ -1191,25 +1195,14 @@
   |=  [in=tank out=tape]
   :(weld ~(ram re in) "\0a" out)
 ::
-++  build-default-config
+++  build-default-configuration
   |=  =config:zig
-  ^-  $:  config:zig
-          (list @p)
-          ?
-          (list @tas)
-          (map @p test-steps:zig)
-          (list [@tas path])
-      ==
+  ^-  configuration-file-output:zig
   =+  .^  =update:zig
           %gx
           (scry:io %ziggurat /pyro-ships-ready/noun)
       ==
-  =/  ships=(list @p)
-    ?~  update                          ~
-    ?.  ?=(%pyro-ships-ready -.update)  ~
-    ?.  ?=(%& -.payload.update)         ~
-    %-  sort  :_  lth
-    ~(tap in ~(key by p.payload.update))
+  =*  ships  default-ships
   :*  config
       ships
       %.y
@@ -1218,25 +1211,32 @@
       [%zig /sur/zig/ziggurat]~
   ==
 ::
-++  load-config
+++  load-configuration-file
   |=  [=update-info:zig state=inflated-state-0:zig]
-  ^-  [(list card) inflated-state-0:zig]
+  ^-  [(list card) (unit configuration-file-output:zig) inflated-state-0:zig]
   =*  project-name  project-name.update-info
   =/  new-project-error
     %~  new-project  make-error-vase
-    [update-info(source %load-config) %error]
+    [update-info(source %load-configuration-file) %error]
   =/  config-file-path=path
     %+  weld  /(scot %p our.bowl)/[project-name]
     /(scot %da now.bowl)/zig/configs/[project-name]/hoon
   |^
   ?.  .^(? %cu config-file-path)
-    (build-cards-and-state (build-default-config ~))
-  =/  result  get-config-from-file
-  ?:  ?=(%| -.result)  p.result
-  (build-cards-and-state p.result)
+    =/  =configuration-file-output:zig
+      (build-default-configuration ~)
+    =^  cards=(list card)  state
+      (build-cards-and-state configuration-file-output)
+    [cards `configuration-file-output state]
+  =/  result  get-configuration-from-file
+  ?:  ?=(%| -.result)  [-.p.result ~ +.p.result]
+  =*  configuration-file-output  p.result
+  =^  cards=(list card)  state
+    (build-cards-and-state configuration-file-output)
+  [cards `configuration-file-output state]
   ::
-  ++  get-config-from-file
-    ^-  (each [config:zig (list @p) ? (list @tas) (map @p test-steps:zig) (list [@tas path])] [(list card) inflated-state-0:zig])
+  ++  get-configuration-from-file
+    ^-  (each configuration-file-output:zig [(list card) inflated-state-0:zig])
     =/  file-cord=@t  .^(@t %cx config-file-path)
     =/  [imports=(list [face=@tas =path]) =hair]
       (parse-start-of-pile (trip file-cord))

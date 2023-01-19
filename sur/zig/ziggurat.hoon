@@ -89,6 +89,15 @@
 +$  deploy-location  ?(%local testnet)
 +$  testnet  ship
 ::
++$  configuration-file-output
+  $:  =config
+      ships=(list @p)
+      install=?
+      start=(list @tas)
+      setup=(map @p test-steps)
+      imports=(list [@tas path])
+  ==
+::
 +$  test-globals
   $:  our=@p
       now=@da

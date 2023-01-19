@@ -324,6 +324,29 @@
       [project-name %add-and-queue-test-file request-id]
     cards
   ::
+  ++  ships-not-yet-running-to-run
+    |=  must-run-ships=(set @p)
+    ^-  (set @p)
+    %-  ~(dif in must-run-ships)
+    %-  ~(gas in *(set @p))
+    %-  ~(rep by pyro-ships-ready)
+    |=  [[who=@p ready=?] running-ships=(list @p)]
+    ?.(ready running-ships [who running-ships])
+  ::
+  ++  start-ships-then-rerun
+    |=  $:  ships-to-run=(list @p)
+            project-name=@t
+            request-id=(unit @t)
+        ==
+    ^-  (quip card _state)
+    :_  state
+    :+  %+  ~(poke-self pass:io /self-wire)  m
+        !>  ^-  action:zig
+        :^  project-name  request-id  %start-pyro-ships
+        ships-to-run
+      (~(poke-self pass:io /self-wire) m v)
+    ~
+  ::
   ++  handle-poke
     |=  act=action:zig
     ^-  (quip card _state)
@@ -362,25 +385,40 @@
             /(scot %p our.bowl)/[dap.bowl]/(scot %da now.bowl)
         ==
       ?:  (~(has in desks) project.act)
+        =/  [cards=(list card) cfo=(unit configuration-file-output:zig) modified-state=_state]
+          %+  load-configuration-file:zig-lib  update-info
+          %=  state
+              projects
+            (~(put by projects) project.act *project:zig)
+          ==
+        =/  ships-to-run=(list @p)
+          %~  tap  in
+          %-  ships-not-yet-running-to-run
+          %-  ~(gas in *(set @p))
+          ?^(cfo ships.u.cfo default-ships:zig-lib)
+        ?^  ships-to-run
+          %+  start-ships-then-rerun  ships-to-run
+          [project request-id]:act
+        ::
         ?:  (~(has by projects) project.act)
-          ::  TODO: replace this with loading a snapshot of init state?
-          =/  ships=(list @p)
-            ~(tap in ~(key by pyro-ships-ready))
           =.  projects  (~(del by projects) project.act)
           :_  state
           :_  ~
           (~(poke-self pass:io /self-wire) m v)
-        =.  projects
-          (~(put by projects) project.act *project:zig)
-        =^  cards  state
-          (load-config:zig-lib update-info state)
-        :_  state
+        :_  modified-state
         :+  (make-read-desk:zig-lib [project request-id]:act)
           %+  update-vase-to-card:zig-lib  project.act
           %.  sync-desk-to-vship
           %~  new-project  make-update-vase:zig-lib
           update-info
         cards
+      =/  ships-to-run=(list @p)
+        %~  tap  in
+        %-  ships-not-yet-running-to-run
+        (~(gas in *(set @p)) default-ships:zig-lib)
+      ?^  ships-to-run
+        %+  start-ships-then-rerun  ships-to-run
+        [project request-id]:act
       =.  sync-desk-to-vship
         %-  ~(gas ju sync-desk-to-vship)
         %+  turn  sync-ships.act
@@ -424,7 +462,7 @@
       ::  frontend should warn about overwriting
       =/  file-text=@t
         %-  make-configs-file:zig-lib
-        %-  build-default-config:zig-lib
+        %-  build-default-configuration:zig-lib
         (~(got by configs) project.act)
       =/  file-path=path  /zig/configs/[project.act]/hoon
       :_  state
@@ -865,7 +903,7 @@
             next-test-id
             steps.test
             p.subject.test
-            ~[~nec ~bud]  :: TODO: remove hardcode and allow input of for-snapshot
+            default-ships:zig-lib  :: TODO: remove hardcode and allow input of for-snapshot
         ==
       =/  w=wire
         /test/[next-project-name]/(scot %ux next-test-id)/[tid]
@@ -944,7 +982,7 @@
       ~
     ::
         %start-pyro-ships
-      =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud ~wes]
+      =?  ships.act  ?=(~ ships.act)  default-ships:zig-lib
       =/  wach=(list card)
         %+  turn  ships.act
         |=  who=ship
@@ -958,7 +996,7 @@
       :-  (weld wach init)
       %_    state
           pyro-ships-ready
-        %-  ~(gas by *(map ship ?))
+        %-  ~(gas by pyro-ships-ready)
         (turn ships.act |=(=ship [ship %.n]))
       ==
     ::
