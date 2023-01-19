@@ -46,6 +46,8 @@
     0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
   =*  bud-address
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
+  =*  wes-address
+    0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
   :-  :_  ~
       %+  ~(poke-our pass:io /self-wire)  %pyro
       [%pyro-action !>([%import-snap /testnet/jam /testnet])]
@@ -57,8 +59,9 @@
     ::
         %+  ~(put by *configs:zig)  'global'
         %-  ~(gas by *config:zig)
-        :+  [[~nec %address] nec-address]
-          [[~bud %address] bud-address]
+        :^    [[~nec %address] nec-address]
+            [[~bud %address] bud-address]
+          [[~wes %address] wes-address]
         ~
     ::
         ~
@@ -364,17 +367,9 @@
           =/  ships=(list @p)
             ~(tap in ~(key by pyro-ships-ready))
           =.  projects  (~(del by projects) project.act)
-          =^  stop-cards  state
-            %^  handle-poke  project.act  request-id.act
-            [%stop-pyro-ships ~]
-          =^  start-cards  state
-            %^  handle-poke  project.act  request-id.act
-            [%start-pyro-ships ships]
-          =/  re-call=(list card)
-            :_  ~
-            (~(poke-self pass:io /self-wire) m v)
           :_  state
-          :(weld stop-cards start-cards re-call)
+          :_  ~
+          (~(poke-self pass:io /self-wire) m v)
         =.  projects
           (~(put by projects) project.act *project:zig)
         =^  cards  state

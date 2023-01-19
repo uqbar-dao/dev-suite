@@ -164,7 +164,7 @@
         :-  %uqbar-action
         !>  ^-  action:uqbar
         :-  %set-sources
-        [0x0 (~(gas in *(set dock)) ~[[our dap]:bowl])]~
+        [0x0 [our dap]:bowl]~
     ?:  ?|  =(testnet-host our.bowl)
             =(indexer-bootstrap-host our.bowl)
         ==

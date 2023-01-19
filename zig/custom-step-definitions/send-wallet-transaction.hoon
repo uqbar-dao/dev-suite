@@ -5,7 +5,7 @@
 ::
 |%
 ++  $
-  |=  $:  [who=@p wallet-poke=test-write-step:zig]
+  |=  $:  [who=@p sequencer-host=@p wallet-poke=test-write-step:zig]
           expected=(list test-read-step:zig)
       ==
   ^-  test-steps:zig
@@ -58,6 +58,6 @@
         """
       ~
   ::
-      [%dojo [who ':sequencer|batch'] ~]
+      [%dojo [sequencer-host ':sequencer|batch'] ~]
   ==
 --

@@ -95,7 +95,6 @@
       =test-results
       project=@tas
       =configs
-      :: addresses=(map @p address:smart)
   ==
 ::
 +$  ca-scry-cache  (map [@tas path] (pair @ux vase))
