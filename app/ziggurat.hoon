@@ -1327,8 +1327,14 @@
           /[who]/subscriber/[now]/agent-state/[app]/noun/noun
       ==
     :^  ~  ~  %ziggurat-update
-    =/  agent-state=@t  ;;(@t agent-state-noun)
-    %.  agent-state
+    ?~  agent-state-noun
+      %.  (crip "scry for /{<who>}/{<app>} failed")
+      %~  pyro-agent-state  make-error-vase:zig-lib
+      [['' %pyro-agent-state ~] %error]
+    =/  [agent-state=@t wex=boat:gall sup=bitt:gall]
+      %-  need
+      ;;((unit [@t boat:gall bitt:gall]) agent-state-noun)
+    %.  [agent-state wex sup]
     %~  pyro-agent-state  make-update-vase:zig-lib
     ['' %pyro-agent-state ~]
   ::
