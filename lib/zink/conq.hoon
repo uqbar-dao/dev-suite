@@ -55,7 +55,7 @@
     ::  CURRENTLY IGNORING IMPORTS INSIDE LIBRARIES
     +:(parse-pile pax (trip lib-txt))
   =/  pay=*  q:(~(mint ut p.smart-lib) %noun libraries)
-  =/  payload=vase  (slap smart-lib libraries)
+  =/  payload=vase  !.  (slap smart-lib libraries)
   =/  cont
     %+  ~(mint ut p:(slop smart-lib payload))
     %noun  contract-hoon
