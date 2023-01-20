@@ -22,10 +22,10 @@
   |=  pax=path
   ^-  [bat=* pay=*]
   =/  desk=path  (swag [0 3] pax)
-  (compile-contract desk .^(@t %cx pax))
+  (compile-contract pax desk .^(@t %cx pax))
 ::
 ++  compile-contract
-  |=  [desk=path txt=@t]
+  |=  [pax=path desk=path txt=@t]
   ^-  [bat=* pay=*]
   ::
   ::  goal flow:
@@ -40,7 +40,7 @@
   ::
   ::  parse contract code
   =/  [raw=(list [face=term =path]) contract-hoon=hoon]
-    (parse-pile (trip txt))
+    (parse-pile pax (trip txt))
   ::  generate initial subject containing uHoon
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   ::  compose libraries against uHoon subject
@@ -53,7 +53,7 @@
     :+  %ktts  face
     =/  lib-txt  .^(@t %cx (welp pax /hoon))
     ::  CURRENTLY IGNORING IMPORTS INSIDE LIBRARIES
-    +:(parse-pile (trip lib-txt))
+    +:(parse-pile pax (trip lib-txt))
   =/  pay=*  q:(~(mint ut p.smart-lib) %noun libraries)
   =/  payload=vase  (slap smart-lib libraries)
   =/  cont
@@ -63,10 +63,10 @@
   [bat=q.cont pay]
 ::
 ++  compile-trivial
-  |=  [hoonlib-txt=@t smartlib-txt=@t]
+  |=  [pax=path hoonlib-txt=@t smartlib-txt=@t]
   ^-  vase
   =/  [raw=(list [face=term =path]) contract-hoon=hoon]
-    (parse-pile (trip triv-txt))
+    (parse-pile /con/trivial/hoon (trip triv-txt))
   =/  smart-lib=vase
     ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  libraries=hoon  [%clsg ~]
@@ -76,7 +76,7 @@
   (slap (slop smart-lib payload) contract-hoon)
 ::
 ++  conq
-  |=  [hoonlib-txt=@t smartlib-txt=@t cax=cache bud=@ud]
+  |=  [pax=path hoonlib-txt=@t smartlib-txt=@t cax=cache bud=@ud]
   ^-  (map * phash)
   |^
   =.  cax
@@ -86,7 +86,7 @@
     ^-  [* phash]
     [n (hash n ~)]
   ~&  >>  %compiling
-  =/  built-contract  (compile-trivial hoonlib-txt smartlib-txt)
+  =/  built-contract  (compile-trivial pax hoonlib-txt smartlib-txt)
   ~&  >>  %hashing-arms
   =.  cax
     %^  cache-file  built-contract
@@ -133,7 +133,7 @@
     ==
   ~&  >>  %hashing-trivial-core
   ::
-  ::  =/  [raw=(list [face=term =path]) contract-hoon=hoon]  (parse-pile (trip triv-txt))
+  ::  =/  [raw=(list [face=term =path]) contract-hoon=hoon]  (parse-pile /con/trivial/hoon (trip triv-txt))
   ::  =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   ::  =/  libraries=hoon  [%clsg ~]
   ::  =/  full-nock=*  q:(~(mint ut p.smart-lib) %noun libraries)
@@ -146,7 +146,7 @@
   ::  cax.q.book
   ::
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
-  =/  code=[bat=* pay=*]  (compile-contract /zig triv-txt)
+  =/  code=[bat=* pay=*]  (compile-contract /con/trivial/hoon /zig triv-txt)
   =/  cor  .*([q.smart-lib pay.code] bat.code)
   =/  dor  [-:!>(*contract:smart) cor]
   =/  gun  (ajar:engine dor %write !>(*context:smart) !>(*calldata:smart) %$)
@@ -199,19 +199,20 @@
     ==
 +$  taut  [face=(unit term) pax=term]
 ++  parse-pile
-  |=  tex=tape
+  |=  [pax=path tex=tape]
   ^-  small-pile
-  =/  [=hair res=(unit [=small-pile =nail])]  (pile-rule [1 1] tex)
+  =/  [=hair res=(unit [=small-pile =nail])]  ((pile-rule pax) [1 1] tex)
   ?^  res  small-pile.u.res
   %-  mean  %-  flop
   =/  lyn  p.hair
   =/  col  q.hair
-  :~  leaf+"syntax error"
+  :~  leaf+"syntax error in {<pax>}"
       leaf+"\{{<lyn>} {<col>}}"
       leaf+(runt [(dec col) '-'] "^")
       leaf+(trip (snag (dec lyn) (to-wain:format (crip tex))))
   ==
 ++  pile-rule
+  |=  pax=path
   %-  full
   %+  ifix
     :_  gay
@@ -223,7 +224,7 @@
     ;~(plug sym ;~(pfix gap stap))
   ::
     %+  stag  %tssg
-    (most gap tall:vast)
+    (most gap tall:(vang & (slag 3 pax)))
   ==
 ++  rune
   |*  [bus=rule fel=rule]
