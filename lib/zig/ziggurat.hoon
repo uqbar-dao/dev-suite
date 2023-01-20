@@ -1658,8 +1658,8 @@
       :-  'data'
       %-  pairs
       :^    [%pyro-agent-state %s agent-state.p.payload.update]
-          ['outgoing (wex)' (boat wex.p.payload.update)]
-        ['incoming (sup)' (bitt sup.p.payload.update)]
+          ['outgoing' (boat wex.p.payload.update)]
+        ['incoming' (bitt sup.p.payload.update)]
       ~
     ::
         %sync-desk-to-vship
