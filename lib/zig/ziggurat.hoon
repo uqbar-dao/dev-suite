@@ -192,6 +192,12 @@
     !>  ^-  update:zig
     :^  %sync-desk-to-vship  update-info
     [%& sync-desk-to-vship]  ~
+  ::
+  ++  cis-running
+    |=  cis-running=(map @p @t)
+    ^-  vase
+    !>  ^-  update:zig
+    [%cis-running update-info [%& cis-running] ~]
   --
 ::
 ++  make-error-vase
@@ -340,6 +346,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%sync-desk-to-vship update-info [%| level message] ~]
+  ::
+  ++  cis-running
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%cis-running update-info [%| level message] ~]
   --
 ::
 ++  make-compile-contracts
@@ -1061,6 +1073,15 @@
   !>  ^-  (list aqua-event:pyro)
   (dojo-events:pyro-lib who command)
 ::
+++  make-cis-running
+  |=  [ships=(list @p) project-name=@t]
+  ^-  (map @p @t)
+  %-  ~(gas by *(map @p @t))
+  %+  turn  ships
+  |=  who=@p
+  :-  who
+  (rap 3 'setup-' project-name '-' (scot %p who) ~)
+::
 ++  cis
   |_  $:  who=@p
           desk=@tas
@@ -1092,16 +1113,39 @@
   ::
   ++  run-queue
     ^-  [(list card) (map @p @t)]
-    :_  (~(del by cis-running) who)
-    :_  ~
-    %-  ~(poke-self pass:io /self-wire)
-    [%ziggurat-action !>(`action:zig`''^~^[%run-queue ~])]
+    =.  cis-running  (~(del by cis-running) who)
+    :_  cis-running
+    :+  %+  update-vase-to-card  desk
+        %.  cis-running
+        %~  cis-running  make-update-vase
+        ['' %cis ~]
+      %-  ~(poke-self pass:io /self-wire)
+      [%ziggurat-action !>(`action:zig`''^~^[%run-queue ~])]
+    ~
   ::
-  ++  commit
+  ++  do-commit
     ^-  [(list card) (map @p @t)]
     :_  cis-running
     :+  (~(wait pass:io committing-wire) commit-wait)
       (sync-desk-to-virtualship who desk)
+    ~
+  ::
+  ++  do-install
+    ^-  [(list card) (map @p @t)]
+    :_  cis-running
+    :+  (~(wait pass:io installing-wire) install-wait)
+      (send-pyro-dojo who "|install our {<desk>}")
+    ~
+  ::
+  ++  do-start
+    |=  [next-app=@tas wire-start-apps=(list @tas)]
+    ^-  [(list card) (map @p @t)]
+    :_  cis-running
+    :+  %.  start-wait
+        %~  wait  pass:io
+        starting-wire(start-apps wire-start-apps)
+      %+  send-pyro-dojo  who
+      "|start {<`@tas`desk>} {<`@tas`next-app>}"
     ~
   ::
   ++  on-wake-commit
@@ -1111,11 +1155,7 @@
       :_  cis-running
       ~[(~(wait pass:io committing-wire) commit-wait)]
     ::  done: install if desired, else %run-queue
-    ?.  install  run-queue
-    :_  cis-running
-    :+  (~(wait pass:io installing-wire) install-wait)
-      (send-pyro-dojo who "|install our {<desk>}")
-    ~
+    ?:  install  do-install  run-queue
   ::
   ++  on-wake-install
     ^-  [(list card) (map @p @t)]
@@ -1127,12 +1167,8 @@
       ~[(~(wait pass:io installing-wire) install-wait)]
     ::  done: start apps if desired, else %run-queue
     ?~  start-apps  run-queue
-    =*  app   i.start-apps
-    :_  cis-running
-    :+  (~(wait pass:io starting-wire) start-wait)
-      %+  send-pyro-dojo  who
-      "|start {<`@tas`desk>} {<`@tas`app>}"
-    ~
+    =*  next-app   i.start-apps
+    (do-start next-app start-apps)
   ::
   ++  on-wake-start
     ^-  [(list card) (map @p @t)]
@@ -1146,13 +1182,7 @@
     ::  done: start next app if more, else %run-queue
     ?~  rest-of-apps  run-queue
     =*  next-app   i.rest-of-apps
-    :_  cis-running
-    :+  %.  start-wait
-        %~  wait  pass:io
-        starting-wire(start-apps rest-of-apps)
-      %+  send-pyro-dojo  who
-      "|start {<`@tas`desk>} {<`@tas`next-app>}"
-    ~
+    (do-start next-app rest-of-apps)
   --
 ::
 ++  compile-test-imports
@@ -1361,11 +1391,7 @@
       %+  update-vase-to-card  project-name
       (new-project-error(level %warning) (crip message))
     =/  cis-running=(map @p @t)
-      %-  ~(gas by *(map @p @t))
-      %+  turn  virtualships-to-sync
-      |=  who=@p
-      :-  who
-      (rap 3 'setup-' project-name '-' (scot %p who) ~)
+      (make-cis-running virtualships-to-sync project-name)
     =.  cards
       %+  weld  cards
       %+  murn  virtualships-to-sync
@@ -1389,14 +1415,18 @@
       =*  who   i.virtualships-to-sync
       =*  desk  project-name
       =^  cis-cards  cis-running.state
-        ~(commit cis who desk install start-apps cis-running)
+        %~  do-commit  cis
+        [who desk install start-apps cis-running]
       %=  $
           virtualships-to-sync  t.virtualships-to-sync
-      ::
-          cards
-        %+  weld  cards  cis-cards
+          cards                 (weld cards cis-cards)
       ==
-    :-  cards
+
+    :-  :_  cards
+        %+  update-vase-to-card  project-name
+        %.  cis-running
+        %~  cis-running  make-update-vase
+        [project-name %load-configuration-file ~]
     %=  state
         test-queue   ~  ::  TODO: save and restore after? Check for running?
         cis-running  cis-running
@@ -1637,6 +1667,15 @@
       :-  'data'
       %+  frond  %sync-desk-to-vship
       (sync-desk-to-vship p.payload.update)
+    ::
+        %cis-running
+      :_  ~
+      :-  'data'
+      %+  frond  %cis-running
+      %-  pairs
+      %+  turn  ~(tap by p.payload.update)
+      |=  [who=@p message=@t]
+      [(scot %p who) %s message]
     ==
   ::
   ++  error
@@ -2031,7 +2070,7 @@
         [%delete-project ul]
         [%save-config-to-file ul]
     ::
-        [%add-sync-desk-vships (ot ~[[%ships (ar (se %p))]])]
+        [%add-sync-desk-vships add-sync-desk-vships]
         [%delete-sync-desk-vships (ot ~[[%ships (ar (se %p))]])]
     ::
         [%save-file (ot ~[[%file pa] [%text so]])]
@@ -2073,6 +2112,8 @@
         [%publish-app docket]
         [%add-user-file (ot ~[[%file pa]])]
         [%delete-user-file (ot ~[[%file pa]])]
+    ::
+        [%send-pyro-dojo (ot ~[[%who (se %p)] [%command sa]])]
     ==
   ::
   ++  docket
@@ -2093,6 +2134,14 @@
     :~  [%town-id (se %ux)]
         [%path pa]
     ==
+  ::
+  ++  add-sync-desk-vships
+    ^-  $-(json [(list @p) ? (list @tas)])
+    %-  ot
+    :^    [%ships (ar (se %p))]
+        [%install bo]
+      [%start-apps (ar (se %tas))]
+    ~
   ::
   ++  add-test
     ^-  $-(json [(unit @t) test-imports:zig test-steps:zig])

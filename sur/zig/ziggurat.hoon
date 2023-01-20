@@ -115,7 +115,7 @@
           [%delete-project ~]
           [%save-config-to-file ~]
       ::
-          [%add-sync-desk-vships ships=(list @p)]
+          [%add-sync-desk-vships ships=(list @p) install=? start-apps=(list @tas)]
           [%delete-sync-desk-vships ships=(list @p)]
       ::
           [%save-file file=path text=@t]  ::  generates new file or overwrites existing
@@ -158,6 +158,8 @@
       ::
           [%add-user-file file=path]
           [%delete-user-file file=path]
+      ::
+          [%send-pyro-dojo who=@p command=tape]
       ==
   ==
 ::
@@ -187,6 +189,8 @@
       %poke
       %test-queue
       %pyro-agent-state
+      %sync-desk-to-vship
+      %cis-running
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -221,6 +225,7 @@
       [%test-queue update-info payload=(data (qeu [@t @ux])) ~]
       [%pyro-agent-state update-info payload=(data [agent-state=@t wex=boat:gall sup=bitt:gall]) ~]
       [%sync-desk-to-vship update-info payload=(data sync-desk-to-vship) ~]
+      [%cis-running update-info payload=(data (map @p @t)) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)

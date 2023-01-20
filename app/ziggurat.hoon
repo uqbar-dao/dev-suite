@@ -472,16 +472,32 @@
       ~
     ::
         %add-sync-desk-vships
-      :-
-        :-  (make-read-desk:zig-lib [project request-id]:act)
-        %+  turn  ships.act
-        |=  who=@p
-        (sync-desk-to-virtualship:zig-lib who project.act)
-      %=  state
-          sync-desk-to-vship
-        %-  ~(gas ju sync-desk-to-vship)
-        %+  turn  ships.act
-        |=(who=@p [project.act who])
+      =*  desk         project.act
+      =*  ships        ships.act
+      =*  install      install.act
+      =*  start-apps   start-apps.act
+      =^  cards  state
+        (handle-poke project.act^request-id.act^%read-desk^~)
+      =.  cis-running  (make-cis-running:zig-lib ships desk)
+      :_  %=  state
+              sync-desk-to-vship
+            %-  ~(gas ju sync-desk-to-vship)
+            %+  turn  ships
+            |=(who=@p [desk who])
+          ==
+      :-  %+  update-vase-to-card:zig-lib  desk
+          %.  cis-running
+          %~  cis-running  make-update-vase:zig-lib
+          update-info
+      |-
+      ?~  ships.act  cards
+      =*  who   i.ships
+      =^  cis-cards  cis-running
+        %~  do-commit  cis:zig-lib
+        [who desk install start-apps cis-running]
+      %=  $
+          ships.act  t.ships.act
+          cards      (weld cards cis-cards)
       ==
     ::
         %delete-sync-desk-vships
@@ -713,14 +729,17 @@
       =.  dir.project
         =-  .^((list path) %ct -)
         /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)
-      :-  :+  %+  make-watch-for-file-changes:zig-lib
-              project.act  dir.project
-            %+  update-vase-to-card:zig-lib  project.act
-            %.  dir.project
-            %~  dir  make-update-vase:zig-lib
-            update-info
-          ~
-      state(projects (~(put by projects) project.act project))
+      :_  %=  state
+              projects
+            (~(put by projects) project.act project)
+          ==
+      :+  %+  make-watch-for-file-changes:zig-lib
+          project.act  dir.project
+        %+  update-vase-to-card:zig-lib  project.act
+        %.  dir.project
+        %~  dir  make-update-vase:zig-lib
+        update-info
+      ~
     ::
         %add-test
       =/  =project:zig  (~(got by projects) project.act)
@@ -1064,6 +1083,10 @@
       %.  file.act
       %~  delete-user-file  make-update-vase:zig-lib
       update-info
+    ::
+        %send-pyro-dojo
+      :_  state
+      (send-pyro-dojo:zig-lib [who command]:act)^~
     ==
   --
 ::
@@ -1298,6 +1321,12 @@
     %.  sync-desk-to-vship
     %~  sync-desk-to-vship  make-update-vase:zig-lib
     ['' %sync-desk-to-vship ~]
+  ::
+      [%cis-running ~]
+    :^  ~  ~  %ziggurat-update
+    %.  cis-running
+    %~  cis-running  make-update-vase:zig-lib
+    ['' %cis-running ~]
   ::
       [%custom-step-compiled @ @ @ ~]
     =*  project-name  i.t.t.p
