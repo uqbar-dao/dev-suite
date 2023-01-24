@@ -352,6 +352,8 @@
     ^-  (quip card _state)
     ?>  =(our.bowl src.bowl)
     =*  tag  -.+.+.act
+    ?:  =(tag %cis-panic) 
+      ~^state(cis-running ~)
     =/  =update-info:zig  [project.act tag request-id.act]
     ?:  ?&  !=(0 ~(wyt by cis-running))
             ?|  ?=(~ request-id.act)
@@ -457,6 +459,9 @@
         %delete-project
       ::  should show a warning on frontend before performing this one ;)
       `state(projects (~(del by projects) project.act))
+    ::
+        %cis-panic  :: we handle this above, not here. ignore
+      ~^state
     ::
         %save-config-to-file
       ::  frontend should warn about overwriting

@@ -160,6 +160,8 @@
           [%delete-user-file file=path]
       ::
           [%send-pyro-dojo who=@p command=tape]
+      ::
+          [%cis-panic ~]
       ==
   ==
 ::

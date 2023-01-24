@@ -2114,6 +2114,8 @@
         [%delete-user-file (ot ~[[%file pa]])]
     ::
         [%send-pyro-dojo (ot ~[[%who (se %p)] [%command sa]])]
+    ::
+        [%cis-panic ul]
     ==
   ::
   ++  docket
