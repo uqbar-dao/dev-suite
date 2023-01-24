@@ -198,6 +198,11 @@
     ^-  vase
     !>  ^-  update:zig
     [%cis-running update-info [%& cis-running] ~]
+  ::
+  ++  cis-setup-done
+    ^-  vase
+    !>  ^-  update:zig
+    [%cis-setup-done update-info [%& ~] ~]
   --
 ::
 ++  make-error-vase
@@ -352,6 +357,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%cis-running update-info [%| level message] ~]
+  ::
+  ++  cis-setup-done
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%cis-setup-done update-info [%| level message] ~]
   --
 ::
 ++  make-compile-contracts
@@ -1095,9 +1106,10 @@
   ++  commit-wait   (add now.bowl commit-poll-duration)
   ++  install-wait  (add now.bowl install-poll-duration)
   ++  start-wait    (add now.bowl start-poll-duration)
-  ++  committing-wire  `wire`[%committing base-wire]
-  ++  installing-wire  `wire`[%installing base-wire]
-  ++  starting-wire    `wire`[%starting base-wire]
+  ++  committing-wire      `wire`[%committing base-wire]
+  ++  installing-wire      `wire`[%installing base-wire]
+  ++  starting-wire        `wire`[%starting base-wire]
+  ++  cis-setup-done-wire  `wire`[%cis-setup-done base-wire]
   ::
   ++  base-wire
     ^-  wire
@@ -1115,10 +1127,13 @@
     ^-  [(list card) (map @p @t)]
     =.  cis-running  (~(del by cis-running) who)
     :_  cis-running
-    :+  %+  update-vase-to-card  desk
+    :-  %+  update-vase-to-card  desk
         %.  cis-running
         %~  cis-running  make-update-vase
         ['' %cis ~]
+    ?.  =(0 ~(wyt by cis-running))  ~
+    :+  %.  [%ziggurat /project/[desk]]
+        ~(watch-our pass:io cis-setup-done-wire)
       %-  ~(poke-self pass:io /self-wire)
       [%ziggurat-action !>(`action:zig`''^~^[%run-queue ~])]
     ~
@@ -1183,6 +1198,35 @@
     ?~  rest-of-apps  run-queue
     =*  next-app   i.rest-of-apps
     (do-start next-app rest-of-apps)
+  ::
+  ++  on-update-setup-done
+    |=  c=cage
+    |^  ^-  (list card)
+    ?.  ?=(%ziggurat-update p.c)  !!  ::  TODO: do better
+    =+  !<(=update:zig q.c)
+    =*  payload  payload.update
+    ?+    -.update  ~
+        %run-queue
+      ?:  ?=(%& -.payload)                          ~
+      ?.  ?=(%warning level.p.payload)              ~
+      ?.  =('no tests in queue' message.p.payload)  ~
+      :+  make-done-card
+        (~(leave-our pass:io cis-setup-done-wire) %ziggurat)
+      ~
+        %test-queue
+      ?:  ?=(%| -.payload)  !!  ::  TODO: do better
+      ?.  =(0 ~(wyt in p.payload))  ~
+      :+  make-done-card
+        (~(leave-our pass:io cis-setup-done-wire) %ziggurat)
+      ~
+    ==
+    ::
+    ++  make-done-card
+      ^-  card
+      %+  update-vase-to-card  desk
+      %~  cis-setup-done  make-update-vase
+      [desk %cis-setup-done ~]
+    --
   --
 ::
 ++  compile-test-imports
@@ -1421,7 +1465,6 @@
           virtualships-to-sync  t.virtualships-to-sync
           cards                 (weld cards cis-cards)
       ==
-
     :-  :_  cards
         %+  update-vase-to-card  project-name
         %.  cis-running
@@ -1676,6 +1719,9 @@
       %+  turn  ~(tap by p.payload.update)
       |=  [who=@p message=@t]
       [(scot %p who) %s message]
+    ::
+        %cis-setup-done
+      ['data' ~]~
     ==
   ::
   ++  error

@@ -229,6 +229,7 @@
       [%pyro-agent-state update-info payload=(data [agent-state=@t wex=boat:gall sup=bitt:gall]) ~]
       [%sync-desk-to-vship update-info payload=(data sync-desk-to-vship) ~]
       [%cis-running update-info payload=(data (map @p @t)) ~]
+      [%cis-setup-done update-info payload=(data ~) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)

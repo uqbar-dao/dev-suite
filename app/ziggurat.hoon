@@ -411,8 +411,11 @@
           :_  state
           :_  ~
           (~(poke-self pass:io /self-wire) m v)
+        =/  request-id=@t
+          %-  ~(got by cis-running.modified-state)
+          -:?^(cfo ships.u.cfo default-ships:zig-lib)
         :_  modified-state
-        :+  (make-read-desk:zig-lib [project request-id]:act)
+        :+  (make-read-desk:zig-lib project.act `request-id)
           %+  update-vase-to-card:zig-lib  project.act
           %.  sync-desk-to-vship
           %~  new-project  make-update-vase:zig-lib
@@ -444,6 +447,10 @@
               %+  update-vase-to-card:zig-lib  project.act
               %.  sync-desk-to-vship
               %~  new-project  make-update-vase:zig-lib
+              update-info
+          ::
+              %+  update-vase-to-card:zig-lib  project.act
+              %~  cis-setup-done  make-update-vase:zig-lib
               update-info
           ==
       %=  state
@@ -1194,6 +1201,19 @@
       :_  this(pyro-ships-ready [[~nec %.y] ~ ~]) :: XX extremely hacky
       (~(leave-our pass:io /restore) %pyro)^~
     ==
+  ::
+      [%cis-setup-done @ @ @ @ ~]
+    ?.  ?=(%fact -.sign)  (on-agent:def w sign)
+    =/  who=@p            (slav %p i.t.w)
+    =*  desk              i.t.t.w
+    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
+    =/  apps=(list @tas)
+      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
+    =/  cards=(list card)
+      %.  cage.sign
+      %~  on-update-setup-done  cis:zig-lib
+      [who desk install apps cis-running]
+    [cards this]
   ==
 ::
 ++  on-arvo
