@@ -2114,6 +2114,8 @@
         [%delete-user-file (ot ~[[%file pa]])]
     ::
         [%send-pyro-dojo (ot ~[[%who (se %p)] [%command sa]])]
+    ::
+        [%pyro-agent-state pyro-agent-state]
     ==
   ::
   ++  docket
@@ -2255,6 +2257,14 @@
     :^    [%test-id (se %ux)]
         [%tag (se %tas)]
       [%path pa]
+    ~
+  ::
+  ++  pyro-agent-state
+    ^-  $-(json [who=@p app=@tas grab=@t])
+    %-  ot
+    :^    [%who (se %p)]
+        [%app (se %tas)]
+      [%grab so]
     ~
   --
 --
