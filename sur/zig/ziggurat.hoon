@@ -10,6 +10,9 @@
       =projects
       =configs
       =sync-desk-to-vship
+      focused-project=@t
+      linked-projects=(jug @t @t)
+      unfocused-project-snaps=(map @t path)
       pyro-ships-ready=(map @p ?)
       test-queue=(qeu [project=@t test-id=@ux])
       test-running=?

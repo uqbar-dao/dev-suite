@@ -48,9 +48,12 @@
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
   =*  wes-address
     0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
-  :-  :_  ~
-      %+  ~(poke-our pass:io /self-wire)  %pyro
-      [%pyro-action !>([%import-snap /testnet/jam /testnet])]
+  :-  :+  %+  ~(poke-our pass:io /self-wire)  %pyro
+          :-  %pyro-action
+          !>([%import-snap /testnet/jam /testnet])
+        %.  (add now.bowl ~s1)
+        ~(wait pass:io /on-init-zig-setup)
+      ~
   %_    this
       state
     :_  [eng smart-lib ~]
@@ -64,6 +67,9 @@
           [[~wes %address] wes-address]
         ~
     ::
+        ~
+        ''
+        ~
         ~
         ~
         ~
@@ -1194,6 +1200,16 @@
   |=  [w=wire =sign-arvo:agent:gall]
   ^-  (quip card _this)
   ?+    w  (on-arvo:def w sign-arvo)
+      [%on-init-zig-setup ~]
+    =*  our  (scot %p our.bowl)
+    =*  now  (scot %da now.bowl)
+    :_  this
+    ?:  .^(? %gu /[our]/subscriber/[now])  ~
+    :_  ~
+    %-  ~(poke-self pass:io /self-wire)
+    :-  %ziggurat-action
+    !>(`action:zig`[%zig ~ %new-project ~])
+  ::
       [%merge-wire @ @ ~]
     ?.  ?=(%clay -.sign-arvo)  !!
     ?.  ?=(%mere -.+.sign-arvo)  !!

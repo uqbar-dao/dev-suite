@@ -99,7 +99,6 @@
         ~&  >>>  " do not have indexer source for town {<town>}."
         ~&  >>>  " Add indexer source for town and try again."
         ~
-      ~&  %uqbar^%on-watch^%indexer^src.bowl^u.source
       :_  ~
       %+  ~(watch pass:io (weld wire-prefix sub-path))
       u.source  sub-path
