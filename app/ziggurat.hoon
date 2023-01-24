@@ -1367,15 +1367,17 @@
   ::   %+  frond:enjs:format  %user-files
   ::   (dir:enjs:zig-lib ~(tap in user-files.u.project))
   ::
-      [%pyro-agent-state @ @ ~]
+      [%pyro-agent-state @ @ @ ~]
     =*  who      i.t.t.p
     =*  app      `@tas`i.t.t.t.p
+    =*  grab     `@t`i.t.t.t.t.p
     =/  now=@ta  (scot %da now.bowl)
     =/  agent-state-noun=*
       .^  *
           %gx
-          %+  weld  /(scot %p our.bowl)/pyro/[now]/i/[who]/gx
-          /[who]/subscriber/[now]/agent-state/[app]/noun/noun
+          :-  (scot %p our.bowl)
+          %+  weld  /pyro/[now]/i/[who]/gx/[who]/subscriber
+          /[now]/agent-state/[app]/[grab]/noun/noun
       ==
     :^  ~  ~  %ziggurat-update
     ?~  agent-state-noun
