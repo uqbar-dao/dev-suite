@@ -79,7 +79,10 @@
       %-  user-files:pill
       /(scot %p p.byk.bowl)/base/(scot %da now.bowl)
     =.  park  (park:pyro our.bowl %base %da now.bowl)
-    `this
+    :_  this
+    :: have to start and kill a ship to fill the cache
+    %+  turn  ~[!>([%init-ship ~nec]) !>([%kill-ships ~[~nec]])]
+    |=(=vase [%pass / %agent [our dap]:bowl %poke %pyro-action vase])
   ++  on-save  !>(state)
   ++  on-load
     |=  old-vase=vase
