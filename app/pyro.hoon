@@ -393,9 +393,9 @@
           &                                            ::  fad
           :_  |                                        ::  zen
           :-  [~.nonce /pyro]
-          :~  zuse+zuse
-              lull+lull
-              arvo+arvo
+          :~  zuse+zuse:zuse-core
+              lull+lull:lull-core
+              arvo+arvo:arvo-core
               hoon+hoon-version
               nock+4
           ==
