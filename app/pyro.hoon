@@ -102,8 +102,8 @@
     |=  [=mark =vase]
     ^-  step:agent:gall
     =^  cards  state
-      ?+  mark  ~|([%aqua-bad-mark mark] !!)
-        %aqua-events  (poke-aqua-events:ac !<((list aqua-event) vase))
+      ?+  mark  ~|([%pyro-bad-mark mark] !!)
+        %pyro-events  (poke-pyro-events:ac !<((list pyro-event) vase))
         %pyro-action  (poke-action:ac our.bowl !<(action vase))
       ==
     [cards this]
@@ -125,12 +125,12 @@
       `this
     ?:  ?=([%event @ ^] path)
       ?~  (slaw %p i.t.path)
-        ~|([%aqua-bad-subscribe-path-ship path] !!)
+        ~|([%pyro-bad-subscribe-path-ship path] !!)
       `this
     ?.  ?=([?(%effects %effect %events %boths) @ ~] path)
-      ~|([%aqua-bad-subscribe-path path] !!)
+      ~|([%pyro-bad-subscribe-path path] !!)
     ?~  (slaw %p i.t.path)
-      ~|([%aqua-bad-subscribe-path-ship path] !!) 
+      ~|([%pyro-bad-subscribe-path-ship path] !!) 
     `this
   ::
   ++  on-peek
@@ -273,7 +273,7 @@
     =/  pek=(each vase tang)
       (mule |.((slym [-:!>(peek:arvo-adult) peek:snap] [`~ %&^pax])))
     ?:  ?=(%| -.pek)
-      ((slog >%aqua-crash< >who=who< p.pek) ~)
+      ((slog >%pyro-crash< >who=who< p.pek) ~)
     ?~  q.p.pek  ~
     :: success: make a (unit page) from a (vase (unit page))
     :: TODO: we don't have all type information, p.p.pek is #t/u([p=@tas q=*])
@@ -288,9 +288,9 @@
   ++  unpause  .(paused |)
   --
 ::
-::  ++apex-aqua and ++abet-aqua must bookend calls from gall
+::  ++apex-pyro and ++abet-pyro must bookend calls from gall
 ::
-++  apex-aqua
+++  apex-pyro
   ^+  this
   =:  cards         ~
       unix-effects  ~
@@ -299,7 +299,7 @@
     ==
   this
 ::
-++  abet-aqua
+++  abet-pyro
   ^-  (quip card _state)
   ::
   =.  this
@@ -312,14 +312,14 @@
     %+  turn  ufs
     |=  uf=unix-effect
     =+  paths=~[/effect /effect/[-.q.uf]]
-    [%give %fact paths %aqua-effect !>(`aqua-effect`[ship uf])]~
+    [%give %fact paths %pyro-effect !>(`pyro-effect`[ship uf])]~
   ::
   =.  this
     =/  =path  /effects
     %-  emit-cards
     %+  turn  ~(tap by unix-effects)
     |=  [=ship ufs=(list unix-effect)]
-    [%give %fact ~[path] %aqua-effects !>(`aqua-effects`[ship (flop ufs)])]
+    [%give %fact ~[path] %pyro-effects !>(`pyro-effects`[ship (flop ufs)])]
   ::
   =.  this
     %-  emit-cards
@@ -329,21 +329,21 @@
     =/  =path  /effect/(scot %p ship)
     %+  turn  ufs
     |=  uf=unix-effect
-    [%give %fact ~[path] %aqua-effect !>(`aqua-effect`[ship uf])]
+    [%give %fact ~[path] %pyro-effect !>(`pyro-effect`[ship uf])]
   ::
   =.  this
     %-  emit-cards
     %+  turn  ~(tap by unix-effects)
     |=  [=ship ufs=(list unix-effect)]
     =/  =path  /effects/(scot %p ship)
-    [%give %fact ~[path] %aqua-effects !>(`aqua-effects`[ship (flop ufs)])]
+    [%give %fact ~[path] %pyro-effects !>(`pyro-effects`[ship (flop ufs)])]
   ::
   =.  this
     %-  emit-cards
     %+  turn  ~(tap by unix-events)
     |=  [=ship ve=(list unix-timed-event)]
     =/  =path  /events/(scot %p ship)
-    [%give %fact ~[path] %aqua-events !>(`aqua-events`[ship (flop ve)])]
+    [%give %fact ~[path] %pyro-events !>(`pyro-events`[ship (flop ve)])]
   ::
   =.  this
     %-  emit-cards
@@ -353,14 +353,14 @@
     %+  turn  utes
     |=  ut=unix-timed-event
     =/  =path  (weld /event/(scot %p ship) p.ue.ut)
-    [%give %fact ~[path] %aqua-event !>(`aqua-event`[ship ue.ut])]
+    [%give %fact ~[path] %pyro-event !>(`pyro-event`[ship ue.ut])]
   ::
   =.  this
     %-  emit-cards
     %+  turn  ~(tap by unix-boths)
     |=  [=ship bo=(list unix-both)]
     =/  =path  /boths/(scot %p ship)
-    [%give %fact ~[path] %aqua-boths !>(`aqua-boths`[ship (flop bo)])]
+    [%give %fact ~[path] %pyro-boths !>(`pyro-boths`[ship (flop bo)])]
   ::
   [(flop cards) state]
 ::
@@ -371,12 +371,12 @@
 ::
 ::  Apply a list of events tagged by ship
 ::
-++  poke-aqua-events
-  |=  events=(list aqua-event)
+++  poke-pyro-events
+  |=  events=(list pyro-event)
   ^-  (quip card _state)
-  =.  this  apex-aqua  =<  abet-aqua
+  =.  this  apex-pyro  =<  abet-pyro
   %+  turn-events  events
-  |=  [ae=aqua-event thus=_this]
+  |=  [ae=pyro-event thus=_this]
   =.  this  thus
   (push-events:(pe who.ae) [ue.ae]~)
 ::
@@ -385,7 +385,7 @@
   ^-  (quip card _state)
   ?-    -.act
       %init-ship
-    =.  this  apex-aqua  =<  abet-aqua
+    =.  this  apex-pyro  =<  abet-pyro
     =.  this  abet-pe:unpause:(publish-effect:(pe who.act) [/ %kill ~])
     =/  clay  (clay-core who.act)
     =.  ruf.clay  raft
@@ -466,7 +466,7 @@
       (publish-effect:(pe who) [/ %kill ~])
     =.  piers  (~(got by fleet-snaps) path.act)
     ~&  pyro+restore-snap+path.act
-    abet-aqua
+    abet-pyro
   ::
       %delete-snap
     `state(fleet-snaps (~(del by fleet-snaps) path.act))
@@ -474,7 +474,7 @@
       %clear-snaps  `state(fleet-snaps ~)
   ::
       %wish
-    =.  this  apex-aqua  =<  abet-aqua
+    =.  this  apex-pyro  =<  abet-pyro
     ^+  this
     %+  turn-ships  hers.act
     |=  [who=ship thus=_this]
@@ -486,7 +486,7 @@
     (pe who)
   ::
       %unpause-ships
-    =.  this  apex-aqua  =<  abet-aqua
+    =.  this  apex-pyro  =<  abet-pyro
     ^+  this
     %+  turn-ships  hers.act
     |=  [who=ship thus=_this]
@@ -494,7 +494,7 @@
     unpause:(pe who)
   ::
       %pause-ships
-    =.  this  apex-aqua  =<  abet-aqua
+    =.  this  apex-pyro  =<  abet-pyro
     ^+  this
     %+  turn-ships  hers.act
     |=  [who=ship thus=_this]
@@ -530,6 +530,6 @@
   $(hers t.hers, this this)
 ::
 ++  turn-ships   (turn-plow ship)
-++  turn-events  (turn-plow aqua-event)
+++  turn-events  (turn-plow pyro-event)
 ::
 --

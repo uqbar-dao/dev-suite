@@ -6,7 +6,7 @@
         [who=ship =desk ~]
         ~
     ==
-:-  %aqua-events
+:-  %pyro-events
 :_  ~
 :+  who  /c/commit/(scot %p who)
 (park:pyro p.beak desk r.beak)

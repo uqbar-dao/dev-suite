@@ -3,5 +3,5 @@
 ::
 :-  %say
 |=  [* [her=ship v=?(%a %b %c %d %e %g %i %j %k) =task-arvo ~] ~]
-:-  %aqua-events
+:-  %pyro-events
 [her /[v] task-arvo]~

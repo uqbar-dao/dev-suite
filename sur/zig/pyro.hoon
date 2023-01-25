@@ -1,6 +1,6 @@
 ::  We do not use the traditional arvo event naming scheme (ova/ovum).
 ::  Every card is either an `event` or an `effect`.
-::  aqua-events are associated withs ships, unix-events are not
+::  pyro-events are associated withs ships, unix-events are not
 ::  'timed' events/effects include the time of the event, used for logs
 ::
 |%
@@ -45,11 +45,11 @@
       [%effect unix-effect]
   ==
 ::
-+$  aqua-event    [who=ship ue=unix-event]
-+$  aqua-events   [who=ship utes=(list unix-timed-event)]
-+$  aqua-effects  [who=ship ufs=(list unix-effect)]
-+$  aqua-effect   [who=ship ufs=unix-effect]
-+$  aqua-boths    [who=ship ub=(list unix-both)]
++$  pyro-event    [who=ship ue=unix-event]
++$  pyro-events   [who=ship utes=(list unix-timed-event)]
++$  pyro-effects  [who=ship ufs=(list unix-effect)]
++$  pyro-effect   [who=ship ufs=unix-effect]
++$  pyro-boths    [who=ship ub=(list unix-both)]
 ::
 +$  action
   $%  ::  ship inits and deletes

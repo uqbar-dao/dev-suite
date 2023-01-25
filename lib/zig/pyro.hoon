@@ -6,17 +6,17 @@
 ::
 |%
 ++  send-events
-  |=  events=(list aqua-event)
+  |=  events=(list pyro-event)
   =/  m  (strand ,~)
   ^-  form:m
-  (poke-our %pyro %aqua-events !>(events))
+  (poke-our %pyro %pyro-events !>(events))
 ::
 ++  take-unix-effect
   =/  m  (strand ,[ship unix-effect])
   ^-  form:m
   ;<  [=path =cage]  bind:m  (take-fact-prefix /effect)
-  ?>  ?=(%aqua-effect p.cage)
-  (pure:m !<([aqua-effect] q.cage))
+  ?>  ?=(%pyro-effect p.cage)
+  (pure:m !<([pyro-effect] q.cage))
 ::
 :: TODO broken
 ++  reset-ship
@@ -30,7 +30,7 @@
 ::
 ++  ue-to-ae
   |=  [who=ship what=(list unix-event)]
-  ^-  (list aqua-event)
+  ^-  (list pyro-event)
   %+  turn  what
   |=  ue=unix-event
   [who ue]

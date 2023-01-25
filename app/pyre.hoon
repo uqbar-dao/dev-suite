@@ -41,7 +41,7 @@
       [%ames @ ~]
     ?+    -.sign  (on-agent:def wire sign)
         %fact
-      =+  ef=!<([aqua-effect] q.cage.sign)
+      =+  ef=!<([pyro-effect] q.cage.sign)
       ?>  ?=(%send -.q.ufs.ef)
       [(send:ames:hc now.bowl who.ef ufs.ef) this]
     ==
@@ -49,7 +49,7 @@
       [%behn @ ~]
     ?+    -.sign  (on-agent:def wire sign)
         %fact
-      =+  ef=!<([aqua-effect] q.cage.sign)
+      =+  ef=!<([pyro-effect] q.cage.sign)
       =^  cards  behn-piers
         ?+    -.q.ufs.ef  [~ behn-piers]
             %doze     abet:(doze:(behn:hc who.ef) ufs.ef)
@@ -61,7 +61,7 @@
       [%dill %blit ~]
     ?+    -.sign  (on-agent:def wire sign)
         %fact
-      =+  ef=!<([aqua-effect] q.cage.sign)
+      =+  ef=!<([pyro-effect] q.cage.sign)
       ?>  ?=(%blit -.q.ufs.ef)
       =+  out=(blit:dill:hc ef)
       ~?  !=(~ out)  out  
@@ -71,7 +71,7 @@
       [%iris @ ~]
     ?+    -.sign  (on-agent:def wire sign)
         %fact
-      =+  ef=!<([aqua-effect] q.cage.sign)
+      =+  ef=!<([pyro-effect] q.cage.sign)
       =^  cards  iris-piers
         ?+  -.q.ufs.ef  [~ iris-piers]
           %request         abet:(request:(iris:hc who.ef) ufs.ef)
@@ -140,10 +140,10 @@
 |_  bowl=bowl:gall
 ++  ames
   |%
-  ++  emit-aqua-events
-    |=  aes=(list aqua-event)
+  ++  emit-pyro-events
+    |=  aes=(list pyro-event)
     ^-  (list card:agent:gall)
-    [%pass /aqua-events %agent [our.bowl %pyro] %poke %aqua-events !>(aes)]~
+    [%pass /pyro-events %agent [our.bowl %pyro] %poke %pyro-events !>(aes)]~
   ::
   ++  send
     ::  XX unix-timed events need now
@@ -151,9 +151,9 @@
     ^-  (list card:agent:gall)
     =/  rcvr=ship  (lane-to-ship lan)
     =/  hear-lane  (ship-to-lane sndr)
-    %-  emit-aqua-events
+    %-  emit-pyro-events
     [rcvr /a/newt/0v1n.2m9vh %hear hear-lane pac]~
-  ::  +lane-to-ship: decode a ship from an aqua lane
+  ::  +lane-to-ship: decode a ship from an pyro lane
   ::
   ++  lane-to-ship
     |=  =lane:^ames
@@ -189,10 +189,10 @@
     |=  cs=(list card:agent:gall)
     %_(this cards (weld cs cards))
   ::
-  ++  emit-aqua-events
-    |=  aes=(list aqua-event)
+  ++  emit-pyro-events
+    |=  aes=(list pyro-event)
     %-  emit-cards
-    [%pass /aqua-events %agent [our.bowl %pyro] %poke %aqua-events !>(aes)]~
+    [%pass /pyro-events %agent [our.bowl %pyro] %poke %pyro-events !>(aes)]~
   ::
   ++  doze
     |=  [way=wire %doze tim=(unit @da)]
@@ -221,12 +221,12 @@
   ::
   ++  take-wake
     |=  [way=wire error=(unit tang)]
-    ~?  debug=|  [who=who %aqua-behn-wake now.bowl error=error]
+    ~?  debug=|  [who=who %pyro-behn-wake now.bowl error=error]
     =.  next-timer  ~
     =.  this
-      %-  emit-aqua-events
+      %-  emit-pyro-events
       ?^  error
-        ::  Should pass through errors to aqua, but doesn't
+        ::  Should pass through errors to pyro, but doesn't
         ((slog leaf+"pyro-behn: timer failed" u.error) ~)
       [who /b/behn/0v1n.2m9vh [%wake ~]]~
     ..abet
@@ -272,10 +272,10 @@
     |=  cs=(list card:agent:gall)
     %_(this cards (weld cs cards))
   ::
-  ++  emit-aqua-events
-    |=  aes=(list aqua-event)
+  ++  emit-pyro-events
+    |=  aes=(list pyro-event)
     %-  emit-cards
-    [%pass /aqua-events %agent [our.bowl %pyro] %poke %aqua-events !>(aes)]~
+    [%pass /pyro-events %agent [our.bowl %pyro] %poke %pyro-events !>(aes)]~
   ::
   ++  request
     |=  [way=wire %request id=@ud req=request:http]
@@ -300,7 +300,7 @@
       ..abet
     =.  http-requests  (~(del in http-requests) num)
     =.  this
-      %-  emit-aqua-events
+      %-  emit-pyro-events
       :_  ~
       :*  who  /i/http/0v1n.2m9vh
           %receive  num
