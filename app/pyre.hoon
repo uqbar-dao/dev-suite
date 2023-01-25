@@ -18,7 +18,15 @@
 ++  on-init
   ^-  (quip card _this)
   :_  this
-  :: :-  [%pass /connect %arvo %e %connect [~ /'~pyro'] %pyro]~
+  [%pass / %agent [our dap]:bowl %poke %pyre-action !>([%resub ~])]~
+++  on-save  on-save:def
+++  on-load  on-load:def
+++  on-poke
+  |=  [=mark =vase]
+  ?>  =(mark %noun)
+  =+  !<([%resub ~] vase)
+  :_  this
+  %-  zing
   %+  turn
     :~  [/ames/send /effect/send]
         [/behn/doze /effect/doze]
@@ -29,10 +37,9 @@
         [/iris/kill /effect/kill]
     ==
   |=  [=wire =path]
-  [%pass wire %agent [our.bowl %pyro] %watch path]
-++  on-save  on-save:def
-++  on-load  on-load:def
-++  on-poke  on-poke:def
+  :~  [%pass wire %agent [our.bowl %pyro] %leave ~]
+      [%pass wire %agent [our.bowl %pyro] %watch path]
+  ==
 ::
 ++  on-agent
   |=  [=wire =sign:agent:gall]
