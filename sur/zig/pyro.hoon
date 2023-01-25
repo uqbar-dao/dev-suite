@@ -1,75 +1,25 @@
-::  Traditionally, ovo refers to an ovum -- (pair wire card) -- and ova
-::  refers to a list of them.  We have several versions of each of these
-::  depending on context, so we do away with that naming scheme and use
-::  the following naming scheme.
-::
-::  Every card is either an `event` or an `effect`.  Prepended to this
-::  is `unix` if it has no ship associated with it, or `aqua` if it
-::  does.  `timed` is added if it includes the time of the event.
+::  We do not use the traditional arvo event naming scheme (ova/ovum).
+::  Every card is either an `event` or an `effect`.
+::  aqua-events are associated withs ships, unix-events are not
+::  'timed' events/effects include the time of the event, used for logs
 ::
 |%
+::  like unix-event:pill-lib but for all tasks
 ::
-+$  unix-event  :: like unix-event:pill-lib but for all tasks
++$  unix-event
   %+  pair  wire
-  $%  [%wack p=@]
+  $%  :: for boot sequence, see $wisp:arvo
+      ::
+      [%wack p=@]
       [%what p=(list (pair path (cask)))]
       [%whom p=ship]
-      [%boot ? $%($>(%fake task:jael) $>(%dawn task:jael))]
       [%wyrd p=vere]
       [%verb p=(unit ?)]
+      [%boot ? $%($>(%fake task:jael) $>(%dawn task:jael))]
+      ::  for all other inputs
+      ::  TODO: should we move to note-arvo instead?
+      ::
       task-arvo
-  ==
-::
-+$  aqua-event
-  $%  [%init-ship who=ship]
-      [%event who=ship ue=unix-event]
-  ==
-::
-+$  action
-  $%  ::  snapshot pokes
-      ::
-      [%snap-ships =path hers=(list ship)]
-      [%restore-snap =path]
-      [%delete-snap =path]
-      [%clear-snaps ~]
-      ::  snapshot import/exports
-      ::
-      [%export-snap =path]
-      [%import-snap jam-file-path=path snap-label=path]
-      [%export-fresh-piers ~]
-      [%import-fresh-piers jam-file-path=path]
-      ::  ship management
-      ::
-      [%wish hers=(list ship) p=@t]
-      [%kill-ships hers=(list ship)]
-      [%unpause-events hers=(list ship)]
-      [%pause-events hers=(list ship)]
-      [%commit =desk hers=(list ship)]
-  ==
-::
-++  update
-  $@  ~
-  $%  [%snaps snap-paths=(list path)]
-      [%snap-ships =path ships=(list ship)]
-      [%ships ships=(list ship)]
-      [%fresh-piers ships=(list ship)]
-  ==
-::
-+$  aqua-effects
-  [who=ship ufs=(list unix-effect)]
-::
-+$  aqua-effect
-  [who=ship ufs=unix-effect]
-::
-+$  aqua-events
-  [who=ship utes=(list unix-timed-event)]
-::
-+$  aqua-boths
-  [who=ship ub=(list unix-both)]
-::
-+$  unix-both
-  $%  [%event unix-timed-event]
-      [%effect unix-effect]
   ==
 ::
 +$  unix-timed-event  [tym=@da ue=unix-event]
@@ -85,15 +35,49 @@
       [%thus p=@ud q=(unit hiss:eyre)]        ::  eyre ???
       [%request id=@ud request=request:http]  ::  iris request
       [%poke-ack p=(unit tang)]               ::  gall agent poke-ack
-      ::  pyro specific effects
+      ::  pyro specific effect
       ::
-      [%sleep ~]                              :: reset runtime
-      [%restore ~]                            :: restore snap
       [%kill ~]                               :: stop ship
-      [%init ~]                               :: start ship
+  ==
+::
++$  unix-both
+  $%  [%event unix-timed-event]
+      [%effect unix-effect]
+  ==
+::
++$  aqua-event    [who=ship ue=unix-event]
++$  aqua-events   [who=ship utes=(list unix-timed-event)]
++$  aqua-effects  [who=ship ufs=(list unix-effect)]
++$  aqua-effect   [who=ship ufs=unix-effect]
++$  aqua-boths    [who=ship ub=(list unix-both)]
+::
++$  action
+  $%  ::  ship inits and deletes
+      ::
+      [%init-ship who=ship] :: TODO should this be hers=(list ship)?
+      [%kill-ships hers=(list ship)]
+      ::  snapshot pokes
+      ::
+      [%snap-ships =path hers=(list ship)]
+      [%restore-snap =path]
+      [%delete-snap =path]
+      [%clear-snaps ~]
+      ::  pausing
+      ::
+      [%unpause-ships hers=(list ship)]
+      [%pause-ships hers=(list ship)]
+      ::  misc
+      ::
+      [%wish hers=(list ship) p=@t]
   ==
 ::
 +$  behn-pier  next-timer=(unit @da)
 +$  iris-pier  http-requests=(set @ud)
 ::
+++  update
+  $@  ~
+  $%  [%snaps snap-paths=(list path)]
+      [%snap-ships =path ships=(list ship)]
+      [%ships ships=(list ship)]
+  ==
 --

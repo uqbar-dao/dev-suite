@@ -20,31 +20,19 @@
   :_  this
   :: :-  [%pass /connect %arvo %e %connect [~ /'~pyro'] %pyro]~
   %+  turn
-    ::  /effect/kill and /effect/restore are %pyro events
     :~  [/ames/send /effect/send]
-        [/ames/restore /effect/restore]
-    ::
-        [/behn/sleep /effect/sleep]
         [/behn/doze /effect/doze]
-        [/behn/kill /effect/kill]
-        [/behn/restore /effect/restore]
-    ::
         [/dill/blit /effect/blit]
-    ::
         [/iris/request /effect/request]
-        [/iris/sleep /effect/sleep]
+    ::
+        [/behn/kill /effect/kill]
         [/iris/kill /effect/kill]
-        [/iris/restore /effect/restore]
     ==
   |=  [=wire =path]
   [%pass wire %agent [our.bowl %pyro] %watch path]
 ++  on-save  on-save:def
 ++  on-load  on-load:def
-::
-++  on-poke
-  |=  [=mark =vase]
-  ^-  (quip card _this)
-  `this
+++  on-poke  on-poke:def
 ::
 ++  on-agent
   |=  [=wire =sign:agent:gall]
@@ -54,10 +42,8 @@
     ?+    -.sign  (on-agent:def wire sign)
         %fact
       =+  ef=!<([aqua-effect] q.cage.sign)
-      ?+    -.q.ufs.ef  (on-agent:def wire sign)
-          %restore  [(restore:ames:hc who.ef) this]
-          %send     [(send:ames:hc now.bowl who.ef ufs.ef) this]
-      ==
+      ?>  ?=(%send -.q.ufs.ef)
+      [(send:ames:hc now.bowl who.ef ufs.ef) this]
     ==
   ::
       [%behn @ ~]
@@ -66,9 +52,7 @@
       =+  ef=!<([aqua-effect] q.cage.sign)
       =^  cards  behn-piers
         ?+    -.q.ufs.ef  [~ behn-piers]
-            %sleep    abet:sleep:(behn:hc who.ef)
             %doze     abet:(doze:(behn:hc who.ef) ufs.ef)
-            %restore  abet:restore:(behn:hc who.ef)
             %kill     `(~(del by behn-piers) who.ef)
         ==
       [cards this]
@@ -79,7 +63,9 @@
         %fact
       =+  ef=!<([aqua-effect] q.cage.sign)
       ?>  ?=(%blit -.q.ufs.ef)
-      [(blit:dill:hc ef) this]
+      =+  out=(blit:dill:hc ef)
+      ~?  !=(~ out)  out  
+      `this
     ==
   ::
       [%iris @ ~]
@@ -89,8 +75,6 @@
       =^  cards  iris-piers
         ?+  -.q.ufs.ef  [~ iris-piers]
           %request         abet:(request:(iris:hc who.ef) ufs.ef)
-          %sleep           abet:sleep:(iris:hc who.ef)
-          %restore         abet:restore:(iris:hc who.ef)
           %kill            `(~(del by iris-piers) who.ef)
         ==
       [cards this]
@@ -161,12 +145,6 @@
     ^-  (list card:agent:gall)
     [%pass /aqua-events %agent [our.bowl %pyro] %poke %aqua-events !>(aes)]~
   ::
-  ++  restore
-    |=  who=@p
-    ^-  (list card:agent:gall)
-    %-  emit-aqua-events
-    [%event who [/a/newt/0v1n.2m9vh %born ~]]~
-  ::
   ++  send
     ::  XX unix-timed events need now
     |=  [now=@da sndr=@p way=wire %send lan=lane:^ames pac=@]
@@ -174,7 +152,7 @@
     =/  rcvr=ship  (lane-to-ship lan)
     =/  hear-lane  (ship-to-lane sndr)
     %-  emit-aqua-events
-    [%event rcvr /a/newt/0v1n.2m9vh %hear hear-lane pac]~
+    [rcvr /a/newt/0v1n.2m9vh %hear hear-lane pac]~
   ::  +lane-to-ship: decode a ship from an aqua lane
   ::
   ++  lane-to-ship
@@ -216,20 +194,6 @@
     %-  emit-cards
     [%pass /aqua-events %agent [our.bowl %pyro] %poke %aqua-events !>(aes)]~
   ::
-  ++  sleep
-    ^+  ..abet
-    =<  ..abet(pier-data *behn-pier)
-    ?~  next-timer
-      ..abet
-    cancel-timer
-  ::
-  ++  restore
-    ^+  ..abet
-    =.  this
-      %-  emit-aqua-events
-      [%event who [/b/behn/0v1n.2m9vh %born ~]]~
-    ..abet
-  ::
   ++  doze
     |=  [way=wire %doze tim=(unit @da)]
     ^+  ..abet
@@ -263,36 +227,30 @@
       %-  emit-aqua-events
       ?^  error
         ::  Should pass through errors to aqua, but doesn't
-        ::
-        %-  (slog leaf+"pyro-behn: timer failed" u.error)
-        ~
-      :_  ~
-      ^-  aqua-event
-      :+  %event  who
-      [/b/behn/0v1n.2m9vh [%wake ~]]
+        ((slog leaf+"pyro-behn: timer failed" u.error) ~)
+      [who /b/behn/0v1n.2m9vh [%wake ~]]~
     ..abet
   --
 ++  dill
   |%
   ++  blit
     |=  [who=@p way=wire %blit blits=(list blit:^dill)]
-    ^-  (list card:agent:gall)
-    =/  last-line
-      %+  roll  blits
-      |=  [b=blit:^dill line=tape]
-      ?-    -.b
-          %lin  (tape p.b)
-          %klr  (tape (zing (turn p.b tail)))
-          %mor  ~&  "{<who>}: {line}"  ""
-          %hop  ""
-          %bel  line
-          %clr  ""
-          %sag  ~&  [%save-jamfile-to p.b]  line
-          %sav  ~&  [%save-file-to p.b]  line
-          %url  ~&  [%activate-url p.b]  line
-      ==
-    ~?  !=(~ last-line)  last-line
-    ~
+    ^-  tape
+    %+  roll  blits
+    |=  [b=blit:^dill line=tape]
+    ?-  -.b
+      %bel  line
+      %clr  ""
+      %hop  ""
+      %klr  (tape (zing (turn p.b tail)))
+      %mor  (blit who way %blit p.b)
+      %nel  ""
+      %put  ~&  (weld "{<who>}: " (tufa p.b))  ""
+      %sag  ~&  [%save-jamfile-to p.b]  line
+      %sav  ~&  [%save-file-to p.b]     line
+      %url  ~&  [%activate-url p.b]     line
+      %wyp  ""
+    ==
   --
 ++  iris
   ::  :pyro|dojo ~nec "|pass [%i %request [%'GET' 'https://google.com' ~ ~] *outbound-config:iris]"
@@ -319,17 +277,6 @@
     %-  emit-cards
     [%pass /aqua-events %agent [our.bowl %pyro] %poke %aqua-events !>(aes)]~
   ::
-  ++  sleep
-    ^+  ..abet
-    ..abet(pier-data *iris-pier)
-  ::
-  ++  restore
-    ^+  ..abet
-    =.  this
-      %-  emit-aqua-events
-      [%event who [/i/http/0v1n.2m9vh %born ~]]~
-      ..abet
-  ::
   ++  request
     |=  [way=wire %request id=@ud req=request:http]
     ^+  ..abet
@@ -355,7 +302,7 @@
     =.  this
       %-  emit-aqua-events
       :_  ~
-      :*  %event  who  /i/http/0v1n.2m9vh
+      :*  who  /i/http/0v1n.2m9vh
           %receive  num
           %start  response-header  data  &
       ==

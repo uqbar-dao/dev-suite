@@ -1026,7 +1026,7 @@
   :-  %aqua-events
   !>  ^-  (list aqua-event:pyro)
   :_  ~
-  :^  %event  who  /c/commit/(scot %p who)
+  :+  who  /c/commit/(scot %p who)
   (park:pyro-lib our.bowl project-name %da now.bowl)
 ::
 ++  send-pyro-dojo
