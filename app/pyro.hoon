@@ -414,7 +414,7 @@
               [%gall [!>((gall-core who.act)) *worm]]
               [%iris [!>((iris-core who.act)) *worm]]
               [%jael [!>((jael-core who.act)) *worm]]
-              [%kahn [!>((khan-core who.act)) *worm]]
+              [%khan [!>((khan-core who.act)) *worm]]
       ==  ==
     =.  piers  (~(put by piers) who.act new)
     =.  this
