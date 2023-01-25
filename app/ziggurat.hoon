@@ -71,10 +71,11 @@
         ''
         ~
         ~
+        :: ~
         ~
-        ~
-        %.n
-        ~
+        :: %.n
+        :: ~
+        [%uninitialized ~]
     ==
   ==
 ::
@@ -330,15 +331,6 @@
       [project-name %add-and-queue-test-file request-id]
     cards
   ::
-  ++  ships-not-yet-running-to-run
-    |=  must-run-ships=(set @p)
-    ^-  (set @p)
-    %-  ~(dif in must-run-ships)
-    %-  ~(gas in *(set @p))
-    %-  ~(rep by pyro-ships-ready)
-    |=  [[who=@p ready=?] running-ships=(list @p)]
-    ?.(ready running-ships [who running-ships])
-  ::
   ++  start-ships-then-rerun
     |=  $:  ships-to-run=(list @p)
             project-name=@t
@@ -359,14 +351,19 @@
     ?>  =(our.bowl src.bowl)
     =*  tag  -.+.+.act
     =/  =update-info:zig  [project.act tag request-id.act]
-    ?:  ?&  !=(0 ~(wyt by cis-running))
-            ?|  ?=(~ request-id.act)
-            ::
-                ?!
-                %.  u.request-id.act
-                %~  has  in
-                (~(gas in *(set @t)) ~(val by cis-running))
-        ==  ==
+    ?:  ?|  ?&  ?=(%commit-install-starting -.status)
+                !=(0 ~(wyt by cis-running.status))
+                ?|  ?=(~ request-id.act)
+                ::
+                    ?!
+                    %.  u.request-id.act
+                    %~  has  in
+                    %-  ~(gas in *(set @t))
+                    ~(val by cis-running.status)
+            ==  ==
+        ::
+            :: %changing-project-links
+        ==
       :_  state
       :_  ~
       %+  update-vase-to-card:zig-lib  project.act
@@ -385,6 +382,29 @@
         :_  ~
         %+  update-vase-to-card:zig-lib  project.act
         (new-project-error (crip message))
+      ?:  &(=(0 ~(wyt by projects)) =('zig' project.act))
+        =.  projects  (~(put by projects) 'zig' *project:zig)
+        %+  start-ships-then-rerun  default-ships:zig-lib
+        [project request-id]:act
+      =/  snap-cards=(list card)
+        :_  ~
+        %+  ~(poke-our pass:io /pyro-poke)  %pyro
+        :-  %pyro-action
+        !>  ^-  action:pyro
+        [%restore-snap default-snap-path:zig-lib]
+      =.  snap-cards
+        ?:  =('' focused-project)  snap-cards
+        =/  current-links=@t
+          %-  crip
+          %-  noah
+          !>  ^-  (set @t)
+          (~(get ju linked-projects) focused-project)
+        :_  snap-cards
+        %+  ~(poke-our pass:io /pyro-poke)  %pyro
+        :-  %pyro-action
+        !>  ^-  action:pyro
+        :+  %snap-ships  /[current-links]/(scot %da now.bowl)
+        pyro-ships:(~(got by projects) focused-project)
       =/  desks=(set desk)
         .^  (set desk)
             %cd
@@ -397,22 +417,27 @@
               projects
             (~(put by projects) project.act *project:zig)
           ==
-        =/  ships-to-run=(list @p)
-          %~  tap  in
-          %-  ships-not-yet-running-to-run
-          %-  ~(gas in *(set @p))
-          ?^(cfo ships.u.cfo default-ships:zig-lib)
-        ?^  ships-to-run
-          %+  start-ships-then-rerun  ships-to-run
-          [project request-id]:act
+        :: =/  ships-to-run=(list @p)  :: TODO
+        ::   %~  tap  in
+        ::   %.  default-ships:zig-lib
+        ::   %~  dif  in
+        ::   %-  ~(gas in *(set @p))
+        ::   ?^(cfo ships.u.cfo default-ships:zig-lib)
+        :: ?^  ships-to-run
+        ::   %+  start-ships-then-rerun  ships-to-run
+        ::   [project request-id]:act
         ::
         ?:  (~(has by projects) project.act)
           =.  projects  (~(del by projects) project.act)
+          =.  focused-project
+            ?:  =(project.act focused-project)  ''
+            focused-project
           :_  state
           :_  ~
           (~(poke-self pass:io /self-wire) m v)
         =/  request-id=@t
-          %-  ~(got by cis-running.modified-state)
+          ?>  ?=(%commit-install-starting -.status.modified-state)
+          %-  ~(got by cis-running.status.modified-state)
           -:?^(cfo ships.u.cfo default-ships:zig-lib)
         :_  modified-state
         :+  (make-read-desk:zig-lib project.act `request-id)
@@ -420,14 +445,14 @@
           %.  sync-desk-to-vship
           %~  new-project  make-update-vase:zig-lib
           update-info
-        cards
-      =/  ships-to-run=(list @p)
-        %~  tap  in
-        %-  ships-not-yet-running-to-run
-        (~(gas in *(set @p)) default-ships:zig-lib)
-      ?^  ships-to-run
-        %+  start-ships-then-rerun  ships-to-run
-        [project request-id]:act
+        (weld snap-cards cards)
+      :: =/  ships-to-run=(list @p)
+      ::   %~  tap  in
+      ::   %-  ships-not-yet-running-to-run
+      ::   (~(gas in *(set @p)) default-ships:zig-lib)
+      :: ?^  ships-to-run
+      ::   %+  start-ships-then-rerun  ships-to-run
+      ::   [project request-id]:act
       =.  sync-desk-to-vship
         %-  ~(gas ju sync-desk-to-vship)
         %+  turn  sync-ships.act
@@ -438,7 +463,8 @@
       =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
       =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
       =/  deletions-task  [%info `@tas`project.act %& (clean-desk:zig-lib project.act)]
-      :-  :~  [%pass /merge-wire/[project.act]/(scot %ud (jam sync-ships.act)) %arvo %c merge-task]
+      :-  %+  welp  snap-cards
+          :~  [%pass /merge-wire/[project.act]/(scot %ud (jam sync-ships.act)) %arvo %c merge-task]
               [%pass /mount-wire %arvo %c mount-task]
               [%pass /save-wire %arvo %c bill-task]
               [%pass /save-wire %arvo %c deletions-task]
@@ -449,9 +475,9 @@
               %~  new-project  make-update-vase:zig-lib
               update-info
           ::
-              %+  update-vase-to-card:zig-lib  project.act
-              %~  cis-setup-done  make-update-vase:zig-lib
-              update-info
+              :: %+  update-vase-to-card:zig-lib  project.act  ::  TODO: replace with status update?
+              :: %~  cis-setup-done  make-update-vase:zig-lib
+              :: update-info
           ==
       %=  state
           configs  ::  TODO: generalize: read in configuration file
@@ -464,6 +490,8 @@
             user-files=(~(put in *(set path)) /app/[project.act]/hoon)
             to-compile=~
             tests=~
+            pyro-ships=default-ships:zig-lib
+            saved-test-queue=~
         ==
       ==
     ::
@@ -491,7 +519,9 @@
       =*  start-apps   start-apps.act
       =^  cards  state
         (handle-poke project.act^request-id.act^%read-desk^~)
-      =.  cis-running  (make-cis-running:zig-lib ships desk)
+      =.  status
+        :-  %commit-install-starting
+        (make-cis-running:zig-lib ships desk)
       :_  %=  state
               sync-desk-to-vship
             %-  ~(gas ju sync-desk-to-vship)
@@ -499,15 +529,15 @@
             |=(who=@p [desk who])
           ==
       :-  %+  update-vase-to-card:zig-lib  desk
-          %.  cis-running
-          %~  cis-running  make-update-vase:zig-lib
+          %.  status
+          %~  status  make-update-vase:zig-lib
           update-info
       |-
       ?~  ships.act  cards
       =*  who   i.ships
-      =^  cis-cards  cis-running
+      =/  cis-cards=(list card)
         %~  do-commit  cis:zig-lib
-        [who desk install start-apps cis-running]
+        [who desk install start-apps status]
       %=  $
           ships.act  t.ships.act
           cards      (weld cards cis-cards)
@@ -527,6 +557,49 @@
           [project i.ships]:act
         ==
       ==
+    ::
+        %change-focus
+      =/  old=@t           focused-project
+      =*  new=@t           project.act
+      =.  focused-project  new
+      ?:  (~(has ju linked-projects) old new)  `state
+      =/  old-project=project:zig  (~(got by projects) old)
+      =/  old-links=(set @t)
+        (~(get ju linked-projects) old)
+      =/  old-snap-path=path
+        :-  (crip (noah !>(`(set @t)`old-links)))
+        /(scot %da now.bowl)
+      =*  new-snap-path=path
+        %-  ~(got by unfocused-project-snaps)
+        (~(get ju linked-projects) new)
+      =.  unfocused-project-snaps
+        %+  ~(put by unfocused-project-snaps)  old-links
+        old-snap-path
+      :_  state
+      :+  %+  ~(poke-our pass:io /pyro-wire)  %pyro
+          :-  %pyro-action
+          !>  ^-  action:pyro
+          [%snap-ships old-snap-path pyro-ships.old-project]
+        %+  ~(poke-our pass:io /pyro-wire)  %pyro
+        :-  %pyro-action
+        !>  ^-  action:pyro
+        [%restore-snap new-snap-path]
+      ~
+    ::
+        %add-project-link
+      =*  project-a=@t  focused-project
+      =*  project-b=@t  project.act
+      =/  new-links=(set @t)
+        %.  (~(get ju linked-projects) project-b)
+        ~(uni in (~(get ju linked-projects) project-a))
+      =.  linked-projects
+        %-  ~(gas by linked-projects)
+        %+  turn  ~(tap in new-links)
+        |=  project-name=@t
+        [project-name new-links]
+      !!
+    ::
+        %delete-project-link  !!  :: TODO
     ::
         %save-file
       =/  =project:zig  (~(got by projects) project.act)
@@ -769,7 +842,7 @@
       =^  cards  state
         %-  add-and-queue-test
         [project name test-imports test-steps request-id]:act
-      =?  cards  =(| test-running)
+      =?  cards  !?=(%running-test-steps -.status)
         %+  snoc  cards
         (make-run-queue:zig-lib [project request-id]:act)
       [cards state]
@@ -814,7 +887,7 @@
       =^  cards  state
         %-  add-and-queue-test-file
         [project name path request-id]:act
-      =?  cards  =(| test-running)
+      =?  cards  !?=(%running-test-steps -.status)
         %+  snoc  cards
         (make-run-queue:zig-lib [project request-id]:act)
       [cards state]
@@ -867,7 +940,7 @@
           ~(run-queue make-update-vase:zig-lib update-info)
         ~
       :_  state
-      ?:  =(| test-running)
+      ?:  !?=(%running-test-steps -.status)
         %+  snoc  cards
         (make-run-queue:zig-lib [project request-id]:act)
       ~&  >  "%ziggurat: another test is running, adding to queue"
@@ -877,78 +950,89 @@
       =/  run-queue-error
         %~  run-queue  make-error-vase:zig-lib
         [update-info %error]
-      ?:  =(~ pyro-ships-ready)
+      =/  s=status:zig  status  ::  TODO: remove this hack
+      ?-    -.s
+          %changing-project-links   !!
+          %commit-install-starting  !!
+          %uninitialized
         =/  message=tape
           "must run %start-pyro-ships before tests"
         :_  state
         :_  ~
         %+  update-vase-to-card:zig-lib  project.act
         (run-queue-error(level %warning) (crip message))
-      ?:  !(~(all by pyro-ships-ready) same)
+          %preparing-pyro-ships
         =/  message=tape
           "%pyro ships aren't ready; will run when ready"
         :_  state
         :_  ~
         %+  update-vase-to-card:zig-lib  project.act
         (run-queue-error(level %info) (crip message))
-      ?:  =(~ test-queue)
-        =/  message=tape  "no tests in queue"
-        :_  state
-        :_  ~
-        %+  update-vase-to-card:zig-lib  project.act
-        (run-queue-error(level %warning) (crip message))
-      ?:  =(& test-running)
+          %running-test-steps
         =/  message=tape  "queue already running"
         :_  state
         :_  ~
         %+  update-vase-to-card:zig-lib  project.act
         (run-queue-error(level %info) (crip message))
-      =^  top  test-queue  ~(get to test-queue)
-      =*  next-project-name  -.top
-      =*  next-test-id        +.top
-      ~&  >  "%ziggurat: running {<next-test-id>}"
-      =/  =project:zig  (~(got by projects) next-project-name)
-      =/  =test:zig     (~(got by tests.project) next-test-id)
-      ?:  ?=(%| -.subject.test)
-        =/  message=tape
-          "test subject must compile before test can be run"
+          %ready
+        ?:  =(~ test-queue)
+          =/  message=tape  "no tests in queue"
+          :_  state
+          :_  ~
+          %+  update-vase-to-card:zig-lib  project.act
+          (run-queue-error(level %warning) (crip message))
+        =^  top  test-queue  ~(get to test-queue)
+        =*  next-project-name  -.top
+        =*  next-test-id        +.top
+        ~&  >  "%ziggurat: running {<next-test-id>}"
+        =/  =project:zig  (~(got by projects) next-project-name)
+        =/  =test:zig     (~(got by tests.project) next-test-id)
+        ?:  ?=(%| -.subject.test)
+          =/  message=tape
+            "test subject must compile before test can be run"
+          :_  state
+          :_  ~
+          %+  update-vase-to-card:zig-lib  project.act
+          (run-queue-error (crip message))
+        =/  tid=@ta
+          %+  rap  3
+          :~  'ted-'
+              next-project-name
+              '-'
+              ?^(name.test u.name.test (scot %ux next-test-id))
+              '-'
+              (scot %uw (sham eny.bowl))
+          ==
+        =/  =start-args:spider
+          :-  ~
+          :^  `tid  byk.bowl(r da+now.bowl)
+            %ziggurat-test-run
+          !>  ^-  (unit [@t @ux test-steps:zig vase (list @p)])
+          :*  ~
+              next-project-name
+              next-test-id
+              steps.test
+              p.subject.test
+              default-ships:zig-lib  :: TODO: remove hardcode and allow input of for-snapshot
+          ==
+        =/  w=wire
+          /test/[next-project-name]/(scot %ux next-test-id)/[tid]
+        =.  status  [%running-test-steps ~]
         :_  state
-        :_  ~
-        %+  update-vase-to-card:zig-lib  project.act
-        (run-queue-error (crip message))
-      =/  tid=@ta
-        %+  rap  3
-        :~  'ted-'
-            next-project-name
-            '-'
-            ?^(name.test u.name.test (scot %ux next-test-id))
-            '-'
-            (scot %uw (sham eny.bowl))
-        ==
-      =/  =start-args:spider
-        :-  ~
-        :^  `tid  byk.bowl(r da+now.bowl)
-          %ziggurat-test-run
-        !>  ^-  (unit [@t @ux test-steps:zig vase (list @p)])
-        :*  ~
-            next-project-name
-            next-test-id
-            steps.test
-            p.subject.test
-            default-ships:zig-lib  :: TODO: remove hardcode and allow input of for-snapshot
-        ==
-      =/  w=wire
-        /test/[next-project-name]/(scot %ux next-test-id)/[tid]
-      :_  state(test-running &)
-      :^    %+  update-vase-to-card:zig-lib  project.act
-            %.  test-queue
-            %~  test-queue  make-update-vase:zig-lib
+        :-  %+  update-vase-to-card:zig-lib  project.act
+            %.  status
+            %~  status  make-update-vase:zig-lib
             update-info
-          %+  ~(watch-our pass:io w)  %spider
-          /thread-result/[tid]
-        %+  ~(poke-our pass:io w)  %spider
-        [%spider-start !>(start-args)]
-      ~
+        :^    %+  update-vase-to-card:zig-lib  project.act
+              %.  test-queue
+              %~  test-queue  make-update-vase:zig-lib
+              update-info
+            %+  ~(watch-our pass:io w)  %spider
+            /thread-result/[tid]
+          %+  ~(poke-our pass:io w)  %spider
+          [%spider-start !>(start-args)]
+        ~
+      ==
     ::
         %clear-queue
       =.  test-queue  ~
@@ -1003,41 +1087,58 @@
       update-info
     ::
         %stop-pyro-ships
-      =.  pyro-ships-ready  ~
+      =/  =project:zig  (~(got by projects) project.act)
+      =.  projects
+        %+  ~(put by projects)  project.act
+        project(pyro-ships ~)
+      =.  status  [%uninitialized ~]
       :_  state
       :^    [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
           [%give %kick [/pyro-done]~ ~]
-        %+  update-vase-to-card:zig-lib  ''
-        %.  pyro-ships-ready
-        %~  pyro-ships-ready  make-update-vase:zig-lib
-        ['' %pyro-ships-ready ~]
+        %+  update-vase-to-card:zig-lib  project.act
+        %.  status
+        %~  status  make-update-vase:zig-lib
+        update-info
       ~
     ::
         %start-pyro-ships
+      =/  =project:zig
+        (~(gut by projects) project.act *project:zig)
+      =.  pyro-ships.project
+        (weld pyro-ships.project ships.act)
       =?  ships.act  ?=(~ ships.act)  default-ships:zig-lib
       =/  wach=(list card)
         %+  turn  ships.act
         |=  who=ship
         =/  w=wire  /ready/(scot %p who)
-        (~(watch-our pass:io w) %pyro w)
+        (~(watch-our pass:io (into w 1 project.act)) %pyro w)
       =/  init=(list card)
         :_  ~
         %+  ~(poke-our pass:io /self-wire)  %pyro
         :-  %aqua-events
         !>((turn ships.act |=(who=ship [%init-ship who])))
-      :-  (weld wach init)
-      %_    state
-          pyro-ships-ready
-        %-  ~(gas by pyro-ships-ready)
+      =.  status
+        :-  %preparing-pyro-ships
+        %-  ~(gas by *(map @p ?))
+        %+  welp
+          (turn pyro-ships.project |=(=ship [ship %.y]))
         (turn ships.act |=(=ship [ship %.n]))
-      ==
+      =.  projects
+        (~(put by projects) project.act project)
+      :_  state
+      :_  (weld wach init)
+      %+  update-vase-to-card:zig-lib  project.act
+      %.  status
+      %~  status  make-update-vase:zig-lib
+      update-info
     ::
         %start-pyro-snap
-      :_  state(pyro-ships-ready ~)
-      :+  (~(watch-our pass:io /restore) /effect/restore)
-        %+  ~(poke-our pass:io /self-wire)  %pyro
-        [%pyro-action !>([%restore-snap snap.act])]
-      ~
+      !!  ::  TODO
+      :: :_  state(pyro-ships-ready ~)
+      :: :+  (~(watch-our pass:io /restore) /effect/restore)
+      ::   %+  ~(poke-our pass:io /self-wire)  %pyro
+      ::   [%pyro-action !>([%restore-snap snap.act])]
+      :: ~
     ::
         %publish-app  :: TODO
       ::  [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
@@ -1122,22 +1223,32 @@
         [[project-name %ziggurat-test-run-thread-fail ~] %error]
       ?+    p.cage.sign  (on-agent:def w sign)
           %thread-fail
-        :_  this(test-running |)
-        :_  ~
-        %+  update-vase-to-card:zig-lib  project-name
-        %+  test-results-error  'thread crashed'
-        [test-id tid steps.test]
+        =.  status  [%ready ~]
+        :_  this
+        :+  %+  update-vase-to-card:zig-lib  project-name
+            %+  test-results-error  'thread crashed'
+            [test-id tid steps.test]
+          %+  update-vase-to-card:zig-lib  project-name
+          %.  status
+          %~  status  make-update-vase:zig-lib
+          [project-name %ziggurat-test-run-thread-crash ~]
+        ~
       ::
           %thread-done
         =+  !<(result=(each test-results:zig @t) q.cage.sign)
         ?:  ?=(%| -.result)
           =/  message=tape
             "thread fail with error: {<p.result>}"
-          :_  this(test-running |)
-          :_  ~
-          %+  update-vase-to-card:zig-lib  project-name
-          %+  test-results-error  (crip message)
-          [test-id tid steps.test]
+          =.  status  [%ready ~]
+          :_  this
+          :+  %+  update-vase-to-card:zig-lib  project-name
+              %+  test-results-error  (crip message)
+              [test-id tid steps.test]
+            %+  update-vase-to-card:zig-lib  project-name
+            %.  status
+            %~  status  make-update-vase:zig-lib
+            [project-name %ziggurat-test-run-thread-fail ~]
+          ~
         =*  test-results  p.result
         =/  =shown-test-results:zig
           (show-test-results:zig-lib test-results)
@@ -1146,12 +1257,17 @@
         =.  tests.project
           %+  ~(put by tests.project)  test-id
           test(results test-results)
+        =.  status  [%ready ~]
         =/  cards=(list card)
-          :_  ~
-          %+  update-vase-to-card:zig-lib  project-name
-          %.  [shown-test-results test-id tid steps.test]
-          %~  test-results  make-update-vase:zig-lib
-          [project-name %ziggurat-test-run-thread-done ~]
+          :+  %+  update-vase-to-card:zig-lib  project-name
+              %.  [shown-test-results test-id tid steps.test]
+              %~  test-results  make-update-vase:zig-lib
+              [project-name %ziggurat-test-run-thread-done ~]
+            %+  update-vase-to-card:zig-lib  project-name
+            %.  status
+            %~  status  make-update-vase:zig-lib
+            [project-name %ziggurat-test-run-thread-done ~]
+          ~
         =?  cards  ?=(^ test-queue)
           %+  weld  cards
           :+  %-  ~(poke-self pass:io /self-wire)
@@ -1164,43 +1280,52 @@
         :-  cards
         %=  this
           projects  (~(put by projects) project-name project)
-          test-running  |
         ==
       ==
     ==
   ::
-      [%ready @ ~]
+      [%ready @ @ ~]
     ?+    -.sign  (on-agent:def w sign)
         %fact
-      =/  who=@p  (slav %p i.t.w)
-      =.  pyro-ships-ready  (~(put by pyro-ships-ready) who %.y)
+      =*  project-name=@t  i.t.w
+      =/  who=@p           (slav %p i.t.t.w)
+      =/  =project:zig  (~(got by projects) project-name)
+      =/  s=status:zig  status
+      ?>  ?=(%preparing-pyro-ships -.s)
+      =.  ships.s
+        (~(put by ships.s) who %.y)
       =/  leave=card
-        (~(leave-our pass:io /ready/(scot %p who)) %pyro)
-      ?~  test-queue                         [leave^~ this]
-      ?.  (~(all by pyro-ships-ready) same)  [leave^~ this]
+        %.  %pyro
+        %~  leave-our  pass:io
+        /ready/[project-name]/(scot %p who)
+      ?~  test-queue  [leave^~ this(status s)]
+      ?.  (~(all by ships.s) same)
+        [leave^~ this(status s)]
+      =.  status  [%ready ~]
       :_  this
       :~  leave
       ::
           %-  ~(poke-self pass:io /self-wire)
-          [%ziggurat-action !>(`action:zig`%$^~^[%run-queue ~])]
+          :-  %ziggurat-action
+          !>(`action:zig`project-name^~^[%run-queue ~])
       ::
-          %+  update-vase-to-card:zig-lib  ''
-          %.  pyro-ships-ready
-          %~  pyro-ships-ready  make-update-vase:zig-lib
-          ['' %pyro-ships-ready ~]
+          %+  update-vase-to-card:zig-lib  project-name
+          %.  status
+          %~  status  make-update-vase:zig-lib
+          [project-name %pyro-ships-ready ~]
       ::
-          %+  update-vase-to-card:zig-lib  ''
+          %+  update-vase-to-card:zig-lib  project-name
           %~  run-queue  make-update-vase:zig-lib
-          ['' %pyro-ships-ready ~]
+          [project-name %pyro-ships-ready ~]
       ==
     ==
   ::
-      [%restore ~]
-    ?+    -.sign  (on-agent:def w sign)
-        %fact
-      :_  this(pyro-ships-ready [[~nec %.y] ~ ~]) :: XX extremely hacky
-      (~(leave-our pass:io /restore) %pyro)^~
-    ==
+    ::   [%restore ~]  :: TODO
+    :: ?+    -.sign  (on-agent:def w sign)
+    ::     %fact
+    ::   :_  this(pyro-ships-ready.status [[~nec %.y] ~ ~]) :: XX extremely hacky
+    ::   (~(leave-our pass:io /restore) %pyro)^~
+    :: ==
   ::
       [%cis-setup-done @ @ @ @ ~]
     ?.  ?=(%fact -.sign)  (on-agent:def w sign)
@@ -1209,11 +1334,27 @@
     =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
     =/  apps=(list @tas)
       ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    =/  cards=(list card)
-      %.  cage.sign
-      %~  on-update-setup-done  cis:zig-lib
-      [who desk install apps cis-running]
-    [cards this]
+    =/  initial-links=(set @t)
+      (~(put in *(set @t)) desk)  ::  self only
+    :-  :-  %+  ~(poke-our pass:io /pyro-wire)  %pyro
+            :-  %pyro-action
+            !>  ^-  action:pyro
+            :+  %snap-ships  default-snap-path:zig-lib
+            default-ships:zig-lib
+        %.  cage.sign
+        %~  on-update-setup-done  cis:zig-lib
+        [who desk install apps status]
+    %=  this
+        focused-project
+      ?:(=('' focused-project) desk focused-project)
+    ::
+        linked-projects
+      (~(put by linked-projects) desk initial-links)
+    ::
+        unfocused-project-snaps
+      %+  ~(put by unfocused-project-snaps)  initial-links
+      default-snap-path:zig-lib
+    ==
   ==
 ::
 ++  on-arvo
@@ -1271,9 +1412,9 @@
     =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
     =/  apps=(list @tas)
       ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    =^  cards  cis-running
+    =^  cards  status
       %~  on-wake-commit  cis:zig-lib
-      [who desk install apps cis-running]
+      [who desk install apps status]
     [cards this]
   ::
       [%installing @ @ @ @ ~]
@@ -1284,9 +1425,9 @@
     =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
     =/  apps=(list @tas)
       ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    =^  cards  cis-running
+    =^  cards  status
       %~  on-wake-install  cis:zig-lib
-      [who desk install apps cis-running]
+      [who desk install apps status]
     [cards this]
   ::
       [%starting @ @ @ @ ~]
@@ -1297,9 +1438,9 @@
     =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
     =/  apps=(list @tas)
       ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    =^  cards  cis-running
+    =^  cards  status
       %~  on-wake-start  cis:zig-lib
-      [who desk install apps cis-running]
+      [who desk install apps status]
     [cards this]
   ==
 ::
@@ -1329,13 +1470,6 @@
     %.  u.project
     ~(project make-update-vase:zig-lib [project-name %project ~])
   ::
-      [%pyro-ships-ready ~]
-    :^  ~  ~  %ziggurat-update
-    %.  pyro-ships-ready
-    %~  pyro-ships-ready  make-update-vase:zig-lib
-    ['' %pyro-ships-ready ~]
-  ::
-  ::
       [%state @ ~]
     =*  project-name  i.t.t.p
     =/  project=(unit project:zig)
@@ -1358,11 +1492,11 @@
     %~  sync-desk-to-vship  make-update-vase:zig-lib
     ['' %sync-desk-to-vship ~]
   ::
-      [%cis-running ~]
+      [%status ~]
     :^  ~  ~  %ziggurat-update
-    %.  cis-running
-    %~  cis-running  make-update-vase:zig-lib
-    ['' %cis-running ~]
+    %.  status
+    %~  status  make-update-vase:zig-lib
+    ['' %status ~]
   ::
       [%custom-step-compiled @ @ @ ~]
     =*  project-name  i.t.t.p

@@ -12,11 +12,12 @@
       =sync-desk-to-vship
       focused-project=@t
       linked-projects=(jug @t @t)
-      unfocused-project-snaps=(map @t path)
-      pyro-ships-ready=(map @p ?)
+      unfocused-project-snaps=(map (set @t) path)
+      :: pyro-ships-ready=(map @p ?)
       test-queue=(qeu [project=@t test-id=@ux])
-      test-running=?
-      cis-running=(map @p @t)
+      :: test-running=?
+      :: cis-running=(map @p @t)
+      =status
   ==
 +$  inflated-state-0
   $:  state-0
@@ -26,12 +27,29 @@
   ==
 +$  eng  $_  ~(engine engine:engine-lib !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
 ::
++$  status
+  $%  [%running-test-steps ~]
+      [%preparing-pyro-ships ships=(map @p ?)]
+      [%commit-install-starting cis-running=(map @p @t)]
+      [%changing-project-links project-cis-running=(mip:mip @t @p @t)]
+      [%ready ~]
+      [%uninitialized ~]  ::  last is default
+      :: :-  %cis 
+      :: $%  [%committing ~]
+      ::     [%installing ~]
+      ::     [%starting ~]
+      ::     [%setup ~]
+      :: ==
+  ==
+::
 +$  projects  (map @t project)
 +$  project
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
       to-compile=(set path)
       =tests
+      pyro-ships=(list @p)
+      saved-test-queue=(qeu [project=@t test-id=@ux])
   ==
 ::
 +$  build-result  (each [bat=* pay=*] @t)
@@ -121,6 +139,10 @@
           [%add-sync-desk-vships ships=(list @p) install=? start-apps=(list @tas)]
           [%delete-sync-desk-vships ships=(list @p)]
       ::
+          [%change-focus ~]
+          [%add-project-link ~]
+          [%delete-project-link ~]
+      ::
           [%save-file file=path text=@t]  ::  generates new file or overwrites existing
           [%delete-file file=path]
       ::
@@ -193,7 +215,7 @@
       %test-queue
       %pyro-agent-state
       %sync-desk-to-vship
-      %cis-running
+      %status
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -228,8 +250,8 @@
       [%test-queue update-info payload=(data (qeu [@t @ux])) ~]
       [%pyro-agent-state update-info payload=(data [agent-state=@t wex=boat:gall sup=bitt:gall]) ~]
       [%sync-desk-to-vship update-info payload=(data sync-desk-to-vship) ~]
-      [%cis-running update-info payload=(data (map @p @t)) ~]
       [%cis-setup-done update-info payload=(data ~) ~]
+      [%status update-info payload=(data status) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)

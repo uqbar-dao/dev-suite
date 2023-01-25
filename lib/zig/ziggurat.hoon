@@ -193,16 +193,16 @@
     :^  %sync-desk-to-vship  update-info
     [%& sync-desk-to-vship]  ~
   ::
-  ++  cis-running
-    |=  cis-running=(map @p @t)
-    ^-  vase
-    !>  ^-  update:zig
-    [%cis-running update-info [%& cis-running] ~]
-  ::
   ++  cis-setup-done
     ^-  vase
     !>  ^-  update:zig
     [%cis-setup-done update-info [%& ~] ~]
+  ::
+  ++  status
+    |=  =status:zig
+    ^-  vase
+    !>  ^-  update:zig
+    [%status update-info [%& status] ~]
   --
 ::
 ++  make-error-vase
@@ -352,17 +352,17 @@
     !>  ^-  update:zig
     [%sync-desk-to-vship update-info [%| level message] ~]
   ::
-  ++  cis-running
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%cis-running update-info [%| level message] ~]
-  ::
   ++  cis-setup-done
     |=  message=@t
     ^-  vase
     !>  ^-  update:zig
     [%cis-setup-done update-info [%| level message] ~]
+  ::
+  ++  status
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%status update-info [%| level message] ~]
   --
 ::
 ++  make-compile-contracts
@@ -1093,12 +1093,16 @@
   :-  who
   (rap 3 'setup-' project-name '-' (scot %p who) ~)
 ::
+++  default-snap-path
+  ^-  path
+  /testnet
+::
 ++  cis
   |_  $:  who=@p
           desk=@tas
           install=?
           start-apps=(list @tas)
-          cis-running=(map @p @t)
+          =status:zig
       ==
   ++  commit-poll-duration   ~s1
   ++  install-poll-duration  ~s1
@@ -1124,14 +1128,16 @@
     (rear .^((list @tas) %cx bill-path))
   ::
   ++  run-queue
-    ^-  [(list card) (map @p @t)]
-    =.  cis-running  (~(del by cis-running) who)
-    :_  cis-running
+    ^-  [(list card) status:zig]
+    ?>  ?=(%commit-install-starting -.status)
+    =.  cis-running.status
+      (~(del by cis-running.status) who)
+    :_  status
     :-  %+  update-vase-to-card  desk
-        %.  cis-running
-        %~  cis-running  make-update-vase
+        %.  status
+        %~  status  make-update-vase
         ['' %cis ~]
-    ?.  =(0 ~(wyt by cis-running))  ~
+    ?.  =(0 ~(wyt by cis-running.status))  ~
     :+  %.  [%ziggurat /project/[desk]]
         ~(watch-our pass:io cis-setup-done-wire)
       %-  ~(poke-self pass:io /self-wire)
@@ -1139,23 +1145,20 @@
     ~
   ::
   ++  do-commit
-    ^-  [(list card) (map @p @t)]
-    :_  cis-running
+    ^-  (list card)
     :+  (~(wait pass:io committing-wire) commit-wait)
       (sync-desk-to-virtualship who desk)
     ~
   ::
   ++  do-install
-    ^-  [(list card) (map @p @t)]
-    :_  cis-running
+    ^-  (list card)
     :+  (~(wait pass:io installing-wire) install-wait)
       (send-pyro-dojo who "|install our {<desk>}")
     ~
   ::
   ++  do-start
     |=  [next-app=@tas wire-start-apps=(list @tas)]
-    ^-  [(list card) (map @p @t)]
-    :_  cis-running
+    ^-  (list card)
     :+  %.  start-wait
         %~  wait  pass:io
         starting-wire(start-apps wire-start-apps)
@@ -1164,40 +1167,40 @@
     ~
   ::
   ++  on-wake-commit
-    ^-  [(list card) (map @p @t)]
+    ^-  [(list card) status:zig]
     ?.  (virtualship-desk-exists who desk)
       ::  not done: keep waiting
-      :_  cis-running
+      :_  status
       ~[(~(wait pass:io committing-wire) commit-wait)]
     ::  done: install if desired, else %run-queue
-    ?:  install  do-install  run-queue
+    ?.  install  run-queue  [do-install status]
   ::
   ++  on-wake-install
-    ^-  [(list card) (map @p @t)]
+    ^-  [(list card) status:zig]
     ::  if the final app is installed -> install done
     =/  app=@tas  get-final-app-to-install
     ?.  (virtualship-is-running-app who app)
       ::  not done: keep waiting
-      :_  cis-running
+      :_  status
       ~[(~(wait pass:io installing-wire) install-wait)]
     ::  done: start apps if desired, else %run-queue
     ?~  start-apps  run-queue
     =*  next-app   i.start-apps
-    (do-start next-app start-apps)
+    [(do-start next-app start-apps) status]
   ::
   ++  on-wake-start
-    ^-  [(list card) (map @p @t)]
+    ^-  [(list card) status:zig]
     ?~  start-apps  run-queue  ::  no more apps to start: %run-queue
     =*  starting-app  i.start-apps
     =*  rest-of-apps  t.start-apps
     ?.  (virtualship-is-running-app who starting-app)
       ::  not done: keep waiting
-      :_  cis-running
+      :_  status
       ~[(~(wait pass:io starting-wire) start-wait)]
     ::  done: start next app if more, else %run-queue
     ?~  rest-of-apps  run-queue
     =*  next-app   i.rest-of-apps
-    (do-start next-app rest-of-apps)
+    [(do-start next-app rest-of-apps) status]
   ::
   ++  on-update-setup-done
     |=  c=cage
@@ -1434,8 +1437,11 @@
       :_  ~
       %+  update-vase-to-card  project-name
       (new-project-error(level %warning) (crip message))
-    =/  cis-running=(map @p @t)
+    =.  status.state
+      :-  %commit-install-starting
       (make-cis-running virtualships-to-sync project-name)
+    ?>  ?=(%commit-install-starting -.status.state)
+    =*  cis-running  cis-running.status.state
     =.  cards
       %+  weld  cards
       %+  murn  virtualships-to-sync
@@ -1458,21 +1464,20 @@
       ?~  virtualships-to-sync  cards
       =*  who   i.virtualships-to-sync
       =*  desk  project-name
-      =^  cis-cards  cis-running.state
+      =/  cis-cards=(list card)
         %~  do-commit  cis
-        [who desk install start-apps cis-running]
+        [who desk install start-apps status.state]
       %=  $
           virtualships-to-sync  t.virtualships-to-sync
           cards                 (weld cards cis-cards)
       ==
     :-  :_  cards
         %+  update-vase-to-card  project-name
-        %.  cis-running
-        %~  cis-running  make-update-vase
+        %.  status.state
+        %~  status  make-update-vase
         [project-name %load-configuration-file ~]
     %=  state
-        test-queue   ~  ::  TODO: save and restore after? Check for running?
-        cis-running  cis-running
+        test-queue   ~
     ::
         sync-desk-to-vship
       %-  ~(gas ju sync-desk-to-vship.state)
@@ -1483,6 +1488,13 @@
       %+  ~(put by configs.state)  project-name
       %.  ~(tap by config)
       ~(gas by (~(gut by configs.state) project-name ~))
+    ::
+        projects
+      ?.  (~(has by projects.state) focused-project.state)
+        projects.state
+      %+  ~(jab by projects.state)  focused-project.state
+      |=  =project:zig
+      project(saved-test-queue test-queue.state)
     ==
   --
 ::
@@ -1592,7 +1604,6 @@
     =*  payload  -.+.+.update  ::  TODO: remove this hack
     ?>  ?=([@ *] payload)
     ?:  ?=(%| -.payload)  (error +.payload)
-    ~!  update
     ?-    -.update
         %project-names
       :+  ['project_names' (set-cords project-names.update)]
@@ -1711,17 +1722,43 @@
       %+  frond  %sync-desk-to-vship
       (sync-desk-to-vship p.payload.update)
     ::
-        %cis-running
+        %cis-setup-done
+      ['data' ~]~
+    ::
+        %status
       :_  ~
       :-  'data'
-      %+  frond  %cis-running
+      (frond %status (status p.payload.update))
+    ==
+  ::
+  ++  status
+    |=  =status:zig
+    ^-  json
+    ?-    -.status
+        %running-test-steps  ~
+        %ready               ~
+        %uninitialized       ~
+        %preparing-pyro-ships
       %-  pairs
-      %+  turn  ~(tap by p.payload.update)
+      %+  turn  ~(tap by ships.status)
+      |=  [who=@p is-done=?]
+      [(scot %p who) %b is-done]
+    ::
+        %commit-install-starting
+      %-  pairs
+      %+  turn  ~(tap by cis-running.status)
       |=  [who=@p message=@t]
       [(scot %p who) %s message]
     ::
-        %cis-setup-done
-      ['data' ~]~
+        %changing-project-links
+      %-  pairs
+      %+  turn  ~(tap by project-cis-running.status)
+      |=  [project-name=@t cis-running=(map @p @t)]
+      :-  project-name
+      %-  pairs
+      %+  turn  ~(tap by cis-running)
+      |=  [who=@p message=@t]
+      [(scot %p who) %s message]
     ==
   ::
   ++  error
