@@ -3,5 +3,5 @@
 ::
 :-  %say
 |=  [* [her=ship ~] ~]
-:-  %aqua-events
-[%init-ship her]~
+:-  %pyro-action
+[%init-ship her]

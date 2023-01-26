@@ -39,7 +39,7 @@
   :_  :-  :+  %scry
             :-  who
             :^  'update:indexer'  %gx  %indexer
-            /newest/item/(scot %ux item)/noun
+            /newest/item/(scot %ux item)/noun/noun
           ''
       ~
   :^  %custom-write  %send-wallet-transaction
