@@ -4,11 +4,10 @@
 ::  pokes
 ::
 +$  action
-  $%  [%set-sources towns=(list [town=id:smart (set dock)])]
-      [%add-source town=id:smart source=dock]
+  $%  [%set-sources towns=(list [town=id:smart dock])]
       [%remove-source town=id:smart source=dock]
       [%set-wallet-source app-name=@tas]  ::  to plug in a third-party wallet app
-      [%ping ~]
+      [%open-faucet town=id:smart send-to=address:smart]
   ==
 ::
 +$  write
@@ -24,13 +23,5 @@
       [%rejected =ship]
       [%executed result=errorcode:smart]
       [%nonce value=@ud]
-  ==
-::
-+$  indexer-sources-ping-results
-  %+  map  id:smart
-  $:  previous-up=(set dock)
-      previous-down=(set dock)
-      newest-up=(set dock)
-      newest-down=(set dock)
   ==
 --

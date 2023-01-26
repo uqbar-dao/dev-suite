@@ -10,8 +10,12 @@
 /*  smart-lib  %noun  /lib/zig/sys/smart-lib/noun
 |%
 +$  card  card:agent:gall
-+$  state-0
-  $:  %0
++$  versioned-state
+  $%  state-0
+      state-1
+  ==
++$  state-1
+  $:  %1
       ::  wallet holds a single seed at once
       ::  address-index notes where we are in derivation path
       seed=[mnem=@t pass=@t address-index=@ud]
@@ -38,7 +42,7 @@
   ==
 --
 ::
-=|  state-0
+=|  state-1
 =*  state  -
 ::
 %-  agent:dbug
@@ -48,14 +52,56 @@
 +*  this  .
     def   ~(. (default-agent this %|) bowl)
 ::
-++  on-init  `this(state [%0 ['' '' 0] ~ ~ ~ ~ ~ ~ ~ ~ ~])
+++  on-init
+  ^-  (quip card _this)
+  :_  this(state *state-1)
+  ::  auto-populate %wallet with a random seed on install
+  :_  ~
+  :*  %pass  /self-poke
+      %agent  [our.bowl %wallet]
+      %poke  %wallet-poke
+      !>([%generate-hot-wallet '' 'wallet'])
+  ==
 ::
 ++  on-save  !>(state)
 ++  on-load
   |=  =old=vase
   ^-  (quip card _this)
-  =/  old-state  !<(state-0 old-vase)
-  `this(state old-state)
+  =/  old-state  !<(versioned-state old-vase)
+  ?-    -.old-state
+      %1
+    `this(state old-state)
+  ::
+      %0
+    :-  ~
+    %=    this
+        state
+      ^-  state-1
+      :*  %1
+          seed.old-state
+          keys.old-state
+          nonces.old-state
+          signed-message-store.old-state
+          tokens.old-state
+          metadata-store.old-state
+          approved-origins=*(map (pair term wire) [rate=@ud bud=@ud])
+          %-  malt
+          %+  turn  old-unfinished-transaction-store.old-state
+          |=  [hash=@ux tx=transaction:smart action=supported-actions]
+          [hash [~ tx action]]
+      ::
+          %-  ~(run by old-transaction-store.old-state)
+          |=  m=(map @ux [=transaction:smart =supported-actions =output:eng])
+          %-  ~(run by m)
+          |=  [[=transaction:smart =supported-actions =output:eng]]
+          [~ 0x0 transaction supported-actions output]
+      ::
+          %-  ~(run by old-pending-store.old-state)
+          |=  m=(map @ux [=transaction:smart =supported-actions])
+          (~(run by m) some)
+      ==
+    ==
+  ==
 ::
 ++  on-watch
   |=  =path
@@ -110,19 +156,20 @@
       =/  tokens  (make-tokens ~[addr] [our now]:bowl)
       ::  sub to batch updates
       :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
-      ::  clear all existing state, except for public keys imported from HW wallets
-      ::  TODO save nonces/tokens from HW wallets too
-      ::  for now treat this as a nuke of the wallet
+      ::  clear all existing state, except for
+      ::  public keys imported from HW wallets
+      ::  treat this as a nuke of the wallet
       %=  state
-        nonces                ~
-        tokens                tokens
-        signed-message-store  ~
-        metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
         pending-store         ~
-        seed  [mnemonic.act password.act 0]
+        signed-message-store  ~
+        tokens                tokens
+        seed                  [mnemonic.act password.act 0]
+        nonces                [[addr [[0x0 ~(wyt by sent)] ~ ~]] ~ ~]
+        metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
         unfinished-transaction-store  ~
         transaction-store  [[addr sent] ~ ~]
-        keys  (~(put by *(map address:smart [(unit @ux) @t])) addr [`private-key:core nick.act])
+        keys  %+  ~(put by *(map address:smart [(unit @ux) @t]))
+              addr  [`private-key:core nick.act]
       ==
     ::
         %generate-hot-wallet
@@ -136,44 +183,53 @@
       =/  tokens  (make-tokens ~[addr] [our now]:bowl)
       ::  sub to batch updates
       :-  (watch-for-batches our.bowl 0x0)  ::  TODO remove town-id hardcode
-      ::  clear all existing state, except for public keys imported from HW wallets
-      ::  TODO save nonces/tokens from HW wallets too
-      ::  for now treat this as a nuke of the wallet
+      ::  clear all existing state, except for
+      ::  public keys imported from HW wallets
+      ::  treat this as a nuke of the wallet
       %=  state
-        nonces                ~
-        tokens                tokens
-        signed-message-store  ~
-        metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
         pending-store         ~
-        seed  [(crip mnem) password.act 0]
+        signed-message-store  ~
+        tokens                tokens
+        seed                  [(crip mnem) password.act 0]
+        nonces                [[addr [[0x0 ~(wyt by sent)] ~ ~]] ~ ~]
+        metadata-store        (update-metadata-store tokens ~ [our now]:bowl)
         unfinished-transaction-store  ~
         transaction-store  [[addr sent] ~ ~]
-        keys  (~(put by *(map address:smart [(unit @ux) @t])) addr [`private-key:core nick.act])
+        keys  %+  ~(put by *(map address:smart [(unit @ux) @t]))
+              addr  [`private-key:core nick.act]
       ==
     ::
         %derive-new-address
       ::  if hdpath input is empty, use address-index+1 to get next
-      =/  new-seed  (to-seed:bip39 (trip mnem.seed.state) (trip pass.seed.state))
+      =/  new-seed
+        (to-seed:bip39 (trip mnem.seed.state) (trip pass.seed.state))
       =/  core
         %-  derive-path:(from-seed:bip32 [64 new-seed])
         ?:  !=("" hdpath.act)  hdpath.act
         (weld "m/44'/60'/0'/0/" (scow %ud address-index.seed.state))
       =+  addr=(address-from-prv:key:ethereum prv:core)
       ::  get transaction history for this new address
-      =/  sent  (get-sent-history addr %.n [our now]:bowl)
+      =/  sent    (get-sent-history addr %.n [our now]:bowl)
+      =/  tokens  (make-tokens [addr ~(tap in ~(key by keys))] [our now]:bowl)
       :-  ~
       %=  state
-        seed  seed(address-index +(address-index.seed))
-        keys  (~(put by keys) addr [`prv:core nick.act])
+        tokens  tokens
+        nonces  (~(put by nonces) addr [[0x0 ~(wyt by sent)] ~ ~])
+        seed    seed(address-index +(address-index.seed))
+        keys    (~(put by keys) addr [`prv:core nick.act])
         transaction-store  (~(put by transaction-store) addr sent)
       ==
     ::
         %add-tracked-address
       ::  get transaction history for this new address
       =/  sent  (get-sent-history address.act %.n [our now]:bowl)
+      =/  tokens
+        (make-tokens [address.act ~(tap in ~(key by keys))] [our now]:bowl)
       :-  ~
       %=  state
-        keys  (~(put by keys) address.act [~ nick.act])
+        tokens  tokens
+        nonces  (~(put by nonces) address.act [[0x0 ~(wyt by sent)] ~ ~])
+        keys    (~(put by keys) address.act [~ nick.act])
         transaction-store  (~(put by transaction-store) address.act sent)
       ==
     ::
@@ -199,7 +255,8 @@
       =/  hash  (sham typed-message)
       =/  signature
         ?~  priv.keypair
-          !!  ::  put it into some temporary thing for cold storage. Make it pending
+          ::  put it into some temporary thing for cold storage. Make it pending
+          !!
         %+  ecdsa-raw-sign:secp256k1:secp:crypto
         hash  u.priv.keypair
       :-  ~
@@ -210,8 +267,8 @@
       ==
     ::
         %set-nonce  ::  for testing/debugging
-      =+  acc=(~(gut by nonces.state) address.act ~)
-      `state(nonces (~(put by nonces) address.act (~(put by acc) town.act new.act)))
+      =-  `state(nonces (~(put by nonces) address.act -))
+      (~(put by (~(gut by nonces.state) address.act ~)) [town new]:act)
     ::
         %approve-origin
       `state(approved-origins (~(put by approved-origins) +.act))
@@ -338,7 +395,8 @@
         ?-    -.action.act
             %give
           ::  Standard fungible token %give
-          =/  from=asset  (~(got by `book`(~(got by tokens.state) from.act)) item.action.act)
+          =/  from=asset
+            (~(got by `book`(~(got by tokens.state) from.act)) item.action.act)
           ?>  ?=(%token -.from)
           [%give to.action.act amount.action.act item.action.act]
         ::
@@ -351,7 +409,10 @@
           =/  data-hoon  (ream ;;(@t +.action.act))
           =+  gun=(~(mint ut p.smart-lib-vase) %noun data-hoon)
           =/  res=book:zink
-            (zebra:zink 200.000 ~ *chain-state-scry:zink [q.smart-lib-vase q.gun] %.y)
+            %:  zebra:zink
+                200.000  ~  *chain-state-scry:zink
+                [q.smart-lib-vase q.gun]  %.y
+            ==
           ?.  ?=(%& -.p.res)
             ~|("wallet: failed to compile custom action!" !!)
           =+  noun=(need p.p.res)
@@ -403,6 +464,10 @@
       :_  this  ::  attempt to re-sub
       (watch-for-batches our.bowl 0x0)
     ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
+    =/  upd  !<(update:ui q.cage.sign)
+    ?.  ?=(%batch-order -.upd)  `this
+    ?~  batch-order.upd         `this
+    =/  batch-hash=@ux  (rear batch-order.upd)
     ::  get latest tokens and nfts held
     =/  addrs=(list address:smart)  ~(tap in ~(key by keys))
     =/  new-tokens
@@ -413,8 +478,9 @@
     ::  update status, then insert in tx-store mapping
     ::  and build an update card with its new status.
     =|  cards=(list card)
-    =|  still-looking=(list [hash=@ux =origin tx=transaction:smart action=supported-actions])
-    =/  unfinished=(list [hash=@ux =origin tx=transaction:smart action=supported-actions])
+    =|  still-looking=(list [@ux origin transaction:smart supported-actions])
+    =/  unfinished
+      ^-  (list [hash=@ux =origin tx=transaction:smart act=supported-actions])
       ~(tap by unfinished-transaction-store)
     |-
     ?~  unfinished
@@ -423,8 +489,12 @@
             metadata-store  new-metadata
             unfinished-transaction-store  (malt still-looking)
           ==
-      :+  [%give %fact ~[/book-updates] %wallet-frontend-update !>(`wallet-frontend-update`[%new-book new-tokens])]
-        [%give %fact ~[/metadata-updates] %wallet-frontend-update !>(`wallet-frontend-update`[%new-metadata new-metadata])]
+      :+  :^  %give  %fact  ~[/book-updates]
+          :-  %wallet-frontend-update
+          !>(`wallet-frontend-update`[%new-book new-tokens])
+        :^  %give  %fact  ~[/metadata-updates]
+        :-  %wallet-frontend-update
+        !>(`wallet-frontend-update`[%new-metadata new-metadata])
       cards
     =/  tx-latest=update:ui
       .^  update:ui
@@ -438,14 +508,15 @@
       ~&  >>>  "%wallet: couldn't find transaction hash for update!"
       $(unfinished t.unfinished, still-looking [i.unfinished still-looking])
     ::  put latest version of tx into transaction-store
-    =/  updated=[@ux =origin transaction:smart supported-actions output:eng]
+    =/  updated=[@ux finished-transaction]
       =+  found=(~(got by transactions.tx-latest) hash.i.unfinished)
       ::  add 200 to finished status code to get wallet status equivalent
       =.  status.transaction.found  (add 200 status.transaction.found)
       :*  hash.i.unfinished
           origin.i.unfinished
+          batch-hash
           transaction.found
-          action.i.unfinished
+          act.i.unfinished
           output.found
       ==
     ::  when we have a finished transaction, use transaction origin to
@@ -458,7 +529,7 @@
       [(notify-origin-card our.bowl updated) cards]
         transaction-store
       %+  ~(jab by transaction-store)  address.caller.tx.i.unfinished
-      |=  m=(map @ux [origin transaction:smart supported-actions output:eng])
+      |=  m=(map @ux finished-transaction)
       (~(put by m) updated)
     ==
   ::
@@ -628,7 +699,7 @@
         :-  'finished'
         %-  pairs:enjs
         %+  turn  ~(tap by transaction-store.state)
-        |=  [a=@ux m=(map @ux [origin transaction:smart supported-actions output:eng])]
+        |=  [a=@ux m=(map @ux finished-transaction)]
         :-  (scot %ux a)
         %-  pairs:enjs
         (turn ~(tap by m) transaction-with-output:parsing)

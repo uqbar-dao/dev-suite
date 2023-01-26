@@ -7,12 +7,12 @@
 ::
 =*  strand     strand:spider
 =*  get-bowl   get-bowl:strandio
+=*  get-time   get-time:strandio
 =*  poke-our   poke-our:strandio
 =*  scry       scry:strandio
 =*  sleep      sleep:strandio
 =*  watch-our  watch-our:strandio
 =*  wait       wait:strandio
-=*  get-time   get-time:strandio
 ::
 =/  m  (strand ,vase)
 =|  subject=vase
@@ -72,12 +72,8 @@
             /(scot %p our.bowl)/pyro/[now]/i/[who]
             /[care.payload]/[who]/[app.payload]/[now]
             path.payload
-            /noun
         ==
     ==
-  ?.  ?=(^ scry-noun)
-    %-  pure:m
-    [%| (cat 3 'scry failed: ' (crip (noah !>(payload))))]
   =/  compilation-result
     %^  mule-slap-subject:zig-lib  0  subject
     mold-name.payload
@@ -87,15 +83,15 @@
     :-  %|
     (cat 3 'scry-compilation-fail\0a' p.compilation-result)
   =*  scry-mold  p.compilation-result
-  (pure:m [%& (slym scry-mold +.scry-noun)])
+  (pure:m [%& (slym scry-mold scry-noun)])
 ::
 ::  +send-pyro-dbug differs from +send-pyro-scry in that
 ::   the return value of the %pyro scry is a vase.
 ::   must throw out the type information -- which has been
 ::   lost anyways when it is forced into being a noun by the
 ::   %pyro scry.
-::   compare, e.g., the `+.+.dbug-noun` in the final `+slam`
-::   in +send-pyro-dbug to the `+.scry-noun` in the final
+::   compare, e.g., the `+.dbug-noun` in the final `+slam`
+::   in +send-pyro-dbug to the `scry-noun` in the final
 ::   `+slam` of `+send-pyro-scry`.
 ::
 ++  send-pyro-dbug
@@ -111,9 +107,6 @@
         %+  weld  /(scot %p our.bowl)/pyro/[now]/i/[who]/gx
         /[who]/[app.payload]/[now]/dbug/state/noun/noun
     ==
-  ?.  ?=(^ dbug-noun)
-    %-  pure:m
-    [%| (cat 3 'dbug failed: ' (crip (noah !>(payload))))]
   =/  compilation-result
     %^  mule-slap-subject:zig-lib  0  subject
     mold-name.payload
@@ -123,7 +116,7 @@
     :-  %|
     (cat 3 'dbug-compilation-fail\0a' p.compilation-result)
   =*  dbug-mold  p.compilation-result
-  (pure:m [%& (slym dbug-mold +.+.dbug-noun)])
+  (pure:m [%& (slym dbug-mold +.dbug-noun)])
 ::
 ++  read-pyro-subscription
   |=  [payload=read-sub-payload:zig expected=@t]
@@ -141,8 +134,7 @@
           /noun
         ==
     ==
-  ?.  ?=(^ scry-noun)  (pure:m !>(~))
-  =+  fact-set=(fall ;;((unit (set @t)) scry-noun) *(set @t))
+  =+  ;;(fact-set=(set @t) scry-noun)
   ?:  (~(has in fact-set) expected)  (pure:m !>(expected))
   (pure:m !>((crip (noah !>(~(tap in fact-set))))))
 ::
@@ -188,19 +180,16 @@
     ?~  desk=(find-desk-running-app app.payload our who now)
       ~&  %ziggurat-test-run^%no-desk-running-app^app.payload
       %.n
-    =/  mar-paths=(unit (list path))
-      ;;  (unit (list path))
+    =/  mar-paths=(list path)
+      ;;  (list path)
       .^  *
           %gx
           %+  weld  /[our]/pyro/[now]/i/[who]/ct
-          /[who]/[u.desk]/[now]/mar/noun
+          /[who]/[u.desk]/[now]/mar/file-list
       ==
-    ?~  mar-paths
-      ~&  %ziggurat-test-run^%poke-mark-not-found^mark.payload
-      !!
     =/  mars=(set @tas)
       %-  ~(gas in *(set @tas))
-      %+  murn  u.mar-paths
+      %+  murn  mar-paths
       |=  p=path
       ?~  p  ~
       [~ `@tas`(rap 3 (join '-' (snip t.p)))]
@@ -209,30 +198,28 @@
   ++  find-desk-running-app
     |=  [app=@tas our=@ta who=@ta now=@ta]
     ^-  (unit @tas)
-    =/  desks-scry=(unit (set @tas))
-      ;;  (unit (set @tas))
+    =/  desks-scry=(set @tas)
+      ;;  (set @tas)
       .^  *
           %gx
           %+  weld  /[our]/pyro/[now]/i/[who]/cd/[who]/base
           /[now]/noun
       ==
-    ?~  desks-scry  ~
-    =/  desks=(list @tas)  ~(tap in u.desks-scry)
+    =/  desks=(list @tas)  ~(tap in desks-scry)
     |-
     ?~  desks  ~
     =*  desk  i.desks
-    =/  apps=(unit (set [@tas ?]))
-      ;;  (unit (set [@tas ?]))
+    =/  apps=(set [@tas ?])
+      ;;  (set [@tas ?])
       .^  *
           %gx
           %+  weld  /[our]/pyro/[now]/i/[who]/ge/[who]/[desk]
-          /[now]/noun
+          /[now]/apps
       ==
-    ?~  apps  $(desks t.desks)
     ?:  %.  app
         %~  has  in
         %-  ~(gas in *(set @tas))
-        (turn ~(tap in u.apps) |=([a=@tas ?] a))
+        (turn ~(tap in apps) |=([a=@tas ?] a))
       `desk
     $(desks t.desks)
   ::
@@ -270,17 +257,75 @@
   (pure:m ~)
 ::
 ++  block-on-previous-step
-  |=  done-duration=@dr
+  |=  [done-duration=@dr project-id=@t]
   =/  m  (strand:spider ,~)
   ^-  form:m
   |-
-  ;<  soonest-timer=(unit @da)  bind:m
-    (scry (unit @da) /gx/pyre/soonest-timer/noun)
-  ;<  now=@da  bind:m  get-time
-  ?~  soonest-timer                                  (pure:m)
-  ?:  (lth (add now done-duration) u.soonest-timer)  (pure:m)
-  ;<  ~  bind:m  (wait (add u.soonest-timer 1))  :: TODO: is this a good heuristic or should we wait longer?
+  ;<  =bowl:strand  bind:m  get-bowl
+  =*  now  now.bowl
+  =/  timers=(list [@da duct])
+    %+  filter-timers  now
+    (get-virtualship-timers project-id [our now]:bowl)
+  ?~  timers                                       (pure:m ~)
+  =*  soonest-timer  -.i.timers
+  ?:  (lth (add now done-duration) soonest-timer)  (pure:m ~)
+  ;<  ~  bind:m  (wait +(soonest-timer))  :: TODO: is this a good heuristic or should we wait longer?
+  :: ~&  [%ztr %block now `(list [@da duct])`timers]
   $
+::
+++  ignored-timer-prefixes
+  ^-  (list path)
+  :_  ~
+  /ames/pump
+::
+++  filter-timers
+  |=  [now=@da timers=(list [@da duct])]
+  ^-  (list [@da duct])
+  %+  murn  timers
+  |=  [time=@da d=duct]
+  ?~  d               `[time d]  ::  ?
+  ?:  (gth now time)  ~
+  =*  p  i.d
+  %+  roll  ignored-timer-prefixes
+  |:  [ignored-prefix=`path`/ timer=`(unit [@da duct])``[time d]]
+  ?:  =(ignored-prefix (scag (lent ignored-prefix) p))  ~
+  timer
+::
+++  get-virtualship-timers
+  |=  [project-id=@t our=@p now=@da]
+  ^-  (list [@da duct])
+  =/  now-ta=@ta  (scot %da now)
+  =/  ships=(list @p)
+    (get-virtualships-synced-for-project project-id our now)
+  %-  sort
+  :_  |=([a=(pair @da duct) b=(pair @da duct)] (lth p.a p.b))
+  %+  roll  ships
+  |=  [who=@p all-timers=(list [@da duct])]
+  =/  who-ta=@ta  (scot %p who)
+  =/  scry-noun=*
+    .^  *
+        %gx
+        %+  weld  /(scot %p our)/pyro/[now-ta]/i/[who-ta]
+        /bx/[who-ta]//[now-ta]/debug/timers/noun
+    ==
+  =/  timers=(unit (list [@da duct]))
+    ;;((unit (list [@da duct])) scry-noun)
+  ?~  timers  all-timers
+  (weld u.timers all-timers)
+::
+++  get-virtualships-synced-for-project
+  |=  [project-id=@t our=@p now=@da]
+  ^-  (list @p)
+  =+  .^  =update:zig
+          %gx
+          :-  (scot %p our)
+          /ziggurat/(scot %da now)/sync-desk-to-vship/noun
+      ==
+  ?~  update                            ~
+  ?.  ?=(%sync-desk-to-vship -.update)  ~  ::  TODO: throw error?
+  ?:  ?=(%| -.payload.update)           ~  ::  "
+  =*  sync-desk-to-vship  p.payload.update
+  ~(tap in (~(get ju sync-desk-to-vship) project-id))
 ::
 ++  run-steps
   |=  $:  project-id=@t
@@ -299,7 +344,7 @@
     results-vase(p [%face %test-results p.results-vase])
   |-
   ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
-  ;<  ~  bind:m  (block-on-previous-step ~m1)  :: TODO: unhardcode; are these good numbers?
+  ;<  ~  bind:m  (block-on-previous-step ~m1 project-id)  :: TODO: unhardcode; are these good numbers?
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
     %:  take-snapshot

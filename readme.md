@@ -227,8 +227,8 @@ squid
 ::  Seed, password, private key, public key:
 flee alter erode parrot turkey harvest pass combine casual interest receive album coyote shrug envelope turtle broken purity wear else fluid transaction theme buyer
 squid
-0x3163.45c7.9265.36bd.6a32.d317.87c0.c961.8df2.8d91.4c07.1a04.b929.baf6.cfd2.b4e8
-0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
+0xea88.44f4.1573.d220.8e6e.a784.a3ac.4dcb.5070.dee0.7899.01ba.7ce8.0042.6897.bf8e
+0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
 ```
 
 

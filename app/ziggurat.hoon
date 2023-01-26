@@ -46,6 +46,8 @@
     0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
   =*  bud-address
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
+  =*  wes-address
+    0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
   :-  ~
   %_    this
       state
@@ -55,8 +57,9 @@
     ::
         %+  ~(put by *configs:zig)  'global'
         %-  ~(gas by *config:zig)
-        :+  [[~nec %address] nec-address]
-          [[~bud %address] bud-address]
+        :^    [[~nec %address] nec-address]
+            [[~bud %address] bud-address]
+          [[~wes %address] wes-address]
         ~
     ::
         ~
@@ -319,11 +322,36 @@
       [project-name %add-and-queue-test-file request-id]
     cards
   ::
+  ++  ships-not-yet-running-to-run
+    |=  must-run-ships=(set @p)
+    ^-  (set @p)
+    %-  ~(dif in must-run-ships)
+    %-  ~(gas in *(set @p))
+    %-  ~(rep by pyro-ships-ready)
+    |=  [[who=@p ready=?] running-ships=(list @p)]
+    ?.(ready running-ships [who running-ships])
+  ::
+  ++  start-ships-then-rerun
+    |=  $:  ships-to-run=(list @p)
+            project-name=@t
+            request-id=(unit @t)
+        ==
+    ^-  (quip card _state)
+    :_  state
+    :+  %+  ~(poke-self pass:io /self-wire)  m
+        !>  ^-  action:zig
+        :^  project-name  request-id  %start-pyro-ships
+        ships-to-run
+      (~(poke-self pass:io /self-wire) m v)
+    ~
+  ::
   ++  handle-poke
     |=  act=action:zig
     ^-  (quip card _state)
     ?>  =(our.bowl src.bowl)
     =*  tag  -.+.+.act
+    ?:  =(tag %cis-panic) 
+      ~^state(cis-running ~)
     =/  =update-info:zig  [project.act tag request-id.act]
     ?:  ?&  !=(0 ~(wyt by cis-running))
             ?|  ?=(~ request-id.act)
@@ -357,33 +385,40 @@
             /(scot %p our.bowl)/[dap.bowl]/(scot %da now.bowl)
         ==
       ?:  (~(has in desks) project.act)
+        =/  [cards=(list card) cfo=(unit configuration-file-output:zig) modified-state=_state]
+          %+  load-configuration-file:zig-lib  update-info
+          %=  state
+              projects
+            (~(put by projects) project.act *project:zig)
+          ==
+        =/  ships-to-run=(list @p)
+          %~  tap  in
+          %-  ships-not-yet-running-to-run
+          %-  ~(gas in *(set @p))
+          ?^(cfo ships.u.cfo default-ships:zig-lib)
+        ?^  ships-to-run
+          %+  start-ships-then-rerun  ships-to-run
+          [project request-id]:act
+        ::
         ?:  (~(has by projects) project.act)
-          ::  TODO: replace this with loading a snapshot of init state?
-          =/  ships=(list @p)
-            ~(tap in ~(key by pyro-ships-ready))
           =.  projects  (~(del by projects) project.act)
-          =^  stop-cards  state
-            %^  handle-poke  project.act  request-id.act
-            [%stop-pyro-ships ~]
-          =^  start-cards  state
-            %^  handle-poke  project.act  request-id.act
-            [%start-pyro-ships ships]
-          =/  re-call=(list card)
-            :_  ~
-            (~(poke-self pass:io /self-wire) m v)
           :_  state
-          :(weld stop-cards start-cards re-call)
-        =.  projects
-          (~(put by projects) project.act *project:zig)
-        =^  cards  state
-          (load-config:zig-lib update-info state)
-        :_  state
+          :_  ~
+          (~(poke-self pass:io /self-wire) m v)
+        :_  modified-state
         :+  (make-read-desk:zig-lib [project request-id]:act)
           %+  update-vase-to-card:zig-lib  project.act
           %.  sync-desk-to-vship
           %~  new-project  make-update-vase:zig-lib
           update-info
         cards
+      =/  ships-to-run=(list @p)
+        %~  tap  in
+        %-  ships-not-yet-running-to-run
+        (~(gas in *(set @p)) default-ships:zig-lib)
+      ?^  ships-to-run
+        %+  start-ships-then-rerun  ships-to-run
+        [project request-id]:act
       =.  sync-desk-to-vship
         %-  ~(gas ju sync-desk-to-vship)
         %+  turn  sync-ships.act
@@ -423,11 +458,14 @@
       ::  should show a warning on frontend before performing this one ;)
       `state(projects (~(del by projects) project.act))
     ::
+        %cis-panic  :: we handle this above, not here. ignore
+      ~^state
+    ::
         %save-config-to-file
       ::  frontend should warn about overwriting
       =/  file-text=@t
         %-  make-configs-file:zig-lib
-        %-  build-default-config:zig-lib
+        %-  build-default-configuration:zig-lib
         (~(got by configs) project.act)
       =/  file-path=path  /zig/configs/[project.act]/hoon
       :_  state
@@ -437,16 +475,32 @@
       ~
     ::
         %add-sync-desk-vships
-      :-
-        :-  (make-read-desk:zig-lib [project request-id]:act)
-        %+  turn  ships.act
-        |=  who=@p
-        (sync-desk-to-virtualship:zig-lib who project.act)
-      %=  state
-          sync-desk-to-vship
-        %-  ~(gas ju sync-desk-to-vship)
-        %+  turn  ships.act
-        |=(who=@p [project.act who])
+      =*  desk         project.act
+      =*  ships        ships.act
+      =*  install      install.act
+      =*  start-apps   start-apps.act
+      =^  cards  state
+        (handle-poke project.act^request-id.act^%read-desk^~)
+      =.  cis-running  (make-cis-running:zig-lib ships desk)
+      :_  %=  state
+              sync-desk-to-vship
+            %-  ~(gas ju sync-desk-to-vship)
+            %+  turn  ships
+            |=(who=@p [desk who])
+          ==
+      :-  %+  update-vase-to-card:zig-lib  desk
+          %.  cis-running
+          %~  cis-running  make-update-vase:zig-lib
+          update-info
+      |-
+      ?~  ships.act  cards
+      =*  who   i.ships
+      =^  cis-cards  cis-running
+        %~  do-commit  cis:zig-lib
+        [who desk install start-apps cis-running]
+      %=  $
+          ships.act  t.ships.act
+          cards      (weld cards cis-cards)
       ==
     ::
         %delete-sync-desk-vships
@@ -678,14 +732,17 @@
       =.  dir.project
         =-  .^((list path) %ct -)
         /(scot %p our.bowl)/(scot %tas project.act)/(scot %da now.bowl)
-      :-  :+  %+  make-watch-for-file-changes:zig-lib
-              project.act  dir.project
-            %+  update-vase-to-card:zig-lib  project.act
-            %.  dir.project
-            %~  dir  make-update-vase:zig-lib
-            update-info
-          ~
-      state(projects (~(put by projects) project.act project))
+      :_  %=  state
+              projects
+            (~(put by projects) project.act project)
+          ==
+      :+  %+  make-watch-for-file-changes:zig-lib
+          project.act  dir.project
+        %+  update-vase-to-card:zig-lib  project.act
+        %.  dir.project
+        %~  dir  make-update-vase:zig-lib
+        update-info
+      ~
     ::
         %add-test
       =/  =project:zig  (~(got by projects) project.act)
@@ -817,13 +874,6 @@
         :_  ~
         %+  update-vase-to-card:zig-lib  project.act
         (run-queue-error(level %warning) (crip message))
-      ?:  !(~(all by pyro-ships-ready) same)
-        =/  message=tape
-          "%pyro ships aren't ready; will run when ready"
-        :_  state
-        :_  ~
-        %+  update-vase-to-card:zig-lib  project.act
-        (run-queue-error(level %info) (crip message))
       ?:  =(~ test-queue)
         =/  message=tape  "no tests in queue"
         :_  state
@@ -868,7 +918,7 @@
             next-test-id
             steps.test
             p.subject.test
-            ~[~nec ~bud]  :: TODO: remove hardcode and allow input of for-snapshot
+            default-ships:zig-lib  :: TODO: remove hardcode and allow input of for-snapshot
         ==
       =/  w=wire
         /test/[next-project-name]/(scot %ux next-test-id)/[tid]
@@ -938,39 +988,25 @@
         %stop-pyro-ships
       =.  pyro-ships-ready  ~
       :_  state
-      :^    [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
-          [%give %kick [/pyro-done]~ ~]
-        %+  update-vase-to-card:zig-lib  ''
-        %.  pyro-ships-ready
-        %~  pyro-ships-ready  make-update-vase:zig-lib
-        ['' %pyro-ships-ready ~]
-      ~
+      :_  ~
+      %+  update-vase-to-card:zig-lib  ''
+      %.  pyro-ships-ready
+      %~  pyro-ships-ready  make-update-vase:zig-lib
+      ['' %pyro-ships-ready ~]
     ::
         %start-pyro-ships
       =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud ~wes]
-      =/  wach=(list card)
-        %+  turn  ships.act
-        |=  who=ship
-        =/  w=wire  /ready/(scot %p who)
-        (~(watch-our pass:io w) %pyro w)
-      =/  init=(list card)
-        :_  ~
-        %+  ~(poke-our pass:io /self-wire)  %pyro
-        :-  %pyro-events
-        !>((turn ships.act |=(who=ship [%init-ship who])))
-      :-  (weld wach init)
-      %_    state
+      :-  %+  turn  ships.act
+          |=  who=@p
+          %+  ~(poke-our pass:io /self-wire)  %pyro
+          [%pyro-action !>([%init-ship who])]
+      %=    state
           pyro-ships-ready
         %-  ~(gas by *(map ship ?))
-        (turn ships.act |=(=ship [ship %.n]))
+        (turn ships.act |=(=ship [ship %.y]))
       ==
     ::
-        %start-pyro-snap
-      :_  state(pyro-ships-ready ~)
-      :+  (~(watch-our pass:io /restore) /effect/restore)
-        %+  ~(poke-our pass:io /self-wire)  %pyro
-        [%pyro-action !>([%restore-snap snap.act])]
-      ~
+        %start-pyro-snap  !!  :: TODO
     ::
         %publish-app  :: TODO
       ::  [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
@@ -1029,6 +1065,10 @@
       %.  file.act
       %~  delete-user-file  make-update-vase:zig-lib
       update-info
+    ::
+        %send-pyro-dojo
+      :_  state
+      (send-pyro-dojo:zig-lib [who command]:act)^~
     ==
   --
 ::
@@ -1096,39 +1136,6 @@
           test-running  |
         ==
       ==
-    ==
-  ::
-      [%ready @ ~]
-    ?+    -.sign  (on-agent:def w sign)
-        %fact
-      =/  who=@p  (slav %p i.t.w)
-      =.  pyro-ships-ready  (~(put by pyro-ships-ready) who %.y)
-      =/  leave=card
-        (~(leave-our pass:io /ready/(scot %p who)) %pyro)
-      ?~  test-queue                         [leave^~ this]
-      ?.  (~(all by pyro-ships-ready) same)  [leave^~ this]
-      :_  this
-      :~  leave
-      ::
-          %-  ~(poke-self pass:io /self-wire)
-          [%ziggurat-action !>(`action:zig`%$^~^[%run-queue ~])]
-      ::
-          %+  update-vase-to-card:zig-lib  ''
-          %.  pyro-ships-ready
-          %~  pyro-ships-ready  make-update-vase:zig-lib
-          ['' %pyro-ships-ready ~]
-      ::
-          %+  update-vase-to-card:zig-lib  ''
-          %~  run-queue  make-update-vase:zig-lib
-          ['' %pyro-ships-ready ~]
-      ==
-    ==
-  ::
-      [%restore ~]
-    ?+    -.sign  (on-agent:def w sign)
-        %fact
-      :_  this(pyro-ships-ready [[~nec %.y] ~ ~]) :: XX extremely hacky
-      (~(leave-our pass:io /restore) %pyro)^~
     ==
   ==
 ::
@@ -1258,6 +1265,18 @@
     %~  test-queue  make-update-vase:zig-lib
     ['' %test-queue ~]
   ::
+      [%sync-desk-to-vship ~]
+    :^  ~  ~  %ziggurat-update
+    %.  sync-desk-to-vship
+    %~  sync-desk-to-vship  make-update-vase:zig-lib
+    ['' %sync-desk-to-vship ~]
+  ::
+      [%cis-running ~]
+    :^  ~  ~  %ziggurat-update
+    %.  cis-running
+    %~  cis-running  make-update-vase:zig-lib
+    ['' %cis-running ~]
+  ::
       [%custom-step-compiled @ @ @ ~]
     =*  project-name  i.t.t.p
     =*  test-id       i.t.t.t.p
@@ -1308,11 +1327,7 @@
           /[who]/subscriber/[now]/agent-state/[app]/noun/noun
       ==
     :^  ~  ~  %ziggurat-update
-    ?~  agent-state-noun
-      %.  (crip "scry for /{<who>}/{<app>} failed")
-      %~  pyro-agent-state  make-error-vase:zig-lib
-      [['' %pyro-agent-state ~] %error]
-    =/  agent-state=@t  (need ;;((unit @t) agent-state-noun))
+    =/  agent-state=@t  ;;(@t agent-state-noun)
     %.  agent-state
     %~  pyro-agent-state  make-update-vase:zig-lib
     ['' %pyro-agent-state ~]
@@ -1347,6 +1362,13 @@
       =-  (crip (spit-docket:mime:dock -))
       .^(docket:dock %cx padh)
     ==
+  ::
+      [%read-desks ~]
+    =/  pat  /(scot %p our.bowl)/base/(scot %da now.bowl)
+    :^  ~  ~  %json  !>
+    ^-  json
+    =/  desks  .^((set @t) %cd pat)
+    (set-cords:enjs:zig-lib desks)
   ==
 ::
 ++  on-leave  on-leave:def

@@ -40,10 +40,12 @@
 ++  interface-json
   |^  ^-  (map @tas json)
   %-  ~(gas by *(map @tas json))
-  :^    [%give (need (de-json:html give-cord))]
+  :~  [%give (need (de-json:html give-cord))]
       [%take (need (de-json:html take-cord))]
-    [%set-allowance (need (de-json:html set-allowance-cord))]
-  ~
+      [%push (need (de-json:html push-cord))]
+      [%pull (need (de-json:html pull-cord))]
+      [%set-allowance (need (de-json:html set-allowance-cord))]
+  ==
   ::
   ++  give-cord
     ::  TODO: add back in `{"budget": "ud"},` field
@@ -52,8 +54,7 @@
     [
       {"to": "ux"},
       {"amount": "ud"},
-      {"from-account": "ux"},
-      {"to-account": ["unit", "ux"]}
+      {"from-account": "ux"}
     ]
     '''
   ::
@@ -63,8 +64,38 @@
     [
       {"to": "ux"},
       {"amount": "ud"},
+      {"from-account": "ux"}
+    ]
+    '''
+  ::
+  ++  push-cord
+    ^-  cord
+    '''
+    [
+      {"to": "ux"},
+      {"amount": "ud"},
       {"from-account": "ux"},
-      {"to-account": ["unit", "ux"]}
+      {"calldata": "*"}
+    ]
+    '''
+  ::
+  ++  pull-cord
+    ^-  cord
+    '''
+    [
+      {"from": "ux"},
+      {"to": "ux"},
+      {"amount": "ud"},
+      {"from-account": "ux"},
+      {"nonce": "ud"},
+      {"deadline": "ud"},
+      {
+        "sig": [
+          {"v": "ux"},
+          {"r": "ux"},
+          {"s": "ux"}
+        ]
+      }
     ]
     '''
   ::
