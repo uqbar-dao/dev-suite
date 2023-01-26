@@ -1,3 +1,7 @@
+::  Install a desk into multiple pyro ships, in O(1)ish time
+::  much faster than doing multiple :pyro|dojo ~nec "|install our %desk"s
+::  Usage: -zig!py-install ~[~nec ~bud ~wes ~rus] %zig
+::
 /-  spider
 /+  pyro=zig-pyro, *strandio
 =,  strand=strand:spider

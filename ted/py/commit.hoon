@@ -1,3 +1,7 @@
+::  Commit into multiple pyro ships, in O(1) time
+::  much faster than doing multiple :pyro|commits
+::  Usage: -zig!py-commit ~[~nec ~bud ~wes ~rus] %zig
+::
 /-  spider
 /+  pyro=zig-pyro, *strandio
 =,  strand=strand:spider
