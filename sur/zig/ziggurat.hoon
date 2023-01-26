@@ -161,6 +161,8 @@
       ::
           [%send-pyro-dojo who=@p command=tape]
       ::
+          [%pyro-agent-state who=@p app=@tas grab=@t]
+      ::
           [%cis-panic ~]
       ==
   ==

@@ -1066,6 +1066,32 @@
         %send-pyro-dojo
       :_  state
       (send-pyro-dojo:zig-lib [who command]:act)^~
+    ::
+        %pyro-agent-state
+      =/  who=@ta  (scot %p who.act)
+      =*  app      app.act
+      =*  grab     grab.act
+      =/  now=@ta  (scot %da now.bowl)
+      =/  agent-state-noun=*
+        .^  *
+            %gx
+            :-  (scot %p our.bowl)
+            %+  weld  /pyro/[now]/i/[who]/gx/[who]/subscriber
+            /[now]/agent-state/[app]/[grab]/noun/noun
+        ==
+      :_  state
+      :_  ~
+      %+  update-vase-to-card:zig-lib  project.act
+      ?~  agent-state-noun
+        %.  (crip "scry for /{<who>}/{<app>} failed")
+        %~  pyro-agent-state  make-error-vase:zig-lib
+        [['' %pyro-agent-state ~] %error]
+      =/  [agent-state=@t wex=boat:gall sup=bitt:gall]
+        %-  need
+        ;;((unit [@t boat:gall bitt:gall]) agent-state-noun)
+      %.  [agent-state wex sup]
+      %~  pyro-agent-state  make-update-vase:zig-lib
+      ['' %pyro-agent-state ~]
     ==
   --
 ::
@@ -1313,15 +1339,17 @@
   ::   %+  frond:enjs:format  %user-files
   ::   (dir:enjs:zig-lib ~(tap in user-files.u.project))
   ::
-      [%pyro-agent-state @ @ ~]
+      [%pyro-agent-state @ @ @ ~]
     =*  who      i.t.t.p
     =*  app      `@tas`i.t.t.t.p
+    =*  grab     `@t`i.t.t.t.t.p
     =/  now=@ta  (scot %da now.bowl)
     =/  agent-state-noun=*
       .^  *
           %gx
-          %+  weld  /(scot %p our.bowl)/pyro/[now]/i/[who]/gx
-          /[who]/subscriber/[now]/agent-state/[app]/noun/noun
+          :-  (scot %p our.bowl)
+          %+  weld  /pyro/[now]/i/[who]/gx/[who]/subscriber
+          /[now]/agent-state/[app]/[grab]/noun/noun
       ==
     :^  ~  ~  %ziggurat-update
     ?~  agent-state-noun
