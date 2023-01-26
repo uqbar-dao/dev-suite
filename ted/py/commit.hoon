@@ -7,15 +7,11 @@
 ?~  p.u.a  !!
 =*  hers  p.u.a
 =*  desk  q.u.a
-~&  >  t.hers
-
 =/  m  (strand ,vase)
 ;<  =beak  bind:m  get-beak
-~&  >  "starting"
+~&  pyro+multi-commit+hers
 ;<  ~  bind:m  (commit:pyro [i.hers]~ p.beak desk r.beak)
-~&  >  "done first commit"
 ;<  ~  bind:m  (poke-our %pyro %pyro-action !>([%copy-cache i.hers t.hers]))
-~&  >  "done copying cache"
+~&  pyro+multi-commit+%copying-cache
 ;<  ~  bind:m  (commit:pyro t.hers p.beak desk r.beak)
-~&  >  "done committing all"
-(pure:m *vase)
+(pure:m !>(~))
