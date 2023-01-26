@@ -18,7 +18,7 @@
 ++  on-init
   ^-  (quip card _this)
   :_  this
-  [%pass / %agent [our dap]:bowl %poke %pyre-action !>([%resub ~])]~
+  [%pass / %agent [our dap]:bowl %poke %noun !>([%resub ~])]~
 ++  on-save  on-save:def
 ++  on-load  on-load:def
 ++  on-poke
