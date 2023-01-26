@@ -909,8 +909,7 @@
   =/  who-ta=@ta   (scot %p who)
   =/  town-ta=@ta  (scot %ux town-id)
   =/  batch-order=update:ui
-    %-  fall  :_  ~
-    ;;  (unit update:ui)
+    ;;  update:ui
     .^  noun
         %gx
         ;:  weld
@@ -923,8 +922,7 @@
   ?~  batch-order.batch-order         ~
   =*  newest-batch  i.batch-order.batch-order
   =/  batch-chain=update:ui
-    %-  fall  :_  ~
-    ;;  (unit update:ui)
+    ;;  update:ui
     .^  noun
         %gx
         ;:  weld
@@ -1031,7 +1029,7 @@
         :-  (scot %p our.bowl)
         /pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
     ==
-  (fall ;;((unit (set @tas)) desks) ~)
+  ;;((set @tas) desks)
 ::
 ++  virtualship-desk-exists
   |=  [virtualship=@p desk=@tas]
@@ -1049,7 +1047,7 @@
         :-  (scot %p our.bowl)
         /pyro/[now]/i/[who]/gu/[who]/[app]/[now]/noun
     ==
-  (fall ;;((unit ?) is-app-running) %.n)
+  ;;(? is-app-running)
 ::
 ++  sync-desk-to-virtualship
   |=  [who=@p project-name=@tas]

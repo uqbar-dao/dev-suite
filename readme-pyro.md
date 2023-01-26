@@ -14,9 +14,6 @@ Last updated as of Jan 02, 2023.
 * [Custom inputs](#custom-inputs)
 * [Deploying contracts](#deploying-contracts)
 * [Project configuration](#project-configuration)
-* [`dbug` dashboard](#dbug-dashboard)
-* [Building the `%pyro` pill](#building-the-pyro-pill)
-* [Configuring testnet snapshot for quick-boot](#configuring-testnet-snapshot-for-quick-boot)
 
 ## Broad overview
 
@@ -188,17 +185,17 @@ The virtual ship operates like a normal ship, so you can maintain Dojo state the
 You can also scry into a virtualized ship app by scrying `%pyro`.
 There are some weird things about this:
 1. Output must be as a `noun`; you can subsequently `;;`, but must get a `noun` back at first.
-2. The returned `noun` is a `unit`.
-3. An additional `/noun` must be appended to the scry path because the path you give is used internally by `%pyro` to do its own scry to the virtualship.
-4. The virtualship and the [care](https://developers.urbit.org/reference/arvo/concepts/scry) must be specified at the start of the path.
+2. An additional mark (e.g. `/noun`) must be appended to the scry path because the path you give is used internally by `%pyro` to do its own scry to the virtualship.
+   The doubled marks must match or you must have a `/mar` files with the appropriate arm to transition the inner mark to the outer.
+3. The virtualship and the [care](https://developers.urbit.org/reference/arvo/concepts/scry) must be specified at the start of the path.
 
 Here are two examples, the first of a scry to clay for a file, and the second a scry to gall for `%indexer` state:
 
 ```hoon
-;;((unit wain) .^(noun %gx /=pyro=/i/~nec/cx/~nec/zig/(scot %da now)/desk/bill/noun))
+;;(wain .^(noun %gx /=pyro=/i/~nec/cx/~nec/zig/(scot %da now)/desk/bill/bill))
 
 =ui -build-file /=zig=/sur/zig/indexer/hoon
-;;((unit update:ui) .^(noun %gx /=pyro=/i/~nec/gx/~nec/indexer/(scot %da now)/batch-order/0x0/noun/noun))
+;;(update:ui .^(noun %gx /=pyro=/i/~nec/gx/~nec/indexer/(scot %da now)/batch-order/0x0/noun/noun))
 ```
 
 To avoid the overly-verbose scries, you can also use the `+scry` generator which will automatically format agent scries (care of `%gx`) into pyro-ships.
@@ -295,111 +292,3 @@ Arm name                     | Return type               | Description
 `+make-install`              | `?`                       | Install the mirrored desk on synced virtualships?
 `+make-start-apps`           | `(list @tas)`             | Additionaly apps to start in the project on synced ships (that are not included in the project's `desk.bill`).
 `+make-setup`                | `(map @p test-steps:zig)` | Set the initial state on synced virtualships by running these `test-steps`.
-
-## `dbug` dashboard
-
-The `dbug` dashboard enables programmatically scrying out `+dbug` state from agents running on virtualships.
-An alternative to the machinery here for a one-off `+dbug` is to run, e.g.
-```hoon
-:pyro|dojo ~nec ":my-agent +dbug"
-```
-which will print `+dbug` state to the Dojo.
-
-The `dbug` dashboard requires set up before use.
-To set it up, poke `%ziggurat` with `%add-app-to-dashboard`.
-For example, to add the `%indexer` for project `'foo'`:
-```hoon
-:ziggurat &ziggurat-action [project=%foo ~ %add-app-to-dashboard app=%indexer sur=/sur/zig/indexer/hoon mold-name='versioned-state:indexer' mar=/]
-```
-The `sur` field is required, and contains the definition of the mold given by `mold-name`: the agent state.
-The `mar` field is optional: if provided it should have a `+grow` arm to `json` from the agent state.
-
-After setting up, the scry path `/dashboard/[project-name]/[virtualship]/[app]` will be available.
-The scry will return an [`update:zig`](#update-zig): either an error of the current state of the app.
-If no mar field was given during set up, the state will be rendered as a `json` string.
-If a mar field was supplied, it will be used to format the state by applying the `json` `+grow` arm.
-
-Continuing the example above, scry out the state of the `%indexer` running on the virtual `~nec`:
-```hoon
-=zig -build-file /=zig=/sur/zig/ziggurat/hoon
-.^(update:zig %gx /=ziggurat=/dashboard/foo/~nec/indexer/noun)
-```
-
-For an example of an error output, intentionally misspell the `mold-name` in the setup step (here, the final `r` is missing in `versioned-state:indexer`):
-```hoon
-:ziggurat &ziggurat-action [project=%foo ~ %add-app-to-dashboard app=%indexer sur=/sur/zig/indexer/hoon mold-name='versioned-state:indexe' mar=/]
-=zig -build-file /=zig=/sur/zig/ziggurat/hoon
-.^(update:zig %gx /=ziggurat=/dashboard/foo/~nec/indexer/noun)
-```
-
-TODO: Add a fallback to the scry to return unformatted `+dbug` output without set up.
-
-## Building the `%pyro` pill
-
-A pill can either be freshly built and loaded into pyro, or output to Unix to share around the network:
-```hoon
-:pyro %pyro-action [%pill +zig!solid %base]
-
-.pill/pill +zig!solid %base
-```
-Be cautious of storing the pill in Dojo memory: it can OOM your loom.
-
-The latter is recommended - we store ours in `zig/snapshots/pill.pill`, and ship it with the ziggurat desk.
-
-Only newly created virtualships will use the most recently-supplied pill.
-As a result, if you replace an existing pill, you need to restart virtualships if you want them to use it.
-
-### Other considerations
-
-#### Ames speedboost on fakeships
-
-Ames divides packets into ~1kB because that is what routers on the internet handle.
-You can speed up virtual ames by increasing the size of packets, but only on a fakeship.
-When planning to dev on a fakeship, find-and-replace `13` to `23` in arvo/sys/vane/ames.hoon`.
-After this change, create your pill.
-For large ames sends (e.g. downloading a desk), this will significantly speed things up.
-
-#### `desk.ship`
-
-The distributor of a desk is specified in `desk.ship`.
-When booting from a pill, the new ship will try to contact that ship and ask for a remote install.
-To be performant you must have `desk.ship` be one of the ships you are running in the virtual net, or your ships will constantly ping that offline ship.
-Deleting `desk.ship` defaults to `~zod`.
-A downside of specifying a live ship in `desk.ship` is that your ship will succeed at remote installing your repo, which takes time.
-This indicates we should either:
-1. Update how we make pills/load in `%zig` desk,
-2. Get Tlon to accept an update to `desk.ship` behavior where no `desk.ship` defaults to no remote install on pill boot rather than `~zod` (the bring-your-own-boot-sequence (BYOBS) project should eliminate most of this toruble soon)
-3. Load in a `.jam` file `+on-init` that has pre-booted ships, if possible (research TODO).
-
-## Configuring testnet snapshot for quick-boot
-
-Testnet snap last updated: Dec 6 2022
-
-Note that this will create a bunch of jet mismatch errors because jetted code is not currently portable (easily).
-If you find that the ships are running slowly, and can't figure out why, repeating the steps below to recreate the default testnet state is a good idea.
-TODO: turn this into a thread
-
-First go into ames - ctrl+F "13" and replace with "23" to boost the packet size (see [above](#ames-speedboost-on-fakeships) for more details), then:
-
-```hoon
-|commit %base
-:pyro &pyro-action [%pill +zig!solid %base]
-:pyro|init ~nec
-:pyro|dojo ~nec ":rollup|activate"
-:pyro|dojo ~nec ":sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608"
-:pyro|dojo ~nec ":indexer &set-sequencer [our %sequencer]"
-:pyro|dojo ~nec ":indexer &set-rollup [our %rollup]"
-:pyro|dojo ~nec ":uqbar &wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname]"
-
-:pyro|init ~bud
-:pyro|dojo ~bud ":indexer &set-sequencer [~nec %sequencer]"
-:pyro|dojo ~bud ":indexer &set-rollup [~nec %rollup]"
-:pyro|dojo ~bud ":indexer &indexer-bootstrap [~nec %indexer]"
-:pyro|dojo ~nec ":uqbar &wallet-poke [%import-seed 'post fitness extend exit crack question answer fruit donkey quality emotion draw section width emotion leg settle bulb zero learn solution dutch target kidney' 'squid' 'nickname]"
-
-:pyro &action [%snap-ships /testnet ~[~nec ~bud ~wes]]
-:pyro &action [%export-snap /testnet]
-|unmount %zig
-|mount %zig
-```
-then move `zig/snapshots/testnet.jam` into this repo

@@ -48,9 +48,7 @@
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
   =*  wes-address
     0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
-  :-  :_  ~
-      %+  ~(poke-our pass:io /self-wire)  %pyro
-      [%pyro-action !>([%import-snap /testnet/jam /testnet])]
+  :-  ~
   %_    this
       state
     :_  [eng smart-lib ~]
@@ -876,13 +874,6 @@
         :_  ~
         %+  update-vase-to-card:zig-lib  project.act
         (run-queue-error(level %warning) (crip message))
-      ?:  !(~(all by pyro-ships-ready) same)
-        =/  message=tape
-          "%pyro ships aren't ready; will run when ready"
-        :_  state
-        :_  ~
-        %+  update-vase-to-card:zig-lib  project.act
-        (run-queue-error(level %info) (crip message))
       ?:  =(~ test-queue)
         =/  message=tape  "no tests in queue"
         :_  state
@@ -997,39 +988,25 @@
         %stop-pyro-ships
       =.  pyro-ships-ready  ~
       :_  state
-      :^    [%give %fact [/pyro-done]~ [%noun !>(`*`**)]]
-          [%give %kick [/pyro-done]~ ~]
-        %+  update-vase-to-card:zig-lib  ''
-        %.  pyro-ships-ready
-        %~  pyro-ships-ready  make-update-vase:zig-lib
-        ['' %pyro-ships-ready ~]
-      ~
+      :_  ~
+      %+  update-vase-to-card:zig-lib  ''
+      %.  pyro-ships-ready
+      %~  pyro-ships-ready  make-update-vase:zig-lib
+      ['' %pyro-ships-ready ~]
     ::
         %start-pyro-ships
-      =?  ships.act  ?=(~ ships.act)  default-ships:zig-lib
-      =/  wach=(list card)
-        %+  turn  ships.act
-        |=  who=ship
-        =/  w=wire  /ready/(scot %p who)
-        (~(watch-our pass:io w) %pyro w)
-      =/  init=(list card)
-        :_  ~
-        %+  ~(poke-our pass:io /self-wire)  %pyro
-        :-  %pyro-events
-        !>((turn ships.act |=(who=ship [%init-ship who])))
-      :-  (weld wach init)
-      %_    state
+      =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud ~wes]
+      :-  %+  turn  ships.act
+          |=  who=@p
+          %+  ~(poke-our pass:io /self-wire)  %pyro
+          [%pyro-action !>([%init-ship who])]
+      %=    state
           pyro-ships-ready
-        %-  ~(gas by pyro-ships-ready)
-        (turn ships.act |=(=ship [ship %.n]))
+        %-  ~(gas by *(map ship ?))
+        (turn ships.act |=(=ship [ship %.y]))
       ==
     ::
-        %start-pyro-snap
-      :_  state(pyro-ships-ready ~)
-      :+  (~(watch-our pass:io /restore) /effect/restore)
-        %+  ~(poke-our pass:io /self-wire)  %pyro
-        [%pyro-action !>([%restore-snap snap.act])]
-      ~
+        %start-pyro-snap  !!  :: TODO
     ::
         %publish-app  :: TODO
       ::  [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
@@ -1159,39 +1136,6 @@
           test-running  |
         ==
       ==
-    ==
-  ::
-      [%ready @ ~]
-    ?+    -.sign  (on-agent:def w sign)
-        %fact
-      =/  who=@p  (slav %p i.t.w)
-      =.  pyro-ships-ready  (~(put by pyro-ships-ready) who %.y)
-      =/  leave=card
-        (~(leave-our pass:io /ready/(scot %p who)) %pyro)
-      ?~  test-queue                         [leave^~ this]
-      ?.  (~(all by pyro-ships-ready) same)  [leave^~ this]
-      :_  this
-      :~  leave
-      ::
-          %-  ~(poke-self pass:io /self-wire)
-          [%ziggurat-action !>(`action:zig`%$^~^[%run-queue ~])]
-      ::
-          %+  update-vase-to-card:zig-lib  ''
-          %.  pyro-ships-ready
-          %~  pyro-ships-ready  make-update-vase:zig-lib
-          ['' %pyro-ships-ready ~]
-      ::
-          %+  update-vase-to-card:zig-lib  ''
-          %~  run-queue  make-update-vase:zig-lib
-          ['' %pyro-ships-ready ~]
-      ==
-    ==
-  ::
-      [%restore ~]
-    ?+    -.sign  (on-agent:def w sign)
-        %fact
-      :_  this(pyro-ships-ready [[~nec %.y] ~ ~]) :: XX extremely hacky
-      (~(leave-our pass:io /restore) %pyro)^~
     ==
   ==
 ::
@@ -1383,14 +1327,8 @@
           /[who]/subscriber/[now]/agent-state/[app]/noun/noun
       ==
     :^  ~  ~  %ziggurat-update
-    ?~  agent-state-noun
-      %.  (crip "scry for /{<who>}/{<app>} failed")
-      %~  pyro-agent-state  make-error-vase:zig-lib
-      [['' %pyro-agent-state ~] %error]
-    =/  [agent-state=@t wex=boat:gall sup=bitt:gall]
-      %-  need
-      ;;((unit [@t boat:gall bitt:gall]) agent-state-noun)
-    %.  [agent-state wex sup]
+    =/  agent-state=@t  ;;(@t agent-state-noun)
+    %.  agent-state
     %~  pyro-agent-state  make-update-vase:zig-lib
     ['' %pyro-agent-state ~]
   ::
