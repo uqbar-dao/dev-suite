@@ -196,7 +196,7 @@
   ::
   ++  parse-main  ::  first
     ^-  [raw=(list [face=term =path]) contract-hoon=hoon]
-    %-  parse-pile:conq
+    %+  parse-pile:conq  to-compile
     (trip .^(@t %cx (welp desk to-compile)))
   ::
   ++  parse-libs  ::  second
@@ -206,7 +206,7 @@
     |=  [face=term =path]
     ^-  hoon
     :+  %ktts  face
-    +:(parse-pile:conq (trip .^(@t %cx (welp desk (welp path /hoon)))))
+    +:(parse-pile:conq to-compile (trip .^(@t %cx (welp desk (welp path /hoon)))))
   ::
   ++  build-libs  ::  third
     |=  braw=(list hoon)
