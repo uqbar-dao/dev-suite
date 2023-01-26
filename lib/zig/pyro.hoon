@@ -18,7 +18,6 @@
   ?>  ?=(%pyro-effect p.cage)
   (pure:m !<([pyro-effect] q.cage))
 ::
-:: TODO broken
 ++  reset-ship
   |=  who=ship
   =/  m  (strand ,~)
