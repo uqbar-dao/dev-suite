@@ -8,6 +8,6 @@
 =/  smart-txt        .^(@t %cx /(scot %p our)/zig/(scot %da now)/lib/zig/sys/smart/hoon)
 =/  hoon-txt         .^(@t %cx /(scot %p our)/zig/(scot %da now)/lib/zig/sys/hoon/hoon)
 =/  cax              ;;(cache:conq (cue +.+:;;([* * @] hash-cache-file)))
-=/  new              (conq:conq hoon-txt smart-txt cax gas)
+=/  new              (conq:conq /lib/zig/sys/hoon/hoon hoon-txt smart-txt cax gas)
 ~&  >>  "new hash cache size: {<(met 3 (jam new))>}, with {<~(wyt by new)>} items"
 [%noun new]

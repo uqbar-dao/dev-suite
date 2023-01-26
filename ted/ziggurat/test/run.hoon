@@ -75,8 +75,8 @@
         ==
     ==
   =/  compilation-result
-    %^  mule-slap-subject:zig-lib  0  subject
-    mold-name.payload
+    %+  mule-slap-subject:zig-lib  subject
+    (ream mold-name.payload)
   ?:  ?=(%| -.compilation-result)
     ~&  %ziggurat-test-run^%scry-compilation-fail^p.compilation-result
     %-  pure:m
@@ -108,8 +108,8 @@
         /[who]/[app.payload]/[now]/dbug/state/noun/noun
     ==
   =/  compilation-result
-    %^  mule-slap-subject:zig-lib  0  subject
-    mold-name.payload
+    %+  mule-slap-subject:zig-lib  subject
+    (ream mold-name.payload)
   ?:  ?=(%| -.compilation-result)
     ~&  %ziggurat-test-run^%dbug-compilation-fail^p.compilation-result
     %-  pure:m
@@ -155,8 +155,8 @@
   ?:  is-mar-found
     ::  found mark: proceed
     =/  compilation-result
-      %^  mule-slap-subject:zig-lib  0  subject
-      payload.payload
+      %+  mule-slap-subject:zig-lib  subject
+      (ream payload.payload)
     ?:  ?=(%| -.compilation-result)
       ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
       %-  pure:m

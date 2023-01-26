@@ -235,8 +235,8 @@
       :-  (scot %p our.bowl)
       (weld /[project-name]/(scot %da now.bowl) p)
     =/  file-cord=@t  .^(@t %cx file-scry-path)
-    =/  [imports=(list [face=@tas =path]) =hair]
-      (parse-start-of-pile:zig-lib (trip file-cord))
+    =/  [imports=(list [face=@tas =path]) payload=hoon]
+      (parse-pile:conq file-scry-path (trip file-cord))
     =^  subject=(each vase @t)  state
       %^  compile-test-imports:zig-lib  `@tas`project-name
       imports  state
@@ -249,10 +249,7 @@
       %+  update-vase-to-card:zig-lib  project-name
       (add-test-error (crip message) 0x0)
     =/  test-steps-compilation-result=(each vase @t)
-      %-  compile-and-call-arm:zig-lib
-      :^  '$'  p.hair  p.subject
-      %-  of-wain:format
-      (slag (dec p.hair) (to-wain:format file-cord))
+      (compile-and-call-arm:zig-lib '$' p.subject payload)
     ?:  ?=(%| -.test-steps-compilation-result)
       =/  message=tape
         %+  weld  "test-steps compilation failed for"
