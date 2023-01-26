@@ -1015,7 +1015,7 @@
       =/  init=(list card)
         :_  ~
         %+  ~(poke-our pass:io /self-wire)  %pyro
-        :-  %aqua-events
+        :-  %pyro-events
         !>((turn ships.act |=(who=ship [%init-ship who])))
       :-  (weld wach init)
       %_    state

@@ -1057,10 +1057,10 @@
   %+  %~  poke-our  pass:io
       /sync/(scot %da now.bowl)/[project-name]/(scot %p who)
       %pyro
-  :-  %aqua-events
-  !>  ^-  (list aqua-event:pyro)
+  :-  %pyro-events
+  !>  ^-  (list pyro-event:pyro)
   :_  ~
-  :^  %event  who  /c/commit/(scot %p who)
+  :+  who  /c/commit/(scot %p who)
   (park:pyro-lib our.bowl project-name %da now.bowl)
 ::
 ++  send-pyro-dojo
@@ -1069,8 +1069,8 @@
   %+  %~  poke-our  pass:io
       /dojo/(scot %p who)/(scot %ux `@ux`(jam command))
     %pyro
-  :-  %aqua-events
-  !>  ^-  (list aqua-event:pyro)
+  :-  %pyro-events
+  !>  ^-  (list pyro-event:pyro)
   (dojo-events:pyro-lib who command)
 ::
 ++  make-cis-running

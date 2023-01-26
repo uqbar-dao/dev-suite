@@ -3,5 +3,5 @@
 /+  pyro=zig-pyro
 :-  %say
 |=  [* [her=ship command=tape ~] ~]
-:-  %aqua-events
+:-  %pyro-events
 (dojo-events:pyro her command)
