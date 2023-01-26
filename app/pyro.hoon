@@ -281,6 +281,12 @@
     :+  ~
       !<(mark (slam !>(|=((unit page) (head (need +<)))) p.pek))
     (slam !>(|=((unit page) (tail (need +<)))) p.pek)
+  ++  insert-cache
+    |=  cache=flow:clay-types
+    =/  cay  !<((tail clay-types) vase:(~(got by van.mod.sol.snap) %clay))
+    =.  fad.ruf.cay  (~(uni by fad.ruf.cay) cache)
+    =.  van.mod.sol.snap  (~(put by van.mod.sol.snap) %clay [!>(cay) *worm])
+    ..abet-pe
   ::
   ::  When paused, events are added to the queue but not processed.
   ::
@@ -473,18 +479,6 @@
   ::
       %clear-snaps  `state(fleet-snaps ~)
   ::
-      %wish
-    =.  this  apex-pyro  =<  abet-pyro
-    ^+  this
-    %+  turn-ships  hers.act
-    |=  [who=ship thus=_this]
-    =.  this  thus
-    =/  res=vase
-      (slym [-:!>(wish:arvo-adult) wish:snap:pier-data:(pe who)] p.act)
-    ::  TODO type is a vase, so q.res is a noun. Should be molded somehow
-    ~&  who^%wished^q.res
-    (pe who)
-  ::
       %unpause-ships
     =.  this  apex-pyro  =<  abet-pyro
     ^+  this
@@ -500,6 +494,29 @@
     |=  [who=ship thus=_this]
     =.  this  thus
     pause:(pe who)
+  ::
+      %wish
+    =.  this  apex-pyro  =<  abet-pyro
+    ^+  this
+    %+  turn-ships  hers.act
+    |=  [who=ship thus=_this]
+    =.  this  thus
+    =/  res=vase
+      (slym [-:!>(wish:arvo-adult) wish:snap:pier-data:(pe who)] p.act)
+    ::  TODO type is a vase, so q.res is a noun. Should be molded somehow
+    ~&  who^%wished^q.res
+    (pe who)
+  ::
+      %copy-cache
+    =/  per  (~(got by piers) from.act)
+    =/  cay  !<((tail clay-types) vase:(~(got by van.mod.sol.snap.per) %clay))
+    =/  cache  fad.ruf.cay
+    =.  this  apex-pyro  =<  abet-pyro
+    ^+  this
+    %+  turn-ships  to.act
+    |=  [who=ship thus=_this]
+    =.  this  thus
+    (insert-cache:(pe who) cache)
   ==
 ::
 ::  Run a callback function against a list of ships, aggregating state

@@ -27,12 +27,19 @@
     !>([%init-ship who])
   (pure:m ~)
 ::
-++  ue-to-ae
+++  ues-to-pe
   |=  [who=ship what=(list unix-event)]
   ^-  (list pyro-event)
   %+  turn  what
   |=  ue=unix-event
   [who ue]
+::
+++  ue-to-pes
+  |=  [hers=(list ship) what=unix-event]
+  ^-  (list pyro-event)
+  %+  turn  hers
+  |=  who=ship
+  [who what]
 ::
 ++  dojo
   |=  [who=ship =tape]
@@ -40,7 +47,7 @@
 ::
 ++  dojo-events
   |=  [who=ship =tape]
-  %+  ue-to-ae  who
+  %+  ues-to-pe  who
   ^-  (list unix-event)
   :~  [/d/term/1 %belt %mod %ctl `@c`%e]
       [/d/term/1 %belt %mod %ctl `@c`%u]
@@ -75,7 +82,7 @@
           payload=*
       ==
   %-  send-events
-  %+  ue-to-ae  who
+  %+  ues-to-pe  who
   ^-  (list unix-event)
   :_  ~
   :*  /g
@@ -87,7 +94,7 @@
   ::  TODO move to note-arvo?
   |=  [who=@p v=?(%a %b %c %d %e %g %i %j %k) =task-arvo]
   %-  send-events
-  %+  ue-to-ae  who
+  %+  ues-to-pe  who
   ^-  (list unix-event)
   [/[v] task-arvo]~ 
 ::
@@ -126,6 +133,12 @@
   |=  [=path =lobe:clay]
   ::  TODO: can we scry these out in bulk? Massive speed boost
   [lobe (rear path) .^(* %cx (weld desk-path path))]
+::
+++  commit
+  |=  [hers=(list ship) =ship =desk =case]
+  %-  send-events
+  %+  ue-to-pes  hers
+  [/c/commit (park ship desk case)]
 ::
 ++  enjs
   =,  enjs:format

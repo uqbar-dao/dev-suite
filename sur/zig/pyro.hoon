@@ -69,6 +69,7 @@
       ::  misc
       ::
       [%wish hers=(list ship) p=@t]
+      [%copy-cache from=ship to=(list ship)]
   ==
 ::
 +$  behn-pier  next-timer=(unit @da)
