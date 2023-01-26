@@ -441,7 +441,7 @@
     =.  this
       %+  turn-ships  hers.act
       |=  [who=ship thus=_this]
-      ~&  pyro+killing+who
+      ~&  pyro+killed+who
       =.  this  thus
       (publish-effect:(pe who) [/ %kill ~])
     =.  piers
@@ -459,6 +459,7 @@
       ^-  (unit (pair ship pier))
       ?~  per=(~(get by piers) her)  ~
       `[her u.per]
+    ~&  pyro+snapshot+path.act
     `state
   ::
       %restore-snap
@@ -475,9 +476,12 @@
     abet-pyro
   ::
       %delete-snap
+    ~&  deleted+path.act
     `state(fleet-snaps (~(del by fleet-snaps) path.act))
   ::
-      %clear-snaps  `state(fleet-snaps ~)
+      %clear-snaps
+    ~&  pyro+%cleared-all-snaps
+    `state(fleet-snaps ~)
   ::
       %unpause-ships
     =.  this  apex-pyro  =<  abet-pyro
@@ -485,6 +489,7 @@
     %+  turn-ships  hers.act
     |=  [who=ship thus=_this]
     =.  this  thus
+    ~&  pyro+unpaused+who
     unpause:(pe who)
   ::
       %pause-ships
@@ -493,6 +498,7 @@
     %+  turn-ships  hers.act
     |=  [who=ship thus=_this]
     =.  this  thus
+    ~&  pyro+paused+who
     pause:(pe who)
   ::
       %wish
