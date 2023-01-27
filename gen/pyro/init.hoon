@@ -1,8 +1,7 @@
 :: Start a pyro ship
+:: Usage: :pyro|init ~nec
 ::
-/-  pyro
-=,  pyro
 :-  %say
 |=  [* [her=ship ~] ~]
-:-  %aqua-events
-[%init-ship her]~
+:-  %pyro-action
+[%init-ship her]

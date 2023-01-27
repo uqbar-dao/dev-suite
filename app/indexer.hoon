@@ -44,9 +44,15 @@
 ::    /x/batch/[batch-id=@ux]
 ::    /x/batch/[town-id=@ux]/[batch-id=@ux]:
 ::      An entire batch.
+::    /x/batch-chain/[batch-id=@ux]
+::    /x/batch-chain/[town-id=@ux]/[batch-id=@ux]:
+::      Chain state within a batch.
 ::    /x/batch-order/[town-id=@ux]
 ::    /x/batch-order/[town-id=@ux]/[nth-most-recent=@ud]/[how-many=@ud]:
 ::      The order of batches for a town, or a subset thereof.
+::    /x/batch-transactions/[batch-id=@ux]
+::    /x/batch-transactions/[town-id=@ux]/[batch-id=@ux]:
+::      Transactions within a batch.
 ::    /x/transaction/[transaction-id=@ux]:
 ::    /x/transaction/[town-id=@ux]/[transaction-id=@ux]:
 ::      Info about transaction with the given hash.
@@ -70,7 +76,7 @@
 ::      History of id (queries `from`s and `to`s).
 ::    /x/source/[source-id=@ux]:
 ::    /x/source/[town-id=@ux]/[source-id=@ux]:
-::      items ruled by source with given hash.
+::      Items with source of given hash.
 ::    /x/to/[to-id=@ux]:
 ::    /x/to/[town-id=@ux]/[to-id=@ux]:
 ::      History of receiver with the given hash.
@@ -95,20 +101,21 @@
 ::
 ::    ##  Pokes
 ::
-::    %indexer-bootstrap:
-::      Copy state from target indexer.
-::      WARNING: Overwrites current state, so should
-::      only be used when bootstrapping a new indexer.
+::    %indexer-action:
+::      %bootstrap:
+::        Copy state from target indexer.
+::        WARNING: Overwrites current state, so should
+::        only be used when bootstrapping a new indexer.
 ::
-::    %indexer-catchup:
-::      Copy state from target indexer
-::      from given batch hash onward.
+::      %catchup:
+::        Copy state from target indexer
+::        from given batch hash onward.
 ::
-::    %set-sequencer:
-::      Subscribe to sequencer for new batches.
+::      %set-sequencer:
+::        Subscribe to sequencer for new batches.
 ::
-::    %set-rollup:
-::      Subscribe to rollup for new batch-idss.
+::      %set-rollup:
+::        Subscribe to rollup for new batch-idss.
 ::
 ::
 /-  eng=zig-engine,
@@ -146,8 +153,8 @@
     ::   to allow easier setup.
     ::   TODO: Remove hardcode and add a GUI button/
     ::         input menu to setup.
-    =/  testnet-host=@p            ~bacdun
-    =/  indexer-bootstrap-host=@p  ~dister-dozzod-bacdun
+    =/  testnet-host=@p            ~nec  ::  TODO: change back to bacdun
+    =/  indexer-bootstrap-host=@p  ~nec  ::  TODO: change back to dister-dozzod-bacdun
     =/  rollup-dock=dock           [testnet-host %rollup]
     =/  sequencer-dock=dock        [testnet-host %sequencer]
     =/  indexer-bootstrap-dock=dock
@@ -157,7 +164,7 @@
         :-  %uqbar-action
         !>  ^-  action:uqbar
         :-  %set-sources
-        [0x0 (~(gas in *(set dock)) ~[[our dap]:bowl])]~
+        [0x0 [our dap]:bowl]~
     ?:  ?|  =(testnet-host our.bowl)
             =(indexer-bootstrap-host our.bowl)
         ==
@@ -192,61 +199,63 @@
     ^-  (quip card _this)
     ?>  (team:title our.bowl src.bowl)
     ?+    mark  (on-poke:def mark vase)
-        %set-catchup-indexer
-      `this(catchup-indexer !<(dock vase))
-    ::
-        %set-sequencer
-      :_  this
-      %^    set-watch-target:ic
-          sequencer-wire
-        !<(dock vase)
-      sequencer-path
-    ::
-        %set-rollup
-      :_  this
-      %+  weld
-        %^    set-watch-target:ic
-            rollup-capitol-wire
-          !<(dock vase)
-        rollup-capitol-path
-      %^    set-watch-target:ic
-          rollup-root-wire
-        !<(dock vase)
-      rollup-root-path
-    ::
-        %indexer-bootstrap
-      =+  !<(indexer-bootstrap-dock=dock vase)
-      :_  this(catchup-indexer indexer-bootstrap-dock)
-      %^    set-watch-target:ic
-          indexer-bootstrap-wire
-        indexer-bootstrap-dock
-      indexer-bootstrap-path
-    ::
-        %indexer-catchup
-      =+  !<([=dock town=id:smart batch-id=id:smart] vase)
-      :_  this(catchup-indexer dock)
-      %^    set-watch-target:ic
-          (indexer-catchup-wire town batch-id)
-        dock
-      (indexer-catchup-path town batch-id)
-    ::
-        %consume-batch
-      =+  !<(args=consume-batch-args:ui vase)
-      =*  town-id   town-id.hall.town.args
-      =*  batch-id  batch-id.args
-      =^  cards  state
-        (consume-batch:ic args)
-      :-  cards
-      %=  this
-          sequencer-update-queue
-        %+  ~(put by sequencer-update-queue)  town-id
-        %.  batch-id
-        ~(del by (~(gut by sequencer-update-queue) town-id ~))
+        %indexer-action
+      =+  !<(=action:ui vase)
+      ?-    -.action
+          %set-catchup-indexer
+        `this(catchup-indexer dock.action)
       ::
-          town-update-queue
-        %+  ~(put by town-update-queue)  town-id
-        %.  batch-id
-        ~(del by (~(gut by town-update-queue) town-id ~))
+          %set-sequencer
+        :_  this
+        %^    set-watch-target:ic
+            sequencer-wire
+          dock.action
+        sequencer-path
+      ::
+          %set-rollup
+        :_  this
+        %+  weld
+          %^    set-watch-target:ic
+              rollup-capitol-wire
+            dock.action
+          rollup-capitol-path
+        %^    set-watch-target:ic
+            rollup-root-wire
+          dock.action
+        rollup-root-path
+      ::
+          %bootstrap
+        :_  this(catchup-indexer dock.action)
+        %^    set-watch-target:ic
+            indexer-bootstrap-wire
+          dock.action
+        indexer-bootstrap-path
+      ::
+          %catchup
+        =+  !<([=dock town=id:smart batch-id=id:smart] vase)
+        :_  this(catchup-indexer dock.action)
+        %^    set-watch-target:ic
+            (indexer-catchup-wire [town-id batch-id]:action)
+          dock.action
+        (indexer-catchup-path [town-id batch-id]:action)
+      ::
+          %consume-batch
+        =*  town-id   town-id.hall.town.args.action
+        =*  batch-id  batch-id.args.action
+        =^  cards  state
+          (consume-batch:ic args.action)
+        :-  cards
+        %=  this
+            sequencer-update-queue
+          %+  ~(put by sequencer-update-queue)  town-id
+          %.  batch-id
+          ~(del by (~(gut by sequencer-update-queue) town-id ~))
+        ::
+            town-update-queue
+          %+  ~(put by town-update-queue)  town-id
+          %.  batch-id
+          ~(del by (~(gut by town-update-queue) town-id ~))
+        ==
       ==
     ==
   ::
@@ -347,6 +356,9 @@
       (get-ids u.query-payload only-newest)
     ::
         $?  [%batch @ ~]        [%batch @ @ ~]
+            [%batch-chain @ ~]  [%batch-chain @ @ ~]
+            [%batch-transactions @ ~]
+            [%batch-transactions @ @ ~]
             [%transaction @ ~]  [%transaction @ @ ~]
             [%from @ ~]         [%from @ @ ~]
             [%item @ ~]         [%item @ @ ~]
@@ -526,9 +538,10 @@
         :_  state
         :_  ~
         %-  ~(poke-self pass:io /consume-batch-poke)
-        :-  %consume-batch
-        !>  ^-  consume-batch-args:ui
-        :*  batch-id
+        :-  %indexer-action
+        !>  ^-  action:ui
+        :*  %consume-batch
+            batch-id
             transactions.update
             [chain.update hall.update]
             u.timestamp
@@ -593,9 +606,10 @@
         :_  state
         :_  ~
         %-  ~(poke-self pass:io /consume-batch-poke)
-        :-  %consume-batch
-        !>  ^-  consume-batch-args:ui
-        :*  batch-id
+        :-  %indexer-action
+        !>  ^-  action:ui
+        :*  %consume-batch
+            batch-id
             transactions.u.sequencer-update
             town.u.sequencer-update
             timestamp
@@ -905,15 +919,29 @@
     ?.(only-newest get-batch get-newest-batch)
   |^
   ?+    query-type  ~
-      %batch
-    get-batch-update
-  ::
+      %batch               get-batch-update
+      %batch-chain         get-batch-chain-update
+      %batch-transactions  get-batch-transactions-update
+      %town                get-town
       ?(%transaction %from %item %item-transactions %holder %source %to)
     get-from-index
-  ::
-      %town
-    get-town
   ==
+  ::
+  ++  get-batch-chain-update
+    =/  =update:ui  get-batch-update
+    ?.  ?=(%batch -.update)  ~
+    :-  %batch-chain
+    %-  ~(run by batches.update)
+    |=  [timestamp=@da location=town-location:ui =batch:ui]
+    [timestamp location chain.batch]
+  ::
+  ++  get-batch-transactions-update
+    =/  =update:ui  get-batch-update
+    ?.  ?=(%batch -.update)  ~
+    :-  %batch-transactions
+    %-  ~(run by batches.update)
+    |=  [timestamp=@da location=town-location:ui =batch:ui]
+    [timestamp location transactions.batch]
   ::
   ++  get-town
     ?.  ?=(@ query-payload)  ~

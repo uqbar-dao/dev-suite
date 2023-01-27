@@ -1,7 +1,7 @@
-# Ziggurat
+# Uqbar Core
 
-Ziggurat is the Uqbar developer suite.
-It contains code for the Gall apps required to simulate the ZK rollup to Ethereum, to sequence transactions in order to run a town, and the user application suite: the `%wallet` for chain writes, the `%indexer` for chain reads, and `%uqbar`, a unified read-write interface.
+Uqbar Core is the Uqbar developer suite.
+It contains code for the Gall apps required to simulate the ZK rollup to Ethereum, to sequence transactions in order to run a town, and the user application suite: the `%wallet` for chain writes, the `%indexer` for chain reads, `%uqbar`, a unified read-write interface, and %ziggurat, an Urbit-native development and test environment.
 
 
 ## Contents
@@ -26,6 +26,7 @@ The user suite of apps include:
 * `%wallet`: manages key pairs, tracks assets, handles writes to chain
 * `%indexer`: indexes batches, provides a scry interface for chain state, sends subscription updates
 * [`%uqbar`](#why-route-reads-and-writes-through-uqbar): wraps `%wallet` and `%indexer` to provide a unified read/write interface
+* %ziggurat: an Urbit-native development and test environment
 
 The user suite of apps interact with the `%rollup` and `%sequencer` apps, and provide interfaces for use by Urbit apps that need to read or write to the chain.
 
@@ -39,7 +40,9 @@ In the future, with remote scry, users will not need to run their own `%indexer`
 
 ## Initial Installation
 
-1. Clone the official Urbit repository and add this repository as a submodule.
+1. Make sure Git LFS is installed, [see instructions](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage).
+   Some large binaries are stored on Git LFS, and so installation will not work without Git LFS.
+2. Clone the official Urbit repository and add this repository as a submodule.
    This structure is necessary to resolve symbolic links to other desks like `base-dev` and `garden-dev`.
    ```bash
    cd ~/git  # Replace with your chosen directory.
@@ -48,28 +51,28 @@ In the future, with remote scry, users will not need to run their own `%indexer`
    cd urbit/pkg
    git submodule add git@github.com:uqbar-dao/uqbar-core.git uqbar-core
    ```
-2. Either build or install the Urbit binary, then boot a development fakeship:
+3. Either build or install the Urbit binary, then boot a development fakeship:
    ```bash
    ./urbit -F zod
    ```
-3. In the Dojo of the fakeship, set up a `%zig` desk, where we will copy the files in this repo:
+4. In the Dojo of the fakeship, set up a `%zig` desk, where we will copy the files in this repo:
    ```hoon
    |merge %zig our %base
    |mount %zig
    ```
-4. In a new terminal, copy the files from this repo into the `%zig` desk:
+5. In a new terminal, copy the files from this repo into the `%zig` desk:
    ```bash
    cd ~/git/urbit/pkg  # Replace with your chosen directory.
 
    rm -rf zod/zig/*
    cp -RL uqbar-core/* zod/zig/
    ```
-5. In the Dojo of the fakeship, commit the copied files and install.
+6. In the Dojo of the fakeship, commit the copied files and install.
    ```hoon
    |commit %zig
    |install our %zig
    ```
-6. Run tests, if desired, in the Dojo.
+7. Run tests, if desired, in the Dojo.
    ```hoon
    ::  Run all tests.
    -test ~[/=zig=/tests]
@@ -90,8 +93,8 @@ Specifically, contracts for zigs tokens, NFTs, and publishing new contracts are 
 After [initial installation](#initial-installation), start the `%rollup`, initialize the `%sequencer`, set up the `%uqbar` read-write interface, and configure the `%wallet` to point to some [pre-set assets](#accounts-initialized-by-init-script), minted in the `:sequencer|init` poke:
 ```hoon
 :rollup|activate
-:indexer &set-sequencer [our %sequencer]
-:indexer &set-rollup [our %rollup]
+:indexer &indexer-action [%set-sequencer [our %sequencer]]
+:indexer &indexer-action [%set-rollup [our %rollup]]
 :sequencer|init our 0x0 0xc9f8.722e.78ae.2e83.0dd9.e8b9.db20.f36a.1bc4.c704.4758.6825.c463.1ab6.daee.e608
 :uqbar &wallet-poke [%import-seed 'uphold apology rubber cash parade wonder shuffle blast delay differ help priority bleak ugly fragile flip surge shield shed mistake matrix hold foam shove' 'squid' 'nickname']
 ```
@@ -224,8 +227,8 @@ squid
 ::  Seed, password, private key, public key:
 flee alter erode parrot turkey harvest pass combine casual interest receive album coyote shrug envelope turtle broken purity wear else fluid transaction theme buyer
 squid
-0x3163.45c7.9265.36bd.6a32.d317.87c0.c961.8df2.8d91.4c07.1a04.b929.baf6.cfd2.b4e8
-0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
+0xea88.44f4.1573.d220.8e6e.a784.a3ac.4dcb.5070.dee0.7899.01ba.7ce8.0042.6897.bf8e
+0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
 ```
 
 
@@ -238,13 +241,13 @@ The following two examples assume `~zod` is the host:
 
 ### Indexing on an existing testnet
 ```hoon
-:indexer &set-sequencer [~zod %sequencer]
-:indexer &set-rollup [~zod %rollup]
-:indexer &indexer-bootstrap [~zod %indexer]
+:indexer &indexer-action [%set-sequencer [~zod %sequencer]]
+:indexer &indexer-action [%set-rollup [~zod %rollup]]
+:indexer &indexer-action [%bootstrap [~zod %indexer]]
 ```
 In this example, not all the hosts need be the same ship.
 To give a specific example, `~zod` might be running the `%rollup`, while `~bus` runs the `%sequencer` for town `0x0` and also the `%indexer`.
-Every user who wishes to interact with the chain must currently run their own `%indexer`, so there will likely be many options to `%indexer-bootstrap` from.
+Every user who wishes to interact with the chain must currently run their own `%indexer`, so there will likely be many options to `%bootstrap` from.
 
 
 ### Sequencing on an existing testnet

@@ -1,19 +1,22 @@
-::  Scry an agent inside of a pyro ship
-::  Usage: +zig!pyro/scry ~dev %sequencer /status/noun
+::  Scry into a pyro ship
+::  Usage: +zig!pyro/scry json /~dev/gx/sequencer/status/noun/noun
+::  Note:  double /mark needed at the end of %gx scries, e.g. /noun/noun
+::  TODO:  for some reason the mold doesn't work: json prints as noun
 ::
-/-  pyro
-=,  pyro
 :-  %say
-|=  [[now=@da * =beak] [her=ship app=@tas =path ~] ~]
+|=  [[now=@da * =beak] [=mold =path ~] ~]
 :-  %noun
-::  XX have to ;; the result
-.^  noun
+?>  ?=([@ @ @ ^] path) :: her/care/path
+=*  her   i.path
+=*  care  i.t.path
+=*  app   i.t.t.path
+=*  paf   t.t.t.path
+.^  mold
     %gx
     %-  zing
     :~  /(scot %p p.beak)/pyro/(scot %da now)  ::  /=pyro=
-        /i/(scot %p her)/gx                    ::  /i/~dev/gx
-        /(scot %p her)/[app]/(scot %da *@da)   ::  /=sequencer=
-        path                                   ::  /status/noun
-        /noun                                  ::  /noun
+        /i/[her]/[care]                        ::  /i/~dev/gx
+        /[her]/[app]/(scot %da *@da)           ::  /=sequencer=
+        paf                                    ::  /status/noun/noun
     ==
 ==

@@ -1,0 +1,2 @@
+zig/snapshots/*.jam filter=lfs diff=lfs merge=lfs -text
+zig/snapshots/*.pill filter=lfs diff=lfs merge=lfs -text

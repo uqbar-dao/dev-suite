@@ -4,6 +4,7 @@
 /=  nft  /con/lib/nft-interface-types
 /=  publish  /con/lib/publish-interface-types
 /=  zigs  /con/lib/zigs-interface-types
+/*  escrow-contract    %jam  /con/compiled/escrow/jam
 /*  fungible-contract  %jam  /con/compiled/fungible/jam
 /*  nft-contract       %jam  /con/compiled/nft/jam
 /*  publish-contract   %jam  /con/compiled/publish/jam
@@ -15,7 +16,7 @@
 ::
 =/  pubkey-1  0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
 =/  pubkey-2  0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
-=/  pubkey-3  0x25a8.eb63.a5e7.3111.c173.639b.68ce.091d.d3fc.f139
+=/  pubkey-3  0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
 =/  zigs-1  (hash-data:smart zigs-contract-id:smart pubkey-1 town-id `@`'zigs')
 =/  zigs-2  (hash-data:smart zigs-contract-id:smart pubkey-2 town-id `@`'zigs')
 =/  zigs-3  (hash-data:smart zigs-contract-id:smart pubkey-3 town-id `@`'zigs')
@@ -107,6 +108,17 @@
       interface=interface-json:nft
       types=types-json:nft
   ==
+::  escrow.hoon contract
+=/  escrow-pact
+  ^-  pact:smart
+  :*  0xabcd.abcd  ::  id
+      0x0          ::  source
+      0x0          ::  holder
+      town-id      ::  town-id
+      [- +]:(cue escrow-contract)
+      interface=~
+      types=~
+  ==
 ::
 :: NFT stuff
 ::
@@ -168,6 +180,7 @@
       [id.publish-pact [%| publish-pact]]
       [id.nft-pact [%| nft-pact]]
       [id.fungible-pact [%| fungible-pact]]
+      [id.escrow-pact [%| escrow-pact]]
       [zigs-1 beef-zigs-item]
       [zigs-2 dead-zigs-item]
       [zigs-3 cafe-zigs-item]
