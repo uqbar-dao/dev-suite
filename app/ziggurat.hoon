@@ -389,6 +389,7 @@
         !>  ^-  action:pyro
         [%restore-snap default-snap-path:zig-lib]
       =.  snap-cards
+        ?:  =('zig' project.act)   ~
         ?:  =('' focused-project)  snap-cards
         =/  current-links=@t
           %-  crip
@@ -423,14 +424,14 @@
         ::   %+  start-ships-then-rerun  ships-to-run
         ::   [project request-id]:act
         ::
-        ?:  (~(has by projects) project.act)
-          =.  projects  (~(del by projects) project.act)
-          =.  focused-project
-            ?:  =(project.act focused-project)  ''
-            focused-project
-          :_  state
-          :_  ~
-          (~(poke-self pass:io /self-wire) m v)
+        :: ?:  (~(has by projects) project.act)
+        ::   =.  projects  (~(del by projects) project.act)
+        ::   =.  focused-project
+        ::     ?:  =(project.act focused-project)  ''
+        ::     focused-project
+        ::   :_  state
+        ::   :_  ~
+        ::   (~(poke-self pass:io /self-wire) m v)
         =/  request-id=@t
           ?>  ?=(%commit-install-starting -.status.modified-state)
           %-  ~(got by cis-running.status.modified-state)
@@ -1095,9 +1096,9 @@
         %start-pyro-ships
       =/  =project:zig
         (~(gut by projects) project.act *project:zig)
+      =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud ~wes]
       =.  pyro-ships.project
         (weld pyro-ships.project ships.act)
-      =?  ships.act  ?=(~ ships.act)  ~[~nec ~bud ~wes]
       =.  projects
         (~(put by projects) project.act project)
       :_  state
@@ -1296,6 +1297,7 @@
         %~  on-update-setup-done  cis:zig-lib
         [who desk install apps status]
     %=  this
+        status  [%ready ~]
         focused-project
       ?:(=('' focused-project) desk focused-project)
     ::
