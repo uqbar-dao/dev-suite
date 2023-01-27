@@ -671,6 +671,8 @@
   ::  adapted from compile-contract:conq
   ::  this wacky design is to get a somewhat more helpful error print
   ::
+  ::  TODO: with +vast -> +vang change, do we need this anymore?
+  ::
   |^
   =/  first  (mule |.(parse-main))
   ?:  ?=(%| -.first)
@@ -692,7 +694,7 @@
   ::
   ++  parse-main  ::  first
     ^-  [raw=(list [face=term =path]) contract-hoon=hoon]
-    %-  parse-pile:conq
+    %+  parse-pile:conq  (welp desk to-compile)
     (trip .^(@t %cx (welp desk to-compile)))
   ::
   ++  parse-libs  ::  second
@@ -702,7 +704,7 @@
     |=  [face=term =path]
     ^-  hoon
     :+  %ktts  face
-    +:(parse-pile:conq (trip .^(@t %cx (welp desk (welp path /hoon)))))
+    +:(parse-pile:conq (welp desk (welp path /hoon)) (trip .^(@t %cx (welp desk (welp path /hoon)))))
   ::
   ++  build-libs  ::  third
     |=  braw=(list hoon)
@@ -788,60 +790,30 @@
   res-text
 ::
 ++  noah-slap-ream
-  |=  [number-sur-lines=@ud subject=vase payload=@t]
+  |=  [subject=vase payload=@t]
   ^-  tape
   =/  compilation-result
-    (mule-slap-subject number-sur-lines subject payload)
+    (mule-slap-subject subject (ream payload))
   ?:  ?=(%| -.compilation-result)  (trip payload)
   (noah p.compilation-result)
 ::
 ++  mule-slap-subject
-  |=  [number-sur-lines=@ud subject=vase payload=@t]
+  |=  [subject=vase payload=hoon]
   ^-  (each vase @t)
+  !.
   =/  compilation-result
-    (mule |.((slap subject (ream payload))))
+    (mule |.((slap subject payload)))
   ?:  ?=(%& -.compilation-result)  compilation-result
-  ~&  (get-formatted-error p.compilation-result)
-  =/  error-tanks=(list tank)  (scag 2 p.compilation-result)
-  ?.  ?=([^ [%leaf ^] ~] error-tanks)
-    :-  %|
-    (get-formatted-error (scag 2 p.compilation-result))
-  =/  [error-line-number=@ud col=@ud]
-    (parse-error-line-col p.i.t.error-tanks)
-  =/  real-line-number=@ud
-    (dec (add number-sur-lines error-line-number))
-  =/  modified-error-tanks=(list tank)
-    ~[i.error-tanks [%leaf "\{{<real-line-number>} {<col>}}"]]
-  :-  %|
-  (get-formatted-error (scag 2 modified-error-tanks))
-::
-++  parse-error-line-col
-  |=  line-col=tape
-  ^-  [@ud @ud]
-  =/  [=hair res=(unit [line-col=[@ud @ud] =nail])]
-    %.  [[1 1] line-col]
-    %-  full
-    %+  ifix  [kel ker]
-    ;~(plug dem:ag ;~(pfix ace dem:ag))
-  ?^  res  line-col.u.res
-  %-  mean  %-  flop
-  =/  lyn  p.hair
-  =/  col  q.hair
-  :~  leaf+"syntax error"
-      leaf+"\{{<lyn>} {<col>}}"
-      leaf+(runt [(dec col) '-'] "^")
-      leaf+(trip (snag (dec lyn) (to-wain:format (crip line-col))))
-  ==
+  [%| (get-formatted-error p.compilation-result)]
 ::
 ++  compile-and-call-arm
-  |=  [arm=@tas number-sur-lines=@ud subject=vase payload=@t]
+  |=  [arm=@tas subject=vase payload=hoon]
   ^-  (each vase @t)
   =/  hoon-compilation-result
-    (mule-slap-subject number-sur-lines subject payload)
+    (mule-slap-subject subject payload)
   ?:  ?=(%| -.hoon-compilation-result)
     hoon-compilation-result
-  %^  mule-slap-subject  number-sur-lines
-  p.hoon-compilation-result  arm
+  (mule-slap-subject p.hoon-compilation-result (ream arm))
 ::
 ++  make-recompile-custom-steps-cards
   |=  $:  project-name=@t
@@ -878,8 +850,8 @@
     %+  update-vase-to-card  project-name
     (add-custom-error (crip message) [`@ux`(sham test) tag])
   =/  file-cord=@t  .^(@t %cx file-scry-path)
-  =/  [imports=(list [face=@tas =path]) =hair]
-    (parse-start-of-pile (trip file-cord))
+  =/  [imports=(list [face=@tas =path]) payload=hoon]
+    (parse-pile:conq file-scry-path (trip file-cord))
   ?:  ?=(%| -.subject.test)
     =/  message=tape
       %+  weld  "subject must compile from imports before"
@@ -889,10 +861,9 @@
     %+  update-vase-to-card  project-name
     (add-custom-error (crip message) [`@ux`(sham test) tag])
   =/  compilation-result=(each vase @t)
-    %-  compile-and-call-arm
-    :^  '$'  p.hair  p.subject.test
-    %-  of-wain:format
-    (slag (dec p.hair) (to-wain:format file-cord))
+    (compile-and-call-arm '$' p.subject.test payload)
+    :: %-  of-wain:format
+    :: (slag (dec p.hair) (to-wain:format file-cord))
   ?:  ?=(%| -.compilation-result)
     =/  message=tape
       %+  weld  "compilation failed with error:"
@@ -920,8 +891,7 @@
   =/  who-ta=@ta   (scot %p who)
   =/  town-ta=@ta  (scot %ux town-id)
   =/  batch-order=update:ui
-    %-  fall  :_  ~
-    ;;  (unit update:ui)
+    ;;  update:ui
     .^  noun
         %gx
         ;:  weld
@@ -934,8 +904,7 @@
   ?~  batch-order.batch-order         ~
   =*  newest-batch  i.batch-order.batch-order
   =/  batch-chain=update:ui
-    %-  fall  :_  ~
-    ;;  (unit update:ui)
+    ;;  update:ui
     .^  noun
         %gx
         ;:  weld
@@ -980,40 +949,6 @@
     ~
   --
 ::
-::  abbreviated parser from lib/zink/conq.hoon:
-::   parse to end of imports, start of hoon.
-::   used to find start of hoon for compilation and to find
-::   proper line error number in case of error
-::   (see +mule-slap-subject)
-::
-+$  small-start-of-pile  (list [face=term =path])
-::
-++  parse-start-of-pile
-  |=  tex=tape
-  ^-  [small-start-of-pile hair]
-  =/  [=hair res=(unit [=small-start-of-pile =nail])]
-    (start-of-pile-rule [1 1] tex)
-  ?^  res  [small-start-of-pile.u.res hair]
-  %-  mean  %-  flop
-  =/  lyn  p.hair
-  =/  col  q.hair
-  :~  leaf+"syntax error"
-      leaf+"\{{<lyn>} {<col>}}"
-      leaf+(runt [(dec col) '-'] "^")
-      leaf+(trip (snag (dec lyn) (to-wain:format (crip tex))))
-  ==
-::
-++  start-of-pile-rule
-  %+  ifix
-    :_  gay
-    ::  parse optional smart library import and ignore
-    ;~(plug gay (punt ;~(plug fas lus gap taut-rule:conq gap)))
-  ;~  plug
-  ::  only accept /= imports for contract libraries
-    %+  rune:conq  tis
-    ;~(plug sym ;~(pfix gap stap))
-  ==
-::
 ++  town-id-to-sequencer-host
   |=  [project-name=@t town-id=@ux =configs:zig]
   ^-  (unit @p)
@@ -1042,7 +977,7 @@
         :-  (scot %p our.bowl)
         /pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
     ==
-  (fall ;;((unit (set @tas)) desks) ~)
+  ;;((set @tas) desks)
 ::
 ++  virtualship-desk-exists
   |=  [virtualship=@p desk=@tas]
@@ -1060,7 +995,7 @@
         :-  (scot %p our.bowl)
         /pyro/[now]/i/[who]/gu/[who]/[app]/[now]/noun
     ==
-  (fall ;;((unit ?) is-app-running) %.n)
+  ;;(? is-app-running)
 ::
 ++  sync-desk-to-virtualship
   |=  [who=@p project-name=@tas]
@@ -1068,10 +1003,10 @@
   %+  %~  poke-our  pass:io
       /sync/(scot %da now.bowl)/[project-name]/(scot %p who)
       %pyro
-  :-  %aqua-events
-  !>  ^-  (list aqua-event:pyro)
+  :-  %pyro-events
+  !>  ^-  (list pyro-event:pyro)
   :_  ~
-  :^  %event  who  /c/commit/(scot %p who)
+  :+  who  /c/commit/(scot %p who)
   (park:pyro-lib our.bowl project-name %da now.bowl)
 ::
 ++  send-pyro-dojo
@@ -1080,8 +1015,8 @@
   %+  %~  poke-our  pass:io
       /dojo/(scot %p who)/(scot %ux `@ux`(jam command))
     %pyro
-  :-  %aqua-events
-  !>  ^-  (list aqua-event:pyro)
+  :-  %pyro-events
+  !>  ^-  (list pyro-event:pyro)
   (dojo-events:pyro-lib who command)
 ::
 ++  make-cis-running
@@ -1316,8 +1251,8 @@
   ++  get-configuration-from-file
     ^-  (each configuration-file-output:zig [(list card) inflated-state-0:zig])
     =/  file-cord=@t  .^(@t %cx config-file-path)
-    =/  [imports=(list [face=@tas =path]) =hair]
-      (parse-start-of-pile (trip file-cord))
+    =/  [imports=(list [face=@tas =path]) payload=hoon]
+      (parse-pile:conq config-file-path (trip file-cord))
     =^  subject=(each vase @t)  state
       (compile-test-imports project-name imports state)
     ?:  ?=(%| -.subject)
@@ -1330,9 +1265,7 @@
       %+  update-vase-to-card  project-name
       (new-project-error (crip message))
     =/  config-core
-      %^  mule-slap-subject  p.hair  p.subject
-      %-  of-wain:format
-      (slag (dec p.hair) (to-wain:format file-cord))
+      (mule-slap-subject p.subject payload)
     ?:  ?=(%| -.config-core)
       =/  message=tape
         "config compilation failed with: {<p.config-core>}"
@@ -1343,7 +1276,7 @@
       (new-project-error (crip message))
     ::
     =/  config-result
-      (mule-slap-subject p.hair p.config-core %make-config)
+      (mule-slap-subject p.config-core (ream %make-config))
     ?:  ?=(%| -.config-result)
       =/  message=tape
         "failed to call +make-config arm: {<p.config-result>}"
@@ -1354,8 +1287,8 @@
       (new-project-error (crip message))
     ::
     =/  virtualships-to-sync-result
-      %^  mule-slap-subject  p.hair  p.config-core
-      %make-virtualships-to-sync
+      %+  mule-slap-subject  p.config-core
+      (ream %make-virtualships-to-sync)
     ?:  ?=(%| -.virtualships-to-sync-result)
       =/  message=tape
         %+  weld  "failed to call +make-virtualships-to-sync"
@@ -1367,8 +1300,7 @@
       (new-project-error (crip message))
     ::
     =/  install-result
-      %^  mule-slap-subject  p.hair  p.config-core
-      %make-install
+      (mule-slap-subject p.config-core (ream %make-install))
     ?:  ?=(%| -.install-result)
       =/  message=tape
         "failed to call +make-install arm: {<p.install-result>}"
@@ -1379,8 +1311,8 @@
       (new-project-error (crip message))
     ::
     =/  start-apps-result
-      %^  mule-slap-subject  p.hair  p.config-core
-      %make-start-apps
+      %+  mule-slap-subject  p.config-core
+      (ream %make-start-apps)
     ?:  ?=(%| -.start-apps-result)
       =/  message=tape
         %+  weld  "failed to call +make-start-apps arm:"
@@ -1392,8 +1324,7 @@
       (new-project-error (crip message))
     ::
     =/  setup-result
-      %^  mule-slap-subject  p.hair  p.config-core
-      %make-setup
+      (mule-slap-subject p.config-core (ream %make-setup))
     ?:  ?=(%| -.setup-result)
       =/  message=tape
         "failed to call +make-setup arm: {<p.setup-result>}"
@@ -2197,6 +2128,10 @@
         [%delete-user-file (ot ~[[%file pa]])]
     ::
         [%send-pyro-dojo (ot ~[[%who (se %p)] [%command sa]])]
+    ::
+        [%pyro-agent-state pyro-agent-state]
+    ::
+        [%cis-panic ul]
     ==
   ::
   ++  docket
@@ -2338,6 +2273,14 @@
     :^    [%test-id (se %ux)]
         [%tag (se %tas)]
       [%path pa]
+    ~
+  ::
+  ++  pyro-agent-state
+    ^-  $-(json [who=@p app=@tas grab=@t])
+    %-  ot
+    :^    [%who (se %p)]
+        [%app (se %tas)]
+      [%grab so]
     ~
   --
 --

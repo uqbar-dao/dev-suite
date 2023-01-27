@@ -72,8 +72,10 @@
     =+  (~(get by signs) [ship app paf])
     ?~  -  !>(~)  !>((need -))
   ::
-      [%x %agent-state @ ~]
-    =*  app  i.t.t.path
+      [%x %agent-state @ @ ~]
+    =*  app      i.t.t.path
+    =/  grab=@t  i.t.t.t.path
+    =?  grab  =('' grab)  '-'
     :^  ~  ~  %noun
     !>  ^-  [@t boat:gall bitt:gall]
     =/  agent-state=vase
@@ -82,6 +84,9 @@
           :-  (scot %p our.bowl)
           /[app]/(scot %da now.bowl)/dbug/state/noun
       ==
+    =.  agent-state
+      %-  slap  :_  (ream grab)
+      (slop agent-state !>([bowl=bowl ..zuse]))
     =/  [wex=boat:gall sup=bitt:gall]
       .^  [boat:gall bitt:gall]
           %gx
