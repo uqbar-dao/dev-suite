@@ -189,17 +189,31 @@
   ++  abet-pe
     ^+  this
     =.  piers  (~(put by piers) who pier-data)
+    =.  fad.raft  :: add new files to cache
+      %-  ~(uni by fad.raft)
+      ?~  cey=(~(get by van.mod.sol.snap) %clay)  ~
+      =/  cay  !<((tail clay-types) vase:u.cey)
+      fad.ruf.cay
     this
+  ::
+  ::  Begin: load in cache
+  ::
+  ++  apex
+    ^+  ..abet-pe
+    =.  van.mod.sol.snap
+      =/  cay  !<((tail clay-types) vase:(~(got by van.mod.sol.snap) %clay))
+      =.  fad.ruf.cay  fad.raft
+      (~(put by van.mod.sol.snap) %clay [!>(cay) *worm])
+    ..abet-pe
   ::
   ::  store ford caches
   ::
   ++  ahoy
-    =/  vanes  van.mod.sol.snap.pier-data
-    =/  ruf  ruf:!<((tail clay-types) vase:(~(got by vanes) %clay))
+    =/  cay  !<((tail clay-types) vase:(~(got by van.mod.sol.snap) %clay))
     =.  raft
       :: have to get rid of the kids desk otherwise boot fails
-      =.  dos.rom.ruf  (~(del by dos.rom.ruf) %kids)
-      ruf
+      =.  dos.rom.ruf.cay  (~(del by dos.rom.ruf.cay) %kids)
+      ruf.cay
     ..abet-pe
   ::
   ::  Enqueue events to child arvo
@@ -435,7 +449,7 @@
     =.  this
       %+  turn-ships  hers.act
       |=  [who=ship thus=_this]
-      ~&  pyro+killing+who
+      ~&  pyro+killed+who
       =.  this  thus
       (publish-effect:(pe who) [/ %kill ~])
     =.  piers
@@ -453,6 +467,7 @@
       ^-  (unit (pair ship pier))
       ?~  per=(~(get by piers) her)  ~
       `[her u.per]
+    ~&  pyro+snapshot+path.act
     `state
   ::
       %restore-snap
@@ -469,9 +484,30 @@
     abet-pyro
   ::
       %delete-snap
+    ~&  deleted+path.act
     `state(fleet-snaps (~(del by fleet-snaps) path.act))
   ::
-      %clear-snaps  `state(fleet-snaps ~)
+      %clear-snaps
+    ~&  pyro+%cleared-all-snaps
+    `state(fleet-snaps ~)
+  ::
+      %unpause-ships
+    =.  this  apex-pyro  =<  abet-pyro
+    ^+  this
+    %+  turn-ships  hers.act
+    |=  [who=ship thus=_this]
+    =.  this  thus
+    ~&  pyro+unpaused+who
+    unpause:(pe who)
+  ::
+      %pause-ships
+    =.  this  apex-pyro  =<  abet-pyro
+    ^+  this
+    %+  turn-ships  hers.act
+    |=  [who=ship thus=_this]
+    =.  this  thus
+    ~&  pyro+paused+who
+    pause:(pe who)
   ::
       %wish
     =.  this  apex-pyro  =<  abet-pyro
@@ -484,22 +520,6 @@
     ::  TODO type is a vase, so q.res is a noun. Should be molded somehow
     ~&  who^%wished^q.res
     (pe who)
-  ::
-      %unpause-ships
-    =.  this  apex-pyro  =<  abet-pyro
-    ^+  this
-    %+  turn-ships  hers.act
-    |=  [who=ship thus=_this]
-    =.  this  thus
-    unpause:(pe who)
-  ::
-      %pause-ships
-    =.  this  apex-pyro  =<  abet-pyro
-    ^+  this
-    %+  turn-ships  hers.act
-    |=  [who=ship thus=_this]
-    =.  this  thus
-    pause:(pe who)
   ==
 ::
 ::  Run a callback function against a list of ships, aggregating state
@@ -523,10 +543,10 @@
         `p.i.pers
       $(pers t.pers)
     ?~  who  this
-    =.  this  abet-pe:plow:(pe u.who)
+    =.  this  abet-pe:plow:apex:(pe u.who)
     $
   =.  this
-    abet-pe:plow:(fun i.hers this)
+    abet-pe:plow:apex:(fun i.hers this)
   $(hers t.hers, this this)
 ::
 ++  turn-ships   (turn-plow ship)
