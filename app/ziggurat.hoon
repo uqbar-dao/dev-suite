@@ -358,12 +358,26 @@
                     ~(val by cis-running.status)
             ==  ==
         ::
-            :: %changing-project-links
+            ?&  ?=(%changing-project-links -.status)
+                !=(0 ~(wyt by project-cis-running.status))
+                ?|  ?=(~ request-id.act)
+                ::
+                    ?!
+                    %.  u.request-id.act
+                    %~  has  in
+                    %-  ~(gas in *(set @t))
+                    %+  turn
+                      ~(tap bi:mip project-cis-running.status)
+                    |=([@t @p allowed=@t] allowed)
+                ==
+            ==
         ==
       :_  state
       :_  ~
       %+  update-vase-to-card:zig-lib  project.act
-      %.  'currently setting up new project; try again later'
+      %.  ?:  ?=(%commit-install-starting -.status)
+            'setting up new project; try again later'
+          'linking projects; try again later'
       %~  poke  make-error-vase:zig-lib
       [update-info %error]
     ?-    tag
@@ -536,7 +550,10 @@
       ?~  ships.act  cards
       =*  who   i.ships
       =/  cis-cards=(list card)
-        %~  do-commit  cis:zig-lib
+        :: %~  do-commit  cis:zig-lib
+        :: [who desk install start-apps status]
+        :_  ~
+        %+  cis-thread  /cis-done/[desk]
         [who desk install start-apps status]
       %=  $
           ships.act  t.ships.act
@@ -592,12 +609,39 @@
       =/  new-links=(set @t)
         %.  (~(get ju linked-projects) project-b)
         ~(uni in (~(get ju linked-projects) project-a))
+      =/  new-links-list=(list @t)  ~(tap in new-links)
       =.  linked-projects
         %-  ~(gas by linked-projects)
-        %+  turn  ~(tap in new-links)
+        %+  turn  new-links-list
         |=  project-name=@t
         [project-name new-links]
-      !!
+      =/  [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p @t)]
+        %+  roll  new-links-list
+        |=  [project-name=@t [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p @t)]]
+        =/  [iteration-cards=(list card) cfo=(unit configuration-file-output:zig) modified-state=_state]
+          %+  load-configuration-file:zig-lib  update-info
+          %=  modified-state
+              projects
+            (~(put by projects) project-name *project:zig)
+          ==
+        =/  request-id=@t
+          ?>  ?=(%commit-install-starting -.status.modified-state)
+          %-  ~(got by cis-running.status.modified-state)
+          -:?^(cfo ships.u.cfo default-ships:zig-lib)
+        :+  :_  (weld cards iteration-cards)
+            (make-read-desk:zig-lib project.act `request-id)
+          modified-state
+        %+  ~(put by project-cis-running)  project-name
+        cis-running.status.modified-state
+      :_  %=  modified-state
+              status
+            [%changing-project-links project-cis-running]
+          ==
+      :_  cards
+      %+  ~(poke-our pass:io /pyro-poke)  %pyro
+      :-  %pyro-action
+      !>  ^-  action:pyro
+      [%restore-snap default-snap-path:zig-lib]
     ::
         %delete-project-link  !!  :: TODO
     ::
@@ -1169,7 +1213,7 @@
     ::
         %send-pyro-dojo
       :_  state
-      (send-pyro-dojo:zig-lib [who command]:act)^~
+      (send-pyro-dojo-card:zig-lib [who command]:act)^~
     ::
         %pyro-agent-state
       =/  who=@ta  (scot %p who.act)
@@ -1279,35 +1323,84 @@
       ==
     ==
   ::
-      [%cis-setup-done @ @ @ @ ~]
-    ?.  ?=(%fact -.sign)  (on-agent:def w sign)
-    =/  who=@p            (slav %p i.t.w)
-    =*  desk              i.t.t.w
-    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
-    =/  apps=(list @tas)
-      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    =/  initial-links=(set @t)
-      (~(put in *(set @t)) desk)  ::  self only
-    :-  :-  %+  ~(poke-our pass:io /pyro-wire)  %pyro
-            :-  %pyro-action
-            !>  ^-  action:pyro
-            :+  %snap-ships  default-snap-path:zig-lib
-            default-ships:zig-lib
-        %.  cage.sign
-        %~  on-update-setup-done  cis:zig-lib
-        [who desk install apps status]
-    %=  this
-        status  [%ready ~]
-        focused-project
-      ?:(=('' focused-project) desk focused-project)
-    ::
-        linked-projects
-      (~(put by linked-projects) desk initial-links)
-    ::
-        unfocused-project-snaps
-      %+  ~(put by unfocused-project-snaps)  initial-links
-      default-snap-path:zig-lib
+      [%cis-done @ ~]
+    =*  desk  i.t.w
+    ?+    -.sign  (on-agent:def w sign)
+        %kick      `this
+        %poke-ack  `this
+        %fact
+      ?+    p.cage.sign  (on-agent:def w sign)
+          %thread-fail  !!  :: TODO
+          %thread-done
+        =.  status  !<(status:zig q.cage.sign)
+        =/  status-card=card
+          %+  update-vase-to-card:zig-lib  desk
+          %.  status
+          %~  status  make-update-vase:zig-lib
+          ['' %cis ~]
+        ?.  ?|  ?&  ?=(%commit-install-starting -.status)
+                    =(0 ~(wyt by cis-running.status))
+                ==
+            ::
+                ?&  ?=(%changing-project-links -.status)
+                    =(0 ~(wyt by project-cis-running.status))
+                ==
+            ==
+          [status-card^~ this]
+        :_  this(status [%ready ~])
+        :^    status-card
+            %.  [%ziggurat /project/[desk]]
+            ~(watch-our pass:io /cis-setup-done/[-.status])
+          %-  ~(poke-self pass:io /self-wire)
+          [%ziggurat-action !>(`action:zig`''^~^[%run-queue ~])]
+        ~
+      ==
     ==
+  ::
+      [%cis-setup-done @ @ ~]
+    =*  desk  i.t.w
+
+    ?.  ?=(%fact -.sign)  (on-agent:def w sign)
+    ?.  ?=(%ziggurat-update p.cage.sign)  !!  ::  TODO: do better
+    =+  !<(=update:zig q.cage.sign)
+    ?~  update  !!  ::  TODO: do better
+    =*  payload  payload.update
+    ?.  ?|  ?&  ?=(%run-queue -.update)
+                ?=(%| -.payload)
+                ?=(%warning level.p.payload)
+                =('no tests in queue' message.p.payload)
+            ==
+        ::
+            ?&  ?=(%test-queue -.update)
+                ?=(%& -.payload)
+                =(0 ~(wyt in p.payload))
+            ==
+        ==
+      `this
+    :_  %=  this
+            status  [%ready ~]
+            focused-project
+          ?:(=('' focused-project) desk focused-project)
+        ==
+    :^    %+  ~(poke-our pass:io /pyro-wire)  %pyro
+          :-  %pyro-action
+          !>  ^-  action:pyro
+          :+  %snap-ships  path-goes-here  ::  TODO
+          ships-go-here
+        make-done-card
+      (~(leave-our pass:io cis-setup-done-wire) %ziggurat)
+    ~
+    :: %=  this
+    ::     focused-project
+    ::   ?:(=('' focused-project) desk focused-project)
+    :: ::
+    ::     linked-projects
+    ::   (~(put by linked-projects) desk initial-links)
+    :: ::
+    ::     unfocused-project-snaps
+    ::   %+  ~(put by unfocused-project-snaps)  initial-links
+    ::   default-snap-path:zig-lib
+    :: ==
   ==
 ::
 ++  on-arvo
@@ -1334,7 +1427,8 @@
         :_  this
         %+  turn  sync-ships
         |=  who=@p
-        (sync-desk-to-virtualship:zig-lib who project-name)
+        %+  sync-desk-to-virtualship-card:zig-lib  who
+        project-name
     ~&  >>>  "failed to make new desk"
     `this
   ::
@@ -1355,46 +1449,7 @@
       %~  tap  in
       (~(get ju sync-desk-to-vship) project-name)
     |=  who=@p
-    (sync-desk-to-virtualship:zig-lib who project-name)
-  ::
-      [%committing @ @ @ @ ~]
-    ?>  ?=([%behn %wake *] sign-arvo)
-    ?^  error.sign-arvo  !!  ::  TODO: do better
-    =/  who=@p            (slav %p i.t.w)
-    =*  desk              i.t.t.w
-    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
-    =/  apps=(list @tas)
-      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    =^  cards  status
-      %~  on-wake-commit  cis:zig-lib
-      [who desk install apps status]
-    [cards this]
-  ::
-      [%installing @ @ @ @ ~]
-    ?>  ?=([%behn %wake *] sign-arvo)
-    ?^  error.sign-arvo  !!  ::  TODO: do better
-    =/  who=@p            (slav %p i.t.w)
-    =*  desk              i.t.t.w
-    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
-    =/  apps=(list @tas)
-      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    =^  cards  status
-      %~  on-wake-install  cis:zig-lib
-      [who desk install apps status]
-    [cards this]
-  ::
-      [%starting @ @ @ @ ~]
-    ?>  ?=([%behn %wake *] sign-arvo)
-    ?^  error.sign-arvo  !!  ::  TODO: do better
-    =/  who=@p            (slav %p i.t.w)
-    =*  desk              i.t.t.w
-    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
-    =/  apps=(list @tas)
-      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    =^  cards  status
-      %~  on-wake-start  cis:zig-lib
-      [who desk install apps status]
-    [cards this]
+    (sync-desk-to-virtualship-card:zig-lib who project-name)
   ==
 ::
 ++  on-peek
