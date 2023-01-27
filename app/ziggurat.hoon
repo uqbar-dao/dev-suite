@@ -345,7 +345,7 @@
     ?>  =(our.bowl src.bowl)
     =*  tag  -.+.+.act
     ?:  =(tag %cis-panic) 
-      ~^state(cis-running ~)
+      ~^state(status [%ready ~])
     =/  =update-info:zig  [project.act tag request-id.act]
     ?:  ?|  ?&  ?=(%commit-install-starting -.status)
                 !=(0 ~(wyt by cis-running.status))
@@ -961,13 +961,6 @@
         %+  update-vase-to-card:zig-lib  project.act
         (run-queue-error(level %warning) (crip message))
       ::
-          %preparing-pyro-ships
-        =/  message=tape
-          "%pyro ships aren't ready; will run when ready"
-        :_  state
-        :_  ~
-        %+  update-vase-to-card:zig-lib  project.act
-        (run-queue-error(level %info) (crip message))
           %running-test-steps
         =/  message=tape  "queue already running"
         :_  state

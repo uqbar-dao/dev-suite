@@ -29,7 +29,6 @@
 ::
 +$  status
   $%  [%running-test-steps ~]
-      [%preparing-pyro-ships ships=(map @p ?)]
       [%commit-install-starting cis-running=(map @p @t)]
       [%changing-project-links project-cis-running=(mip:mip @t @p @t)]
       [%ready ~]

@@ -1669,12 +1669,6 @@
         %running-test-steps  ~
         %ready               ~
         %uninitialized       ~
-        %preparing-pyro-ships
-      %-  pairs
-      %+  turn  ~(tap by ships.status)
-      |=  [who=@p is-done=?]
-      [(scot %p who) %b is-done]
-    ::
         %commit-install-starting
       %-  pairs
       %+  turn  ~(tap by cis-running.status)
