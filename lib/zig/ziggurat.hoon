@@ -974,13 +974,12 @@
   ^-  (set @tas)
   =/  now=@ta  (scot %da now.bowl)
   =/  who=@ta  (scot %p virtualship)
-  =/  desks=*
-    .^  *
-        %gx
-        :-  (scot %p our.bowl)
-        /pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
-    ==
-  ;;((set @tas) desks)
+  ;;  (set @tas)
+  .^  *
+      %gx
+      :-  (scot %p our.bowl)
+      /pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
+  ==
 ::
 ++  virtualship-desk-exists
   |=  [virtualship=@p desk=@tas]
@@ -1034,11 +1033,12 @@
 ::
 ++  make-cis-running
   |=  [ships=(list @p) project-name=@t]
-  ^-  (map @p @t)
-  %-  ~(gas by *(map @p @t))
+  ^-  (map @p [@t ?])
+  %-  ~(gas by *(map @p [@t ?]))
   %+  turn  ships
   |=  who=@p
   :-  who
+  :_  %.n
   (rap 3 'setup-' project-name '-' (scot %p who) ~)
 ::
 ++  default-snap-path
@@ -1066,20 +1066,21 @@
   =/  start-poll-duration=@dr    (div ~s1 10)
   |^  ^-  card
   %-  ~(arvo pass:io w)
-  :^  %k  %lard  %base
+  :^  %k  %lard  q.byk.bowl
   =/  m  (strand ,vase)
   ^-  form:m
+  ~&  %z^%cis^%syncing
   ;<  ~  bind:m
     %+  poke-our:strandio  %pyro
     (sync-desk-to-virtualship-cage who desk)
   ;<  ~  bind:m  block-on-commit
-  ::  install if desired, else finish
+  ~&  %z^%cis^%installing
   ?.  install  finish
   ;<  ~  bind:m
     %+  poke-our:strandio  %pyro
     (send-pyro-dojo-cage who "|install our {<desk>}")
   ;<  ~  bind:m  block-on-install
-  ::  start apps if desired, else finish
+  ~&  %z^%cis^%starting
   ;<  ~  bind:m  do-start-apps
   finish
   ::
@@ -1137,11 +1138,16 @@
       ['' %cis ~]
     ?:  ?=(%commit-install-starting -.status)
       =.  cis-running.status
-        (~(del by cis-running.status) who)
+        %+  ~(jab by cis-running.status)  who
+        |=([cis-running=@t is-done=?] [cis-running %.y])
       (pure:m !>(`status:zig`status))
     ?>  ?=(%changing-project-links -.status)
     =.  project-cis-running.status
-      (~(del bi:mip project-cis-running.status) desk who)
+      %+  ~(put by project-cis-running.status)  desk
+      %+  %~  jab  by
+          (~(got by project-cis-running.status) desk)
+        who
+      |=([cis-running=@t is-done=?] [cis-running %.y])
     (pure:m !>(`status:zig`status))
   --
 ::
@@ -1331,7 +1337,7 @@
       %+  murn  virtualships-to-sync
       |=  who=@p
       ?~  setup=(~(get by setups) who)  ~
-      =/  cis-name=@t  (~(got by cis-running) who)
+      =/  [cis-name=@t ?]  (~(got by cis-running) who)
       :-  ~
       %-  ~(poke-self pass:io /self-wire)
       :-  %ziggurat-action
@@ -1628,18 +1634,26 @@
         %commit-install-starting
       %-  pairs
       %+  turn  ~(tap by cis-running.status)
-      |=  [who=@p message=@t]
-      [(scot %p who) %s message]
+      |=  [who=@p cis-done=@t is-done=?]
+      :-  (scot %p who)
+      %-  pairs
+      :+  [%cis-done %s cis-done]
+        [%is-done %b is-done]
+      ~
     ::
         %changing-project-links
       %-  pairs
       %+  turn  ~(tap by project-cis-running.status)
-      |=  [project-name=@t cis-running=(map @p @t)]
+      |=  [project-name=@t cis-running=(map @p [@t ?])]
       :-  project-name
       %-  pairs
       %+  turn  ~(tap by cis-running)
-      |=  [who=@p message=@t]
-      [(scot %p who) %s message]
+      |=  [who=@p cis-done=@t is-done=?]
+      :-  (scot %p who)
+      %-  pairs
+      :+  [%cis-done %s cis-done]
+        [%is-done %b is-done]
+      ~
     ==
   ::
   ++  error

@@ -202,8 +202,7 @@
       ;;  (set @tas)
       .^  *
           %gx
-          %+  weld  /[our]/pyro/[now]/i/[who]/cd/[who]/base
-          /[now]/noun
+          /[our]/pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
       ==
     =/  desks=(list @tas)  ~(tap in desks-scry)
     |-

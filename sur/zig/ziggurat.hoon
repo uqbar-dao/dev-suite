@@ -29,8 +29,8 @@
 ::
 +$  status
   $%  [%running-test-steps ~]
-      [%commit-install-starting cis-running=(map @p @t)]
-      [%changing-project-links project-cis-running=(mip:mip @t @p @t)]
+      [%commit-install-starting cis-running=(map @p [@t ?])]
+      [%changing-project-links project-cis-running=(mip:mip @t @p [@t ?])]
       [%ready ~]
       [%uninitialized ~]  ::  last is default
       :: :-  %cis 
