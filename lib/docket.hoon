@@ -1,1 +1,1 @@
-../../garden-dev/lib/docket.hoon
+../../webterm/lib/docket.hoon

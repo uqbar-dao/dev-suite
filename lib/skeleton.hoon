@@ -1,1 +1,1 @@
-../../base-dev/lib/skeleton.hoon
+../../arvo/lib/skeleton.hoon
