@@ -6,7 +6,7 @@
     mip,
     conq=zink-conq,
     dock=docket,
-    pyro-lib=zig-pyro,
+    pyro-lib=pyro-pyro,
     smart=zig-sys-smart,
     ui-lib=zig-indexer,
     zink=zink-zink
