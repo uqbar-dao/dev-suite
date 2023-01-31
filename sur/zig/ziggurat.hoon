@@ -167,7 +167,7 @@
           [%edit-test id=@ux name=(unit @t) =test-imports =test-steps]
           [%delete-test id=@ux]
           [%run-test id=@ux]
-          [%run-queue ~]  ::  can be used as [%$ %run-queue ~]
+          [%run-queue ~]
           [%clear-queue ~]
           [%queue-test id=@ux]
       ::
@@ -177,6 +177,8 @@
           [%stop-pyro-ships ~]
           [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> ~[~nec ~bud ~wes]
           [%start-pyro-snap snap=path]
+      ::
+          [%take-snapshot update-project-snaps=(unit path)]  ::  ~ -> overwrite project snap
       ::
           [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
       ::

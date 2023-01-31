@@ -48,9 +48,15 @@
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
   =*  wes-address
     0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
-  :-  :_  ~
-      %.  (add now.bowl ~s5)
-      ~(wait pass:io /on-init-zig-setup)
+  :: :-  :_  ~
+  ::     %.  (add now.bowl ~s5)
+  ::     ~(wait pass:io /on-init-zig-setup)
+  :-  :+  %-  ~(arvo pass:io /)
+          :^  %k  %fard  q.byk.bowl
+          [%ziggurat-test-subscribe %noun !>(`[%zig 1.000.000])]
+        %.  (add now.bowl ~s5)
+        ~(wait pass:io /on-init-zig-setup)
+      ~
   %_    this
       state
     :_  [eng smart-lib ~]
@@ -341,6 +347,30 @@
     %~  wait  pass:io
     /on-new-project-ship-rerun/[m]/(jam !<(action:zig v))
   ::
+  ++  make-snap-cards
+    |=  [project-name=@t request-id=(unit @t)]
+    ^-  (list card)
+    =/  snap-cards=(list card)
+      :_  ~
+      %+  ~(poke-our pass:io /pyro-poke)  %pyro
+      :-  %pyro-action
+      !>  ^-  action:pyro
+      [%restore-snap default-snap-path:zig-lib]
+    =.  snap-cards
+      ?:  =('zig' project-name)   ~
+      ?:  =('' focused-project)  snap-cards
+      =/  current-links=@t
+        %-  crip
+        %-  noah
+        !>  ^-  (set @t)
+        (~(get ju linked-projects) focused-project)
+      :_  snap-cards
+      %-  ~(poke-self pass:io /pyro-poke)
+      :-  %ziggurat-action
+      !>  ^-  action:zig
+      [focused-project request-id %take-snapshot ~]
+    snap-cards
+  ::
   ++  handle-poke
     |=  act=action:zig
     ^-  (quip card _state)
@@ -399,26 +429,6 @@
         =.  projects  (~(put by projects) 'zig' *project:zig)
         %+  start-ships-then-rerun  default-ships:zig-lib
         [project request-id]:act
-      =/  snap-cards=(list card)
-        :_  ~
-        %+  ~(poke-our pass:io /pyro-poke)  %pyro
-        :-  %pyro-action
-        !>  ^-  action:pyro
-        [%restore-snap default-snap-path:zig-lib]
-      =.  snap-cards
-        ?:  =('zig' project.act)   ~
-        ?:  =('' focused-project)  snap-cards
-        =/  current-links=@t
-          %-  crip
-          %-  noah
-          !>  ^-  (set @t)
-          (~(get ju linked-projects) focused-project)
-        :_  snap-cards
-        %+  ~(poke-our pass:io /pyro-poke)  %pyro
-        :-  %pyro-action
-        !>  ^-  action:pyro
-        :+  %snap-ships  /[current-links]/(scot %da now.bowl)
-        pyro-ships:(~(got by projects) focused-project)
       =/  desks=(set desk)
         .^  (set desk)
             %cd
@@ -463,7 +473,8 @@
           %.  sync-desk-to-vship
           %~  new-project  make-update-vase:zig-lib
           update-info
-        (weld snap-cards cards)
+        %-  weld  :_  cards
+        (make-snap-cards project.act `request-id)
       :: =/  ships-to-run=(list @p)
       ::   %~  tap  in
       ::   %-  ships-not-yet-running-to-run
@@ -481,23 +492,28 @@
       =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
       =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
       =/  deletions-task  [%info `@tas`project.act %& (clean-desk:zig-lib project.act)]
-      :-  %+  welp  snap-cards
-          :~  [%pass /merge-wire/[project.act]/(scot %ud (jam sync-ships.act)) %arvo %c merge-task]
-              [%pass /mount-wire %arvo %c mount-task]
-              [%pass /save-wire %arvo %c bill-task]
-              [%pass /save-wire %arvo %c deletions-task]
-              (make-read-desk:zig-lib [project request-id]:act)
+      :-  ;:  welp
+              (make-snap-cards [project request-id]:act)
           ::
-              %+  update-vase-to-card:zig-lib  project.act
-              %.  sync-desk-to-vship
-              %~  new-project  make-update-vase:zig-lib
-              update-info
+              :~  [%pass /merge-wire/[project.act]/(scot %ud (jam sync-ships.act)) %arvo %c merge-task]
+                  [%pass /mount-wire %arvo %c mount-task]
+                  [%pass /save-wire %arvo %c bill-task]
+                  [%pass /save-wire %arvo %c deletions-task]
+                  (make-read-desk:zig-lib [project request-id]:act)
+              ::
+                  %+  update-vase-to-card:zig-lib  project.act
+                  %.  sync-desk-to-vship
+                  %~  new-project  make-update-vase:zig-lib
+                  update-info
+              ==
           ::
-              :: %+  update-vase-to-card:zig-lib  project.act  ::  TODO: replace with status update?
-              :: %~  cis-setup-done  make-update-vase:zig-lib
-              :: update-info
+              (make-done-cards:zig-lib status project.act)
           ==
       %=  state
+          linked-projects
+        %+  ~(put by linked-projects)  project.act
+        (~(put in *(set @t)) project.act)
+      ::
           configs  ::  TODO: generalize: read in configuration file
         %^  ~(put bi:mip configs)  project.act
         [~nec %sequencer]  0x0
@@ -1161,6 +1177,26 @@
     ::
         %start-pyro-snap  !!  ::  TODO
     ::
+        %take-snapshot
+      =/  =project:zig  (~(got by projects) project.act)
+      =/  links=(set @t)  (~(get ju linked-projects) project.act)
+      =/  snap-path=path
+        ?^  update-project-snaps.act
+          u.update-project-snaps.act
+        :-  (crip (noah !>(`(set @t)`links)))
+        /(scot %da now.bowl)
+      :-  :_  ~
+          %+  ~(poke-our pass:io /pyro-poke)  %pyro
+          :-  %pyro-action
+          !>  ^-  action:pyro
+          [%snap-ships snap-path pyro-ships.project]
+      %=  state
+          unfocused-project-snaps
+        ?^  update-project-snaps.act
+          unfocused-project-snaps
+        (~(put by unfocused-project-snaps) links snap-path)
+      ==
+    ::
         %publish-app  :: TODO
       ::  [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
       ::  should assert that desk.bill contains only our agent name,
@@ -1345,21 +1381,28 @@
                 =('no tests in queue' message.p.payload)
             ==
         ::
-            ?&  ?=(%test-queue -.update)
+            ?&  ?=(%status -.update)
                 ?=(%& -.payload)
-                =(0 ~(wyt in p.payload))
+                ?=([%ready ~] p.payload)
+                =(0 ~(wyt in test-queue))
             ==
+        ::
+            :: ?&  ?=(%test-queue -.update)
+            ::     ?=(%& -.payload)
+            ::     =(0 ~(wyt in p.payload))
+            :: ==
         ==
       `this
     =/  links=(set @t)
       (~(get ju linked-projects) desk)
     =/  snap-path=path
+      ?:  &(=('' focused-project) =('zig' desk))
+        default-snap-path:zig-lib
       :-  (crip (noah !>(`(set @t)`links)))
       /(scot %da now.bowl)
     :_  %=  this
-            status  [%ready ~]
-            focused-project
-          ?:(=('' focused-project) desk focused-project)
+            status           [%ready ~]
+            focused-project  desk
         ::
             unfocused-project-snaps
           %+  ~(put by unfocused-project-snaps)  links
@@ -1368,9 +1411,8 @@
     :+  %+  ~(poke-our pass:io /pyro-wire)  %pyro
         :-  %pyro-action
         !>  ^-  action:pyro
-        :+  %snap-ships  snap-path
-        default-ships:zig-lib  :: TODO
-        ::  make-done-card
+        :+  %snap-ships  snap-path  default-ships:zig-lib  :: TODO: ships
+        ::  TODO: make-done-card
       (~(leave-our pass:io w) %ziggurat)
     ~
   ==
