@@ -1151,6 +1151,153 @@
     (pure:m !>(`status:zig`status))
   --
 ::
+++  cis
+  |_  $:  who=@p
+          desk=@tas
+          install=?
+          start-apps=(list @tas)
+          =status:zig
+      ==
+  ++  commit-poll-duration   ~s1
+  ++  install-poll-duration  ~s1
+  ++  start-poll-duration    (div ~s1 10)
+  ++  commit-wait   (add now.bowl commit-poll-duration)
+  ++  install-wait  (add now.bowl install-poll-duration)
+  ++  start-wait    (add now.bowl start-poll-duration)
+  ++  committing-wire  `wire`[%committing base-wire]
+  ++  installing-wire  `wire`[%installing base-wire]
+  ++  starting-wire    `wire`[%starting base-wire]
+  ::
+  ++  base-wire
+    ^-  wire
+    %+  weld  /(scot %p who)/[desk]/(scot %ud install)
+    /(scot %ud (jam start-apps))
+  ::
+  ++  get-final-app-to-install
+    ^-  @tas
+    =/  bill-path=path
+      :-  (scot %p our.bowl)
+      /[desk]/(scot %da now.bowl)/desk/bill
+    (rear .^((list @tas) %cx bill-path))
+  ::
+  ++  run-queue
+    ^-  [(list card) status:zig]
+    ?:  ?=(%commit-install-starting -.status)
+      =.  cis-running.status
+        %+  ~(jab by cis-running.status)  who
+        |=([cis-running=@t is-done=?] [cis-running %.y])
+      ?.  (is-cis-done cis-running.status)
+        [(make-status-card status)^~ status]
+      =/  new-status=status:zig  [%ready ~]
+      :_  new-status
+      :+  (make-status-card new-status)
+        make-run-card
+      ~
+    ?>  ?=(%changing-project-links -.status)
+    =.  project-cis-running.status
+      %+  ~(put by project-cis-running.status)  desk
+      %+  %~  jab  by
+          (~(got by project-cis-running.status) desk)
+        who
+      |=([cis-running=@t is-done=?] [cis-running %.y])
+    ?.  (is-cpl-done project-cis-running.status)
+      [(make-status-card status)^~ status]
+    =/  new-status=status:zig  [%ready ~]
+    :_  new-status
+    :+  (make-status-card new-status)
+      make-run-card
+    ~
+  ::
+  ++  do-commit
+    ^-  [(list card) status:zig]
+    :_  status
+    :+  (~(wait pass:io committing-wire) commit-wait)
+      (sync-desk-to-virtualship-card who desk)
+    ~
+  ::
+  ++  do-install
+    ^-  [(list card) status:zig]
+    :_  status
+    :+  (~(wait pass:io installing-wire) install-wait)
+      (send-pyro-dojo-card who "|install our {<desk>}")
+    ~
+  ::
+  ++  do-start
+    |=  [next-app=@tas wire-start-apps=(list @tas)]
+    ^-  [(list card) status:zig]
+    :_  status
+    :+  %.  start-wait
+        %~  wait  pass:io
+        starting-wire(start-apps wire-start-apps)
+      %+  send-pyro-dojo-card  who
+      "|start {<`@tas`desk>} {<`@tas`next-app>}"
+    ~
+  ::
+  ++  on-wake-commit
+    ^-  [(list card) status:zig]
+    ?.  (virtualship-desk-exists who desk)
+      ::  not done: keep waiting
+      :_  status
+      ~[(~(wait pass:io committing-wire) commit-wait)]
+    ::  done: install if desired, else %run-queue
+    ?:  install  do-install  run-queue
+  ::
+  ++  on-wake-install
+    ^-  [(list card) status:zig]
+    ::  if the final app is installed -> install done
+    =/  app=@tas  get-final-app-to-install
+    ?.  (virtualship-is-running-app who app)
+      ::  not done: keep waiting
+      :_  status
+      ~[(~(wait pass:io installing-wire) install-wait)]
+    ::  done: start apps if desired, else %run-queue
+    ?~  start-apps  run-queue
+    =*  next-app   i.start-apps
+    (do-start next-app start-apps)
+  ::
+  ++  on-wake-start
+    ^-  [(list card) status:zig]
+    ?~  start-apps  run-queue  ::  no more apps to start: %run-queue
+    =*  starting-app  i.start-apps
+    =*  rest-of-apps  t.start-apps
+    ?.  (virtualship-is-running-app who starting-app)
+      ::  not done: keep waiting
+      :_  status
+      ~[(~(wait pass:io starting-wire) start-wait)]
+    ::  done: start next app if more, else %run-queue
+    ?~  rest-of-apps  run-queue
+    =*  next-app   i.rest-of-apps
+    (do-start next-app rest-of-apps)
+  ::
+  ++  is-cis-done
+    |=  cis-running=(map @p [@t ?])
+    ^-  ?
+    %-  levy  :_  same
+    %+  turn  ~(val by cis-running)
+    |=([@t is-ship-done=?] is-ship-done)
+  ::
+  ++  is-cpl-done
+    |=  project-cis-running=(mip:mip @t @p [@t ?])
+    ^-  ?
+    %-  levy  :_  same
+    %+  turn  ~(tap bi:mip project-cis-running)
+    |=([@t @p @t is-ship-done=?] is-ship-done)
+  ::
+  ++  make-status-card
+    |=  =status:zig
+    ^-  card
+    %+  update-vase-to-card  desk
+    %.  status
+    %~  status  make-update-vase
+    ['' %cis ~]
+  ::
+  ++  make-run-card
+    ^-  card
+    %-  ~(poke-self pass:io /self-wire)
+    :-  %ziggurat-action
+    !>(`action:zig`''^~^[%run-queue ~])
+  --
+::
 ++  compile-test-imports
   |=  $:  project-desk=@tas
           imports=(list [face=@tas =path])
@@ -1354,12 +1501,13 @@
       ?~  virtualships-to-sync  cards
       =*  who   i.virtualships-to-sync
       =*  desk  project-name
-      =/  cis-cards=(list card)
-        :: %~  do-commit  cis
-        :: [who desk install start-apps status.state]
-        :_  ~
-        %+  cis-thread  /cis-done/[desk]
+      =/  [cis-cards=(list card) *]
+        %~  do-commit  cis
         [who desk install start-apps status.state]
+      :: =/  cis-cards=(list card)
+      ::   :_  ~
+      ::   %+  cis-thread  /cis-done/[desk]
+      ::   [who desk install start-apps status.state]
       %=  $
           virtualships-to-sync  t.virtualships-to-sync
           cards                 (weld cards cis-cards)
