@@ -35,6 +35,7 @@
 =>  |%
     ++  arvo-adult  ..^load:+>.arvo-core
     ++  clay-types  (clay-core *ship)
+    ++  gall-type   (tail (gall-core *ship))
     +$  versioned-state
       $%  state-0
       ==
@@ -214,6 +215,19 @@
       :: have to get rid of the kids desk otherwise boot fails
       =.  dos.rom.ruf.cay  (~(del by dos.rom.ruf.cay) %kids)
       ruf.cay
+    ..abet-pe
+  ::
+  ++  slap-gall
+    |=  [dap=term =vase]
+    ^+  ..abet-pe
+    =.  van.mod.sol.snap
+      =/  gal  !<(gall-type vase:(~(got by van.mod.sol.snap) %gall))
+      =/  yok  (~(got by yokes.state.gal) dap)
+      ?>  ?=(%& -.agent.yok) :: not going to handle dead agents
+      =.  agent.yok
+        %&^(tail (on-load:p.agent.yok vase))
+      =.  yokes.state.gal  (~(put by yokes.state.gal) dap yok)
+      (~(put by van.mod.sol.snap) %gall [!>(gal) *worm])
     ..abet-pe
   ::
   ::  Enqueue events to child arvo
@@ -456,6 +470,10 @@
       %-  ~(dif by piers)
       %-  ~(gas by *fleet)
       (turn hers.act |=(=ship [ship *pier]))
+    `state
+  ::
+      %slap-gall
+    =.  this  abet-pe:(slap-gall:(pe her.act) [dap.act vase.act])
     `state
   ::
       %snap-ships
