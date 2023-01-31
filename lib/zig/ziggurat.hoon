@@ -1353,10 +1353,6 @@
 ++  build-default-configuration
   |=  =config:zig
   ^-  configuration-file-output:zig
-  =+  .^  =update:zig
-          %gx
-          (scry:io %ziggurat /pyro-ships-ready/noun)
-      ==
   =*  ships  default-ships
   :*  config
       ships

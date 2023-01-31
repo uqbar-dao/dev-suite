@@ -630,9 +630,12 @@
         %add-project-link
       =*  project-a=@t  focused-project
       =*  project-b=@t  project.act
+      =/  project-a-links=(set @t)
+        (~(get ju linked-projects) project-a)
+      =/  project-b-links=(set @t)
+        (~(get ju linked-projects) project-b)
       =/  new-links=(set @t)
-        %.  (~(get ju linked-projects) project-b)
-        ~(uni in (~(get ju linked-projects) project-a))
+        (~(uni in project-a-links) project-b-links)
       =/  new-links-list=(list @t)  ~(tap in new-links)
       =.  linked-projects
         %-  ~(gas by linked-projects)
@@ -643,7 +646,8 @@
         %+  roll  new-links-list
         |=  [project-name=@t [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]]
         =/  [iteration-cards=(list card) cfo=(unit configuration-file-output:zig) modified-state=_state]
-          %+  load-configuration-file:zig-lib  update-info
+          %+  load-configuration-file:zig-lib
+            update-info(project-name project-name)
           %=  modified-state
               projects
             (~(put by projects) project-name *project:zig)
@@ -660,6 +664,12 @@
       :_  %=  modified-state
               status
             [%changing-project-links project-cis-running]
+          ::
+              unfocused-project-snaps
+            %.  project-b-links
+            %~  del  by
+            %.  project-a-links
+            ~(del by unfocused-project-snaps)
           ==
       :_  cards
       %+  ~(poke-our pass:io /pyro-poke)  %pyro
