@@ -1395,7 +1395,7 @@
       (compile-test-imports project-name imports state)
     ?:  ?=(%| -.subject)
       %-  make-error
-      %+  weld  "config imports conpilation failed with"
+      %+  weld  "config imports compilation failed with"
       " error: {<p.subject>}"
     =/  config-core
       (mule-slap-subject p.subject payload)

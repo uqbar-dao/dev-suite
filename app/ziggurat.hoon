@@ -436,10 +436,12 @@
         ==
       ?:  (~(has in desks) project.act)
         =/  [cards=(list card) cfo=(unit configuration-file-output:zig) modified-state=_state]
+          =|  =project:zig
+          =.  pyro-ships.project  default-ships:zig-lib
           %+  load-configuration-file:zig-lib  update-info
           %=  state
               projects
-            (~(put by projects) project.act *project:zig)
+            (~(put by projects) project.act project)
           ::
               linked-projects
             %+  ~(put by linked-projects)  project.act
@@ -519,14 +521,11 @@
         [~nec %sequencer]  0x0
       ::
           projects
-        %+  ~(put by projects)  project.act
-        :*  dir=~  ::  populated by +make-read-desk / %read-desk
-            user-files=(~(put in *(set path)) /app/[project.act]/hoon)
-            to-compile=~
-            tests=~
-            pyro-ships=default-ships:zig-lib
-            saved-test-queue=~
-        ==
+        =|  =project:zig
+        =.  user-files.project
+          (~(put in *(set path)) /app/[project.act]/hoon)
+        =.  pyro-ships.project  default-ships:zig-lib
+        (~(put by projects) project.act project)
       ==
     ::
         %delete-project
@@ -610,7 +609,7 @@
       =/  old-snap-path=path
         :-  (crip (noah !>(`(set @t)`old-links)))
         /(scot %da now.bowl)
-      =*  new-snap-path=path
+      =/  new-snap-path=path
         %-  ~(got by unfocused-project-snaps)
         (~(get ju linked-projects) new)
       =.  unfocused-project-snaps
@@ -628,6 +627,7 @@
       ~
     ::
         %add-project-link
+      ?>  (~(has by projects) project.act)
       =*  project-a=@t  focused-project
       =*  project-b=@t  project.act
       =/  project-a-links=(set @t)
@@ -648,10 +648,7 @@
         =/  [iteration-cards=(list card) cfo=(unit configuration-file-output:zig) modified-state=_state]
           %+  load-configuration-file:zig-lib
             update-info(project-name project-name)
-          %=  modified-state
-              projects
-            (~(put by projects) project-name *project:zig)
-          ==
+          modified-state
         ?>  ?=(%commit-install-starting -.status.modified-state)
         =/  [request-id=@t ?]
           %-  ~(got by cis-running.status.modified-state)
