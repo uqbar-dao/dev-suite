@@ -48,9 +48,9 @@
   (get-state project-name project configs)
 ::
 ++  update-vase-to-card
-  |=  [project-name=@t v=vase]
+  |=  v=vase
   ^-  card
-  (fact:io [%ziggurat-update v] ~[/project/[project-name]])
+  (fact:io [%ziggurat-update v] ~[/project])
 ::
 ++  make-update-vase
   |_  =update-info:zig
@@ -854,7 +854,7 @@
     =/  message=tape  "file {<`path`p>} not found"
     :_  test
     :_  ~
-    %+  update-vase-to-card  project-name
+    %-  update-vase-to-card
     (add-custom-error (crip message) [`@ux`(sham test) tag])
   =/  file-cord=@t  .^(@t %cx file-scry-path)
   =/  [imports=(list [face=@tas =path]) payload=hoon]
@@ -865,7 +865,7 @@
       " adding custom step"
     :_  test
     :_  ~
-    %+  update-vase-to-card  project-name
+    %-  update-vase-to-card
     (add-custom-error (crip message) [`@ux`(sham test) tag])
   =/  compilation-result=(each vase @t)
     (compile-and-call-arm '$' p.subject.test payload)
@@ -877,7 +877,7 @@
       " {<p.compilation-result>}"
     :_  test
     :_  ~
-    %+  update-vase-to-card  project-name
+    %-  update-vase-to-card
     (add-custom-error (crip message) [`@ux`(sham test) tag])
   :-  ~
   %=  test
@@ -1136,10 +1136,10 @@
     ^-  form:m
     ;<  ~  bind:m  ::  TODO: ?
       %-  send-raw-card:strandio
-      %+  update-vase-to-card  desk
+      %-  update-vase-to-card
       %.  status
       %~  status  make-update-vase
-      ['' %cis ~]
+      [desk %cis ~]
     ?:  ?=(%commit-install-starting -.status)
       =.  cis-running.status
         %+  ~(jab by cis-running.status)  who
@@ -1288,10 +1288,10 @@
 ++  make-status-card
   |=  [=status:zig desk=@tas]
   ^-  card
-  %+  update-vase-to-card  desk
+  %-  update-vase-to-card
   %.  status
   %~  status  make-update-vase
-  ['' %cis ~]
+  [desk %cis ~]
 ::
 ++  make-done-cards
   |=  [=status:zig desk=@tas]
@@ -1309,7 +1309,7 @@
   ::
   ++  make-watch-cis-setup-done-card
     ^-  card
-    %.  [%ziggurat /project/[desk]]
+    %.  [%ziggurat /project]
     ~(watch-our pass:io /cis-setup-done/[desk])
   --
 ::
@@ -1456,7 +1456,7 @@
       :-  %|
       :_  state
       :_  ~
-      %+  update-vase-to-card  project-name
+      %-  update-vase-to-card
       (new-project-error (crip message))
     --
   ::
@@ -1483,7 +1483,7 @@
           "/{<project-name>} and run %new-project again"
         ==
       :_  ~
-      %+  update-vase-to-card  project-name
+      %-  update-vase-to-card
       (new-project-error(level %warning) (crip message))
     =.  status.state
       :-  %commit-install-starting
@@ -1524,7 +1524,7 @@
           cards                 (weld cards cis-cards)
       ==
     :-  :_  cards
-        %+  update-vase-to-card  project-name
+        %-  update-vase-to-card
         %.  status.state
         %~  status  make-update-vase
         [project-name %load-configuration-file ~]

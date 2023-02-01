@@ -21,8 +21,7 @@
 |^  ted
 ::
 +$  arg-mold
-  $:  project-name=@t
-      iterations=@ud
+  $:  iterations=(unit @ud)
   ==
 ::
 ++  ted
@@ -32,16 +31,17 @@
   =/  args  !<((unit arg-mold) args-vase)
   ?~  args
     ~&  >>>  "Usage:"
-    ~&  >>>  "-zig!ziggurat-test-subscribe project-name=@t iterations=@ud"
+    ~&  >>>  "-zig!ziggurat-test-subscribe iterations=(unit @ud)"
     (pure:m !>(~))
-  =*  project-name  project-name.u.args
   =*  iterations    iterations.u.args
   ::
   =|  counter=@ud
-  =/  watch-wire=wire  /project/[project-name]
+  =/  watch-wire=wire  /project
   ;<  ~  bind:m  (watch-our watch-wire %ziggurat watch-wire)
   |-
-  ?:  =(iterations counter)  (pure:m !>(~))
+  ?:  &(?=(^ iterations) =(iterations counter))
+    ~&  %zts^%done
+    (pure:m !>(~))
   ;<  result=cage  bind:m  (take-fact watch-wire)
   ~&  %zts^p.result^(noah q.result)
   $(counter +(counter))
