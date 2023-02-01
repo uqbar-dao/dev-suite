@@ -33,6 +33,7 @@
       [%ergo p=@tas q=mode:clay]              ::  clay ???
       [%blit p=(list blit:dill)]              ::  dill console effect
       [%thus p=@ud q=(unit hiss:eyre)]        ::  eyre ???
+      [%response =http-event:http]            ::  eyre response
       [%request id=@ud request=request:http]  ::  iris request
       [%poke-ack p=(unit tang)]               ::  gall agent poke-ack
       ::  pyro specific effect

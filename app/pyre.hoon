@@ -5,7 +5,7 @@
 ::  responses (iris/eyre).
 ::
 /-  *zig-pyro
-/+  dbug, default-agent
+/+  dbug, default-agent, pyre=pyro-pyre
 ::
 %-  agent:dbug
 ^-  agent:gall
@@ -18,32 +18,19 @@
 ++  on-init
   ^-  (quip card _this)
   :_  this
-  [%pass / %agent [our dap]:bowl %poke %noun !>([%resub ~])]~
+  :-  [%pass / %arvo %e %connect `/pyro %pyre]
+  (make-resub:pyre our.bowl)
+::
 ++  on-save  on-save:def
-++  on-load
-  |=  =vase
-  ^-  (quip card _this)
-  :_  this
-  [%pass / %agent [our dap]:bowl %poke %noun !>([%resub ~])]~
+++  on-load  |=(=vase [(make-resub:pyre our.bowl) this])
 ++  on-poke
   |=  [=mark =vase]
-  ?>  =(mark %noun)
-  =+  !<([%resub ~] vase)
-  :_  this
-  %-  zing
-  %+  turn
-    :~  [/ames/send /effect/send]
-        [/behn/doze /effect/doze]
-        [/dill/blit /effect/blit]
-        [/iris/request /effect/request]
-    ::
-        [/behn/kill /effect/kill]
-        [/iris/kill /effect/kill]
-    ==
-  |=  [=wire =path]
-  :~  [%pass wire %agent [our.bowl %pyro] %leave ~]
-      [%pass wire %agent [our.bowl %pyro] %watch path]
-  ==
+  ^-  (quip card _this)
+  ?>  =(%handle-http-request mark)
+  =+  !<([rid=@tas req=inbound-request:^eyre] vase)
+  =.  url.request.req  '/~/login' :: TODO need to get ship and path from url
+  =/  cards  abet:(pass-request:(eyre:hc ~nec) rid req)
+  [cards this]
 ::
 ++  on-agent
   |=  [=wire =sign:agent:gall]
@@ -62,9 +49,9 @@
         %fact
       =+  ef=!<([pyro-effect] q.cage.sign)
       =^  cards  behn-piers
-        ?+    -.q.ufs.ef  [~ behn-piers]
-            %doze     abet:(doze:(behn:hc who.ef) ufs.ef)
-            %kill     `(~(del by behn-piers) who.ef)
+        ?+  -.q.ufs.ef  [~ behn-piers]
+          %doze     abet:(doze:(behn:hc who.ef) ufs.ef)
+          %kill     `(~(del by behn-piers) who.ef)
         ==
       [cards this]
     ==
@@ -79,35 +66,51 @@
       `this
     ==
   ::
+      [%eyre %response ~]
+    ?+    -.sign  (on-agent:def wire sign)
+        %fact
+      =+  ef=!<([pyro-effect] q.cage.sign)
+      ?>  ?=([@ @ ~] p.ufs.ef)
+      =*  rid  i.t.p.ufs.ef
+      =/  cards
+        ?+    -.q.ufs.ef  ~
+            %response
+          ^-  (list card)
+          =*  ev  http-event.q.ufs.ef
+          ?-    -.ev
+              %start
+            :~  [%give %fact [/http-response/[rid]]~ %http-response-header !>([status-code.response-header.ev ~])] :: TODO for some reason headers suck
+                [%give %fact [/http-response/[rid]]~ %http-response-data !>(data.ev)]
+                [%give %kick [/http-response/[rid]]~ ~]
+            ==
+          ::
+              %continue  ~  :: TODO
+              %cancel    ~  :: TODO
+          ==
+        ==
+      [cards this]
+    ==
+  ::
       [%iris @ ~]
     ?+    -.sign  (on-agent:def wire sign)
         %fact
       =+  ef=!<([pyro-effect] q.cage.sign)
       =^  cards  iris-piers
         ?+  -.q.ufs.ef  [~ iris-piers]
-          %request         abet:(request:(iris:hc who.ef) ufs.ef)
-          %kill            `(~(del by iris-piers) who.ef)
+          %request  abet:(request:(iris:hc who.ef) ufs.ef)
+          %kill     `(~(del by iris-piers) who.ef)
         ==
       [cards this]
     ==
   ==
 ::
-++  on-watch  on-watch:def
-++  on-leave  on-leave:def
-++  on-peek
+++  on-watch
   |=  =path
-  ^-  (unit (unit cage))
-  ?+    path  ~
-      [%x %soonest-timer ~]
-    :^  ~  ~  %noun
-    !>  ^-  (unit @da)
-    %-  ~(rep by behn-piers)
-    |=  [[@ timer=(unit @da)] soonest=(unit @da)]
-    ?~  soonest  timer
-    ?~  timer    soonest
-    ?:((lth u.soonest u.timer) soonest timer)
-  ==
-::
+  ^-  (quip card _this)
+  ?>  ?=([%http-response *] path)
+  `this
+++  on-leave  on-leave:def
+++  on-peek   on-peek:def
 ++  on-arvo
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)
@@ -136,11 +139,6 @@
         ?~(full-file ~ `data.u.full-file)
       [cards this]
     ==
-    ::
-        %eyre
-    ~&  >  wire
-    ~&  >  sign-arvo
-    `this
   ==
 ::
 ++  on-fail   on-fail:def
@@ -149,7 +147,7 @@
 =|  behn-piers=(map ship behn-pier)
 =|  iris-piers=(map ship iris-pier)
 |_  bowl=bowl:gall
-++  ames
+++  ames  ::  TODO should be in lib/pyre not helper core
   |%
   ++  emit-pyro-events
     |=  aes=(list pyro-event)
@@ -184,6 +182,7 @@
     %|^`address:^ames``@`ship
   ::
   --
+::
 ++  behn
   |=  who=ship
   =+  (~(gut by behn-piers) who *behn-pier)
@@ -242,7 +241,8 @@
       [who /b/behn/0v1n.2m9vh [%wake ~]]~
     ..abet
   --
-++  dill
+::
+++  dill  :: TODO should be in lib/pyre not helper core
   |%
   ++  blit
     |=  [who=@p way=wire %blit blits=(list blit:^dill)]
@@ -263,6 +263,30 @@
       %wyp  ""
     ==
   --
+::
+++  eyre  :: TODO should just be in helpers - not in helper-core
+  |=  who=ship
+  =|  cards=(list card:agent:gall)
+  |%
+  ++  this  .
+  ::
+  ++  abet  (flop cards)
+  ::
+  ++  emit-cards
+    |=  cs=(list card:agent:gall)
+    %_(this cards (weld cs cards))
+  ::
+  ++  emit-pyro-events
+    |=  aes=(list pyro-event)
+    %-  emit-cards
+    [%pass /pyro-events %agent [our.bowl %pyro] %poke %pyro-events !>(aes)]~
+  ::
+  ++  pass-request
+    |=  [rid=@t req=inbound-request:^eyre]
+    %-  emit-pyro-events
+    [~nec /e/(scot %p who)/[rid] %request [secure address request]:req]~
+  --
+::
 ++  iris
   ::  :pyro|dojo ~nec "|pass [%i %request [%'GET' 'https://google.com' ~ ~] *outbound-config:iris]"
   ::  :pyro|dojo ~nec "|pass [%i %cancel-request ~]"
