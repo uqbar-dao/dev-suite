@@ -28,9 +28,10 @@
   ^-  (quip card _this)
   ?>  =(%handle-http-request mark)
   =+  !<([rid=@tas req=inbound-request:^eyre] vase)
-  =.  url.request.req  '/~/login' :: TODO need to get ship and path from url
-  =/  cards  abet:(pass-request:(eyre:hc ~nec) rid req)
-  [cards this]
+  =^  who=ship  url.request.req
+    (parse-url:pyre (trip url.request.req))
+  :_  this
+  abet:(pass-request:(eyre:hc ~nec) rid req)
 ::
 ++  on-agent
   |=  [=wire =sign:agent:gall]
