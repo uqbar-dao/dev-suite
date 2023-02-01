@@ -169,12 +169,6 @@
     !>  ^-  update:zig
     [%dir update-info [%& dir] ~]
   ::
-  ++  pyro-ships-ready
-    |=  pyro-ships-ready=(map @p ?)
-    ^-  vase
-    !>  ^-  update:zig
-    [%pyro-ships-ready update-info [%& pyro-ships-ready] ~]
-  ::
   ++  poke
     ^-  vase
     !>  ^-  update:zig
@@ -328,12 +322,6 @@
     ^-  vase
     !>  ^-  update:zig
     [%dir update-info [%| level message] ~]
-  ::
-  ++  pyro-ships-ready
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%pyro-ships-ready update-info [%| level message] ~]
   ::
   ++  poke
     |=  message=@t
@@ -1766,12 +1754,6 @@
         %dir
       `(list [@t json])`['data' (frond %dir (dir p.payload.update))]~
     ::
-        %pyro-ships-ready
-      :_  ~
-      :-  'data'
-      %+  frond  %pyro-ships-ready
-      (pyro-ships-ready p.payload.update)
-    ::
         %poke
       ['data' ~]~
     ::
@@ -2156,14 +2138,6 @@
     :-  %a
     %+  turn  ~(tap in cords)
     |=([cord=@t] [%s cord])
-  ::
-  ++  pyro-ships-ready
-    |=  pyro-ships-ready=(map @p ?)
-    ^-  json
-    %-  pairs
-    %+  turn  ~(tap by pyro-ships-ready)
-    |=  [who=@p is-ready=?]
-    [(scot %p who) [%b is-ready]]
   ::
   ++  sync-desk-to-vship
     |=  =sync-desk-to-vship:zig

@@ -206,11 +206,11 @@
       %custom-step-compiled
       %test-results
       %dir
-      %pyro-ships-ready
       %poke
       %test-queue
       %pyro-agent-state
       %sync-desk-to-vship
+      %cis-setup-done
       %status
   ==
 +$  update-level  ?(%success error-level)
@@ -241,7 +241,6 @@
       [%custom-step-compiled update-info payload=(data ~) test-id=@ux tag=@tas]
       [%test-results update-info payload=(data shown-test-results) test-id=@ux thread-id=@t =test-steps]
       [%dir update-info payload=(data (list path)) ~]
-      [%pyro-ships-ready update-info payload=(data (map @p ?)) ~]
       [%poke update-info payload=(data ~) ~]
       [%test-queue update-info payload=(data (qeu [@t @ux])) ~]
       [%pyro-agent-state update-info payload=(data [agent-state=@t wex=boat:gall sup=bitt:gall]) ~]

@@ -1492,12 +1492,16 @@
           %+  ~(put by unfocused-project-snaps)  links
           snap-path
         ==
-    :+  %+  ~(poke-our pass:io /pyro-wire)  %pyro
+    :^    (~(leave-our pass:io w) %ziggurat)
+        %+  ~(poke-our pass:io /pyro-wire)  %pyro
         :-  %pyro-action
         !>  ^-  action:pyro
-        :+  %snap-ships  snap-path  default-ships:zig-lib  :: TODO: ships
-        ::  TODO: make-done-card
-      (~(leave-our pass:io w) %ziggurat)
+        :+  %snap-ships  snap-path
+        =<  pyro-ships
+        (~(got by projects) desk)
+      %-  update-vase-to-card:zig-lib
+      %~  cis-setup-done  make-update-vase:zig-lib
+      [desk %cis-setup-done ~]
     ~
   ==
 ::
