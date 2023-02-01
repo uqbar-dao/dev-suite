@@ -371,6 +371,25 @@
       [focused-project request-id %take-snapshot ~]
     snap-cards
   ::
+  ++  make-desk-setup-cards-state
+    |=  [links-list=(list @t) =update-info:zig]
+    ^-  [(list card) _state (mip:mip @t @p [@t ?])]
+    %+  roll  links-list
+    |=  [project-name=@t [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]]
+    =/  [iteration-cards=(list card) cfo=(unit configuration-file-output:zig) modified-state=_state]
+      %+  load-configuration-file:zig-lib
+        update-info(project-name project-name)
+      modified-state
+    ?>  ?=(%commit-install-starting -.status.modified-state)
+    =/  [request-id=@t ?]
+      %-  ~(got by cis-running.status.modified-state)
+      -:?^(cfo ships.u.cfo default-ships:zig-lib)
+    :+  :_  (weld cards iteration-cards)
+        (make-read-desk:zig-lib project-name `request-id)
+      modified-state
+    %+  ~(put by project-cis-running)  project-name
+    cis-running.status.modified-state
+  ::
   ++  handle-poke
     |=  act=action:zig
     ^-  (quip card _state)
@@ -643,21 +662,7 @@
         |=  project-name=@t
         [project-name new-links]
       =/  [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]
-        %+  roll  new-links-list
-        |=  [project-name=@t [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]]
-        =/  [iteration-cards=(list card) cfo=(unit configuration-file-output:zig) modified-state=_state]
-          %+  load-configuration-file:zig-lib
-            update-info(project-name project-name)
-          modified-state
-        ?>  ?=(%commit-install-starting -.status.modified-state)
-        =/  [request-id=@t ?]
-          %-  ~(got by cis-running.status.modified-state)
-          -:?^(cfo ships.u.cfo default-ships:zig-lib)
-        :+  :_  (weld cards iteration-cards)
-            (make-read-desk:zig-lib project.act `request-id)
-          modified-state
-        %+  ~(put by project-cis-running)  project-name
-        cis-running.status.modified-state
+        (make-desk-setup-cards-state new-links-list update-info)
       :_  %=  modified-state
               status
             [%changing-project-links project-cis-running]
@@ -674,7 +679,61 @@
       !>  ^-  action:pyro
       [%restore-snap default-snap-path:zig-lib]
     ::
-        %delete-project-link  !!  :: TODO
+        %delete-project-link
+      ?>  (~(has by projects) project.act)
+      =*  project-to-remove=@t  project.act
+      =/  links=(set @t)
+        (~(get ju linked-projects) focused-project)
+      ?.  .=  links
+          (~(get ju linked-projects) project-to-remove)
+        !!  :: TODO: do better
+      =/  new-links=(set @t)
+        (~(del in links) project-to-remove)
+      =/  new-links-list=(list @t)  ~(tap in new-links)
+      =.  linked-projects
+        %-  ~(gas by linked-projects)
+        :-  :-  project-to-remove
+            (~(put in *(set @t)) project-to-remove)
+        %+  turn  new-links-list
+        |=  project-name=@t
+        [project-name new-links]
+      =/  [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]
+        (make-desk-setup-cards-state new-links-list update-info)
+      :_  %=  modified-state
+              status
+            [%changing-project-links project-cis-running]
+          ::
+              unfocused-project-snaps
+            =/  single-link=(set @t)
+              (~(put in *(set @t)) project-to-remove)
+            =/  snaps=(list path)
+              =+  .^  =update:pyro
+                      %gx
+                      :-  (scot %p our.bowl)
+                      /pyro/(scot %da now.bowl)/snaps/noun
+                  ==
+              ?>  ?=(%snaps -.update)
+              snap-paths.update
+            =/  single-link-cord=@t
+              (crip (noah !>(`(set @t)`single-link)))
+            %+  %~  put  by
+                (~(del by unfocused-project-snaps) links)
+              single-link
+            =<  q
+            %+  roll  snaps
+            |=  [snap=path latest=(pair @da path)]
+            ?~  snap                        latest
+            ?.  =(single-link-cord i.snap)  latest
+            ?~  t.snap                      latest
+            =/  snap-time=@da  (slav %da i.t.snap)
+            ?:  (gth p.latest snap-time)    latest
+            [snap-time snap]
+          ==
+      :_  cards
+      %+  ~(poke-our pass:io /pyro-poke)  %pyro
+      :-  %pyro-action
+      !>  ^-  action:pyro
+      [%restore-snap default-snap-path:zig-lib]
     ::
         %save-file
       =/  =project:zig  (~(got by projects) project.act)
