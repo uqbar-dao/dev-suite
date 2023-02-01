@@ -1,6 +1,4 @@
-::  This agent simulates vere. Since we aren't sending messages
-::  over a real network - just a virtual network, we need to simulate
-::  all all networking and runtime. This includes packet routing (ames),
+::  This agent simulates vere. This includes packet routing (ames),
 ::  unix timers (behn), terminal drivers (dill), and http requests/
 ::  responses (iris/eyre).
 ::
@@ -22,7 +20,7 @@
   (make-resub:pyre our.bowl)
 ::
 ++  on-save  on-save:def
-++  on-load  |=(=vase [(make-resub:pyre our.bowl) this])
+++  on-load  |=(=vase (make-resub:pyre our.bowl)^this)
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
