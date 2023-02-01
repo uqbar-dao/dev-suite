@@ -13,7 +13,7 @@
     conq=zink-conq,
     dock=docket,
     engine=zig-sys-engine,
-    pyro-lib=zig-pyro,
+    pyro-lib=pyro-pyro,
     seq=zig-sequencer,
     smart=zig-sys-smart,
     ziggurat-lib=zig-ziggurat

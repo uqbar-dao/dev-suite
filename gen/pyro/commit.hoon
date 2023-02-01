@@ -1,6 +1,6 @@
 ::  Usage: :pyro|commit ~dev %zig
 ::
-/+  pyro=zig-pyro
+/+  pyro=pyro-pyro
 :-  %say
 |=  $:  [* * =beak]
         [who=ship =desk ~]
