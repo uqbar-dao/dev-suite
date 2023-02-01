@@ -348,8 +348,12 @@
     /on-new-project-ship-rerun/[m]/(jam !<(action:zig v))
   ::
   ++  make-snap-cards
-    |=  [project-name=@t request-id=(unit @t)]
-    ^-  (list card)
+    |=  $:  project-name=@t
+            request-id=(unit @t)
+            state=_state
+            ships=(set @p)
+        ==
+    ^-  [(list card) _state]
     =/  snap-cards=(list card)
       :_  ~
       %+  ~(poke-our pass:io /pyro-poke)  %pyro
@@ -369,26 +373,65 @@
       :-  %ziggurat-action
       !>  ^-  action:zig
       [focused-project request-id %take-snapshot ~]
-    snap-cards
+    =/  ships-to-run=(list @p)
+      %~  tap  in
+      (~(dif in ships) default-ships-set:zig-lib)
+    ?~  ships-to-run  [snap-cards state]
+    :_  %^  change-state-linked-projects:zig-lib
+          project-name  state
+        |=  p=project:zig
+        p(pyro-ships (weld pyro-ships.p ships-to-run))
+    %+  weld  snap-cards
+    %+  turn  ships-to-run
+    |=  who=@p
+    %+  ~(poke-our pass:io /self-wire)  %pyro
+    [%pyro-action !>([%init-ship who])]
   ::
   ++  make-desk-setup-cards-state
     |=  [links-list=(list @t) =update-info:zig]
     ^-  [(list card) _state (mip:mip @t @p [@t ?])]
-    %+  roll  links-list
-    |=  [project-name=@t [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]]
-    =/  [iteration-cards=(list card) cfo=(unit configuration-file-output:zig) modified-state=_state]
-      %+  load-configuration-file:zig-lib
-        update-info(project-name project-name)
-      modified-state
-    ?>  ?=(%commit-install-starting -.status.modified-state)
-    =/  [request-id=@t ?]
-      %-  ~(got by cis-running.status.modified-state)
-      -:?^(cfo ships.u.cfo default-ships:zig-lib)
-    :+  :_  (weld cards iteration-cards)
-        (make-read-desk:zig-lib project-name `request-id)
-      modified-state
-    %+  ~(put by project-cis-running)  project-name
-    cis-running.status.modified-state
+    =/  [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?]) ships=(set @p)]
+      %+  roll  links-list
+      |=  [project-name=@t [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?]) ships=(set @p)]]
+      =/  [iteration-cards=(list card) cfo=(unit configuration-file-output:zig) modified-state=_state]
+        %+  load-configuration-file:zig-lib
+          update-info(project-name project-name)
+        modified-state
+      ?>  ?=(%commit-install-starting -.status.modified-state)
+      =/  [request-id=@t ?]
+        %-  ~(got by cis-running.status.modified-state)
+        -:?^(cfo ships.u.cfo default-ships:zig-lib)
+      :^    :_  (weld cards iteration-cards)
+            (make-read-desk:zig-lib project-name `request-id)
+          modified-state
+        %+  ~(put by project-cis-running)  project-name
+        cis-running.status.modified-state
+      %-  ~(gas in ships)
+      %+  weld  ?~(cfo ~ ships.u.cfo)
+      =<  pyro-ships
+      (~(gut by projects) project-name *project:zig)
+    ~&  %z^%mdscs^ships
+    =/  snap-cards=(list card)
+      :_  ~
+      %+  ~(poke-our pass:io /pyro-poke)  %pyro
+      :-  %pyro-action
+      !>  ^-  action:pyro
+      [%restore-snap default-snap-path:zig-lib]
+    =/  [snap-cards=(list card) modified-state=_state]
+      =/  ships-to-run=(list @p)
+        ~(tap in (~(dif in ships) default-ships-set:zig-lib))
+      ?~  ships-to-run  [snap-cards modified-state]
+      :_  %^  change-state-linked-projects:zig-lib
+            project-name:update-info  modified-state
+          |=  p=project:zig
+          p(pyro-ships (weld pyro-ships.p ships-to-run))
+      %+  weld  snap-cards
+      %+  turn  ships-to-run
+      |=  who=@p
+      %+  ~(poke-our pass:io /self-wire)  %pyro
+      [%pyro-action !>([%init-ship who])]
+    :+  (weld snap-cards cards)  modified-state
+    project-cis-running
   ::
   ++  handle-poke
     |=  act=action:zig
@@ -466,16 +509,6 @@
             %+  ~(put by linked-projects)  project.act
             (~(put in *(set @t)) project.act)
           ==
-        :: =/  ships-to-run=(list @p)  :: TODO
-        ::   %~  tap  in
-        ::   %.  default-ships:zig-lib
-        ::   %~  dif  in
-        ::   %-  ~(gas in *(set @p))
-        ::   ?^(cfo ships.u.cfo default-ships:zig-lib)
-        :: ?^  ships-to-run
-        ::   %+  start-ships-then-rerun  ships-to-run
-        ::   [project request-id]:act
-        ::
         :: ?:  (~(has by projects) project.act)
         ::   =.  projects  (~(del by projects) project.act)
         ::   =.  focused-project
@@ -488,21 +521,17 @@
           ?>  ?=(%commit-install-starting -.status.modified-state)
           %-  ~(got by cis-running.status.modified-state)
           -:?^(cfo ships.u.cfo default-ships:zig-lib)
+        =^  snap-cards=(list card)  modified-state
+          %-  make-snap-cards
+          :^  project.act  `request-id  modified-state
+          (~(gas in *(set @p)) ?~(cfo ~ ships.u.cfo))
         :_  modified-state
         :+  (make-read-desk:zig-lib project.act `request-id)
           %+  update-vase-to-card:zig-lib  project.act
           %.  sync-desk-to-vship
           %~  new-project  make-update-vase:zig-lib
           update-info
-        %-  weld  :_  cards
-        (make-snap-cards project.act `request-id)
-      :: =/  ships-to-run=(list @p)
-      ::   %~  tap  in
-      ::   %-  ships-not-yet-running-to-run
-      ::   (~(gas in *(set @p)) default-ships:zig-lib)
-      :: ?^  ships-to-run
-      ::   %+  start-ships-then-rerun  ships-to-run
-      ::   [project request-id]:act
+        (weld snap-cards cards)
       =.  sync-desk-to-vship
         %-  ~(gas ju sync-desk-to-vship)
         %+  turn  sync-ships.act
@@ -513,8 +542,12 @@
       =/  mount-task  [%mont `@tas`project.act [our.bowl `@tas`project.act da+now.bowl] /]
       =/  bill-task   [%info `@tas`project.act %& [/desk/bill %ins %bill !>(~[project.act])]~]
       =/  deletions-task  [%info `@tas`project.act %& (clean-desk:zig-lib project.act)]
+      =^  snap-cards=(list card)  state
+        %-  make-snap-cards
+        :^  project.act  request-id.act  state
+        (~(gas in *(set @p)) sync-ships.act)
       :-  ;:  welp
-              (make-snap-cards [project request-id]:act)
+              snap-cards
           ::
               :~  [%pass /merge-wire/[project.act]/(scot %ud (jam sync-ships.act)) %arvo %c merge-task]
                   [%pass /mount-wire %arvo %c mount-task]
@@ -543,7 +576,9 @@
         =|  =project:zig
         =.  user-files.project
           (~(put in *(set path)) /app/[project.act]/hoon)
-        =.  pyro-ships.project  default-ships:zig-lib
+        =.  pyro-ships.project
+          ?^  sync-ships.act  sync-ships.act
+          default-ships:zig-lib
         (~(put by projects) project.act project)
       ==
     ::
@@ -655,7 +690,12 @@
         (~(get ju linked-projects) project-b)
       =/  new-links=(set @t)
         (~(uni in project-a-links) project-b-links)
-      =/  new-links-list=(list @t)  ~(tap in new-links)
+      ::  the del and snoc are to ensure focused-project
+      ::   is the last element of the list so it remains
+      ::   focused after we are cis-setup-done
+      =/  new-links-list=(list @t)
+        %-  snoc  :_  focused-project
+        ~(tap in (~(del in new-links) focused-project))
       =.  linked-projects
         %-  ~(gas by linked-projects)
         %+  turn  new-links-list
@@ -663,21 +703,17 @@
         [project-name new-links]
       =/  [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]
         (make-desk-setup-cards-state new-links-list update-info)
-      :_  %=  modified-state
-              status
-            [%changing-project-links project-cis-running]
-          ::
-              unfocused-project-snaps
-            %.  project-b-links
-            %~  del  by
-            %.  project-a-links
-            ~(del by unfocused-project-snaps)
-          ==
-      :_  cards
-      %+  ~(poke-our pass:io /pyro-poke)  %pyro
-      :-  %pyro-action
-      !>  ^-  action:pyro
-      [%restore-snap default-snap-path:zig-lib]
+      :-  cards
+      %=  modified-state
+          status
+        [%changing-project-links project-cis-running]
+      ::
+          unfocused-project-snaps
+        %.  project-b-links
+        %~  del  by
+        %.  project-a-links
+        ~(del by unfocused-project-snaps)
+      ==
     ::
         %delete-project-link
       ?>  (~(has by projects) project.act)
@@ -699,41 +735,37 @@
         [project-name new-links]
       =/  [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]
         (make-desk-setup-cards-state new-links-list update-info)
-      :_  %=  modified-state
-              status
-            [%changing-project-links project-cis-running]
-          ::
-              unfocused-project-snaps
-            =/  single-link=(set @t)
-              (~(put in *(set @t)) project-to-remove)
-            =/  snaps=(list path)
-              =+  .^  =update:pyro
-                      %gx
-                      :-  (scot %p our.bowl)
-                      /pyro/(scot %da now.bowl)/snaps/noun
-                  ==
-              ?>  ?=(%snaps -.update)
-              snap-paths.update
-            =/  single-link-cord=@t
-              (crip (noah !>(`(set @t)`single-link)))
-            %+  %~  put  by
-                (~(del by unfocused-project-snaps) links)
-              single-link
-            =<  q
-            %+  roll  snaps
-            |=  [snap=path latest=(pair @da path)]
-            ?~  snap                        latest
-            ?.  =(single-link-cord i.snap)  latest
-            ?~  t.snap                      latest
-            =/  snap-time=@da  (slav %da i.t.snap)
-            ?:  (gth p.latest snap-time)    latest
-            [snap-time snap]
-          ==
-      :_  cards
-      %+  ~(poke-our pass:io /pyro-poke)  %pyro
-      :-  %pyro-action
-      !>  ^-  action:pyro
-      [%restore-snap default-snap-path:zig-lib]
+      :-  cards
+      %=  modified-state
+          status
+        [%changing-project-links project-cis-running]
+      ::
+          unfocused-project-snaps
+        =/  single-link=(set @t)
+          (~(put in *(set @t)) project-to-remove)
+        =/  snaps=(list path)
+          =+  .^  =update:pyro
+                  %gx
+                  :-  (scot %p our.bowl)
+                  /pyro/(scot %da now.bowl)/snaps/noun
+              ==
+          ?>  ?=(%snaps -.update)
+          snap-paths.update
+        =/  single-link-cord=@t
+          (crip (noah !>(`(set @t)`single-link)))
+        %+  %~  put  by
+            (~(del by unfocused-project-snaps) links)
+          single-link
+        =<  q
+        %+  roll  snaps
+        |=  [snap=path latest=(pair @da path)]
+        ?~  snap                        latest
+        ?.  =(single-link-cord i.snap)  latest
+        ?~  t.snap                      latest
+        =/  snap-time=@da  (slav %da i.t.snap)
+        ?:  (gth p.latest snap-time)    latest
+        [snap-time snap]
+      ==
     ::
         %save-file
       =/  =project:zig  (~(got by projects) project.act)
@@ -1435,7 +1467,6 @@
   ::
       [%cis-setup-done @ ~]
     =*  desk  i.t.w
-    ~&  %z^%cis^%setup-done^desk^status
     ?.  ?=(%fact -.sign)  (on-agent:def w sign)
     ?.  ?=(%ziggurat-update p.cage.sign)  !!  ::  TODO: do better
     =+  !<(=update:zig q.cage.sign)
@@ -1452,11 +1483,6 @@
                 ?=([%ready ~] p.payload)
                 =(0 ~(wyt in test-queue))
             ==
-        ::
-            :: ?&  ?=(%test-queue -.update)
-            ::     ?=(%& -.payload)
-            ::     =(0 ~(wyt in p.payload))
-            :: ==
         ==
       `this
     =/  links=(set @t)

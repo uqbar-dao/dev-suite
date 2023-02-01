@@ -13,10 +13,7 @@
       focused-project=@t
       linked-projects=(jug @t @t)
       unfocused-project-snaps=(map (set @t) path)
-      :: pyro-ships-ready=(map @p ?)
       test-queue=(qeu [project=@t test-id=@ux])
-      :: test-running=?
-      :: cis-running=(map @p @t)
       =status
   ==
 +$  inflated-state-0
@@ -33,12 +30,6 @@
       [%changing-project-links project-cis-running=(mip:mip @t @p [@t ?])]
       [%ready ~]
       [%uninitialized ~]  ::  last is default
-      :: :-  %cis 
-      :: $%  [%committing ~]
-      ::     [%installing ~]
-      ::     [%starting ~]
-      ::     [%setup ~]
-      :: ==
   ==
 ::
 +$  projects  (map @t project)

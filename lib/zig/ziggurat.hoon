@@ -25,6 +25,10 @@
   ^-  (list @p)
   ~[~nec ~wes ~bud]
 ::
+++  default-ships-set
+  ^-  (set @p)
+  (~(gas in *(set @p)) default-ships)
+::
 ++  make-project-update
   |=  [=update-info:zig =project:zig]
   ^-  card
@@ -1524,6 +1528,11 @@
         %.  status.state
         %~  status  make-update-vase
         [project-name %load-configuration-file ~]
+    =.  projects.state
+      %+  ~(put by projects.state)  project-name
+      =/  =project:zig
+        (~(gut by projects.state) project-name *project:zig)
+      project(pyro-ships virtualships-to-sync)
     %=  state
         test-queue   ~
     ::
@@ -1545,6 +1554,23 @@
       project(saved-test-queue test-queue.state)
     ==
   --
+::
+++  change-state-linked-projects
+  |=  $:  project-name=@t
+          state=inflated-state-0:zig
+          transition=$-(project:zig project:zig)
+      ==
+  ^-  inflated-state-0:zig
+  =/  linked-projects=(list @t)
+    ~(tap in (~(get ju linked-projects.state) project-name))
+  |-
+  ?~  linked-projects  ~&(%z^%cslp^%final^(~(run by projects.state) |=(p=project:zig pyro-ships.p)) state)
+  ?~  next=(~(get by projects.state) i.linked-projects)
+    $(linked-projects t.linked-projects)
+  =.  projects.state
+    %+  ~(put by projects.state)  i.linked-projects
+    (transition u.next)
+  $(linked-projects t.linked-projects, state state)
 ::
 ++  add-test-error-to-edit-test
   |=  add-test-card=card
