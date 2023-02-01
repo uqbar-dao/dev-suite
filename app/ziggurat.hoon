@@ -1715,6 +1715,12 @@
     %~  status  make-update-vase:zig-lib
     ['' %status ~]
   ::
+      [%focused-linked ~]
+    :^  ~  ~  %ziggurat-update
+    %^  %~  focused-linked  make-update-vase:zig-lib
+        ['' %focused-linked ~]
+    focused-project  linked-projects  unfocused-project-snaps
+  ::
       [%custom-step-compiled @ @ @ ~]
     =*  project-name  i.t.t.p
     =*  test-id       i.t.t.t.p

@@ -212,11 +212,18 @@
       %sync-desk-to-vship
       %cis-setup-done
       %status
+      %focused-linked
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
 +$  update-info
   [project-name=@t source=@tas request-id=(unit @t)]
+::
++$  focused-linked-data
+  $:  focused-project=@t
+      linked-projects=(jug @t @t)
+      unfocused-project-snaps=(map (set @t) path)
+  ==
 ::
 ++  data  |$(this (each this [level=error-level message=@t]))
 ::
@@ -247,6 +254,7 @@
       [%sync-desk-to-vship update-info payload=(data sync-desk-to-vship) ~]
       [%cis-setup-done update-info payload=(data ~) ~]
       [%status update-info payload=(data status) ~]
+      [%focused-linked update-info payload=(data focused-linked-data) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)

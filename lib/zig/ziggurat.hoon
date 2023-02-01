@@ -204,6 +204,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%status update-info [%& status] ~]
+  ::
+  ++  focused-linked
+    |=  data=focused-linked-data:zig
+    ^-  vase
+    !>  ^-  update:zig
+    [%focused-linked update-info [%& data] ~]
   --
 ::
 ++  make-error-vase
@@ -358,6 +364,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%status update-info [%| level message] ~]
+  ::
+  ++  focused-linked
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%focused-linked update-info [%| level message] ~]
   --
 ::
 ++  make-compile-contracts
@@ -1785,15 +1797,49 @@
       :_  ~
       :-  'data'
       (frond %status (status p.payload.update))
+    ::
+        %focused-linked
+      =*  up  p.payload.update
+      :_  ~
+      :-  'data'
+      %-  pairs
+      :^    [%focused-project %s focused-project.up]
+          :-  %linked-projects
+          (linked-projects linked-projects.up)
+        :-  %unfocused-project-snaps
+        (unfocused-project-snaps unfocused-project-snaps.up)
+      ~
     ==
+  ::
+  ++  linked-projects
+    |=  linked-projects=(jug @t @t)
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by linked-projects)
+    |=  [project-name=@t links=(set @t)]
+    :-  project-name
+    :-  %a
+    %+  turn  ~(tap in links)
+    |=(link=@t [%s link])
+  ::
+  ++  unfocused-project-snaps
+    |=  unfocused-project-snaps=(map (set @t) ^path)
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by unfocused-project-snaps)
+    |=  [links=(set @t) p=^path]
+    :-  (spat p)
+    :-  %a
+    %+  turn  ~(tap in links)
+    |=(link=@t [%s link])
   ::
   ++  status
     |=  =status:zig
     ^-  json
     ?-    -.status
-        %running-test-steps  ~
-        %ready               ~
-        %uninitialized       ~
+        %running-test-steps  [%s -.status]
+        %ready               [%s -.status]
+        %uninitialized       [%s -.status]
         %commit-install-starting
       %-  pairs
       %+  turn  ~(tap by cis-running.status)
