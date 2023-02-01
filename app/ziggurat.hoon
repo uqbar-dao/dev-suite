@@ -718,7 +718,12 @@
         !!  :: TODO: do better
       =/  new-links=(set @t)
         (~(del in links) project-to-remove)
-      =/  new-links-list=(list @t)  ~(tap in new-links)
+      ::  the del and snoc are to ensure focused-project
+      ::   is the last element of the list so it remains
+      ::   focused after we are cis-setup-done
+      =/  new-links-list=(list @t)
+        %-  snoc  :_  focused-project
+        ~(tap in (~(del in new-links) focused-project))
       =.  linked-projects
         %-  ~(gas by linked-projects)
         :-  :-  project-to-remove
