@@ -880,8 +880,7 @@
   =/  who-ta=@ta   (scot %p who)
   =/  town-ta=@ta  (scot %ux town-id)
   =/  batch-order=update:ui
-    %-  fall  :_  ~
-    ;;  (unit update:ui)
+    ;;  update:ui
     .^  noun
         %gx
         ;:  weld
@@ -894,8 +893,7 @@
   ?~  batch-order.batch-order         ~
   =*  newest-batch  i.batch-order.batch-order
   =/  batch-chain=update:ui
-    %-  fall  :_  ~
-    ;;  (unit update:ui)
+    ;;  update:ui
     .^  noun
         %gx
         ;:  weld
@@ -968,7 +966,7 @@
         :-  (scot %p our.bowl)
         /pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
     ==
-  (fall ;;((unit (set @tas)) desks) ~)
+  ;;((set @tas) desks)
 ::
 ++  virtualship-desk-exists
   |=  [virtualship=@p desk=@tas]
@@ -986,7 +984,7 @@
         :-  (scot %p our.bowl)
         /pyro/[now]/i/[who]/gu/[who]/[app]/[now]/noun
     ==
-  (fall ;;((unit ?) is-app-running) %.n)
+  ;;(? is-app-running)
 ::
 ++  sync-desk-to-virtualship
   |=  [who=@p project-name=@tas]
@@ -994,10 +992,10 @@
   %+  %~  poke-our  pass:io
       /sync/(scot %da now.bowl)/[project-name]/(scot %p who)
       %pyro
-  :-  %aqua-events
-  !>  ^-  (list aqua-event:pyro)
+  :-  %pyro-events
+  !>  ^-  (list pyro-event:pyro)
   :_  ~
-  :^  %event  who  /c/commit/(scot %p who)
+  :+  who  /c/commit/(scot %p who)
   (park:pyro-lib our.bowl project-name %da now.bowl)
 ::
 ++  send-pyro-dojo
@@ -1006,8 +1004,8 @@
   %+  %~  poke-our  pass:io
       /dojo/(scot %p who)/(scot %ux `@ux`(jam command))
     %pyro
-  :-  %aqua-events
-  !>  ^-  (list aqua-event:pyro)
+  :-  %pyro-events
+  !>  ^-  (list pyro-event:pyro)
   (dojo-events:pyro-lib who command)
 ::
 ++  make-cis-running
@@ -1591,8 +1589,8 @@
       :-  'data'
       %-  pairs
       :^    [%pyro-agent-state %s agent-state.p.payload.update]
-          ['outgoing (wex)' (boat wex.p.payload.update)]
-        ['incoming (sup)' (bitt sup.p.payload.update)]
+          ['outgoing' (boat wex.p.payload.update)]
+        ['incoming' (bitt sup.p.payload.update)]
       ~
     ::
         %sync-desk-to-vship
@@ -2047,6 +2045,10 @@
         [%delete-user-file (ot ~[[%file pa]])]
     ::
         [%send-pyro-dojo (ot ~[[%who (se %p)] [%command sa]])]
+    ::
+        [%pyro-agent-state pyro-agent-state]
+    ::
+        [%cis-panic ul]
     ==
   ::
   ++  docket
@@ -2188,6 +2190,14 @@
     :^    [%test-id (se %ux)]
         [%tag (se %tas)]
       [%path pa]
+    ~
+  ::
+  ++  pyro-agent-state
+    ^-  $-(json [who=@p app=@tas grab=@t])
+    %-  ot
+    :^    [%who (se %p)]
+        [%app (se %tas)]
+      [%grab so]
     ~
   --
 --

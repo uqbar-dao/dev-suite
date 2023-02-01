@@ -6,6 +6,6 @@
 ++  $
   ^-  test-steps:zig
   :_  ~
-  :+  %scry  [~bud 'wain' %cx %base /desk/bill]
+  :+  %scry  [~bud 'wain' %cx %base /desk/bill/bill]
   '<|acme azimuth dbug dojo eth-watcher hood herm lens ping spider|>'
 --

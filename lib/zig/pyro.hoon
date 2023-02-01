@@ -1,41 +1,46 @@
 /-  *zig-pyro,
     spider
-/+  *strandio
+/+  *strandio, 
+    dill
 ::
 =*  strand    strand:spider
 ::
 |%
 ++  send-events
-  |=  events=(list aqua-event)
+  |=  events=(list pyro-event)
   =/  m  (strand ,~)
   ^-  form:m
-  (poke-our %pyro %aqua-events !>(events))
+  (poke-our %pyro %pyro-events !>(events))
 ::
 ++  take-unix-effect
   =/  m  (strand ,[ship unix-effect])
   ^-  form:m
   ;<  [=path =cage]  bind:m  (take-fact-prefix /effect)
-  ?>  ?=(%aqua-effect p.cage)
-  (pure:m !<([aqua-effect] q.cage))
+  ?>  ?=(%pyro-effect p.cage)
+  (pure:m !<([pyro-effect] q.cage))
 ::
-++  reset-ships
-  |=  hers=(list ship)
+++  reset-ship
+  |=  who=ship
   =/  m  (strand ,~)
   ^-  form:m
   ;<  ~  bind:m
     %^  poke-our  %pyro  %pyro-action
-    !>([%kill-ships hers])
-  ;<  ~  bind:m
-    %^  poke-our  %pyro  %aqua-events
-    !>((zing (turn hers |=(=ship [%event ship %init-ship ~]~))))
+    !>([%init-ship who])
   (pure:m ~)
 ::
-++  ue-to-ae
+++  ues-to-pe
   |=  [who=ship what=(list unix-event)]
-  ^-  (list aqua-event)
+  ^-  (list pyro-event)
   %+  turn  what
   |=  ue=unix-event
-  [%event who ue]
+  [who ue]
+::
+++  ue-to-pes
+  |=  [hers=(list ship) what=unix-event]
+  ^-  (list pyro-event)
+  %+  turn  hers
+  |=  who=ship
+  [who what]
 ::
 ++  dojo
   |=  [who=ship =tape]
@@ -43,10 +48,10 @@
 ::
 ++  dojo-events
   |=  [who=ship =tape]
-  %+  ue-to-ae  who
+  %+  ues-to-pe  who
   ^-  (list unix-event)
-  :~  [/d/term/1 %belt %ctl `@c`%e]
-      [/d/term/1 %belt %ctl `@c`%u]
+  :~  [/d/term/1 %belt %mod %ctl `@c`%e]
+      [/d/term/1 %belt %mod %ctl `@c`%u]
       [/d/term/1 %belt %txt ((list @c) tape)]
       [/d/term/1 %belt %ret ~]
   ==
@@ -63,7 +68,7 @@
         ::
           %+  lien  p.q.uf
           |=  =blit:dill
-          ?.  ?=(%lin -.blit)
+          ?.  ?=(%put -.blit)
             |
           !=(~ (find tape p.blit))
       ==
@@ -78,7 +83,7 @@
           payload=*
       ==
   %-  send-events
-  %+  ue-to-ae  who
+  %+  ues-to-pe  who
   ^-  (list unix-event)
   :_  ~
   :*  /g
@@ -87,11 +92,12 @@
   ==
 ::
 ++  task
-  |=  [who=@p =care:clay =task-arvo]
+  ::  TODO move to note-arvo?
+  |=  [who=@p v=?(%a %b %c %d %e %g %i %j %k) =task-arvo]
   %-  send-events
-  %+  ue-to-ae  who
+  %+  ues-to-pe  who
   ^-  (list unix-event)
-  [[care]~ task-arvo]~ 
+  [/[v] task-arvo]~ 
 ::
 ++  subscribe
   |=  [who=@p to=@p app=@tas =path]
@@ -100,35 +106,41 @@
 ++  park
   |=  [=ship =desk =case]
   ^-  $>(%park task:clay)
-  =*  page  page:clay
-  =*  lobe  lobe:clay
-  =*  dome  dome:clay
-  =*  tako  tako:clay
   ::
-  =/  desk-path  /(scot %p ship)/[desk]/(scot case)
-  =/  =dome  .^(dome:clay %cv desk-path)
-  =/  =tako  (~(got by hit.dome) let.dome)
-  =/  pol=(map path lobe)
-    q:.^(yaki:clay %cs (weld desk-path /yaki/(scot %uv tako)))
+  =/  maps  (park-maps ship desk case)
+  =*  path-to-lobe  p.maps
+  =*  lobe-to-page  q.maps
   ::
-  :*  %park  desk
-      ^-  yoki:clay
-      :-  %&
-      ^-  yuki:clay
-      :-  *(list tako:clay)
-      %-  ~(gas by *(map path [%| lobe])) :: lobes hit cache, pages don't
-      %+  turn  ~(tap by pol)
-      |=  [=path =lobe]
-      [path %|^lobe]
-  ::
-      ^-  rang:clay
-      :-  *(map tako:clay yaki:clay)
-      %-  ~(gas by *(map lobe page))
-      %+  turn  ~(tap by pol)
-      |=  [=path =lobe]
-      :: TODO: can we scry these out in bulk? Massive speed boost
-      [lobe (rear path) .^(* %cx (weld desk-path path))]
-  ==
+  :^  %park  desk
+    ^-  yoki:clay
+    :-  %&  ::  yuki:clay
+    :-  *(list tako:clay)
+    %-  ~(gas by *(map path [%| lobe:clay])) :: lobes hit cache, pages don't
+    %+  turn  ~(tap by path-to-lobe)
+    |=([=path =lobe:clay] [path %|^lobe])
+  `rang:clay``lobe-to-page
+::
+::  TODO might refactor this back into +park, less code...
+++  park-maps
+  |=  [=ship =desk =case]
+  ^-  (pair (map path lobe:clay) (map lobe:clay page))
+  =/  desk-path=path  /(scot %p ship)/[desk]/(scot case)
+  =/  =dome:clay  .^(dome:clay %cv desk-path)
+  =/  =tako:clay  (~(got by hit.dome) let.dome)
+  =/  path-to-lobe  q:.^(yaki:clay %cs (weld desk-path /yaki/(scot %uv tako)))
+  :-  path-to-lobe
+  %-  ~(gas by *(map lobe:clay page))
+  %+  turn  ~(tap by path-to-lobe)
+  |=  [=path =lobe:clay]
+  ::  TODO: can we scry these out in bulk? Massive speed boost
+  [lobe (rear path) .^(* %cx (weld desk-path path))]
+::
+++  commit
+  |=  [hers=(list ship) =ship =desk =case]
+  %-  send-events
+  %+  ue-to-pes  hers
+  [/c/commit (park ship desk case)]
+
 ::
 ++  enjs
   =,  enjs:format
@@ -143,9 +155,6 @@
     ::
         %ships
       (frond -.update (list-ships ships.update))
-    ::
-        %fresh-piers
-      (frond -.update (frond %ships (list-ships ships.update)))
     ::
         %snap-ships
       (frond -.update (snap-ships [path ships]:update))
@@ -177,6 +186,21 @@
     :-  %a
     %+  turn  paths
     |=(p=^path (path p))
+  ::
+  ++  pyro-effect
+    |=  [who=@p ufs=unix-effect]
+    ^-  json
+    ?+    -.q.ufs  ~  :: ignore non-%blit
+        %blit
+      %-  pairs
+      :~  [%ship s+(scot %p who)]
+        :-  %blits
+        :-  %a  
+        %+  turn  `(list blit:dill)`p.q.ufs
+        |=  b=blit:dill
+        (blit:enjs:dill b)
+      ==
+    ==
   --
 ::
 ++  dejs
@@ -184,20 +208,15 @@
   |%
   ++  action
     %-  of
-    :~  [%remove-ship (ot ~[[%who (se %p)]])]
+    :~  [%init-ship (se %p)]
+        [%kill-ships (ot ~[[%hers (se %p)]])]
         [%snap-ships (ot ~[[%path pa] [%hers (ar (se %p))]])]
         [%restore-snap (ot ~[[%path pa]])]
-        [%clear-snap (ot ~[[%path pa]])]
-        [%export-snap (ot ~[[%path pa]])]
-        [%import-snap (ot ~[[%jam-file-path pa] [%snap-label pa]])]
-        [%export-fresh-piers ul]
-        [%import-fresh-piers (ot ~[[%jam-file-path pa]])]
+        [%delete-snap (ot ~[[%path pa]])]
         [%clear-snaps ul]
-        :: [%pill ]
-        [%swap-files (ot ~[[%des (se %tas)]])]
+        [%unpause-ships (ot ~[[%hers (ar (se %p))]])]
+        [%pause-ships (ot ~[[%hers (ar (se %p))]])]
         [%wish (ot ~[[%hers (ar (se %p))] [%p so]])]
-        [%unpause-events (ot ~[[%hers (ar (se %p))]])]
-        [%pause-events (ot ~[[%hers (ar (se %p))]])]
     ==
   --
 --

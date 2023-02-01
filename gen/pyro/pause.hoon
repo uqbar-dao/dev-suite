@@ -4,4 +4,4 @@
 :-  %say
 |=  [* [her=ship ~] ~]
 :-  %pyro-action
-[%pause-events ~[her]]
+[%pause-ships ~[her]]
