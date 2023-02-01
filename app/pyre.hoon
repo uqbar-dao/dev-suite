@@ -26,6 +26,7 @@
   ^-  (quip card _this)
   ?>  =(%handle-http-request mark)
   =+  !<([rid=@tas req=inbound-request:^eyre] vase)
+  =.  authenticated.req  %.y
   =^  who=ship  url.request.req
     (parse-url:pyre (trip url.request.req))
   :_  this
@@ -78,13 +79,17 @@
           =*  ev  http-event.q.ufs.ef
           ?-    -.ev
               %start
-            :~  [%give %fact [/http-response/[rid]]~ %http-response-header !>([status-code.response-header.ev ~])] :: TODO for some reason headers suck
-                [%give %fact [/http-response/[rid]]~ %http-response-data !>(data.ev)]
-                [%give %kick [/http-response/[rid]]~ ~]
-            ==
+            :+  [%give %fact [/http-response/[rid]]~ %http-response-header !>([status-code.response-header.ev ~])] :: TODO for some reason headers suck
+              [%give %fact [/http-response/[rid]]~ %http-response-data !>(data.ev)]
+            ?.  complete.ev  ~
+            [%give %kick [/http-response/[rid]]~ ~]~
           ::
-              %continue  ~  :: TODO
-              %cancel    ~  :: TODO
+              %continue
+            :-  [%give %fact [/http-response/[rid]]~ %http-response-data !>(data.ev)]
+            ?.  complete.ev  ~
+            [%give %kick [/http-response/[rid]]~ ~]~
+          ::
+              %cancel  [%give %kick [/http-response/[rid]]~ ~]~ :: TODO I think this is right
           ==
         ==
       [cards this]
