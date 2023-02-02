@@ -85,39 +85,6 @@
   =*  scry-mold  p.compilation-result
   (pure:m [%& (slym scry-mold scry-noun)])
 ::
-::  +send-pyro-dbug differs from +send-pyro-scry in that
-::   the return value of the %pyro scry is a vase.
-::   must throw out the type information -- which has been
-::   lost anyways when it is forced into being a noun by the
-::   %pyro scry.
-::   compare, e.g., the `+.dbug-noun` in the final `+slam`
-::   in +send-pyro-dbug to the `scry-noun` in the final
-::   `+slam` of `+send-pyro-scry`.
-::
-++  send-pyro-dbug
-  |=  payload=dbug-payload:zig
-  =/  m  (strand ,(each vase @t))
-  ^-  form:m
-  ;<  =bowl:strand  bind:m  get-bowl
-  =/  who=@ta  (scot %p who.payload)
-  =/  now=@ta  (scot %da now.bowl)
-  =/  dbug-noun=*
-    .^  *
-        %gx
-        %+  weld  /(scot %p our.bowl)/pyro/[now]/i/[who]/gx
-        /[who]/[app.payload]/[now]/dbug/state/noun/noun
-    ==
-  =/  compilation-result
-    %+  mule-slap-subject:zig-lib  subject
-    (ream mold-name.payload)
-  ?:  ?=(%| -.compilation-result)
-    ~&  %ziggurat-test-run^%dbug-compilation-fail^p.compilation-result
-    %-  pure:m
-    :-  %|
-    (cat 3 'dbug-compilation-fail\0a' p.compilation-result)
-  =*  dbug-mold  p.compilation-result
-  (pure:m [%& (slym dbug-mold +.dbug-noun)])
-::
 ++  read-pyro-subscription
   |=  [payload=read-sub-payload:zig expected=@t]
   =/  m  (strand ,vase)
@@ -461,23 +428,7 @@
       (build-next-subject subject !>(test-results) bowl)
     ==
   ::
-      %dbug
-    ;<  dbug-result=(each vase @t)  bind:m
-      (send-pyro-dbug payload.test-step)
-    ?:  ?=(%| -.dbug-result)  (pure:m [%| p.dbug-result])
-    =*  result    p.dbug-result
-    =*  expected  expected.test-step
-    =/  res-text=@t  (crip (noah result))
-    =.  test-results
-      [[=(expected res-text) expected result]~ test-results]
-    %=  $
-        test-steps    t.test-steps
-        step-number   +(step-number)
-        subject
-      (build-next-subject subject !>(test-results) bowl)
-    ==
-  ::
-        %read-subscription
+      %read-subscription
     ;<  result=vase  bind:m
       (read-pyro-subscription [payload expected]:test-step)
     =*  expected  expected.test-step

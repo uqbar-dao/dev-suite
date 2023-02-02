@@ -58,7 +58,6 @@
 +$  test-step  $%(test-read-step test-write-step)
 +$  test-read-step
   $%  [%scry payload=scry-payload expected=@t]
-      [%dbug payload=dbug-payload expected=@t]
       [%read-subscription payload=read-sub-payload expected=@t]
       [%wait until=@dr]
       [%custom-read tag=@tas payload=@t expected=@t]
@@ -71,7 +70,6 @@
   ==
 +$  scry-payload
   [who=@p mold-name=@t care=@tas app=@tas =path]
-+$  dbug-payload  [who=@p mold-name=@t app=@tas]
 +$  read-sub-payload  [who=@p to=@p app=@tas =path]
 +$  dojo-payload  [who=@p payload=@t]
 +$  poke-payload  [who=@p to=@p app=@tas mark=@tas payload=@t]
