@@ -152,12 +152,24 @@
       !>  ^-  update
       ?~  sips  ~
       [%snap-ships t.t.path (turn ~(tap by u.sips) head)]
-    ::
     ::  scry into running virtual ships
     ::  ship, care, ship, desk, time, path
+    ::  use a double mark at the end e.g. /noun/noun
+    ::
         [%x %i @ @ @ @ @ *]
       =/  who  (slav %p i.t.t.path)
+      ~&  >  t.t.t.path
       `(scry:(pe who) t.t.t.path)
+    ::  convenience scry for a virtual ship's running gall app
+    ::  ship, app, path
+    ::  use a double mark at the end e.g. /noun/noun
+    ::
+        [%x %g @ @ *]
+      =/  who  (slav %p i.t.t.path)
+      =*  sip  i.t.t.path
+      =*  dap  i.t.t.t.path
+      =*  paf  t.t.t.t.path
+      `(scry:(pe who) (weld /gx/[sip]/[dap]/0 paf))
     ==
   ++  on-leave  on-leave:def
   ++  on-agent  on-agent:def
@@ -308,7 +320,7 @@
     :: if I can somehow add the mold in there to get more type info that would work....not sure if I can do that
     :+  ~
       !<(mark (slam !>(|=((unit page) (head (need +<)))) p.pek))
-    (slam !>(|=((unit page) (tail (need +<)))) p.pek)
+    (slam !>(|=((unit page) (tail (need +<)))) p.pek) :: if you mold right here things tend to work
   ::
   ::  When paused, events are added to the queue but not processed.
   ::
@@ -430,7 +442,7 @@
               hoon+hoon-version
               nock+4
           ==
-          :^    files                             ::  mod
+          :^    files                                  ::  mod
               !>(lull-core)
             !>(zuse-core)
           %-  ~(gas by *(map term vane))               ::  van.mod
@@ -474,6 +486,7 @@
   ::
       %slap-gall
     =.  this  abet-pe:(slap-gall:(pe her.act) [dap.act vase.act])
+    ~&  pyro+slap-gall+her.act
     `state
   ::
       %snap-ships
