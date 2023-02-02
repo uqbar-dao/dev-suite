@@ -144,7 +144,7 @@
       ::
           [%compile-contracts ~]  ::  make-read-desk
           [%compile-contract =path]  ::  path of form /[desk]/path/to/contract, e.g., /zig/con/fungible/hoon
-          [%read-desk ~]  ::  make-project-update, make-watch-for-file-changes
+          [%read-desk ~]
       ::
           [%add-test name=(unit @t) =test-imports =test-steps]
           [%add-and-run-test name=(unit @t) =test-imports =test-steps]

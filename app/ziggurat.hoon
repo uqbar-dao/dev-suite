@@ -618,13 +618,11 @@
       |-
       ?~  ships.act  cards
       =*  who   i.ships
-      =^  cis-cards  status
-        %~  do-commit  cis:zig-lib
+      =/  cis-cards=(list card)
+        :_  ~
+        %+  cis-thread:zig-lib
+          /cis-done/(scot %p who)/[desk]
         [who desk install start-apps status]
-      :: =/  cis-cards=(list card)
-      ::   :_  ~
-      ::   %+  cis-thread:zig-lib  /cis-done/[desk]
-      ::   [who desk install start-apps status]
       %=  $
           ships.act  t.ships.act
           cards      (weld cards cis-cards)
@@ -1574,60 +1572,15 @@
     |=  who=@p
     (sync-desk-to-virtualship-card:zig-lib who project-name)
   ::
-      [%committing @ @ @ @ ~]
-    ?>  ?=([%behn %wake *] sign-arvo)
-    ?^  error.sign-arvo  !!  ::  TODO: do better
-    =/  who=@p            (slav %p i.t.w)
-    =*  desk              i.t.t.w
-    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
-    =/  apps=(list @tas)
-      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    =^  cards  status
-      %~  on-wake-commit  cis:zig-lib
-      [who desk install apps status]
-    [cards this]
-  ::
-      [%installing @ @ @ @ ~]
-    ?>  ?=([%behn %wake *] sign-arvo)
-    ?^  error.sign-arvo  !!  ::  TODO: do better
-    =/  who=@p            (slav %p i.t.w)
-    =*  desk              i.t.t.w
-    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
-    =/  apps=(list @tas)
-      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    =^  cards  status
-      %~  on-wake-install  cis:zig-lib
-      [who desk install apps status]
-    [cards this]
-  ::
-      [%starting @ @ @ @ ~]
-    ?>  ?=([%behn %wake *] sign-arvo)
-    ?^  error.sign-arvo  !!  ::  TODO: do better
-    =/  who=@p            (slav %p i.t.w)
-    =*  desk              i.t.t.w
-    =/  install=?         ;;  ?  (slav %ud i.t.t.t.w)
-    =/  apps=(list @tas)
-      ;;  (list @tas)  (cue (slav %ud i.t.t.t.t.w))
-    =^  cards  status
-      %~  on-wake-start  cis:zig-lib
-      [who desk install apps status]
-    [cards this]
-  ::
-      [%cis-done @ ~]
+      [%cis-done @ @ ~]
     ?.  ?&  ?=(%khan -.sign-arvo)
             ?=(%arow -.+.sign-arvo)
             ?=(%& -.p.+.sign-arvo)
         ==
       (on-arvo:def w sign-arvo)
-    =*  desk  i.t.w
-    ~&  %z^%cis^%done^desk^status
+    =*  desk  i.t.t.w
     =*  cage  p.p.+.sign-arvo
     =.  status  !<(status:zig q.cage)
-    =/  status-card=card
-      %-  update-vase-to-card:zig-lib
-      %.  status
-      %~  status  make-update-vase:zig-lib
-      [desk %cis ~]
     ?.  ?|  ?&  ?=(%commit-install-starting -.status)
                 (is-cis-done cis-running.status)
             ==
@@ -1636,14 +1589,10 @@
                 (is-cpl-done project-cis-running.status)
             ==
         ==
-      [status-card^~ this]
-    :_  this(status [%ready ~])
-    :^    status-card
-        %.  [%ziggurat /project]
-        ~(watch-our pass:io /cis-setup-done/[desk])
-      %-  ~(poke-self pass:io /self-wire)
-      [%ziggurat-action !>(`action:zig`desk^~^[%run-queue ~])]
-    ~
+      [(make-status-card:zig-lib status desk)^~ this]
+    =/  new-status=status:zig  [%ready ~]
+    :_  this(status new-status)
+    (make-done-cards:zig-lib status desk)
   ==
   ::
   ++  is-cis-done
