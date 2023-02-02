@@ -134,40 +134,21 @@
 =|  eyre-piers=(map ship eyre-pier)
 =|  iris-piers=(map ship iris-pier)
 |_  bowl=bowl:gall
-++  ames  ::  TODO should be in lib/pyre not helper core
+++  ames
   |%
-  ++  emit-pyro-events
-    |=  aes=(list pyro-event)
-    ^-  (list card:agent:gall)
-    [%pass /pyro-events %agent [our.bowl %pyro] %poke %pyro-events !>(aes)]~
-  ::
   ++  send
-    ::  XX unix-timed events need now
     |=  [now=@da sndr=@p way=wire %send lan=lane:^ames pac=@]
     ^-  (list card:agent:gall)
-    =/  rcvr=ship  (lane-to-ship lan)
-    =/  hear-lane  (ship-to-lane sndr)
-    %-  emit-pyro-events
-    [rcvr /a/newt/0v1n.2m9vh %hear hear-lane pac]~
-  ::  +lane-to-ship: decode a ship from an pyro lane
-  ::
-  ++  lane-to-ship
-    |=  =lane:^ames
-    ^-  ship
-    ::
-    ?-  -.lane
-      %&  p.lane
-      %|  `ship``@`p.lane
+    =/  rcvr=ship
+      ?-  -.lan
+        %&  p.lan
+        %|  `ship``@`p.lan
+      ==
+    =/  hear-lane  %|^`address:^ames``@`sndr
+    :_  ~
+    :*  %pass  /pyro-events  %agent  [our.bowl %pyro]  %poke
+        %pyro-events  !>([rcvr /a/newt/0v1n.2m9vh %hear hear-lane pac]~)
     ==
-  ::  +ship-to-lane: encode a lane to look like it came from .ship
-  ::
-  ::    Never shows up as a galaxy, because Vere wouldn't know that either.
-  ::
-  ++  ship-to-lane
-    |=  =ship
-    ^-  lane:^ames
-    %|^`address:^ames``@`ship
-  ::
   --
 ::
 ++  behn
@@ -229,7 +210,7 @@
     ..abet
   --
 ::
-++  dill  :: TODO should be in lib/pyre not helper core
+++  dill
   |%
   ++  blit
     |=  [who=@p way=wire %blit blits=(list blit:^dill)]
@@ -293,7 +274,6 @@
       =*  hed  response-header.ev
       =.  cookie
         ?~(new=(has-cookie:pyre headers.hed) cookie new)
-      ~&  >  cookie
       =.  headers.hed
         (parse-headers:pyre headers.hed)
       =.  this
@@ -303,7 +283,6 @@
           [%give %fact [/http-response/[rid]]~ %http-response-data !>(data.ev)]
         ?.  complete.ev  ~
         [%give %kick [/http-response/[rid]]~ ~]~
-      ~&  >>>  cookie
       ..abet
     ::
         %continue
