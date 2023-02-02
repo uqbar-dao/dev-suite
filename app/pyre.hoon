@@ -26,7 +26,6 @@
   ^-  (quip card _this)
   ?>  =(%handle-http-request mark)
   =+  !<([rid=@tas req=inbound-request:^eyre] vase)
-  =.  authenticated.req  %.y
   =^  who=ship  url.request.req
     (parse-url:pyre (trip url.request.req))
   :_  this
@@ -158,6 +157,7 @@
   =|  cards=(list card:agent:gall)
   |%
   ++  this  .
+  ::
   ++  abet
     ^-  (quip card:agent:gall _behn-piers)
     =.  behn-piers  (~(put by behn-piers) who pier-data)
@@ -241,9 +241,9 @@
   ++  this  .
   ::
   ++  abet
-    :: ^-  (quip card:agent:gall eyre-piers) :: TODO this is broken for some reason
+    ^-  (quip card:agent:gall _eyre-piers)
     =.  eyre-piers  (~(put by eyre-piers) who pier-data)
-    [cards eyre-piers] :: TODO might need to flop at some point...
+    [cards eyre-piers] :: TODO might need to flop if I start chaining calls
   ++  emit-cards
     |=  cs=(list card:agent:gall)
     %_(this cards (weld cs cards))
