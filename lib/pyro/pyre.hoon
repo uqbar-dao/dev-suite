@@ -26,4 +26,23 @@
   ?~  sit  [(slav %p (crip url)) '']
   :-  (slav %p (crip (scag u.sit url)))
   (crip (slag u.sit url))
+::
+++  has-cookie
+  |=  hed=header-list:http
+  |-  ^-  (unit @t)
+  ?~  hed  ~
+  ?:  =('set-cookie' key.i.hed)
+    `value.i.hed
+  $(hed t.hed)
+::
+++  parse-headers
+  |=  hed=header-list:http
+  ^-  header-list:http
+  %+  murn  hed
+  |=  [key=@t value=@t]
+  ?:  =('content-length' key)  ~  :: TODO for some reason this header fucks things up
+  ?:  =('set-cookie' key)  ~
+  ?:  =('location' key)
+    `[key (crip (weld "/pyro/~nec" (trip value)))]
+  `[key value]
 --

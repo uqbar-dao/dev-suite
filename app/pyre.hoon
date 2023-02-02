@@ -30,7 +30,7 @@
   =^  who=ship  url.request.req
     (parse-url:pyre (trip url.request.req))
   :_  this
-  abet:(pass-request:(eyre:hc ~nec) rid req)
+  cards:(pass-request:(eyre:hc who) rid req)
 ::
 ++  on-agent
   |=  [=wire =sign:agent:gall]
@@ -70,27 +70,9 @@
     ?+    -.sign  (on-agent:def wire sign)
         %fact
       =+  ef=!<([pyro-effect] q.cage.sign)
-      ?>  ?=([@ @ ~] p.ufs.ef)
-      =*  rid  i.t.p.ufs.ef
-      =/  cards
-        ?+    -.q.ufs.ef  ~
-            %response
-          ^-  (list card)
-          =*  ev  http-event.q.ufs.ef
-          ?-    -.ev
-              %start
-            :+  [%give %fact [/http-response/[rid]]~ %http-response-header !>([status-code.response-header.ev ~])] :: TODO for some reason headers suck
-              [%give %fact [/http-response/[rid]]~ %http-response-data !>(data.ev)]
-            ?.  complete.ev  ~
-            [%give %kick [/http-response/[rid]]~ ~]~
-          ::
-              %continue
-            :-  [%give %fact [/http-response/[rid]]~ %http-response-data !>(data.ev)]
-            ?.  complete.ev  ~
-            [%give %kick [/http-response/[rid]]~ ~]~
-          ::
-              %cancel  [%give %kick [/http-response/[rid]]~ ~]~ :: TODO I think this is right
-          ==
+      =^  cards  eyre-piers
+        ?+  -.q.ufs.ef  [~ eyre-piers]
+          %response  abet:(handle-response:(eyre who.ef) ufs.ef)
         ==
       [cards this]
     ==
@@ -149,6 +131,7 @@
 --
 ::
 =|  behn-piers=(map ship behn-pier)
+=|  eyre-piers=(map ship eyre-pier)
 =|  iris-piers=(map ship iris-pier)
 |_  bowl=bowl:gall
 ++  ames  ::  TODO should be in lib/pyre not helper core
@@ -268,14 +251,18 @@
     ==
   --
 ::
-++  eyre  :: TODO should just be in helpers - not in helper-core
+++  eyre
   |=  who=ship
+  =+  (~(gut by eyre-piers) who *eyre-pier)
+  =*  pier-data  -
   =|  cards=(list card:agent:gall)
   |%
   ++  this  .
   ::
-  ++  abet  (flop cards)
-  ::
+  ++  abet
+    :: ^-  (quip card:agent:gall eyre-piers) :: TODO this is broken for some reason
+    =.  eyre-piers  (~(put by eyre-piers) who pier-data)
+    [cards eyre-piers] :: TODO might need to flop at some point...
   ++  emit-cards
     |=  cs=(list card:agent:gall)
     %_(this cards (weld cs cards))
@@ -287,12 +274,56 @@
   ::
   ++  pass-request
     |=  [rid=@t req=inbound-request:^eyre]
+    ::  add auth cookie to request, if we have it
+    =.  header-list.request.req
+      ?~  cookie  header-list.request.req
+      [['cookie' u.cookie] header-list.request.req]
     %-  emit-pyro-events
     [~nec /e/(scot %p who)/[rid] %request [secure address request]:req]~
+  ++  handle-response
+    |=  [way=wire %response ev=http-event:http]
+    ^+  ..abet
+    ?>  ?=([@ @ ~] way)
+    =*  rid  i.t.way
+    ?-    -.ev
+    :: TODO to get zero edits to eyre, we need to create our own pyro frontend
+    ::   that auto-pokes the correct POST endpoint with the requisite data
+    ::   rather than editing the login page within eyre. This should be easy
+        %start
+      =*  hed  response-header.ev
+      =.  cookie
+        ?~(new=(has-cookie:pyre headers.hed) cookie new)
+      ~&  >  cookie
+      =.  headers.hed
+        (parse-headers:pyre headers.hed)
+      =.  this
+        %-  emit-cards
+        :+  :^  %give  %fact  [/http-response/[rid]]~
+            [%http-response-header !>(hed)]
+          [%give %fact [/http-response/[rid]]~ %http-response-data !>(data.ev)]
+        ?.  complete.ev  ~
+        [%give %kick [/http-response/[rid]]~ ~]~
+      ~&  >>>  cookie
+      ..abet
+    ::
+        %continue
+      =.  this
+        %-  emit-cards
+        :-  [%give %fact [/http-response/[rid]]~ %http-response-data !>(data.ev)]
+        ?.  complete.ev  ~
+        [%give %kick [/http-response/[rid]]~ ~]~
+      ..abet
+    ::
+        %cancel
+      =.  this
+        %-  emit-cards
+        [%give %kick [/http-response/[rid]]~ ~]~ :: TODO I think this is right
+      ..abet
+    ==
   --
 ::
 ++  iris
-  ::  :pyro|dojo ~nec "|pass [%i %request [%'GET' 'https://google.com' ~ ~] *outbound-config:iris]"
+  ::  :pyro|dojo ~nec "|pass [%i %request [%'GET' 'https://urbit.org' ~ ~] *outbound-config:iris]"
   ::  :pyro|dojo ~nec "|pass [%i %cancel-request ~]"
   ::  
   |=  who=ship

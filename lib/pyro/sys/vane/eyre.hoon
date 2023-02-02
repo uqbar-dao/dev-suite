@@ -373,7 +373,7 @@
       ;p:"Urbit ID"
       ;input(value "{(scow %p our)}", disabled "true", class "mono");
       ;p:"Access Key"
-      ;form(action "/~/login", method "post", enctype "application/x-www-form-urlencoded")
+      ;form(action "/pyro/{(scow %p our)}/~/login", method "post", enctype "application/x-www-form-urlencoded")
         ;input
           =type  "password"
           =name  "password"
@@ -608,7 +608,6 @@
       (get-action-for-binding host url.request)
     ::
     =/  authenticated  (request-is-logged-in:authentication request)
-    =.  authenticated  %.y
     ::  record that we started an asynchronous response
     ::
     =/  connection=outstanding-connection

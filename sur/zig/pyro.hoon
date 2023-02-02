@@ -74,6 +74,7 @@
   ==
 ::
 +$  behn-pier  next-timer=(unit @da)
++$  eyre-pier  cookie=(unit @t)
 +$  iris-pier  http-requests=(set @ud)
 ::
 ++  update
