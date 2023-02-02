@@ -413,7 +413,7 @@
   ?~  raw-wall  (of-wall:format raw-wall)
   ?+    `@tas`(crip i.raw-wall)  (of-wall:format raw-wall)
       %mint-nice
-    "mint-nice error: cannot nest 'have' type within 'need' type\0a"
+    "mint-nice error: cannot nest `have` type within `need` type\0a"
   ::
       %mint-vain
     "mint-vain error: hoon is never reached in execution\0a"
@@ -422,7 +422,7 @@
     "mint-lost error: ?- conditional missing possible branch\0a"
   ::
       %nest-fail
-    "nest-fail error: cannot nest 'have' type within 'need' type\0a"
+    "nest-fail error: cannot nest `have` type within `need` type\0a"
   ::
       %fish-loop
     %+  weld  "fish-loop error:"
@@ -555,34 +555,33 @@
     :-  (scot %p our.bowl)
     (weld /[project-name]/(scot %da now.bowl) p)
   ?.  .^(? %cu file-scry-path)
-    =/  message=tape  "file {<`path`p>} not found"
     :_  test
     :_  ~
     %-  update-vase-to-card
-    (add-custom-error (crip message) [`@ux`(sham test) tag])
+    %+  add-custom-error  [`@ux`(sham test) tag]
+    (crip "file {<`path`p>} not found")
   =/  file-cord=@t  .^(@t %cx file-scry-path)
   =/  [imports=(list [face=@tas =path]) payload=hoon]
     (parse-pile:conq file-scry-path (trip file-cord))
   ?:  ?=(%| -.subject.test)
-    =/  message=tape
-      %+  weld  "subject must compile from imports before"
-      " adding custom step"
     :_  test
     :_  ~
     %-  update-vase-to-card
-    (add-custom-error (crip message) [`@ux`(sham test) tag])
+    %+  add-custom-error  [`@ux`(sham test) tag]
+    %^  cat  3  'subject must compile from imports before'
+    ' adding custom step'
   =/  compilation-result=(each vase @t)
     (compile-and-call-arm '$' p.subject.test payload)
     :: %-  of-wain:format
     :: (slag (dec p.hair) (to-wain:format file-cord))
   ?:  ?=(%| -.compilation-result)
-    =/  message=tape
-      %+  weld  "compilation failed with error:"
-      " {<p.compilation-result>}"
     :_  test
     :_  ~
     %-  update-vase-to-card
-    (add-custom-error (crip message) [`@ux`(sham test) tag])
+    %+  add-custom-error  [`@ux`(sham test) tag]
+    %^  cat  3
+      'custom-step compilation failed with error:\0a'
+    p.compilation-result
   :-  ~
   %=  test
       custom-step-definitions
@@ -969,47 +968,53 @@
       (compile-test-imports project-name imports state)
     ?:  ?=(%| -.subject)
       %-  make-error
-      %+  weld  "config imports compilation failed with"
-      " error: {<p.subject>}"
+      %^  cat  3
+        'config imports compilation failed with error:\0a'
+      p.subject
     =/  config-core
       (mule-slap-subject p.subject payload)
     ?:  ?=(%| -.config-core)
       %-  make-error
-      "config compilation failed with: {<p.config-core>}"
+      %^  cat  3  'config compilation failed with:\0a'
+      p.config-core
     ::
     =/  config-result
       (mule-slap-subject p.config-core (ream %make-config))
     ?:  ?=(%| -.config-result)
       %-  make-error
-      "failed to call +make-config arm: {<p.config-result>}"
+      %^  cat  3  'failed to call +make-config arm:\0a'
+      p.config-result
     ::
     =/  virtualships-to-sync-result
       %+  mule-slap-subject  p.config-core
       (ream %make-virtualships-to-sync)
     ?:  ?=(%| -.virtualships-to-sync-result)
       %-  make-error
-      %+  weld  "failed to call +make-virtualships-to-sync"
-      " arm: {<p.virtualships-to-sync-result>}"
+      %^  cat  3
+        'failed to call +make-virtualships-to-sync arm:\0a'
+      p.virtualships-to-sync-result
     ::
     =/  install-result
       (mule-slap-subject p.config-core (ream %make-install))
     ?:  ?=(%| -.install-result)
       %-  make-error
-      "failed to call +make-install arm: {<p.install-result>}"
+      %^  cat  3  'failed to call +make-install arm:\0a'
+      p.install-result
     ::
     =/  start-apps-result
       %+  mule-slap-subject  p.config-core
       (ream %make-start-apps)
     ?:  ?=(%| -.start-apps-result)
       %-  make-error
-      %+  weld  "failed to call +make-start-apps arm:"
-      " {<p.start-apps-result>}"
+      %^  cat  3  'failed to call +make-start-apps arm:\0a'
+      p.start-apps-result
     ::
     =/  setup-result
       (mule-slap-subject p.config-core (ream %make-setup))
     ?:  ?=(%| -.setup-result)
       %-  make-error
-      "failed to call +make-setup arm: {<p.setup-result>}"
+      %^  cat  3  'failed to call +make-setup arm:\0a'
+      p.setup-result
     ::
     :*  %&
         !<(config:zig p.config-result)
@@ -1021,13 +1026,13 @@
     ==
     ::
     ++  make-error
-      |=  message=tape
+      |=  message=@t
       ^-  (each configuration-file-output:zig [(list card) inflated-state-0:zig])
       :-  %|
       :_  state
       :_  ~
       %-  update-vase-to-card
-      (new-project-error (crip message))
+      (new-project-error message)
     --
   ::
   ++  build-cards-and-state
@@ -1392,25 +1397,25 @@
 ++  make-error-vase
   |_  [=update-info:zig level=error-level:zig]
   ++  project-names
-    |=  [message=@t project-names=(set @t)]
+    |=  [project-names=(set @t) message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%project-names update-info [%| level message] project-names]
   ::
   ++  projects
-    |=  [message=@t =projects:zig]
+    |=  [=projects:zig message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%projects update-info [%| level message] (show-projects projects)]
   ::
   ++  project
-    |=  [message=@t =project:zig]
+    |=  [=project:zig message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%project update-info [%| level message] (show-project project)]
   ::
   ++  state
-    |=  [message=@t state=(map @ux chain:eng)]
+    |=  [state=(map @ux chain:eng) message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%state update-info [%| level message] state]
@@ -1434,7 +1439,7 @@
     [%new-project update-info [%| level message] ~]
   ::
   ++  add-test
-    |=  [message=@t test-id=@ux]
+    |=  [test-id=@ux message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%add-test update-info [%| level message] test-id]
@@ -1446,13 +1451,13 @@
     [%compile-contract update-info [%| level message] ~]
   ::
   ++  edit-test
-    |=  [message=@t test-id=@ux]
+    |=  [test-id=@ux message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%edit-test update-info [%| level message] test-id]
   ::
   ++  delete-test
-    |=  [message=@t test-id=@ux]
+    |=  [test-id=@ux message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%delete-test update-info [%| level message] test-id]
@@ -1464,37 +1469,37 @@
     [%run-queue update-info [%| level message] ~]
   ::
   ++  add-custom-step
-    |=  [message=@t test-id=@ux tag=@tas]
+    |=  [[test-id=@ux tag=@tas] message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%add-custom-step update-info [%| level message] test-id tag]
   ::
   ++  delete-custom-step
-    |=  [message=@t test-id=@ux tag=@tas]
+    |=  [[test-id=@ux tag=@tas] message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%delete-custom-step update-info [%| level message] test-id tag]
   ::
   ++  add-user-file
-    |=  [message=@t file=path]
+    |=  [file=path message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%add-user-file update-info [%| level message] file]
   ::
   ++  delete-user-file
-    |=  [message=@t file=path]
+    |=  [file=path message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%delete-user-file update-info [%| level message] file]
   ::
   ++  custom-step-compiled
-    |=  [message=@t test-id=@ux tag=@tas]
+    |=  [[test-id=@ux tag=@tas] message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%custom-step-compiled update-info [%| level message] test-id tag]
   ::
   ++  test-results
-    |=  [message=@t test-id=@ux thread-id=@t =test-steps:zig]
+    |=  [[test-id=@ux thread-id=@t =test-steps:zig] message=@t]
     ^-  vase
     !>  ^-  update:zig
     :^  %test-results  update-info  [%| level message]
