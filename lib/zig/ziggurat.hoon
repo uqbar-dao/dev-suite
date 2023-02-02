@@ -1418,6 +1418,12 @@
     !>  ^-  update:zig
     [%compile-contract update-info [%| level message] ~]
   ::
+  ++  run-queue
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%run-queue update-info [%| level message] ~]
+  ::
   ++  add-custom-step
     |=  [[test-id=@ux tag=@tas] message=@t]
     ^-  vase
