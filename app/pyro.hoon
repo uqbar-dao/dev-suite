@@ -158,7 +158,6 @@
     ::
         [%x %i @ @ @ @ @ *]
       =/  who  (slav %p i.t.t.path)
-      ~&  >  t.t.t.path
       `(scry:(pe who) t.t.t.path noun)
     ::  convenience scry for a virtual ship's running gall app
     ::  ship, app, path
