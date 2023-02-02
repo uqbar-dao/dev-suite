@@ -619,9 +619,9 @@
   `[`@ux`item who]
 ::
 ++  scry-virtualship-desks
-  |=  virtualship=@p
+  |=  [virtualship=@p now-da=@da]
   ^-  (set @tas)
-  =/  now=@ta  (scot %da now.bowl)
+  =/  now=@ta  (scot %da now-da)
   =/  who=@ta  (scot %p virtualship)
   ;;  (set @tas)
   .^  *
@@ -631,14 +631,14 @@
   ==
 ::
 ++  virtualship-desk-exists
-  |=  [virtualship=@p desk=@tas]
+  |=  [virtualship=@p now=@da desk=@tas]
   ^-  ?
-  (~(has in (scry-virtualship-desks virtualship)) desk)
+  (~(has in (scry-virtualship-desks virtualship now)) desk)
 ::
 ++  virtualship-is-running-app
-  |=  [virtualship=@p app=@tas]
+  |=  [virtualship=@p app=@tas now-da=@da]
   ^-  ?
-  =/  now=@ta  (scot %da now.bowl)
+  =/  now=@ta  (scot %da now-da)
   =/  who=@ta  (scot %p virtualship)
   =/  is-app-running=*
     .^  *
@@ -691,11 +691,11 @@
   (rap 3 'setup-' project-name '-' (scot %p who) ~)
 ::
 ++  get-final-app-to-install
-  |=  desk=@tas
+  |=  [desk=@tas now=@da]
   ^-  @tas
   =/  bill-path=path
     :-  (scot %p our.bowl)
-    /[desk]/(scot %da now.bowl)/desk/bill
+    /[desk]/(scot %da now)/desk/bill
   (rear .^((list @tas) %cx bill-path))
 ::
 ++  cis-thread
@@ -714,18 +714,15 @@
   :^  %k  %lard  q.byk.bowl
   =/  m  (strand ,vase)
   ^-  form:m
-  ~&  %z^%cis^%syncing
   ;<  ~  bind:m
     %+  poke-our:strandio  %pyro
     (sync-desk-to-virtualship-cage who desk)
   ;<  ~  bind:m  block-on-commit
-  ~&  %z^%cis^%installing
   ?.  install  finish
   ;<  ~  bind:m
     %+  poke-our:strandio  %pyro
     (send-pyro-dojo-cage who "|install our {<desk>}")
   ;<  ~  bind:m  block-on-install
-  ~&  %z^%cis^%starting
   ;<  ~  bind:m  do-start-apps
   finish
   ::
@@ -734,8 +731,8 @@
     ^-  form:m
     |-
     ;<  ~  bind:m  (sleep:strandio commit-poll-duration)
-    ?.  (virtualship-desk-exists who desk)
-      $
+    ;<  now=@da  bind:m  get-time:strandio
+    ?.  (virtualship-desk-exists who now desk)  $
     (pure:m ~)
   ::
   ++  block-on-install
@@ -743,10 +740,10 @@
     ^-  form:m
     |-
     ;<  ~  bind:m  (sleep:strandio install-poll-duration)
+    ;<  now=@da  bind:m  get-time:strandio
+    =/  app=@tas  (get-final-app-to-install desk now)
     ::  if the final app is installed -> install done
-    =/  app=@tas  (get-final-app-to-install desk)
-    ?.  (virtualship-is-running-app who app)
-      $
+    ?.  (virtualship-is-running-app who app now)  $
     (pure:m ~)
   ::
   ++  do-start-apps
@@ -768,19 +765,14 @@
     ^-  form:m
     |-
     ;<  ~  bind:m  (sleep:strandio start-poll-duration)
-    ?.  (virtualship-is-running-app who next-app)
-      $
+    ;<  now=@da  bind:m  get-time:strandio
+    ?.  (virtualship-is-running-app who next-app now)  $
     (pure:m ~)
   ::
   ++  finish
     =/  m  (strand ,vase)
     ^-  form:m
-    ;<  ~  bind:m  ::  TODO: ?
-      %-  send-raw-card:strandio
-      %-  update-vase-to-card
-      %.  status
-      %~  status  make-update-vase
-      [desk %cis ~]
+    ;<  =status:zig  bind:m  get-status
     ?:  ?=(%commit-install-starting -.status)
       =.  cis-running.status
         %+  ~(jab by cis-running.status)  who
@@ -794,136 +786,14 @@
         who
       |=([cis-running=@t is-done=?] [cis-running %.y])
     (pure:m !>(`status:zig`status))
-  --
-::
-++  cis
-  |_  $:  who=@p
-          desk=@tas
-          install=?
-          start-apps=(list @tas)
-          =status:zig
-      ==
-  ++  commit-poll-duration   ~s1
-  ++  install-poll-duration  ~s1
-  ++  start-poll-duration    (div ~s1 10)
-  ++  commit-wait   (add now.bowl commit-poll-duration)
-  ++  install-wait  (add now.bowl install-poll-duration)
-  ++  start-wait    (add now.bowl start-poll-duration)
-  ++  committing-wire  `wire`[%committing base-wire]
-  ++  installing-wire  `wire`[%installing base-wire]
-  ++  starting-wire    `wire`[%starting base-wire]
   ::
-  ++  base-wire
-    ^-  wire
-    %+  weld  /(scot %p who)/[desk]/(scot %ud install)
-    /(scot %ud (jam start-apps))
-  ::
-  ++  get-final-app-to-install
-    ^-  @tas
-    =/  bill-path=path
-      :-  (scot %p our.bowl)
-      /[desk]/(scot %da now.bowl)/desk/bill
-    (rear .^((list @tas) %cx bill-path))
-  ::
-  ++  done
-    ^-  [(list card) status:zig]
-    ~&  %cis^%done^status
-    ?:  ?=(%commit-install-starting -.status)
-      =.  cis-running.status
-        %+  ~(jab by cis-running.status)  who
-        |=([cis-running=@t is-done=?] [cis-running %.y])
-      ?.  (is-cis-done cis-running.status)
-        [(make-status-card status desk)^~ status]
-      =/  new-status=status:zig  [%ready ~]
-      :_  new-status
-      (make-done-cards new-status desk)
-    ?>  ?=(%changing-project-links -.status)
-    =.  project-cis-running.status
-      %+  ~(put by project-cis-running.status)  desk
-      %+  %~  jab  by
-          (~(got by project-cis-running.status) desk)
-        who
-      |=([cis-running=@t is-done=?] [cis-running %.y])
-    ?.  (is-cpl-done project-cis-running.status)
-      [(make-status-card status desk)^~ status]
-    =/  new-status=status:zig  [%ready ~]
-    :_  new-status
-    (make-done-cards new-status desk)
-  ::
-  ++  do-commit
-    ^-  [(list card) status:zig]
-    :_  status
-    :+  (~(wait pass:io committing-wire) commit-wait)
-      (sync-desk-to-virtualship-card who desk)
-    ~
-  ::
-  ++  do-install
-    ^-  [(list card) status:zig]
-    :_  status
-    :+  (~(wait pass:io installing-wire) install-wait)
-      (send-pyro-dojo-card who "|install our {<desk>}")
-    ~
-  ::
-  ++  do-start
-    |=  [next-app=@tas wire-start-apps=(list @tas)]
-    ^-  [(list card) status:zig]
-    :_  status
-    :+  %.  start-wait
-        %~  wait  pass:io
-        starting-wire(start-apps wire-start-apps)
-      %+  send-pyro-dojo-card  who
-      "|start {<`@tas`desk>} {<`@tas`next-app>}"
-    ~
-  ::
-  ++  on-wake-commit
-    ^-  [(list card) status:zig]
-    ?.  (virtualship-desk-exists who desk)
-      ::  not done: keep waiting
-      :_  status
-      ~[(~(wait pass:io committing-wire) commit-wait)]
-    ::  done: install if desired, else done
-    ?:  install  do-install  done
-  ::
-  ++  on-wake-install
-    ^-  [(list card) status:zig]
-    ::  if the final app is installed -> install done
-    =/  app=@tas  get-final-app-to-install
-    ?.  (virtualship-is-running-app who app)
-      ::  not done: keep waiting
-      :_  status
-      ~[(~(wait pass:io installing-wire) install-wait)]
-    ::  done: start apps if desired, else done
-    ?~  start-apps  done
-    =*  next-app   i.start-apps
-    (do-start next-app start-apps)
-  ::
-  ++  on-wake-start
-    ^-  [(list card) status:zig]
-    ?~  start-apps  done  ::  no more apps to start: done
-    =*  starting-app  i.start-apps
-    =*  rest-of-apps  t.start-apps
-    ?.  (virtualship-is-running-app who starting-app)
-      ::  not done: keep waiting
-      :_  status
-      ~[(~(wait pass:io starting-wire) start-wait)]
-    ::  done: start next app if more, else done
-    ?~  rest-of-apps  done
-    =*  next-app   i.rest-of-apps
-    (do-start next-app rest-of-apps)
-  ::
-  ++  is-cis-done
-    |=  cis-running=(map @p [@t ?])
-    ^-  ?
-    %-  levy  :_  same
-    %+  turn  ~(val by cis-running)
-    |=([@t is-ship-done=?] is-ship-done)
-  ::
-  ++  is-cpl-done
-    |=  project-cis-running=(mip:mip @t @p [@t ?])
-    ^-  ?
-    %-  levy  :_  same
-    %+  turn  ~(tap bi:mip project-cis-running)
-    |=([@t @p @t is-ship-done=?] is-ship-done)
+  ++  get-status
+    =/  m  (strand ,status:zig)
+    ^-  form:m
+    ;<  =update:zig  bind:m
+      (scry:strandio update:zig /gx/ziggurat/status/noun)
+    ?>  &(?=(%status -.update) ?=(%& -.payload.update))  ::  TODO: better error handling?
+    (pure:m p.payload.update)
   --
 ::
 ++  make-status-card
@@ -1153,13 +1023,10 @@
       ?~  virtualships-to-sync  cards
       =*  who   i.virtualships-to-sync
       =*  desk  project-name
-      =/  [cis-cards=(list card) *]
-        %~  do-commit  cis
+      =/  cis-cards=(list card)
+        :_  ~
+        %+  cis-thread  /cis-done/(scot %p who)/[desk]
         [who desk install start-apps status.state]
-      :: =/  cis-cards=(list card)
-      ::   :_  ~
-      ::   %+  cis-thread  /cis-done/[desk]
-      ::   [who desk install start-apps status.state]
       %=  $
           virtualships-to-sync  t.virtualships-to-sync
           cards                 (weld cards cis-cards)
