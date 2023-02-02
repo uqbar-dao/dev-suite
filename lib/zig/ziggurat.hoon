@@ -327,31 +327,34 @@
 ++  build-contract-project
   |=  [smart-lib=vase desk=path to-compile=path]
   ^-  build-result:zig
+  !.
   ::
   ::  adapted from compile-contract:conq
-  ::  this wacky design is to get a somewhat more helpful error print
-  ::
-  ::  TODO: with +vast -> +vang change, do we need this anymore?
+  ::  this wacky design is to get a more helpful error print
   ::
   |^
   =/  first  (mule |.(parse-main))
   ?:  ?=(%| -.first)
     :-  %|
-    %-  get-formatted-error
+    %-  reformat-compiler-error
     (snoc (scag 4 p.first) 'error parsing main:')
   ?:  ?=(%| -.p.first)  [%| p.p.first]
   =/  second  (mule |.((parse-imports raw.p.p.first)))
   ?:  ?=(%| -.second)
     :-  %|
-    %-  get-formatted-error
+    %-  reformat-compiler-error
     (snoc (scag 3 p.second) 'error parsing import:')
   ?:  ?=(%| -.p.second)  [%| p.p.second]
   =/  third  (mule |.((build-imports p.p.second)))
   ?:  ?=(%| -.third)
-    %|^(get-formatted-error (snoc (scag 1 p.third) 'error building imports:'))
+    %|^(reformat-compiler-error (snoc p.third 'error building imports:'))
+    :: %|^(reformat-compiler-error (snoc (scag 2 p.third) 'error building imports:'))
   =/  fourth  (mule |.((build-main vase.p.third contract-hoon.p.p.first)))
   ?:  ?=(%| -.fourth)
-    %|^(get-formatted-error (snoc (scag 1 p.fourth) 'error building main:'))
+    :-  %|
+    %-  reformat-compiler-error
+    (snoc p.fourth 'error building main:')
+    :: (snoc (scag 2 p.fourth) 'error building main:')
   %&^[bat=p.fourth pay=nok.p.third]
   ::
   ++  parse-main  ::  first
@@ -384,7 +387,7 @@
     =/  tp=path  (welp desk (welp p /hoon))
     ^-  hoon
     :+  %ktts  face
-    +:(parse-pile:conq p (trip .^(@t %cx tp)))
+    +:(parse-pile:conq tp (trip .^(@t %cx tp)))
   ::
   ++  build-imports  ::  third
     |=  braw=(list hoon)
@@ -398,6 +401,42 @@
     ^-  *
     q:(~(mint ut p:(slop smart-lib payload)) %noun contract)
   --
+::
+++  reformat-compiler-error
+  |=  e=(list tank)
+  ^-  @t
+  %-  crip
+  %-  zing
+  %+  turn  (flop e)
+  |=  =tank
+  =/  raw-wall=wall  (wash [0 80] tank)
+  ?~  raw-wall  (of-wall:format raw-wall)
+  ?+    `@tas`(crip i.raw-wall)  (of-wall:format raw-wall)
+      %mint-nice
+    "mint-nice error: cannot nest 'have' type within 'need' type\0a"
+  ::
+      %mint-vain
+    "mint-vain error: hoon is never reached in execution\0a"
+  ::
+      %mint-lost
+    "mint-lost error: ?- conditional missing possible branch\0a"
+  ::
+      %nest-fail
+    "nest-fail error: cannot nest 'have' type within 'need' type\0a"
+  ::
+      %fish-loop
+    %+  weld  "fish-loop error:"
+    " cannot match noun to a recursively-defined type\0a"
+  ::
+      %fuse-loop
+    "fuse-loop error: type definition produces infinite loop\0a"
+  ::
+      ?(%'- need' %'- have')
+    ?:  (gte 10 (lent raw-wall))  (of-wall:format raw-wall)  ::  TODO: make configurable
+    (weld i.raw-wall "\0a<long type elided>\0a")
+  :: ::
+  ::     %'find.$'
+  ==
 ::
 ++  get-formatted-error
   |=  e=(list tank)

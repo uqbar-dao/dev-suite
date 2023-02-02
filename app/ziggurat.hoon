@@ -956,7 +956,7 @@
       ::
       =/  save-result=(each card [path @t])
         %^  save-compiled-contract:zig-lib  project.act
-        t.path.act  build-result
+        path.act  build-result
       ?:  ?=(%| -.save-result)
         =/  message=tape
           %+  weld  "failed to save newly compiled contract"
