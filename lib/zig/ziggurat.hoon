@@ -339,34 +339,54 @@
     :-  %|
     %-  get-formatted-error
     (snoc (scag 4 p.first) 'error parsing main:')
-  =/  second  (mule |.((parse-libs -.p.first)))
+  ?:  ?=(%| -.p.first)  [%| p.p.first]
+  =/  second  (mule |.((parse-imports raw.p.p.first)))
   ?:  ?=(%| -.second)
     :-  %|
     %-  get-formatted-error
-    (snoc (scag 3 p.second) 'error parsing library:')
-  =/  third  (mule |.((build-libs p.second)))
+    (snoc (scag 3 p.second) 'error parsing import:')
+  ?:  ?=(%| -.p.second)  [%| p.p.second]
+  =/  third  (mule |.((build-imports p.p.second)))
   ?:  ?=(%| -.third)
-    %|^(get-formatted-error (snoc (scag 1 p.third) 'error building libraries:'))
-  =/  fourth  (mule |.((build-main +.p.third +.p.first)))
+    %|^(get-formatted-error (snoc (scag 1 p.third) 'error building imports:'))
+  =/  fourth  (mule |.((build-main vase.p.third contract-hoon.p.p.first)))
   ?:  ?=(%| -.fourth)
     %|^(get-formatted-error (snoc (scag 1 p.fourth) 'error building main:'))
-  %&^[bat=p.fourth pay=-.p.third]
+  %&^[bat=p.fourth pay=nok.p.third]
   ::
   ++  parse-main  ::  first
-    ^-  [raw=(list [face=term =path]) contract-hoon=hoon]
-    %+  parse-pile:conq  (welp desk to-compile)
-    (trip .^(@t %cx (welp desk to-compile)))
+    ^-  (each [raw=(list [face=term =path]) contract-hoon=hoon] @t)
+    =/  p=path  (welp desk to-compile)
+    ?.  .^(? %cu p)
+      :-  %|
+      %-  crip
+      %+  weld  "did not find contract at {<to-compile>}"
+      " in desk {<`@tas`(snag 1 desk)>}"
+    [%& (parse-pile:conq p (trip .^(@t %cx p)))]
   ::
-  ++  parse-libs  ::  second
-    |=  raw=(list [face=term =path])
-    ^-  (list hoon)
+  ++  parse-imports  ::  second
+    |=  raw=(list [face=term p=path])
+    ^-  (each (list hoon) @t)
+    =/  non-existent-libs=(list path)
+      %+  murn  raw
+      |=  [face=term p=path]
+      =/  hp=path  (welp p /hoon)
+      =/  tp=path  (welp desk hp)
+      ?:  .^(? %cu tp)  ~  `hp
+    ?^  non-existent-libs
+      :-  %|
+      %-  crip
+      %+  weld  "did not find imports for {<to-compile>} at"
+      " {<`(list path)`non-existent-libs>} in desk {<`@tas`(snag 1 desk)>}"
+    :-  %&
     %+  turn  raw
-    |=  [face=term =path]
+    |=  [face=term p=path]
+    =/  tp=path  (welp desk (welp p /hoon))
     ^-  hoon
     :+  %ktts  face
-    +:(parse-pile:conq (welp desk (welp path /hoon)) (trip .^(@t %cx (welp desk (welp path /hoon)))))
+    +:(parse-pile:conq p (trip .^(@t %cx tp)))
   ::
-  ++  build-libs  ::  third
+  ++  build-imports  ::  third
     |=  braw=(list hoon)
     ^-  [nok=* =vase]
     =/  libraries=hoon  [%clsg braw]

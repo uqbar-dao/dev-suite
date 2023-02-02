@@ -915,7 +915,7 @@
       (weld cards all-cards)
     ::
         %compile-contracts
-      ::  for internal use -- app calls itself to scry clay
+      ::  for internal use
       =/  =project:zig  (~(got by projects) project.act)
       =/  build-results=(list (pair path build-result:zig))
         %^  build-contract-projects:zig-lib  smart-lib-vase
@@ -930,7 +930,7 @@
       (make-read-desk:zig-lib [project request-id]:act)
     ::
         %compile-contract
-      ::  for internal use -- app calls itself to scry clay
+      ::  for internal use
       =/  =project:zig  (~(got by projects) project.act)
       =/  compile-contract-error
         %~  compile-contract  make-error-vase:zig-lib
@@ -944,8 +944,8 @@
       ::
       =/  =build-result:zig
         %^  build-contract-project:zig-lib  smart-lib-vase
-          /(scot %p our.bowl)/[i.path.act]/(scot %da now.bowl)
-        t.path.act
+          /(scot %p our.bowl)/[project.act]/(scot %da now.bowl)
+        path.act
       ?:  ?=(%| -.build-result)
         =/  message=tape
           "compilation failed with error: {<p.build-result>}"

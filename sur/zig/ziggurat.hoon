@@ -142,8 +142,8 @@
           [%register-contract-for-compilation file=path]
           [%deploy-contract town-id=@ux =path]
       ::
-          [%compile-contracts ~]  ::  make-read-desk
-          [%compile-contract =path]  ::  path of form /[desk]/path/to/contract, e.g., /zig/con/fungible/hoon
+          [%compile-contracts ~]
+          [%compile-contract =path]  ::  path of form /con/foo/hoon within project desk
           [%read-desk ~]
       ::
           [%add-test name=(unit @t) =test-imports =test-steps]
