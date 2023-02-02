@@ -159,17 +159,23 @@
         [%x %i @ @ @ @ @ *]
       =/  who  (slav %p i.t.t.path)
       ~&  >  t.t.t.path
-      `(scry:(pe who) t.t.t.path)
+      `(scry:(pe who) t.t.t.path noun)
     ::  convenience scry for a virtual ship's running gall app
     ::  ship, app, path
     ::  use a double mark at the end e.g. /noun/noun
     ::
-        [%x %g @ @ *]
+        [%x ?(%n %j %m) @ @ *]
       =/  who  (slav %p i.t.t.path)
       =*  sip  i.t.t.path
       =*  dap  i.t.t.t.path
       =*  paf  t.t.t.t.path
-      `(scry:(pe who) (weld /gx/[sip]/[dap]/0 paf))
+      =/  =mold :: very imperfect solution to the molding problem
+        ?-  i.t.path
+          %n  noun
+          %j  json
+          %m  mime
+        ==
+      `(scry:(pe who) (weld /gx/[sip]/[dap]/0 paf) mold)
     ==
   ++  on-leave  on-leave:def
   ++  on-agent  on-agent:def
@@ -304,14 +310,14 @@
     ..abet-pe
   ::
   ++  scry
-    |=  pax=path
+    |=  [=path =mold]
     ^-  (unit cage)
-    ?.  ?=([@ @ @ @ *] pax)  ~
+    ?.  ?=([@ @ @ @ *] path)  ~
     ::  alter timestamp to match %pyro fake-time
-    =.  i.t.t.t.pax  (scot %da scry-time)
+    =.  i.t.t.t.path  (scot %da scry-time)
     ::  execute scry
     =/  pek=(each vase tang)
-      (mule |.((slym [-:!>(peek:arvo-adult) peek:snap] [`~ %&^pax])))
+      (mule |.((slym [-:!>(peek:arvo-adult) peek:snap] [`~ %&^path])))
     ?:  ?=(%| -.pek)
       ((slog >%pyro-crash< >who=who< p.pek) ~)
     ?~  q.p.pek  ~
@@ -320,7 +326,7 @@
     :: if I can somehow add the mold in there to get more type info that would work....not sure if I can do that
     :+  ~
       !<(mark (slam !>(|=((unit page) (head (need +<)))) p.pek))
-    (slam !>(|=((unit page) (tail (need +<)))) p.pek) :: if you mold right here things tend to work
+    (slam !>(|=((unit page) (mold (tail (need +<))))) p.pek)
   ::
   ::  When paused, events are added to the queue but not processed.
   ::
