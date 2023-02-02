@@ -1396,41 +1396,9 @@
 ::
 ++  make-error-vase
   |_  [=update-info:zig level=error-level:zig]
-  ++  project-names
-    |=  [project-names=(set @t) message=@t]
-    ^-  vase
-    !>  ^-  update:zig
-    [%project-names update-info [%| level message] project-names]
   ::
-  ++  projects
-    |=  [=projects:zig message=@t]
-    ^-  vase
-    !>  ^-  update:zig
-    [%projects update-info [%| level message] (show-projects projects)]
-  ::
-  ++  project
-    |=  [=project:zig message=@t]
-    ^-  vase
-    !>  ^-  update:zig
-    [%project update-info [%| level message] (show-project project)]
-  ::
-  ++  state
-    |=  [state=(map @ux chain:eng) message=@t]
-    ^-  vase
-    !>  ^-  update:zig
-    [%state update-info [%| level message] state]
-  ::
-  ++  add-config
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-config update-info [%| level message] ~]
-  ::
-  ++  delete-config
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-config update-info [%| level message] ~]
+  ::  more arms at
+  ::   https://github.com/uqbar-dao/dev-suite/blob/313baeb2532fecb35502239aa2bcea3255bd7232/lib/zig/ziggurat.hoon#L1397-L1555
   ::
   ++  new-project
     |=  message=@t
@@ -1450,47 +1418,11 @@
     !>  ^-  update:zig
     [%compile-contract update-info [%| level message] ~]
   ::
-  ++  edit-test
-    |=  [test-id=@ux message=@t]
-    ^-  vase
-    !>  ^-  update:zig
-    [%edit-test update-info [%| level message] test-id]
-  ::
-  ++  delete-test
-    |=  [test-id=@ux message=@t]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-test update-info [%| level message] test-id]
-  ::
-  ++  run-queue
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%run-queue update-info [%| level message] ~]
-  ::
   ++  add-custom-step
     |=  [[test-id=@ux tag=@tas] message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%add-custom-step update-info [%| level message] test-id tag]
-  ::
-  ++  delete-custom-step
-    |=  [[test-id=@ux tag=@tas] message=@t]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-custom-step update-info [%| level message] test-id tag]
-  ::
-  ++  add-user-file
-    |=  [file=path message=@t]
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-user-file update-info [%| level message] file]
-  ::
-  ++  delete-user-file
-    |=  [file=path message=@t]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-user-file update-info [%| level message] file]
   ::
   ++  custom-step-compiled
     |=  [[test-id=@ux tag=@tas] message=@t]
@@ -1505,53 +1437,17 @@
     :^  %test-results  update-info  [%| level message]
     [test-id thread-id test-steps]
   ::
-  ++  dir
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%dir update-info [%| level message] ~]
-  ::
   ++  poke
     |=  message=@t
     ^-  vase
     !>  ^-  update:zig
     [%poke update-info [%| level message] ~]
   ::
-  ++  test-queue
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%test-queue update-info [%| level message] ~]
-  ::
   ++  pyro-agent-state
     |=  message=@t
     ^-  vase
     !>  ^-  update:zig
     [%pyro-agent-state update-info [%| level message] ~]
-  ::
-  ++  sync-desk-to-vship
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%sync-desk-to-vship update-info [%| level message] ~]
-  ::
-  ++  cis-setup-done
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%cis-setup-done update-info [%| level message] ~]
-  ::
-  ++  status
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%status update-info [%| level message] ~]
-  ::
-  ++  focused-linked
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%focused-linked update-info [%| level message] ~]
   --
 ::
 ::  json
