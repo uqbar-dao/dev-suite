@@ -261,42 +261,40 @@
       [['cookie' u.cookie] header-list.request.req]
     %-  emit-pyro-events
     [~nec /e/(scot %p who)/[rid] %request [secure address request]:req]~
+  ::
   ++  handle-response
     |=  [way=wire %response ev=http-event:http]
     ^+  ..abet
     ?>  ?=([@ @ ~] way)
-    =*  rid  i.t.way
+    =/  paths  [/http-response/[i.t.way]]~
     ?-    -.ev
     :: TODO to get zero edits to eyre, we need to create our own pyro frontend
     ::   that auto-pokes the correct POST endpoint with the requisite data
     ::   rather than editing the login page within eyre. This should be easy
         %start
       =*  hed  response-header.ev
-      =.  cookie
-        ?~(new=(has-cookie:pyre headers.hed) cookie new)
-      =.  headers.hed
-        (parse-headers:pyre headers.hed)
+      =.  cookie  ?~(new=(has-cookie:pyre headers.hed) cookie new)
+      =.  headers.hed  (parse-headers:pyre headers.hed)
       =.  this
         %-  emit-cards
-        :+  :^  %give  %fact  [/http-response/[rid]]~
-            [%http-response-header !>(hed)]
-          [%give %fact [/http-response/[rid]]~ %http-response-data !>(data.ev)]
+        :+  [%give %fact paths [%http-response-header !>(hed)]]
+          [%give %fact paths %http-response-data !>(data.ev)]
         ?.  complete.ev  ~
-        [%give %kick [/http-response/[rid]]~ ~]~
+        [%give %kick paths ~]~
       ..abet
     ::
         %continue
       =.  this
         %-  emit-cards
-        :-  [%give %fact [/http-response/[rid]]~ %http-response-data !>(data.ev)]
+        :-  [%give %fact paths %http-response-data !>(data.ev)]
         ?.  complete.ev  ~
-        [%give %kick [/http-response/[rid]]~ ~]~
+        [%give %kick paths ~]~
       ..abet
     ::
         %cancel
       =.  this
         %-  emit-cards
-        [%give %kick [/http-response/[rid]]~ ~]~ :: TODO I think this is right
+        [%give %kick paths ~]~
       ..abet
     ==
   --
