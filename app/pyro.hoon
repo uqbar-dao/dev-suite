@@ -153,28 +153,23 @@
       ?~  sips  ~
       [%snap-ships t.t.path (turn ~(tap by u.sips) head)]
     ::  scry into running virtual ships
-    ::  ship, care, ship, desk, time, path
-    ::  use a double mark at the end e.g. /noun/noun
+    ::  mold, ship, care, ship, desk, time, path
     ::
-        [%x %i @ @ @ @ @ *]
+        [%x ?(%noun %json %mime) @ @ @ @ @ *]
       =/  who  (slav %p i.t.t.path)
-      `(scry:(pe who) t.t.t.path noun)
+      =*  mol  i.t.path
+      =/  paf  (snoc t.t.t.path mol)
+      `(scry:(pe who) paf mol)
     ::  convenience scry for a virtual ship's running gall app
-    ::  ship, app, path
-    ::  use a double mark at the end e.g. /noun/noun
+    ::  mold, ship, app, path
     ::
-        [%x ?(%n %j %m) @ @ *]
+        [%x ?(%noun %json %mime) @ @ *]
+      =/  mol  i.t.path
       =/  who  (slav %p i.t.t.path)
-      =*  sip  i.t.t.path
+      =*  her  i.t.t.path
       =*  dap  i.t.t.t.path
-      =*  paf  t.t.t.t.path
-      =/  =mold :: very imperfect solution to the molding problem
-        ?-  i.t.path
-          %n  noun
-          %j  json
-          %m  mime
-        ==
-      `(scry:(pe who) (weld /gx/[sip]/[dap]/0 paf) mold)
+      =/  paf  (snoc t.t.t.t.path mol)
+      `(scry:(pe who) (weld /gx/[her]/[dap]/0 paf) mol)
     ==
   ++  on-leave  on-leave:def
   ++  on-agent  on-agent:def
@@ -309,7 +304,7 @@
     ..abet-pe
   ::
   ++  scry
-    |=  [=path =mold]
+    |=  [=path mol=?(%noun %json %mime)]
     ^-  (unit cage)
     ?.  ?=([@ @ @ @ *] path)  ~
     ::  alter timestamp to match %pyro fake-time
@@ -321,11 +316,16 @@
       ((slog >%pyro-crash< >who=who< p.pek) ~)
     ?~  q.p.pek  ~
     :: success: make a (unit page) from a (vase (unit page))
-    :: TODO: we don't have all type information, p.p.pek is #t/u([p=@tas q=*])
-    :: if I can somehow add the mold in there to get more type info that would work....not sure if I can do that
     :+  ~
       !<(mark (slam !>(|=((unit page) (head (need +<)))) p.pek))
-    (slam !>(|=((unit page) (mold (tail (need +<))))) p.pek)
+    :: TODO this is a really hacky and terrible solution to get extra type
+    ::   info in the vase caused by the fact that p.p.pek is #t/u([p=@tas q=*])
+    ::   i.e., doesn't have enough type information
+    ?-  mol
+      %noun  (slam !>(|=((unit page) (noun (tail (need +<))))) p.pek)
+      %json  (slam !>(|=((unit page) (json (tail (need +<))))) p.pek)
+      %mime  (slam !>(|=((unit page) (mime (tail (need +<))))) p.pek)
+    ==
   ::
   ::  When paused, events are added to the queue but not processed.
   ::
