@@ -154,7 +154,7 @@
       =/  who  (slav %p i.t.t.t.path)
       =*  mol  i.t.t.path
       =*  paf  t.t.t.t.path
-      `(scry:(pe who) paf mol)
+      (scry:(pe who) paf mol)
     ::  convenience scry for a virtual ship's running gall app
     ::  mold, ship, app, path
     ::
@@ -164,7 +164,7 @@
       =*  her  i.t.t.path
       =*  dap  i.t.t.t.path
       =/  paf  (snoc t.t.t.t.path mol)
-      `(scry:(pe who) (weld /gx/[her]/[dap]/0 paf) mol)
+      (scry:(pe who) (weld /gx/[her]/[dap]/0 paf) mol)
     ==
   ++  on-leave  on-leave:def
   ++  on-agent  on-agent:def
@@ -294,26 +294,21 @@
   ::
   ++  scry
     |=  [=path mol=?(%noun %json %mime)]
-    ^-  (unit cage)
+    ^-  (unit (unit cage))
     ?.  ?=([@ @ @ @ *] path)  ~
     ::  alter timestamp to match %pyro fake-time
     =.  i.t.t.t.path  (scot %da scry-time)
     ::  execute scry
-    ?~  a=(peek:snap [`~ %&^path])  ~
-    :: TODO this is a really hacky and terrible solution to get extra type
-    ::   info the vase, NOTE -:!>(p.p.pek) is just #t/u([p=@tas q=*])
+    ::  .^(* %gx /=pyro=/i/noun/~nec/cx/~nec/base/0/sys/kelvin/kelvin)
+    ?~  mon=(de-omen path)  ~
+    =/  a  (~(peek le:part:snap [[pit vil] sol]:snap) [`~ u.mon])
+    ?.  ?=([~ ~ *] a)  ~
+    ::  TODO the type is in -.q.u.u.a but as a *, since this function returns a maze
     ?-  mol
-      %noun  `[p.u.a -:!>(*noun) +.q.u.a]
-      %json  `[p.u.a -:!>(*json) +.q.u.a]
-      %mime  `[p.u.a -:!>(*mime) +.q.u.a]
+      %noun  ``[p.u.u.a -:!>(*noun) +.q.u.u.a]
+      %json  ``[p.u.u.a -:!>(*json) +.q.u.u.a]
+      %mime  ``[p.u.u.a -:!>(*mime) +.q.u.u.a]
     ==
-    ::  .^(* %gx /=pyro=/i/~nec/cx/~nec/base/0/sys/kelvin/kelvin)
-    :: TODO this ALMOST WORKS for scries
-    :: ^-  (unit (unit cage))
-    :: ?~  mon=(de-omen path)  ~
-    :: %-  ~(peek le:part:snap [[pit vil] sol]:snap)
-    :: [`~ u.mon]
-    :: ``kelvin+!>(~)
   ::
   ::  When paused, events are added to the queue but not processed.
   ::
