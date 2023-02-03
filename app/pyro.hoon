@@ -81,7 +81,7 @@
   ++  on-save  !>(state)
   ++  on-load
     |=  old-vase=vase
-    ^-  step:agent:gall
+    ^-  (quip card _this)
     =+  !<(old=versioned-state old-vase)
     ::  TODO uncomment for release
     :: =.  files
@@ -299,20 +299,21 @@
     ::  alter timestamp to match %pyro fake-time
     =.  i.t.t.t.path  (scot %da scry-time)
     ::  execute scry
-    =/  pek=(each vase tang)
-      (mule |.((slym [-:!>(peek:arvo-adult) peek:snap] [`~ %&^path])))
-    ?:  ?=(%| -.pek)  ((slog >%pyro-crash< >who=who< p.pek) ~)
-    ?~  q.p.pek  ~
-    :: success: make a (unit page) from a (vase (unit page))
-    :+  ~
-      !<(mark (slam !>(|=((unit page) (head (need +<)))) p.pek))
+    ?~  a=(peek:snap [`~ %&^path])  ~
     :: TODO this is a really hacky and terrible solution to get extra type
     ::   info the vase, NOTE -:!>(p.p.pek) is just #t/u([p=@tas q=*])
     ?-  mol
-      %noun  (slam !>(|=((unit page) (noun (tail (need +<))))) p.pek)
-      %json  (slam !>(|=((unit page) (json (tail (need +<))))) p.pek)
-      %mime  (slam !>(|=((unit page) (mime (tail (need +<))))) p.pek)
+      %noun  `[p.u.a -:!>(*noun) +.q.u.a]
+      %json  `[p.u.a -:!>(*json) +.q.u.a]
+      %mime  `[p.u.a -:!>(*mime) +.q.u.a]
     ==
+    ::  .^(* %gx /=pyro=/i/~nec/cx/~nec/base/0/sys/kelvin/kelvin)
+    :: TODO this ALMOST WORKS for scries
+    :: ^-  (unit (unit cage))
+    :: ?~  mon=(de-omen path)  ~
+    :: %-  ~(peek le:part:snap [[pit vil] sol]:snap)
+    :: [`~ u.mon]
+    :: ``kelvin+!>(~)
   ::
   ::  When paused, events are added to the queue but not processed.
   ::
