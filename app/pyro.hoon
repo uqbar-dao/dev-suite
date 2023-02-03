@@ -150,11 +150,12 @@
       [%snap-ships t.t.path (turn ~(tap by u.sips) head)]
     ::  scry into running virtual ships
     ::  mold, ship, care, ship, desk, time, path
+    ::  NOTE: requires a double mark at the end
     ::
         [%x %i ?(%noun %json %mime) @ @ @ @ @ *]
       =/  who  (slav %p i.t.t.t.path)
       =*  mol  i.t.t.path
-      =/  paf  (snoc `^path`t.t.t.t.path mol)
+      =*  paf  t.t.t.t.path
       `(scry:(pe who) paf mol)
     ::  convenience scry for a virtual ship's running gall app
     ::  mold, ship, app, path
