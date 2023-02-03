@@ -2132,6 +2132,10 @@
     ::
         [%pyro-agent-state pyro-agent-state]
     ::
+        [%change-focus ul]
+        [%add-project-link ul]
+        [%delete-project-link ul]
+    ::
         [%cis-panic ul]
     ==
   ::
