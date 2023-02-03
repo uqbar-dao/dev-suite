@@ -16,7 +16,7 @@
 /+  pyro=pyro-pyro,
     default-agent,
     pill=pill,
-    naive, dbug, verb
+    dbug, verb
 ::
 /=  arvo-core  /lib/pyro/sys/arvo
 /=  lull-core  /lib/pyro/sys/lull
@@ -35,9 +35,7 @@
     ++  arvo-adult  ..^load:+>.arvo-core
     ++  clay-types  (clay-core *ship)
     ++  gall-type   (tail (gall-core *ship))
-    +$  versioned-state
-      $%  state-0
-      ==
+    +$  versioned-state  $%(state-0)
     +$  state-0
       $:  %0
           piers=fleet
