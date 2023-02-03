@@ -92,22 +92,22 @@
     ::   /(scot %p p.byk.bowl)/base/(scot %da now.bowl)
     :: =.  park  (park:pyro our.bowl %base %da now.bowl)
     ?-  -.old
-        %0  `this(state old)
+      %0  `this(state old)
     ==
   ::
   ++  on-poke
     |=  [=mark =vase]
-    ^-  step:agent:gall
+    ^-  (quip card _this)
     =^  cards  state
       ?+  mark  ~|([%pyro-bad-mark mark] !!)
         %pyro-events  (poke-pyro-events:hc !<((list pyro-event) vase))
-        %pyro-action  (poke-action:hc our.bowl !<(action vase))
+        %pyro-action  (poke-action:hc !<(action vase))
       ==
     [cards this]
   ::
   ++  on-watch
     |=  =path
-    ^-  step:agent:gall
+    ^-  (quip card _this)
     ::  /effect        subscribe to effects one by one
     ::  /effects       subscribe to effects in list form
     ::  /effect/~dev   subscribe to all effects of a given ship
@@ -176,7 +176,6 @@
 ::
 ::  unix-{effects,events,boths}: collect jar of effects and events to
 ::    brodcast all at once to avoid gall backpressure
-::  moves: Hoist moves into state for cleaner state management
 ::
 =|  unix-effects=(jar ship unix-effect)
 =|  unix-events=(jar ship unix-timed-event)
@@ -416,7 +415,7 @@
   (push-events:(pe who.pev) [ue.pev]~)
 ::
 ++  poke-action
-  |=  [our=ship act=action]
+  |=  act=action
   ^-  (quip card _state)
   ?-    -.act
       %init-ship
