@@ -24,12 +24,16 @@
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
-  ?>  =(%handle-http-request mark)
-  =+  !<([rid=@tas req=inbound-request:^eyre] vase)
-  =^  who=ship  url.request.req
-    (parse-url:pyre (trip url.request.req))
-  :_  this
-  cards:(pass-request:(eyre:hc who) rid req)
+  ?+    mark  (on-poke:def mark vase)
+      %handle-http-request
+    =+  !<([rid=@tas req=inbound-request:^eyre] vase)
+    =^  who=ship  url.request.req
+      (parse-url:pyre (trip url.request.req))
+    :_  this
+    cards:(pass-request:(eyre:hc who) rid req)
+  ::
+      %noun  (make-resub:pyre our.bowl)^this
+  ==
 ::
 ++  on-agent
   |=  [=wire =sign:agent:gall]
