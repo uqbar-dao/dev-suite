@@ -150,21 +150,19 @@
     ::  mold, ship, care, ship, desk, time, path
     ::  NOTE: requires a double mark at the end
     ::
-        [%x %i ?(%noun %json %mime) @ @ @ @ @ *]
-      =/  who  (slav %p i.t.t.t.path)
-      =*  mol  i.t.t.path
-      =*  paf  t.t.t.t.path
-      (scry:(pe who) paf mol)
+        [%x %i @ @ @ @ @ *]
+      =/  who  (slav %p i.t.t.path)
+      =*  paf  t.t.t.path
+      (scry:(pe who) paf)
     ::  convenience scry for a virtual ship's running gall app
     ::  mold, ship, app, path
     ::
-        [%x ?(%noun %json %mime) @ @ *]
-      =/  mol  i.t.path
-      =/  who  (slav %p i.t.t.path)
-      =*  her  i.t.t.path
-      =*  dap  i.t.t.t.path
-      =/  paf  (snoc t.t.t.t.path mol)
-      (scry:(pe who) (weld /gx/[her]/[dap]/0 paf) mol)
+        [%x @ @ *]
+      =/  who  (slav %p i.t.path)
+      =*  her  i.t.path
+      =*  dap  i.t.t.path
+      =/  paf  t.t.t.path
+      (scry:(pe who) (weld /gx/[her]/[dap]/0 paf))
     ==
   ++  on-leave  on-leave:def
   ++  on-agent  on-agent:def
@@ -293,22 +291,16 @@
     ..abet-pe
   ::
   ++  scry
-    |=  [=path mol=?(%noun %json %mime)]
+    |=  =path
     ^-  (unit (unit cage))
     ?.  ?=([@ @ @ @ *] path)  ~
     ::  alter timestamp to match %pyro fake-time
     =.  i.t.t.t.path  (scot %da scry-time)
     ::  execute scry
-    ::  .^(* %gx /=pyro=/i/noun/~nec/cx/~nec/base/0/sys/kelvin/kelvin)
     ?~  mon=(de-omen path)  ~
-    =/  a  (~(peek le:part:snap [[pit vil] sol]:snap) [`~ u.mon])
-    ?.  ?=([~ ~ *] a)  ~
-    ::  TODO the type is in -.q.u.u.a but as a *, since this function returns a maze
-    ?-  mol
-      %noun  ``[p.u.u.a -:!>(*noun) +.q.u.u.a]
-      %json  ``[p.u.u.a -:!>(*json) +.q.u.u.a]
-      %mime  ``[p.u.u.a -:!>(*mime) +.q.u.u.a]
-    ==
+    ?~  res=(~(peek le:part:snap [[pit vil] sol]:snap) [`~ u.mon])  ~
+    ?~  u.res  res
+    ``[p.u.u.res !<(vase [-:!>(*vase) q.u.u.res])]
   ::
   ::  When paused, events are added to the queue but not processed.
   ::
