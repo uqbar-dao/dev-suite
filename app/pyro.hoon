@@ -155,7 +155,7 @@
     ::  scry into running virtual ships
     ::  mold, ship, care, ship, desk, time, path
     ::
-        [%x ?(%noun %json %mime) @ @ @ @ @ *]
+        [%x %i ?(%noun %json %mime) @ @ @ @ @ *]
       =/  who  (slav %p i.t.t.path)
       =*  mol  i.t.path
       =/  paf  (snoc t.t.t.path mol)
