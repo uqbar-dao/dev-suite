@@ -1163,7 +1163,6 @@
         =^  top  test-queue  ~(get to test-queue)
         =*  next-project-name  -.top
         =*  next-test-id        +.top
-        ~&  >  "%ziggurat: running {<next-test-id>}"
         =/  =project:zig  (~(got by projects) next-project-name)
         =/  =test:zig     (~(got by tests.project) next-test-id)
         ?:  ?=(%| -.subject.test)
@@ -1448,35 +1447,33 @@
         =*  test-results  p.result
         =/  =shown-test-results:zig
           (show-test-results:zig-lib test-results)
-        ~&  >  "%ziggurat: test done {<test-id>}"
-        ~&  >  shown-test-results
         =.  tests.project
           %+  ~(put by tests.project)  test-id
           test(results test-results)
         =.  status  [%ready ~]
         =/  cards=(list card)
-          :+  %-  update-vase-to-card:zig-lib
-              %.  [shown-test-results test-id tid steps.test]
-              %~  test-results  make-update-vase:zig-lib
-              [project-name %ziggurat-test-run-thread-done ~]
-            %-  update-vase-to-card:zig-lib
-            %.  status
-            %~  status  make-update-vase:zig-lib
-            [project-name %ziggurat-test-run-thread-done ~]
-          ~
-        =?  cards  ?=(^ test-queue)
-          %+  weld  cards
-          :+  %-  ~(poke-self pass:io /self-wire)
-              :-  %ziggurat-action
-              !>(`action:zig`project-name^~^[%run-queue ~])
-            %-  update-vase-to-card:zig-lib
+          :_  ~
+          %-  update-vase-to-card:zig-lib
+          %.  [shown-test-results test-id tid steps.test]
+          %~  test-results  make-update-vase:zig-lib
+          [project-name %ziggurat-test-run-thread-done ~]
+        :_  %=  this
+                projects
+              (~(put by projects) project-name project)
+            ==
+        ?^  test-queue
+          :_  cards
+          %-  ~(poke-self pass:io /self-wire)
+          :-  %ziggurat-action
+          !>(`action:zig`project-name^~^[%run-queue ~])
+        :+  %-  update-vase-to-card:zig-lib
             %~  run-queue  make-update-vase:zig-lib
             [project-name %ziggurat-test-run-thread-done ~]
-          ~
-        :-  cards
-        %=  this
-          projects  (~(put by projects) project-name project)
-        ==
+          %-  update-vase-to-card:zig-lib
+          %.  status
+          %~  status  make-update-vase:zig-lib
+          [project-name %ziggurat-test-run-thread-done ~]
+        cards
       ==
     ==
   ::
