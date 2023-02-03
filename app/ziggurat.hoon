@@ -919,16 +919,31 @@
         %compile-contracts
       ::  for internal use
       =/  =project:zig  (~(got by projects) project.act)
+      =/  compile-contract-error
+        %~  compile-contract  make-error-vase:zig-lib
+        [update-info %error]
       =/  build-results=(list (pair path build-result:zig))
         %^  build-contract-projects:zig-lib  smart-lib-vase
           /(scot %p our.bowl)/[project.act]/(scot %da now.bowl)
         to-compile.project
-      ~&  "done building, got errors:"
+      =/  error-cards=(list card)
+        %+  murn  build-results
+        |=  [p=path =build-result:zig]
+        ?:  ?=(%& -.build-result)  ~
+        :-  ~
+        %-  update-vase-to-card:zig-lib
+        %-  compile-contract-error
+        %-  crip
+        ;:  weld
+            "contract compilation failed at"
+            "{<`path`p>} with error:\0a"
+            (trip p.build-result)
+        ==
       =/  [cards=(list card) errors=(list [path @t])]
         %+  save-compiled-contracts:zig-lib  project.act
         build-results
       :_  state
-      :_  cards
+      :_  (weld cards error-cards)
       (make-read-desk:zig-lib [project request-id]:act)
     ::
         %compile-contract
