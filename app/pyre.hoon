@@ -36,57 +36,46 @@
   ^-  (quip card _this)
   ?+    wire  (on-agent:def wire sign)
       [%ames @ ~]
-    ?+    -.sign  (on-agent:def wire sign)
-        %fact
-      =+  ef=!<([pyro-effect] q.cage.sign)
-      ?>  ?=(%send -.q.ufs.ef)
-      [(send:ames:hc now.bowl who.ef ufs.ef) this]
-    ==
+    ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
+    =+  ef=!<([pyro-effect] q.cage.sign)
+    ?>  ?=(%send -.q.ufs.ef)
+    [(send:ames:hc now.bowl who.ef ufs.ef) this]
   ::
       [%behn @ ~]
-    ?+    -.sign  (on-agent:def wire sign)
-        %fact
-      =+  ef=!<([pyro-effect] q.cage.sign)
-      =^  cards  behn-piers
-        ?+  -.q.ufs.ef  [~ behn-piers]
-          %doze     abet:(doze:(behn:hc who.ef) ufs.ef)
-          %kill     `(~(del by behn-piers) who.ef)
-        ==
-      [cards this]
-    ==
+    ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
+    =+  ef=!<([pyro-effect] q.cage.sign)
+    =^  cards  behn-piers
+      ?+  -.q.ufs.ef  [~ behn-piers]
+        %doze     abet:(doze:(behn:hc who.ef) ufs.ef)
+        %kill     `(~(del by behn-piers) who.ef)
+      ==
+    [cards this]
   ::
       [%dill %blit ~]
-    ?+    -.sign  (on-agent:def wire sign)
-        %fact
-      =+  ef=!<([pyro-effect] q.cage.sign)
-      ?>  ?=(%blit -.q.ufs.ef)
-      =+  out=(blit:dill:hc ef)
-      ~?  !=(~ out)  out  
-      `this
-    ==
+    ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
+    =+  ef=!<([pyro-effect] q.cage.sign)
+    ?>  ?=(%blit -.q.ufs.ef)
+    =+  out=(blit:dill:hc ef)
+    ~?  !=(~ out)  out  
+    `this
   ::
       [%eyre %response ~]
-    ?+    -.sign  (on-agent:def wire sign)
-        %fact
-      =+  ef=!<([pyro-effect] q.cage.sign)
-      =^  cards  eyre-piers
-        ?+  -.q.ufs.ef  [~ eyre-piers]
-          %response  abet:(handle-response:(eyre who.ef) ufs.ef)
-        ==
-      [cards this]
-    ==
+    ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
+    =+  ef=!<([pyro-effect] q.cage.sign)
+    ?>  ?=(%response -.q.ufs.ef)
+    =^  cards  eyre-piers
+      abet:(handle-response:(eyre who.ef) ufs.ef)
+    [cards this]
   ::
       [%iris @ ~]
-    ?+    -.sign  (on-agent:def wire sign)
-        %fact
-      =+  ef=!<([pyro-effect] q.cage.sign)
-      =^  cards  iris-piers
-        ?+  -.q.ufs.ef  [~ iris-piers]
-          %request  abet:(request:(iris:hc who.ef) ufs.ef)
-          %kill     `(~(del by iris-piers) who.ef)
-        ==
-      [cards this]
-    ==
+    ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
+    =+  ef=!<([pyro-effect] q.cage.sign)
+    =^  cards  iris-piers
+      ?+  -.q.ufs.ef  [~ iris-piers]
+        %request  abet:(request:(iris:hc who.ef) ufs.ef)
+        %kill     `(~(del by iris-piers) who.ef)
+      ==
+    [cards this]
   ==
 ::
 ++  on-watch
@@ -110,20 +99,15 @@
   ::
       %iris
     ?>  ?=([%iris %http-response %finished *] sign-arvo)
-    ?+    wire  (on-arvo:def)
-        [@ @ ~]
-      =/  who=@p    (slav %p i.wire)
-      =/  num=@ud   (slav %ud i.t.wire)
-      =*  response-header  response-header.client-response.sign-arvo
-      =*  full-file        full-file.client-response.sign-arvo
-      =^  cards  iris-piers
-        =<  abet
-        %^    take-sigh-httr:(iris:hc who)
-            num
-          response-header
-        ?~(full-file ~ `data.u.full-file)
-      [cards this]
-    ==
+    ?>  ?=([@ @ ~] wire)
+    =/  who=@p    (slav %p i.wire)
+    =/  num=@ud   (slav %ud i.t.wire)
+    =*  red       response-header.client-response.sign-arvo
+    =/  fuf
+      ?~(ful=full-file.client-response.sign-arvo ~ `data.u.ful)
+    =^  cards  iris-piers
+      abet:(take-sigh-httr:(iris:hc who) num red fuf)
+    [cards this]
   ==
 ::
 ++  on-fail   on-fail:def
@@ -256,8 +240,7 @@
   ++  pass-request
     |=  [rid=@t req=inbound-request:^eyre]
     ::  add auth cookie to request, if we have it
-    =.  header-list.request.req
-      ?~  cookie  header-list.request.req
+    =?  header-list.request.req  ?=(^ cookie)
       [['cookie' u.cookie] header-list.request.req]
     %-  emit-pyro-events
     [~nec /e/(scot %p who)/[rid] %request [secure address request]:req]~
@@ -266,7 +249,8 @@
     |=  [way=wire %response ev=http-event:http]
     ^+  ..abet
     ?>  ?=([@ @ ~] way)
-    =/  paths  [/http-response/[i.t.way]]~
+    =/  pafs  [/http-response/[i.t.way]]~
+    =/  kiks  [%give %kick pafs ~]~
     ?-    -.ev
     :: TODO to get zero edits to eyre, we need to create our own pyro frontend
     ::   that auto-pokes the correct POST endpoint with the requisite data
@@ -277,24 +261,20 @@
       =.  headers.hed  (parse-headers:pyre headers.hed)
       =.  this
         %-  emit-cards
-        :+  [%give %fact paths [%http-response-header !>(hed)]]
-          [%give %fact paths %http-response-data !>(data.ev)]
-        ?.  complete.ev  ~
-        [%give %kick paths ~]~
+        :+  [%give %fact pafs [%http-response-header !>(hed)]]
+          [%give %fact pafs %http-response-data !>(data.ev)]
+        ?:(complete.ev kiks ~)
       ..abet
     ::
         %continue
       =.  this
         %-  emit-cards
-        :-  [%give %fact paths %http-response-data !>(data.ev)]
-        ?.  complete.ev  ~
-        [%give %kick paths ~]~
+        :-  [%give %fact pafs %http-response-data !>(data.ev)]
+        ?:(complete.ev kiks ~)
       ..abet
     ::
         %cancel
-      =.  this
-        %-  emit-cards
-        [%give %kick paths ~]~
+      =.  this  (emit-cards kiks)
       ..abet
     ==
   --
@@ -330,11 +310,8 @@
     =.  http-requests  (~(put in http-requests) id)
     =.  this
       %-  emit-cards  :_  ~
-      :*  %pass
-          /(scot %p who)/(scot %ud id)
-          %arvo  %i
-          %request  req  *outbound-config:^iris
-      ==
+      :^  %pass  /(scot %p who)/(scot %ud id)  %arvo
+      [%i %request req *outbound-config:^iris]
     ..abet
   ::
   ::  Pass HTTP response back to virtual ship
@@ -349,24 +326,8 @@
     =.  this
       %-  emit-pyro-events
       :_  ~
-      :*  who  /i/http/0v1n.2m9vh
-          %receive  num
-          %start  response-header  data  &
-      ==
+      :^  who  /i/http/0v1n.2m9vh  %receive
+      [num %start response-header data &]
     ..abet
-  ::
-  ::  Got error in HTTP response
-  ::
-  :: ++  take-sigh-tang
-  ::   |=  [way=wire tan=tang]
-  ::   ^+  ..abet
-  ::   ?>  ?=([@ ~] way)
-  ::   =/  num  (slav %ud i.way)
-  ::   ?.  (~(has in http-requests) num)
-  ::     ~&  [who=who %ignoring-httr num=num]
-  ::     ..abet
-  ::   =.  http-requests  (~(del in http-requests) num)
-  ::   %-  (slog tan)
-  ::   ..abet
   --
 --
