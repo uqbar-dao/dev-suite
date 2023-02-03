@@ -21,11 +21,10 @@
   |=  url=tape
   ^-  [ship cord]
   ::  format must be /pyro/~sampel-palnet/...
-  =.  url  (slag 6 url)  :: cutting off /pyro/
-  =/  sit  (find "/" url)
-  ?~  sit  [(slav %p (crip url)) '']
-  :-  (slav %p (crip (scag u.sit url)))
-  (crip (slag u.sit url))
+  =.  url  (slag 6 url)  :: cutting off "/pyro/"
+  ?~  loc=(find "/" url)  [(slav %p (crip url)) '']
+  :-  (slav %p (crip (scag u.loc url))) :: ~nec
+  (crip (slag u.loc url)) :: has /pyro/~nec cut off
 ::
 ++  has-cookie
   |=  hed=header-list:http
@@ -36,13 +35,13 @@
   $(hed t.hed)
 ::
 ++  parse-headers
-  |=  hed=header-list:http
+  |=  =header-list:http
   ^-  header-list:http
-  %+  murn  hed
+  %+  murn  header-list
   |=  [key=@t value=@t]
-  ?:  =('content-length' key)  ~  :: TODO for some reason this header fucks things up
-  ?:  =('set-cookie' key)  ~
-  ?:  =('location' key)
-    `[key (crip (weld "/pyro/~nec" (trip value)))]
-  `[key value]
+  ?+  key  `[key value]
+    %content-length  ~
+    %set-cookie      ~
+    %location  `[key (crip (weld "/pyro/~nec" (trip value)))]
+  == 
 --
