@@ -325,9 +325,9 @@
   [p (build-contract-project smart-lib desk p)]
 ::
 ++  build-contract-project
+  !.
   |=  [smart-lib=vase desk=path to-compile=path]
   ^-  build-result:zig
-  !.
   ::
   ::  adapted from compile-contract:conq
   ::  this wacky design is to get a more helpful error print
@@ -337,13 +337,15 @@
   ?:  ?=(%| -.first)
     :-  %|
     %-  reformat-compiler-error
-    (snoc (scag 4 p.first) 'error parsing main:')
+    (snoc p.first 'error parsing main:')
+    :: (snoc (scag 4 p.first) 'error parsing main:')
   ?:  ?=(%| -.p.first)  [%| p.p.first]
   =/  second  (mule |.((parse-imports raw.p.p.first)))
   ?:  ?=(%| -.second)
     :-  %|
     %-  reformat-compiler-error
-    (snoc (scag 3 p.second) 'error parsing import:')
+    (snoc p.second 'error parsing import:')
+    :: (snoc (scag 3 p.second) 'error parsing import:')
   ?:  ?=(%| -.p.second)  [%| p.p.second]
   =/  third  (mule |.((build-imports p.p.second)))
   ?:  ?=(%| -.third)
@@ -434,8 +436,14 @@
       ?(%'- need' %'- have')
     ?:  (gte 10 (lent raw-wall))  (of-wall:format raw-wall)  ::  TODO: make configurable
     (weld i.raw-wall "\0a<long type elided>\0a")
-  :: ::
-  ::     %'find.$'
+  ::
+      %'-find.$'
+    %+  weld  "-find.$ error: face is used like a gate but"
+    " is not a gate (try `^face`?)\0a"
+  ::
+      %rest-loop
+    %+  weld  "rest-loop error: cannot cast arm return"
+    " value to that arm"
   ==
 ::
 ++  get-formatted-error

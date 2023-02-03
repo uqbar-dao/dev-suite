@@ -19,16 +19,16 @@
   (hash:pedersen hh ht)
 ::
 ++  compile-path
+  !.
   |=  pax=path
   ^-  [bat=* pay=*]
-  !.
   =/  desk=path  (swag [0 3] pax)
   (compile-contract pax desk .^(@t %cx pax))
 ::
 ++  compile-contract
+  !.
   |=  [pax=path desk=path txt=@t]
   ^-  [bat=* pay=*]
-  !.
   ::
   ::  goal flow:
   ::  - take main file, parse to find libs
@@ -201,6 +201,7 @@
     ==
 +$  taut  [face=(unit term) pax=term]
 ++  parse-pile
+  !.
   |=  [pax=path tex=tape]
   ^-  small-pile
   =/  [=hair res=(unit [=small-pile =nail])]  ((pile-rule pax) [1 1] tex)
@@ -208,10 +209,15 @@
   %-  mean  %-  flop
   =/  lyn  p.hair
   =/  col  q.hair
-  :~  leaf+"syntax error in {<pax>}"
-      leaf+"\{{<lyn>} {<col>}}"
-      leaf+(runt [(dec col) '-'] "^")
-      leaf+(trip (snag (dec lyn) (to-wain:format (crip tex))))
+  =/  lyns=wain  (to-wain:format (crip tex))
+  =/  prev-lyn=@ud  (dec lyn)
+  ?:  (gth (lent lyns) prev-lyn)
+    :~  leaf+"syntax error at [{<lyn>} {<col>}] in {<(slag 3 pax)>}"
+        leaf+(runt [(dec col) '-'] "^")
+        leaf+(trip (snag prev-lyn lyns))
+    ==
+  :~  leaf+"syntax error at [{<lyn>} {<col>}] in {<(slag 3 pax)>}"
+      leaf+"file missing a terminator"
   ==
 ++  pile-rule
   |=  pax=path
