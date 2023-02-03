@@ -169,13 +169,11 @@
   ::
   ++  set-timer
     |=  tim=@da
-    ~?  debug=|  [who=who %setting-timer tim]
     =.  next-timer  `tim
     =.  this  (emit-cards [%pass /(scot %p who) %arvo %b %wait tim]~)
     ..abet
   ::
   ++  cancel-timer
-    ~?  debug=|  [who=who %cancell-timer (need next-timer)]
     =.  this
       (emit-cards [%pass /(scot %p who) %arvo %b %rest (need next-timer)]~)
     =.  next-timer  ~
@@ -183,7 +181,6 @@
   ::
   ++  take-wake
     |=  [way=wire error=(unit tang)]
-    ~?  debug=|  [who=who %pyro-behn-wake now.bowl error=error]
     =.  next-timer  ~
     =.  this
       %-  emit-pyro-events
@@ -249,8 +246,8 @@
     |=  [way=wire %response ev=http-event:http]
     ^+  ..abet
     ?>  ?=([@ @ ~] way)
-    =/  pafs  [/http-response/[i.t.way]]~
-    =/  kiks  [%give %kick pafs ~]~
+    =/  paths  [/http-response/[i.t.way]]~
+    =/  kicks  [%give %kick paths ~]~
     ?-    -.ev
     :: TODO to get zero edits to eyre, we need to create our own pyro frontend
     ::   that auto-pokes the correct POST endpoint with the requisite data
@@ -261,21 +258,19 @@
       =.  headers.hed  (parse-headers:pyre headers.hed)
       =.  this
         %-  emit-cards
-        :+  [%give %fact pafs [%http-response-header !>(hed)]]
-          [%give %fact pafs %http-response-data !>(data.ev)]
-        ?:(complete.ev kiks ~)
+        :+  [%give %fact paths [%http-response-header !>(hed)]]
+          [%give %fact paths %http-response-data !>(data.ev)]
+        ?:(complete.ev kicks ~)
       ..abet
     ::
         %continue
       =.  this
         %-  emit-cards
-        :-  [%give %fact pafs %http-response-data !>(data.ev)]
-        ?:(complete.ev kiks ~)
+        :-  [%give %fact paths %http-response-data !>(data.ev)]
+        ?:(complete.ev kicks ~)
       ..abet
     ::
-        %cancel
-      =.  this  (emit-cards kiks)
-      ..abet
+        %cancel  =.(this (emit-cards kicks) ..abet)
     ==
   --
 ::
