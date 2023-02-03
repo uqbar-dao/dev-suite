@@ -156,9 +156,9 @@
     ::  mold, ship, care, ship, desk, time, path
     ::
         [%x %i ?(%noun %json %mime) @ @ @ @ @ *]
-      =/  who  (slav %p i.t.t.path)
-      =*  mol  i.t.path
-      =/  paf  (snoc t.t.t.path mol)
+      =/  who  (slav %p i.t.t.t.path)
+      =*  mol  i.t.t.path
+      =/  paf  (snoc `^path`t.t.t.t.path mol)
       `(scry:(pe who) paf mol)
     ::  convenience scry for a virtual ship's running gall app
     ::  mold, ship, app, path
@@ -213,6 +213,7 @@
   ::
   ++  apex
     ^+  ..abet-pe
+    ?:  paused.pier-data  ..abet-pe
     =.  van.mod.sol.snap
       =/  cay  !<((tail clay-types) vase:(~(got by van.mod.sol.snap) %clay))
       =.  fad.ruf.cay  fad.raft
@@ -421,9 +422,9 @@
   ^-  (quip card _state)
   =.  this  apex-pyro  =<  abet-pyro
   %+  turn-events  events
-  |=  [ae=pyro-event thus=_this]
+  |=  [pev=pyro-event thus=_this]
   =.  this  thus
-  (push-events:(pe who.ae) [ue.ae]~)
+  (push-events:(pe who.pev) [ue.pev]~)
 ::
 ++  poke-action
   |=  [our=ship act=action]
