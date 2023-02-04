@@ -20,7 +20,11 @@
   :_  this
   [%pass / %agent [our dap]:bowl %poke %noun !>([%resub ~])]~
 ++  on-save  on-save:def
-++  on-load  on-load:def
+++  on-load
+  |=  =vase
+  ^-  (quip card _this)
+  :_  this
+  [%pass / %agent [our dap]:bowl %poke %noun !>([%resub ~])]~
 ++  on-poke
   |=  [=mark =vase]
   ?>  =(mark %noun)

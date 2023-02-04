@@ -1,6 +1,6 @@
 /-  *zig-pyro,
     spider
-/+  *strandio, 
+/+  *strandio,
     dill
 ::
 =*  strand    strand:spider
@@ -195,7 +195,7 @@
       %-  pairs
       :~  [%ship s+(scot %p who)]
         :-  %blits
-        :-  %a  
+        :-  %a
         %+  turn  `(list blit:dill)`p.q.ufs
         |=  b=blit:dill
         (blit:enjs:dill b)

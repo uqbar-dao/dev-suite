@@ -1,5 +1,5 @@
 /-  spider
-/+  pyro=zig-pyro
+/+  pyro=pyro-pyro
 ::
 =*  strand     strand:spider
 ::

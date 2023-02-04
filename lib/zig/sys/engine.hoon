@@ -404,16 +404,11 @@
       (sham +.tx)
     u.eth-hash.tx
   =?  v.sig.tx  (gte v.sig.tx 27)  (sub v.sig.tx 27)
-  =/  virt=toon
-    %+  mong
-      :-  ecdsa-raw-recover:secp256k1:secp:crypto
-      [hash sig.tx]
-    ,~
-  ?.  ?=(%0 -.virt)  %.n  ::  invalid sig
   .=  address.caller.tx
   %-  address-from-pub:key:ethereum
   %-  serialize-point:secp256k1:secp:crypto
-  ;;([x=@ y=@] p.virt)
+  %+  ecdsa-raw-recover:secp256k1:secp:crypto
+  hash  sig.tx
 ::
 ::  +ajar: partial shut. builds nock to call inner arm of door with sample,
 ::  without executing the formula. used to feed computation into zebra

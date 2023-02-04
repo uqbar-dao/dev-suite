@@ -1,1 +1,1 @@
-../../garden-dev/lib/mip.hoon
+../../webterm/lib/mip.hoon
