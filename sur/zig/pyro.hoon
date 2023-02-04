@@ -69,6 +69,7 @@
       ::  misc
       ::
       [%wish hers=(list ship) p=@t]
+      [%slap-gall her=ship dap=term =vase]
   ==
 ::
 +$  behn-pier  next-timer=(unit @da)
