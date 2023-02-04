@@ -2,7 +2,7 @@
     spider,
     zig=zig-ziggurat
 /+  strandio,
-    pyro-lib=zig-pyro,
+    pyro-lib=pyro-pyro,
     zig-lib=zig-ziggurat
 ::
 =*  strand     strand:spider
