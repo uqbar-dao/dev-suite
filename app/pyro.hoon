@@ -19,18 +19,18 @@
     pill=pill,
     naive, dbug, verb
 ::
-/=  arvo-core  /lib/zig/pyro/sys/arvo
-/=  lull-core  /lib/zig/pyro/sys/lull
-/=  zuse-core  /lib/zig/pyro/sys/zuse
-/=  ames-core  /lib/zig/pyro/sys/vane/ames
-/=  behn-core  /lib/zig/pyro/sys/vane/behn
-/=  clay-core  /lib/zig/pyro/sys/vane/clay
-/=  dill-core  /lib/zig/pyro/sys/vane/dill
-/=  eyre-core  /lib/zig/pyro/sys/vane/eyre
-/=  gall-core  /lib/zig/pyro/sys/vane/gall
-/=  iris-core  /lib/zig/pyro/sys/vane/iris
-/=  jael-core  /lib/zig/pyro/sys/vane/jael
-/=  khan-core  /lib/zig/pyro/sys/vane/khan
+/=  arvo-core  /lib/pyro/sys/arvo
+/=  lull-core  /lib/pyro/sys/lull
+/=  zuse-core  /lib/pyro/sys/zuse
+/=  ames-core  /lib/pyro/sys/vane/ames
+/=  behn-core  /lib/pyro/sys/vane/behn
+/=  clay-core  /lib/pyro/sys/vane/clay
+/=  dill-core  /lib/pyro/sys/vane/dill
+/=  eyre-core  /lib/pyro/sys/vane/eyre
+/=  gall-core  /lib/pyro/sys/vane/gall
+/=  iris-core  /lib/pyro/sys/vane/iris
+/=  jael-core  /lib/pyro/sys/vane/jael
+/=  khan-core  /lib/pyro/sys/vane/khan
 ::
 =>  |%
     ++  arvo-adult  ..^load:+>.arvo-core

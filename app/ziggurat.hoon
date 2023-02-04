@@ -1540,20 +1540,10 @@
     !>(`action:zig`[%zig ~ %new-project ~])
   ::
       [%on-new-project-ship-rerun @ @ ~]
-    ~&
-      ;;  (set @tas)
-      .^  *
-          %gx
-          /(scot %p our.bowl)/pyro/(scot %da now.bowl)/i/~nec/cd/~nec/base/(scot %da now.bowl)/noun
-      ==
     :_  this
-    :: :_  ~
-    :: %+  ~(poke-self pass:io /self-wire)
-    :: i.t.w  !>(;;(action:zig (cue i.t.t.w)))
-    :+  %+  send-pyro-dojo-card:zig-lib  ~nec  ".^((set @tas) %cd /=base=)"
-      %+  ~(poke-self pass:io /self-wire)
-      i.t.w  !>(;;(action:zig (cue i.t.t.w)))
-    ~
+    :_  ~
+    %+  ~(poke-self pass:io /self-wire)
+    i.t.w  !>(;;(action:zig (cue i.t.t.w)))
   ::
       [%merge-wire @ @ ~]
     ?.  ?=(%clay -.sign-arvo)  !!

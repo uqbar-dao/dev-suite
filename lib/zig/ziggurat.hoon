@@ -1482,9 +1482,7 @@
       ~
     %-  pairs
     %+  weld  update-info
-    =*  payload  -.+.+.update  ::  TODO: remove this hack
-    ?>  ?=([@ *] payload)
-    ?:  ?=(%| -.payload)  (error +.payload)
+    ?:  ?=(%| -.payload.update)  (error p.payload.update)
     ?-    -.update
         %project-names
       :+  ['project_names' (set-cords project-names.update)]
