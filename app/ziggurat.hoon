@@ -48,9 +48,6 @@
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
   =*  wes-address
     0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
-  :: :-  :_  ~
-  ::     %.  (add now.bowl ~s5)
-  ::     ~(wait pass:io /on-init-zig-setup)
   :-  :+  %-  ~(arvo pass:io /)
           :^  %k  %fard  q.byk.bowl
           [%ziggurat-test-subscribe %noun !>(`~)]
@@ -74,10 +71,7 @@
         ''
         ~
         ~
-        :: ~
         ~
-        :: %.n
-        :: ~
         [%uninitialized ~]
     ==
   ==
@@ -335,7 +329,6 @@
       [project-name request-id %start-pyro-ships ships-to-run]
     :_  state
     %+  snoc  cards
-    :: (~(poke-self pass:io /self-wire) m v)
     %.  (add now.bowl ~s1)
     %~  wait  pass:io
     /on-new-project-ship-rerun/[m]/(jam !<(action:zig v))
@@ -1523,20 +1516,10 @@
     !>(`action:zig`[%zig ~ %new-project ~])
   ::
       [%on-new-project-ship-rerun @ @ ~]
-    ~&
-      ;;  (set @tas)
-      .^  *
-          %gx
-          /(scot %p our.bowl)/pyro/(scot %da now.bowl)/i/~nec/cd/~nec/base/(scot %da now.bowl)/noun
-      ==
     :_  this
-    :: :_  ~
-    :: %+  ~(poke-self pass:io /self-wire)
-    :: i.t.w  !>(;;(action:zig (cue i.t.t.w)))
-    :+  %+  send-pyro-dojo-card:zig-lib  ~nec  ".^((set @tas) %cd /=base=)"
-      %+  ~(poke-self pass:io /self-wire)
-      i.t.w  !>(;;(action:zig (cue i.t.t.w)))
-    ~
+    :_  ~
+    %+  ~(poke-self pass:io /self-wire)
+    i.t.w  !>(;;(action:zig (cue i.t.t.w)))
   ::
       [%merge-wire @ @ ~]
     ?.  ?=(%clay -.sign-arvo)  !!
