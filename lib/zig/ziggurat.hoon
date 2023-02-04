@@ -8,7 +8,7 @@
     strandio,
     conq=zink-conq,
     dock=docket,
-    pyro-lib=zig-pyro,
+    pyro-lib=pyro-pyro,
     smart=zig-sys-smart,
     ui-lib=zig-indexer,
     zink=zink-zink
@@ -2103,6 +2103,10 @@
         [%send-pyro-dojo (ot ~[[%who (se %p)] [%command sa]])]
     ::
         [%pyro-agent-state pyro-agent-state]
+    ::
+        [%change-focus ul]
+        [%add-project-link ul]
+        [%delete-project-link ul]
     ::
         [%cis-panic ul]
     ==

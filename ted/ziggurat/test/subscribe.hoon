@@ -10,7 +10,7 @@
 ::
 /-  spider
 /+  strandio,
-    pyro=zig-pyro
+    pyro=pyro-pyro
 ::
 =*  strand     strand:spider
 =*  take-fact  take-fact:strandio
