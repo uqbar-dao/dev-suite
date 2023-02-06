@@ -212,11 +212,11 @@
   =/  lyns=wain  (to-wain:format (crip tex))
   =/  prev-lyn=@ud  (dec lyn)
   ?:  (gth (lent lyns) prev-lyn)
-    :~  leaf+"syntax error at [{<lyn>} {<col>}] in {<(slag 3 pax)>}"
+    :~  leaf+"syntax error at [{<lyn>} {<col>}] in {<`path`(slag 3 pax)>}"
         leaf+(runt [(dec col) '-'] "^")
         leaf+(trip (snag prev-lyn lyns))
     ==
-  :~  leaf+"syntax error at [{<lyn>} {<col>}] in {<(slag 3 pax)>}"
+  :~  leaf+"syntax error at [{<lyn>} {<col>}] in {<`path`(slag 3 pax)>}"
       leaf+"file missing a terminator"
   ==
 ++  pile-rule
