@@ -505,11 +505,12 @@
         ::   :_  state
         ::   :_  ~
         ::   (~(poke-self pass:io /self-wire) m v)
+        ?.  ?=(%commit-install-starting -.status.modified-state)
+          [cards state]
         =/  [request-id=@t ?]
-          ?>  ?=(%commit-install-starting -.status.modified-state)
           %-  ~(got by cis-running.status.modified-state)
           -:?^(cfo ships.u.cfo default-ships:zig-lib)
-        =^  snap-cards=(list card)  modified-state
+        =/  [snap-cards=(list card) modified-state=_state]
           %-  make-snap-cards
           :^  project.act  `request-id  modified-state
           (~(gas in *(set @p)) ?~(cfo ~ ships.u.cfo))

@@ -944,6 +944,7 @@
   ==
 ::
 ++  load-configuration-file
+  !.
   |=  [=update-info:zig state=inflated-state-0:zig]
   ^-  [(list card) (unit configuration-file-output:zig) inflated-state-0:zig]
   =*  project-name  project-name.update-info
