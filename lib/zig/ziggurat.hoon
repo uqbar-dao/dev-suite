@@ -1794,13 +1794,6 @@
         ['expected' %s expected.test-step]
       ~
     ::
-        %dbug
-      %-  pairs
-      :^    ['type' %s -.test-step]
-          ['payload' (dbug-payload payload.test-step)]
-        ['expected' %s expected.test-step]
-      ~
-    ::
         %read-subscription
       %-  pairs
       :^    ['type' %s -.test-step]
@@ -1834,15 +1827,6 @@
         ['app' %s app.payload]
         ['path' (path path.payload)]
     ==
-  ::
-  ++  dbug-payload
-    |=  payload=dbug-payload:zig
-    ^-  json
-    %-  pairs
-    :^    ['who' %s (scot %p who.payload)]
-        ['mold-name' %s mold-name.payload]
-      ['app' %s app.payload]
-    ~
   ::
   ++  poke-payload
     |=  payload=poke-payload:zig
@@ -2111,7 +2095,6 @@
   ::
   ++  test-read-step-inner
     :~  [%scry (ot ~[[%payload scry-payload] [%expected so]])]
-        [%dbug (ot ~[[%payload dbug-payload] [%expected so]])]
         [%read-subscription (ot ~[[%payload read-sub-payload] [%expected so]])]
         [%wait (ot ~[[%until (se %dr)]])]
         [%custom-read (ot ~[[%tag (se %tas)] [%payload so] [%expected so]])]
@@ -2126,14 +2109,6 @@
         [%app (se %tas)]
         [%path pa]
     ==
-  ::
-  ++  dbug-payload
-    ^-  $-(json dbug-payload:zig)
-    %-  ot
-    :^    [%who (se %p)]
-        [%mold-name so]
-      [%app (se %tas)]
-    ~
   ::
   ++  read-sub-payload
     ^-  $-(json read-sub-payload:zig)
