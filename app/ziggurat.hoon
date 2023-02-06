@@ -126,25 +126,25 @@
     ?:  ?|  &(?=(^ zig-val) !=(/sur/zig/ziggurat u.zig-val))
             !=(1 (lent (fand ~[/sur/zig/ziggurat] ~(val by imports))))
         ==
-      =/  message=tape
-        %+  weld  "%zig face reserved for /sur/zig/ziggurat"
-        " ; got {<zig-val>}"
       :_  state
       :_  *test:zig
       :_  ~
       %-  update-vase-to-card:zig-lib
-      (add-test-error (crip message) 0x0)
+      %+  add-test-error  0x0
+      %-  crip
+      %+  weld  "%zig face reserved for /sur/zig/ziggurat"
+      "; got {<`(unit path)`zig-val>}"
     =^  subject=(each vase @t)  state
       %^  compile-test-imports:zig-lib  `@tas`project-name
       ~(tap by imports)  state
     ?:  ?=(%| -.subject)
-      =/  message=tape
-        "compilation of test-imports failed: {<p.subject>}"
       :_  state
       :_  *test:zig
       :_  ~
       %-  update-vase-to-card:zig-lib
-      (add-test-error (crip message) 0x0)
+      %+  add-test-error  0x0
+      %^  cat  3  'compilation of test-imports failed:\0a'
+      p.subject
     =/  =test:zig
       :*  name
           /
@@ -223,12 +223,12 @@
       %~  add-test  make-error-vase:zig-lib
       [[project-name %add-test-file request-id] %error]
     ?~  p
-      =/  message=tape  "test-steps path must not be empty"
       :_  state
       :_  *test:zig
       :_  ~
       %-  update-vase-to-card:zig-lib
-      (add-test-error (crip message) 0x0)
+      %+  add-test-error  0x0
+      'test-steps path must not be empty'
     =/  =project:zig  (~(got by projects) project-name)
     =/  file-scry-path=path
       :-  (scot %p our.bowl)
@@ -240,24 +240,27 @@
       %^  compile-test-imports:zig-lib  `@tas`project-name
       imports  state
     ?:  ?=(%| -.subject)
-      =/  message=tape
-        "compilation of test-imports failed: {<p.subject>}"
       :_  state
       :_  *test:zig
       :_  ~
       %-  update-vase-to-card:zig-lib
-      (add-test-error (crip message) 0x0)
+      %+  add-test-error  0x0
+      %^  cat  3  'compilation of test-imports failed:\0a'
+      p.subject
     =/  test-steps-compilation-result=(each vase @t)
       (compile-and-call-arm:zig-lib '$' p.subject payload)
     ?:  ?=(%| -.test-steps-compilation-result)
-      =/  message=tape
-        %+  weld  "test-steps compilation failed for"
-        " {<`path`p>} with error {<p.test-steps-compilation-result>}"
       :_  state
       :_  *test:zig
       :_  ~
       %-  update-vase-to-card:zig-lib
-      (add-test-error (crip message) 0x0)
+      %+  add-test-error  0x0
+      %-  crip
+      ;:  weld
+          "test-steps compilation failed for"
+          " {<`path`p>} with error:\0a"
+          (trip p.test-steps-compilation-result)
+      ==
     =+  !<(=test-steps:zig p.test-steps-compilation-result)
     =/  =test:zig
       :*  name
@@ -456,23 +459,22 @@
       :_  state
       :_  ~
       %-  update-vase-to-card:zig-lib
-      %.  ?:  ?=(%commit-install-starting -.status)
-            'setting up new project; try again later'
-          'linking projects; try again later'
-      %~  poke  make-error-vase:zig-lib
-      [update-info %error]
+      %-  %~  poke  make-error-vase:zig-lib
+          [update-info %error]
+      ?:  ?=(%commit-install-starting -.status)
+        'setting up new project; try again later'
+      'linking projects; try again later'
     ?-    tag
         %new-project
       =/  new-project-error
         %~  new-project  make-error-vase:zig-lib
         [update-info %error]
       ?:  =('global' project.act)
-        =/  message=tape
-          "{<`@tas`project.act>} face reserved"
         :_  state
         :_  ~
         %-  update-vase-to-card:zig-lib
-        (new-project-error (crip message))
+        %-  new-project-error
+        (crip "{<`@tas`project.act>} face reserved")
       ?:  &(=(0 ~(wyt by projects)) =('zig' project.act))
         =.  projects  (~(put by projects) 'zig' *project:zig)
         %+  start-ships-then-rerun  default-ships:zig-lib
@@ -503,11 +505,12 @@
         ::   :_  state
         ::   :_  ~
         ::   (~(poke-self pass:io /self-wire) m v)
+        ?.  ?=(%commit-install-starting -.status.modified-state)
+          [cards state]
         =/  [request-id=@t ?]
-          ?>  ?=(%commit-install-starting -.status.modified-state)
           %-  ~(got by cis-running.status.modified-state)
           -:?^(cfo ships.u.cfo default-ships:zig-lib)
-        =^  snap-cards=(list card)  modified-state
+        =/  [snap-cards=(list card) modified-state=_state]
           %-  make-snap-cards
           :^  project.act  `request-id  modified-state
           (~(gas in *(set @p)) ?~(cfo ~ ships.u.cfo))
@@ -835,13 +838,13 @@
         %^  town-id-to-sequencer-host:zig-lib  project.act
         town-id.act  configs
       ?~  who
-        =/  message=tape
-          %+  weld  "could not find host for town-id"
-          " {<town-id.act>} amongst {<configs>}"
         :_  state
         :_  ~
         %-  update-vase-to-card:zig-lib
-        (add-test-error (crip message) 0x0)
+        %+  add-test-error  0x0
+        %-  crip
+        %+  weld  "could not find host for town-id"
+        " {<town-id.act>} amongst {<configs>}"
       =/  address=@ux
         (~(got bi:mip configs) 'global' [u.who %address])
       =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
@@ -853,12 +856,12 @@
         %^  compile-test-imports:zig-lib  `@tas`project.act
         imports  state
       ?:  ?=(%| -.subject)
-        =/  message=tape
-          "compilation of test-imports failed: {<p.subject>}"
         :_  state
         :_  ~
         %-  update-vase-to-card:zig-lib
-        (add-test-error (crip message) 0x0)
+        %+  add-test-error  0x0
+        %^  cat  3  'compilation of test-imports failed:\0a'
+        p.subject
       =/  =test:zig
         :*  `test-name
             ~
@@ -908,56 +911,78 @@
       (weld cards all-cards)
     ::
         %compile-contracts
-      ::  for internal use -- app calls itself to scry clay
+      ::  for internal use
       =/  =project:zig  (~(got by projects) project.act)
+      =/  compile-contract-error
+        %~  compile-contract  make-error-vase:zig-lib
+        [update-info %error]
       =/  build-results=(list (pair path build-result:zig))
         %^  build-contract-projects:zig-lib  smart-lib-vase
           /(scot %p our.bowl)/[project.act]/(scot %da now.bowl)
         to-compile.project
-      ~&  "done building, got errors:"
+      =/  error-cards=(list card)
+        %+  murn  build-results
+        |=  [p=path =build-result:zig]
+        ?:  ?=(%& -.build-result)  ~
+        :-  ~
+        %-  update-vase-to-card:zig-lib
+        %-  compile-contract-error
+        %-  crip
+        ;:  weld
+            "contract compilation failed at"
+            "{<`path`p>} with error:\0a"
+            (trip p.build-result)
+        ==
       =/  [cards=(list card) errors=(list [path @t])]
         %+  save-compiled-contracts:zig-lib  project.act
         build-results
       :_  state
-      :_  cards
+      :_  (weld cards error-cards)
       (make-read-desk:zig-lib [project request-id]:act)
     ::
         %compile-contract
-      ::  for internal use -- app calls itself to scry clay
+      ::  for internal use
       =/  =project:zig  (~(got by projects) project.act)
       =/  compile-contract-error
         %~  compile-contract  make-error-vase:zig-lib
         [update-info %error]
       ?~  path.act
-        =/  message=tape  "contract path must not be empty"
         :_  state
         :_  ~
         %-  update-vase-to-card:zig-lib
-        (compile-contract-error (crip message))
+        %-  compile-contract-error
+        'contract path must not be empty'
       ::
       =/  =build-result:zig
         %^  build-contract-project:zig-lib  smart-lib-vase
-          /(scot %p our.bowl)/[i.path.act]/(scot %da now.bowl)
-        t.path.act
+          /(scot %p our.bowl)/[project.act]/(scot %da now.bowl)
+        path.act
       ?:  ?=(%| -.build-result)
-        =/  message=tape
-          "compilation failed with error: {<p.build-result>}"
         :_  state
         :_  ~
         %-  update-vase-to-card:zig-lib
-        (compile-contract-error (crip message))
+        %-  compile-contract-error
+        %-  crip
+        ;:  weld
+            "contract compilation failed at"
+            "{<`path`path.act>} with error:\0a"
+            (trip p.build-result)
+        ==
       ::
-      =/  save-result=(each card [path @t])
+      =/  save-result=(each card (pair path @t))
         %^  save-compiled-contract:zig-lib  project.act
-        t.path.act  build-result
+        path.act  build-result
       ?:  ?=(%| -.save-result)
-        =/  message=tape
-          %+  weld  "failed to save newly compiled contract"
-          " with error: {<p.save-result>}"
         :_  state
         :_  ~
         %-  update-vase-to-card:zig-lib
-        (compile-contract-error (crip message))
+        %-  compile-contract-error
+        %-  crip
+        ;:  weld
+            "failed to save newly compiled contract"
+            " {<`path`p.p.save-result>} with error:\0a"
+            (trip q.p.save-result)
+        ==
       ::
       :_  state
       :+  p.save-result
@@ -1110,39 +1135,36 @@
           %changing-project-links   !!
           %commit-install-starting  !!
           %uninitialized
-        =/  message=tape
-          "must run %start-pyro-ships before tests"
         :_  state
         :_  ~
         %-  update-vase-to-card:zig-lib
-        (run-queue-error(level %warning) (crip message))
+        %-  run-queue-error(level %warning)
+        'must run %start-pyro-ships before tests'
       ::
           %running-test-steps
-        =/  message=tape  "queue already running"
         :_  state
         :_  ~
         %-  update-vase-to-card:zig-lib
-        (run-queue-error(level %info) (crip message))
+        %-  run-queue-error(level %info)
+        'queue already running'
           %ready
         ?:  =(~ test-queue)
-          =/  message=tape  "no tests in queue"
           :_  state
           :_  ~
           %-  update-vase-to-card:zig-lib
-          (run-queue-error(level %warning) (crip message))
+          %-  run-queue-error(level %warning)
+          'no tests in queue'
         =^  top  test-queue  ~(get to test-queue)
         =*  next-project-name  -.top
         =*  next-test-id        +.top
-        ~&  >  "%ziggurat: running {<next-test-id>}"
         =/  =project:zig  (~(got by projects) next-project-name)
         =/  =test:zig     (~(got by tests.project) next-test-id)
         ?:  ?=(%| -.subject.test)
-          =/  message=tape
-            "test subject must compile before test can be run"
           :_  state
           :_  ~
           %-  update-vase-to-card:zig-lib
-          (run-queue-error (crip message))
+          %-  run-queue-error
+          'test subject must compile before test can be run'
         =/  tid=@ta
           %+  rap  3
           :~  'ted-'
@@ -1395,8 +1417,8 @@
         =.  status  [%ready ~]
         :_  this
         :+  %-  update-vase-to-card:zig-lib
-            %+  test-results-error  'thread crashed'
-            [test-id tid steps.test]
+            %+  test-results-error  [test-id tid steps.test]
+            'thread crashed'
           %-  update-vase-to-card:zig-lib
           %.  status
           %~  status  make-update-vase:zig-lib
@@ -1406,13 +1428,11 @@
           %thread-done
         =+  !<(result=(each test-results:zig @t) q.cage.sign)
         ?:  ?=(%| -.result)
-          =/  message=tape
-            "thread fail with error: {<p.result>}"
           =.  status  [%ready ~]
           :_  this
           :+  %-  update-vase-to-card:zig-lib
-              %+  test-results-error  (crip message)
-              [test-id tid steps.test]
+              %+  test-results-error  [test-id tid steps.test]
+              (cat 3 'thread fail with error:\0a' p.result)
             %-  update-vase-to-card:zig-lib
             %.  status
             %~  status  make-update-vase:zig-lib
@@ -1421,35 +1441,33 @@
         =*  test-results  p.result
         =/  =shown-test-results:zig
           (show-test-results:zig-lib test-results)
-        ~&  >  "%ziggurat: test done {<test-id>}"
-        ~&  >  shown-test-results
         =.  tests.project
           %+  ~(put by tests.project)  test-id
           test(results test-results)
         =.  status  [%ready ~]
         =/  cards=(list card)
-          :+  %-  update-vase-to-card:zig-lib
-              %.  [shown-test-results test-id tid steps.test]
-              %~  test-results  make-update-vase:zig-lib
-              [project-name %ziggurat-test-run-thread-done ~]
-            %-  update-vase-to-card:zig-lib
-            %.  status
-            %~  status  make-update-vase:zig-lib
-            [project-name %ziggurat-test-run-thread-done ~]
-          ~
-        =?  cards  ?=(^ test-queue)
-          %+  weld  cards
-          :+  %-  ~(poke-self pass:io /self-wire)
-              :-  %ziggurat-action
-              !>(`action:zig`project-name^~^[%run-queue ~])
-            %-  update-vase-to-card:zig-lib
+          :_  ~
+          %-  update-vase-to-card:zig-lib
+          %.  [shown-test-results test-id tid steps.test]
+          %~  test-results  make-update-vase:zig-lib
+          [project-name %ziggurat-test-run-thread-done ~]
+        :_  %=  this
+                projects
+              (~(put by projects) project-name project)
+            ==
+        ?^  test-queue
+          :_  cards
+          %-  ~(poke-self pass:io /self-wire)
+          :-  %ziggurat-action
+          !>(`action:zig`project-name^~^[%run-queue ~])
+        :+  %-  update-vase-to-card:zig-lib
             %~  run-queue  make-update-vase:zig-lib
             [project-name %ziggurat-test-run-thread-done ~]
-          ~
-        :-  cards
-        %=  this
-          projects  (~(put by projects) project-name project)
-        ==
+          %-  update-vase-to-card:zig-lib
+          %.  status
+          %~  status  make-update-vase:zig-lib
+          [project-name %ziggurat-test-run-thread-done ~]
+        cards
       ==
     ==
   ::
@@ -1664,19 +1682,17 @@
       %~  custom-step-compiled  make-error-vase:zig-lib
       [[project-name %custom-step-compiled ~] %error]
     ?~  def=(~(get by custom-step-definitions.test) tag)
-      =/  message=tape
-        %+  weld  "did not find {<tag>} custom-step-definition"
-        " in {<~(key by custom-step-definitions.test)>}"
       :^  ~  ~  %ziggurat-update
-      %+  custom-step-error  (crip message)
-      [(slav %ux test-id) tag]
+      %+  custom-step-error  [(slav %ux test-id) tag]
+      %-  crip
+      %+  weld  "did not find {<tag>} custom-step-definition"
+      " in {<~(key by custom-step-definitions.test)>}"
     ?:  ?=(%| -.q.u.def)  ::  TODO: do better
-      =/  message=tape
-        %+  weld  "compilation of {<tag>} failed; fix and"
-        "try again. error message: {<p.q.u.def>}"
       :^  ~  ~  %ziggurat-update
-      %+  custom-step-error  (crip message)
-      [(slav %ux test-id) tag]
+      %+  custom-step-error  [(slav %ux test-id) tag]
+      %-  crip
+      %+  weld  "compilation of {<tag>} failed; fix and"
+      "try again. error message:\0a {<p.q.u.def>}"
     ``noun+!>(`vase`p.q.u.def)
   ::
   ::     [%project-tests @ ~]

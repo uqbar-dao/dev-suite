@@ -325,48 +325,73 @@
   [p (build-contract-project smart-lib desk p)]
 ::
 ++  build-contract-project
+  !.
   |=  [smart-lib=vase desk=path to-compile=path]
   ^-  build-result:zig
   ::
   ::  adapted from compile-contract:conq
-  ::  this wacky design is to get a somewhat more helpful error print
-  ::
-  ::  TODO: with +vast -> +vang change, do we need this anymore?
+  ::  this wacky design is to get a more helpful error print
   ::
   |^
   =/  first  (mule |.(parse-main))
   ?:  ?=(%| -.first)
     :-  %|
-    %-  get-formatted-error
-    (snoc (scag 4 p.first) 'error parsing main:')
-  =/  second  (mule |.((parse-libs -.p.first)))
+    %-  reformat-compiler-error
+    (snoc p.first 'error parsing main:')
+    :: (snoc (scag 4 p.first) 'error parsing main:')
+  ?:  ?=(%| -.p.first)  [%| p.p.first]
+  =/  second  (mule |.((parse-imports raw.p.p.first)))
   ?:  ?=(%| -.second)
     :-  %|
-    %-  get-formatted-error
-    (snoc (scag 3 p.second) 'error parsing library:')
-  =/  third  (mule |.((build-libs p.second)))
+    %-  reformat-compiler-error
+    (snoc p.second 'error parsing import:')
+    :: (snoc (scag 3 p.second) 'error parsing import:')
+  ?:  ?=(%| -.p.second)  [%| p.p.second]
+  =/  third  (mule |.((build-imports p.p.second)))
   ?:  ?=(%| -.third)
-    %|^(get-formatted-error (snoc (scag 1 p.third) 'error building libraries:'))
-  =/  fourth  (mule |.((build-main +.p.third +.p.first)))
+    %|^(reformat-compiler-error (snoc p.third 'error building imports:'))
+    :: %|^(reformat-compiler-error (snoc (scag 2 p.third) 'error building imports:'))
+  =/  fourth  (mule |.((build-main vase.p.third contract-hoon.p.p.first)))
   ?:  ?=(%| -.fourth)
-    %|^(get-formatted-error (snoc (scag 1 p.fourth) 'error building main:'))
-  %&^[bat=p.fourth pay=-.p.third]
+    :-  %|
+    %-  reformat-compiler-error
+    (snoc p.fourth 'error building main:')
+    :: (snoc (scag 2 p.fourth) 'error building main:')
+  %&^[bat=p.fourth pay=nok.p.third]
   ::
   ++  parse-main  ::  first
-    ^-  [raw=(list [face=term =path]) contract-hoon=hoon]
-    %+  parse-pile:conq  (welp desk to-compile)
-    (trip .^(@t %cx (welp desk to-compile)))
+    ^-  (each [raw=(list [face=term =path]) contract-hoon=hoon] @t)
+    =/  p=path  (welp desk to-compile)
+    ?.  .^(? %cu p)
+      :-  %|
+      %-  crip
+      %+  weld  "did not find contract at {<to-compile>}"
+      " in desk {<`@tas`(snag 1 desk)>}"
+    [%& (parse-pile:conq p (trip .^(@t %cx p)))]
   ::
-  ++  parse-libs  ::  second
-    |=  raw=(list [face=term =path])
-    ^-  (list hoon)
+  ++  parse-imports  ::  second
+    |=  raw=(list [face=term p=path])
+    ^-  (each (list hoon) @t)
+    =/  non-existent-libs=(list path)
+      %+  murn  raw
+      |=  [face=term p=path]
+      =/  hp=path  (welp p /hoon)
+      =/  tp=path  (welp desk hp)
+      ?:  .^(? %cu tp)  ~  `hp
+    ?^  non-existent-libs
+      :-  %|
+      %-  crip
+      %+  weld  "did not find imports for {<to-compile>} at"
+      " {<`(list path)`non-existent-libs>} in desk {<`@tas`(snag 1 desk)>}"
+    :-  %&
     %+  turn  raw
-    |=  [face=term =path]
+    |=  [face=term p=path]
+    =/  tp=path  (welp desk (welp p /hoon))
     ^-  hoon
     :+  %ktts  face
-    +:(parse-pile:conq (welp desk (welp path /hoon)) (trip .^(@t %cx (welp desk (welp path /hoon)))))
+    +:(parse-pile:conq tp (trip .^(@t %cx tp)))
   ::
-  ++  build-libs  ::  third
+  ++  build-imports  ::  third
     |=  braw=(list hoon)
     ^-  [nok=* =vase]
     =/  libraries=hoon  [%clsg braw]
@@ -378,6 +403,48 @@
     ^-  *
     q:(~(mint ut p:(slop smart-lib payload)) %noun contract)
   --
+::
+++  reformat-compiler-error
+  |=  e=(list tank)
+  ^-  @t
+  %-  crip
+  %-  zing
+  %+  turn  (flop e)
+  |=  =tank
+  =/  raw-wall=wall  (wash [0 80] tank)
+  ?~  raw-wall  (of-wall:format raw-wall)
+  ?+    `@tas`(crip i.raw-wall)  (of-wall:format raw-wall)
+      %mint-nice
+    "mint-nice error: cannot nest `have` type within `need` type\0a"
+  ::
+      %mint-vain
+    "mint-vain error: hoon is never reached in execution\0a"
+  ::
+      %mint-lost
+    "mint-lost error: ?- conditional missing possible branch\0a"
+  ::
+      %nest-fail
+    "nest-fail error: cannot nest `have` type within `need` type\0a"
+  ::
+      %fish-loop
+    %+  weld  "fish-loop error:"
+    " cannot match noun to a recursively-defined type\0a"
+  ::
+      %fuse-loop
+    "fuse-loop error: type definition produces infinite loop\0a"
+  ::
+      ?(%'- need' %'- have')
+    ?:  (gte 10 (lent raw-wall))  (of-wall:format raw-wall)  ::  TODO: make configurable
+    (weld i.raw-wall "\0a<long type elided>\0a")
+  ::
+      %'-find.$'
+    %+  weld  "-find.$ error: face is used like a gate but"
+    " is not a gate (try `^face`?)\0a"
+  ::
+      %rest-loop
+    %+  weld  "rest-loop error: cannot cast arm return"
+    " value to that arm"
+  ==
 ::
 ++  get-formatted-error
   |=  e=(list tank)
@@ -496,34 +563,33 @@
     :-  (scot %p our.bowl)
     (weld /[project-name]/(scot %da now.bowl) p)
   ?.  .^(? %cu file-scry-path)
-    =/  message=tape  "file {<`path`p>} not found"
     :_  test
     :_  ~
     %-  update-vase-to-card
-    (add-custom-error (crip message) [`@ux`(sham test) tag])
+    %+  add-custom-error  [`@ux`(sham test) tag]
+    (crip "file {<`path`p>} not found")
   =/  file-cord=@t  .^(@t %cx file-scry-path)
   =/  [imports=(list [face=@tas =path]) payload=hoon]
     (parse-pile:conq file-scry-path (trip file-cord))
   ?:  ?=(%| -.subject.test)
-    =/  message=tape
-      %+  weld  "subject must compile from imports before"
-      " adding custom step"
     :_  test
     :_  ~
     %-  update-vase-to-card
-    (add-custom-error (crip message) [`@ux`(sham test) tag])
+    %+  add-custom-error  [`@ux`(sham test) tag]
+    %^  cat  3  'subject must compile from imports before'
+    ' adding custom step'
   =/  compilation-result=(each vase @t)
     (compile-and-call-arm '$' p.subject.test payload)
     :: %-  of-wain:format
     :: (slag (dec p.hair) (to-wain:format file-cord))
   ?:  ?=(%| -.compilation-result)
-    =/  message=tape
-      %+  weld  "compilation failed with error:"
-      " {<p.compilation-result>}"
     :_  test
     :_  ~
     %-  update-vase-to-card
-    (add-custom-error (crip message) [`@ux`(sham test) tag])
+    %+  add-custom-error  [`@ux`(sham test) tag]
+    %^  cat  3
+      'custom-step compilation failed with error:\0a'
+    p.compilation-result
   :-  ~
   %=  test
       custom-step-definitions
@@ -878,6 +944,7 @@
   ==
 ::
 ++  load-configuration-file
+  !.
   |=  [=update-info:zig state=inflated-state-0:zig]
   ^-  [(list card) (unit configuration-file-output:zig) inflated-state-0:zig]
   =*  project-name  project-name.update-info
@@ -910,47 +977,53 @@
       (compile-test-imports project-name imports state)
     ?:  ?=(%| -.subject)
       %-  make-error
-      %+  weld  "config imports compilation failed with"
-      " error: {<p.subject>}"
+      %^  cat  3
+        'config imports compilation failed with error:\0a'
+      p.subject
     =/  config-core
       (mule-slap-subject p.subject payload)
     ?:  ?=(%| -.config-core)
       %-  make-error
-      "config compilation failed with: {<p.config-core>}"
+      %^  cat  3  'config compilation failed with:\0a'
+      p.config-core
     ::
     =/  config-result
       (mule-slap-subject p.config-core (ream %make-config))
     ?:  ?=(%| -.config-result)
       %-  make-error
-      "failed to call +make-config arm: {<p.config-result>}"
+      %^  cat  3  'failed to call +make-config arm:\0a'
+      p.config-result
     ::
     =/  virtualships-to-sync-result
       %+  mule-slap-subject  p.config-core
       (ream %make-virtualships-to-sync)
     ?:  ?=(%| -.virtualships-to-sync-result)
       %-  make-error
-      %+  weld  "failed to call +make-virtualships-to-sync"
-      " arm: {<p.virtualships-to-sync-result>}"
+      %^  cat  3
+        'failed to call +make-virtualships-to-sync arm:\0a'
+      p.virtualships-to-sync-result
     ::
     =/  install-result
       (mule-slap-subject p.config-core (ream %make-install))
     ?:  ?=(%| -.install-result)
       %-  make-error
-      "failed to call +make-install arm: {<p.install-result>}"
+      %^  cat  3  'failed to call +make-install arm:\0a'
+      p.install-result
     ::
     =/  start-apps-result
       %+  mule-slap-subject  p.config-core
       (ream %make-start-apps)
     ?:  ?=(%| -.start-apps-result)
       %-  make-error
-      %+  weld  "failed to call +make-start-apps arm:"
-      " {<p.start-apps-result>}"
+      %^  cat  3  'failed to call +make-start-apps arm:\0a'
+      p.start-apps-result
     ::
     =/  setup-result
       (mule-slap-subject p.config-core (ream %make-setup))
     ?:  ?=(%| -.setup-result)
       %-  make-error
-      "failed to call +make-setup arm: {<p.setup-result>}"
+      %^  cat  3  'failed to call +make-setup arm:\0a'
+      p.setup-result
     ::
     :*  %&
         !<(config:zig p.config-result)
@@ -962,13 +1035,13 @@
     ==
     ::
     ++  make-error
-      |=  message=tape
+      |=  message=@t
       ^-  (each configuration-file-output:zig [(list card) inflated-state-0:zig])
       :-  %|
       :_  state
       :_  ~
       %-  update-vase-to-card
-      (new-project-error (crip message))
+      (new-project-error message)
     --
   ::
   ++  build-cards-and-state
@@ -1332,41 +1405,9 @@
 ::
 ++  make-error-vase
   |_  [=update-info:zig level=error-level:zig]
-  ++  project-names
-    |=  [message=@t project-names=(set @t)]
-    ^-  vase
-    !>  ^-  update:zig
-    [%project-names update-info [%| level message] project-names]
   ::
-  ++  projects
-    |=  [message=@t =projects:zig]
-    ^-  vase
-    !>  ^-  update:zig
-    [%projects update-info [%| level message] (show-projects projects)]
-  ::
-  ++  project
-    |=  [message=@t =project:zig]
-    ^-  vase
-    !>  ^-  update:zig
-    [%project update-info [%| level message] (show-project project)]
-  ::
-  ++  state
-    |=  [message=@t state=(map @ux chain:eng)]
-    ^-  vase
-    !>  ^-  update:zig
-    [%state update-info [%| level message] state]
-  ::
-  ++  add-config
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-config update-info [%| level message] ~]
-  ::
-  ++  delete-config
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-config update-info [%| level message] ~]
+  ::  more arms at
+  ::   https://github.com/uqbar-dao/dev-suite/blob/313baeb2532fecb35502239aa2bcea3255bd7232/lib/zig/ziggurat.hoon#L1397-L1555
   ::
   ++  new-project
     |=  message=@t
@@ -1375,7 +1416,7 @@
     [%new-project update-info [%| level message] ~]
   ::
   ++  add-test
-    |=  [message=@t test-id=@ux]
+    |=  [test-id=@ux message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%add-test update-info [%| level message] test-id]
@@ -1386,18 +1427,6 @@
     !>  ^-  update:zig
     [%compile-contract update-info [%| level message] ~]
   ::
-  ++  edit-test
-    |=  [message=@t test-id=@ux]
-    ^-  vase
-    !>  ^-  update:zig
-    [%edit-test update-info [%| level message] test-id]
-  ::
-  ++  delete-test
-    |=  [message=@t test-id=@ux]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-test update-info [%| level message] test-id]
-  ::
   ++  run-queue
     |=  message=@t
     ^-  vase
@@ -1405,47 +1434,23 @@
     [%run-queue update-info [%| level message] ~]
   ::
   ++  add-custom-step
-    |=  [message=@t test-id=@ux tag=@tas]
+    |=  [[test-id=@ux tag=@tas] message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%add-custom-step update-info [%| level message] test-id tag]
   ::
-  ++  delete-custom-step
-    |=  [message=@t test-id=@ux tag=@tas]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-custom-step update-info [%| level message] test-id tag]
-  ::
-  ++  add-user-file
-    |=  [message=@t file=path]
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-user-file update-info [%| level message] file]
-  ::
-  ++  delete-user-file
-    |=  [message=@t file=path]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-user-file update-info [%| level message] file]
-  ::
   ++  custom-step-compiled
-    |=  [message=@t test-id=@ux tag=@tas]
+    |=  [[test-id=@ux tag=@tas] message=@t]
     ^-  vase
     !>  ^-  update:zig
     [%custom-step-compiled update-info [%| level message] test-id tag]
   ::
   ++  test-results
-    |=  [message=@t test-id=@ux thread-id=@t =test-steps:zig]
+    |=  [[test-id=@ux thread-id=@t =test-steps:zig] message=@t]
     ^-  vase
     !>  ^-  update:zig
     :^  %test-results  update-info  [%| level message]
     [test-id thread-id test-steps]
-  ::
-  ++  dir
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%dir update-info [%| level message] ~]
   ::
   ++  poke
     |=  message=@t
@@ -1453,41 +1458,11 @@
     !>  ^-  update:zig
     [%poke update-info [%| level message] ~]
   ::
-  ++  test-queue
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%test-queue update-info [%| level message] ~]
-  ::
   ++  pyro-agent-state
     |=  message=@t
     ^-  vase
     !>  ^-  update:zig
     [%pyro-agent-state update-info [%| level message] ~]
-  ::
-  ++  sync-desk-to-vship
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%sync-desk-to-vship update-info [%| level message] ~]
-  ::
-  ++  cis-setup-done
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%cis-setup-done update-info [%| level message] ~]
-  ::
-  ++  status
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%status update-info [%| level message] ~]
-  ::
-  ++  focused-linked
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%focused-linked update-info [%| level message] ~]
   --
 ::
 ::  json
