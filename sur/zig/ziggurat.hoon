@@ -10,10 +10,11 @@
       =projects
       =configs
       =sync-desk-to-vship
-      pyro-ships-ready=(map @p ?)
+      focused-project=@t
+      linked-projects=(jug @t @t)
+      unfocused-project-snaps=(map (set @t) path)
       test-queue=(qeu [project=@t test-id=@ux])
-      test-running=?
-      cis-running=(map @p @t)
+      =status
   ==
 +$  inflated-state-0
   $:  state-0
@@ -23,12 +24,22 @@
   ==
 +$  eng  $_  ~(engine engine:engine-lib !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
 ::
++$  status
+  $%  [%running-test-steps ~]
+      [%commit-install-starting cis-running=(map @p [@t ?])]
+      [%changing-project-links project-cis-running=(mip:mip @t @p [@t ?])]
+      [%ready ~]
+      [%uninitialized ~]  ::  last is default
+  ==
+::
 +$  projects  (map @t project)
 +$  project
   $:  dir=(list path)
       user-files=(set path)  ::  not on list -> grayed out in GUI
       to-compile=(set path)
       =tests
+      pyro-ships=(list @p)
+      saved-test-queue=(qeu [project=@t test-id=@ux])
   ==
 ::
 +$  build-result  (each [bat=* pay=*] @t)
@@ -116,6 +127,10 @@
           [%add-sync-desk-vships ships=(list @p) install=? start-apps=(list @tas)]
           [%delete-sync-desk-vships ships=(list @p)]
       ::
+          [%change-focus ~]
+          [%add-project-link ~]
+          [%delete-project-link ~]
+      ::
           [%save-file file=path text=@t]  ::  generates new file or overwrites existing
           [%delete-file file=path]
       ::
@@ -127,7 +142,7 @@
       ::
           [%compile-contracts ~]  ::  make-read-desk
           [%compile-contract =path]  ::  path of form /[desk]/path/to/contract, e.g., /zig/con/fungible/hoon
-          [%read-desk ~]  ::  make-project-update, make-watch-for-file-changes
+          [%read-desk ~]
       ::
           [%add-test name=(unit @t) =test-imports =test-steps]
           [%add-and-run-test name=(unit @t) =test-imports =test-steps]
@@ -141,7 +156,7 @@
           [%edit-test id=@ux name=(unit @t) =test-imports =test-steps]
           [%delete-test id=@ux]
           [%run-test id=@ux]
-          [%run-queue ~]  ::  can be used as [%$ %run-queue ~]
+          [%run-queue ~]
           [%clear-queue ~]
           [%queue-test id=@ux]
       ::
@@ -151,6 +166,8 @@
           [%stop-pyro-ships ~]
           [%start-pyro-ships ships=(list @p)]  ::  ships=~ -> ~[~nec ~bud ~wes]
           [%start-pyro-snap snap=path]
+      ::
+          [%take-snapshot update-project-snaps=(unit path)]  ::  ~ -> overwrite project snap
       ::
           [%publish-app title=@t info=@t color=@ux image=@t version=[@ud @ud @ud] website=@t license=@t]
       ::
@@ -187,17 +204,24 @@
       %custom-step-compiled
       %test-results
       %dir
-      %pyro-ships-ready
       %poke
       %test-queue
       %pyro-agent-state
       %sync-desk-to-vship
-      %cis-running
+      %cis-setup-done
+      %status
+      %focused-linked
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
 +$  update-info
   [project-name=@t source=@tas request-id=(unit @t)]
+::
++$  focused-linked-data
+  $:  focused-project=@t
+      linked-projects=(jug @t @t)
+      unfocused-project-snaps=(map (set @t) path)
+  ==
 ::
 ++  data  |$(this (each this [level=error-level message=@t]))
 ::
@@ -222,12 +246,13 @@
       [%custom-step-compiled update-info payload=(data ~) test-id=@ux tag=@tas]
       [%test-results update-info payload=(data shown-test-results) test-id=@ux thread-id=@t =test-steps]
       [%dir update-info payload=(data (list path)) ~]
-      [%pyro-ships-ready update-info payload=(data (map @p ?)) ~]
       [%poke update-info payload=(data ~) ~]
       [%test-queue update-info payload=(data (qeu [@t @ux])) ~]
       [%pyro-agent-state update-info payload=(data [agent-state=@t wex=boat:gall sup=bitt:gall]) ~]
       [%sync-desk-to-vship update-info payload=(data sync-desk-to-vship) ~]
-      [%cis-running update-info payload=(data (map @p @t)) ~]
+      [%cis-setup-done update-info payload=(data ~) ~]
+      [%status update-info payload=(data status) ~]
+      [%focused-linked update-info payload=(data focused-linked-data) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)

@@ -1,9 +1,11 @@
-/-  eng=zig-engine,
+/-  spider,
+    eng=zig-engine,
     pyro=zig-pyro,
     ui=zig-indexer,
     zig=zig-ziggurat
 /+  agentio,
     mip,
+    strandio,
     conq=zink-conq,
     dock=docket,
     pyro-lib=pyro-pyro,
@@ -11,8 +13,9 @@
     ui-lib=zig-indexer,
     zink=zink-zink
 |_  =bowl:gall
-+*  this  .
-    io    ~(. agentio bowl)
++*  this    .
+    io      ~(. agentio bowl)
+    strand  strand:spider
 ::
 +$  card  card:agent:gall
 ::
@@ -22,337 +25,13 @@
   ^-  (list @p)
   ~[~nec ~wes ~bud]
 ::
-++  make-project-update
-  |=  [=update-info:zig =project:zig]
-  ^-  card
-  %-  fact:io  :_  ~[/project/[project-name.update-info]]
-  :-  %ziggurat-update
-  !>  ^-  update:zig
-  [%project update-info [%& ~] (show-project project)]
+++  default-ships-set
+  ^-  (set @p)
+  (~(gas in *(set @p)) default-ships)
 ::
-++  make-state-update
-  |=  [=update-info:zig =project:zig =configs:zig]
-  =*  project-name  project-name.update-info
-  ^-  card
-  %-  fact:io  :_  ~[/project/[project-name]]
-  :-  %ziggurat-update
-  !>  ^-  update:zig
-  :^  %state  update-info  [%& ~]
-  (get-state project-name project configs)
-::
-++  update-vase-to-card
-  |=  [project-name=@t v=vase]
-  ^-  card
-  (fact:io [%ziggurat-update v] ~[/project/[project-name]])
-::
-++  make-update-vase
-  |_  =update-info:zig
-  ++  project-names
-    |=  project-names=(set @t)
-    ^-  vase
-    !>  ^-  update:zig
-    [%project-names update-info [%& ~] project-names]
-  ::
-  ++  projects
-    |=  =projects:zig
-    ^-  vase
-    !>  ^-  update:zig
-    [%projects update-info [%& ~] (show-projects projects)]
-  ::
-  ++  project
-    |=  =project:zig
-    ^-  vase
-    !>  ^-  update:zig
-    [%project update-info [%& ~] (show-project project)]
-  ::
-  ++  state
-    |=  state=(map @ux chain:eng)
-    ^-  vase
-    !>  ^-  update:zig
-    [%state update-info [%& ~] state]
-  ::
-  ++  new-project
-    |=  =sync-desk-to-vship:zig
-    ^-  vase
-    !>  ^-  update:zig
-    [%new-project update-info [%& sync-desk-to-vship] ~]
-  ::
-  ++  add-config
-    |=  [who=@p what=@tas item=@]
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-config update-info [%& who what item] ~]
-  ::
-  ++  delete-config
-    |=  [who=@p what=@tas]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-config update-info [%& who what] ~]
-  ::
-  ++  add-test
-    |=  [=test:zig test-id=@ux]
-    ^-  vase
-    !>  ^-  update:zig
-    :^  %add-test  update-info
-    [%& (show-test test test-id)]  test-id
-  ::
-  ++  compile-contract
-    ^-  vase
-    !>  ^-  update:zig
-    [%compile-contract update-info [%& ~] ~]
-  ::
-  ++  edit-test
-    |=  [=test:zig test-id=@ux]
-    ^-  vase
-    !>  ^-  update:zig
-    :^  %edit-test  update-info
-    [%& (show-test test test-id)]  test-id
-  ::
-  ++  delete-test
-    |=  test-id=@ux
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-test update-info [%& ~] test-id]
-  ::
-  ++  run-queue
-    ^-  vase
-    !>  ^-  update:zig
-    [%run-queue update-info [%& ~] ~]
-  ::
-  ++  add-custom-step
-    |=  [test-id=@ux tag=@tas]
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-custom-step update-info [%& ~] test-id tag]
-  ::
-  ++  delete-custom-step
-    |=  [test-id=@ux tag=@tas]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-custom-step update-info [%& ~] test-id tag]
-  ::
-  ++  add-user-file
-    |=  file=path
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-user-file update-info [%& ~] file]
-  ::
-  ++  delete-user-file
-    |=  file=path
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-user-file update-info [%& ~] file]
-  ::
-  ++  custom-step-compiled
-    |=  [test-id=@ux tag=@tas]
-    ^-  vase
-    !>  ^-  update:zig
-    [%custom-step-compiled update-info [%& ~] test-id tag]
-  ::
-  ++  test-results
-    |=  [=shown-test-results:zig test-id=@ux thread-id=@t =test-steps:zig]
-    ^-  vase
-    !>  ^-  update:zig
-    :^  %test-results  update-info  [%& shown-test-results]
-    [test-id thread-id test-steps]
-  ::
-  ++  dir
-    |=  dir=(list path)
-    ^-  vase
-    !>  ^-  update:zig
-    [%dir update-info [%& dir] ~]
-  ::
-  ++  pyro-ships-ready
-    |=  pyro-ships-ready=(map @p ?)
-    ^-  vase
-    !>  ^-  update:zig
-    [%pyro-ships-ready update-info [%& pyro-ships-ready] ~]
-  ::
-  ++  poke
-    ^-  vase
-    !>  ^-  update:zig
-    [%poke update-info [%& ~] ~]
-  ::
-  ++  test-queue
-    |=  queue=(qeu [@t @ux])
-    ^-  vase
-    !>  ^-  update:zig
-    [%test-queue update-info [%& queue] ~]
-  ::
-  ++  pyro-agent-state
-    |=  [agent-state=@t wex=boat:gall sup=bitt:gall]
-    ^-  vase
-    !>  ^-  update:zig
-    :^  %pyro-agent-state  update-info
-    [%& agent-state wex sup]  ~
-  ::
-  ++  sync-desk-to-vship
-    |=  =sync-desk-to-vship:zig
-    ^-  vase
-    !>  ^-  update:zig
-    :^  %sync-desk-to-vship  update-info
-    [%& sync-desk-to-vship]  ~
-  ::
-  ++  cis-running
-    |=  cis-running=(map @p @t)
-    ^-  vase
-    !>  ^-  update:zig
-    [%cis-running update-info [%& cis-running] ~]
-  --
-::
-++  make-error-vase
-  |_  [=update-info:zig level=error-level:zig]
-  ++  project-names
-    |=  [message=@t project-names=(set @t)]
-    ^-  vase
-    !>  ^-  update:zig
-    [%project-names update-info [%| level message] project-names]
-  ::
-  ++  projects
-    |=  [message=@t =projects:zig]
-    ^-  vase
-    !>  ^-  update:zig
-    [%projects update-info [%| level message] (show-projects projects)]
-  ::
-  ++  project
-    |=  [message=@t =project:zig]
-    ^-  vase
-    !>  ^-  update:zig
-    [%project update-info [%| level message] (show-project project)]
-  ::
-  ++  state
-    |=  [message=@t state=(map @ux chain:eng)]
-    ^-  vase
-    !>  ^-  update:zig
-    [%state update-info [%| level message] state]
-  ::
-  ++  add-config
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-config update-info [%| level message] ~]
-  ::
-  ++  delete-config
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-config update-info [%| level message] ~]
-  ::
-  ++  new-project
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%new-project update-info [%| level message] ~]
-  ::
-  ++  add-test
-    |=  [message=@t test-id=@ux]
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-test update-info [%| level message] test-id]
-  ::
-  ++  compile-contract
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%compile-contract update-info [%| level message] ~]
-  ::
-  ++  edit-test
-    |=  [message=@t test-id=@ux]
-    ^-  vase
-    !>  ^-  update:zig
-    [%edit-test update-info [%| level message] test-id]
-  ::
-  ++  delete-test
-    |=  [message=@t test-id=@ux]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-test update-info [%| level message] test-id]
-  ::
-  ++  run-queue
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%run-queue update-info [%| level message] ~]
-  ::
-  ++  add-custom-step
-    |=  [message=@t test-id=@ux tag=@tas]
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-custom-step update-info [%| level message] test-id tag]
-  ::
-  ++  delete-custom-step
-    |=  [message=@t test-id=@ux tag=@tas]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-custom-step update-info [%| level message] test-id tag]
-  ::
-  ++  add-user-file
-    |=  [message=@t file=path]
-    ^-  vase
-    !>  ^-  update:zig
-    [%add-user-file update-info [%| level message] file]
-  ::
-  ++  delete-user-file
-    |=  [message=@t file=path]
-    ^-  vase
-    !>  ^-  update:zig
-    [%delete-user-file update-info [%| level message] file]
-  ::
-  ++  custom-step-compiled
-    |=  [message=@t test-id=@ux tag=@tas]
-    ^-  vase
-    !>  ^-  update:zig
-    [%custom-step-compiled update-info [%| level message] test-id tag]
-  ::
-  ++  test-results
-    |=  [message=@t test-id=@ux thread-id=@t =test-steps:zig]
-    ^-  vase
-    !>  ^-  update:zig
-    :^  %test-results  update-info  [%| level message]
-    [test-id thread-id test-steps]
-  ::
-  ++  dir
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%dir update-info [%| level message] ~]
-  ::
-  ++  pyro-ships-ready
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%pyro-ships-ready update-info [%| level message] ~]
-  ::
-  ++  poke
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%poke update-info [%| level message] ~]
-  ::
-  ++  test-queue
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%test-queue update-info [%| level message] ~]
-  ::
-  ++  pyro-agent-state
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%pyro-agent-state update-info [%| level message] ~]
-  ::
-  ++  sync-desk-to-vship
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%sync-desk-to-vship update-info [%| level message] ~]
-  ::
-  ++  cis-running
-    |=  message=@t
-    ^-  vase
-    !>  ^-  update:zig
-    [%cis-running update-info [%| level message] ~]
-  --
+++  default-snap-path
+  ^-  path
+  /testnet
 ::
 ++  make-compile-contracts
   |=  [project-name=@t request-id=(unit @t)]
@@ -360,13 +39,6 @@
   %-  ~(poke-self pass:io /self-wire)
   :-  %ziggurat-action
   !>(`action:zig`project-name^request-id^[%compile-contracts ~])
-::
-++  make-compile-contract
-  |=  [project-name=@t file=path request-id=(unit @t)]
-  ^-  card
-  %-  ~(poke-self pass:io /self-wire)
-  :-  %ziggurat-action
-  !>(`action:zig`project-name^request-id^[%compile-contract file])
 ::
 ++  make-watch-for-file-changes
   |=  [project-name=@tas files=(list path)]
@@ -381,8 +53,7 @@
   |=  project-name=@tas
   ^-  card
   %-  ~(warp-our pass:io /clay/[project-name])
-  :-  project-name
-  ~
+  [project-name ~]
 ::
 ++  make-read-desk
   |=  [project-name=@t request-id=(unit @t)]
@@ -778,14 +449,6 @@
   ?:  (lte 1.024 (met 3 res-text))  '<elided>'  ::  TODO: unhardcode
   res-text
 ::
-++  noah-slap-ream
-  |=  [subject=vase payload=@t]
-  ^-  tape
-  =/  compilation-result
-    (mule-slap-subject subject (ream payload))
-  ?:  ?=(%| -.compilation-result)  (trip payload)
-  (noah p.compilation-result)
-::
 ++  mule-slap-subject
   |=  [subject=vase payload=hoon]
   ^-  (each vase @t)
@@ -836,7 +499,7 @@
     =/  message=tape  "file {<`path`p>} not found"
     :_  test
     :_  ~
-    %+  update-vase-to-card  project-name
+    %-  update-vase-to-card
     (add-custom-error (crip message) [`@ux`(sham test) tag])
   =/  file-cord=@t  .^(@t %cx file-scry-path)
   =/  [imports=(list [face=@tas =path]) payload=hoon]
@@ -847,7 +510,7 @@
       " adding custom step"
     :_  test
     :_  ~
-    %+  update-vase-to-card  project-name
+    %-  update-vase-to-card
     (add-custom-error (crip message) [`@ux`(sham test) tag])
   =/  compilation-result=(each vase @t)
     (compile-and-call-arm '$' p.subject.test payload)
@@ -859,7 +522,7 @@
       " {<p.compilation-result>}"
     :_  test
     :_  ~
-    %+  update-vase-to-card  project-name
+    %-  update-vase-to-card
     (add-custom-error (crip message) [`@ux`(sham test) tag])
   :-  ~
   %=  test
@@ -956,27 +619,26 @@
   `[`@ux`item who]
 ::
 ++  scry-virtualship-desks
-  |=  virtualship=@p
+  |=  [virtualship=@p now-da=@da]
   ^-  (set @tas)
-  =/  now=@ta  (scot %da now.bowl)
+  =/  now=@ta  (scot %da now-da)
   =/  who=@ta  (scot %p virtualship)
-  =/  desks=*
-    .^  *
-        %gx
-        :-  (scot %p our.bowl)
-        /pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
-    ==
-  ;;((set @tas) desks)
+  ;;  (set @tas)
+  .^  *
+      %gx
+      :-  (scot %p our.bowl)
+      /pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
+  ==
 ::
 ++  virtualship-desk-exists
-  |=  [virtualship=@p desk=@tas]
+  |=  [virtualship=@p now=@da desk=@tas]
   ^-  ?
-  (~(has in (scry-virtualship-desks virtualship)) desk)
+  (~(has in (scry-virtualship-desks virtualship now)) desk)
 ::
 ++  virtualship-is-running-app
-  |=  [virtualship=@p app=@tas]
+  |=  [virtualship=@p app=@tas now-da=@da]
   ^-  ?
-  =/  now=@ta  (scot %da now.bowl)
+  =/  now=@ta  (scot %da now-da)
   =/  who=@ta  (scot %p virtualship)
   =/  is-app-running=*
     .^  *
@@ -986,138 +648,180 @@
     ==
   ;;(? is-app-running)
 ::
-++  sync-desk-to-virtualship
+++  sync-desk-to-virtualship-card
   |=  [who=@p project-name=@tas]
   ^-  card
   %+  %~  poke-our  pass:io
       /sync/(scot %da now.bowl)/[project-name]/(scot %p who)
-      %pyro
+    %pyro
+  (sync-desk-to-virtualship-cage who project-name)
+::
+++  sync-desk-to-virtualship-cage
+  |=  [who=@p project-name=@tas]
+  ^-  cage
   :-  %pyro-events
   !>  ^-  (list pyro-event:pyro)
   :_  ~
   :+  who  /c/commit/(scot %p who)
   (park:pyro-lib our.bowl project-name %da now.bowl)
 ::
-++  send-pyro-dojo
+++  send-pyro-dojo-card
   |=  [who=@p command=tape]
   ^-  card
   %+  %~  poke-our  pass:io
       /dojo/(scot %p who)/(scot %ux `@ux`(jam command))
     %pyro
+  (send-pyro-dojo-cage who command)
+::
+++  send-pyro-dojo-cage
+  |=  [who=@p command=tape]
+  ^-  cage
   :-  %pyro-events
   !>  ^-  (list pyro-event:pyro)
   (dojo-events:pyro-lib who command)
 ::
 ++  make-cis-running
   |=  [ships=(list @p) project-name=@t]
-  ^-  (map @p @t)
-  %-  ~(gas by *(map @p @t))
+  ^-  (map @p [@t ?])
+  %-  ~(gas by *(map @p [@t ?]))
   %+  turn  ships
   |=  who=@p
   :-  who
+  :_  %.n
   (rap 3 'setup-' project-name '-' (scot %p who) ~)
 ::
-++  cis
-  |_  $:  who=@p
+++  get-final-app-to-install
+  |=  [desk=@tas now=@da]
+  ^-  @tas
+  =/  bill-path=path
+    :-  (scot %p our.bowl)
+    /[desk]/(scot %da now)/desk/bill
+  (rear .^((list @tas) %cx bill-path))
+::
+++  cis-thread
+  |=  $:  w=wire
+          who=@p
           desk=@tas
           install=?
           start-apps=(list @tas)
-          cis-running=(map @p @t)
+          =status:zig
       ==
-  ++  commit-poll-duration   ~s1
-  ++  install-poll-duration  ~s1
-  ++  start-poll-duration    (div ~s1 10)
-  ++  commit-wait   (add now.bowl commit-poll-duration)
-  ++  install-wait  (add now.bowl install-poll-duration)
-  ++  start-wait    (add now.bowl start-poll-duration)
-  ++  committing-wire  `wire`[%committing base-wire]
-  ++  installing-wire  `wire`[%installing base-wire]
-  ++  starting-wire    `wire`[%starting base-wire]
+  =/  commit-poll-duration=@dr   ~s1
+  =/  install-poll-duration=@dr  ~s1
+  =/  start-poll-duration=@dr    (div ~s1 10)
+  |^  ^-  card
+  %-  ~(arvo pass:io w)
+  :^  %k  %lard  q.byk.bowl
+  =/  m  (strand ,vase)
+  ^-  form:m
+  ;<  ~  bind:m
+    %+  poke-our:strandio  %pyro
+    (sync-desk-to-virtualship-cage who desk)
+  ;<  ~  bind:m  block-on-commit
+  ?.  install  finish
+  ;<  ~  bind:m
+    %+  poke-our:strandio  %pyro
+    (send-pyro-dojo-cage who "|install our {<desk>}")
+  ;<  ~  bind:m  block-on-install
+  ;<  ~  bind:m  do-start-apps
+  finish
   ::
-  ++  base-wire
-    ^-  wire
-    %+  weld  /(scot %p who)/[desk]/(scot %ud install)
-    /(scot %ud (jam start-apps))
+  ++  block-on-commit
+    =/  m  (strand ,~)
+    ^-  form:m
+    |-
+    ;<  ~  bind:m  (sleep:strandio commit-poll-duration)
+    ;<  now=@da  bind:m  get-time:strandio
+    ?.  (virtualship-desk-exists who now desk)  $
+    (pure:m ~)
   ::
-  ++  get-final-app-to-install
-    ^-  @tas
-    =/  bill-path=path
-      :-  (scot %p our.bowl)
-      /[desk]/(scot %da now.bowl)/desk/bill
-    (rear .^((list @tas) %cx bill-path))
-  ::
-  ++  run-queue
-    ^-  [(list card) (map @p @t)]
-    =.  cis-running  (~(del by cis-running) who)
-    :_  cis-running
-    :+  %+  update-vase-to-card  desk
-        %.  cis-running
-        %~  cis-running  make-update-vase
-        ['' %cis ~]
-      %-  ~(poke-self pass:io /self-wire)
-      [%ziggurat-action !>(`action:zig`''^~^[%run-queue ~])]
-    ~
-  ::
-  ++  do-commit
-    ^-  [(list card) (map @p @t)]
-    :_  cis-running
-    :+  (~(wait pass:io committing-wire) commit-wait)
-      (sync-desk-to-virtualship who desk)
-    ~
-  ::
-  ++  do-install
-    ^-  [(list card) (map @p @t)]
-    :_  cis-running
-    :+  (~(wait pass:io installing-wire) install-wait)
-      (send-pyro-dojo who "|install our {<desk>}")
-    ~
-  ::
-  ++  do-start
-    |=  [next-app=@tas wire-start-apps=(list @tas)]
-    ^-  [(list card) (map @p @t)]
-    :_  cis-running
-    :+  %.  start-wait
-        %~  wait  pass:io
-        starting-wire(start-apps wire-start-apps)
-      %+  send-pyro-dojo  who
-      "|start {<`@tas`desk>} {<`@tas`next-app>}"
-    ~
-  ::
-  ++  on-wake-commit
-    ^-  [(list card) (map @p @t)]
-    ?.  (virtualship-desk-exists who desk)
-      ::  not done: keep waiting
-      :_  cis-running
-      ~[(~(wait pass:io committing-wire) commit-wait)]
-    ::  done: install if desired, else %run-queue
-    ?:  install  do-install  run-queue
-  ::
-  ++  on-wake-install
-    ^-  [(list card) (map @p @t)]
+  ++  block-on-install
+    =/  m  (strand ,~)
+    ^-  form:m
+    |-
+    ;<  ~  bind:m  (sleep:strandio install-poll-duration)
+    ;<  now=@da  bind:m  get-time:strandio
+    =/  app=@tas  (get-final-app-to-install desk now)
     ::  if the final app is installed -> install done
-    =/  app=@tas  get-final-app-to-install
-    ?.  (virtualship-is-running-app who app)
-      ::  not done: keep waiting
-      :_  cis-running
-      ~[(~(wait pass:io installing-wire) install-wait)]
-    ::  done: start apps if desired, else %run-queue
-    ?~  start-apps  run-queue
-    =*  next-app   i.start-apps
-    (do-start next-app start-apps)
+    ?.  (virtualship-is-running-app who app now)  $
+    (pure:m ~)
   ::
-  ++  on-wake-start
-    ^-  [(list card) (map @p @t)]
-    ?~  start-apps  run-queue  ::  no more apps to start: %run-queue
-    =*  starting-app  i.start-apps
-    =*  rest-of-apps  t.start-apps
-    ?.  (virtualship-is-running-app who starting-app)
-      ::  not done: keep waiting
-      :_  cis-running
-      ~[(~(wait pass:io starting-wire) start-wait)]
-    ::  done: start next app if more, else %run-queue
-    ?~  rest-of-apps  run-queue
-    =*  next-app   i.rest-of-apps
-    (do-start next-app rest-of-apps)
+  ++  do-start-apps
+    =/  m  (strand ,~)
+    ^-  form:m
+    |-
+    ?~  start-apps  (pure:m ~)
+    =*  next-app  i.start-apps
+    ;<  ~  bind:m
+      %+  poke-our:strandio  %pyro
+      %+  send-pyro-dojo-cage  who
+      "|start {<`@tas`desk>} {<`@tas`next-app>}"
+    ;<  ~  bind:m  (block-on-start next-app)
+    $(start-apps t.start-apps)
+  ::
+  ++  block-on-start
+    |=  next-app=@tas
+    =/  m  (strand ,~)
+    ^-  form:m
+    |-
+    ;<  ~  bind:m  (sleep:strandio start-poll-duration)
+    ;<  now=@da  bind:m  get-time:strandio
+    ?.  (virtualship-is-running-app who next-app now)  $
+    (pure:m ~)
+  ::
+  ++  finish
+    =/  m  (strand ,vase)
+    ^-  form:m
+    ;<  =status:zig  bind:m  get-status
+    ?:  ?=(%commit-install-starting -.status)
+      =.  cis-running.status
+        %+  ~(jab by cis-running.status)  who
+        |=([cis-running=@t is-done=?] [cis-running %.y])
+      (pure:m !>(`status:zig`status))
+    ?>  ?=(%changing-project-links -.status)
+    =.  project-cis-running.status
+      %+  ~(put by project-cis-running.status)  desk
+      %+  %~  jab  by
+          (~(got by project-cis-running.status) desk)
+        who
+      |=([cis-running=@t is-done=?] [cis-running %.y])
+    (pure:m !>(`status:zig`status))
+  ::
+  ++  get-status
+    =/  m  (strand ,status:zig)
+    ^-  form:m
+    ;<  =update:zig  bind:m
+      (scry:strandio update:zig /gx/ziggurat/status/noun)
+    ?>  &(?=(%status -.update) ?=(%& -.payload.update))  ::  TODO: better error handling?
+    (pure:m p.payload.update)
+  --
+::
+++  make-status-card
+  |=  [=status:zig desk=@tas]
+  ^-  card
+  %-  update-vase-to-card
+  %.  status
+  %~  status  make-update-vase
+  [desk %cis ~]
+::
+++  make-done-cards
+  |=  [=status:zig desk=@tas]
+  |^  ^-  (list card)
+  :^    (make-status-card status desk)
+      make-watch-cis-setup-done-card
+    make-run-card
+  ~
+  ::
+  ++  make-run-card
+    ^-  card
+    %-  ~(poke-self pass:io /self-wire)
+    :-  %ziggurat-action
+    !>(`action:zig`desk^~^[%run-queue ~])
+  ::
+  ++  make-watch-cis-setup-done-card
+    ^-  card
+    %.  [%ziggurat /project]
+    ~(watch-our pass:io /cis-setup-done/[desk])
   --
 ::
 ++  compile-test-imports
@@ -1164,10 +868,6 @@
 ++  build-default-configuration
   |=  =config:zig
   ^-  configuration-file-output:zig
-  =+  .^  =update:zig
-          %gx
-          (scry:io %ziggurat /pyro-ships-ready/noun)
-      ==
   =*  ships  default-ships
   :*  config
       ships
@@ -1202,90 +902,55 @@
   [cards `configuration-file-output state]
   ::
   ++  get-configuration-from-file
-    ^-  (each configuration-file-output:zig [(list card) inflated-state-0:zig])
+    |^  ^-  (each configuration-file-output:zig [(list card) inflated-state-0:zig])
     =/  file-cord=@t  .^(@t %cx config-file-path)
     =/  [imports=(list [face=@tas =path]) payload=hoon]
       (parse-pile:conq config-file-path (trip file-cord))
     =^  subject=(each vase @t)  state
       (compile-test-imports project-name imports state)
     ?:  ?=(%| -.subject)
-      =/  message=tape
-        %+  weld  "config imports conpilation failed with"
-        " error: {<p.subject>}"
-      :-  %|
-      :_  state
-      :_  ~
-      %+  update-vase-to-card  project-name
-      (new-project-error (crip message))
+      %-  make-error
+      %+  weld  "config imports compilation failed with"
+      " error: {<p.subject>}"
     =/  config-core
       (mule-slap-subject p.subject payload)
     ?:  ?=(%| -.config-core)
-      =/  message=tape
-        "config compilation failed with: {<p.config-core>}"
-      :-  %|
-      :_  state
-      :_  ~
-      %+  update-vase-to-card  project-name
-      (new-project-error (crip message))
+      %-  make-error
+      "config compilation failed with: {<p.config-core>}"
     ::
     =/  config-result
       (mule-slap-subject p.config-core (ream %make-config))
     ?:  ?=(%| -.config-result)
-      =/  message=tape
-        "failed to call +make-config arm: {<p.config-result>}"
-      :-  %|
-      :_  state
-      :_  ~
-      %+  update-vase-to-card  project-name
-      (new-project-error (crip message))
+      %-  make-error
+      "failed to call +make-config arm: {<p.config-result>}"
     ::
     =/  virtualships-to-sync-result
       %+  mule-slap-subject  p.config-core
       (ream %make-virtualships-to-sync)
     ?:  ?=(%| -.virtualships-to-sync-result)
-      =/  message=tape
-        %+  weld  "failed to call +make-virtualships-to-sync"
-        " arm: {<p.virtualships-to-sync-result>}"
-      :-  %|
-      :_  state
-      :_  ~
-      %+  update-vase-to-card  project-name
-      (new-project-error (crip message))
+      %-  make-error
+      %+  weld  "failed to call +make-virtualships-to-sync"
+      " arm: {<p.virtualships-to-sync-result>}"
     ::
     =/  install-result
       (mule-slap-subject p.config-core (ream %make-install))
     ?:  ?=(%| -.install-result)
-      =/  message=tape
-        "failed to call +make-install arm: {<p.install-result>}"
-      :-  %|
-      :_  state
-      :_  ~
-      %+  update-vase-to-card  project-name
-      (new-project-error (crip message))
+      %-  make-error
+      "failed to call +make-install arm: {<p.install-result>}"
     ::
     =/  start-apps-result
       %+  mule-slap-subject  p.config-core
       (ream %make-start-apps)
     ?:  ?=(%| -.start-apps-result)
-      =/  message=tape
-        %+  weld  "failed to call +make-start-apps arm:"
-        " {<p.start-apps-result>}"
-      :-  %|
-      :_  state
-      :_  ~
-      %+  update-vase-to-card  project-name
-      (new-project-error (crip message))
+      %-  make-error
+      %+  weld  "failed to call +make-start-apps arm:"
+      " {<p.start-apps-result>}"
     ::
     =/  setup-result
       (mule-slap-subject p.config-core (ream %make-setup))
     ?:  ?=(%| -.setup-result)
-      =/  message=tape
-        "failed to call +make-setup arm: {<p.setup-result>}"
-      :-  %|
-      :_  state
-      :_  ~
-      %+  update-vase-to-card  project-name
-      (new-project-error (crip message))
+      %-  make-error
+      "failed to call +make-setup arm: {<p.setup-result>}"
     ::
     :*  %&
         !<(config:zig p.config-result)
@@ -1295,6 +960,16 @@
         !<((map @p test-steps:zig) p.setup-result)
         imports
     ==
+    ::
+    ++  make-error
+      |=  message=tape
+      ^-  (each configuration-file-output:zig [(list card) inflated-state-0:zig])
+      :-  %|
+      :_  state
+      :_  ~
+      %-  update-vase-to-card
+      (new-project-error (crip message))
+    --
   ::
   ++  build-cards-and-state
     |=  $:  =config:zig
@@ -1319,16 +994,19 @@
           "/{<project-name>} and run %new-project again"
         ==
       :_  ~
-      %+  update-vase-to-card  project-name
+      %-  update-vase-to-card
       (new-project-error(level %warning) (crip message))
-    =/  cis-running=(map @p @t)
+    =.  status.state
+      :-  %commit-install-starting
       (make-cis-running virtualships-to-sync project-name)
+    ?>  ?=(%commit-install-starting -.status.state)
+    =*  cis-running  cis-running.status.state
     =.  cards
       %+  weld  cards
       %+  murn  virtualships-to-sync
       |=  who=@p
       ?~  setup=(~(get by setups) who)  ~
-      =/  cis-name=@t  (~(got by cis-running) who)
+      =/  [cis-name=@t ?]  (~(got by cis-running) who)
       :-  ~
       %-  ~(poke-self pass:io /self-wire)
       :-  %ziggurat-action
@@ -1345,22 +1023,26 @@
       ?~  virtualships-to-sync  cards
       =*  who   i.virtualships-to-sync
       =*  desk  project-name
-      =^  cis-cards  cis-running.state
-        %~  do-commit  cis
-        [who desk install start-apps cis-running]
+      =/  cis-cards=(list card)
+        :_  ~
+        %+  cis-thread  /cis-done/(scot %p who)/[desk]
+        [who desk install start-apps status.state]
       %=  $
           virtualships-to-sync  t.virtualships-to-sync
           cards                 (weld cards cis-cards)
       ==
-
     :-  :_  cards
-        %+  update-vase-to-card  project-name
-        %.  cis-running
-        %~  cis-running  make-update-vase
+        %-  update-vase-to-card
+        %.  status.state
+        %~  status  make-update-vase
         [project-name %load-configuration-file ~]
+    =.  projects.state
+      %+  ~(put by projects.state)  project-name
+      =/  =project:zig
+        (~(gut by projects.state) project-name *project:zig)
+      project(pyro-ships virtualships-to-sync)
     %=  state
-        test-queue   ~  ::  TODO: save and restore after? Check for running?
-        cis-running  cis-running
+        test-queue   ~
     ::
         sync-desk-to-vship
       %-  ~(gas ju sync-desk-to-vship.state)
@@ -1371,8 +1053,32 @@
       %+  ~(put by configs.state)  project-name
       %.  ~(tap by config)
       ~(gas by (~(gut by configs.state) project-name ~))
+    ::
+        projects
+      ?.  (~(has by projects.state) focused-project.state)
+        projects.state
+      %+  ~(jab by projects.state)  focused-project.state
+      |=  =project:zig
+      project(saved-test-queue test-queue.state)
     ==
   --
+::
+++  change-state-linked-projects
+  |=  $:  project-name=@t
+          state=inflated-state-0:zig
+          transition=$-(project:zig project:zig)
+      ==
+  ^-  inflated-state-0:zig
+  =/  linked-projects=(list @t)
+    ~(tap in (~(get ju linked-projects.state) project-name))
+  |-
+  ?~  linked-projects  ~&(%z^%cslp^%final^(~(run by projects.state) |=(p=project:zig pyro-ships.p)) state)
+  ?~  next=(~(get by projects.state) i.linked-projects)
+    $(linked-projects t.linked-projects)
+  =.  projects.state
+    %+  ~(put by projects.state)  i.linked-projects
+    (transition u.next)
+  $(linked-projects t.linked-projects, state state)
 ::
 ++  add-test-error-to-edit-test
   |=  add-test-card=card
@@ -1458,6 +1164,331 @@
                                   :: [(list card) this]
   --
   '''
+::
+++  update-vase-to-card
+  |=  v=vase
+  ^-  card
+  (fact:io [%ziggurat-update v] ~[/project])
+::
+++  make-update-vase
+  |_  =update-info:zig
+  ++  project-names
+    |=  project-names=(set @t)
+    ^-  vase
+    !>  ^-  update:zig
+    [%project-names update-info [%& ~] project-names]
+  ::
+  ++  projects
+    |=  =projects:zig
+    ^-  vase
+    !>  ^-  update:zig
+    [%projects update-info [%& ~] (show-projects projects)]
+  ::
+  ++  project
+    |=  =project:zig
+    ^-  vase
+    !>  ^-  update:zig
+    [%project update-info [%& ~] (show-project project)]
+  ::
+  ++  state
+    |=  state=(map @ux chain:eng)
+    ^-  vase
+    !>  ^-  update:zig
+    [%state update-info [%& ~] state]
+  ::
+  ++  new-project
+    |=  =sync-desk-to-vship:zig
+    ^-  vase
+    !>  ^-  update:zig
+    [%new-project update-info [%& sync-desk-to-vship] ~]
+  ::
+  ++  add-config
+    |=  [who=@p what=@tas item=@]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-config update-info [%& who what item] ~]
+  ::
+  ++  delete-config
+    |=  [who=@p what=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-config update-info [%& who what] ~]
+  ::
+  ++  add-test
+    |=  [=test:zig test-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %add-test  update-info
+    [%& (show-test test test-id)]  test-id
+  ::
+  ++  compile-contract
+    ^-  vase
+    !>  ^-  update:zig
+    [%compile-contract update-info [%& ~] ~]
+  ::
+  ++  edit-test
+    |=  [=test:zig test-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %edit-test  update-info
+    [%& (show-test test test-id)]  test-id
+  ::
+  ++  delete-test
+    |=  test-id=@ux
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-test update-info [%& ~] test-id]
+  ::
+  ++  run-queue
+    ^-  vase
+    !>  ^-  update:zig
+    [%run-queue update-info [%& ~] ~]
+  ::
+  ++  add-custom-step
+    |=  [test-id=@ux tag=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-custom-step update-info [%& ~] test-id tag]
+  ::
+  ++  delete-custom-step
+    |=  [test-id=@ux tag=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-custom-step update-info [%& ~] test-id tag]
+  ::
+  ++  add-user-file
+    |=  file=path
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-user-file update-info [%& ~] file]
+  ::
+  ++  delete-user-file
+    |=  file=path
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-user-file update-info [%& ~] file]
+  ::
+  ++  custom-step-compiled
+    |=  [test-id=@ux tag=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%custom-step-compiled update-info [%& ~] test-id tag]
+  ::
+  ++  test-results
+    |=  [=shown-test-results:zig test-id=@ux thread-id=@t =test-steps:zig]
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %test-results  update-info  [%& shown-test-results]
+    [test-id thread-id test-steps]
+  ::
+  ++  dir
+    |=  dir=(list path)
+    ^-  vase
+    !>  ^-  update:zig
+    [%dir update-info [%& dir] ~]
+  ::
+  ++  poke
+    ^-  vase
+    !>  ^-  update:zig
+    [%poke update-info [%& ~] ~]
+  ::
+  ++  test-queue
+    |=  queue=(qeu [@t @ux])
+    ^-  vase
+    !>  ^-  update:zig
+    [%test-queue update-info [%& queue] ~]
+  ::
+  ++  pyro-agent-state
+    |=  [agent-state=@t wex=boat:gall sup=bitt:gall]
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %pyro-agent-state  update-info
+    [%& agent-state wex sup]  ~
+  ::
+  ++  sync-desk-to-vship
+    |=  =sync-desk-to-vship:zig
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %sync-desk-to-vship  update-info
+    [%& sync-desk-to-vship]  ~
+  ::
+  ++  cis-setup-done
+    ^-  vase
+    !>  ^-  update:zig
+    [%cis-setup-done update-info [%& ~] ~]
+  ::
+  ++  status
+    |=  =status:zig
+    ^-  vase
+    !>  ^-  update:zig
+    [%status update-info [%& status] ~]
+  ::
+  ++  focused-linked
+    |=  data=focused-linked-data:zig
+    ^-  vase
+    !>  ^-  update:zig
+    [%focused-linked update-info [%& data] ~]
+  --
+::
+++  make-error-vase
+  |_  [=update-info:zig level=error-level:zig]
+  ++  project-names
+    |=  [message=@t project-names=(set @t)]
+    ^-  vase
+    !>  ^-  update:zig
+    [%project-names update-info [%| level message] project-names]
+  ::
+  ++  projects
+    |=  [message=@t =projects:zig]
+    ^-  vase
+    !>  ^-  update:zig
+    [%projects update-info [%| level message] (show-projects projects)]
+  ::
+  ++  project
+    |=  [message=@t =project:zig]
+    ^-  vase
+    !>  ^-  update:zig
+    [%project update-info [%| level message] (show-project project)]
+  ::
+  ++  state
+    |=  [message=@t state=(map @ux chain:eng)]
+    ^-  vase
+    !>  ^-  update:zig
+    [%state update-info [%| level message] state]
+  ::
+  ++  add-config
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-config update-info [%| level message] ~]
+  ::
+  ++  delete-config
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-config update-info [%| level message] ~]
+  ::
+  ++  new-project
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%new-project update-info [%| level message] ~]
+  ::
+  ++  add-test
+    |=  [message=@t test-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-test update-info [%| level message] test-id]
+  ::
+  ++  compile-contract
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%compile-contract update-info [%| level message] ~]
+  ::
+  ++  edit-test
+    |=  [message=@t test-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    [%edit-test update-info [%| level message] test-id]
+  ::
+  ++  delete-test
+    |=  [message=@t test-id=@ux]
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-test update-info [%| level message] test-id]
+  ::
+  ++  run-queue
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%run-queue update-info [%| level message] ~]
+  ::
+  ++  add-custom-step
+    |=  [message=@t test-id=@ux tag=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-custom-step update-info [%| level message] test-id tag]
+  ::
+  ++  delete-custom-step
+    |=  [message=@t test-id=@ux tag=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-custom-step update-info [%| level message] test-id tag]
+  ::
+  ++  add-user-file
+    |=  [message=@t file=path]
+    ^-  vase
+    !>  ^-  update:zig
+    [%add-user-file update-info [%| level message] file]
+  ::
+  ++  delete-user-file
+    |=  [message=@t file=path]
+    ^-  vase
+    !>  ^-  update:zig
+    [%delete-user-file update-info [%| level message] file]
+  ::
+  ++  custom-step-compiled
+    |=  [message=@t test-id=@ux tag=@tas]
+    ^-  vase
+    !>  ^-  update:zig
+    [%custom-step-compiled update-info [%| level message] test-id tag]
+  ::
+  ++  test-results
+    |=  [message=@t test-id=@ux thread-id=@t =test-steps:zig]
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %test-results  update-info  [%| level message]
+    [test-id thread-id test-steps]
+  ::
+  ++  dir
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%dir update-info [%| level message] ~]
+  ::
+  ++  poke
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%poke update-info [%| level message] ~]
+  ::
+  ++  test-queue
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%test-queue update-info [%| level message] ~]
+  ::
+  ++  pyro-agent-state
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%pyro-agent-state update-info [%| level message] ~]
+  ::
+  ++  sync-desk-to-vship
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%sync-desk-to-vship update-info [%| level message] ~]
+  ::
+  ++  cis-setup-done
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%cis-setup-done update-info [%| level message] ~]
+  ::
+  ++  status
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%status update-info [%| level message] ~]
+  ::
+  ++  focused-linked
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%focused-linked update-info [%| level message] ~]
+  --
 ::
 ::  json
 ::
@@ -1566,12 +1597,6 @@
         %dir
       `(list [@t json])`['data' (frond %dir (dir p.payload.update))]~
     ::
-        %pyro-ships-ready
-      :_  ~
-      :-  'data'
-      %+  frond  %pyro-ships-ready
-      (pyro-ships-ready p.payload.update)
-    ::
         %poke
       ['data' ~]~
     ::
@@ -1596,14 +1621,79 @@
       %+  frond  %sync-desk-to-vship
       (sync-desk-to-vship p.payload.update)
     ::
-        %cis-running
+        %cis-setup-done
+      ['data' ~]~
+    ::
+        %status
       :_  ~
       :-  'data'
-      %+  frond  %cis-running
+      (frond %status (status p.payload.update))
+    ::
+        %focused-linked
+      =*  up  p.payload.update
+      :_  ~
+      :-  'data'
       %-  pairs
-      %+  turn  ~(tap by p.payload.update)
-      |=  [who=@p message=@t]
-      [(scot %p who) %s message]
+      :^    [%focused-project %s focused-project.up]
+          :-  %linked-projects
+          (linked-projects linked-projects.up)
+        :-  %unfocused-project-snaps
+        (unfocused-project-snaps unfocused-project-snaps.up)
+      ~
+    ==
+  ::
+  ++  linked-projects
+    |=  linked-projects=(jug @t @t)
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by linked-projects)
+    |=  [project-name=@t links=(set @t)]
+    :-  project-name
+    :-  %a
+    %+  turn  ~(tap in links)
+    |=(link=@t [%s link])
+  ::
+  ++  unfocused-project-snaps
+    |=  unfocused-project-snaps=(map (set @t) ^path)
+    ^-  json
+    %-  pairs
+    %+  turn  ~(tap by unfocused-project-snaps)
+    |=  [links=(set @t) p=^path]
+    :-  (spat p)
+    :-  %a
+    %+  turn  ~(tap in links)
+    |=(link=@t [%s link])
+  ::
+  ++  status
+    |=  =status:zig
+    ^-  json
+    ?-    -.status
+        %running-test-steps  [%s -.status]
+        %ready               [%s -.status]
+        %uninitialized       [%s -.status]
+        %commit-install-starting
+      %-  pairs
+      %+  turn  ~(tap by cis-running.status)
+      |=  [who=@p cis-done=@t is-done=?]
+      :-  (scot %p who)
+      %-  pairs
+      :+  [%cis-done %s cis-done]
+        [%is-done %b is-done]
+      ~
+    ::
+        %changing-project-links
+      %-  pairs
+      %+  turn  ~(tap by project-cis-running.status)
+      |=  [project-name=@t cis-running=(map @p [@t ?])]
+      :-  project-name
+      %-  pairs
+      %+  turn  ~(tap by cis-running)
+      |=  [who=@p cis-done=@t is-done=?]
+      :-  (scot %p who)
+      %-  pairs
+      :+  [%cis-done %s cis-done]
+        [%is-done %b is-done]
+      ~
     ==
   ::
   ++  error
@@ -1910,14 +2000,6 @@
     %+  turn  ~(tap in cords)
     |=([cord=@t] [%s cord])
   ::
-  ++  pyro-ships-ready
-    |=  pyro-ships-ready=(map @p ?)
-    ^-  json
-    %-  pairs
-    %+  turn  ~(tap by pyro-ships-ready)
-    |=  [who=@p is-ready=?]
-    [(scot %p who) [%b is-ready]]
-  ::
   ++  sync-desk-to-vship
     |=  =sync-desk-to-vship:zig
     ^-  json
@@ -2021,13 +2103,20 @@
         [%start-pyro-ships (ot ~[[%ships (ar (se %p))]])]
         [%start-pyro-snap (ot ~[[%snap pa]])]
     ::
+        [%take-snapshot (ot ~[[%update-project-snaps (mu pa)]])]
+    ::
         [%publish-app docket]
+    ::
         [%add-user-file (ot ~[[%file pa]])]
         [%delete-user-file (ot ~[[%file pa]])]
     ::
         [%send-pyro-dojo (ot ~[[%who (se %p)] [%command sa]])]
     ::
         [%pyro-agent-state pyro-agent-state]
+    ::
+        [%change-focus ul]
+        [%add-project-link ul]
+        [%delete-project-link ul]
     ::
         [%cis-panic ul]
     ==

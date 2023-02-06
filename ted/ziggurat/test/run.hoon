@@ -55,7 +55,6 @@
   ;<  ~  bind:m
     %+  dojo:pyro-lib  who.payload
     (trip payload.payload)
-    :: (noah-slap-ream:zig-lib 0 subject payload.payload)  ::  TODO: enable transforming of dojo arguments like scries & pokes are transformed
   (pure:m ~)
 ::
 ++  send-pyro-scry
@@ -169,8 +168,7 @@
       ;;  (set @tas)
       .^  *
           %gx
-          %+  weld  /[our]/pyro/[now]/i/[who]/cd/[who]/base
-          /[now]/noun
+          /[our]/pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
       ==
     =/  desks=(list @tas)  ~(tap in desks-scry)
     |-
