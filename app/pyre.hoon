@@ -16,7 +16,7 @@
 ++  on-init
   ^-  (quip card _this)
   :_  this
-  :-  [%pass / %arvo %e %connect `/pyro %pyre]
+  :-  [%pass /bind %arvo %e %connect `/pyro %pyre]
   (make-resub:pyre our.bowl)
 ::
 ++  on-save  on-save:def
@@ -92,20 +92,18 @@
 ++  on-arvo
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)
-  ?+    -.sign-arvo  (on-arvo:def wire sign-arvo)
-      %behn
+  ?+    wire  (on-arvo:def wire sign-arvo)
+      [%b @ ~]
     ?>  ?=([%behn %wake *] sign-arvo)
-    ?>  ?=([@ *] wire)
-    =/  who  (,@p (slav %p i.wire))
+    =/  who  (,@p (slav %p i.t.wire))
     =^  cards  behn-piers
-      abet:(take-wake:(behn:hc who) t.wire error.sign-arvo)
+      abet:(take-wake:(behn:hc who) error.sign-arvo)
     [cards this]
   ::
-      %iris
+      [%i @ @ ~]
     ?>  ?=([%iris %http-response %finished *] sign-arvo)
-    ?>  ?=([@ @ ~] wire)
-    =/  who=@p    (slav %p i.wire)
-    =/  num=@ud   (slav %ud i.t.wire)
+    =/  who=@p    (slav %p i.t.wire)
+    =/  num=@ud   (slav %ud i.t.t.wire)
     =*  red       response-header.client-response.sign-arvo
     =/  fuf
       ?~(ful=full-file.client-response.sign-arvo ~ `data.u.ful)
@@ -113,7 +111,7 @@
       abet:(take-sigh-httr:(iris:hc who) num red fuf)
     [cards this]
   ::
-      %eyre  ?>(?&(=(+<.sign-arvo %bound) =(+>-.sign-arvo %.y)) `this)
+      [%bind ~]  ?>(?=([%eyre %bound %.y *] sign-arvo) `this)
   ==
 ::
 ++  on-fail   on-fail:def
@@ -176,17 +174,17 @@
   ++  set-timer
     |=  tim=@da
     =.  next-timer  `tim
-    =.  this  (emit-cards [%pass /(scot %p who) %arvo %b %wait tim]~)
+    =.  this  (emit-cards [%pass /b/(scot %p who) %arvo %b %wait tim]~)
     ..abet
   ::
   ++  cancel-timer
     =.  this
-      (emit-cards [%pass /(scot %p who) %arvo %b %rest (need next-timer)]~)
+      (emit-cards [%pass /b/(scot %p who) %arvo %b %rest (need next-timer)]~)
     =.  next-timer  ~
     ..abet
   ::
   ++  take-wake
-    |=  [way=wire error=(unit tang)]
+    |=  error=(unit tang)
     =.  next-timer  ~
     =.  this
       %-  emit-pyro-events
@@ -311,7 +309,7 @@
     =.  http-requests  (~(put in http-requests) id)
     =.  this
       %-  emit-cards  :_  ~
-      :^  %pass  /(scot %p who)/(scot %ud id)  %arvo
+      :^  %pass  /i/(scot %p who)/(scot %ud id)  %arvo
       [%i %request req *outbound-config:^iris]
     ..abet
   ::
