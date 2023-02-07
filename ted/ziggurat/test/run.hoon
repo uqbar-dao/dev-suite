@@ -55,7 +55,6 @@
   ;<  ~  bind:m
     %+  dojo:pyro-lib  who.payload
     (trip payload.payload)
-    :: (noah-slap-ream:zig-lib 0 subject payload.payload)  ::  TODO: enable transforming of dojo arguments like scries & pokes are transformed
   (pure:m ~)
 ::
 ++  send-pyro-scry
@@ -84,39 +83,6 @@
     (cat 3 'scry-compilation-fail\0a' p.compilation-result)
   =*  scry-mold  p.compilation-result
   (pure:m [%& (slym scry-mold scry-noun)])
-::
-::  +send-pyro-dbug differs from +send-pyro-scry in that
-::   the return value of the %pyro scry is a vase.
-::   must throw out the type information -- which has been
-::   lost anyways when it is forced into being a noun by the
-::   %pyro scry.
-::   compare, e.g., the `+.dbug-noun` in the final `+slam`
-::   in +send-pyro-dbug to the `scry-noun` in the final
-::   `+slam` of `+send-pyro-scry`.
-::
-++  send-pyro-dbug
-  |=  payload=dbug-payload:zig
-  =/  m  (strand ,(each vase @t))
-  ^-  form:m
-  ;<  =bowl:strand  bind:m  get-bowl
-  =/  who=@ta  (scot %p who.payload)
-  =/  now=@ta  (scot %da now.bowl)
-  =/  dbug-noun=*
-    .^  *
-        %gx
-        %+  weld  /(scot %p our.bowl)/pyro/[now]/i/[who]/gx
-        /[who]/[app.payload]/[now]/dbug/state/noun/noun
-    ==
-  =/  compilation-result
-    %+  mule-slap-subject:zig-lib  subject
-    (ream mold-name.payload)
-  ?:  ?=(%| -.compilation-result)
-    ~&  %ziggurat-test-run^%dbug-compilation-fail^p.compilation-result
-    %-  pure:m
-    :-  %|
-    (cat 3 'dbug-compilation-fail\0a' p.compilation-result)
-  =*  dbug-mold  p.compilation-result
-  (pure:m [%& (slym dbug-mold +.dbug-noun)])
 ::
 ++  read-pyro-subscription
   |=  [payload=read-sub-payload:zig expected=@t]
@@ -202,8 +168,7 @@
       ;;  (set @tas)
       .^  *
           %gx
-          %+  weld  /[our]/pyro/[now]/i/[who]/cd/[who]/base
-          /[now]/noun
+          /[our]/pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
       ==
     =/  desks=(list @tas)  ~(tap in desks-scry)
     |-
@@ -260,12 +225,16 @@
   |=  [done-duration=@dr project-id=@t]
   =/  m  (strand:spider ,~)
   ^-  form:m
+  ;<  ~  bind:m  (sleep `@dr`1)
   |-
+  ;<  is-stack-empty=?  bind:m  get-is-stack-empty
+  ?.  is-stack-empty
+    ;<  ~  bind:m  (sleep (div ~s1 4))
+    $
   ;<  =bowl:strand  bind:m  get-bowl
   =*  now  now.bowl
   =/  timers=(list [@da duct])
-    %+  filter-timers  now
-    (get-virtualship-timers project-id [our now]:bowl)
+    (get-real-and-virtual-timers project-id [our now]:bowl)
   ?~  timers                                       (pure:m ~)
   =*  soonest-timer  -.i.timers
   ?:  (lth (add now done-duration) soonest-timer)  (pure:m ~)
@@ -273,20 +242,40 @@
   :: ~&  [%ztr %block now `(list [@da duct])`timers]
   $
 ::
-++  ignored-timer-prefixes
+++  get-is-stack-empty
+  =/  m  (strand:spider ,?)
+  ^-  form:m
+  ;<  maz=(list mass)  bind:m  (scry (list mass) /i//whey)  ::  sys/vane/iris/hoon:386
+  =/  by-id  (snag 2 maz)
+  ?^  p.q.by-id  (pure:m %.n)
+  (pure:m %.y)
+::
+++  ignored-virtualship-timer-prefixes
   ^-  (list path)
   :_  ~
   /ames/pump
 ::
+++  ignored-realship-timer-prefixes
+  ^-  (list path)
+  :~  /ames/pump
+      /gall/use/pyre
+      /gall/use/hark-system-hook
+      /gall/use/hark
+      /gall/use/notify
+  ==
+::
 ++  filter-timers
-  |=  [now=@da timers=(list [@da duct])]
+  |=  $:  now=@da
+          ignored-prefixes=(list path)
+          timers=(list [@da duct])
+      ==
   ^-  (list [@da duct])
   %+  murn  timers
   |=  [time=@da d=duct]
   ?~  d               `[time d]  ::  ?
   ?:  (gth now time)  ~
   =*  p  i.d
-  %+  roll  ignored-timer-prefixes
+  %+  roll  ignored-prefixes
   |:  [ignored-prefix=`path`/ timer=`(unit [@da duct])``[time d]]
   ?:  =(ignored-prefix (scag (lent ignored-prefix) p))  ~
   timer
@@ -297,8 +286,6 @@
   =/  now-ta=@ta  (scot %da now)
   =/  ships=(list @p)
     (get-virtualships-synced-for-project project-id our now)
-  %-  sort
-  :_  |=([a=(pair @da duct) b=(pair @da duct)] (lth p.a p.b))
   %+  roll  ships
   |=  [who=@p all-timers=(list [@da duct])]
   =/  who-ta=@ta  (scot %p who)
@@ -327,6 +314,25 @@
   =*  sync-desk-to-vship  p.payload.update
   ~(tap in (~(get ju sync-desk-to-vship) project-id))
 ::
+++  get-realship-timers
+  |=  [our=@p now=@da]
+  ^-  (list [@da duct])
+  .^  (list [@da duct])
+      %bx
+      /(scot %p our)//(scot %da now)/debug/timers
+  ==
+::
+++  get-real-and-virtual-timers
+  |=  [project-id=@t our=@p now=@da]
+  ^-  (list [@da duct])
+  %-  sort
+  :_  |=([a=(pair @da duct) b=(pair @da duct)] (lth p.a p.b))
+  %+  weld
+    %^  filter-timers  now  ignored-realship-timer-prefixes
+    (get-realship-timers our now)
+  %^  filter-timers  now  ignored-virtualship-timer-prefixes
+  (get-virtualship-timers project-id our now)
+::
 ++  run-steps
   |=  $:  project-id=@t
           test-id=@ux
@@ -343,7 +349,6 @@
     %-  slop  :_  subject
     results-vase(p [%face %test-results p.results-vase])
   |-
-  ;<  ~  bind:m  (sleep ~s1)  :: TODO: unhardcode; tune time to allow previous step to continue processing
   ;<  ~  bind:m  (block-on-previous-step ~m1 project-id)  :: TODO: unhardcode; are these good numbers?
   ;<  ~  bind:m
     ?~  snapshot-ships  (pure:(strand ,~) ~)
@@ -421,23 +426,7 @@
       (build-next-subject subject !>(test-results) bowl)
     ==
   ::
-      %dbug
-    ;<  dbug-result=(each vase @t)  bind:m
-      (send-pyro-dbug payload.test-step)
-    ?:  ?=(%| -.dbug-result)  (pure:m [%| p.dbug-result])
-    =*  result    p.dbug-result
-    =*  expected  expected.test-step
-    =/  res-text=@t  (crip (noah result))
-    =.  test-results
-      [[=(expected res-text) expected result]~ test-results]
-    %=  $
-        test-steps    t.test-steps
-        step-number   +(step-number)
-        subject
-      (build-next-subject subject !>(test-results) bowl)
-    ==
-  ::
-        %read-subscription
+      %read-subscription
     ;<  result=vase  bind:m
       (read-pyro-subscription [payload expected]:test-step)
     =*  expected  expected.test-step

@@ -1,6 +1,7 @@
 /-  *zig-pyro,
     spider
-/+  *strandio
+/+  *strandio,
+    dill
 ::
 =*  strand    strand:spider
 ::
@@ -185,6 +186,21 @@
     :-  %a
     %+  turn  paths
     |=(p=^path (path p))
+  ::
+  ++  pyro-effect
+    |=  [who=@p ufs=unix-effect]
+    ^-  json
+    ?+    -.q.ufs  ~  :: ignore non-%blit
+        %blit
+      %-  pairs
+      :~  [%ship s+(scot %p who)]
+        :-  %blits
+        :-  %a
+        %+  turn  `(list blit:dill)`p.q.ufs
+        |=  b=blit:dill
+        (blit:enjs:dill b)
+      ==
+    ==
   --
 ::
 ++  dejs
