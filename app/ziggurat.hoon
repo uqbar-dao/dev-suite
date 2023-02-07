@@ -1388,11 +1388,15 @@
             :+  (scot %p our.bowl)  %pyro
             /[now]/[who]/[app]/dbug/subscriptions/noun/noun
         ==
+      ::  %shown-pyro-agent-state over %pyro-agent-state
+      ::   because there are casts deep in vanes that don't
+      ::   take too kindly to vases within vases: ideally
+      ::   this should be a %pyro-agent-state like the scry
       :_  state
       :_  ~
       %-  update-vase-to-card:zig-lib
-      %.  [agent-state wex sup]
-      %~  pyro-agent-state  make-update-vase:zig-lib
+      %.  [(show-agent-state:zig-lib agent-state) wex sup]
+      %~  shown-pyro-agent-state  make-update-vase:zig-lib
       ['' %pyro-agent-state ~]
     ==
   --

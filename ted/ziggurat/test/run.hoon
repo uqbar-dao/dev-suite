@@ -258,6 +258,8 @@
 ++  ignored-realship-timer-prefixes
   ^-  (list path)
   :~  /ames/pump
+      /eyre/channel
+      /eyre/sessions
       /gall/use/pyre
       /gall/use/hark-system-hook
       /gall/use/hark

@@ -516,6 +516,27 @@
   ?:  (lte 1.024 (met 3 res-text))  '<elided>'  ::  TODO: unhardcode
   res-text
 ::
+++  show-agent-state
+  |=  agent-state=vase
+  ^-  @t
+  =/  noah-state=@t  (crip (noah agent-state))
+  ?:  (lth 10.000 (met 3 noah-state))  noah-state
+  (get-formatted-error (sell agent-state) ~)
+::
+++  show-agent-state-update
+  |=  =update:zig
+  ^-  (unit shown-agent-state:zig)
+  ?.  ?=(%pyro-agent-state -.update)  ~
+  ?:  ?=(%| -.payload.update)         ~
+  :-  ~
+  :~  -.update
+      [project-name source request-id]:update
+      :^    %&
+          (show-agent-state agent-state.p.payload.update)
+        wex.p.payload.update
+      sup.p.payload.update
+  ==
+::
 ++  mule-slap-subject
   |=  [subject=vase payload=hoon]
   ^-  (each vase @t)
@@ -1378,6 +1399,13 @@
     :^  %pyro-agent-state  update-info
     [%& agent-state wex sup]  ~
   ::
+  ++  shown-pyro-agent-state
+    |=  [agent-state=@t wex=boat:gall sup=bitt:gall]
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %shown-pyro-agent-state  update-info
+    [%& agent-state wex sup]  ~
+  ::
   ++  sync-desk-to-vship
     |=  =sync-desk-to-vship:zig
     ^-  vase
@@ -1585,8 +1613,18 @@
       :_  ~
       :-  'data'
       %-  pairs
-      :^    :-  %pyro-agent-state
-            (agent-state agent-state.p.payload.update)
+      :^    :+  %pyro-agent-state  %s
+            (show-agent-state agent-state.p.payload.update)
+          ['outgoing' (boat wex.p.payload.update)]
+        ['incoming' (bitt sup.p.payload.update)]
+      ~
+    ::
+        %shown-pyro-agent-state
+      :_  ~
+      :-  'data'
+      %-  pairs
+      :^    :+  %pyro-agent-state  %s
+            agent-state.p.payload.update
           ['outgoing' (boat wex.p.payload.update)]
         ['incoming' (bitt sup.p.payload.update)]
       ~
@@ -1996,15 +2034,6 @@
     :+  [%project-name %s project]
       [%test-id %s (scot %ux test-id)]
     ~
-  ::
-  ++  agent-state
-    |=  agent-state=vase
-    ^-  json
-    :-  %s
-    ^-  @t
-    =/  noah-state=@t  (crip (noah agent-state))
-    ?:  (lth 10.000 (met 3 noah-state))  noah-state
-    (get-formatted-error (sell agent-state) ~)
   ::
   ++  boat
     |=  =boat:gall

@@ -249,6 +249,7 @@
       [%poke update-info payload=(data ~) ~]
       [%test-queue update-info payload=(data (qeu [@t @ux])) ~]
       [%pyro-agent-state update-info payload=(data [agent-state=vase wex=boat:gall sup=bitt:gall]) ~]
+      [%shown-pyro-agent-state update-info payload=(data [agent-state=@t wex=boat:gall sup=bitt:gall]) ~]
       [%sync-desk-to-vship update-info payload=(data sync-desk-to-vship) ~]
       [%cis-setup-done update-info payload=(data ~) ~]
       [%status update-info payload=(data status) ~]
@@ -275,4 +276,10 @@
   ==
 +$  shown-test-results  (list shown-test-result)
 +$  shown-test-result   (list [success=? expected=@t result=@t])
++$  shown-agent-state
+  $:  %pyro-agent-state
+      update-info
+      payload=(data [agent-state=@t wex=boat:gall sup=bitt:gall])
+      ~
+  ==
 --
