@@ -1372,7 +1372,7 @@
     [%test-queue update-info [%& queue] ~]
   ::
   ++  pyro-agent-state
-    |=  [agent-state=@t wex=boat:gall sup=bitt:gall]
+    |=  [agent-state=vase wex=boat:gall sup=bitt:gall]
     ^-  vase
     !>  ^-  update:zig
     :^  %pyro-agent-state  update-info
@@ -1585,7 +1585,8 @@
       :_  ~
       :-  'data'
       %-  pairs
-      :^    [%pyro-agent-state %s agent-state.p.payload.update]
+      :^    :-  %pyro-agent-state
+            (agent-state agent-state.p.payload.update)
           ['outgoing' (boat wex.p.payload.update)]
         ['incoming' (bitt sup.p.payload.update)]
       ~
@@ -1995,6 +1996,15 @@
     :+  [%project-name %s project]
       [%test-id %s (scot %ux test-id)]
     ~
+  ::
+  ++  agent-state
+    |=  agent-state=vase
+    ^-  json
+    :-  %s
+    ^-  @t
+    =/  noah-state=@t  (crip (noah agent-state))
+    ?:  (lth 10.000 (met 3 noah-state))  noah-state
+    (get-formatted-error (sell agent-state) ~)
   ::
   ++  boat
     |=  =boat:gall

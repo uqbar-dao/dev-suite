@@ -1372,26 +1372,28 @@
       =/  who=@ta  (scot %p who.act)
       =*  app      app.act
       =*  grab     grab.act
+      =?  grab  =('' grab)  '-'
       =/  now=@ta  (scot %da now.bowl)
-      =/  agent-state-noun=*
-        .^  *
+      =+  .^  agent-state=vase
+              %gx
+              :+  (scot %p our.bowl)  %pyro
+              /[now]/[who]/[app]/dbug/state/noun/noun
+          ==
+      =.  agent-state
+        %-  slap  :_  (ream grab)
+        (slop agent-state !>([bowl=bowl ..zuse]))
+      =/  [wex=boat:gall sup=bitt:gall]
+        .^  [boat:gall bitt:gall]
             %gx
-            :-  (scot %p our.bowl)
-            %+  weld  /pyro/[now]/i/[who]/gx/[who]/subscriber
-            /[now]/agent-state/[app]/[grab]/noun/noun
+            :+  (scot %p our.bowl)  %pyro
+            /[now]/[who]/[app]/dbug/subscriptions/noun/noun
         ==
       :_  state
       :_  ~
       %-  update-vase-to-card:zig-lib
-      ?~  agent-state-noun
-        %.  (crip "scry for /{<who>}/{<app>} failed")
-        %~  pyro-agent-state  make-error-vase:zig-lib
-        [['' %pyro-agent-state ~] %error]
-      =/  [agent-state=@t wex=boat:gall sup=bitt:gall]
-        ;;([@t boat:gall bitt:gall] agent-state-noun)
       %.  [agent-state wex sup]
       %~  pyro-agent-state  make-update-vase:zig-lib
-      update-info
+      ['' %pyro-agent-state ~]
     ==
   --
 ::
@@ -1711,22 +1713,24 @@
       [%pyro-agent-state @ @ @ ~]
     =*  who      i.t.t.p
     =*  app      `@tas`i.t.t.t.p
-    =*  grab     `@t`i.t.t.t.t.p
+    =/  grab=@t  `@t`i.t.t.t.t.p
+    =?  grab  =('' grab)  '-'
     =/  now=@ta  (scot %da now.bowl)
-    =/  agent-state-noun=*
-      .^  *
+    =+  .^  agent-state=vase
+            %gx
+            :+  (scot %p our.bowl)  %pyro
+            /[now]/[who]/[app]/dbug/state/noun/noun
+        ==
+    =.  agent-state
+      %-  slap  :_  (ream grab)
+      (slop agent-state !>([bowl=bowl ..zuse]))
+    =/  [wex=boat:gall sup=bitt:gall]
+      .^  [boat:gall bitt:gall]
           %gx
-          :-  (scot %p our.bowl)
-          %+  weld  /pyro/[now]/i/[who]/gx/[who]/subscriber
-          /[now]/agent-state/[app]/[grab]/noun/noun
+          :+  (scot %p our.bowl)  %pyro
+          /[now]/[who]/[app]/dbug/subscriptions/noun/noun
       ==
     :^  ~  ~  %ziggurat-update
-    ?~  agent-state-noun
-      %.  (crip "scry for /{<who>}/{<app>} failed")
-      %~  pyro-agent-state  make-error-vase:zig-lib
-      [['' %pyro-agent-state ~] %error]
-    =/  [agent-state=@t wex=boat:gall sup=bitt:gall]
-      ;;([@t boat:gall bitt:gall] agent-state-noun)
     %.  [agent-state wex sup]
     %~  pyro-agent-state  make-update-vase:zig-lib
     ['' %pyro-agent-state ~]
