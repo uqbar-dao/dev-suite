@@ -147,8 +147,7 @@
       ~&  %ziggurat-test-run^%no-desk-running-app^app.payload
       %.n
     =/  mar-paths=(list path)
-      ;;  (list path)
-      .^  *
+      .^  (list path)
           %gx
           %+  weld  /[our]/pyro/[now]/i/[who]/ct
           /[who]/[u.desk]/[now]/mar/file-list
@@ -165,8 +164,7 @@
     |=  [app=@tas our=@ta who=@ta now=@ta]
     ^-  (unit @tas)
     =/  desks-scry=(set @tas)
-      ;;  (set @tas)
-      .^  *
+      .^  (set @tas)
           %gx
           /[our]/pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
       ==
@@ -175,8 +173,7 @@
     ?~  desks  ~
     =*  desk  i.desks
     =/  apps=(set [@tas ?])
-      ;;  (set [@tas ?])
-      .^  *
+      .^  (set [@tas ?])
           %gx
           %+  weld  /[our]/pyro/[now]/i/[who]/ge/[who]/[desk]
           /[now]/apps
@@ -291,16 +288,13 @@
   %+  roll  ships
   |=  [who=@p all-timers=(list [@da duct])]
   =/  who-ta=@ta  (scot %p who)
-  =/  scry-noun=*
-    .^  *
+  =/  timers=(list [@da duct])
+    .^  (list [@da duct])
         %gx
         %+  weld  /(scot %p our)/pyro/[now-ta]/i/[who-ta]
         /bx/[who-ta]//[now-ta]/debug/timers/noun
     ==
-  =/  timers=(unit (list [@da duct]))
-    ;;((unit (list [@da duct])) scry-noun)
-  ?~  timers  all-timers
-  (weld u.timers all-timers)
+  (weld timers all-timers)
 ::
 ++  get-virtualships-synced-for-project
   |=  [project-id=@t our=@p now=@da]

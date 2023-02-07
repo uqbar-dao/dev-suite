@@ -631,25 +631,23 @@
   =/  town-ta=@ta  (scot %ux town-id)
   =/  batch-order=update:ui
     ;;  update:ui
-    .^  noun
+    .^  update:ui
         %gx
         ;:  weld
-          /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
-          /[who-ta]/indexer/[now-ta]/batch-order/[town-ta]
-          /noun/noun
+          /(scot %p our.bowl)/pyro/[now-ta]/[who-ta]/indexer
+          /batch-order/[town-ta]/noun/noun
     ==  ==
   ?~  batch-order                     ~
   ?.  ?=(%batch-order -.batch-order)  ~
   ?~  batch-order.batch-order         ~
   =*  newest-batch  i.batch-order.batch-order
   =/  batch-chain=update:ui
-    ;;  update:ui
-    .^  noun
+    .^  update:ui
         %gx
         ;:  weld
-            /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
-            /[who-ta]/indexer/[now-ta]/newest/batch-chain
-            /[town-ta]/(scot %ux newest-batch)/noun/noun
+            /(scot %p our.bowl)/pyro/[now-ta]/[who-ta]
+            /indexer/newest/batch-chain/[town-ta]
+            /(scot %ux newest-batch)/noun/noun
     ==  ==
   ?~  batch-chain                     ~
   ?.  ?=(%batch-chain -.batch-chain)  ~
@@ -710,8 +708,7 @@
   ^-  (set @tas)
   =/  now=@ta  (scot %da now-da)
   =/  who=@ta  (scot %p virtualship)
-  ;;  (set @tas)
-  .^  *
+  .^  (set @tas)
       %gx
       :-  (scot %p our.bowl)
       /pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
@@ -727,13 +724,11 @@
   ^-  ?
   =/  now=@ta  (scot %da now-da)
   =/  who=@ta  (scot %p virtualship)
-  =/  is-app-running=*
-    .^  *
-        %gx
-        :-  (scot %p our.bowl)
-        /pyro/[now]/i/[who]/gu/[who]/[app]/[now]/noun
-    ==
-  ;;(? is-app-running)
+  .^  ?
+      %gx
+      :-  (scot %p our.bowl)
+      /pyro/[now]/i/[who]/gu/[who]/[app]/[now]/noun
+  ==
 ::
 ++  sync-desk-to-virtualship-card
   |=  [who=@p project-name=@tas]
