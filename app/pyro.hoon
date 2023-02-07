@@ -11,13 +11,12 @@
 ::  :pyro|pause ~nec
 ::  :pyro|unpause ~nec
 ::  :pyro|kill ~nec
-::  +zig!pyro/scry /~dev/gx/sequencer/status/noun
 ::
 /-  *zig-pyro
 /+  pyro=pyro-pyro,
     default-agent,
     pill=pill,
-    naive, dbug, verb
+    dbug, verb
 ::
 /=  arvo-core  /lib/pyro/sys/arvo
 /=  lull-core  /lib/pyro/sys/lull
@@ -36,17 +35,12 @@
     ++  arvo-adult  ..^load:+>.arvo-core
     ++  clay-types  (clay-core *ship)
     ++  gall-type   (tail (gall-core *ship))
-    +$  versioned-state
-      $%  state-0
-      ==
+    +$  versioned-state  $%(state-0)
     +$  state-0
       $:  %0
           piers=fleet
           fleet-snaps=(map path fleet)
-          ::  a fake time, starting at *@da and manually ticked up
-          ::
-          tym=@da  
-          :: quickboot cache
+          :: quickboot caching
           ::
           files=(axal (cask))
           =raft:clay-types
@@ -72,7 +66,7 @@
   ^-  agent:gall
   |_  =bowl:gall
   +*  this       .
-      ac         ~(. +> bowl)
+      hc         ~(. +> bowl)
       def        ~(. (default-agent this %|) bowl)
   ++  on-init
     =.  files
@@ -87,7 +81,7 @@
   ++  on-save  !>(state)
   ++  on-load
     |=  old-vase=vase
-    ^-  step:agent:gall
+    ^-  (quip card _this)
     =+  !<(old=versioned-state old-vase)
     ::  TODO uncomment for release
     :: =.  files
@@ -96,22 +90,22 @@
     ::   /(scot %p p.byk.bowl)/base/(scot %da now.bowl)
     :: =.  park  (park:pyro our.bowl %base %da now.bowl)
     ?-  -.old
-        %0  `this(state old)
+      %0  `this(state old)
     ==
   ::
   ++  on-poke
     |=  [=mark =vase]
-    ^-  step:agent:gall
+    ^-  (quip card _this)
     =^  cards  state
       ?+  mark  ~|([%pyro-bad-mark mark] !!)
-        %pyro-events  (poke-pyro-events:ac !<((list pyro-event) vase))
-        %pyro-action  (poke-action:ac our.bowl !<(action vase))
+        %pyro-events  (poke-pyro-events:hc !<((list pyro-event) vase))
+        %pyro-action  (poke-action:hc !<(action vase))
       ==
     [cards this]
   ::
   ++  on-watch
     |=  =path
-    ^-  step:agent:gall
+    ^-  (quip card _this)
     ::  /effect        subscribe to effects one by one
     ::  /effects       subscribe to effects in list form
     ::  /effect/~dev   subscribe to all effects of a given ship
@@ -152,12 +146,23 @@
       !>  ^-  update
       ?~  sips  ~
       [%snap-ships t.t.path (turn ~(tap by u.sips) head)]
-    ::
     ::  scry into running virtual ships
     ::  ship, care, ship, desk, time, path
+    ::  NOTE: requires a double mark at the end
+    ::
         [%x %i @ @ @ @ @ *]
       =/  who  (slav %p i.t.t.path)
-      `(scry:(pe who) t.t.t.path)
+      =*  paf  t.t.t.path
+      (scry:(pe who) paf)
+    ::  convenience scry for a virtual ship's running gall app
+    ::  ship, app, path
+    ::
+        [%x @ @ *]
+      =/  who  (slav %p i.t.path)
+      =*  her  i.t.path
+      =*  dap  i.t.t.path
+      =/  paf  t.t.t.path
+      (scry:(pe who) (weld /gx/[her]/[dap]/0 paf))
     ==
   ++  on-leave  on-leave:def
   ++  on-agent  on-agent:def
@@ -167,7 +172,6 @@
 ::
 ::  unix-{effects,events,boths}: collect jar of effects and events to
 ::    brodcast all at once to avoid gall backpressure
-::  moves: Hoist moves into state for cleaner state management
 ::
 =|  unix-effects=(jar ship unix-effect)
 =|  unix-events=(jar ship unix-timed-event)
@@ -201,6 +205,7 @@
   ::
   ++  apex
     ^+  ..abet-pe
+    ?:  paused.pier-data  ..abet-pe
     =.  van.mod.sol.snap
       =/  cay  !<((tail clay-types) vase:(~(got by van.mod.sol.snap) %clay))
       =.  fad.ruf.cay  fad.raft
@@ -242,20 +247,16 @@
   ::
   ++  plow
     |-  ^+  ..abet-pe
-    ?:  =(~ next-events)
-      ..abet-pe
-    ?:  paused
-      ~&(pyro+not-plowing-events+who ..abet-pe)
+    ?:  =(~ next-events)  ..abet-pe
+    ?:  paused  ~&(pyro+not-plowing-events+who ..abet-pe)
     =^  ue  next-events  ~(get to next-events)
-    =.  tym  (max +(tym) now.bowl)
     =/  poke-result=(each vase tang)
-      (mule |.((slym [-:!>(poke:arvo-adult) poke:snap] [tym ue])))
-    ?:  ?=(%| -.poke-result)
-      ((slog >%pyro-crash< >who< p.poke-result) $)
-    ::  BEWARE: this is extremely dangerous
+      (mule |.((slym [-:!>(poke:arvo-adult) poke:snap] [now.bowl ue])))
+    ?:  ?=(%| -.poke-result)  ((slog >%pyro-crash< >who< p.poke-result) $)
+    ::  NOTE: this is extremely dangerous
     =.  snap  !<(_arvo-adult [-:!>(*_arvo-adult) +.q.p.poke-result])
-    =.  scry-time  tym
-    =.  ..abet-pe  (publish-event tym ue)
+    =.  scry-time  now.bowl
+    =.  ..abet-pe  (publish-event now.bowl ue)
     =.  ..abet-pe
       ~|  ova=-.p.poke-result
       (handle-effects ;;((list ovum) -.q.p.poke-result))
@@ -266,14 +267,12 @@
   ++  handle-effects
     |=  effects=(list ovum)
     ^+  ..abet-pe
-    ?~  effects
-      ..abet-pe
+    ?~  effects  ..abet-pe
     =.  ..abet-pe
-      ?~  sof=((soft unix-effect) i.effects)
-        ?:  &(=(p.card.i.effects %unto) ?=(^ q.card.i.effects))
-          ((slog (flop ;;(tang +.q.card.i.effects))) ~&(who=who ..abet-pe))
-        ~&(pyro+unknown-effect+who^i.effects ..abet-pe)
-      (publish-effect u.sof)
+      ?^  sof=((soft unix-effect) i.effects)  (publish-effect u.sof)
+      ?:  &(=(p.card.i.effects %unto) ?=(^ q.card.i.effects))
+        ((slog (flop ;;(tang +.q.card.i.effects))) ~&(who=who ..abet-pe))
+      ~&(pyro+unknown-effect+who^i.effects ..abet-pe)
     $(effects t.effects)
   ::
   ++  publish-effect
@@ -292,23 +291,16 @@
     ..abet-pe
   ::
   ++  scry
-    |=  pax=path
-    ^-  (unit cage)
-    ?.  ?=([@ @ @ @ *] pax)  ~
+    |=  =path
+    ^-  (unit (unit cage))
+    ?.  ?=([@ @ @ @ *] path)  ~
     ::  alter timestamp to match %pyro fake-time
-    =.  i.t.t.t.pax  (scot %da scry-time)
+    =.  i.t.t.t.path  (scot %da scry-time)
     ::  execute scry
-    =/  pek=(each vase tang)
-      (mule |.((slym [-:!>(peek:arvo-adult) peek:snap] [`~ %&^pax])))
-    ?:  ?=(%| -.pek)
-      ((slog >%pyro-crash< >who=who< p.pek) ~)
-    ?~  q.p.pek  ~
-    :: success: make a (unit page) from a (vase (unit page))
-    :: TODO: we don't have all type information, p.p.pek is #t/u([p=@tas q=*])
-    :: if I can somehow add the mold in there to get more type info that would work....not sure if I can do that
-    :+  ~
-      !<(mark (slam !>(|=((unit page) (head (need +<)))) p.pek))
-    (slam !>(|=((unit page) (tail (need +<)))) p.pek)
+    ?~  mon=(de-omen path)  ~
+    ?~  res=(~(peek le:part:snap [[pit vil] sol]:snap) [`~ u.mon])  ~
+    ?~  u.res  res
+    ``[p.u.u.res !<(vase [-:!>(*vase) q.u.u.res])]
   ::
   ::  When paused, events are added to the queue but not processed.
   ::
@@ -404,12 +396,12 @@
   ^-  (quip card _state)
   =.  this  apex-pyro  =<  abet-pyro
   %+  turn-events  events
-  |=  [ae=pyro-event thus=_this]
+  |=  [pev=pyro-event thus=_this]
   =.  this  thus
-  (push-events:(pe who.ae) [ue.ae]~)
+  (push-events:(pe who.pev) [ue.pev]~)
 ::
 ++  poke-action
-  |=  [our=ship act=action]
+  |=  act=action
   ^-  (quip card _state)
   ?-    -.act
       %init-ship
@@ -430,7 +422,7 @@
               hoon+hoon-version
               nock+4
           ==
-          :^    files                             ::  mod
+          :^    files                                  ::  mod
               !>(lull-core)
             !>(zuse-core)
           %-  ~(gas by *(map term vane))               ::  van.mod
@@ -474,6 +466,7 @@
   ::
       %slap-gall
     =.  this  abet-pe:(slap-gall:(pe her.act) [dap.act vase.act])
+    ~&  pyro+slap-gall+her.act
     `state
   ::
       %snap-ships
@@ -550,22 +543,19 @@
   |*  arg=mold
   |=  [hers=(list arg) fun=$-([arg _this] _(pe))]
   |-  ^+  this
-  ?~  hers
-    ::  Run all events on all ships until all queues are empty
-    |-
-    =/  who
-      =/  pers  ~(tap by piers)
-      |-  ^-  (unit ship)
-      ?~  pers  ~
-      ?:  &(?=(^ next-events.q.i.pers) !paused.q.i.pers)
-        `p.i.pers
-      $(pers t.pers)
+  ?^  hers  ::  first process all hers
+    =.  this  abet-pe:plow:apex:(fun i.hers this)
+    $(hers t.hers, this this)
+  |-  ::  then run all events on all ships until all queues are empty
+  =;  who=(unit ship)
     ?~  who  this
-    =.  this  abet-pe:plow:apex:(pe u.who)
-    $
-  =.  this
-    abet-pe:plow:apex:(fun i.hers this)
-  $(hers t.hers, this this)
+    =.(this abet-pe:plow:apex:(pe u.who) $)
+  =+  pers=~(tap by piers)
+  |-  ^-  (unit ship)
+  ?~  pers  ~
+  ?:  &(?=(^ next-events.q.i.pers) !paused.q.i.pers)
+    `p.i.pers
+  $(pers t.pers)
 ::
 ++  turn-ships   (turn-plow ship)
 ++  turn-events  (turn-plow pyro-event)
