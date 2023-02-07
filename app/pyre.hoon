@@ -92,7 +92,7 @@
 ++  on-arvo
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)
-  ?+    -.sign-arvo  (on-arvo:def)
+  ?+    -.sign-arvo  (on-arvo:def wire sign-arvo)
       %behn
     ?>  ?=([%behn %wake *] sign-arvo)
     ?>  ?=([@ *] wire)
@@ -112,6 +112,8 @@
     =^  cards  iris-piers
       abet:(take-sigh-httr:(iris:hc who) num red fuf)
     [cards this]
+  ::
+      %eyre  ?>(?&(=(+<.sign-arvo %bound) =(+>-.sign-arvo %.y)) `this)
   ==
 ::
 ++  on-fail   on-fail:def
