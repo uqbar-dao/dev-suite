@@ -211,6 +211,7 @@
       %cis-setup-done
       %status
       %focused-linked
+      %save-file
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -254,6 +255,7 @@
       [%cis-setup-done update-info payload=(data ~) ~]
       [%status update-info payload=(data status) ~]
       [%focused-linked update-info payload=(data focused-linked-data) ~]
+      [%save-file update-info payload=(data path) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)
