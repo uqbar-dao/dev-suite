@@ -586,7 +586,7 @@
         (~(got by configs) project.act)
       =/  file-path=path  /zig/configs/[project.act]/hoon
       :_  state
-      :+  %^  make-save-file:zig-lib  project.act
+      :+  %^  make-save-file:zig-lib  update-info
           file-path  file-text
         (make-read-desk:zig-lib [project request-id]:act)
       ~
@@ -763,7 +763,8 @@
       =/  =project:zig  (~(got by projects) project.act)
       =.  user-files.project
         (~(put in user-files.project) file.act)
-      :-  (make-save-file:zig-lib [project file text]:act)^~
+      :-  :_  ~
+          (make-save-file:zig-lib update-info [file text]:act)
       state(projects (~(put by projects) project.act project))
     ::
         %delete-file
@@ -1037,7 +1038,7 @@
       =/  file-text=@t  (make-test-steps-file:zig-lib test)
       =.  test-steps-file.test  path.act
       =.  tests.project  (~(put by tests.project) id.act test)
-      :-  :+  %^  make-save-file:zig-lib  project.act
+      :-  :+  %^  make-save-file:zig-lib  update-info
                   path.act  file-text
             (make-read-desk:zig-lib [project request-id]:act)
            ~

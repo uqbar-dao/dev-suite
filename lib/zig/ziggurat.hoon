@@ -71,28 +71,56 @@
   [`@tas`project-name %& [file %ins %noun !>(`@`(jam non))]~]
 ::
 ++  make-save-file
-  |=  [project-name=@t file=path text=@t]
+  |=  [=update-info:zig file=path text=@t]
   ^-  card
-  =/  file-type  (rear file)
-  =/  mym=mime  :-  /application/x-urb-unknown
-    %-  as-octt:mimes:html
-    %+  rash  text
-    (star ;~(pose (cold '\0a' (jest '\0d\0a')) next))
-  %-  ~(arvo pass:io /save-wire)
-  :-  %c
-  :: =-  [%pass /save-wire %arvo %c -]
-  :^  %info  `@tas`project-name  %&
-  :_  ~  :+  file  %ins
-  =*  reamed-text  q:(slap !>(~) (ream text))  ::  =* in case text unreamable
-  ?+  file-type  [%mime !>(mym)] :: don't need to know mar if we have bytes :^)
-    %hoon        [%hoon !>(text)]
-    %ship        [%ship !>(;;(@p reamed-text))]
-    %bill        [%bill !>(;;((list @tas) reamed-text))]
-    %kelvin      [%kelvin !>(;;([@tas @ud] reamed-text))]
-      %docket-0
-    =-  [%docket-0 !>((need (from-clauses:mime:dock -)))]
-    ;;((list clause:dock) reamed-text)
+  =*  project-name  project-name.update-info
+  =/  file-type=@tas  (rear file)
+  |^
+  =/  supported-file-types=(set @tas)
+    %-  ~(gas in *(set @tas))
+    ~[%hoon %ship %bill %kelvin %docket-0]
+  ?:  (~(has in supported-file-types) file-type)  make-card
+  =/  is-mark-found=?
+    .^  ?
+        %cu
+        %+  weld  /(scot %p our.bowl)/[project-name]
+        /(scot %da now.bowl)/mar/[file-type]/hoon
+    ==
+  ?:  is-mark-found                               make-card
+  %-  update-vase-to-card
+  %-  %~  save-file  make-error-vase
+      [update-info %error]
+  %-  crip
+  ;:  weld
+      "cannot save file with mark {<`@tas`file-type>}."
+      " supported file marks are"
+      " {<`(set @tas)`supported-file-types>}"
+      " and marks with %mime grow arms in"
+      " {<`path`/[project-name]/mar>}"
   ==
+  ::
+  ++  make-card
+    ^-  card
+    =/  mym=mime
+      :-  /application/x-urb-unknown
+      %-  as-octt:mimes:html
+      %+  rash  text
+      (star ;~(pose (cold '\0a' (jest '\0d\0a')) next))
+    %-  ~(arvo pass:io /save-wire)
+    :-  %c
+    :^  %info  `@tas`project-name  %&
+    :_  ~  :+  file  %ins
+    =*  reamed-text  q:(slap !>(~) (ream text))  ::  =* in case text unreamable
+    ?+    file-type  [%mime !>(mym)] :: don't need to know mar if we have bytes :^)
+        %hoon        [%hoon !>(text)]
+        %ship        [%ship !>(;;(@p reamed-text))]
+        %bill        [%bill !>(;;((list @tas) reamed-text))]
+        %kelvin      [%kelvin !>(;;([@tas @ud] reamed-text))]
+        %docket-0
+      =-  [%docket-0 !>((need (from-clauses:mime:dock -)))]
+      ;;((list clause:dock) reamed-text)
+    ==
+  --
 ::
 ++  make-run-queue
   |=  [project-name=@t request-id=(unit @t)]
@@ -1486,6 +1514,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%pyro-agent-state update-info [%| level message] ~]
+  ::
+  ++  save-file
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%save-file update-info [%| level message] ~]
   --
 ::
 ::  json
@@ -1649,6 +1683,9 @@
         :-  %unfocused-project-snaps
         (unfocused-project-snaps unfocused-project-snaps.up)
       ~
+    ::
+        %save-file
+      ['data' (path p.payload.update)]~
     ==
   ::
   ++  linked-projects
