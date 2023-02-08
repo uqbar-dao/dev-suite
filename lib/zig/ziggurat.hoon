@@ -1932,7 +1932,6 @@
       ~
     ::
         %custom-read
-      %+  frond  tag.test-step
       %-  pairs
       :~  ['type' %s -.test-step]
           ['tag' %s tag.test-step]
