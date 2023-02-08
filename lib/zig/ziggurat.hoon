@@ -611,7 +611,8 @@
     :_  test
     :_  ~
     %-  update-vase-to-card
-    %+  add-custom-error  [`@ux`(sham test) tag]
+    %+  add-custom-error(level %warning)
+      [`@ux`(sham test) tag]
     (crip "file {<`path`p>} not found")
   =/  file-cord=@t  .^(@t %cx file-scry-path)
   =/  [imports=(list [face=@tas =path]) payload=hoon]
@@ -1935,7 +1936,6 @@
       ~
     ::
         %custom-read
-      %+  frond  tag.test-step
       %-  pairs
       :~  ['type' %s -.test-step]
           ['tag' %s tag.test-step]
