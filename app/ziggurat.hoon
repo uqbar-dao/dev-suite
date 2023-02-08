@@ -552,6 +552,10 @@
           ::
               (make-done-cards:zig-lib status project.act)
           ==
+      =.  state
+        %^  change-state-linked-projects:zig-lib
+          focused-project  state
+        |=(=project:zig project(saved-test-queue test-queue))
       %=  state
           test-queue       ~
           focused-project  project.act
@@ -571,12 +575,7 @@
         =.  pyro-ships.project
           ?^  sync-ships.act  sync-ships.act
           default-ships:zig-lib
-        =/  fp=(unit project:zig)
-          (~(get by projects) focused-project)
-        %-  ~(gas by projects)
-        %+  weld  [project.act project]~
-        ?~  fp  ~
-        [focused-project u.fp(saved-test-queue test-queue)]~
+        (~(put by projects) project.act project)
       ==
     ::
         %delete-project
@@ -664,26 +663,25 @@
       =.  unfocused-project-snaps
         %+  ~(put by unfocused-project-snaps)  old-links
         old-snap-path
-      :-  :+  %+  ~(poke-our pass:io /pyro-wire)  %pyro
-              :-  %pyro-action
-              !>  ^-  action:pyro
-              :+  %snap-ships  old-snap-path
-              pyro-ships.old-project
-            %+  ~(poke-our pass:io /pyro-wire)  %pyro
-            :-  %pyro-action
-            !>  ^-  action:pyro
-            [%restore-snap new-snap-path]
-          ~
-      %=  state
-          focused-project  new
-          test-queue       saved-test-queue.new-project
-      ::
-          projects
-        %-  ~(gas by projects)
-        :+  [new new-project(saved-test-queue ~)]
-          [old old-project(saved-test-queue test-queue)]
-        ~
-      ==
+      =.  state
+        %^  change-state-linked-projects:zig-lib  new
+          %^  change-state-linked-projects:zig-lib  old  state
+          |=(=project:zig project(saved-test-queue test-queue))
+        |=(=project:zig project(saved-test-queue ~))
+      :_  %=  state
+              focused-project  new
+              test-queue       saved-test-queue.new-project
+          ==
+      :+  %+  ~(poke-our pass:io /pyro-wire)  %pyro
+          :-  %pyro-action
+          !>  ^-  action:pyro
+          :+  %snap-ships  old-snap-path
+          pyro-ships.old-project
+        %+  ~(poke-our pass:io /pyro-wire)  %pyro
+        :-  %pyro-action
+        !>  ^-  action:pyro
+        [%restore-snap new-snap-path]
+      ~
     ::
         %add-project-link
       ?>  (~(has by projects) project.act)
@@ -707,7 +705,8 @@
         |=  project-name=@t
         [project-name new-links]
       =/  [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]
-        (make-desk-setup-cards-state new-links-list update-info)
+        %+  make-desk-setup-cards-state  new-links-list
+        update-info
       :-  cards
       %=  modified-state
           status
@@ -744,7 +743,8 @@
         |=  project-name=@t
         [project-name new-links]
       =/  [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]
-        (make-desk-setup-cards-state new-links-list update-info)
+        %+  make-desk-setup-cards-state  new-links-list
+        update-info
       :-  cards
       %=  modified-state
           status

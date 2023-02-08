@@ -1100,11 +1100,13 @@
       :_  ~
       %-  update-vase-to-card
       (new-project-error(level %warning) (crip message))
-    =.  status.state
+    ::  use new-status rather than modifying status.state
+    ::   in place to satisfy compiler
+    =/  new-status=status:zig
       :-  %commit-install-starting
       (make-cis-running virtualships-to-sync project-name)
-    ?>  ?=(%commit-install-starting -.status.state)
-    =*  cis-running  cis-running.status.state
+    ?>  ?=(%commit-install-starting -.new-status)
+    =*  cis-running  cis-running.new-status
     =.  cards
       %+  weld  cards
       %+  murn  virtualships-to-sync
@@ -1130,14 +1132,14 @@
       =/  cis-cards=(list card)
         :_  ~
         %+  cis-thread  /cis-done/(scot %p who)/[desk]
-        [who desk install start-apps status.state]
+        [who desk install start-apps new-status]
       %=  $
           virtualships-to-sync  t.virtualships-to-sync
           cards                 (weld cards cis-cards)
       ==
     :-  :_  cards
         %-  update-vase-to-card
-        %.  status.state
+        %.  new-status
         %~  status  make-update-vase
         [project-name %load-configuration-file ~]
     =.  projects.state
@@ -1145,8 +1147,14 @@
       =/  =project:zig
         (~(gut by projects.state) project-name *project:zig)
       project(pyro-ships virtualships-to-sync)
+    =.  state
+      %^  change-state-linked-projects
+        focused-project.state  state
+      |=  =project:zig
+      project(saved-test-queue test-queue.state)
     %=  state
         test-queue   ~
+        status       new-status
     ::
         sync-desk-to-vship
       %-  ~(gas ju sync-desk-to-vship.state)
@@ -1157,13 +1165,6 @@
       %+  ~(put by configs.state)  project-name
       %.  ~(tap by config)
       ~(gas by (~(gut by configs.state) project-name ~))
-    ::
-        projects
-      ?.  (~(has by projects.state) focused-project.state)
-        projects.state
-      %+  ~(jab by projects.state)  focused-project.state
-      |=  =project:zig
-      project(saved-test-queue test-queue.state)
     ==
   --
 ::
@@ -1172,11 +1173,11 @@
           state=inflated-state-0:zig
           transition=$-(project:zig project:zig)
       ==
-  ^-  inflated-state-0:zig
+  ^-  _state
   =/  linked-projects=(list @t)
     ~(tap in (~(get ju linked-projects.state) project-name))
   |-
-  ?~  linked-projects  ~&(%z^%cslp^%final^(~(run by projects.state) |=(p=project:zig pyro-ships.p)) state)
+  ?~  linked-projects  state
   ?~  next=(~(get by projects.state) i.linked-projects)
     $(linked-projects t.linked-projects)
   =.  projects.state
