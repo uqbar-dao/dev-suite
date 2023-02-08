@@ -1174,8 +1174,11 @@
           transition=$-(project:zig project:zig)
       ==
   ^-  _state
+  ::  linked-projects is, at a minimum, project-name
   =/  linked-projects=(list @t)
-    ~(tap in (~(get ju linked-projects.state) project-name))
+    %~  tap  in
+    %.  project-name
+    ~(put in (~(get ju linked-projects.state) project-name))
   |-
   ?~  linked-projects  state
   ?~  next=(~(get by projects.state) i.linked-projects)

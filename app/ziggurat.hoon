@@ -649,7 +649,8 @@
         %change-focus
       =/  old=@t           focused-project
       =*  new=@t           project.act
-      ?:  (~(has ju linked-projects) old new)  `state
+      ?:  (~(has ju linked-projects) old new)
+        `state(focused-project new)
       =/  old-project=project:zig  (~(got by projects) old)
       =/  new-project=project:zig  (~(got by projects) new)
       =/  old-links=(set @t)
