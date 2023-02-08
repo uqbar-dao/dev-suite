@@ -1016,54 +1016,45 @@
     =^  subject=(each vase @t)  state
       (compile-test-imports project-name imports state)
     ?:  ?=(%| -.subject)
-      %-  make-error
-      %^  cat  3
-        'config imports compilation failed with error:\0a'
-      p.subject
+      %+  make-error  p.subject
+      'config imports compilation failed with error:\0a'
     =/  config-core
       (mule-slap-subject p.subject payload)
     ?:  ?=(%| -.config-core)
-      %-  make-error
-      %^  cat  3  'config compilation failed with:\0a'
-      p.config-core
+      %+  make-error  p.config-core
+      'config compilation failed with:\0a'
     ::
     =/  config-result
       (mule-slap-subject p.config-core (ream %make-config))
     ?:  ?=(%| -.config-result)
-      %-  make-error
-      %^  cat  3  'failed to call +make-config arm:\0a'
-      p.config-result
+      %+  make-error  p.config-result
+      'failed to call +make-config arm:\0a'
     ::
     =/  virtualships-to-sync-result
       %+  mule-slap-subject  p.config-core
       (ream %make-virtualships-to-sync)
     ?:  ?=(%| -.virtualships-to-sync-result)
-      %-  make-error
-      %^  cat  3
-        'failed to call +make-virtualships-to-sync arm:\0a'
-      p.virtualships-to-sync-result
+      %+  make-error  p.virtualships-to-sync-result
+      'failed to call +make-virtualships-to-sync arm:\0a'
     ::
     =/  install-result
       (mule-slap-subject p.config-core (ream %make-install))
     ?:  ?=(%| -.install-result)
-      %-  make-error
-      %^  cat  3  'failed to call +make-install arm:\0a'
-      p.install-result
+      %+  make-error  p.install-result
+      'failed to call +make-install arm:\0a'
     ::
     =/  start-apps-result
       %+  mule-slap-subject  p.config-core
       (ream %make-start-apps)
     ?:  ?=(%| -.start-apps-result)
-      %-  make-error
-      %^  cat  3  'failed to call +make-start-apps arm:\0a'
-      p.start-apps-result
+      %+  make-error  p.start-apps-result
+      'failed to call +make-start-apps arm:\0a'
     ::
     =/  setup-result
       (mule-slap-subject p.config-core (ream %make-setup))
     ?:  ?=(%| -.setup-result)
-      %-  make-error
-      %^  cat  3  'failed to call +make-setup arm:\0a'
-      p.setup-result
+      %+  make-error  p.setup-result
+      'failed to call +make-setup arm:\0a'
     ::
     :*  %&
         !<(config:zig p.config-result)
@@ -1075,13 +1066,13 @@
     ==
     ::
     ++  make-error
-      |=  message=@t
+      |=  [error=@t message=@t]
       ^-  (each configuration-file-output:zig [(list card) inflated-state-0:zig])
       :-  %|
       :_  state
       :_  ~
       %-  update-vase-to-card
-      (new-project-error message)
+      (new-project-error (cat 3 message error))
     --
   ::
   ++  build-cards-and-state
