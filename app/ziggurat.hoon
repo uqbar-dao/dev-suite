@@ -1522,30 +1522,28 @@
         default-snap-path:zig-lib
       :-  (crip (noah !>(`(set @t)`links)))
       /(scot %da now.bowl)
-    :-  :^    (~(leave-our pass:io w) %ziggurat)
-            %+  ~(poke-our pass:io /pyro-wire)  %pyro
-            :-  %pyro-action
-            !>  ^-  action:pyro
-            :+  %snap-ships  snap-path
-            =<  pyro-ships
-            (~(got by projects) desk)
-          %-  update-vase-to-card:zig-lib
-          %~  cis-setup-done  make-update-vase:zig-lib
-          [desk %cis-setup-done ~]
-        ~
-    %=  this
-        status           [%ready ~]
-        focused-project  desk
-    ::
-        unfocused-project-snaps
-      %+  ~(put by unfocused-project-snaps)  links
-      snap-path
-    ::
-        projects
-      =/  =project:zig  (~(got by projects) desk)
-      %+  ~(put by projects)  desk
-      project(tests *(map @ux test:zig))
-    ==
+    =.  state
+      %^  change-state-linked-projects:zig-lib  desk  state
+      |=(p=project:zig p(tests ~))
+    :_  %=  this
+            status           [%ready ~]
+            focused-project  desk
+        ::
+            unfocused-project-snaps
+          %+  ~(put by unfocused-project-snaps)  links
+          snap-path
+        ==
+    :^    (~(leave-our pass:io w) %ziggurat)
+        %+  ~(poke-our pass:io /pyro-wire)  %pyro
+        :-  %pyro-action
+        !>  ^-  action:pyro
+        :+  %snap-ships  snap-path
+        =<  pyro-ships
+        (~(got by projects) desk)
+      %-  update-vase-to-card:zig-lib
+      %~  cis-setup-done  make-update-vase:zig-lib
+      [desk %cis-setup-done ~]
+    ~
   ==
 ::
 ++  on-arvo
