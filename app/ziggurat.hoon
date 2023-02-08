@@ -553,6 +553,9 @@
               (make-done-cards:zig-lib status project.act)
           ==
       %=  state
+          test-queue       ~
+          focused-project  project.act
+      ::
           linked-projects
         %+  ~(put by linked-projects)  project.act
         (~(put in *(set @t)) project.act)
@@ -568,7 +571,12 @@
         =.  pyro-ships.project
           ?^  sync-ships.act  sync-ships.act
           default-ships:zig-lib
-        (~(put by projects) project.act project)
+        =/  fp=(unit project:zig)
+          (~(get by projects) focused-project)
+        %-  ~(gas by projects)
+        %+  weld  [project.act project]~
+        ?~  fp  ~
+        [focused-project u.fp(saved-test-queue test-queue)]~
       ==
     ::
         %delete-project
