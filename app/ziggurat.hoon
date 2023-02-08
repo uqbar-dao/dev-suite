@@ -642,9 +642,9 @@
         %change-focus
       =/  old=@t           focused-project
       =*  new=@t           project.act
-      =.  focused-project  new
       ?:  (~(has ju linked-projects) old new)  `state
       =/  old-project=project:zig  (~(got by projects) old)
+      =/  new-project=project:zig  (~(got by projects) new)
       =/  old-links=(set @t)
         (~(get ju linked-projects) old)
       =/  old-snap-path=path
@@ -656,16 +656,26 @@
       =.  unfocused-project-snaps
         %+  ~(put by unfocused-project-snaps)  old-links
         old-snap-path
-      :_  state
-      :+  %+  ~(poke-our pass:io /pyro-wire)  %pyro
-          :-  %pyro-action
-          !>  ^-  action:pyro
-          [%snap-ships old-snap-path pyro-ships.old-project]
-        %+  ~(poke-our pass:io /pyro-wire)  %pyro
-        :-  %pyro-action
-        !>  ^-  action:pyro
-        [%restore-snap new-snap-path]
-      ~
+      :-  :+  %+  ~(poke-our pass:io /pyro-wire)  %pyro
+              :-  %pyro-action
+              !>  ^-  action:pyro
+              :+  %snap-ships  old-snap-path
+              pyro-ships.old-project
+            %+  ~(poke-our pass:io /pyro-wire)  %pyro
+            :-  %pyro-action
+            !>  ^-  action:pyro
+            [%restore-snap new-snap-path]
+          ~
+      %=  state
+          focused-project  new
+          test-queue       saved-test-queue.new-project
+      ::
+          projects
+        %-  ~(gas by projects)
+        :+  [new new-project(saved-test-queue ~)]
+          [old old-project(saved-test-queue test-queue)]
+        ~
+      ==
     ::
         %add-project-link
       ?>  (~(has by projects) project.act)
