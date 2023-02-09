@@ -98,6 +98,7 @@
   ::
   ++  make-card
     ^-  card
+    =.  text  ?.(=('' text) text (make-template file))
     =/  mym=mime
       :-  /application/x-urb-unknown
       %-  as-octt:mimes:html
@@ -1243,46 +1244,287 @@
       [/tests/lib/mill/hoon %del ~]
       [/roadmap/md %del ~]
       [/readme/md %del ~]
-      [/app/[name]/hoon %ins hoon+!>(simple-app)]
+      [/app/[name]/hoon %ins hoon+!>((make-template /app))]
   ==
 ::
-++  simple-app
-  ^-  @t
-  '''
-  /+  default-agent, dbug
-  |%
-  +$  versioned-state
-      $%  state-0
-      ==
-  +$  state-0  [%0 ~]
-  --
-  %-  agent:dbug
-  =|  state-0
-  =*  state  -
-  ^-  agent:gall
-  |_  =bowl:gall
-  +*  this     .
-      default   ~(. (default-agent this %|) bowl)
+++  make-template
+  |=  file-path=path
+  |^  ^-  @t
+  ?~  file-path          ''
+  ?+  `@tas`i.file-path  ''
+    %app    app
+    %con    con
+    %gen    gen
+    %lib    lib
+    %mar    mar
+    %sur    sur
+    %ted    ted
+    %tests  tests
+    %zig    zig
+  ==
   ::
-  ++  on-init                     :: [(list card) this]
-    `this(state [%0 ~])
-  ++  on-save
-    ^-  vase
-    !>(state)
-  ++  on-load                     :: |=(old-state=vase [(list card) this])
-    on-load:default
-  ++  on-poke   on-poke:default   :: |=(=cage [(list card) this])
-  ++  on-watch  on-watch:default  :: |=(=path [(list card) this])
-  ++  on-leave  on-leave:default  :: |=(=path [(list card) this])
-  ++  on-peek   on-peek:default   :: |=(=path [(list card) this])
-  ++  on-agent  on-agent:default  :: |=  [=wire =sign:agent:gall]
-                                  :: [(list card) this]
-  ++  on-arvo   on-arvo:default   :: |=([=wire =sign-arvo] [(list card) this])
-  ++  on-fail   on-fail:default   :: |=  [=term =tang]
-                                  :: %-  (slog leaf+"{<dap.bowl>}" >term< tang)
-                                  :: [(list card) this]
+  ++  app
+    ^-  @t
+    '''
+    /+  default-agent, dbug
+    |%
+    +$  versioned-state
+        $%  state-0
+        ==
+    +$  state-0  [%0 ~]
+    --
+    %-  agent:dbug
+    =|  state-0
+    =*  state  -
+    ^-  agent:gall
+    |_  =bowl:gall
+    +*  this     .
+        default   ~(. (default-agent this %|) bowl)
+    ::
+    ++  on-init                     :: [(list card) this]
+      `this(state [%0 ~])
+    ++  on-save
+      ^-  vase
+      !>(state)
+    ++  on-load                     :: |=(old-state=vase [(list card) this])
+      on-load:default
+    ++  on-poke   on-poke:default   :: |=(=cage [(list card) this])
+    ++  on-watch  on-watch:default  :: |=(=path [(list card) this])
+    ++  on-leave  on-leave:default  :: |=(=path [(list card) this])
+    ++  on-peek   on-peek:default   :: |=(=path [(list card) this])
+    ++  on-agent  on-agent:default  :: |=  [=wire =sign:agent:gall]
+                                    :: [(list card) this]
+    ++  on-arvo   on-arvo:default   :: |=([=wire =sign-arvo] [(list card) this])
+    ++  on-fail   on-fail:default   :: |=  [=term =tang]
+                                    :: %-  (slog leaf+"{<dap.bowl>}" >term< tang)
+                                    :: [(list card) this]
+    --
+    '''
+  ::
+  ++  con
+    |^  ^-  @t
+    ?~  file-path      ''
+    ?~  t.file-path    ''
+    ?.(?=(%lib `@tas`i.t.file-path) con con-lib)
+    ::
+    ++  con
+      ^-  @t
+      '''
+      /+  *zig-sys-smart
+      /=  my-con-lib  /con/lib/my-lib  ::  your lib here
+      |_  =context
+      ++  write
+        |=  act=action:sur
+        ^-  ((list call) diff)
+        ?-    -.act
+            %action-0  ::  your action tags here
+            ::  ...
+        ==
+      ::
+      ++  read
+        |_  =pith
+        ++  json
+          ~
+        ++  noun
+          ~
+        --
+      --
+      '''
+    ::
+    ++  con-lib
+      ^-  @t
+      '''
+      /+  *zig-sys-smart
+      |%
+      ++  sur
+        |%
+        +$  action
+          %$  [%action-0 my-arg-0=@ud]  ::  your actions here
+              ::  ...
+          --
+        ::
+        +$  my-type-0  ::  your types here
+          ~
+        --
+      ++  lib
+        |%
+        ++  my-helper-0
+          ~  ::  do stuff
+        --
+      --
+      '''
+    --
+  ::
+  ++  gen
+    ^-  @t
+    '''
+    :-  %say
+    |=  [[now=@da eny=@uvJ bec=beak] ~[addend=@ud] ~[base=(unit @ud)]]
+    ?~  base  (add 2 addend)
+    (add u.base addend)
+    '''
+  ::
+  ++  lib
+    ^-  @t
+    '''
+    |%
+    ++  my-arm
+      ~  ::  do stuff
+    --
+    '''
+  ::
+  ++  mar
+    ^-  @t
+    '''
+    ::  template based on dev-suite/mar/zig/ziggurat.hoon
+    /-  zig=zig-ziggurat
+    /+  zig-lib=zig-ziggurat
+    |_  =action:zig
+    ++  grab
+      |%
+      ++  noun  action:zig
+      ++  json  uber-action:dejs:zig-lib
+      --
+    ::
+    ++  grow
+      |%
+      ++  noun  action
+      --
+    ++  grad  %noun
+    '''
+  ::
+  ++  sur
+    ^-  @t
+    '''
+    |%
+    +$  my-type
+      ~  ::  define type
+    --
+    '''
+  ::
+  ++  ted
+    ^-  @t
+    '''
+    /-  spider
+    /+  strandio
+    ::
+    =*  strand  strand:spider
+    ::
+    =/  m  (strand ,vase)
+    |^  ted
+    ::
+    +$  arg-mold
+      $:  thread-arg-0=@ud  ::  your args here
+          :: thread-arg-1=@ux
+      ==
+    ::
+    ++  helper-core  ::  your helper cores here
+      ~  ::  do stuff
+    ::
+    ::  main
+    ::
+    ++  ted
+      ^-  thread:spider
+      |=  args-vase=vase
+      ^-  form:m
+      =/  args  !<((unit arg-mold) args-vase)
+      ?~  args
+        ~&  >>>  "Usage:"
+        ~&  >>>  "-<thread-name> <thread-arg-0> <thread-arg-1> ..."
+        (pure:m !>(~))
+      ::  do stuff
+      (pure:m !>(~))
+    --
+    '''
+  ::
+  ++  tests
+    ^-  @t
+    '''
+    ::  see https://medium.com/dcspark/writing-robust-hoon-a-guide-to-urbit-unit-testing-82b2631fe20a
+    |%
+    ++  my-test
+      ~  ::  do test
+    --
+    '''
+  ::
+  ++  zig
+    |^  ^-  @t
+    ?~  file-path               ''
+    ?~  t.file-path             ''
+    ?+  `@tas`i.t.file-path     ''
+      %configs                  configs
+      %custom-step-definitions  custom-step-definitions
+      %test-steps               test-steps
+    ==
+    ::
+    ++  configs
+      ^-  @t
+      '''
+      /=  zig  /sur/zig/ziggurat
+      ::
+      /=  mip  /lib/mip
+      ::
+      |%
+      ++  make-config
+        ^-  config:zig
+        *config:zig
+      ::
+      ++  make-virtualships-to-sync
+        ^-  (list @p)
+        ~[~nec ~bud ~wes]
+      ::
+      ++  make-install
+        ^-  ?
+        ^.y
+      ::
+      ++  make-start-apps
+        ^-  (list @tas)
+        ~
+      ::
+      ++  make-setup
+        |^  ^-  (map @p test-steps:zig)
+        %-  ~(gas by *(map @p test-steps:zig))
+        :^    [~nec make-setup-nec]
+            [~bud make-setup-bud]
+          [~wes make-setup-wes]
+        ~
+        ::
+        ++  make-setup-nec
+          ^-  test-steps:zig
+          =/  who=@p  ~nec
+          ~
+        ::
+        ++  make-setup-bud
+          ^-  test-steps:zig
+          =/  who=@p  ~bud
+          ~
+        ::
+        ++  make-setup-wes
+          ^-  test-steps:zig
+          =/  who=@p  ~wes
+          ~
+        --
+      --
+      '''
+    ::
+    ++  custom-step-definitions
+      ^-  @t
+      .^  @t
+          %cx
+          :-  (scot %p our.bowl)
+          %+  weld  /[q.byk.bowl]/(scot %da now.bowl)/zig
+          /custom-step-definitions/deploy-contract/hoon
+      ==
+    ::
+    ++  test-steps
+      ^-  @t
+      .^  @t
+          %cx
+          %+  weld  /(scot %p our.bowl)/[q.byk.bowl]
+          /(scot %da now.bowl)/zig/test-steps/send-nec/hoon
+      ==
+    --
   --
-  '''
 ::
 ++  update-vase-to-card
   |=  v=vase
