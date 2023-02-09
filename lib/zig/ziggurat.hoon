@@ -71,28 +71,56 @@
   [`@tas`project-name %& [file %ins %noun !>(`@`(jam non))]~]
 ::
 ++  make-save-file
-  |=  [project-name=@t file=path text=@t]
+  |=  [=update-info:zig file=path text=@t]
   ^-  card
-  =/  file-type  (rear file)
-  =/  mym=mime  :-  /application/x-urb-unknown
-    %-  as-octt:mimes:html
-    %+  rash  text
-    (star ;~(pose (cold '\0a' (jest '\0d\0a')) next))
-  %-  ~(arvo pass:io /save-wire)
-  :-  %c
-  :: =-  [%pass /save-wire %arvo %c -]
-  :^  %info  `@tas`project-name  %&
-  :_  ~  :+  file  %ins
-  =*  reamed-text  q:(slap !>(~) (ream text))  ::  =* in case text unreamable
-  ?+  file-type  [%mime !>(mym)] :: don't need to know mar if we have bytes :^)
-    %hoon        [%hoon !>(text)]
-    %ship        [%ship !>(;;(@p reamed-text))]
-    %bill        [%bill !>(;;((list @tas) reamed-text))]
-    %kelvin      [%kelvin !>(;;([@tas @ud] reamed-text))]
-      %docket-0
-    =-  [%docket-0 !>((need (from-clauses:mime:dock -)))]
-    ;;((list clause:dock) reamed-text)
+  =*  project-name  project-name.update-info
+  =/  file-type=@tas  (rear file)
+  |^
+  =/  supported-file-types=(set @tas)
+    %-  ~(gas in *(set @tas))
+    ~[%hoon %ship %bill %kelvin %docket-0]
+  ?:  (~(has in supported-file-types) file-type)  make-card
+  =/  is-mark-found=?
+    .^  ?
+        %cu
+        %+  weld  /(scot %p our.bowl)/[project-name]
+        /(scot %da now.bowl)/mar/[file-type]/hoon
+    ==
+  ?:  is-mark-found                               make-card
+  %-  update-vase-to-card
+  %-  %~  save-file  make-error-vase
+      [update-info %error]
+  %-  crip
+  ;:  weld
+      "cannot save file with mark {<`@tas`file-type>}."
+      " supported file marks are"
+      " {<`(set @tas)`supported-file-types>}"
+      " and marks with %mime grow arms in"
+      " {<`path`/[project-name]/mar>}"
   ==
+  ::
+  ++  make-card
+    ^-  card
+    =/  mym=mime
+      :-  /application/x-urb-unknown
+      %-  as-octt:mimes:html
+      %+  rash  text
+      (star ;~(pose (cold '\0a' (jest '\0d\0a')) next))
+    %-  ~(arvo pass:io /save-wire)
+    :-  %c
+    :^  %info  `@tas`project-name  %&
+    :_  ~  :+  file  %ins
+    =*  reamed-text  q:(slap !>(~) (ream text))  ::  =* in case text unreamable
+    ?+    file-type  [%mime !>(mym)] :: don't need to know mar if we have bytes :^)
+        %hoon        [%hoon !>(text)]
+        %ship        [%ship !>(;;(@p reamed-text))]
+        %bill        [%bill !>(;;((list @tas) reamed-text))]
+        %kelvin      [%kelvin !>(;;([@tas @ud] reamed-text))]
+        %docket-0
+      =-  [%docket-0 !>((need (from-clauses:mime:dock -)))]
+      ;;((list clause:dock) reamed-text)
+    ==
+  --
 ::
 ++  make-run-queue
   |=  [project-name=@t request-id=(unit @t)]
@@ -516,6 +544,27 @@
   ?:  (lte 1.024 (met 3 res-text))  '<elided>'  ::  TODO: unhardcode
   res-text
 ::
+++  show-agent-state
+  |=  agent-state=vase
+  ^-  @t
+  =/  noah-state=@t  (crip (noah agent-state))
+  ?:  (lth 10.000 (met 3 noah-state))  noah-state
+  (get-formatted-error (sell agent-state) ~)
+::
+++  show-agent-state-update
+  |=  =update:zig
+  ^-  (unit shown-agent-state:zig)
+  ?.  ?=(%pyro-agent-state -.update)  ~
+  ?:  ?=(%| -.payload.update)         ~
+  :-  ~
+  :~  -.update
+      [project-name source request-id]:update
+      :^    %&
+          (show-agent-state agent-state.p.payload.update)
+        wex.p.payload.update
+      sup.p.payload.update
+  ==
+::
 ++  mule-slap-subject
   |=  [subject=vase payload=hoon]
   ^-  (each vase @t)
@@ -610,25 +659,23 @@
   =/  town-ta=@ta  (scot %ux town-id)
   =/  batch-order=update:ui
     ;;  update:ui
-    .^  noun
+    .^  update:ui
         %gx
         ;:  weld
-          /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
-          /[who-ta]/indexer/[now-ta]/batch-order/[town-ta]
-          /noun/noun
+          /(scot %p our.bowl)/pyro/[now-ta]/[who-ta]/indexer
+          /batch-order/[town-ta]/noun/noun
     ==  ==
   ?~  batch-order                     ~
   ?.  ?=(%batch-order -.batch-order)  ~
   ?~  batch-order.batch-order         ~
   =*  newest-batch  i.batch-order.batch-order
   =/  batch-chain=update:ui
-    ;;  update:ui
-    .^  noun
+    .^  update:ui
         %gx
         ;:  weld
-            /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
-            /[who-ta]/indexer/[now-ta]/newest/batch-chain
-            /[town-ta]/(scot %ux newest-batch)/noun/noun
+            /(scot %p our.bowl)/pyro/[now-ta]/[who-ta]
+            /indexer/newest/batch-chain/[town-ta]
+            /(scot %ux newest-batch)/noun/noun
     ==  ==
   ?~  batch-chain                     ~
   ?.  ?=(%batch-chain -.batch-chain)  ~
@@ -689,8 +736,7 @@
   ^-  (set @tas)
   =/  now=@ta  (scot %da now-da)
   =/  who=@ta  (scot %p virtualship)
-  ;;  (set @tas)
-  .^  *
+  .^  (set @tas)
       %gx
       :-  (scot %p our.bowl)
       /pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
@@ -706,13 +752,11 @@
   ^-  ?
   =/  now=@ta  (scot %da now-da)
   =/  who=@ta  (scot %p virtualship)
-  =/  is-app-running=*
-    .^  *
-        %gx
-        :-  (scot %p our.bowl)
-        /pyro/[now]/i/[who]/gu/[who]/[app]/[now]/noun
-    ==
-  ;;(? is-app-running)
+  .^  ?
+      %gx
+      :-  (scot %p our.bowl)
+      /pyro/[now]/i/[who]/gu/[who]/[app]/[now]/noun
+  ==
 ::
 ++  sync-desk-to-virtualship-card
   |=  [who=@p project-name=@tas]
@@ -1372,10 +1416,17 @@
     [%test-queue update-info [%& queue] ~]
   ::
   ++  pyro-agent-state
-    |=  [agent-state=@t wex=boat:gall sup=bitt:gall]
+    |=  [agent-state=vase wex=boat:gall sup=bitt:gall]
     ^-  vase
     !>  ^-  update:zig
     :^  %pyro-agent-state  update-info
+    [%& agent-state wex sup]  ~
+  ::
+  ++  shown-pyro-agent-state
+    |=  [agent-state=@t wex=boat:gall sup=bitt:gall]
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %shown-pyro-agent-state  update-info
     [%& agent-state wex sup]  ~
   ::
   ++  sync-desk-to-vship
@@ -1463,6 +1514,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%pyro-agent-state update-info [%| level message] ~]
+  ::
+  ++  save-file
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%save-file update-info [%| level message] ~]
   --
 ::
 ::  json
@@ -1585,7 +1642,18 @@
       :_  ~
       :-  'data'
       %-  pairs
-      :^    [%pyro-agent-state %s agent-state.p.payload.update]
+      :^    :+  %pyro-agent-state  %s
+            (show-agent-state agent-state.p.payload.update)
+          ['outgoing' (boat wex.p.payload.update)]
+        ['incoming' (bitt sup.p.payload.update)]
+      ~
+    ::
+        %shown-pyro-agent-state
+      :_  ~
+      :-  'data'
+      %-  pairs
+      :^    :+  %pyro-agent-state  %s
+            agent-state.p.payload.update
           ['outgoing' (boat wex.p.payload.update)]
         ['incoming' (bitt sup.p.payload.update)]
       ~
@@ -1615,6 +1683,9 @@
         :-  %unfocused-project-snaps
         (unfocused-project-snaps unfocused-project-snaps.up)
       ~
+    ::
+        %save-file
+      ['data' (path p.payload.update)]~
     ==
   ::
   ++  linked-projects

@@ -211,6 +211,7 @@
       %cis-setup-done
       %status
       %focused-linked
+      %save-file
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -248,11 +249,13 @@
       [%dir update-info payload=(data (list path)) ~]
       [%poke update-info payload=(data ~) ~]
       [%test-queue update-info payload=(data (qeu [@t @ux])) ~]
-      [%pyro-agent-state update-info payload=(data [agent-state=@t wex=boat:gall sup=bitt:gall]) ~]
+      [%pyro-agent-state update-info payload=(data [agent-state=vase wex=boat:gall sup=bitt:gall]) ~]
+      [%shown-pyro-agent-state update-info payload=(data [agent-state=@t wex=boat:gall sup=bitt:gall]) ~]
       [%sync-desk-to-vship update-info payload=(data sync-desk-to-vship) ~]
       [%cis-setup-done update-info payload=(data ~) ~]
       [%status update-info payload=(data status) ~]
       [%focused-linked update-info payload=(data focused-linked-data) ~]
+      [%save-file update-info payload=(data path) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)
@@ -275,4 +278,10 @@
   ==
 +$  shown-test-results  (list shown-test-result)
 +$  shown-test-result   (list [success=? expected=@t result=@t])
++$  shown-agent-state
+  $:  %pyro-agent-state
+      update-info
+      payload=(data [agent-state=@t wex=boat:gall sup=bitt:gall])
+      ~
+  ==
 --

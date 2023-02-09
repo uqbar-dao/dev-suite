@@ -586,7 +586,7 @@
         (~(got by configs) project.act)
       =/  file-path=path  /zig/configs/[project.act]/hoon
       :_  state
-      :+  %^  make-save-file:zig-lib  project.act
+      :+  %^  make-save-file:zig-lib  update-info
           file-path  file-text
         (make-read-desk:zig-lib [project request-id]:act)
       ~
@@ -763,7 +763,8 @@
       =/  =project:zig  (~(got by projects) project.act)
       =.  user-files.project
         (~(put in user-files.project) file.act)
-      :-  (make-save-file:zig-lib [project file text]:act)^~
+      :-  :_  ~
+          (make-save-file:zig-lib update-info [file text]:act)
       state(projects (~(put by projects) project.act project))
     ::
         %delete-file
@@ -1037,7 +1038,7 @@
       =/  file-text=@t  (make-test-steps-file:zig-lib test)
       =.  test-steps-file.test  path.act
       =.  tests.project  (~(put by tests.project) id.act test)
-      :-  :+  %^  make-save-file:zig-lib  project.act
+      :-  :+  %^  make-save-file:zig-lib  update-info
                   path.act  file-text
             (make-read-desk:zig-lib [project request-id]:act)
            ~
@@ -1372,26 +1373,32 @@
       =/  who=@ta  (scot %p who.act)
       =*  app      app.act
       =*  grab     grab.act
+      =?  grab  =('' grab)  '-'
       =/  now=@ta  (scot %da now.bowl)
-      =/  agent-state-noun=*
-        .^  *
+      =+  .^  agent-state=vase
+              %gx
+              :+  (scot %p our.bowl)  %pyro
+              /[now]/[who]/[app]/dbug/state/noun/noun
+          ==
+      =.  agent-state
+        %-  slap  :_  (ream grab)
+        (slop agent-state !>([bowl=bowl ..zuse]))
+      =/  [wex=boat:gall sup=bitt:gall]
+        .^  [boat:gall bitt:gall]
             %gx
-            :-  (scot %p our.bowl)
-            %+  weld  /pyro/[now]/i/[who]/gx/[who]/subscriber
-            /[now]/agent-state/[app]/[grab]/noun/noun
+            :+  (scot %p our.bowl)  %pyro
+            /[now]/[who]/[app]/dbug/subscriptions/noun/noun
         ==
+      ::  %shown-pyro-agent-state over %pyro-agent-state
+      ::   because there are casts deep in vanes that don't
+      ::   take too kindly to vases within vases: ideally
+      ::   this should be a %pyro-agent-state like the scry
       :_  state
       :_  ~
       %-  update-vase-to-card:zig-lib
-      ?~  agent-state-noun
-        %.  (crip "scry for /{<who>}/{<app>} failed")
-        %~  pyro-agent-state  make-error-vase:zig-lib
-        [['' %pyro-agent-state ~] %error]
-      =/  [agent-state=@t wex=boat:gall sup=bitt:gall]
-        ;;([@t boat:gall bitt:gall] agent-state-noun)
-      %.  [agent-state wex sup]
-      %~  pyro-agent-state  make-update-vase:zig-lib
-      update-info
+      %.  [(show-agent-state:zig-lib agent-state) wex sup]
+      %~  shown-pyro-agent-state  make-update-vase:zig-lib
+      ['' %pyro-agent-state ~]
     ==
   --
 ::
@@ -1711,22 +1718,24 @@
       [%pyro-agent-state @ @ @ ~]
     =*  who      i.t.t.p
     =*  app      `@tas`i.t.t.t.p
-    =*  grab     `@t`i.t.t.t.t.p
+    =/  grab=@t  `@t`i.t.t.t.t.p
+    =?  grab  =('' grab)  '-'
     =/  now=@ta  (scot %da now.bowl)
-    =/  agent-state-noun=*
-      .^  *
+    =+  .^  agent-state=vase
+            %gx
+            :+  (scot %p our.bowl)  %pyro
+            /[now]/[who]/[app]/dbug/state/noun/noun
+        ==
+    =.  agent-state
+      %-  slap  :_  (ream grab)
+      (slop agent-state !>([bowl=bowl ..zuse]))
+    =/  [wex=boat:gall sup=bitt:gall]
+      .^  [boat:gall bitt:gall]
           %gx
-          :-  (scot %p our.bowl)
-          %+  weld  /pyro/[now]/i/[who]/gx/[who]/subscriber
-          /[now]/agent-state/[app]/[grab]/noun/noun
+          :+  (scot %p our.bowl)  %pyro
+          /[now]/[who]/[app]/dbug/subscriptions/noun/noun
       ==
     :^  ~  ~  %ziggurat-update
-    ?~  agent-state-noun
-      %.  (crip "scry for /{<who>}/{<app>} failed")
-      %~  pyro-agent-state  make-error-vase:zig-lib
-      [['' %pyro-agent-state ~] %error]
-    =/  [agent-state=@t wex=boat:gall sup=bitt:gall]
-      ;;([@t boat:gall bitt:gall] agent-state-noun)
     %.  [agent-state wex sup]
     %~  pyro-agent-state  make-update-vase:zig-lib
     ['' %pyro-agent-state ~]

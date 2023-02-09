@@ -39,7 +39,7 @@
   =/  watch-wire=wire  /project
   ;<  ~  bind:m  (watch-our watch-wire %ziggurat watch-wire)
   |-
-  ?:  &(?=(^ iterations) =(iterations counter))
+  ?:  &(?=(^ iterations) =(u.iterations counter))
     ~&  %zts^%done
     (pure:m !>(~))
   ;<  result=cage  bind:m  (take-fact watch-wire)
