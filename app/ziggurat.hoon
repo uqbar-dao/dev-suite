@@ -552,7 +552,14 @@
           ::
               (make-done-cards:zig-lib status project.act)
           ==
+      =.  state
+        %^  change-state-linked-projects:zig-lib
+          focused-project  state
+        |=(=project:zig project(saved-test-queue test-queue))
       %=  state
+          test-queue       ~
+          focused-project  project.act
+      ::
           linked-projects
         %+  ~(put by linked-projects)  project.act
         (~(put in *(set @t)) project.act)
@@ -642,9 +649,10 @@
         %change-focus
       =/  old=@t           focused-project
       =*  new=@t           project.act
-      =.  focused-project  new
-      ?:  (~(has ju linked-projects) old new)  `state
+      ?:  (~(has ju linked-projects) old new)
+        `state(focused-project new)
       =/  old-project=project:zig  (~(got by projects) old)
+      =/  new-project=project:zig  (~(got by projects) new)
       =/  old-links=(set @t)
         (~(get ju linked-projects) old)
       =/  old-snap-path=path
@@ -656,11 +664,20 @@
       =.  unfocused-project-snaps
         %+  ~(put by unfocused-project-snaps)  old-links
         old-snap-path
-      :_  state
+      =.  state
+        %^  change-state-linked-projects:zig-lib  new
+          %^  change-state-linked-projects:zig-lib  old  state
+          |=(=project:zig project(saved-test-queue test-queue))
+        |=(=project:zig project(saved-test-queue ~))
+      :_  %=  state
+              focused-project  new
+              test-queue       saved-test-queue.new-project
+          ==
       :+  %+  ~(poke-our pass:io /pyro-wire)  %pyro
           :-  %pyro-action
           !>  ^-  action:pyro
-          [%snap-ships old-snap-path pyro-ships.old-project]
+          :+  %snap-ships  old-snap-path
+          pyro-ships.old-project
         %+  ~(poke-our pass:io /pyro-wire)  %pyro
         :-  %pyro-action
         !>  ^-  action:pyro
@@ -689,7 +706,8 @@
         |=  project-name=@t
         [project-name new-links]
       =/  [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]
-        (make-desk-setup-cards-state new-links-list update-info)
+        %+  make-desk-setup-cards-state  new-links-list
+        update-info
       :-  cards
       %=  modified-state
           status
@@ -726,7 +744,8 @@
         |=  project-name=@t
         [project-name new-links]
       =/  [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]
-        (make-desk-setup-cards-state new-links-list update-info)
+        %+  make-desk-setup-cards-state  new-links-list
+        update-info
       :-  cards
       %=  modified-state
           status
@@ -1498,13 +1517,15 @@
             ==
         ==
       `this
-    =/  links=(set @t)
-      (~(get ju linked-projects) desk)
+    =/  links=(set @t)  (~(get ju linked-projects) desk)
     =/  snap-path=path
       ?:  &(=('' focused-project) =('zig' desk))
         default-snap-path:zig-lib
       :-  (crip (noah !>(`(set @t)`links)))
       /(scot %da now.bowl)
+    =.  state
+      %^  change-state-linked-projects:zig-lib  desk  state
+      |=(p=project:zig p(tests ~))
     :_  %=  this
             status           [%ready ~]
             focused-project  desk
