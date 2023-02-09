@@ -1019,8 +1019,7 @@
               projects
             (~(put by projects) project.act project)
           ==
-      :+  %+  make-watch-for-file-changes:zig-lib
-          project.act  dir.project
+      :+  (make-watch-for-file-changes:zig-lib project.act)
         %-  update-vase-to-card:zig-lib
         %.  dir.project
         %~  dir  make-update-vase:zig-lib
@@ -1544,7 +1543,7 @@
       %-  update-vase-to-card:zig-lib
       %~  cis-setup-done  make-update-vase:zig-lib
       [desk %cis-setup-done ~]
-    ~
+    (sync-all-desks-cards:zig-lib sync-desk-to-vship)
   ==
 ::
 ++  on-arvo
@@ -1583,12 +1582,22 @@
     `this
   ::
       [%clay @ ~]
-    ?>  ?=([%clay %wris *] sign-arvo)
+    ?>  ?=([%clay %writ *] sign-arvo)
     =*  project-name  i.t.w
     =/  =project:zig  (~(got by projects) project-name)
+    ?~  p.sign-arvo
+      :_  this
+      :_  ~
+      (make-watch-for-file-changes:zig-lib project-name)
     =/  updated-files=(set path)
-      %-  ~(gas in *(set path))
-      (turn ~(tap in q.sign-arvo) |=([@ p=path] p))
+      =+  !<(=dome:clay q.r.u.p.sign-arvo)
+      =/  =tako:clay  (~(got by hit.dome) let.dome)
+      =+  .^  =yaki:clay
+              %cs
+              %+  weld  /(scot %p our.bowl)/[project-name]
+              /(scot %da now.bowl)/yaki/(scot %uv tako)
+          ==
+      ~(key by q.yaki)
     :_  this
     :-  ?:  .=  0
             %~  wyt  in

@@ -41,13 +41,10 @@
   !>(`action:zig`project-name^request-id^[%compile-contracts ~])
 ::
 ++  make-watch-for-file-changes
-  |=  [project-name=@tas files=(list path)]
+  |=  project-name=@tas
   ^-  card
   %-  ~(warp-our pass:io /clay/[project-name])
-  :-  project-name
-  :^  ~  %mult  da+now.bowl
-  %-  ~(gas in *(set [care:clay path]))
-  (turn files |=(p=path [%x p]))
+  [project-name ~ %next %v da+now.bowl /]
 ::
 ++  make-cancel-watch-for-file-changes
   |=  project-name=@tas
@@ -758,6 +755,15 @@
       :-  (scot %p our.bowl)
       /pyro/[now]/i/[who]/gu/[who]/[app]/[now]/noun
   ==
+::
+++  sync-all-desks-cards
+  |=  =sync-desk-to-vship:zig
+  ^-  (list card)
+  %-  zing
+  %+  turn  ~(tap by sync-desk-to-vship)
+  |=  [desk=@tas whos=(set @p)]
+  %+  turn  ~(tap in whos)
+  |=(who=@p (sync-desk-to-virtualship-card who desk))
 ::
 ++  sync-desk-to-virtualship-card
   |=  [who=@p project-name=@tas]
