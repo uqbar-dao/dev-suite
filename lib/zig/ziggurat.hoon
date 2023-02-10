@@ -1284,7 +1284,7 @@
       [/tests/lib/mill/hoon %del ~]
       [/roadmap/md %del ~]
       [/readme/md %del ~]
-      [/app/[name]/hoon %ins hoon+!>((make-template /app))]
+      [/app/[name]/hoon %ins hoon+!>((make-template /app/[name]/hoon))]
   ==
 ::
 ++  make-template
