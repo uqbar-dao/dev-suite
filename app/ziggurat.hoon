@@ -48,7 +48,7 @@
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
   =*  wes-address
     0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
-  :-  :+  %-  ~(arvo pass:io /)
+  :-  :+  %-  ~(arvo pass:io /verbose-subscribe)
           :^  %k  %fard  q.byk.bowl
           [%ziggurat-test-subscribe %noun !>(`~)]
         %.  (add now.bowl ~s5)
@@ -171,6 +171,12 @@
       :^  project-name  %send-wallet-transaction
         /zig/custom-step-definitions/send-wallet-transaction/hoon
       request-id
+    =.  all-cards  (weld cards all-cards)
+    =^  cards=(list card)  test
+      %+  add-custom-step:zig-lib  test
+      :^  project-name  %deploy-contract
+        /zig/custom-step-definitions/deploy-contract/hoon
+      request-id
     :_  state
     :_  test
     :_  (weld cards all-cards)
@@ -266,6 +272,12 @@
       %+  add-custom-step:zig-lib  test
       :^  project-name  %send-wallet-transaction
         /zig/custom-step-definitions/send-wallet-transaction/hoon
+      request-id
+    =.  all-cards  (weld cards all-cards)
+    =^  cards=(list card)  test
+      %+  add-custom-step:zig-lib  test
+      :^  project-name  %deploy-contract
+        /zig/custom-step-definitions/deploy-contract/hoon
       request-id
     [[(weld cards all-cards) test] state]
   ::
@@ -848,8 +860,9 @@
         (~(got bi:mip configs) 'global' [u.who %address])
       =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
       =/  imports=(list [@tas path])
-        :+  [%indexer /sur/zig/indexer]
-          [%zig /sur/zig/ziggurat]
+        :^    [%indexer /sur/zig/indexer]
+            [%zig /sur/zig/ziggurat]
+          [%mip /lib/mip]
         ~
       =^  subject=(each vase @t)  state
         %^  compile-test-imports:zig-lib  `@tas`project.act
@@ -872,8 +885,8 @@
             :^  %custom-write  %send-wallet-transaction
               %-  crip
               %-  noah
-              !>  ^-  [@p test-write-step:zig]
-              :-  u.who
+              !>  ^-  [@p @p test-write-step:zig]
+              :+  u.who  ~nec  ::  TODO: remove hardcode
               :^  %custom-write  %deploy-contract
               (crip "[{<u.who>} {<path.act>} ~]")  ~
             ~
@@ -1738,27 +1751,44 @@
   ::
       [%custom-step-compiled @ @ @ ~]
     =*  project-name  i.t.t.p
-    =*  test-id       i.t.t.t.p
+    =/  test-id=@ux   (slav %ux i.t.t.t.p)
     =*  tag           `@tas`i.t.t.t.t.p
-    =/  =project:zig  (~(got by projects) project-name)
-    =/  =test:zig
-      (~(got by tests.project) (slav %ux test-id))
     =/  custom-step-error
       %~  custom-step-compiled  make-error-vase:zig-lib
       [[project-name %custom-step-compiled ~] %error]
-    ?~  def=(~(get by custom-step-definitions.test) tag)
-      :^  ~  ~  %ziggurat-update
-      %+  custom-step-error  [(slav %ux test-id) tag]
-      %-  crip
-      %+  weld  "did not find {<tag>} custom-step-definition"
-      " in {<~(key by custom-step-definitions.test)>}"
+    |^
+    =/  project=(unit project:zig)
+      (~(get by projects) project-name)
+    ?~  project
+      %-  make-error
+      %+  weld  "did not find project {<project-name>} in"
+      " {<~(key by projects)>}"
+    =/  test=(unit test:zig)
+      (~(get by tests.u.project) test-id)
+    ?~  test
+      %-  make-error
+      %+  weld  "did not find test {<test-id>} in"
+      " {<~(key by tests.u.project)>}"
+    ?~  def=(~(get by custom-step-definitions.u.test) tag)
+      %-  make-error
+      %+  weld  "did not find custom-step-definition {<tag>}"
+      " in {<~(key by custom-step-definitions.u.test)>}"
     ?:  ?=(%| -.q.u.def)  ::  TODO: do better
-      :^  ~  ~  %ziggurat-update
-      %+  custom-step-error  [(slav %ux test-id) tag]
-      %-  crip
-      %+  weld  "compilation of {<tag>} failed; fix and"
-      "try again. error message:\0a {<p.q.u.def>}"
+      %-  make-error
+      %+  weld  "compilation failed; fix and try again."
+      " error message:\0a {<p.q.u.def>}"
     ``noun+!>(`vase`p.q.u.def)
+    ::
+    ::  vasing a vase is sketchy, but works for scries
+    ::   (does not work well for subscription %facts!)
+    ::
+    ++  make-error
+      |=  message=tape
+      ^-  (unit (unit cage))
+      :^  ~  ~  %noun
+      !>  ^-  vase
+      (custom-step-error [test-id tag] (crip message))
+    --
   ::
   ::     [%project-tests @ ~]
   ::   ?~  project=(~(get by projects) i.t.t.p)

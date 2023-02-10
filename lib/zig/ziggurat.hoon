@@ -563,6 +563,15 @@
       sup.p.payload.update
   ==
 ::
+++  mule-slam-transform
+  |=  [transform=vase payload=vase]
+  ^-  (each vase @t)
+  !.
+  =/  slam-result
+    (mule |.((slam transform payload)))
+  ?:  ?=(%& -.slam-result)  slam-result
+  [%| (reformat-compiler-error p.slam-result)]
+::
 ++  mule-slap-subject
   |=  [subject=vase payload=hoon]
   ^-  (each vase @t)
@@ -1275,7 +1284,7 @@
       [/tests/lib/mill/hoon %del ~]
       [/roadmap/md %del ~]
       [/readme/md %del ~]
-      [/app/[name]/hoon %ins hoon+!>((make-template /app))]
+      [/app/[name]/hoon %ins hoon+!>((make-template /app/[name]/hoon))]
   ==
 ::
 ++  make-template
