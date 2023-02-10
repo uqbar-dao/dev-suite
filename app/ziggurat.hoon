@@ -230,43 +230,22 @@
       %+  add-test-error  0x0
       'test-steps path must not be empty'
     =/  =project:zig  (~(got by projects) project-name)
-    =/  file-scry-path=path
-      :-  (scot %p our.bowl)
-      (weld /[project-name]/(scot %da now.bowl) p)
-    =/  file-cord=@t  .^(@t %cx file-scry-path)
-    =/  [imports=(list [face=@tas =path]) payload=hoon]
-      (parse-pile:conq file-scry-path (trip file-cord))
-    =^  subject=(each vase @t)  state
-      %^  compile-test-imports:zig-lib  `@tas`project-name
-      imports  state
-    ?:  ?=(%| -.subject)
+    =^  result  state
+      (read-test-file:zig-lib project-name p state)
+    ?:  ?=(%| -.result)
       :_  state
       :_  *test:zig
       :_  ~
       %-  update-vase-to-card:zig-lib
-      %+  add-test-error  0x0
-      %^  cat  3  'compilation of test-imports failed:\0a'
-      p.subject
-    =/  test-steps-compilation-result=(each vase @t)
-      (compile-and-call-arm:zig-lib '$' p.subject payload)
-    ?:  ?=(%| -.test-steps-compilation-result)
-      :_  state
-      :_  *test:zig
-      :_  ~
-      %-  update-vase-to-card:zig-lib
-      %+  add-test-error  0x0
-      %-  crip
-      ;:  weld
-          "test-steps compilation failed for"
-          " {<`path`p>} with error:\0a"
-          (trip p.test-steps-compilation-result)
-      ==
-    =+  !<(=test-steps:zig p.test-steps-compilation-result)
+      (add-test-error 0x0 p.result)
+    =*  imports     p.p.result
+    =*  subject     q.p.result
+    =*  test-steps  r.p.result
     =/  =test:zig
       :*  name
           p
           (~(gas by *test-imports:zig) imports)
-          subject
+          [%& subject]
           ~
           test-steps
           ~
@@ -427,7 +406,7 @@
     ^-  (quip card _state)
     ?>  =(our.bowl src.bowl)
     =*  tag  -.+.+.act
-    ?:  =(tag %cis-panic) 
+    ?:  =(tag %cis-panic)
       ~^state(status [%ready ~])
     =/  =update-info:zig  [project.act tag request-id.act]
     ?:  ?|  ?&  ?=(%commit-install-starting -.status)
@@ -1598,17 +1577,66 @@
               /(scot %da now.bowl)/yaki/(scot %uv tako)
           ==
       ~(key by q.yaki)
+    |^
+    =^  cards  state  update-tests-from-file
     :_  this
     :-  ?:  .=  0
             %~  wyt  in
             (~(int in updated-files) to-compile.project)
           (make-read-desk:zig-lib project-name ~)
         (make-compile-contracts:zig-lib project-name ~)
+    %-  weld  :_  cards
     %+  turn
       %~  tap  in
       (~(get ju sync-desk-to-vship) project-name)
     |=  who=@p
     (sync-desk-to-virtualship-card:zig-lib who project-name)
+    ::
+    ::  check if any test-steps loaded from file were
+    ::   updated; if yes, reload them under same id.
+    ::   however, this only will update if the test-steps
+    ::   file itself is updated, not any of its dependencies.
+    ::   TODO: replace with a more full-featured dependency
+    ::   rebuilding/updating system
+    ++  update-tests-from-file
+      ^-  (quip card _state)
+      %+  roll  ~(tap by projects)
+      |:  :-  [project-name=`@t`'' project=`project:zig`*project:zig]
+          [outer-cards=`(list card)`~ outer-state=`_state`state]
+      =;  [=tests:zig inner-cards=(list card) inner-state=_state]
+        :-  (weld outer-cards inner-cards)
+        %=  inner-state
+            projects
+          %+  ~(put by projects)  project-name
+          project(tests tests)
+        ==
+      %+  roll  ~(tap by tests.project)
+      |:  :-  [test-id=`@ux`0x0 test=`test:zig`*test:zig]
+          :+  tests=`tests:zig`tests.project
+            inner-cards=`(list card)`~
+          inner-state=`_state`outer-state
+      ?.  (~(has in updated-files) test-steps-file.test)
+        [tests inner-cards inner-state]
+      =^  result  inner-state
+        %^  read-test-file:zig-lib  project-name
+        test-steps-file.test  inner-state
+      ?:  ?=(%| -.result)
+        :+  tests
+          :_  inner-cards
+          %-  update-vase-to-card:zig-lib
+          %.  p.result
+          %~  sync-desk-to-vship  make-error-vase:zig-lib
+          [[project-name %clay-sync ~] %error]
+        inner-state
+      :_  [inner-cards inner-state]
+      %+  ~(put by tests)  test-id
+      %=  test
+          subject       [%& q.p.result]
+          steps         r.p.result
+          test-imports
+        (~(gas in *test-imports:zig) p.p.result)
+      ==
+    --
   ::
       [%cis-done @ @ ~]
     ?.  ?&  ?=(%khan -.sign-arvo)

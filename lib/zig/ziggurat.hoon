@@ -570,7 +570,7 @@
   =/  compilation-result
     (mule |.((slap subject payload)))
   ?:  ?=(%& -.compilation-result)  compilation-result
-  [%| (get-formatted-error p.compilation-result)]
+  [%| (reformat-compiler-error p.compilation-result)]
 ::
 ++  compile-and-call-arm
   |=  [arm=@tas subject=vase payload=hoon]
@@ -815,6 +815,37 @@
     :-  (scot %p our.bowl)
     /[desk]/(scot %da now)/desk/bill
   (rear .^((list @tas) %cx bill-path))
+::
+++  read-test-file
+  |=  [project-name=@tas p=path state=inflated-state-0:zig]
+  ^-  $:  (each (trel (list [@tas path]) vase test-steps:zig) @t)
+          inflated-state-0:zig
+      ==
+  =/  file-scry-path=path
+    :-  (scot %p our.bowl)
+    (weld /[project-name]/(scot %da now.bowl) p)
+  =/  file-cord=@t  .^(@t %cx file-scry-path)
+  =/  [imports=(list [face=@tas =path]) payload=hoon]
+    (parse-pile:conq file-scry-path (trip file-cord))
+  =^  subject=(each vase @t)  state
+    (compile-test-imports project-name imports state)
+  :_  state
+  ?:  ?=(%| -.subject)
+    :-  %|
+    %^  cat  3  'compilation of test-imports failed:\0a'
+    p.subject
+  =/  test-steps-compilation-result=(each vase @t)
+    (compile-and-call-arm '$' p.subject payload)
+  ?:  ?=(%| -.test-steps-compilation-result)
+    :-  %|
+    %-  crip
+    ;:  weld
+        "test-steps compilation failed for"
+        " {<`path`p>} with error:\0a"
+        (trip p.test-steps-compilation-result)
+    ==
+  :^  %&  imports  p.subject
+  !<(test-steps:zig p.test-steps-compilation-result)
 ::
 ++  cis-thread
   |=  $:  w=wire
@@ -1752,6 +1783,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%poke update-info [%| level message] ~]
+  ::
+  ++  sync-desk-to-vship
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%sync-desk-to-vship update-info [%| level message] ~]
   ::
   ++  pyro-agent-state
     |=  message=@t
