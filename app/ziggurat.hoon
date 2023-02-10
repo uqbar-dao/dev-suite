@@ -48,7 +48,7 @@
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
   =*  wes-address
     0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
-  :-  :+  %-  ~(arvo pass:io /)
+  :-  :+  %-  ~(arvo pass:io /verbose-subscribe)
           :^  %k  %fard  q.byk.bowl
           [%ziggurat-test-subscribe %noun !>(`~)]
         %.  (add now.bowl ~s5)
@@ -171,6 +171,12 @@
       :^  project-name  %send-wallet-transaction
         /zig/custom-step-definitions/send-wallet-transaction/hoon
       request-id
+    =.  all-cards  (weld cards all-cards)
+    =^  cards=(list card)  test
+      %+  add-custom-step:zig-lib  test
+      :^  project-name  %deploy-contract
+        /zig/custom-step-definitions/deploy-contract/hoon
+      request-id
     :_  state
     :_  test
     :_  (weld cards all-cards)
@@ -230,43 +236,22 @@
       %+  add-test-error  0x0
       'test-steps path must not be empty'
     =/  =project:zig  (~(got by projects) project-name)
-    =/  file-scry-path=path
-      :-  (scot %p our.bowl)
-      (weld /[project-name]/(scot %da now.bowl) p)
-    =/  file-cord=@t  .^(@t %cx file-scry-path)
-    =/  [imports=(list [face=@tas =path]) payload=hoon]
-      (parse-pile:conq file-scry-path (trip file-cord))
-    =^  subject=(each vase @t)  state
-      %^  compile-test-imports:zig-lib  `@tas`project-name
-      imports  state
-    ?:  ?=(%| -.subject)
+    =^  result  state
+      (read-test-file:zig-lib project-name p state)
+    ?:  ?=(%| -.result)
       :_  state
       :_  *test:zig
       :_  ~
       %-  update-vase-to-card:zig-lib
-      %+  add-test-error  0x0
-      %^  cat  3  'compilation of test-imports failed:\0a'
-      p.subject
-    =/  test-steps-compilation-result=(each vase @t)
-      (compile-and-call-arm:zig-lib '$' p.subject payload)
-    ?:  ?=(%| -.test-steps-compilation-result)
-      :_  state
-      :_  *test:zig
-      :_  ~
-      %-  update-vase-to-card:zig-lib
-      %+  add-test-error  0x0
-      %-  crip
-      ;:  weld
-          "test-steps compilation failed for"
-          " {<`path`p>} with error:\0a"
-          (trip p.test-steps-compilation-result)
-      ==
-    =+  !<(=test-steps:zig p.test-steps-compilation-result)
+      (add-test-error 0x0 p.result)
+    =*  imports     p.p.result
+    =*  subject     q.p.result
+    =*  test-steps  r.p.result
     =/  =test:zig
       :*  name
           p
           (~(gas by *test-imports:zig) imports)
-          subject
+          [%& subject]
           ~
           test-steps
           ~
@@ -287,6 +272,12 @@
       %+  add-custom-step:zig-lib  test
       :^  project-name  %send-wallet-transaction
         /zig/custom-step-definitions/send-wallet-transaction/hoon
+      request-id
+    =.  all-cards  (weld cards all-cards)
+    =^  cards=(list card)  test
+      %+  add-custom-step:zig-lib  test
+      :^  project-name  %deploy-contract
+        /zig/custom-step-definitions/deploy-contract/hoon
       request-id
     [[(weld cards all-cards) test] state]
   ::
@@ -427,7 +418,7 @@
     ^-  (quip card _state)
     ?>  =(our.bowl src.bowl)
     =*  tag  -.+.+.act
-    ?:  =(tag %cis-panic) 
+    ?:  =(tag %cis-panic)
       ~^state(status [%ready ~])
     =/  =update-info:zig  [project.act tag request-id.act]
     ?:  ?|  ?&  ?=(%commit-install-starting -.status)
@@ -869,8 +860,9 @@
         (~(got bi:mip configs) 'global' [u.who %address])
       =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
       =/  imports=(list [@tas path])
-        :+  [%indexer /sur/zig/indexer]
-          [%zig /sur/zig/ziggurat]
+        :^    [%indexer /sur/zig/indexer]
+            [%zig /sur/zig/ziggurat]
+          [%mip /lib/mip]
         ~
       =^  subject=(each vase @t)  state
         %^  compile-test-imports:zig-lib  `@tas`project.act
@@ -893,8 +885,8 @@
             :^  %custom-write  %send-wallet-transaction
               %-  crip
               %-  noah
-              !>  ^-  [@p test-write-step:zig]
-              :-  u.who
+              !>  ^-  [@p @p test-write-step:zig]
+              :+  u.who  ~nec  ::  TODO: remove hardcode
               :^  %custom-write  %deploy-contract
               (crip "[{<u.who>} {<path.act>} ~]")  ~
             ~
@@ -1598,17 +1590,66 @@
               /(scot %da now.bowl)/yaki/(scot %uv tako)
           ==
       ~(key by q.yaki)
+    |^
+    =^  cards  state  update-tests-from-file
     :_  this
     :-  ?:  .=  0
             %~  wyt  in
             (~(int in updated-files) to-compile.project)
           (make-read-desk:zig-lib project-name ~)
         (make-compile-contracts:zig-lib project-name ~)
+    %-  weld  :_  cards
     %+  turn
       %~  tap  in
       (~(get ju sync-desk-to-vship) project-name)
     |=  who=@p
     (sync-desk-to-virtualship-card:zig-lib who project-name)
+    ::
+    ::  check if any test-steps loaded from file were
+    ::   updated; if yes, reload them under same id.
+    ::   however, this only will update if the test-steps
+    ::   file itself is updated, not any of its dependencies.
+    ::   TODO: replace with a more full-featured dependency
+    ::   rebuilding/updating system
+    ++  update-tests-from-file
+      ^-  (quip card _state)
+      %+  roll  ~(tap by projects)
+      |:  :-  [project-name=`@t`'' project=`project:zig`*project:zig]
+          [outer-cards=`(list card)`~ outer-state=`_state`state]
+      =;  [=tests:zig inner-cards=(list card) inner-state=_state]
+        :-  (weld outer-cards inner-cards)
+        %=  inner-state
+            projects
+          %+  ~(put by projects)  project-name
+          project(tests tests)
+        ==
+      %+  roll  ~(tap by tests.project)
+      |:  :-  [test-id=`@ux`0x0 test=`test:zig`*test:zig]
+          :+  tests=`tests:zig`tests.project
+            inner-cards=`(list card)`~
+          inner-state=`_state`outer-state
+      ?.  (~(has in updated-files) test-steps-file.test)
+        [tests inner-cards inner-state]
+      =^  result  inner-state
+        %^  read-test-file:zig-lib  project-name
+        test-steps-file.test  inner-state
+      ?:  ?=(%| -.result)
+        :+  tests
+          :_  inner-cards
+          %-  update-vase-to-card:zig-lib
+          %.  p.result
+          %~  sync-desk-to-vship  make-error-vase:zig-lib
+          [[project-name %clay-sync ~] %error]
+        inner-state
+      :_  [inner-cards inner-state]
+      %+  ~(put by tests)  test-id
+      %=  test
+          subject       [%& q.p.result]
+          steps         r.p.result
+          test-imports
+        (~(gas in *test-imports:zig) p.p.result)
+      ==
+    --
   ::
       [%cis-done @ @ ~]
     ?.  ?&  ?=(%khan -.sign-arvo)
@@ -1710,27 +1751,44 @@
   ::
       [%custom-step-compiled @ @ @ ~]
     =*  project-name  i.t.t.p
-    =*  test-id       i.t.t.t.p
+    =/  test-id=@ux   (slav %ux i.t.t.t.p)
     =*  tag           `@tas`i.t.t.t.t.p
-    =/  =project:zig  (~(got by projects) project-name)
-    =/  =test:zig
-      (~(got by tests.project) (slav %ux test-id))
     =/  custom-step-error
       %~  custom-step-compiled  make-error-vase:zig-lib
       [[project-name %custom-step-compiled ~] %error]
-    ?~  def=(~(get by custom-step-definitions.test) tag)
-      :^  ~  ~  %ziggurat-update
-      %+  custom-step-error  [(slav %ux test-id) tag]
-      %-  crip
-      %+  weld  "did not find {<tag>} custom-step-definition"
-      " in {<~(key by custom-step-definitions.test)>}"
+    |^
+    =/  project=(unit project:zig)
+      (~(get by projects) project-name)
+    ?~  project
+      %-  make-error
+      %+  weld  "did not find project {<project-name>} in"
+      " {<~(key by projects)>}"
+    =/  test=(unit test:zig)
+      (~(get by tests.u.project) test-id)
+    ?~  test
+      %-  make-error
+      %+  weld  "did not find test {<test-id>} in"
+      " {<~(key by tests.u.project)>}"
+    ?~  def=(~(get by custom-step-definitions.u.test) tag)
+      %-  make-error
+      %+  weld  "did not find custom-step-definition {<tag>}"
+      " in {<~(key by custom-step-definitions.u.test)>}"
     ?:  ?=(%| -.q.u.def)  ::  TODO: do better
-      :^  ~  ~  %ziggurat-update
-      %+  custom-step-error  [(slav %ux test-id) tag]
-      %-  crip
-      %+  weld  "compilation of {<tag>} failed; fix and"
-      "try again. error message:\0a {<p.q.u.def>}"
+      %-  make-error
+      %+  weld  "compilation failed; fix and try again."
+      " error message:\0a {<p.q.u.def>}"
     ``noun+!>(`vase`p.q.u.def)
+    ::
+    ::  vasing a vase is sketchy, but works for scries
+    ::   (does not work well for subscription %facts!)
+    ::
+    ++  make-error
+      |=  message=tape
+      ^-  (unit (unit cage))
+      :^  ~  ~  %noun
+      !>  ^-  vase
+      (custom-step-error [test-id tag] (crip message))
+    --
   ::
   ::     [%project-tests @ ~]
   ::   ?~  project=(~(get by projects) i.t.t.p)
