@@ -563,6 +563,15 @@
       sup.p.payload.update
   ==
 ::
+++  mule-slam-transform
+  |=  [transform=vase payload=vase]
+  ^-  (each vase @t)
+  !.
+  =/  slam-result
+    (mule |.((slam transform payload)))
+  ?:  ?=(%& -.slam-result)  slam-result
+  [%| (reformat-compiler-error p.slam-result)]
+::
 ++  mule-slap-subject
   |=  [subject=vase payload=hoon]
   ^-  (each vase @t)

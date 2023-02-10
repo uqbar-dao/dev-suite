@@ -1738,27 +1738,44 @@
   ::
       [%custom-step-compiled @ @ @ ~]
     =*  project-name  i.t.t.p
-    =*  test-id       i.t.t.t.p
+    =/  test-id=@ux   (slav %ux i.t.t.t.p)
     =*  tag           `@tas`i.t.t.t.t.p
-    =/  =project:zig  (~(got by projects) project-name)
-    =/  =test:zig
-      (~(got by tests.project) (slav %ux test-id))
     =/  custom-step-error
       %~  custom-step-compiled  make-error-vase:zig-lib
       [[project-name %custom-step-compiled ~] %error]
-    ?~  def=(~(get by custom-step-definitions.test) tag)
-      :^  ~  ~  %ziggurat-update
-      %+  custom-step-error  [(slav %ux test-id) tag]
-      %-  crip
-      %+  weld  "did not find {<tag>} custom-step-definition"
-      " in {<~(key by custom-step-definitions.test)>}"
+    |^
+    =/  project=(unit project:zig)
+      (~(get by projects) project-name)
+    ?~  project
+      %-  make-error
+      %+  weld  "did not find project {<project-name>} in"
+      " {<~(key by projects)>}"
+    =/  test=(unit test:zig)
+      (~(get by tests.u.project) test-id)
+    ?~  test
+      %-  make-error
+      %+  weld  "did not find test {<test-id>} in"
+      " {<~(key by tests.u.project)>}"
+    ?~  def=(~(get by custom-step-definitions.u.test) tag)
+      %-  make-error
+      %+  weld  "did not find custom-step-definition {<tag>}"
+      " in {<~(key by custom-step-definitions.u.test)>}"
     ?:  ?=(%| -.q.u.def)  ::  TODO: do better
-      :^  ~  ~  %ziggurat-update
-      %+  custom-step-error  [(slav %ux test-id) tag]
-      %-  crip
-      %+  weld  "compilation of {<tag>} failed; fix and"
-      "try again. error message:\0a {<p.q.u.def>}"
+      %-  make-error
+      %+  weld  "compilation failed; fix and try again."
+      " error message:\0a {<p.q.u.def>}"
     ``noun+!>(`vase`p.q.u.def)
+    ::
+    ::  vasing a vase is sketchy, but works for scries
+    ::   (does not work well for subscription %facts!)
+    ::
+    ++  make-error
+      |=  message=tape
+      ^-  (unit (unit cage))
+      :^  ~  ~  %noun
+      !>  ^-  vase
+      (custom-step-error [test-id tag] (crip message))
+    --
   ::
   ::     [%project-tests @ ~]
   ::   ?~  project=(~(get by projects) i.t.t.p)

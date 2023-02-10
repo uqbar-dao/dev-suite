@@ -455,11 +455,36 @@
       %+  scry  vase
       %+  weld  /gx/ziggurat/custom-step-compiled/[project-id]
       /(scot %ux test-id)/[tag.test-step]/noun
-    =/  transformed-steps=test-steps:zig
-      !<  test-steps:zig
-      %+  slam  transform
+    =/  transform-error
+      %-  mule  |.  !<(update:zig transform)
+    ?:  ?=(%& -.transform-error)
+      %-  pure:m
+      :-  %|
+      %^  cat  3  'custom-read retrieve transform failed\0a'
+      ?.  ?&  ?=(%custom-step-compiled -.p.transform-error)
+              ?=(%| -.payload.p.transform-error)
+          ==
+        'unknown error'
+      message.p.payload.p.transform-error
+    =/  compilation-result=(each vase @t)
+      %+  mule-slap-subject:zig-lib  subject
+      (ream payload.test-step)
+    ?:  ?=(%| -.compilation-result)
+      %-  pure:m
+      :-  %|
+      %^  cat  3  'custom-read-compilation-fail\0a'
+      p.compilation-result
+    =/  slam-result=(each vase @t)
+      %+  mule-slam-transform:zig-lib  transform
       %-  slop  :_  !>(expected.test-step)
-      (slap subject (ream payload.test-step))  ::  TODO: +mule?
+      p.compilation-result
+    ?:  ?=(%| -.slam-result)
+      %-  pure:m
+      :-  %|
+      %^  cat  3  'custom-read-slam-fail\0a'
+      p.slam-result
+    =/  transformed-steps=test-steps:zig
+      !<(test-steps:zig p.slam-result)
     $(test-steps (weld transformed-steps t.test-steps))
   ::
       %custom-write
@@ -467,11 +492,36 @@
       %+  scry  vase
       %+  weld  /gx/ziggurat/custom-step-compiled/[project-id]
       /(scot %ux test-id)/[tag.test-step]/noun
-    =/  transformed-steps=test-steps:zig
-      !<  test-steps:zig
-      %+  slam  transform
+    =/  transform-error
+      %-  mule  |.  !<(update:zig transform)
+    ?:  ?=(%& -.transform-error)
+      %-  pure:m
+      :-  %|
+      %^  cat  3  'custom-write retrieve transform failed\0a'
+      ?.  ?&  ?=(%custom-step-compiled -.p.transform-error)
+              ?=(%| -.payload.p.transform-error)
+          ==
+        'unknown error'
+      message.p.payload.p.transform-error
+    =/  compilation-result=(each vase @t)
+      %+  mule-slap-subject:zig-lib  subject
+      (ream payload.test-step)
+    ?:  ?=(%| -.compilation-result)
+      %-  pure:m
+      :-  %|
+      %^  cat  3  'custom-write-compilation-fail\0a'
+      p.compilation-result
+    =/  slam-result=(each vase @t)
+      %+  mule-slam-transform:zig-lib  transform
       %-  slop  :_  !>(expected.test-step)
-      (slap subject (ream payload.test-step))  ::  TODO: +mule?
+      p.compilation-result
+    ?:  ?=(%| -.slam-result)
+      %-  pure:m
+      :-  %|
+      %^  cat  3  'custom-write-slam-fail\0a'
+      p.slam-result
+    =/  transformed-steps=test-steps:zig
+      !<(test-steps:zig p.slam-result)
     $(test-steps (weld transformed-steps t.test-steps))
   ==
 ::
