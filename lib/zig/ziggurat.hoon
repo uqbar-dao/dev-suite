@@ -2448,6 +2448,7 @@
         [%send-pyro-dojo (ot ~[[%who (se %p)] [%command sa]])]
     ::
         [%pyro-agent-state pyro-agent-state]
+        [%update-agent-state update-agent-state]
     ::
         [%change-focus ul]
         [%add-project-link ul]
@@ -2594,6 +2595,14 @@
     :^    [%who (se %p)]
         [%app (se %tas)]
       [%grab so]
+    ~
+  ::
+  ++  update-agent-state
+    ^-  $-(json [who=@p app=@tas new-state=@t])
+    %-  ot
+    :^    [%who (se %p)]
+        [%app (se %tas)]
+      [%new-state so]
     ~
   --
 --
