@@ -1406,6 +1406,30 @@
       %.  [(show-agent-state:zig-lib agent-state) wex sup]
       %~  shown-pyro-agent-state  make-update-vase:zig-lib
       ['' %pyro-agent-state ~]
+    ::
+        %update-agent-state
+      =/  who=@ta    (scot %p who.act)
+      =*  app        app.act
+      =*  new-state  new-state.act
+      =+  .^  old-agent-state=vase
+              %gx
+              :^  (scot %p our.bowl)  %pyro
+                (scot %da now.bowl)
+              /[who]/[app]/dbug/state/noun/noun
+          ==
+      =/  slapped-agent-state=vase
+        (slap !>(..zuse) (ream new-state))  ::  TODO: acceptable subject?
+      =/  new-agent-state=vase
+        [-.old-agent-state +.slapped-agent-state]
+      ::  TODO: how to handle malformed input?
+      ::   This is vitally important since %slap-gall
+      ::   will uncomplainingly accept malformed input
+      ::   and things will not break until we try to use
+      ::   them (e.g. scry out the state).
+      :_  state
+      %+  ~(poke-our pass:io /pyro-poke)  %pyro-action
+      !>  ^-  action:pyro
+      [%slap-gall who.act app new-agent-state]
     ==
   --
 ::
