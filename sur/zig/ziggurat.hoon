@@ -15,6 +15,7 @@
       unfocused-project-snaps=(map (set @t) path)
       test-queue=(qeu [project=@t test-id=@ux])
       =status
+      =settings
   ==
 +$  inflated-state-0
   $:  state-0
@@ -23,6 +24,11 @@
       =ca-scry-cache
   ==
 +$  eng  $_  ~(engine engine:engine-lib !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
+::
++$  settings
+  $:  test-result-num-characters=@ud
+      compiler-error-num-lines=@ud
+  ==
 ::
 +$  status
   $%  [%running-test-steps ~]
@@ -179,6 +185,8 @@
           [%pyro-agent-state who=@p app=@tas grab=@t]
       ::
           [%cis-panic ~]
+      ::
+          [%change-settings =settings]
       ==
   ==
 ::
@@ -212,6 +220,7 @@
       %status
       %focused-linked
       %save-file
+      %settings
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -256,6 +265,7 @@
       [%status update-info payload=(data status) ~]
       [%focused-linked update-info payload=(data focused-linked-data) ~]
       [%save-file update-info payload=(data path) ~]
+      [%settings update-info payload=(data settings) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)

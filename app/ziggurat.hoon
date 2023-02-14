@@ -34,7 +34,7 @@
 +*  this  .
     def      ~(. (default-agent this %|) bowl)
     io       ~(. agentio bowl)
-    zig-lib  ~(. ziggurat-lib bowl)
+    zig-lib  ~(. ziggurat-lib bowl settings)
 ::
 ++  on-init
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
@@ -70,6 +70,7 @@
         ~
         ~
         [%uninitialized ~]
+        [1.024 10]
     ==
   ==
 ::
@@ -1406,6 +1407,9 @@
       %.  [(show-agent-state:zig-lib agent-state) wex sup]
       %~  shown-pyro-agent-state  make-update-vase:zig-lib
       ['' %pyro-agent-state ~]
+    ::
+        %change-settings
+      `state(settings settings.act)
     ==
   --
 ::
@@ -1824,6 +1828,12 @@
     %.  [agent-state wex sup]
     %~  pyro-agent-state  make-update-vase:zig-lib
     ['' %pyro-agent-state ~]
+  ::
+      [%settings ~]
+    :^  ~  ~  %ziggurat-update
+    %.  settings
+    %~  settings  make-update-vase:zig-lib
+    ['' %settings ~]
   ::
       [%file-exists @ ^]
     =/  des=@ta    i.t.t.p
