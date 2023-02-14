@@ -1,1 +1,0 @@
-../../../../../arvo/sys/vane/ames.hoon
