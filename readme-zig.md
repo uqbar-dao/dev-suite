@@ -1,13 +1,14 @@
-# `%pyro` and `%ziggurat` test suite documentation
+# `%ziggurat` dev suite documentation
 
-Document describes current best practices for use and testing of `%pyro` and `%ziggurat`.
+The `%ziggurat` dev suite is built on top of the `%pyro` ship virtualizer and is the backend for the [Ziggurat IDE](https://github.com/uqbar-dao/ziggurat-ui).
 As these projects are in a state of heavy development, this document will likely go out of date unless updated.
 
-Last updated as of Feb 07, 2023.
+Last updated as of Feb 13, 2023.
 
 ##  Contents
 
 * [Broad overview](#broad-overview)
+* [Initial installation](#initial-installation)
 * [Example usage](#example-usage)
 * [`%pyro` ship I/O](#pyro-ship-io)
 * [Test steps](#test-steps)
@@ -29,18 +30,54 @@ For example, `%pyre` picks up ames packets sent from one virtualship and passes 
 These `test-steps` are sequences of steps, such as `%poke`, `%scry`, `%dojo`, `%subscribe`, and so on.
 Each `test-step` may optionally have expectations.
 
-By default we run `~nec` and `~bud` as virtualships.
+`%ziggurat` is made to be run in conjunction with [Uqbar Core](https://github.com/uqbar-dao/uqbar-core).
+It is specifically designed to make smart contract development easy, but without sacrificing Gall agent development.
+As such, `%ziggurat` is the premier development environment for integrated on- and off-chain computing not only on Urbit, but in the world,
+
+By default we run `~nec`, `~bud`, and `~wes` as virtualships.
+
+##  Initial installation
+
+1. Follow the [Initial Installation instuctions on Uqbar Core](https://github.com/uqbar-dao/uqbar-core#initial-installation).
+   Uqbar Core is required for the `%ziggurat` dev suite to work properly.
+2. Clone the official Urbit repository and add this repository as a submodule.
+   This structure is necessary to resolve symbolic links to other desks like `base-dev` and `garden-dev`.
+   ```bash
+   cd ~/git/urbit/pkg  # Replace with your urbit pkg directory.
+   git submodule add git@github.com:uqbar-dao/dev-suite.git dev-suite
+   ```
+3. In the Dojo of the fakeship set up in the Uqbar Core installation, set up a `%suite` desk, where we will copy the files in this repo:
+   ```hoon
+   |new-desk %suite
+   ```
+5. In a new terminal, copy the files from this repo into the `%suite` desk:
+   ```bash
+   cd ~/git/urbit/pkg  # Replace with your chosen directory.
+
+   rm -rf nec/suite/*
+   cp -RL dev-suite/* nec/suite/
+   ```
+6. In the Dojo of the fakeship, commit the copied files and install.
+   ```hoon
+   |commit %suite
+
+   ::  Installing will set up the default ships, ~nec, ~bud, and ~wes,
+   ::   with ~nec as host, of a testnet in the same state as following
+   ::   the steps here:
+   ::   https://github.com/uqbar-dao/uqbar-core#starting-a-fakeship-testnet
+   |install our %suite
+   ```
 
 ## Example usage
 
-Setup; add tests to `%ziggurat`; start virtualships (in `%start-pyro-ships`):
 The following starts virtualships and sets up the `%zig` desk on them.
 When `%new-project` is called, `%ziggurat` looks for the project/desk, and if it finds it, looks for a [configuration file](#project-configuration) at `/zig/configs/[project-name]/hoon`.
 If found, the project is setup according to that configuration.
 Else, a default setup is used.
 ```hoon
-:ziggurat &ziggurat-action [%$ ~ %start-pyro-ships ~[~nec ~bud ~wes]]
-:ziggurat &ziggurat-action [%zig ~ %new-project ~]
+::  Run the subscribe thread to print %ziggurat output to
+::   the Dojo -- then press <Backspace> to background it.
+-suite!ziggurat-test-subscribe ~
 
 :ziggurat &ziggurat-action [%foo ~ %new-project ~[~bud ~wes]]
 
@@ -67,32 +104,22 @@ Else, a default setup is used.
 As a more real-world example, import the %pokur project (requires https://github.com/dr-frmr/pokur/pull/26 at least to work).
 
 ```hoon
-|merge %zig our %base
-|mount %zig
-|merge %pokur our %base
-|mount %pokur
+::  Run the subscribe thread to print %ziggurat output to
+::   the Dojo -- then press <Backspace> to background it.
 
-::  copy in appropriate files to %zig and %pokur
-::  note that we have the proper escrow.jam and gen/sequencer/init.hoon in %ziggurat now, so do not need to do that nonsense
+-suite!ziggurat-test-subscribe ~
+|new-desk %zig
+|new-desk %pokur
+
+::  Copy in appropriate files to %zig and %pokur, then:
 
 |commit %zig
 |commit %pokur
 
-|install our %zig
-
-:ziggurat &ziggurat-action [%$ ~ %start-pyro-ships ~[~nec ~bud ~wes]]
-:ziggurat &ziggurat-action [%zig ~ %new-project ~]
--zig!ziggurat-test-subscribe %pokur 1.000
-
-::  after ships are started and %zig dir is installed on them, hit the Backspace key to detatch the ziggurat-test-subscribe thread
-
-::  snapshot in case we want to restore to pre-%pokur-install state
-:pyro &pyro-action [%snap-ships /zig-setup-done ~[~nec ~bud ~wes]]
-
-::  set up %pokur, installing on ~nec, ~bud, ~wes, setting up ~nec as host, launching a table on ~bud
+::  Set up %pokur, installing on ~nec, ~bud, ~wes, setting up ~nec as host, launching a table on ~bud.
 :ziggurat &ziggurat-action [%pokur ~ %new-project ~]
 
-::  join the ~bud table from ~wes
+::  Join the ~bud table from ~wes.
 :ziggurat &ziggurat-action [%pokur ~ %add-and-queue-test-file `%wes-join-table /zig/test-steps/wes-join-table/hoon]
 :ziggurat &ziggurat-action [%$ ~ %run-queue ~]
 ```
@@ -100,16 +127,15 @@ As a more real-world example, import the %pokur project (requires https://github
 Some other stuff you may want to do:
 
 ```hoon
-::  if you want to restore to pre-%pokur-install state:
-:pyro &pyro-action [%restore-snap /zig-setup-done]
+::  Snapshot at any given state to be able to restore to it later:
+::   (The `/my-state/0` is an arbitrary `path` that is a label).
+:pyro &pyro-action [%snap-ships /my-state/0 ~[~nec ~bud ~wes]]
 
-::  if you want to inspect state of apps:
+::  If you want to restore to pre-%pokur-install state (or any other state, specified by the label `path`):
+:pyro &pyro-action [%restore-snap /testnet]
+
+::  If you want to inspect state of apps:
 :pyro|dojo ~bud ":pokur +dbug"
-
-::  if you want to join table with wes (you will have to plug in the actual id here):
-:pyro|dojo ~wes ":pokur &pokur-player-action [%join-table id=~2023.1.12..01.52.54..382a.0000.0000.0003 buy-in=1.000.000.000.000.000.000 public=%.y]"
-:pyro|dojo ~wes ":uqbar &wallet-poke [%submit from=0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d hash=[yourhash] gas=[rate=1 bud=1.000.000]]"
-:pyro|dojo ~nec ":sequencer|batch"
 ```
 
 
@@ -119,24 +145,6 @@ Some other stuff you may want to do:
 :pyro|dojo ~nec ":uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]"
 :pyro|dojo ~nec ":uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xa99c.4c8e.1c8d.abb8.e870.81e8.8c96.2cf5 gas=[rate=1 bud=1.000.000]]"
 :pyro|dojo ~nec ":sequencer|batch"
-```
-
-### Interaction with snapshots
-
-```hoon
-:pyro &action [%snap-ships /my-snapshot/0 ~[~nec ~bud ~wes]]
-:pyro &action [%restore-snap /my-snapshot/0]
-:pyro &action [%clear-snap /my-snapshot/0]
-```
-where the `/my-snapshot/0` here is just a `path` label of the snapshot.
-
-We pre-cache a special `/testnet` snapshot which loads a virtual testnet for you.
-Disclaimer: these currently have a bunch of jet mismatches when you boot them.
-May be super slow!
-This is getting fixed in an OTA soon.
-To activate it use
-```hoon
-:ziggurat &ziggurat-action [%foo %start-pyro-snap /testnet]
 ```
 
 ### Alternative `test-steps` input
@@ -159,37 +167,6 @@ As of this writing is was `0x3825.4e68.9717.b400.b727.fdee.5c7b.90e0`; look it u
 Then save via:
 ```hoon
 :ziggurat &ziggurat-action [%foo %save-test-to-file 0x3825.4e68.9717.b400.b727.fdee.5c7b.90e0 /zig/test-steps/my-scry-nec/hoon]
-```
-
-## `%pyro` ship I/O
-
-### `:pyro|dojo`
-
-You can input arbitrary Dojo commands to running `%pyro` ships by:
-```hoon
-:pyro|dojo ~nec ":indexer +dbug"
-```
-and output will be printed to your screen.
-The virtual ship operates like a normal ship, so you can maintain Dojo state therein, e.g.,
-```hoon
-:pyro|dojo ~bud "=ui -build-file /=zig=/sur/zig/indexer/hoon"
-:pyro|dojo ~bud ".^(update:ui %gx /=indexer=/batch-order/0x0/noun)"
-```
-
-### Scrying
-
-You can also scry into a virtualized ship app by scrying `%pyro`.
-There are some weird things about this:
-1. All `%i` scries must have a double mark at the end (e.g. `/noun/noun`) must be appended to the scry path because the path you give is used internally by `%pyro` to do its own scry to the virtualship. The doubled marks must match or you must have a `/mar` files with the appropriate arm to transition the inner mark to the outer.
-2. The virtualship and the [care](https://developers.urbit.org/reference/arvo/concepts/scry) must be specified at the start of the path.
-
-Here are two examples, the first of a scry to clay for a file, and the second a scry to gall for `%indexer` state:
-
-```hoon
-.^(wain %gx /=pyro=/i/~nec/cx/~nec/zig/(scot %da now)/desk/bill/bill)
-
-=ui -build-file /=zig=/sur/zig/indexer/hoon
-.^(update:ui %gx /=pyro=/i/~nec/gx/~nec/indexer/(scot %da now)/batch-order/0x0/noun/noun)
 ```
 
 ### `update:zig`
