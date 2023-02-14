@@ -2479,7 +2479,7 @@
         [%change-settings change-settings]
     ==
   ::
-  ++  change-setings
+  ++  change-settings
     ^-  $-(json settings:zig)
     %-  ot
     :+  [%test-result-num-characters ni]
