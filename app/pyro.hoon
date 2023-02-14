@@ -12,12 +12,23 @@
 ::  :pyro|unpause ~nec
 ::  :pyro|kill ~nec
 ::
+::  +on-watch paths:
+::  /effect        subscribe to effects one by one
+::  /effects       subscribe to effects in list form
+::  /effect/~dev   subscribe to all effects of a given ship
+::  /effect/blit   subscribe to all effects of a certain kind (e.g. blits)
+::  /effects/~dev  subscribe to all effects of a given ship in list form
+::  /events/~dev   subscribe to all events of a given ship
+::  /event/~dev/*  subscribe to all events of a given ship and wire
+::  /boths/~dev    subscribe to all events and effects of a given ship
+::
 /-  *zig-pyro
 /+  pyro=pyro-pyro,
     default-agent,
     pill=pill,
     dbug, verb
 ::
+:: TODO this builds all these files against zuse which is wrong
 /=  arvo-core  /lib/pyro/sys/arvo
 /=  lull-core  /lib/pyro/sys/lull
 /=  zuse-core  /lib/pyro/sys/zuse
@@ -74,10 +85,10 @@
       %-  user-files:pill
       /(scot %p p.byk.bowl)/base/(scot %da now.bowl)
     =.  park  (park:pyro our.bowl %base %da now.bowl)
-    :_  this
-    :: have to start and kill a ship to fill the cache
-    %+  turn  ~[!>([%init-ship ~nec]) !>([%kill-ships ~[~nec]])]
-    |=(=vase [%pass / %agent [our dap]:bowl %poke %pyro-action vase])
+    =.  fad.raft
+      .^(flow:clay %cx /(scot %p our.bowl)//(scot %da now.bowl)/flow)
+    `this
+  ::
   ++  on-save  !>(state)
   ++  on-load
     |=  old-vase=vase
@@ -89,6 +100,8 @@
     ::   %-  user-files:pill
     ::   /(scot %p p.byk.bowl)/base/(scot %da now.bowl)
     :: =.  park  (park:pyro our.bowl %base %da now.bowl)
+    :: =.  fad.raft
+    ::   .^(flow:clay %cx /(scot %p our.bowl)//(scot %da now.bowl)/flow)
     ?-  -.old
       %0  `this(state old)
     ==
@@ -106,14 +119,6 @@
   ++  on-watch
     |=  =path
     ^-  (quip card _this)
-    ::  /effect        subscribe to effects one by one
-    ::  /effects       subscribe to effects in list form
-    ::  /effect/~dev   subscribe to all effects of a given ship
-    ::  /effect/blit   subscribe to all effects of a certain kind (e.g. blits)
-    ::  /effects/~dev  subscribe to all effects of a given ship in list form
-    ::  /events/~dev   subscribe to all events of a given ship
-    ::  /event/~dev/*  subscribe to all events of a given ship and wire
-    ::  /boths/~dev    subscribe to all events and effects of a given ship
     ?:  ?=([?(%effects %effect) ~] path)
       `this
     ?:  ?=([%effect @ ~] path)
@@ -464,11 +469,6 @@
       (turn hers.act |=(=ship [ship *pier]))
     `state
   ::
-      %slap-gall
-    =.  this  abet-pe:(slap-gall:(pe her.act) [dap.act vase.act])
-    ~&  pyro+slap-gall+her.act
-    `state
-  ::
       %snap-ships
     =.  fleet-snaps
       %+  ~(put by fleet-snaps)  path.act
@@ -498,10 +498,6 @@
     ~&  deleted+path.act
     `state(fleet-snaps (~(del by fleet-snaps) path.act))
   ::
-      %clear-snaps
-    ~&  pyro+%cleared-all-snaps
-    `state(fleet-snaps ~)
-  ::
       %unpause-ships
     =.  this  apex-pyro  =<  abet-pyro
     ^+  this
@@ -521,16 +517,13 @@
     pause:(pe who)
   ::
       %wish
-    =.  this  apex-pyro  =<  abet-pyro
-    ^+  this
-    %+  turn-ships  hers.act
-    |=  [who=ship thus=_this]
-    =.  this  thus
-    =/  res=vase
-      (slym [-:!>(wish:arvo-adult) wish:snap:pier-data:(pe who)] p.act)
-    ::  TODO type is a vase, so q.res is a noun. Should be molded somehow
-    ~&  who^%wished^q.res
-    (pe who)
+    ~&  her.act^%wished^(wish:snap:pier-data:(pe her.act) p.act)
+    `state
+  ::
+      %slap-gall
+    =.  this  abet-pe:(slap-gall:(pe her.act) [dap.act vase.act])
+    ~&  pyro+slap-gall+her.act
+    `state
   ==
 ::
 ::  Run a callback function against a list of ships, aggregating state
