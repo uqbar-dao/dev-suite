@@ -76,8 +76,9 @@
     =.  park  (park:pyro our.bowl %base %da now.bowl)
     :_  this
     :: have to start and kill a ship to fill the cache
-    %+  turn  ~[!>([%init-ship ~nec]) !>([%kill-ships ~[~nec]])]
-    |=(=vase [%pass / %agent [our dap]:bowl %poke %pyro-action vase])
+    ~
+    :: %+  turn  ~[!>([%init-ship ~nec]) !>([%kill-ships ~[~nec]])]
+    :: |=(=vase [%pass / %agent [our dap]:bowl %poke %pyro-action vase])
   ++  on-save  !>(state)
   ++  on-load
     |=  old-vase=vase
@@ -498,10 +499,6 @@
     ~&  deleted+path.act
     `state(fleet-snaps (~(del by fleet-snaps) path.act))
   ::
-      %clear-snaps
-    ~&  pyro+%cleared-all-snaps
-    `state(fleet-snaps ~)
-  ::
       %unpause-ships
     =.  this  apex-pyro  =<  abet-pyro
     ^+  this
@@ -521,16 +518,8 @@
     pause:(pe who)
   ::
       %wish
-    =.  this  apex-pyro  =<  abet-pyro
-    ^+  this
-    %+  turn-ships  hers.act
-    |=  [who=ship thus=_this]
-    =.  this  thus
-    =/  res=vase
-      (slym [-:!>(wish:arvo-adult) wish:snap:pier-data:(pe who)] p.act)
-    ::  TODO type is a vase, so q.res is a noun. Should be molded somehow
-    ~&  who^%wished^q.res
-    (pe who)
+    ~&  her.act^%wished^(wish:snap:pier-data:(pe her.act) p.act)
+    `state
   ==
 ::
 ::  Run a callback function against a list of ships, aggregating state
