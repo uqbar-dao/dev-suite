@@ -2475,7 +2475,16 @@
         [%delete-project-link ul]
     ::
         [%cis-panic ul]
+    ::
+        [%change-settings change-settings]
     ==
+  ::
+  ++  change-setings
+    ^-  $-(json settings:zig)
+    %-  ot
+    :+  [%test-result-num-characters ni]
+      [%compiler-error-num-lines ni]
+    ~
   ::
   ++  docket
     ^-  $-(json [@t @t @ux @t [@ud @ud @ud] @t @t])
