@@ -100,6 +100,8 @@
     ::   %-  user-files:pill
     ::   /(scot %p p.byk.bowl)/base/(scot %da now.bowl)
     :: =.  park  (park:pyro our.bowl %base %da now.bowl)
+    :: =.  fad.raft
+    ::   .^(flow:clay %cx /(scot %p our.bowl)//(scot %da now.bowl)/flow)
     ?-  -.old
       %0  `this(state old)
     ==
@@ -467,11 +469,6 @@
       (turn hers.act |=(=ship [ship *pier]))
     `state
   ::
-      %slap-gall
-    =.  this  abet-pe:(slap-gall:(pe her.act) [dap.act vase.act])
-    ~&  pyro+slap-gall+her.act
-    `state
-  ::
       %snap-ships
     =.  fleet-snaps
       %+  ~(put by fleet-snaps)  path.act
@@ -521,6 +518,11 @@
   ::
       %wish
     ~&  her.act^%wished^(wish:snap:pier-data:(pe her.act) p.act)
+    `state
+  ::
+      %slap-gall
+    =.  this  abet-pe:(slap-gall:(pe her.act) [dap.act vase.act])
+    ~&  pyro+slap-gall+her.act
     `state
   ==
 ::
