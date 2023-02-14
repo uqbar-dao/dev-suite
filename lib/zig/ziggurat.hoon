@@ -12,7 +12,7 @@
     smart=zig-sys-smart,
     ui-lib=zig-indexer,
     zink=zink-zink
-|_  =bowl:gall
+|_  [=bowl:gall =settings:zig]
 +*  this    .
     io      ~(. agentio bowl)
     strand  strand:spider
@@ -460,7 +460,8 @@
     "fuse-loop error: type definition produces infinite loop\0a"
   ::
       ?(%'- need' %'- have')
-    ?:  (gte 10 (lent raw-wall))  (of-wall:format raw-wall)  ::  TODO: make configurable
+    ?:  (gte compiler-error-num-lines.settings (lent raw-wall))
+      (of-wall:format raw-wall)
     (weld i.raw-wall "\0a<long type elided>\0a")
   ::
       %'-find.$'
@@ -539,7 +540,8 @@
   |=  [success=? expected=@t result=vase]
   =/  res-text=@t  (crip (noah result))
   :+  success  expected
-  ?:  (lte 1.024 (met 3 res-text))  '<elided>'  ::  TODO: unhardcode
+  ?:  (lte test-result-num-characters.settings (met 3 res-text))
+    '<elided>'
   res-text
 ::
 ++  show-agent-state
@@ -1736,6 +1738,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%focused-linked update-info [%& data] ~]
+  ::
+  ++  settings
+    |=  =settings:zig
+    ^-  vase
+    !>  ^-  update:zig
+    [%settings update-info [%& settings] ~]
   --
 ::
 ++  make-error-vase
@@ -1976,7 +1984,20 @@
     ::
         %save-file
       ['data' (path p.payload.update)]~
+    ::
+        %settings
+      ['data' (settings p.payload.update)]~
     ==
+  ::
+  ++  settings
+    |=  s=settings:zig
+    ^-  json
+    %-  pairs
+    :+  :-  %test-result-num-characters
+        (numb test-result-num-characters.s)
+      :-  %compiler-error-num-lines
+      (numb compiler-error-num-lines.s)
+    ~
   ::
   ++  linked-projects
     |=  linked-projects=(jug @t @t)
@@ -2454,7 +2475,16 @@
         [%delete-project-link ul]
     ::
         [%cis-panic ul]
+    ::
+        [%change-settings change-settings]
     ==
+  ::
+  ++  change-setings
+    ^-  $-(json settings:zig)
+    %-  ot
+    :+  [%test-result-num-characters ni]
+      [%compiler-error-num-lines ni]
+    ~
   ::
   ++  docket
     ^-  $-(json [@t @t @ux @t [@ud @ud @ud] @t @t])

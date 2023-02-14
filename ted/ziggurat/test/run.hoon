@@ -3,7 +3,7 @@
     zig=zig-ziggurat
 /+  strandio,
     pyro-lib=pyro-pyro,
-    zig-lib=zig-ziggurat
+    ziggurat-lib=zig-ziggurat
 ::
 =*  strand     strand:spider
 =*  get-bowl   get-bowl:strandio
@@ -16,6 +16,8 @@
 ::
 =/  m  (strand ,vase)
 =|  subject=vase
+=|  =settings:zig
+=*  zig-lib  ~(. ziggurat-lib *bowl:gall settings)
 |^  ted
 ::
 +$  arg-mold
@@ -25,6 +27,21 @@
       subject=vase
       snapshot-ships=(list @p)
   ==
+::
+++  get-settings
+  |=  =bowl:spider
+  ^-  settings:zig
+  =+  .^  =update:zig
+          %gx
+          :-  (scot %p our.bowl)
+          /ziggurat/(scot %da now.bowl)/settings/noun
+      ==
+  ?.  ?&  ?=(^ update)
+          ?=(%settings -.update)
+          ?=(%& -.payload.update)
+      ==
+    *settings:zig
+  p.payload.update
 ::
 ++  test-results-of-reads-to-test-result
   |=  trs=test-results:zig
@@ -357,6 +374,7 @@
   ?~  test-steps  (pure:m [%& (flop test-results)])
   =*  test-step   i.test-steps
   ;<  =bowl:strand  bind:m  get-bowl
+  =.  settings  (get-settings bowl)
   ?-    -.test-step
       %wait
     ;<  ~  bind:m  (sleep until.test-step)
