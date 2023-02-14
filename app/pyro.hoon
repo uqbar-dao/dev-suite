@@ -18,18 +18,16 @@
     pill=pill,
     dbug, verb
 ::
-/=  arvo-core  /lib/pyro/sys/arvo
-/=  lull-core  /lib/pyro/sys/lull
-/=  zuse-core  /lib/pyro/sys/zuse
-/=  ames-core  /lib/pyro/sys/vane/ames
-/=  behn-core  /lib/pyro/sys/vane/behn
-/=  clay-core  /lib/pyro/sys/vane/clay
-/=  dill-core  /lib/pyro/sys/vane/dill
-/=  eyre-core  /lib/pyro/sys/vane/eyre
-/=  gall-core  /lib/pyro/sys/vane/gall
-/=  iris-core  /lib/pyro/sys/vane/iris
-/=  jael-core  /lib/pyro/sys/vane/jael
-/=  khan-core  /lib/pyro/sys/vane/khan
+/=  arvo-core  /lib/pyro/arvo :: TODO this compiles it against zuse, WRONG
+/=  ames-core  /lib/pyro/vane/ames :: ctrl+F "13", replace with 23
+/=  behn-core  /lib/pyro/vane/behn
+/=  clay-core  /lib/pyro/vane/clay
+/=  dill-core  /lib/pyro/vane/dill
+/=  eyre-core  /lib/pyro/vane/eyre :: login by posting to /pyro/~nec/~/login
+/=  gall-core  /lib/pyro/vane/gall
+/=  iris-core  /lib/pyro/vane/iris
+/=  jael-core  /lib/pyro/vane/jael
+/=  khan-core  /lib/pyro/vane/khan
 ::
 =>  |%
     ++  arvo-adult  ..^load:+>.arvo-core
@@ -416,15 +414,13 @@
           &                                            ::  fad
           :_  |                                        ::  zen
           :-  [~.nonce /pyro]
-          :~  zuse+zuse:zuse-core
-              lull+lull:lull-core
-              arvo+arvo:arvo-core
+          :~  zuse+zuse
+              lull+lull
+              arvo+arvo
               hoon+hoon-version
               nock+4
           ==
-          :^    files                                  ::  mod
-              !>(lull-core)
-            !>(zuse-core)
+          :^  files  !>(..lull)  !>(..zuse)            ::  mod
           %-  ~(gas by *(map term vane))               ::  van.mod
           :~  [%ames [!>((ames-core who.act)) *worm]]
               [%behn [!>((behn-core who.act)) *worm]]
