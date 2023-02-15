@@ -2427,6 +2427,7 @@
         [%delete-file (ot ~[[%file pa]])]
     ::
         [%register-contract-for-compilation (ot ~[[%file pa]])]
+        [%unregister-contract-for-compilation (ot ~[[%file pa]])]
         [%deploy-contract deploy]
     ::
         [%compile-contracts ul]

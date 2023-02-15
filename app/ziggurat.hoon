@@ -838,6 +838,14 @@
           [project request-id]:act
       state(projects (~(put by projects) project.act project))
     ::
+        %unregister-contract-for-compilation
+      =/  =project:zig  (~(got by projects) project.act)
+      ?:  (~(has in to-compile.project) file.act)  `state
+      =.  to-compile.project
+        (~(del in to-compile.project) file.act)
+      :-  ~
+      state(projects (~(put by projects) project.act project))
+    ::
         %deploy-contract
       =/  =project:zig  (~(got by projects) project.act)
       =/  add-test-error

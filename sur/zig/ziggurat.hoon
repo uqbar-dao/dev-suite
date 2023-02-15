@@ -144,6 +144,7 @@
           [%delete-config who=@p what=@tas]
       ::
           [%register-contract-for-compilation file=path]
+          [%unregister-contract-for-compilation file=path]
           [%deploy-contract town-id=@ux =path]
       ::
           [%compile-contracts ~]
