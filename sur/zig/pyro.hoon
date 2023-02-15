@@ -72,6 +72,9 @@
       ::  inject state into a running gall app
       ::
       [%slap-gall her=ship dap=term =vase]
+      ::  adds a desk to the startup sequence. All future ships will get it
+      ::
+      [%add-desk =desk]
   ==
 ::
 +$  behn-pier  next-timer=(unit @da)
