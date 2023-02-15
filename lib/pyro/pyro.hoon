@@ -213,7 +213,6 @@
         [%snap-ships (ot ~[[%path pa] [%hers (ar (se %p))]])]
         [%restore-snap (ot ~[[%path pa]])]
         [%delete-snap (ot ~[[%path pa]])]
-        [%clear-snaps ul]
         [%unpause-ships (ot ~[[%hers (ar (se %p))]])]
         [%pause-ships (ot ~[[%hers (ar (se %p))]])]
         [%wish (ot ~[[%hers (ar (se %p))] [%p so]])]

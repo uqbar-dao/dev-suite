@@ -3,7 +3,7 @@
     zig=zig-ziggurat
 /+  strandio,
     pyro-lib=pyro-pyro,
-    zig-lib=zig-ziggurat
+    ziggurat-lib=zig-ziggurat
 ::
 =*  strand     strand:spider
 =*  get-bowl   get-bowl:strandio
@@ -16,6 +16,8 @@
 ::
 =/  m  (strand ,vase)
 =|  subject=vase
+=|  =settings:zig
+=*  zig-lib  ~(. ziggurat-lib *bowl:gall settings)
 |^  ted
 ::
 +$  arg-mold
@@ -25,6 +27,21 @@
       subject=vase
       snapshot-ships=(list @p)
   ==
+::
+++  get-settings
+  |=  =bowl:spider
+  ^-  settings:zig
+  =+  .^  =update:zig
+          %gx
+          :-  (scot %p our.bowl)
+          /ziggurat/(scot %da now.bowl)/settings/noun
+      ==
+  ?.  ?&  ?=(^ update)
+          ?=(%settings -.update)
+          ?=(%& -.payload.update)
+      ==
+    *settings:zig
+  p.payload.update
 ::
 ++  test-results-of-reads-to-test-result
   |=  trs=test-results:zig
@@ -147,8 +164,7 @@
       ~&  %ziggurat-test-run^%no-desk-running-app^app.payload
       %.n
     =/  mar-paths=(list path)
-      ;;  (list path)
-      .^  *
+      .^  (list path)
           %gx
           %+  weld  /[our]/pyro/[now]/i/[who]/ct
           /[who]/[u.desk]/[now]/mar/file-list
@@ -165,8 +181,7 @@
     |=  [app=@tas our=@ta who=@ta now=@ta]
     ^-  (unit @tas)
     =/  desks-scry=(set @tas)
-      ;;  (set @tas)
-      .^  *
+      .^  (set @tas)
           %gx
           /[our]/pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
       ==
@@ -175,8 +190,7 @@
     ?~  desks  ~
     =*  desk  i.desks
     =/  apps=(set [@tas ?])
-      ;;  (set [@tas ?])
-      .^  *
+      .^  (set [@tas ?])
           %gx
           %+  weld  /[our]/pyro/[now]/i/[who]/ge/[who]/[desk]
           /[now]/apps
@@ -258,6 +272,8 @@
 ++  ignored-realship-timer-prefixes
   ^-  (list path)
   :~  /ames/pump
+      /eyre/channel
+      /eyre/sessions
       /gall/use/pyre
       /gall/use/hark-system-hook
       /gall/use/hark
@@ -289,16 +305,13 @@
   %+  roll  ships
   |=  [who=@p all-timers=(list [@da duct])]
   =/  who-ta=@ta  (scot %p who)
-  =/  scry-noun=*
-    .^  *
+  =/  timers=(list [@da duct])
+    .^  (list [@da duct])
         %gx
         %+  weld  /(scot %p our)/pyro/[now-ta]/i/[who-ta]
         /bx/[who-ta]//[now-ta]/debug/timers/noun
     ==
-  =/  timers=(unit (list [@da duct]))
-    ;;((unit (list [@da duct])) scry-noun)
-  ?~  timers  all-timers
-  (weld u.timers all-timers)
+  (weld timers all-timers)
 ::
 ++  get-virtualships-synced-for-project
   |=  [project-id=@t our=@p now=@da]
@@ -361,6 +374,7 @@
   ?~  test-steps  (pure:m [%& (flop test-results)])
   =*  test-step   i.test-steps
   ;<  =bowl:strand  bind:m  get-bowl
+  =.  settings  (get-settings bowl)
   ?-    -.test-step
       %wait
     ;<  ~  bind:m  (sleep until.test-step)
@@ -459,11 +473,36 @@
       %+  scry  vase
       %+  weld  /gx/ziggurat/custom-step-compiled/[project-id]
       /(scot %ux test-id)/[tag.test-step]/noun
-    =/  transformed-steps=test-steps:zig
-      !<  test-steps:zig
-      %+  slam  transform
+    =/  transform-error
+      %-  mule  |.  !<(update:zig transform)
+    ?:  ?=(%& -.transform-error)
+      %-  pure:m
+      :-  %|
+      %^  cat  3  'custom-read retrieve transform failed\0a'
+      ?.  ?&  ?=(%custom-step-compiled -.p.transform-error)
+              ?=(%| -.payload.p.transform-error)
+          ==
+        'unknown error'
+      message.p.payload.p.transform-error
+    =/  compilation-result=(each vase @t)
+      %+  mule-slap-subject:zig-lib  subject
+      (ream payload.test-step)
+    ?:  ?=(%| -.compilation-result)
+      %-  pure:m
+      :-  %|
+      %^  cat  3  'custom-read-compilation-fail\0a'
+      p.compilation-result
+    =/  slam-result=(each vase @t)
+      %+  mule-slam-transform:zig-lib  transform
       %-  slop  :_  !>(expected.test-step)
-      (slap subject (ream payload.test-step))  ::  TODO: +mule?
+      p.compilation-result
+    ?:  ?=(%| -.slam-result)
+      %-  pure:m
+      :-  %|
+      %^  cat  3  'custom-read-slam-fail\0a'
+      p.slam-result
+    =/  transformed-steps=test-steps:zig
+      !<(test-steps:zig p.slam-result)
     $(test-steps (weld transformed-steps t.test-steps))
   ::
       %custom-write
@@ -471,11 +510,36 @@
       %+  scry  vase
       %+  weld  /gx/ziggurat/custom-step-compiled/[project-id]
       /(scot %ux test-id)/[tag.test-step]/noun
-    =/  transformed-steps=test-steps:zig
-      !<  test-steps:zig
-      %+  slam  transform
+    =/  transform-error
+      %-  mule  |.  !<(update:zig transform)
+    ?:  ?=(%& -.transform-error)
+      %-  pure:m
+      :-  %|
+      %^  cat  3  'custom-write retrieve transform failed\0a'
+      ?.  ?&  ?=(%custom-step-compiled -.p.transform-error)
+              ?=(%| -.payload.p.transform-error)
+          ==
+        'unknown error'
+      message.p.payload.p.transform-error
+    =/  compilation-result=(each vase @t)
+      %+  mule-slap-subject:zig-lib  subject
+      (ream payload.test-step)
+    ?:  ?=(%| -.compilation-result)
+      %-  pure:m
+      :-  %|
+      %^  cat  3  'custom-write-compilation-fail\0a'
+      p.compilation-result
+    =/  slam-result=(each vase @t)
+      %+  mule-slam-transform:zig-lib  transform
       %-  slop  :_  !>(expected.test-step)
-      (slap subject (ream payload.test-step))  ::  TODO: +mule?
+      p.compilation-result
+    ?:  ?=(%| -.slam-result)
+      %-  pure:m
+      :-  %|
+      %^  cat  3  'custom-write-slam-fail\0a'
+      p.slam-result
+    =/  transformed-steps=test-steps:zig
+      !<(test-steps:zig p.slam-result)
     $(test-steps (weld transformed-steps t.test-steps))
   ==
 ::

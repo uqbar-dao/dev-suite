@@ -34,7 +34,7 @@
 +*  this  .
     def      ~(. (default-agent this %|) bowl)
     io       ~(. agentio bowl)
-    zig-lib  ~(. ziggurat-lib bowl)
+    zig-lib  ~(. ziggurat-lib bowl settings)
 ::
 ++  on-init
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
@@ -48,12 +48,9 @@
     0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de
   =*  wes-address
     0x5da4.4219.e382.ad70.db07.0a82.12d2.0559.cf8c.b44d
-  :-  :+  %-  ~(arvo pass:io /)
-          :^  %k  %fard  q.byk.bowl
-          [%ziggurat-test-subscribe %noun !>(`~)]
-        %.  (add now.bowl ~s5)
-        ~(wait pass:io /on-init-zig-setup)
-      ~
+  :-  :_  ~
+      %.  (add now.bowl ~s5)
+      ~(wait pass:io /on-init-zig-setup)
   %_    this
       state
     :_  [eng smart-lib ~]
@@ -73,6 +70,7 @@
         ~
         ~
         [%uninitialized ~]
+        [1.024 10]
     ==
   ==
 ::
@@ -171,6 +169,12 @@
       :^  project-name  %send-wallet-transaction
         /zig/custom-step-definitions/send-wallet-transaction/hoon
       request-id
+    =.  all-cards  (weld cards all-cards)
+    =^  cards=(list card)  test
+      %+  add-custom-step:zig-lib  test
+      :^  project-name  %deploy-contract
+        /zig/custom-step-definitions/deploy-contract/hoon
+      request-id
     :_  state
     :_  test
     :_  (weld cards all-cards)
@@ -230,43 +234,22 @@
       %+  add-test-error  0x0
       'test-steps path must not be empty'
     =/  =project:zig  (~(got by projects) project-name)
-    =/  file-scry-path=path
-      :-  (scot %p our.bowl)
-      (weld /[project-name]/(scot %da now.bowl) p)
-    =/  file-cord=@t  .^(@t %cx file-scry-path)
-    =/  [imports=(list [face=@tas =path]) payload=hoon]
-      (parse-pile:conq file-scry-path (trip file-cord))
-    =^  subject=(each vase @t)  state
-      %^  compile-test-imports:zig-lib  `@tas`project-name
-      imports  state
-    ?:  ?=(%| -.subject)
+    =^  result  state
+      (read-test-file:zig-lib project-name p state)
+    ?:  ?=(%| -.result)
       :_  state
       :_  *test:zig
       :_  ~
       %-  update-vase-to-card:zig-lib
-      %+  add-test-error  0x0
-      %^  cat  3  'compilation of test-imports failed:\0a'
-      p.subject
-    =/  test-steps-compilation-result=(each vase @t)
-      (compile-and-call-arm:zig-lib '$' p.subject payload)
-    ?:  ?=(%| -.test-steps-compilation-result)
-      :_  state
-      :_  *test:zig
-      :_  ~
-      %-  update-vase-to-card:zig-lib
-      %+  add-test-error  0x0
-      %-  crip
-      ;:  weld
-          "test-steps compilation failed for"
-          " {<`path`p>} with error:\0a"
-          (trip p.test-steps-compilation-result)
-      ==
-    =+  !<(=test-steps:zig p.test-steps-compilation-result)
+      (add-test-error 0x0 p.result)
+    =*  imports     p.p.result
+    =*  subject     q.p.result
+    =*  test-steps  r.p.result
     =/  =test:zig
       :*  name
           p
           (~(gas by *test-imports:zig) imports)
-          subject
+          [%& subject]
           ~
           test-steps
           ~
@@ -287,6 +270,12 @@
       %+  add-custom-step:zig-lib  test
       :^  project-name  %send-wallet-transaction
         /zig/custom-step-definitions/send-wallet-transaction/hoon
+      request-id
+    =.  all-cards  (weld cards all-cards)
+    =^  cards=(list card)  test
+      %+  add-custom-step:zig-lib  test
+      :^  project-name  %deploy-contract
+        /zig/custom-step-definitions/deploy-contract/hoon
       request-id
     [[(weld cards all-cards) test] state]
   ::
@@ -427,7 +416,7 @@
     ^-  (quip card _state)
     ?>  =(our.bowl src.bowl)
     =*  tag  -.+.+.act
-    ?:  =(tag %cis-panic) 
+    ?:  =(tag %cis-panic)
       ~^state(status [%ready ~])
     =/  =update-info:zig  [project.act tag request-id.act]
     ?:  ?|  ?&  ?=(%commit-install-starting -.status)
@@ -552,7 +541,14 @@
           ::
               (make-done-cards:zig-lib status project.act)
           ==
+      =.  state
+        %^  change-state-linked-projects:zig-lib
+          focused-project  state
+        |=(=project:zig project(saved-test-queue test-queue))
       %=  state
+          test-queue       ~
+          focused-project  project.act
+      ::
           linked-projects
         %+  ~(put by linked-projects)  project.act
         (~(put in *(set @t)) project.act)
@@ -586,7 +582,7 @@
         (~(got by configs) project.act)
       =/  file-path=path  /zig/configs/[project.act]/hoon
       :_  state
-      :+  %^  make-save-file:zig-lib  project.act
+      :+  %^  make-save-file:zig-lib  update-info
           file-path  file-text
         (make-read-desk:zig-lib [project request-id]:act)
       ~
@@ -642,9 +638,10 @@
         %change-focus
       =/  old=@t           focused-project
       =*  new=@t           project.act
-      =.  focused-project  new
-      ?:  (~(has ju linked-projects) old new)  `state
+      ?:  (~(has ju linked-projects) old new)
+        `state(focused-project new)
       =/  old-project=project:zig  (~(got by projects) old)
+      =/  new-project=project:zig  (~(got by projects) new)
       =/  old-links=(set @t)
         (~(get ju linked-projects) old)
       =/  old-snap-path=path
@@ -656,11 +653,20 @@
       =.  unfocused-project-snaps
         %+  ~(put by unfocused-project-snaps)  old-links
         old-snap-path
-      :_  state
+      =.  state
+        %^  change-state-linked-projects:zig-lib  new
+          %^  change-state-linked-projects:zig-lib  old  state
+          |=(=project:zig project(saved-test-queue test-queue))
+        |=(=project:zig project(saved-test-queue ~))
+      :_  %=  state
+              focused-project  new
+              test-queue       saved-test-queue.new-project
+          ==
       :+  %+  ~(poke-our pass:io /pyro-wire)  %pyro
           :-  %pyro-action
           !>  ^-  action:pyro
-          [%snap-ships old-snap-path pyro-ships.old-project]
+          :+  %snap-ships  old-snap-path
+          pyro-ships.old-project
         %+  ~(poke-our pass:io /pyro-wire)  %pyro
         :-  %pyro-action
         !>  ^-  action:pyro
@@ -689,7 +695,8 @@
         |=  project-name=@t
         [project-name new-links]
       =/  [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]
-        (make-desk-setup-cards-state new-links-list update-info)
+        %+  make-desk-setup-cards-state  new-links-list
+        update-info
       :-  cards
       %=  modified-state
           status
@@ -726,7 +733,8 @@
         |=  project-name=@t
         [project-name new-links]
       =/  [cards=(list card) modified-state=_state project-cis-running=(mip:mip @t @p [@t ?])]
-        (make-desk-setup-cards-state new-links-list update-info)
+        %+  make-desk-setup-cards-state  new-links-list
+        update-info
       :-  cards
       %=  modified-state
           status
@@ -763,7 +771,8 @@
       =/  =project:zig  (~(got by projects) project.act)
       =.  user-files.project
         (~(put in user-files.project) file.act)
-      :-  (make-save-file:zig-lib [project file text]:act)^~
+      :-  :_  ~
+          (make-save-file:zig-lib update-info [file text]:act)
       state(projects (~(put by projects) project.act project))
     ::
         %delete-file
@@ -849,8 +858,9 @@
         (~(got bi:mip configs) 'global' [u.who %address])
       =/  test-name=@tas  `@tas`(rap 3 %deploy path.act)
       =/  imports=(list [@tas path])
-        :+  [%indexer /sur/zig/indexer]
-          [%zig /sur/zig/ziggurat]
+        :^    [%indexer /sur/zig/indexer]
+            [%zig /sur/zig/ziggurat]
+          [%mip /lib/mip]
         ~
       =^  subject=(each vase @t)  state
         %^  compile-test-imports:zig-lib  `@tas`project.act
@@ -873,8 +883,8 @@
             :^  %custom-write  %send-wallet-transaction
               %-  crip
               %-  noah
-              !>  ^-  [@p test-write-step:zig]
-              :-  u.who
+              !>  ^-  [@p @p test-write-step:zig]
+              :+  u.who  ~nec  ::  TODO: remove hardcode
               :^  %custom-write  %deploy-contract
               (crip "[{<u.who>} {<path.act>} ~]")  ~
             ~
@@ -999,8 +1009,7 @@
               projects
             (~(put by projects) project.act project)
           ==
-      :+  %+  make-watch-for-file-changes:zig-lib
-          project.act  dir.project
+      :+  (make-watch-for-file-changes:zig-lib project.act)
         %-  update-vase-to-card:zig-lib
         %.  dir.project
         %~  dir  make-update-vase:zig-lib
@@ -1037,7 +1046,7 @@
       =/  file-text=@t  (make-test-steps-file:zig-lib test)
       =.  test-steps-file.test  path.act
       =.  tests.project  (~(put by tests.project) id.act test)
-      :-  :+  %^  make-save-file:zig-lib  project.act
+      :-  :+  %^  make-save-file:zig-lib  update-info
                   path.act  file-text
             (make-read-desk:zig-lib [project request-id]:act)
            ~
@@ -1372,26 +1381,35 @@
       =/  who=@ta  (scot %p who.act)
       =*  app      app.act
       =*  grab     grab.act
+      =?  grab  =('' grab)  '-'
       =/  now=@ta  (scot %da now.bowl)
-      =/  agent-state-noun=*
-        .^  *
+      =+  .^  agent-state=vase
+              %gx
+              :+  (scot %p our.bowl)  %pyro
+              /[now]/[who]/[app]/dbug/state/noun/noun
+          ==
+      =.  agent-state
+        %-  slap  :_  (ream grab)
+        (slop agent-state !>([bowl=bowl ..zuse]))
+      =/  [wex=boat:gall sup=bitt:gall]
+        .^  [boat:gall bitt:gall]
             %gx
-            :-  (scot %p our.bowl)
-            %+  weld  /pyro/[now]/i/[who]/gx/[who]/subscriber
-            /[now]/agent-state/[app]/[grab]/noun/noun
+            :+  (scot %p our.bowl)  %pyro
+            /[now]/[who]/[app]/dbug/subscriptions/noun/noun
         ==
+      ::  %shown-pyro-agent-state over %pyro-agent-state
+      ::   because there are casts deep in vanes that don't
+      ::   take too kindly to vases within vases: ideally
+      ::   this should be a %pyro-agent-state like the scry
       :_  state
       :_  ~
       %-  update-vase-to-card:zig-lib
-      ?~  agent-state-noun
-        %.  (crip "scry for /{<who>}/{<app>} failed")
-        %~  pyro-agent-state  make-error-vase:zig-lib
-        [['' %pyro-agent-state ~] %error]
-      =/  [agent-state=@t wex=boat:gall sup=bitt:gall]
-        ;;([@t boat:gall bitt:gall] agent-state-noun)
-      %.  [agent-state wex sup]
-      %~  pyro-agent-state  make-update-vase:zig-lib
-      update-info
+      %.  [(show-agent-state:zig-lib agent-state) wex sup]
+      %~  shown-pyro-agent-state  make-update-vase:zig-lib
+      ['' %pyro-agent-state ~]
+    ::
+        %change-settings
+      `state(settings settings.act)
     ==
   --
 ::
@@ -1491,13 +1509,15 @@
             ==
         ==
       `this
-    =/  links=(set @t)
-      (~(get ju linked-projects) desk)
+    =/  links=(set @t)  (~(get ju linked-projects) desk)
     =/  snap-path=path
       ?:  &(=('' focused-project) =('zig' desk))
         default-snap-path:zig-lib
       :-  (crip (noah !>(`(set @t)`links)))
       /(scot %da now.bowl)
+    =.  state
+      %^  change-state-linked-projects:zig-lib  desk  state
+      |=(p=project:zig p(tests ~))
     :_  %=  this
             status           [%ready ~]
             focused-project  desk
@@ -1516,7 +1536,7 @@
       %-  update-vase-to-card:zig-lib
       %~  cis-setup-done  make-update-vase:zig-lib
       [desk %cis-setup-done ~]
-    ~
+    (sync-all-desks-cards:zig-lib sync-desk-to-vship)
   ==
 ::
 ++  on-arvo
@@ -1555,23 +1575,82 @@
     `this
   ::
       [%clay @ ~]
-    ?>  ?=([%clay %wris *] sign-arvo)
+    ?>  ?=([%clay %writ *] sign-arvo)
     =*  project-name  i.t.w
     =/  =project:zig  (~(got by projects) project-name)
+    ?~  p.sign-arvo
+      :_  this
+      :_  ~
+      (make-watch-for-file-changes:zig-lib project-name)
     =/  updated-files=(set path)
-      %-  ~(gas in *(set path))
-      (turn ~(tap in q.sign-arvo) |=([@ p=path] p))
+      =+  !<(=dome:clay q.r.u.p.sign-arvo)
+      =/  =tako:clay  (~(got by hit.dome) let.dome)
+      =+  .^  =yaki:clay
+              %cs
+              %+  weld  /(scot %p our.bowl)/[project-name]
+              /(scot %da now.bowl)/yaki/(scot %uv tako)
+          ==
+      ~(key by q.yaki)
+    |^
+    =^  cards  state  update-tests-from-file
     :_  this
     :-  ?:  .=  0
             %~  wyt  in
             (~(int in updated-files) to-compile.project)
           (make-read-desk:zig-lib project-name ~)
         (make-compile-contracts:zig-lib project-name ~)
+    %-  weld  :_  cards
     %+  turn
       %~  tap  in
       (~(get ju sync-desk-to-vship) project-name)
     |=  who=@p
     (sync-desk-to-virtualship-card:zig-lib who project-name)
+    ::
+    ::  check if any test-steps loaded from file were
+    ::   updated; if yes, reload them under same id.
+    ::   however, this only will update if the test-steps
+    ::   file itself is updated, not any of its dependencies.
+    ::   TODO: replace with a more full-featured dependency
+    ::   rebuilding/updating system
+    ++  update-tests-from-file
+      ^-  (quip card _state)
+      %+  roll  ~(tap by projects)
+      |:  :-  [project-name=`@t`'' project=`project:zig`*project:zig]
+          [outer-cards=`(list card)`~ outer-state=`_state`state]
+      =;  [=tests:zig inner-cards=(list card) inner-state=_state]
+        :-  (weld outer-cards inner-cards)
+        %=  inner-state
+            projects
+          %+  ~(put by projects)  project-name
+          project(tests tests)
+        ==
+      %+  roll  ~(tap by tests.project)
+      |:  :-  [test-id=`@ux`0x0 test=`test:zig`*test:zig]
+          :+  tests=`tests:zig`tests.project
+            inner-cards=`(list card)`~
+          inner-state=`_state`outer-state
+      ?.  (~(has in updated-files) test-steps-file.test)
+        [tests inner-cards inner-state]
+      =^  result  inner-state
+        %^  read-test-file:zig-lib  project-name
+        test-steps-file.test  inner-state
+      ?:  ?=(%| -.result)
+        :+  tests
+          :_  inner-cards
+          %-  update-vase-to-card:zig-lib
+          %.  p.result
+          %~  sync-desk-to-vship  make-error-vase:zig-lib
+          [[project-name %clay-sync ~] %error]
+        inner-state
+      :_  [inner-cards inner-state]
+      %+  ~(put by tests)  test-id
+      %=  test
+          subject       [%& q.p.result]
+          steps         r.p.result
+          test-imports
+        (~(gas in *test-imports:zig) p.p.result)
+      ==
+    --
   ::
       [%cis-done @ @ ~]
     ?.  ?&  ?=(%khan -.sign-arvo)
@@ -1673,27 +1752,44 @@
   ::
       [%custom-step-compiled @ @ @ ~]
     =*  project-name  i.t.t.p
-    =*  test-id       i.t.t.t.p
+    =/  test-id=@ux   (slav %ux i.t.t.t.p)
     =*  tag           `@tas`i.t.t.t.t.p
-    =/  =project:zig  (~(got by projects) project-name)
-    =/  =test:zig
-      (~(got by tests.project) (slav %ux test-id))
     =/  custom-step-error
       %~  custom-step-compiled  make-error-vase:zig-lib
       [[project-name %custom-step-compiled ~] %error]
-    ?~  def=(~(get by custom-step-definitions.test) tag)
-      :^  ~  ~  %ziggurat-update
-      %+  custom-step-error  [(slav %ux test-id) tag]
-      %-  crip
-      %+  weld  "did not find {<tag>} custom-step-definition"
-      " in {<~(key by custom-step-definitions.test)>}"
+    |^
+    =/  project=(unit project:zig)
+      (~(get by projects) project-name)
+    ?~  project
+      %-  make-error
+      %+  weld  "did not find project {<project-name>} in"
+      " {<~(key by projects)>}"
+    =/  test=(unit test:zig)
+      (~(get by tests.u.project) test-id)
+    ?~  test
+      %-  make-error
+      %+  weld  "did not find test {<test-id>} in"
+      " {<~(key by tests.u.project)>}"
+    ?~  def=(~(get by custom-step-definitions.u.test) tag)
+      %-  make-error
+      %+  weld  "did not find custom-step-definition {<tag>}"
+      " in {<~(key by custom-step-definitions.u.test)>}"
     ?:  ?=(%| -.q.u.def)  ::  TODO: do better
-      :^  ~  ~  %ziggurat-update
-      %+  custom-step-error  [(slav %ux test-id) tag]
-      %-  crip
-      %+  weld  "compilation of {<tag>} failed; fix and"
-      "try again. error message:\0a {<p.q.u.def>}"
+      %-  make-error
+      %+  weld  "compilation failed; fix and try again."
+      " error message:\0a {<p.q.u.def>}"
     ``noun+!>(`vase`p.q.u.def)
+    ::
+    ::  vasing a vase is sketchy, but works for scries
+    ::   (does not work well for subscription %facts!)
+    ::
+    ++  make-error
+      |=  message=tape
+      ^-  (unit (unit cage))
+      :^  ~  ~  %noun
+      !>  ^-  vase
+      (custom-step-error [test-id tag] (crip message))
+    --
   ::
   ::     [%project-tests @ ~]
   ::   ?~  project=(~(get by projects) i.t.t.p)
@@ -1711,25 +1807,33 @@
       [%pyro-agent-state @ @ @ ~]
     =*  who      i.t.t.p
     =*  app      `@tas`i.t.t.t.p
-    =*  grab     `@t`i.t.t.t.t.p
+    =/  grab=@t  `@t`i.t.t.t.t.p
+    =?  grab  =('' grab)  '-'
     =/  now=@ta  (scot %da now.bowl)
-    =/  agent-state-noun=*
-      .^  *
+    =+  .^  agent-state=vase
+            %gx
+            :+  (scot %p our.bowl)  %pyro
+            /[now]/[who]/[app]/dbug/state/noun/noun
+        ==
+    =.  agent-state
+      %-  slap  :_  (ream grab)
+      (slop agent-state !>([bowl=bowl ..zuse]))
+    =/  [wex=boat:gall sup=bitt:gall]
+      .^  [boat:gall bitt:gall]
           %gx
-          :-  (scot %p our.bowl)
-          %+  weld  /pyro/[now]/i/[who]/gx/[who]/subscriber
-          /[now]/agent-state/[app]/[grab]/noun/noun
+          :+  (scot %p our.bowl)  %pyro
+          /[now]/[who]/[app]/dbug/subscriptions/noun/noun
       ==
     :^  ~  ~  %ziggurat-update
-    ?~  agent-state-noun
-      %.  (crip "scry for /{<who>}/{<app>} failed")
-      %~  pyro-agent-state  make-error-vase:zig-lib
-      [['' %pyro-agent-state ~] %error]
-    =/  [agent-state=@t wex=boat:gall sup=bitt:gall]
-      ;;([@t boat:gall bitt:gall] agent-state-noun)
     %.  [agent-state wex sup]
     %~  pyro-agent-state  make-update-vase:zig-lib
     ['' %pyro-agent-state ~]
+  ::
+      [%settings ~]
+    :^  ~  ~  %ziggurat-update
+    %.  settings
+    %~  settings  make-update-vase:zig-lib
+    ['' %settings ~]
   ::
       [%file-exists @ ^]
     =/  des=@ta    i.t.t.p

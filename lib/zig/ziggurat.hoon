@@ -12,7 +12,7 @@
     smart=zig-sys-smart,
     ui-lib=zig-indexer,
     zink=zink-zink
-|_  =bowl:gall
+|_  [=bowl:gall =settings:zig]
 +*  this    .
     io      ~(. agentio bowl)
     strand  strand:spider
@@ -41,13 +41,10 @@
   !>(`action:zig`project-name^request-id^[%compile-contracts ~])
 ::
 ++  make-watch-for-file-changes
-  |=  [project-name=@tas files=(list path)]
+  |=  project-name=@tas
   ^-  card
   %-  ~(warp-our pass:io /clay/[project-name])
-  :-  project-name
-  :^  ~  %mult  da+now.bowl
-  %-  ~(gas in *(set [care:clay path]))
-  (turn files |=(p=path [%x p]))
+  [project-name ~ %next %v da+now.bowl /]
 ::
 ++  make-cancel-watch-for-file-changes
   |=  project-name=@tas
@@ -71,28 +68,57 @@
   [`@tas`project-name %& [file %ins %noun !>(`@`(jam non))]~]
 ::
 ++  make-save-file
-  |=  [project-name=@t file=path text=@t]
+  |=  [=update-info:zig file=path text=@t]
   ^-  card
-  =/  file-type  (rear file)
-  =/  mym=mime  :-  /application/x-urb-unknown
-    %-  as-octt:mimes:html
-    %+  rash  text
-    (star ;~(pose (cold '\0a' (jest '\0d\0a')) next))
-  %-  ~(arvo pass:io /save-wire)
-  :-  %c
-  :: =-  [%pass /save-wire %arvo %c -]
-  :^  %info  `@tas`project-name  %&
-  :_  ~  :+  file  %ins
-  =*  reamed-text  q:(slap !>(~) (ream text))  ::  =* in case text unreamable
-  ?+  file-type  [%mime !>(mym)] :: don't need to know mar if we have bytes :^)
-    %hoon        [%hoon !>(text)]
-    %ship        [%ship !>(;;(@p reamed-text))]
-    %bill        [%bill !>(;;((list @tas) reamed-text))]
-    %kelvin      [%kelvin !>(;;([@tas @ud] reamed-text))]
-      %docket-0
-    =-  [%docket-0 !>((need (from-clauses:mime:dock -)))]
-    ;;((list clause:dock) reamed-text)
+  =*  project-name  project-name.update-info
+  =/  file-type=@tas  (rear file)
+  |^
+  =/  supported-file-types=(set @tas)
+    %-  ~(gas in *(set @tas))
+    ~[%hoon %ship %bill %kelvin %docket-0]
+  ?:  (~(has in supported-file-types) file-type)  make-card
+  =/  is-mark-found=?
+    .^  ?
+        %cu
+        %+  weld  /(scot %p our.bowl)/[project-name]
+        /(scot %da now.bowl)/mar/[file-type]/hoon
+    ==
+  ?:  is-mark-found                               make-card
+  %-  update-vase-to-card
+  %-  %~  save-file  make-error-vase
+      [update-info %error]
+  %-  crip
+  ;:  weld
+      "cannot save file with mark {<`@tas`file-type>}."
+      " supported file marks are"
+      " {<`(set @tas)`supported-file-types>}"
+      " and marks with %mime grow arms in"
+      " {<`path`/[project-name]/mar>}"
   ==
+  ::
+  ++  make-card
+    ^-  card
+    =.  text  ?.(=('' text) text (make-template file))
+    =/  mym=mime
+      :-  /application/x-urb-unknown
+      %-  as-octt:mimes:html
+      %+  rash  text
+      (star ;~(pose (cold '\0a' (jest '\0d\0a')) next))
+    %-  ~(arvo pass:io /save-wire)
+    :-  %c
+    :^  %info  `@tas`project-name  %&
+    :_  ~  :+  file  %ins
+    =*  reamed-text  q:(slap !>(~) (ream text))  ::  =* in case text unreamable
+    ?+    file-type  [%mime !>(mym)] :: don't need to know mar if we have bytes :^)
+        %hoon        [%hoon !>(text)]
+        %ship        [%ship !>(;;(@p reamed-text))]
+        %bill        [%bill !>(;;((list @tas) reamed-text))]
+        %kelvin      [%kelvin !>(;;([@tas @ud] reamed-text))]
+        %docket-0
+      =-  [%docket-0 !>((need (from-clauses:mime:dock -)))]
+      ;;((list clause:dock) reamed-text)
+    ==
+  --
 ::
 ++  make-run-queue
   |=  [project-name=@t request-id=(unit @t)]
@@ -434,7 +460,8 @@
     "fuse-loop error: type definition produces infinite loop\0a"
   ::
       ?(%'- need' %'- have')
-    ?:  (gte 10 (lent raw-wall))  (of-wall:format raw-wall)  ::  TODO: make configurable
+    ?:  (gte compiler-error-num-lines.settings (lent raw-wall))
+      (of-wall:format raw-wall)
     (weld i.raw-wall "\0a<long type elided>\0a")
   ::
       %'-find.$'
@@ -513,8 +540,39 @@
   |=  [success=? expected=@t result=vase]
   =/  res-text=@t  (crip (noah result))
   :+  success  expected
-  ?:  (lte 1.024 (met 3 res-text))  '<elided>'  ::  TODO: unhardcode
+  ?:  (lte test-result-num-characters.settings (met 3 res-text))
+    '<elided>'
   res-text
+::
+++  show-agent-state
+  |=  agent-state=vase
+  ^-  @t
+  =/  noah-state=@t  (crip (noah agent-state))
+  ?:  (lth 10.000 (met 3 noah-state))  noah-state
+  (get-formatted-error (sell agent-state) ~)
+::
+++  show-agent-state-update
+  |=  =update:zig
+  ^-  (unit shown-agent-state:zig)
+  ?.  ?=(%pyro-agent-state -.update)  ~
+  ?:  ?=(%| -.payload.update)         ~
+  :-  ~
+  :~  -.update
+      [project-name source request-id]:update
+      :^    %&
+          (show-agent-state agent-state.p.payload.update)
+        wex.p.payload.update
+      sup.p.payload.update
+  ==
+::
+++  mule-slam-transform
+  |=  [transform=vase payload=vase]
+  ^-  (each vase @t)
+  !.
+  =/  slam-result
+    (mule |.((slam transform payload)))
+  ?:  ?=(%& -.slam-result)  slam-result
+  [%| (reformat-compiler-error p.slam-result)]
 ::
 ++  mule-slap-subject
   |=  [subject=vase payload=hoon]
@@ -523,7 +581,7 @@
   =/  compilation-result
     (mule |.((slap subject payload)))
   ?:  ?=(%& -.compilation-result)  compilation-result
-  [%| (get-formatted-error p.compilation-result)]
+  [%| (reformat-compiler-error p.compilation-result)]
 ::
 ++  compile-and-call-arm
   |=  [arm=@tas subject=vase payload=hoon]
@@ -566,7 +624,8 @@
     :_  test
     :_  ~
     %-  update-vase-to-card
-    %+  add-custom-error  [`@ux`(sham test) tag]
+    %+  add-custom-error(level %warning)
+      [`@ux`(sham test) tag]
     (crip "file {<`path`p>} not found")
   =/  file-cord=@t  .^(@t %cx file-scry-path)
   =/  [imports=(list [face=@tas =path]) payload=hoon]
@@ -610,25 +669,23 @@
   =/  town-ta=@ta  (scot %ux town-id)
   =/  batch-order=update:ui
     ;;  update:ui
-    .^  noun
+    .^  update:ui
         %gx
         ;:  weld
-          /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
-          /[who-ta]/indexer/[now-ta]/batch-order/[town-ta]
-          /noun/noun
+          /(scot %p our.bowl)/pyro/[now-ta]/[who-ta]/indexer
+          /batch-order/[town-ta]/noun/noun
     ==  ==
   ?~  batch-order                     ~
   ?.  ?=(%batch-order -.batch-order)  ~
   ?~  batch-order.batch-order         ~
   =*  newest-batch  i.batch-order.batch-order
   =/  batch-chain=update:ui
-    ;;  update:ui
-    .^  noun
+    .^  update:ui
         %gx
         ;:  weld
-            /(scot %p our.bowl)/pyro/[now-ta]/i/[who-ta]/gx
-            /[who-ta]/indexer/[now-ta]/newest/batch-chain
-            /[town-ta]/(scot %ux newest-batch)/noun/noun
+            /(scot %p our.bowl)/pyro/[now-ta]/[who-ta]
+            /indexer/newest/batch-chain/[town-ta]
+            /(scot %ux newest-batch)/noun/noun
     ==  ==
   ?~  batch-chain                     ~
   ?.  ?=(%batch-chain -.batch-chain)  ~
@@ -689,8 +746,7 @@
   ^-  (set @tas)
   =/  now=@ta  (scot %da now-da)
   =/  who=@ta  (scot %p virtualship)
-  ;;  (set @tas)
-  .^  *
+  .^  (set @tas)
       %gx
       :-  (scot %p our.bowl)
       /pyro/[now]/i/[who]/cd/[who]/base/[now]/noun
@@ -706,13 +762,20 @@
   ^-  ?
   =/  now=@ta  (scot %da now-da)
   =/  who=@ta  (scot %p virtualship)
-  =/  is-app-running=*
-    .^  *
-        %gx
-        :-  (scot %p our.bowl)
-        /pyro/[now]/i/[who]/gu/[who]/[app]/[now]/noun
-    ==
-  ;;(? is-app-running)
+  .^  ?
+      %gx
+      :-  (scot %p our.bowl)
+      /pyro/[now]/i/[who]/gu/[who]/[app]/[now]/noun
+  ==
+::
+++  sync-all-desks-cards
+  |=  =sync-desk-to-vship:zig
+  ^-  (list card)
+  %-  zing
+  %+  turn  ~(tap by sync-desk-to-vship)
+  |=  [desk=@tas whos=(set @p)]
+  %+  turn  ~(tap in whos)
+  |=(who=@p (sync-desk-to-virtualship-card who desk))
 ::
 ++  sync-desk-to-virtualship-card
   |=  [who=@p project-name=@tas]
@@ -763,6 +826,37 @@
     :-  (scot %p our.bowl)
     /[desk]/(scot %da now)/desk/bill
   (rear .^((list @tas) %cx bill-path))
+::
+++  read-test-file
+  |=  [project-name=@tas p=path state=inflated-state-0:zig]
+  ^-  $:  (each (trel (list [@tas path]) vase test-steps:zig) @t)
+          inflated-state-0:zig
+      ==
+  =/  file-scry-path=path
+    :-  (scot %p our.bowl)
+    (weld /[project-name]/(scot %da now.bowl) p)
+  =/  file-cord=@t  .^(@t %cx file-scry-path)
+  =/  [imports=(list [face=@tas =path]) payload=hoon]
+    (parse-pile:conq file-scry-path (trip file-cord))
+  =^  subject=(each vase @t)  state
+    (compile-test-imports project-name imports state)
+  :_  state
+  ?:  ?=(%| -.subject)
+    :-  %|
+    %^  cat  3  'compilation of test-imports failed:\0a'
+    p.subject
+  =/  test-steps-compilation-result=(each vase @t)
+    (compile-and-call-arm '$' p.subject payload)
+  ?:  ?=(%| -.test-steps-compilation-result)
+    :-  %|
+    %-  crip
+    ;:  weld
+        "test-steps compilation failed for"
+        " {<`path`p>} with error:\0a"
+        (trip p.test-steps-compilation-result)
+    ==
+  :^  %&  imports  p.subject
+  !<(test-steps:zig p.test-steps-compilation-result)
 ::
 ++  cis-thread
   |=  $:  w=wire
@@ -976,54 +1070,45 @@
     =^  subject=(each vase @t)  state
       (compile-test-imports project-name imports state)
     ?:  ?=(%| -.subject)
-      %-  make-error
-      %^  cat  3
-        'config imports compilation failed with error:\0a'
-      p.subject
+      %+  make-error  p.subject
+      'config imports compilation failed with error:\0a'
     =/  config-core
       (mule-slap-subject p.subject payload)
     ?:  ?=(%| -.config-core)
-      %-  make-error
-      %^  cat  3  'config compilation failed with:\0a'
-      p.config-core
+      %+  make-error  p.config-core
+      'config compilation failed with:\0a'
     ::
     =/  config-result
       (mule-slap-subject p.config-core (ream %make-config))
     ?:  ?=(%| -.config-result)
-      %-  make-error
-      %^  cat  3  'failed to call +make-config arm:\0a'
-      p.config-result
+      %+  make-error  p.config-result
+      'failed to call +make-config arm:\0a'
     ::
     =/  virtualships-to-sync-result
       %+  mule-slap-subject  p.config-core
       (ream %make-virtualships-to-sync)
     ?:  ?=(%| -.virtualships-to-sync-result)
-      %-  make-error
-      %^  cat  3
-        'failed to call +make-virtualships-to-sync arm:\0a'
-      p.virtualships-to-sync-result
+      %+  make-error  p.virtualships-to-sync-result
+      'failed to call +make-virtualships-to-sync arm:\0a'
     ::
     =/  install-result
       (mule-slap-subject p.config-core (ream %make-install))
     ?:  ?=(%| -.install-result)
-      %-  make-error
-      %^  cat  3  'failed to call +make-install arm:\0a'
-      p.install-result
+      %+  make-error  p.install-result
+      'failed to call +make-install arm:\0a'
     ::
     =/  start-apps-result
       %+  mule-slap-subject  p.config-core
       (ream %make-start-apps)
     ?:  ?=(%| -.start-apps-result)
-      %-  make-error
-      %^  cat  3  'failed to call +make-start-apps arm:\0a'
-      p.start-apps-result
+      %+  make-error  p.start-apps-result
+      'failed to call +make-start-apps arm:\0a'
     ::
     =/  setup-result
       (mule-slap-subject p.config-core (ream %make-setup))
     ?:  ?=(%| -.setup-result)
-      %-  make-error
-      %^  cat  3  'failed to call +make-setup arm:\0a'
-      p.setup-result
+      %+  make-error  p.setup-result
+      'failed to call +make-setup arm:\0a'
     ::
     :*  %&
         !<(config:zig p.config-result)
@@ -1035,13 +1120,13 @@
     ==
     ::
     ++  make-error
-      |=  message=@t
+      |=  [error=@t message=@t]
       ^-  (each configuration-file-output:zig [(list card) inflated-state-0:zig])
       :-  %|
       :_  state
       :_  ~
       %-  update-vase-to-card
-      (new-project-error message)
+      (new-project-error (cat 3 message error))
     --
   ::
   ++  build-cards-and-state
@@ -1069,11 +1154,13 @@
       :_  ~
       %-  update-vase-to-card
       (new-project-error(level %warning) (crip message))
-    =.  status.state
+    ::  use new-status rather than modifying status.state
+    ::   in place to satisfy compiler
+    =/  new-status=status:zig
       :-  %commit-install-starting
       (make-cis-running virtualships-to-sync project-name)
-    ?>  ?=(%commit-install-starting -.status.state)
-    =*  cis-running  cis-running.status.state
+    ?>  ?=(%commit-install-starting -.new-status)
+    =*  cis-running  cis-running.new-status
     =.  cards
       %+  weld  cards
       %+  murn  virtualships-to-sync
@@ -1099,14 +1186,14 @@
       =/  cis-cards=(list card)
         :_  ~
         %+  cis-thread  /cis-done/(scot %p who)/[desk]
-        [who desk install start-apps status.state]
+        [who desk install start-apps new-status]
       %=  $
           virtualships-to-sync  t.virtualships-to-sync
           cards                 (weld cards cis-cards)
       ==
     :-  :_  cards
         %-  update-vase-to-card
-        %.  status.state
+        %.  new-status
         %~  status  make-update-vase
         [project-name %load-configuration-file ~]
     =.  projects.state
@@ -1114,8 +1201,14 @@
       =/  =project:zig
         (~(gut by projects.state) project-name *project:zig)
       project(pyro-ships virtualships-to-sync)
+    =.  state
+      %^  change-state-linked-projects
+        focused-project.state  state
+      |=  =project:zig
+      project(saved-test-queue test-queue.state)
     %=  state
         test-queue   ~
+        status       new-status
     ::
         sync-desk-to-vship
       %-  ~(gas ju sync-desk-to-vship.state)
@@ -1126,13 +1219,6 @@
       %+  ~(put by configs.state)  project-name
       %.  ~(tap by config)
       ~(gas by (~(gut by configs.state) project-name ~))
-    ::
-        projects
-      ?.  (~(has by projects.state) focused-project.state)
-        projects.state
-      %+  ~(jab by projects.state)  focused-project.state
-      |=  =project:zig
-      project(saved-test-queue test-queue.state)
     ==
   --
 ::
@@ -1141,11 +1227,14 @@
           state=inflated-state-0:zig
           transition=$-(project:zig project:zig)
       ==
-  ^-  inflated-state-0:zig
+  ^-  _state
+  ::  linked-projects is, at a minimum, project-name
   =/  linked-projects=(list @t)
-    ~(tap in (~(get ju linked-projects.state) project-name))
+    %~  tap  in
+    %.  project-name
+    ~(put in (~(get ju linked-projects.state) project-name))
   |-
-  ?~  linked-projects  ~&(%z^%cslp^%final^(~(run by projects.state) |=(p=project:zig pyro-ships.p)) state)
+  ?~  linked-projects  state
   ?~  next=(~(get by projects.state) i.linked-projects)
     $(linked-projects t.linked-projects)
   =.  projects.state
@@ -1197,46 +1286,287 @@
       [/tests/lib/mill/hoon %del ~]
       [/roadmap/md %del ~]
       [/readme/md %del ~]
-      [/app/[name]/hoon %ins hoon+!>(simple-app)]
+      [/app/[name]/hoon %ins hoon+!>((make-template /app/[name]/hoon))]
   ==
 ::
-++  simple-app
-  ^-  @t
-  '''
-  /+  default-agent, dbug
-  |%
-  +$  versioned-state
-      $%  state-0
-      ==
-  +$  state-0  [%0 ~]
-  --
-  %-  agent:dbug
-  =|  state-0
-  =*  state  -
-  ^-  agent:gall
-  |_  =bowl:gall
-  +*  this     .
-      default   ~(. (default-agent this %|) bowl)
+++  make-template
+  |=  file-path=path
+  |^  ^-  @t
+  ?~  file-path          ''
+  ?+  `@tas`i.file-path  ''
+    %app    app
+    %con    con
+    %gen    gen
+    %lib    lib
+    %mar    mar
+    %sur    sur
+    %ted    ted
+    %tests  tests
+    %zig    zig
+  ==
   ::
-  ++  on-init                     :: [(list card) this]
-    `this(state [%0 ~])
-  ++  on-save
-    ^-  vase
-    !>(state)
-  ++  on-load                     :: |=(old-state=vase [(list card) this])
-    on-load:default
-  ++  on-poke   on-poke:default   :: |=(=cage [(list card) this])
-  ++  on-watch  on-watch:default  :: |=(=path [(list card) this])
-  ++  on-leave  on-leave:default  :: |=(=path [(list card) this])
-  ++  on-peek   on-peek:default   :: |=(=path [(list card) this])
-  ++  on-agent  on-agent:default  :: |=  [=wire =sign:agent:gall]
-                                  :: [(list card) this]
-  ++  on-arvo   on-arvo:default   :: |=([=wire =sign-arvo] [(list card) this])
-  ++  on-fail   on-fail:default   :: |=  [=term =tang]
-                                  :: %-  (slog leaf+"{<dap.bowl>}" >term< tang)
-                                  :: [(list card) this]
+  ++  app
+    ^-  @t
+    '''
+    /+  default-agent, dbug
+    |%
+    +$  versioned-state
+        $%  state-0
+        ==
+    +$  state-0  [%0 ~]
+    --
+    %-  agent:dbug
+    =|  state-0
+    =*  state  -
+    ^-  agent:gall
+    |_  =bowl:gall
+    +*  this     .
+        default   ~(. (default-agent this %|) bowl)
+    ::
+    ++  on-init                     :: [(list card) this]
+      `this(state [%0 ~])
+    ++  on-save
+      ^-  vase
+      !>(state)
+    ++  on-load                     :: |=(old-state=vase [(list card) this])
+      on-load:default
+    ++  on-poke   on-poke:default   :: |=(=cage [(list card) this])
+    ++  on-watch  on-watch:default  :: |=(=path [(list card) this])
+    ++  on-leave  on-leave:default  :: |=(=path [(list card) this])
+    ++  on-peek   on-peek:default   :: |=(=path [(list card) this])
+    ++  on-agent  on-agent:default  :: |=  [=wire =sign:agent:gall]
+                                    :: [(list card) this]
+    ++  on-arvo   on-arvo:default   :: |=([=wire =sign-arvo] [(list card) this])
+    ++  on-fail   on-fail:default   :: |=  [=term =tang]
+                                    :: %-  (slog leaf+"{<dap.bowl>}" >term< tang)
+                                    :: [(list card) this]
+    --
+    '''
+  ::
+  ++  con
+    |^  ^-  @t
+    ?~  file-path      ''
+    ?~  t.file-path    ''
+    ?.(?=(%lib `@tas`i.t.file-path) con con-lib)
+    ::
+    ++  con
+      ^-  @t
+      '''
+      /+  *zig-sys-smart
+      /=  my-con-lib  /con/lib/my-lib  ::  your lib here
+      |_  =context
+      ++  write
+        |=  act=action:sur
+        ^-  ((list call) diff)
+        ?-    -.act
+            %action-0  ::  your action tags here
+            ::  ...
+        ==
+      ::
+      ++  read
+        |_  =pith
+        ++  json
+          ~
+        ++  noun
+          ~
+        --
+      --
+      '''
+    ::
+    ++  con-lib
+      ^-  @t
+      '''
+      /+  *zig-sys-smart
+      |%
+      ++  sur
+        |%
+        +$  action
+          %$  [%action-0 my-arg-0=@ud]  ::  your actions here
+              ::  ...
+          --
+        ::
+        +$  my-type-0  ::  your types here
+          ~
+        --
+      ++  lib
+        |%
+        ++  my-helper-0
+          ~  ::  do stuff
+        --
+      --
+      '''
+    --
+  ::
+  ++  gen
+    ^-  @t
+    '''
+    :-  %say
+    |=  [[now=@da eny=@uvJ bec=beak] ~[addend=@ud] ~[base=(unit @ud)]]
+    ?~  base  (add 2 addend)
+    (add u.base addend)
+    '''
+  ::
+  ++  lib
+    ^-  @t
+    '''
+    |%
+    ++  my-arm
+      ~  ::  do stuff
+    --
+    '''
+  ::
+  ++  mar
+    ^-  @t
+    '''
+    ::  template based on dev-suite/mar/zig/ziggurat.hoon
+    /-  zig=zig-ziggurat
+    /+  zig-lib=zig-ziggurat
+    |_  =action:zig
+    ++  grab
+      |%
+      ++  noun  action:zig
+      ++  json  uber-action:dejs:zig-lib
+      --
+    ::
+    ++  grow
+      |%
+      ++  noun  action
+      --
+    ++  grad  %noun
+    '''
+  ::
+  ++  sur
+    ^-  @t
+    '''
+    |%
+    +$  my-type
+      ~  ::  define type
+    --
+    '''
+  ::
+  ++  ted
+    ^-  @t
+    '''
+    /-  spider
+    /+  strandio
+    ::
+    =*  strand  strand:spider
+    ::
+    =/  m  (strand ,vase)
+    |^  ted
+    ::
+    +$  arg-mold
+      $:  thread-arg-0=@ud  ::  your args here
+          :: thread-arg-1=@ux
+      ==
+    ::
+    ++  helper-core  ::  your helper cores here
+      ~  ::  do stuff
+    ::
+    ::  main
+    ::
+    ++  ted
+      ^-  thread:spider
+      |=  args-vase=vase
+      ^-  form:m
+      =/  args  !<((unit arg-mold) args-vase)
+      ?~  args
+        ~&  >>>  "Usage:"
+        ~&  >>>  "-<thread-name> <thread-arg-0> <thread-arg-1> ..."
+        (pure:m !>(~))
+      ::  do stuff
+      (pure:m !>(~))
+    --
+    '''
+  ::
+  ++  tests
+    ^-  @t
+    '''
+    ::  see https://medium.com/dcspark/writing-robust-hoon-a-guide-to-urbit-unit-testing-82b2631fe20a
+    |%
+    ++  my-test
+      ~  ::  do test
+    --
+    '''
+  ::
+  ++  zig
+    |^  ^-  @t
+    ?~  file-path               ''
+    ?~  t.file-path             ''
+    ?+  `@tas`i.t.file-path     ''
+      %configs                  configs
+      %custom-step-definitions  custom-step-definitions
+      %test-steps               test-steps
+    ==
+    ::
+    ++  configs
+      ^-  @t
+      '''
+      /=  zig  /sur/zig/ziggurat
+      ::
+      /=  mip  /lib/mip
+      ::
+      |%
+      ++  make-config
+        ^-  config:zig
+        *config:zig
+      ::
+      ++  make-virtualships-to-sync
+        ^-  (list @p)
+        ~[~nec ~bud ~wes]
+      ::
+      ++  make-install
+        ^-  ?
+        ^.y
+      ::
+      ++  make-start-apps
+        ^-  (list @tas)
+        ~
+      ::
+      ++  make-setup
+        |^  ^-  (map @p test-steps:zig)
+        %-  ~(gas by *(map @p test-steps:zig))
+        :^    [~nec make-setup-nec]
+            [~bud make-setup-bud]
+          [~wes make-setup-wes]
+        ~
+        ::
+        ++  make-setup-nec
+          ^-  test-steps:zig
+          =/  who=@p  ~nec
+          ~
+        ::
+        ++  make-setup-bud
+          ^-  test-steps:zig
+          =/  who=@p  ~bud
+          ~
+        ::
+        ++  make-setup-wes
+          ^-  test-steps:zig
+          =/  who=@p  ~wes
+          ~
+        --
+      --
+      '''
+    ::
+    ++  custom-step-definitions
+      ^-  @t
+      .^  @t
+          %cx
+          :-  (scot %p our.bowl)
+          %+  weld  /[q.byk.bowl]/(scot %da now.bowl)/zig
+          /custom-step-definitions/deploy-contract/hoon
+      ==
+    ::
+    ++  test-steps
+      ^-  @t
+      .^  @t
+          %cx
+          %+  weld  /(scot %p our.bowl)/[q.byk.bowl]
+          /(scot %da now.bowl)/zig/test-steps/send-nec/hoon
+      ==
+    --
   --
-  '''
 ::
 ++  update-vase-to-card
   |=  v=vase
@@ -1372,10 +1702,17 @@
     [%test-queue update-info [%& queue] ~]
   ::
   ++  pyro-agent-state
-    |=  [agent-state=@t wex=boat:gall sup=bitt:gall]
+    |=  [agent-state=vase wex=boat:gall sup=bitt:gall]
     ^-  vase
     !>  ^-  update:zig
     :^  %pyro-agent-state  update-info
+    [%& agent-state wex sup]  ~
+  ::
+  ++  shown-pyro-agent-state
+    |=  [agent-state=@t wex=boat:gall sup=bitt:gall]
+    ^-  vase
+    !>  ^-  update:zig
+    :^  %shown-pyro-agent-state  update-info
     [%& agent-state wex sup]  ~
   ::
   ++  sync-desk-to-vship
@@ -1401,6 +1738,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%focused-linked update-info [%& data] ~]
+  ::
+  ++  settings
+    |=  =settings:zig
+    ^-  vase
+    !>  ^-  update:zig
+    [%settings update-info [%& settings] ~]
   --
 ::
 ++  make-error-vase
@@ -1458,11 +1801,23 @@
     !>  ^-  update:zig
     [%poke update-info [%| level message] ~]
   ::
+  ++  sync-desk-to-vship
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%sync-desk-to-vship update-info [%| level message] ~]
+  ::
   ++  pyro-agent-state
     |=  message=@t
     ^-  vase
     !>  ^-  update:zig
     [%pyro-agent-state update-info [%| level message] ~]
+  ::
+  ++  save-file
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%save-file update-info [%| level message] ~]
   --
 ::
 ::  json
@@ -1585,7 +1940,18 @@
       :_  ~
       :-  'data'
       %-  pairs
-      :^    [%pyro-agent-state %s agent-state.p.payload.update]
+      :^    :+  %pyro-agent-state  %s
+            (show-agent-state agent-state.p.payload.update)
+          ['outgoing' (boat wex.p.payload.update)]
+        ['incoming' (bitt sup.p.payload.update)]
+      ~
+    ::
+        %shown-pyro-agent-state
+      :_  ~
+      :-  'data'
+      %-  pairs
+      :^    :+  %pyro-agent-state  %s
+            agent-state.p.payload.update
           ['outgoing' (boat wex.p.payload.update)]
         ['incoming' (bitt sup.p.payload.update)]
       ~
@@ -1615,7 +1981,23 @@
         :-  %unfocused-project-snaps
         (unfocused-project-snaps unfocused-project-snaps.up)
       ~
+    ::
+        %save-file
+      ['data' (path p.payload.update)]~
+    ::
+        %settings
+      ['data' (settings p.payload.update)]~
     ==
+  ::
+  ++  settings
+    |=  s=settings:zig
+    ^-  json
+    %-  pairs
+    :+  :-  %test-result-num-characters
+        (numb test-result-num-characters.s)
+      :-  %compiler-error-num-lines
+      (numb compiler-error-num-lines.s)
+    ~
   ::
   ++  linked-projects
     |=  linked-projects=(jug @t @t)
@@ -1873,7 +2255,6 @@
       ~
     ::
         %custom-read
-      %+  frond  tag.test-step
       %-  pairs
       :~  ['type' %s -.test-step]
           ['tag' %s tag.test-step]
@@ -2094,7 +2475,16 @@
         [%delete-project-link ul]
     ::
         [%cis-panic ul]
+    ::
+        [%change-settings change-settings]
     ==
+  ::
+  ++  change-settings
+    ^-  $-(json settings:zig)
+    %-  ot
+    :+  [%test-result-num-characters ni]
+      [%compiler-error-num-lines ni]
+    ~
   ::
   ++  docket
     ^-  $-(json [@t @t @ux @t [@ud @ud @ud] @t @t])
