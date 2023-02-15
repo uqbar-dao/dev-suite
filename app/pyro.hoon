@@ -28,19 +28,16 @@
     pill=pill,
     dbug, verb
 ::
-:: TODO this builds all these files against zuse which is wrong
-/=  arvo-core  /lib/pyro/sys/arvo
-/=  lull-core  /lib/pyro/sys/lull
-/=  zuse-core  /lib/pyro/sys/zuse
-/=  ames-core  /lib/pyro/sys/vane/ames
-/=  behn-core  /lib/pyro/sys/vane/behn
-/=  clay-core  /lib/pyro/sys/vane/clay
-/=  dill-core  /lib/pyro/sys/vane/dill
-/=  eyre-core  /lib/pyro/sys/vane/eyre
-/=  gall-core  /lib/pyro/sys/vane/gall
-/=  iris-core  /lib/pyro/sys/vane/iris
-/=  jael-core  /lib/pyro/sys/vane/jael
-/=  khan-core  /lib/pyro/sys/vane/khan
+/=  arvo-core  /lib/pyro/arvo :: TODO this compiles it against zuse, WRONG
+/=  ames-core  /lib/pyro/vane/ames :: ctrl+F "13", replace with 23
+/=  behn-core  /lib/pyro/vane/behn
+/=  clay-core  /lib/pyro/vane/clay
+/=  dill-core  /lib/pyro/vane/dill
+/=  eyre-core  /lib/pyro/vane/eyre :: login by posting to /pyro/~nec/~/login
+/=  gall-core  /lib/pyro/vane/gall
+/=  iris-core  /lib/pyro/vane/iris
+/=  jael-core  /lib/pyro/vane/jael
+/=  khan-core  /lib/pyro/vane/khan
 ::
 =>  |%
     ++  arvo-adult  ..^load:+>.arvo-core
@@ -85,9 +82,9 @@
       %-  user-files:pill
       /(scot %p p.byk.bowl)/base/(scot %da now.bowl)
     =.  park  (park:pyro our.bowl %base %da now.bowl)
-    =.  fad.raft
-      .^(flow:clay %cx /(scot %p our.bowl)//(scot %da now.bowl)/flow)
-    `this
+    :_  this
+    :: poke-our to add base
+    [%pass / %agent [our dap]:bowl %poke %pyro-action !>([%add-desk %base])]~
   ::
   ++  on-save  !>(state)
   ++  on-load
@@ -199,32 +196,17 @@
   ++  abet-pe
     ^+  this
     =.  piers  (~(put by piers) who pier-data)
-    =.  fad.raft  :: add new files to cache
-      %-  ~(uni by fad.raft)
-      ?~  cey=(~(get by van.mod.sol.snap) %clay)  ~
-      =/  cay  !<((tail clay-types) vase:u.cey)
-      fad.ruf.cay
     this
   ::
-  ::  Begin: load in cache
+  ::  Begin: load in clay state
   ::
   ++  apex
     ^+  ..abet-pe
     ?:  paused.pier-data  ..abet-pe
     =.  van.mod.sol.snap
       =/  cay  !<((tail clay-types) vase:(~(got by van.mod.sol.snap) %clay))
-      =.  fad.ruf.cay  fad.raft
+      =.  ruf.cay  raft
       (~(put by van.mod.sol.snap) %clay [!>(cay) *worm])
-    ..abet-pe
-  ::
-  ::  store ford caches
-  ::
-  ++  ahoy
-    =/  cay  !<((tail clay-types) vase:(~(got by van.mod.sol.snap) %clay))
-    =.  raft
-      :: have to get rid of the kids desk otherwise boot fails
-      =.  dos.rom.ruf.cay  (~(del by dos.rom.ruf.cay) %kids)
-      ruf.cay
     ..abet-pe
   ::
   ++  slap-gall
@@ -421,15 +403,13 @@
           &                                            ::  fad
           :_  |                                        ::  zen
           :-  [~.nonce /pyro]
-          :~  zuse+zuse:zuse-core
-              lull+lull:lull-core
-              arvo+arvo:arvo-core
+          :~  zuse+zuse
+              lull+lull
+              arvo+arvo
               hoon+hoon-version
               nock+4
           ==
-          :^    files                                  ::  mod
-              !>(lull-core)
-            !>(zuse-core)
+          :^  files  !>(..lull)  !>(..zuse)            ::  mod
           %-  ~(gas by *(map term vane))               ::  van.mod
           :~  [%ames [!>((ames-core who.act)) *worm]]
               [%behn [!>((behn-core who.act)) *worm]]
@@ -443,7 +423,7 @@
       ==  ==
     =.  piers  (~(put by piers) who.act new)
     =.  this
-      =<  abet-pe:ahoy:plow
+      =<  abet-pe:plow
       %-  push-events:(pe who.act)
       ^-  (list unix-event)
       :~  [/d/term/1 %boot & %fake who.act]  ::  start vanes
@@ -524,6 +504,20 @@
     =.  this  abet-pe:(slap-gall:(pe her.act) [dap.act vase.act])
     ~&  pyro+slap-gall+her.act
     `state
+  ::
+      %add-desk
+    =.  fad.raft
+      .^(flow:clay %cx /(scot %p our.bowl)//(scot %da now.bowl)/flow)
+    =.  ran.raft
+      .^(rang:clay %cx /(scot %p our.bowl)//(scot %da now.bowl)/rang)
+    =.  dos.rom.raft :: populate domestic desks, basically just %base
+      =/  =cone:clay  .^(cone:clay %cx /(scot %p our.bowl)//(scot %da now.bowl)/domes)
+      =/  =foam:clay  (~(got by cone) our.bowl desk.act)
+      ^-  (map desk dojo:clay-types)
+      %+  ~(put by dos.rom.raft)  desk.act
+      =|  doj=dojo:clay-types
+      =.(dom.doj [let hit lab tom nor ~ fod ~ liv ren]:foam doj)
+    `state
   ==
 ::
 ::  Run a callback function against a list of ships, aggregating state
@@ -537,12 +531,12 @@
   |=  [hers=(list arg) fun=$-([arg _this] _(pe))]
   |-  ^+  this
   ?^  hers  ::  first process all hers
-    =.  this  abet-pe:plow:apex:(fun i.hers this)
+    =.  this  abet-pe:plow:(fun i.hers this)
     $(hers t.hers, this this)
   |-  ::  then run all events on all ships until all queues are empty
   =;  who=(unit ship)
     ?~  who  this
-    =.(this abet-pe:plow:apex:(pe u.who) $)
+    =.(this abet-pe:plow:(pe u.who) $)
   =+  pers=~(tap by piers)
   |-  ^-  (unit ship)
   ?~  pers  ~
