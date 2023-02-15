@@ -84,6 +84,21 @@
     =.  park  (park:pyro our.bowl %base %da now.bowl)
     =.  fad.raft
       .^(flow:clay %cx /(scot %p our.bowl)//(scot %da now.bowl)/flow)
+    =.  ran.raft
+      .^(rang:clay %cx /(scot %p our.bowl)//(scot %da now.bowl)/rang)
+    =.  dos.rom.raft :: populate domestic desks, basically just %base
+      :: TODO have an option to include multiple desks on boot?
+      =/  =cone:clay  .^(cone:clay %cx /(scot %p our.bowl)//(scot %da now.bowl)/domes)
+      =/  =foam:clay  (~(got by cone) our.bowl %base)
+      ^-  (map desk dojo:clay-types)
+      %+  ~(put by dos.rom.raft)  %base
+      :*  *cult:clay-types
+          :: NOTE not sure if starting at the hosts let.dom is a bug or what but w/e
+          [let hit lab tom nor ~ fod ~ liv ren]:foam 
+          *regs:clay
+          *regs:clay
+          *melt:clay-types
+      ==
     `this
   ::
   ++  on-save  !>(state)
@@ -212,16 +227,6 @@
       =/  cay  !<((tail clay-types) vase:(~(got by van.mod.sol.snap) %clay))
       =.  fad.ruf.cay  fad.raft
       (~(put by van.mod.sol.snap) %clay [!>(cay) *worm])
-    ..abet-pe
-  ::
-  ::  store ford caches
-  ::
-  ++  ahoy
-    =/  cay  !<((tail clay-types) vase:(~(got by van.mod.sol.snap) %clay))
-    =.  raft
-      :: have to get rid of the kids desk otherwise boot fails
-      =.  dos.rom.ruf.cay  (~(del by dos.rom.ruf.cay) %kids)
-      ruf.cay
     ..abet-pe
   ::
   ++  slap-gall
@@ -438,7 +443,7 @@
       ==  ==
     =.  piers  (~(put by piers) who.act new)
     =.  this
-      =<  abet-pe:ahoy:plow
+      =<  abet-pe:plow
       %-  push-events:(pe who.act)
       ^-  (list unix-event)
       :~  [/d/term/1 %boot & %fake who.act]  ::  start vanes
