@@ -2283,7 +2283,7 @@
         ['mold-name' %s mold-name.payload]
         ['care' %s care.payload]
         ['app' %s app.payload]
-        ['path' (path path.payload)]
+        ['path' %s path.payload]
     ==
   ::
   ++  poke-payload
@@ -2574,7 +2574,7 @@
         [%mold-name so]
         [%care (se %tas)]
         [%app (se %tas)]
-        [%path pa]
+        [%path so]
     ==
   ::
   ++  read-sub-payload

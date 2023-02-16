@@ -15,7 +15,7 @@
   :~  :^  %scry  `%old-scry
         :-  who
         :^  '(map @ux *)'  %gx  %wallet
-        /pending-store/(scot %ux address)/noun/noun
+        (crip "/pending-store/{<address>}/noun/noun")
       ''
   ::
       ::  TODO: avoid this stupid compiler-satisfying pattern
@@ -29,7 +29,7 @@
       :^  %scry  `%new-scry
         :-  who
         :^  '(map @ux *)'  %gx  %wallet
-        /pending-store/(scot %ux address)/noun/noun
+        (crip "/pending-store/{<address>}/noun/noun")
       ''
   ::
       :^  %poke  ~

@@ -87,7 +87,7 @@
       [%custom-write tag=@tas =result-face payload=@t expected=(list test-read-step)]
   ==
 +$  scry-payload
-  [who=@p mold-name=@t care=@tas app=@tas =path]
+  [who=@p mold-name=@t care=@tas app=@tas path=@t]
 +$  read-sub-payload  [who=@p to=@p app=@tas =path]
 +$  dojo-payload  [who=@p payload=@t]
 +$  poke-payload  [who=@p to=@p app=@tas mark=@tas payload=@t]

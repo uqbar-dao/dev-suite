@@ -72,7 +72,7 @@
       :+  %scry
         :-  who
         :^  'update:indexer'  %gx  %indexer
-        /newest/item/(scot %ux item)/noun/noun
+        (crip "/newest/item/{<item>}/noun/noun")
       ''
   ==
 --
