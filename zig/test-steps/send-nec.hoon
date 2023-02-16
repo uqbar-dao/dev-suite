@@ -36,18 +36,19 @@
 ::
 ++  $
   ^-  test-steps:zig
-  :_  :-  :+  %scry
+  :_  :-  :^  %scry  ~
             :-  who
             :^  'update:indexer'  %gx  %indexer
             /newest/item/(scot %ux item)/noun/noun
           ''
       ~
-  :^  %custom-write  %send-wallet-transaction
+  :-  %custom-write
+  :^  %send-wallet-transaction  ~
     %-  crip
     %-  noah
     !>  ^-  [@p @p test-write-step:zig]
     :+  who  service-host
-    :+  %poke
+    :^  %poke  ~
       :-  who
       :^  who  %uqbar  %wallet-poke
       %-  crip

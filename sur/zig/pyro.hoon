@@ -53,23 +53,24 @@
 +$  pyro-boths    [who=ship ub=(list unix-both)]
 ::
 +$  action
-  $%  ::  ship inits and deletes
+  $%  ::  create or delete a ship
       ::
       [%init-ship who=ship] :: TODO should this be hers=(list ship)?
       [%kill-ships hers=(list ship)]
-      ::  snapshot pokes
+      ::  snapshot manipulation
       ::
       [%snap-ships =path hers=(list ship)]
       [%restore-snap =path]
       [%delete-snap =path]
-      [%clear-snaps ~]
       ::  pausing
       ::
       [%unpause-ships hers=(list ship)]
       [%pause-ships hers=(list ship)]
-      ::  misc
+      ::  see +wish in arvo.hoon
       ::
-      [%wish hers=(list ship) p=@t]
+      [%wish her=ship p=@t]
+      ::  inject state into a running gall app
+      ::
       [%slap-gall her=ship dap=term =vase]
   ==
 ::

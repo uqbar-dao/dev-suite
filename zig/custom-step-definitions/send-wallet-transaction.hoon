@@ -12,7 +12,7 @@
   =/  address=@ux
     %.  ['global' [who %address]]
     ~(got bi:mip configs:test-globals)
-  :~  :+  %scry
+  :~  :^  %scry  `%old-scry
         :-  who
         :^  '(map @ux *)'  %gx  %wallet
         /pending-store/(scot %ux address)/noun/noun
@@ -26,29 +26,19 @@
         %custom-write  wallet-poke(expected expected)
       ==
   ::
-      :+  %scry
+      :^  %scry  `%new-scry
         :-  who
         :^  '(map @ux *)'  %gx  %wallet
         /pending-store/(scot %ux address)/noun/noun
       ''
   ::
-      :+  %poke
+      :^  %poke  ~
         :-  who
         :^  who  %uqbar  %wallet-poke
         %-  crip
         """
-        =/  old-test-result=test-result:zig
-          (snag 2 test-results:test-globals)
-        ?>  ?=([* ~] old-test-result)
-        =/  old-pending=(set @ux)
-          %~  key  by
-          !<((map @ux *) result:i:old-test-result)
-        =/  new-test-result=test-result:zig
-          (snag 0 test-results:test-globals)
-        ?>  ?=([* ~] new-test-result)
-        =/  new-pending=(set @ux)
-          %~  key  by
-          !<((map @ux *) result:i:new-test-result)
+        =/  old-pending=(set @ux)  ~(key by old-scry)
+        =/  new-pending=(set @ux)  ~(key by new-scry)
         =/  diff-pending=(list @ux)
           ~(tap in (~(dif in new-pending) old-pending))
         ?>  ?=([@ ~] diff-pending)
@@ -58,6 +48,8 @@
         """
       ~
   ::
-      [%dojo [sequencer-host ':sequencer|batch'] ~]
+      [%wait ~s5]
+  ::
+      [%dojo ~ [sequencer-host ':sequencer|batch'] ~]
   ==
 --

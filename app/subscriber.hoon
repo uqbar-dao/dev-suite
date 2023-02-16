@@ -71,33 +71,6 @@
     :^  ~  ~  %noun
     =+  (~(get by signs) [ship app paf])
     ?~  -  !>(~)  !>((need -))
-  ::
-      [%x %agent-state @ @ ~]
-    =*  app      i.t.t.path
-    =/  grab=@t  i.t.t.t.path
-    =?  grab  =('' grab)  '-'
-    :^  ~  ~  %noun
-    !>  ^-  [@t boat:gall bitt:gall]
-    =/  agent-state=vase
-      .^  vase
-          %gx
-          :-  (scot %p our.bowl)
-          /[app]/(scot %da now.bowl)/dbug/state/noun
-      ==
-    =.  agent-state
-      %-  slap  :_  (ream grab)
-      (slop agent-state !>([bowl=bowl ..zuse]))
-    =/  [wex=boat:gall sup=bitt:gall]
-      .^  [boat:gall bitt:gall]
-          %gx
-          :-  (scot %p our.bowl)
-          /[app]/(scot %da now.bowl)/dbug/subscriptions/noun
-      ==
-    :_  [wex sup]
-    =/  noah-state=@t  (crip (noah agent-state))
-    ?:  (lth 10.000 (met 3 noah-state))
-      noah-state
-    (get-formatted-error (sell agent-state) ~)
   ==
   ::
   ++  get-formatted-error

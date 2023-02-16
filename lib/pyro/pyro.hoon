@@ -107,33 +107,20 @@
   |=  [=ship =desk =case]
   ^-  $>(%park task:clay)
   ::
-  =/  maps  (park-maps ship desk case)
-  =*  path-to-lobe  p.maps
-  =*  lobe-to-page  q.maps
-  ::
-  :^  %park  desk
-    ^-  yoki:clay
-    :-  %&  ::  yuki:clay
-    :-  *(list tako:clay)
-    %-  ~(gas by *(map path [%| lobe:clay])) :: lobes hit cache, pages don't
-    %+  turn  ~(tap by path-to-lobe)
-    |=([=path =lobe:clay] [path %|^lobe])
-  `rang:clay``lobe-to-page
-::
-::  TODO might refactor this back into +park, less code...
-++  park-maps
-  |=  [=ship =desk =case]
-  ^-  (pair (map path lobe:clay) (map lobe:clay page))
   =/  desk-path=path  /(scot %p ship)/[desk]/(scot case)
   =/  =dome:clay  .^(dome:clay %cv desk-path)
-  =/  =tako:clay  (~(got by hit.dome) let.dome)
-  =/  path-to-lobe  q:.^(yaki:clay %cs (weld desk-path /yaki/(scot %uv tako)))
-  :-  path-to-lobe
-  %-  ~(gas by *(map lobe:clay page))
-  %+  turn  ~(tap by path-to-lobe)
-  |=  [=path =lobe:clay]
-  ::  TODO: can we scry these out in bulk? Massive speed boost
-  [lobe (rear path) .^(* %cx (weld desk-path path))]
+  =*  tako=tako:clay  (~(got by hit.dome) let.dome)
+  =*  path-to-lobe
+    q:.^(yaki:clay %cs (weld desk-path /yaki/(scot %uv tako)))
+  ::
+  =*  yoki=yoki:clay
+    :+  %&  *(list tako:clay)
+    %-  ~(urn by path-to-lobe)
+    |=([=path =lobe:clay] %|^lobe)
+  =*  rang
+    .^(rang:clay %cx /(scot %p ship)//(scot case)/rang)
+  ::
+  [%park desk yoki rang]  
 ::
 ++  commit
   |=  [hers=(list ship) =ship =desk =case]
@@ -213,7 +200,6 @@
         [%snap-ships (ot ~[[%path pa] [%hers (ar (se %p))]])]
         [%restore-snap (ot ~[[%path pa]])]
         [%delete-snap (ot ~[[%path pa]])]
-        [%clear-snaps ul]
         [%unpause-ships (ot ~[[%hers (ar (se %p))]])]
         [%pause-ships (ot ~[[%hers (ar (se %p))]])]
         [%wish (ot ~[[%hers (ar (se %p))] [%p so]])]
