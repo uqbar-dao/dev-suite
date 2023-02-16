@@ -1,13 +1,13 @@
 # `%dev-suite` Documentation
 
-The `%dev-suite` is comprised of `%pyro` - the virutal ship runner; `%pyre`, the virtual runtime; and `%ziggurat` which is a full IDE that makes heavy use of `%pyro` and `%pyre`.
+The `%dev-suite` is comprised of `%pyro`, a ship virtualizer; `%pyre`, a virtual runtime; and `%ziggurat`, the backend for an [IDE](https://github.com/uqbar-dao/ziggurat-ui) that uses `%pyro` and `%pyre` as a foundation.
 
 ## [`%pyro` Contents](#pyro-documentation)
-* [`%pyro` quick start](#pyro-quick-start)
-* [`%pyro` architecture](#pyro-architecture)
-* [`%pyro` inputs](#pyro-inputs)
-* [`%pyro` outputs](#pyro-outputs)
-* [`%pyro` threads](#pyro-threads)
+* [`%pyro` Quick Start](#pyro-quick-start)
+* [`%pyro` Architecture](#pyro-architecture)
+* [`%pyro` Inputs](#pyro-inputs)
+* [`%pyro` Outputs](#pyro-outputs)
+* [`%pyro` Threads](#pyro-threads)
 
 ## [`%ziggurat` Contents](#ziggurat-documentation)
 * [Broad overview](#broad-overview)
@@ -48,6 +48,7 @@ Just like a normal ship, the only interface for interacting with a `%pyro` ship 
 ## `%pyro` outputs
 ###  Effects
 All `$unix-effect`s can be subscribed to by an app or thread. However, `%pyre` automatically handles the most important `$unix-effects` for you. Handling unix effects by yourself in an app/thread requires a good knowledge of `lull.hoon` - to look for a specific output, look at each vane's `$gift`s.
+
 ### Scries
 You can scry into a `%pyro` ship. Anthing that you can scry out of a normal ship, you can scry out of a `%pyro` ship.
 ```hoon
@@ -55,7 +56,7 @@ You can scry into a `%pyro` ship. Anthing that you can scry out of a normal ship
 ```
 Note:
 1. All scries into `%pyro` ships must have a double mark at the end (e.g. `/noun/noun`, `/bill/bill`, etc.)
-2. The virtualship and the [care](https://developers.urbit.org/reference/arvo/concepts/scry) must be specified at the start of the path.
+2. The `%pyro` ship and the [care](https://developers.urbit.org/reference/arvo/concepts/scry) must be specified at the start of the path.
 
 There is also a convenience scry for `%gx` cares into agents running on `%pyro` ships:
 ```hoon
@@ -84,19 +85,18 @@ There is also a convenience scry for `%gx` cares into agents running on `%pyro` 
 # `%ziggurat` documentation
 
 The `%ziggurat` dev suite is built on top of the `%pyro` ship virtualizer and is the backend for the [Ziggurat IDE](https://github.com/uqbar-dao/ziggurat-ui).
-As these projects are in a state of heavy development, this document will likely go out of date unless updated.
 
 Last updated as of Feb 13, 2023.
 
 ## Broad overview
 
-`%ziggurat` is the backend for an IDE and testing environment.
-`%pyro` is a ship virtualizer used to run a network of virtual ships and used by `%ziggurat`.
+`%ziggurat` is the backend for the [Ziggurat IDE](https://github.com/uqbar-dao/ziggurat-ui).
+`%pyro` is a ship virtualizer used to run a network of `%pyro` ships and used by `%ziggurat`.
 
 `%pyro` is paired with `%pyre`, an app that plays the role of the runtime for `%pyro`.
-For example, `%pyre` picks up ames packets sent from one virtualship and passes them to the recipient virtualship.
+For example, `%pyre` picks up ames packets sent from one `%pyro` ship and passes them to the recipient `%pyro` ship.
 
-`%pyro` can snapshot and load ship state.
+`%pyro` can snapshot and load `%pyro` ship state.
 
 `%ziggurat` must be loaded with a series of `test-steps` before they can be run.
 These `test-steps` are sequences of steps, such as `%poke`, `%scry`, `%dojo`, `%subscribe`, and so on.
@@ -106,7 +106,7 @@ Each `test-step` may optionally have expectations.
 It is specifically designed to make smart contract development easy, but without sacrificing Gall agent development.
 As such, `%ziggurat` is the premier development environment for integrated on- and off-chain computing not only on Urbit, but in the world,
 
-By default we run `~nec`, `~bud`, and `~wes` as virtualships.
+By default we run `~nec`, `~bud`, and `~wes` as `%pyro` ships.
 
 ##  Initial installation
 
@@ -133,7 +133,7 @@ By default we run `~nec`, `~bud`, and `~wes` as virtualships.
    ```hoon
    |commit %suite
 
-   ::  Installing will set up the default ships, ~nec, ~bud, and ~wes,
+   ::  Installing will set up the default `%pyro` ships, ~nec, ~bud, and ~wes,
    ::   with ~nec as host, of a testnet in the same state as following
    ::   the steps here:
    ::   https://github.com/uqbar-dao/uqbar-core#starting-a-fakeship-testnet
@@ -142,7 +142,7 @@ By default we run `~nec`, `~bud`, and `~wes` as virtualships.
 
 ## Example usage
 
-The following starts virtualships and sets up the `%zig` desk on them.
+The following creates a project called `%foo` and runs a number of `test-steps`.
 When `%new-project` is called, `%ziggurat` looks for the project/desk, and if it finds it, looks for a [configuration file](#project-configuration) at `/zig/configs/[project-name]/hoon`.
 If found, the project is setup according to that configuration.
 Else, a default setup is used.
@@ -173,19 +173,16 @@ Else, a default setup is used.
 
 ### Import %pokur, set up a table, and join it
 
-As a more real-world example, import the %pokur project (requires https://github.com/dr-frmr/pokur/pull/26 at least to work).
+As a more real-world example, import the %pokur project (requires https://github.com/dr-frmr/pokur/pull/29 at least to work).
 
 ```hoon
 ::  Run the subscribe thread to print %ziggurat output to
 ::   the Dojo -- then press <Backspace> to background it.
 
 -suite!ziggurat-test-subscribe ~
-|new-desk %zig
 |new-desk %pokur
 
-::  Copy in appropriate files to %zig and %pokur, then:
-
-|commit %zig
+::  Copy in appropriate files to %pokur, then:
 |commit %pokur
 
 ::  Set up %pokur, installing on ~nec, ~bud, ~wes, setting up ~nec as host, launching a table on ~bud.
@@ -201,17 +198,16 @@ Some other stuff you may want to do:
 ```hoon
 ::  Snapshot at any given state to be able to restore to it later:
 ::   (The `/my-state/0` is an arbitrary `path` that is a label).
-:pyro &pyro-action [%snap-ships /my-state/0 ~[~nec ~bud ~wes]]
+:pyro|snap /my-state/0 ~[~nec ~bud ~wes]
 
 ::  If you want to restore to pre-%pokur-install state (or any other state, specified by the label `path`):
-:pyro &pyro-action [%restore-snap /testnet]
+:pyro|restore /testnet
 
 ::  If you want to inspect state of apps:
 :pyro|dojo ~bud ":pokur +dbug"
 ```
 
-
-### `send-nec` from the virtualship Dojo
+### `send-nec` from the `%pyro` ship Dojo
 
 ```hoon
 :pyro|dojo ~nec ":uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%give to=0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de amount=123.456 item=0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]"
@@ -270,10 +266,11 @@ A `%scry` `test-step`, an example of a read from state, has an `expected` field 
 In contract, a `test-step` like a `%poke` that writes to state has an `expected` field that is a `list` of read steps: a single `%poke` can have cascading effects and so it is important to have the ability to query multiple times.
 
 `test-steps` are defined in the `$` arm of a core.
-Examples can be seen in the `zig/test-steps/` dir](https://github.com/uqbar-dao/uqbar-core/tree/067f1552bbcc335db32550733b99338b33c6ed5d/zig/test-steps).
+Examples can be seen in the `zig/test-steps/` dir](https://github.com/uqbar-dao/dev-suite/tree/master/zig/test-steps).
 
 The subject of a `test-steps` is defined by the `/=` imports at the top of the `test-steps` file.
 In addition, this subject will be applied for [`custom-step-definitions`](#custom-inputs), so those dependencies must be included in `test-steps`.
+`test-globals` also includes `our=@p`, `now=@da`, and `project=@tas`.
 Finally, some `test-globals` will be accessible by `test-steps` (see sur/zig/ziggurat.hoon):
 
 `configs:test-globals` is a `(map project-name=@t (map [who=@p what=@tas] @)` (or a `(mip project-name=@t [who=@p what=@tas] @)` for short) that stores general data that can be added to with `%add-config`.
@@ -282,13 +279,13 @@ It is loaded with some useful items by default, as well:
 * The host running the `%sequencer` for a town given by the `map` value is stored at `[project-name=[~ @t] who=@p what=%sequencer]`.
 
 `test-results:test-globals` are also accessible, so that the results of a previous `test-step` is usable in the current one.
-See zig/custom-step-definitions/send-wallet-transaction.hoon for an example of how `test-results:test-globals` can be used.
-`test-globals` also includes `our=@p`, `now=@da`, and `project=@tas`.
+Results from previous steps can be accessed more ergonomically by attaching a [`result-face`](https://github.com/uqbar-dao/dev-suite/blob/master/sur/zig/ziggurat.hoon#L77-L96) to them, and can then be accessed using that face in subsequent steps.
+See [`zig/custom-step-definitions/send-wallet-transaction.hoon`](https://github.com/uqbar-dao/dev-suite/blob/master/zig/custom-step-definitions/send-wallet-transaction.hoon) for an example.
 
 ## Custom inputs
 
 Custom steps are useful for reducing boilerplate when a certain `test-step` is used frequently.
-For example, to write to the virtualship testnet, a transaction is sent with a `%wallet-poke`.
+For example, to write to the `%pyro` ship testnet, a transaction is sent with a `%wallet-poke`.
 However, the transaction must also be signed, and the sequencer must submit a batch before the transaction is posted.
 Thus, the following must occur:
 1. Scry current pending transactions in the wallet,
@@ -298,17 +295,17 @@ Thus, the following must occur:
 5. Sign that pending transaction and send it to the sequencer,
 6. Tell the sequencer to process the batch.
 
-Rather than requiring every virtualship testnet write `test-steps` do the common work, use the `custom-write-step` [`zig/custom-step-definitions/send-wallet-transaction.hoon`](https://github.com/uqbar-dao/uqbar-core/blob/077403cc2eef02baea59f3d6f8b0e08fb7fd78a3/zig/custom-step-definitions/send-wallet-transaction.hoon).
-For an example of usage, see [`zig/test-steps/send-nec.hoon`](https://github.com/uqbar-dao/uqbar-core/blob/077403cc2eef02baea59f3d6f8b0e08fb7fd78a3/zig/test-steps/send-nec.hoon)
+Rather than requiring every `%pyro` ship testnet write `test-steps` do the common work, use the `custom-write-step` [`zig/custom-step-definitions/send-wallet-transaction.hoon`](https://github.com/uqbar-dao/dev-suite/blob/master/zig/custom-step-definitions/send-wallet-transaction.hoon).
+For an example of usage, see [`zig/test-steps/send-nec.hoon`](https://github.com/uqbar-dao/dev-suite/blob/master/zig/test-steps/send-nec.hoon).
 
-More examples can be found in the [`zig/custom-step-definitions/` dir](https://github.com/uqbar-dao/uqbar-core/tree/077403cc2eef02baea59f3d6f8b0e08fb7fd78a3/zig/custom-step-definitions).
+More examples can be found in the [`zig/custom-step-definitions/` dir](https://github.com/uqbar-dao/dev-suite/tree/master/zig/custom-step-definitions).
 
 Custom steps are labeled by a `tag=@tas` -- the name of the step that will be referenced when calling it.
 A custom step is a core whose `$` arm takes in arguments and an `expected` (either a `@t` if a `custom-read-step` or a `(list test-read-step)` if a `custom-write-step`) and must return a `(list test-step)`.
 
 ## Deploying contracts
 
-Contracts can be deployed to the virtualship testnet for a project using the `%deploy-contract` poke:
+Contracts can be deployed to the `%pyro` ship testnet for a project using the `%deploy-contract` poke:
 ```hoon
 :ziggurat &ziggurat-action [%foo ~ %deploy-contract town-id=0x0 /con/compiled/nft/jam]
 ```
@@ -326,7 +323,7 @@ The file is then composed of a core with the following arms:
 Arm name                     | Return type               | Description
 ---------------------------- | ------------------------- | -----------
 `+make-config`               | `config:zig`              | Set global state for the project, accessible during `test-steps`.
-`+make-virtualships-to-sync` | `(list @p)`               | Set virtualships to mirror the project desk on.
-`+make-install`              | `?`                       | Install the mirrored desk on synced virtualships?
-`+make-start-apps`           | `(list @tas)`             | Additionaly apps to start in the project on synced ships (that are not included in the project's `desk.bill`).
-`+make-setup`                | `(map @p test-steps:zig)` | Set the initial state on synced virtualships by running these `test-steps`.
+`+make-virtualships-to-sync` | `(list @p)`               | Set `%pyro` ships to mirror the project desk on.
+`+make-install`              | `?`                       | Install the mirrored desk on synced `%pyro` ships?
+`+make-start-apps`           | `(list @tas)`             | Additionaly apps to start in the project on synced `%pyro` ships (that are not included in the project's `desk.bill`).
+`+make-setup`                | `(map @p test-steps:zig)` | Set the initial state on synced `%pyro` ships by running these `test-steps`.
