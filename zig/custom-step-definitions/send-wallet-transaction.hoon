@@ -48,6 +48,8 @@
         """
       ~
   ::
+      [%wait ~s5]
+  ::
       [%dojo ~ [sequencer-host ':sequencer|batch'] ~]
   ==
 --
