@@ -2203,7 +2203,7 @@
         %dojo
       %-  pairs
       :~  ['type' %s -.test-step]
-          ['result_face' (result-face result-face.test-step)]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' (dojo-payload payload.test-step)]
           ['expected' (write-expected expected.test-step)]
       ==
@@ -2211,7 +2211,7 @@
         %poke
       %-  pairs
       :~  ['type' %s -.test-step]
-          ['result_face' (result-face result-face.test-step)]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' (poke-payload payload.test-step)]
           ['expected' (write-expected expected.test-step)]
       ==
@@ -2219,7 +2219,7 @@
         %subscribe
       %-  pairs
       :~  ['type' %s -.test-step]
-          ['result_face' (result-face result-face.test-step)]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' (sub-payload payload.test-step)]
           ['expected' (write-expected expected.test-step)]
       ==
@@ -2228,7 +2228,7 @@
       %-  pairs
       :~  ['type' %s -.test-step]
           ['tag' %s tag.test-step]
-          ['result_face' (result-face result-face.test-step)]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' %s payload.test-step]
           ['expected' (write-expected expected.test-step)]
       ==
@@ -2241,7 +2241,7 @@
         %scry
       %-  pairs
       :~  ['type' %s -.test-step]
-          ['result_face' (result-face result-face.test-step)]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' (scry-payload payload.test-step)]
           ['expected' %s expected.test-step]
       ==
@@ -2249,7 +2249,7 @@
         %read-subscription
       %-  pairs
       :~  ['type' %s -.test-step]
-          ['result_face' (result-face result-face.test-step)]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' (sub-payload payload.test-step)]
           ['expected' %s expected.test-step]
       ==
@@ -2264,7 +2264,7 @@
       %-  pairs
       :~  ['type' %s -.test-step]
           ['tag' %s tag.test-step]
-          ['result_face' (result-face result-face.test-step)]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' %s payload.test-step]
           ['expected' %s expected.test-step]
       ==
