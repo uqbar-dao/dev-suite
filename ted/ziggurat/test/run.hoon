@@ -99,7 +99,8 @@
         ;:  weld
             /(scot %p our.bowl)/pyro/[now]/i/[who]
             /[care.payload]/[who]/[app.payload]/[now]
-            (stab path.payload)
+            !<  path
+            (slap subject (ream path.payload))
         ==
     ==
   =/  compilation-result
