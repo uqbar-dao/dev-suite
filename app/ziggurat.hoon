@@ -4,7 +4,8 @@
 ::
 /-  spider,
     pyro=zig-pyro,
-    zig=zig-ziggurat
+    zig=zig-ziggurat,
+    zink=zig-zink
 /+  agentio,
     dbug,
     default-agent,
@@ -39,9 +40,9 @@
 ++  on-init
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  =eng:zig
-    %~  engine  engine:engine
+    %~  engine  engine
     ::  sigs off, hints off
-    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.n %.n]
+    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) jets:zink %.y %.n]
   =*  nec-address
     0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
   =*  bud-address
@@ -81,9 +82,9 @@
   ::  on-load: pre-cue our compiled smart contract library
   =/  smart-lib=vase  ;;(vase (cue +.+:;;([* * @] smart-lib-noun)))
   =/  =eng:zig
-    %~  engine  engine:engine
+    %~  engine  engine
     ::  sigs off, hints off
-    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) %.n %.n]
+    [smart-lib ;;((map * @) (cue +.+:;;([* * @] zink-cax-noun))) jets:zink %.y %.n]
   `this(state [!<(state-0:zig old-vase) eng smart-lib ~])
 ::
 ++  on-watch

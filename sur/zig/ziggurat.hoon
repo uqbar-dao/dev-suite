@@ -1,6 +1,7 @@
 /-  docket,
     engine=zig-engine,
-    wallet=zig-wallet
+    wallet=zig-wallet,
+    zink=zig-zink
 /+  engine-lib=zig-sys-engine,
     mip,
     smart=zig-sys-smart
@@ -23,7 +24,7 @@
       smart-lib-vase=vase
       =ca-scry-cache
   ==
-+$  eng  $_  ~(engine engine:engine-lib !>(0) *(map * @) %.n %.n)  ::  sigs off, hints off
++$  eng  $_  ~(engine engine-lib !>(0) *(map * @) jets:zink %.y %.n)  ::  sigs off, hints off
 ::
 +$  settings
   $:  test-result-num-characters=@ud
