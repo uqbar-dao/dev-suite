@@ -74,16 +74,16 @@
 +$  test-steps  (list test-step)
 +$  test-step  $%(test-read-step test-write-step)
 +$  test-read-step
-  $%  [%scry payload=scry-payload expected=@t]
-      [%read-subscription payload=read-sub-payload expected=@t]
+  $%  [%scry =result-face payload=scry-payload expected=@t]
+      [%read-subscription =result-face payload=read-sub-payload expected=@t]
       [%wait until=@dr]
-      [%custom-read tag=@tas payload=@t expected=@t]
+      [%custom-read tag=@tas =result-face payload=@t expected=@t]
   ==
 +$  test-write-step
-  $%  [%dojo payload=dojo-payload expected=(list test-read-step)]
-      [%poke payload=poke-payload expected=(list test-read-step)]
-      [%subscribe payload=sub-payload expected=(list test-read-step)]
-      [%custom-write tag=@tas payload=@t expected=(list test-read-step)]
+  $%  [%dojo =result-face payload=dojo-payload expected=(list test-read-step)]
+      [%poke =result-face payload=poke-payload expected=(list test-read-step)]
+      [%subscribe =result-face payload=sub-payload expected=(list test-read-step)]
+      [%custom-write tag=@tas =result-face payload=@t expected=(list test-read-step)]
   ==
 +$  scry-payload
   [who=@p mold-name=@t care=@tas app=@tas =path]
@@ -91,6 +91,8 @@
 +$  dojo-payload  [who=@p payload=@t]
 +$  poke-payload  [who=@p to=@p app=@tas mark=@tas payload=@t]
 +$  sub-payload  [who=@p to=@p app=@tas =path]
+::
++$  result-face  (unit @tas)
 ::
 +$  custom-step-definitions
   (map @tas (pair path custom-step-compiled))
