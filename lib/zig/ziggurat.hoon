@@ -2202,29 +2202,33 @@
     ?-    -.test-step
         %dojo
       %-  pairs
-      :^    ['type' %s -.test-step]
+      :~  ['type' %s -.test-step]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' (dojo-payload payload.test-step)]
-        ['expected' (write-expected expected.test-step)]
-      ~
+          ['expected' (write-expected expected.test-step)]
+      ==
     ::
         %poke
       %-  pairs
-      :^    ['type' %s -.test-step]
+      :~  ['type' %s -.test-step]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' (poke-payload payload.test-step)]
-        ['expected' (write-expected expected.test-step)]
-      ~
+          ['expected' (write-expected expected.test-step)]
+      ==
     ::
         %subscribe
       %-  pairs
-      :^    ['type' %s -.test-step]
+      :~  ['type' %s -.test-step]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' (sub-payload payload.test-step)]
-        ['expected' (write-expected expected.test-step)]
-      ~
+          ['expected' (write-expected expected.test-step)]
+      ==
     ::
         %custom-write
       %-  pairs
       :~  ['type' %s -.test-step]
           ['tag' %s tag.test-step]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' %s payload.test-step]
           ['expected' (write-expected expected.test-step)]
       ==
@@ -2236,17 +2240,19 @@
     ?-    -.test-step
         %scry
       %-  pairs
-      :^    ['type' %s -.test-step]
+      :~  ['type' %s -.test-step]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' (scry-payload payload.test-step)]
-        ['expected' %s expected.test-step]
-      ~
+          ['expected' %s expected.test-step]
+      ==
     ::
         %read-subscription
       %-  pairs
-      :^    ['type' %s -.test-step]
+      :~  ['type' %s -.test-step]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' (sub-payload payload.test-step)]
-        ['expected' %s expected.test-step]
-      ~
+          ['expected' %s expected.test-step]
+      ==
     ::
         %wait
       %-  pairs
@@ -2258,10 +2264,16 @@
       %-  pairs
       :~  ['type' %s -.test-step]
           ['tag' %s tag.test-step]
+          ['result-face' (result-face result-face.test-step)]
           ['payload' %s payload.test-step]
           ['expected' %s expected.test-step]
       ==
     ==
+  ::
+  ++  result-face
+    |=  =result-face:zig
+    ^-  json
+    ?~  result-face  ~  [%s u.result-face]
   ::
   ++  scry-payload
     |=  payload=scry-payload:zig
@@ -2549,10 +2561,10 @@
     (of test-read-step-inner)
   ::
   ++  test-read-step-inner
-    :~  [%scry (ot ~[[%payload scry-payload] [%expected so]])]
-        [%read-subscription (ot ~[[%payload read-sub-payload] [%expected so]])]
+    :~  [%scry (ot ~[[%result-face result-face] [%payload scry-payload] [%expected so]])]
+        [%read-subscription (ot ~[[%result-face result-face] [%payload read-sub-payload] [%expected so]])]
         [%wait (ot ~[[%until (se %dr)]])]
-        [%custom-read (ot ~[[%tag (se %tas)] [%payload so] [%expected so]])]
+        [%custom-read (ot ~[[%tag (se %tas)] [%result-face result-face] [%payload so] [%expected so]])]
     ==
   ::
   ++  scry-payload
@@ -2579,11 +2591,15 @@
     (of test-write-step-inner)
   ::
   ++  test-write-step-inner
-    :~  [%dojo (ot ~[[%payload dojo-payload] [%expected (ar test-read-step)]])]
-        [%poke (ot ~[[%payload poke-payload] [%expected (ar test-read-step)]])]
-        [%subscribe (ot ~[[%payload subscribe-payload] [%expected (ar test-read-step)]])]
-        [%custom-write (ot ~[[%tag (se %tas)] [%payload so] [%expected (ar test-read-step)]])]
+    :~  [%dojo (ot ~[[%result-face result-face] [%payload dojo-payload] [%expected (ar test-read-step)]])]
+        [%poke (ot ~[[%result-face result-face] [%payload poke-payload] [%expected (ar test-read-step)]])]
+        [%subscribe (ot ~[[%result-face result-face] [%payload subscribe-payload] [%expected (ar test-read-step)]])]
+        [%custom-write (ot ~[[%tag (se %tas)] [%result-face result-face] [%payload so] [%expected (ar test-read-step)]])]
     ==
+  ::
+  ++  result-face
+    ^-  $-(json (unit @tas))
+    so:dejs-soft:format
   ::
   ++  dojo-payload
     ^-  $-(json dojo-payload:zig)

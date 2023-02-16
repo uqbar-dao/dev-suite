@@ -9,7 +9,7 @@
       ==
   ^-  test-steps:zig
   :_  ~
-  :+  %poke
+  :^  %poke  ~
     :-  who
     :^  who  %uqbar  %wallet-poke
     %-  crip

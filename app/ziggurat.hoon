@@ -888,12 +888,14 @@
             ~
         ::
             :_  ~
-            :^  %custom-write  %send-wallet-transaction
+            :-  %custom-write
+            :^  %send-wallet-transaction  ~
               %-  crip
               %-  noah
               !>  ^-  [@p @p test-write-step:zig]
               :+  u.who  ~nec  ::  TODO: remove hardcode
-              :^  %custom-write  %deploy-contract
+              :-  %custom-write
+              :^  %deploy-contract  ~
               (crip "[{<u.who>} {<path.act>} ~]")  ~
             ~
         ::

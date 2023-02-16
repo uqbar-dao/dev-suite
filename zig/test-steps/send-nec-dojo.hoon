@@ -32,42 +32,42 @@
 ::
 ++  $
   ^-  test-steps:zig
-  :~  :+  %dojo
+  :~  :^  %dojo  ~
         :-  who
         %-  crip
         "=old-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/{<address>}/noun)"
       ~
   ::
-      :+  %poke
+      :^  %poke  ~
         :-  who
         :^  who  %uqbar  %wallet-poke
         %-  crip
         "[%transaction ~ from={<address>} contract={<contract>} town=0x0 action=[%give to={<to>} amount=123.456 item={<item>}]]"
       ~
   ::
-      :+  %dojo
+      :^  %dojo  ~
         :-  who
         %-  crip
         "=new-pending %~  key  by  .^((map @ux *) %gx /=wallet=/pending-store/{<address>}/noun)"
       ~
   ::
-      :+  %dojo
+      :^  %dojo  ~
         :-  who
         '=diff-pending (~(dif in new-pending) old-pending)'
       ~
   ::
-      :+  %dojo
+      :^  %dojo  ~
         :-  who
         '=tx-hash ?>  =(1 ~(wyt in diff-pending))  -.diff-pending'
       ~
   ::
-      :+  %dojo
+      :^  %dojo  ~
         :-  who
         %-  crip
         ":uqbar &wallet-poke [%submit from={<address>} hash=tx-hash gas=[rate=1 bud=1.000.000]]"
       ~
   ::
-      :+  %dojo  [who ':sequencer|batch']
+      :^  %dojo  ~  [who ':sequencer|batch']
       :_  ~
       :+  %scry
         :-  who

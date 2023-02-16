@@ -3,10 +3,10 @@
 ::
 |%
 ++  $
-  |=  [indexer-path=path expected=@t]
+  |=  [result-face=(unit @t) indexer-path=path expected=@t]
   ^-  test-steps:zig
   :_  ~
-  :+  %scry
+  :^  %scry  result-face
     :*  who=~nec  ::  hardcode: ~nec runs rollup/sequencer
         'update:indexer'
         %gx

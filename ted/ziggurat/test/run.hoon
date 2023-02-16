@@ -54,15 +54,27 @@
   $(trs t.trs, tr [i.i.trs tr])
 ::
 ++  build-next-subject
-  |=  [old-subject=vase results=vase =bowl:strand]
+  |=  $:  old-subject=vase
+          results=vase
+          =bowl:strand
+          result-face=(unit @tas)
+      ==
   ^-  vase
   =+  !<  old=test-globals:zig
       (slap old-subject (ream 'test-globals'))
+  =+  !<(=test-results:zig results)
   =/  test-globals=vase
     !>  ^-  test-globals:zig
-    :^  our.bowl  now.bowl  !<(test-results:zig results)
-    [project configs]:old
-  %-  slop  :_  (slap old-subject (ream '+'))
+    [our.bowl now.bowl test-results [project configs]:old]
+  =/  base-subject=vase
+    ?~  result-face   (slap old-subject (ream '+'))
+    ?~  test-results  (slap old-subject (ream '+'))
+    ?.  ?=([* ~] i.test-results)  ::  TODO: properly implement
+      (slap old-subject (ream '+'))
+    =*  result-vase  result.i.i.test-results
+    %-  slop  :_  (slap old-subject (ream '+'))
+    result-vase(p [%face u.result-face p.result-vase])
+  %-  slop  :_  base-subject
   test-globals(p [%face %test-globals p.test-globals])
 ::
 ++  send-pyro-dojo
@@ -383,7 +395,7 @@
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
-      (build-next-subject subject !>(test-results) bowl)
+      (build-next-subject subject !>(test-results) bowl ~)
     ==
   ::
       %dojo
@@ -401,7 +413,8 @@
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
-      (build-next-subject subject !>(test-results) bowl)
+      %-  build-next-subject
+      [subject !>(test-results) bowl result-face.test-step]
     ==
   ::
       %poke
@@ -421,7 +434,8 @@
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
-      (build-next-subject subject !>(test-results) bowl)
+      %-  build-next-subject
+      [subject !>(test-results) bowl result-face.test-step]
     ==
   ::
       %scry
@@ -437,7 +451,8 @@
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
-      (build-next-subject subject !>(test-results) bowl)
+      %-  build-next-subject
+      [subject !>(test-results) bowl result-face.test-step]
     ==
   ::
       %read-subscription
@@ -558,7 +573,8 @@
   =*  test-steps      test-steps.u.args
   =*  snapshot-ships  snapshot-ships.u.args
   ;<  =bowl:strand  bind:m  get-bowl
-  =.  subject  (build-next-subject subject.u.args !>(`~`~) bowl)
+  =.  subject
+    (build-next-subject subject.u.args !>(`~`~) bowl ~)
   ::
   ;<  ~  bind:m  (watch-our /effect %pyro /effect)
   ;<  result=(each test-results:zig @t)  bind:m

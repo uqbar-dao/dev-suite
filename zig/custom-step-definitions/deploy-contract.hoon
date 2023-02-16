@@ -17,7 +17,7 @@
     /[project:test-globals]/(scot %da now:test-globals)
   =/  contract-jam=@  .^(@ %cx scry-path)
   =/  contract  [- +]:(cue contract-jam)
-  :+  %poke
+  :^  %poke  ~
     :-  who
     :^  who  %uqbar  %wallet-poke
     %-  crip
