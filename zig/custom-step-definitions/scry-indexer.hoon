@@ -3,7 +3,7 @@
 ::
 |%
 ++  $
-  |=  [result-face=(unit @t) indexer-path=path expected=@t]
+  |=  [result-face=(unit @t) indexer-path=@t expected=@t]
   ^-  test-steps:zig
   :_  ~
   :^  %scry  result-face
