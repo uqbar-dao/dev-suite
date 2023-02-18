@@ -71,7 +71,7 @@
         ~
         ~
         [%uninitialized ~]
-        [1.024 10]
+        [1.024 10.000 10]
     ==
   ==
 ::
@@ -1415,9 +1415,29 @@
       :_  state
       :_  ~
       %-  update-vase-to-card:zig-lib
-      %.  [(show-agent-state:zig-lib agent-state) wex sup]
+      %.  [(show-state:zig-lib agent-state) wex sup]
       %~  shown-pyro-agent-state  make-update-vase:zig-lib
-      ['' %pyro-agent-state ~]
+      update-info
+    ::
+        %pyro-chain-state
+      =?  grab.act  =('' grab.act)  '-'
+      ::  %shown-pyro-chain-state over %pyro-chain-state
+      ::   because there are casts deep in vanes that don't
+      ::   take too kindly to vases within vases: ideally
+      ::   this should be a %pyro-agent-state like the scry
+      =/  =project:zig  (~(got by projects) project.act)
+      =/  chain-state=(map @ux batch:ui)
+        (get-state:zig-lib project.act project configs)
+      =/  modified-state=vase
+        %-  slap  :_  (ream grab.act)
+        %+  slop  !>(`(map @ux batch:ui)`chain-state)
+        !>([bowl=bowl ..zuse])
+      :_  state
+      :_  ~
+      %-  update-vase-to-card:zig-lib
+      %.  (show-state:zig-lib modified-state)
+      %~  shown-pyro-chain-state  make-update-vase:zig-lib
+      update-info
     ::
         %change-settings
       `state(settings settings.act)
@@ -1727,14 +1747,15 @@
     %.  u.project
     ~(project make-update-vase:zig-lib [project-name %project ~])
   ::
-      [%state @ ~]
+      [%pyro-chain-state @ ~]
     =*  project-name  i.t.t.p
     =/  project=(unit project:zig)
       (~(get by projects) project-name)
     :^  ~  ~  %ziggurat-update
     !>  ^-  update:zig
     ?~  project  ~
-    :^  %state  [project-name %state ~]  [%& ~]
+    :^  %pyro-chain-state  [project-name %pyro-chain-state ~]
+      [%& ~]
     (get-state:zig-lib project-name u.project configs)
   ::
       [%test-queue ~]
