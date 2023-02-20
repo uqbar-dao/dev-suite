@@ -4,6 +4,7 @@
 ::
 /-  spider,
     pyro=zig-pyro,
+    ui=zig-indexer,
     zig=zig-ziggurat,
     zink=zig-zink
 /+  agentio,
@@ -1755,8 +1756,8 @@
     !>  ^-  update:zig
     ?~  project  ~
     :^  %pyro-chain-state  [project-name %pyro-chain-state ~]
-      [%& ~]
-    (get-state:zig-lib project-name u.project configs)
+      [%& (get-state:zig-lib project-name u.project configs)]
+    ~
   ::
       [%test-queue ~]
     :^  ~  ~  %ziggurat-update

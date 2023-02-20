@@ -1712,7 +1712,7 @@
     |=  state=(map @ux batch:ui)
     ^-  vase
     !>  ^-  update:zig
-    [%pyro-chain-state update-info [%& state]]
+    [%pyro-chain-state update-info [%& state] ~]
   ::
   ++  shown-pyro-chain-state
     |=  chain-state=@t
@@ -2503,7 +2503,8 @@
   ++  change-settings
     ^-  $-(json settings:zig)
     %-  ot
-    :+  [%test-result-num-characters ni]
+    :^    [%test-result-num-characters ni]
+        [%state-num-characters ni]
       [%compiler-error-num-lines ni]
     ~
   ::
@@ -2652,7 +2653,7 @@
     ~
   ::
   ++  pyro-chain-state
-    ^-  $-(json [who=@p app=@tas grab=@t])
+    ^-  $-(json grab=@t)
     (ot [%grab so]~)
   --
 --
