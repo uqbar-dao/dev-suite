@@ -1392,23 +1392,33 @@
         %pyro-agent-state
       =/  who=@ta  (scot %p who.act)
       =*  app      app.act
-      =*  grab     grab.act
-      =?  grab  =('' grab)  '-'
+      =?  grab.act  =('' grab.act)  '-'
       =/  now=@ta  (scot %da now.bowl)
-      =+  .^  agent-state=vase
-              %gx
-              :+  (scot %p our.bowl)  %pyro
-              /[now]/[who]/[app]/dbug/state/noun/noun
-          ==
-      =.  agent-state
-        %-  slap  :_  (ream grab)
-        (slop agent-state !>([bowl=bowl ..zuse]))
       =/  [wex=boat:gall sup=bitt:gall]
         .^  [boat:gall bitt:gall]
             %gx
             :+  (scot %p our.bowl)  %pyro
             /[now]/[who]/[app]/dbug/subscriptions/noun/noun
         ==
+      =+  .^  agent-state=vase
+              %gx
+              :+  (scot %p our.bowl)  %pyro
+              /[now]/[who]/[app]/dbug/state/noun/noun
+          ==
+      =^  subject=(each vase @t)  state
+        %^  compile-imports:zig-lib  `@tas`project.act
+        ~(tap by test-imports.act)  state
+      ?:  ?=(%| -.subject)
+        :_  state
+        :_  ~
+        %-  update-vase-to-card:zig-lib
+        %-  %~  pyro-agent-state  make-error-vase:zig-lib
+            [update-info %error]
+        %^  cat  3  'compilation of test-imports failed:\0a'
+        p.subject
+      =.  p.subject
+        (slop agent-state (slop !>(bowl=bowl) p.subject))
+      =/  modified-state=vase  (slap p.subject (ream grab.act))
       ::  %shown-pyro-agent-state over %pyro-agent-state
       ::   because there are casts deep in vanes that don't
       ::   take too kindly to vases within vases: ideally
@@ -1416,7 +1426,7 @@
       :_  state
       :_  ~
       %-  update-vase-to-card:zig-lib
-      %.  [(show-state:zig-lib agent-state) wex sup]
+      %.  [(show-state:zig-lib modified-state) wex sup]
       %~  shown-pyro-agent-state  make-update-vase:zig-lib
       update-info
     ::
@@ -1429,10 +1439,20 @@
       =/  =project:zig  (~(got by projects) project.act)
       =/  chain-state=(map @ux batch:ui)
         (get-state:zig-lib project.act project configs)
-      =/  modified-state=vase
-        %-  slap  :_  (ream grab.act)
-        %+  slop  !>(`(map @ux batch:ui)`chain-state)
-        !>([bowl=bowl ..zuse])
+      =^  subject=(each vase @t)  state
+        %^  compile-imports:zig-lib  `@tas`project.act
+        ~(tap by test-imports.act)  state
+      ?:  ?=(%| -.subject)
+        :_  state
+        :_  ~
+        %-  update-vase-to-card:zig-lib
+        %-  %~  pyro-chain-state  make-error-vase:zig-lib
+            [update-info %error]
+        %^  cat  3  'compilation of test-imports failed:\0a'
+        p.subject
+      =.  p.subject
+        (slop !>(chain-state) (slop !>(bowl=bowl) p.subject))
+      =/  modified-state=vase  (slap p.subject (ream grab.act))
       :_  state
       :_  ~
       %-  update-vase-to-card:zig-lib

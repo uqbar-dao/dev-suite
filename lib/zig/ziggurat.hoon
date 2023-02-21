@@ -989,13 +989,30 @@
           state=inflated-state-0:zig
       ==
   ^-  [(each vase @t) inflated-state-0:zig]
+  =^  subject=(each vase @t)  state
+    (compile-imports project-desk imports state)
+  :_  state
+  ?:  ?=(%| -.subject)  subject
+  =/  initial-test-globals=vase
+    !>  ^-  test-globals:zig
+    :^  our.bowl  now.bowl  *test-results:zig
+    [project-desk configs:state]
+  :-  %&
+  %+  slop
+    %=  initial-test-globals
+      p  [%face %test-globals p.initial-test-globals]
+    ==
+  p.subject
+::
+++  compile-imports
+  |=  $:  project-desk=@tas
+          imports=(list [face=@tas =path])
+          state=inflated-state-0:zig
+      ==
+  ^-  [(each vase @t) inflated-state-0:zig]
   =/  compilation-result
     %-  mule
     |.
-    =/  initial-test-globals=vase
-      !>  ^-  test-globals:zig
-      :^  our.bowl  now.bowl  *test-results:zig
-      [project-desk configs:state]
     =/  [subject=vase c=ca-scry-cache:zig]
       %+  roll  imports
       |:  [[face=`@tas`%$ sur=`path`/] [subject=`vase`!>(..zuse) ca-scry-cache=ca-scry-cache:state]]
@@ -1008,12 +1025,7 @@
       :_  ca-scry-cache
       %-  slop  :_  subject
       sur-hoon(p [%face face p.sur-hoon])
-    :_  c
-    %+  slop
-      %=  initial-test-globals
-        p  [%face %test-globals p.initial-test-globals]
-      ==
-    subject
+    [subject c]
   ?:  ?=(%& -.compilation-result)
     :-  [%& -.p.compilation-result]
     state(ca-scry-cache +.p.compilation-result)
@@ -1814,6 +1826,12 @@
     [%sync-desk-to-vship update-info [%| level message] ~]
   ::
   ++  pyro-agent-state
+    |=  message=@t
+    ^-  vase
+    !>  ^-  update:zig
+    [%pyro-agent-state update-info [%| level message] ~]
+  ::
+  ++  pyro-chain-state
     |=  message=@t
     ^-  vase
     !>  ^-  update:zig
@@ -2645,15 +2663,16 @@
     ~
   ::
   ++  pyro-agent-state
-    ^-  $-(json [who=@p app=@tas grab=@t])
+    ^-  $-(json [who=@p app=@tas =test-imports:zig grab=@t])
     %-  ot
-    :^    [%who (se %p)]
+    :~  [%who (se %p)]
         [%app (se %tas)]
-      [%grab so]
-    ~
+        [%test-imports (om pa)]
+        [%grab so]
+    ==
   ::
   ++  pyro-chain-state
-    ^-  $-(json grab=@t)
-    (ot [%grab so]~)
+    ^-  $-(json [=test-imports:zig grab=@t])
+    (ot ~[[%test-imports (om pa)] [%grab so]])
   --
 --

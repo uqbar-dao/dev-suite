@@ -188,8 +188,8 @@
       ::
           [%send-pyro-dojo who=@p command=tape]
       ::
-          [%pyro-agent-state who=@p app=@tas grab=@t]
-          [%pyro-chain-state grab=@t]
+          [%pyro-agent-state who=@p app=@tas =test-imports grab=@t]
+          [%pyro-chain-state =test-imports grab=@t]
       ::
           [%cis-panic ~]
       ::
