@@ -8,10 +8,11 @@
   |=  $:  [who=@p sequencer-host=@p wallet-poke=test-write-step:zig]
           expected=(list test-read-step:zig)
       ==
-  ^-  test-steps:zig
+  ^-  [test-steps:zig configs:zig]
   =/  address=@ux
     %.  ['global' [who %address]]
     ~(got bi:mip configs:test-globals)
+  :_  configs:test-globals
   :~  :^  %scry  `%old-scry
         :-  who
         :^  '(map @ux *)'  %gx  %wallet
