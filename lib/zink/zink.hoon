@@ -1,0 +1,1 @@
+../../../uqbar-core/lib/zink/zink.hoon

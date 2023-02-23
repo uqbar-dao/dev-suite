@@ -4,7 +4,8 @@
 |%
 ++  $
   |=  [result-face=(unit @t) indexer-path=@t expected=@t]
-  ^-  test-steps:zig
+  ^-  [test-steps:zig configs:zig]
+  :_  configs:test-globals
   :_  ~
   :^  %scry  result-face
     :*  who=~nec  ::  hardcode: ~nec runs rollup/sequencer

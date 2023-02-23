@@ -58,6 +58,7 @@
           results=vase
           =bowl:strand
           result-face=(unit @tas)
+          configs=(unit configs:zig)
       ==
   ^-  vase
   =+  !<  old=test-globals:zig
@@ -65,7 +66,12 @@
   =+  !<(=test-results:zig results)
   =/  test-globals=vase
     !>  ^-  test-globals:zig
-    [our.bowl now.bowl test-results [project configs]:old]
+    :*  our.bowl
+        now.bowl
+        test-results
+        project.old
+        ?^(configs u.configs configs.old)
+    ==
   =/  base-subject=vase
     ?~  result-face   (slap old-subject (ream '+'))
     ?~  test-results  (slap old-subject (ream '+'))
@@ -93,24 +99,30 @@
   ;<  =bowl:strand  bind:m  get-bowl
   =/  who=@ta  (scot %p who.payload)
   =/  now=@ta  (scot %da now.bowl)
+  =/  path-compilation-result
+    (mule-slap-subject:zig-lib subject (ream path.payload))
+  ?:  ?=(%| -.path-compilation-result)
+    %-  pure:m
+    :-  %|
+    %^  cat  3  'scry-path-compilation-fail\0a'
+    p.path-compilation-result
   =/  scry-noun=*
     .^  *
         %gx
         ;:  weld
             /(scot %p our.bowl)/pyro/[now]/i/[who]
             /[care.payload]/[who]/[app.payload]/[now]
-            !<  path
-            (slap subject (ream path.payload))
+            !<(path p.path-compilation-result)
         ==
     ==
   =/  compilation-result
     %+  mule-slap-subject:zig-lib  subject
     (ream mold-name.payload)
   ?:  ?=(%| -.compilation-result)
-    ~&  %ziggurat-test-run^%scry-compilation-fail^p.compilation-result
     %-  pure:m
     :-  %|
-    (cat 3 'scry-compilation-fail\0a' p.compilation-result)
+    %^  cat  3  'scry-mold-compilation-fail\0a'
+    p.compilation-result
   =*  scry-mold  p.compilation-result
   (pure:m [%& (slym scry-mold scry-noun)])
 ::
@@ -154,7 +166,6 @@
       %+  mule-slap-subject:zig-lib  subject
       (ream payload.payload)
     ?:  ?=(%| -.compilation-result)
-      ~&  %ziggurat-test-run^%poke-compilation-fail^p.compilation-result
       %-  pure:m
       :-  %|
       (cat 3 'poke-compilation-fail\0a' p.compilation-result)
@@ -365,15 +376,10 @@
           =test-steps:zig
           snapshot-ships=(list @p)
       ==
-  =/  m  (strand ,(each test-results:zig @t))
+  =/  m  (strand ,(each [test-results:zig configs:zig] @t))
   ^-  form:m
   =|  =test-results:zig
   =|  step-number=@ud
-  ::  first element of subject is test-results: null on first step
-  =/  results-vase=vase  !>(~)
-  =.  subject
-    %-  slop  :_  subject
-    results-vase(p [%face %test-results p.results-vase])
   |-
   ;<  ~  bind:m  (block-on-previous-step ~m1 project-id)  :: TODO: unhardcode; are these good numbers?
   ;<  ~  bind:m
@@ -384,7 +390,11 @@
         step-number
         snapshot-ships
     ==
-  ?~  test-steps  (pure:m [%& (flop test-results)])
+  ?~  test-steps
+    %-  pure:m
+    :+  %&  (flop test-results)
+    !<  configs:zig
+    (slap subject (ream 'configs:test-globals'))
   =*  test-step   i.test-steps
   ;<  =bowl:strand  bind:m  get-bowl
   =.  settings  (get-settings bowl)
@@ -396,47 +406,59 @@
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
-      (build-next-subject subject !>(test-results) bowl ~)
+      (build-next-subject subject !>(test-results) bowl ~ ~)
     ==
   ::
       %dojo
     ;<  ~  bind:m  (send-pyro-dojo payload.test-step)
-    ;<  result-from-expected=(each test-results:zig @t)  bind:m
+    ;<  result-from-expected=(each (pair test-results:zig configs:zig) @t)
+        bind:m
       %-  run-steps
       :^  project-id  test-id
       `test-steps:zig`expected.test-step  ~
-    ?:  ?=(%| -.result-from-expected)  !!
-    =*  trs  p.result-from-expected
+    ?:  ?=(%| -.result-from-expected)
+      (pure:m [%| p.result-from-expected])
+    =*  trs  p.p.result-from-expected
     ?~  tr=(test-results-of-reads-to-test-result trs)
-      ~|("ziggurat-test-run: %dojo expected can only contain %scrys, %subscribes, %waits" !!)
+      %-  pure:m
+      :-  %|
+      '%dojo expected can only contain %scrys, %subscribes, %waits'
     =.  test-results  [u.tr test-results]
     %=  $
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
       %-  build-next-subject
-      [subject !>(test-results) bowl result-face.test-step]
+      :-  subject
+      :^  !>(test-results)  bowl  result-face.test-step
+      `q.p.result-from-expected
     ==
   ::
       %poke
     ;<  poke-result=(each ~ @t)  bind:m
       (send-pyro-poke payload.test-step)
     ?:  ?=(%| -.poke-result)  (pure:m [%| p.poke-result])
-    ;<  result-from-expected=(each test-results:zig @t)  bind:m
+    ;<  result-from-expected=(each (pair test-results:zig configs:zig) @t)
+        bind:m
       %-  run-steps
       :^  project-id  test-id
       `test-steps:zig`expected.test-step  ~
-    ?:  ?=(%| -.result-from-expected)  !!
-    =*  trs  p.result-from-expected
+    ?:  ?=(%| -.result-from-expected)
+      (pure:m [%| p.result-from-expected])
+    =*  trs  p.p.result-from-expected
     ?~  tr=(test-results-of-reads-to-test-result trs)
-      ~|("ziggurat-test-run: %poke expected can only contain %scrys, %subscribes, %waits" !!)
+      %-  pure:m
+      :-  %|
+      'ziggurat-test-run: %poke expected can only contain %scrys, %subscribes, %waits'
     =.  test-results  [u.tr test-results]
     %=  $
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
       %-  build-next-subject
-      [subject !>(test-results) bowl result-face.test-step]
+      :-  subject
+      :^  !>(test-results)  bowl  result-face.test-step
+      `q.p.result-from-expected
     ==
   ::
       %scry
@@ -453,7 +475,7 @@
         step-number   +(step-number)
         subject
       %-  build-next-subject
-      [subject !>(test-results) bowl result-face.test-step]
+      [subject !>(test-results) bowl result-face.test-step ~]
     ==
   ::
       %read-subscription
@@ -470,12 +492,13 @@
   ::
       %subscribe
     ;<  ~  bind:m  (send-pyro-subscription payload.test-step)
-    ;<  result-from-expected=(each test-results:zig @t)  bind:m
+    ;<  result-from-expected=(each (pair test-results:zig configs:zig) @t)
+        bind:m
       %-  run-steps
       :^  project-id  test-id
       `test-steps:zig`expected.test-step  ~
     ?:  ?=(%| -.result-from-expected)  !!
-    =*  trs  p.result-from-expected
+    =*  trs  p.p.result-from-expected
     ?~  tr=(test-results-of-reads-to-test-result trs)
       ~|("ziggurat-test-run: %subscribe expected can only contain %scrys, %subscribes, %waits" !!)
     %=  $
@@ -517,9 +540,19 @@
       :-  %|
       %^  cat  3  'custom-read-slam-fail\0a'
       p.slam-result
-    =/  transformed-steps=test-steps:zig
-      !<(test-steps:zig p.slam-result)
-    $(test-steps (weld transformed-steps t.test-steps))
+    =/  [transformed-steps=test-steps:zig =configs:zig]
+      !<([test-steps:zig configs:zig] p.slam-result)
+    %=  $
+        test-steps  (weld transformed-steps t.test-steps)
+        subject
+      %-  build-next-subject
+      :*  subject
+          (slap subject (ream 'test-results:test-globals'))
+          bowl
+          result-face.test-step
+          `configs
+      ==
+    ==
   ::
       %custom-write
     ;<  transform=vase  bind:m
@@ -554,9 +587,19 @@
       :-  %|
       %^  cat  3  'custom-write-slam-fail\0a'
       p.slam-result
-    =/  transformed-steps=test-steps:zig
-      !<(test-steps:zig p.slam-result)
-    $(test-steps (weld transformed-steps t.test-steps))
+    =/  [transformed-steps=test-steps:zig =configs:zig]
+      !<([test-steps:zig configs:zig] p.slam-result)
+    %=  $
+        test-steps  (weld transformed-steps t.test-steps)
+        subject
+      %-  build-next-subject
+      :*  subject
+          (slap subject (ream 'test-results:test-globals'))
+          bowl
+          result-face.test-step
+          `configs
+      ==
+    ==
   ==
 ::
 ++  ted
@@ -575,10 +618,12 @@
   =*  snapshot-ships  snapshot-ships.u.args
   ;<  =bowl:strand  bind:m  get-bowl
   =.  subject
-    (build-next-subject subject.u.args !>(`~`~) bowl ~)
+    (build-next-subject subject.u.args !>(`~`~) bowl ~ ~)
   ::
   ;<  ~  bind:m  (watch-our /effect %pyro /effect)
-  ;<  result=(each test-results:zig @t)  bind:m
+  ;<  result=(each [test-results:zig configs:zig] @t)
+      bind:m
     (run-steps project-id test-id test-steps snapshot-ships)
-  (pure:m !>(`(each test-results:zig @t)`result))
+  %-  pure:m
+  !>(`(each [test-results:zig configs:zig] @t)`result)
 --
