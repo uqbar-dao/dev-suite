@@ -1,6 +1,7 @@
 /-  spider,
     eng=zig-engine,
     pyro=zig-pyro,
+    seq=zig-sequencer,
     ui=zig-indexer,
     zig=zig-ziggurat
 /+  agentio,
@@ -550,8 +551,9 @@
   =/  max-print-size=@ud
     ?:  =(*@ud state-num-characters.settings)  10.000
     state-num-characters.settings
-  =/  noah-state=@t  (crip (noah state))
-  ?:  (lth max-print-size (met 3 noah-state))  noah-state
+  =/  noah-state=tape  (noah state)
+  ?:  (lth max-print-size (lent noah-state))
+    (crip noah-state)
   (get-formatted-error (sell state) ~)
 ::
 ++  show-state-update
@@ -692,7 +694,30 @@
   ?~  batch-update                                         ~
   ?.  ?=(%batch -.batch-update)                            ~
   ?~  batch=(~(get by batches.batch-update) newest-batch)  ~
-  `[town-id batch.u.batch]
+  `[town-id (snip-batch-code batch.u.batch)]
+::
+++  snip-batch-code
+  |=  =batch:ui
+  |^  ^-  batch:ui
+  :+  transactions.batch
+    snip-chain-code
+  hall.batch
+  ::
+  ++  snip-chain-code
+    ^-  chain:eng
+    =*  chain  chain.batch
+    :_  q.chain
+    %+  gas:big:seq  *_p.chain
+    %+  turn  ~(tap by p.chain)
+    |=  [id=@ux @ =item:smart]
+    ?:  ?=(%& -.item)  [id item]
+    =/  max-print-size=@ud
+      ?:  =(*@ud code-max-characters.settings)  200
+      code-max-characters.settings
+    =/  noah-code-size=@ud  (lent (noah !>(code.p.item)))
+    ?:  (gth max-print-size noah-code-size)  [id item]
+    [id item(code.p [0 0])]
+  --
 ::  scry %ca or fetch from local cache
 ::
 ++  scry-or-cache-ca
@@ -2032,11 +2057,18 @@
     |=  s=settings:zig
     ^-  json
     %-  pairs
-    :+  :-  %test-result-num-characters
+    :~  :-  %test-result-num-characters
         (numb test-result-num-characters.s)
-      :-  %compiler-error-num-lines
-      (numb compiler-error-num-lines.s)
-    ~
+    ::
+        :-  %state-num-characters
+        (numb state-num-characters.s)
+    ::
+        :-  %compiler-error-num-lines
+        (numb compiler-error-num-lines.s)
+    ::
+        :-  %code-max-characters
+        (numb code-max-characters.s)
+    ==
   ::
   ++  linked-projects
     |=  linked-projects=(jug @t @t)
@@ -2535,10 +2567,11 @@
   ++  change-settings
     ^-  $-(json settings:zig)
     %-  ot
-    :^    [%test-result-num-characters ni]
+    :~  [%test-result-num-characters ni]
         [%state-num-characters ni]
-      [%compiler-error-num-lines ni]
-    ~
+        [%compiler-error-num-lines ni]
+        [%code-max-characters ni]
+    ==
   ::
   ++  docket
     ^-  $-(json [@t @t @ux @t [@ud @ud @ud] @t @t])
