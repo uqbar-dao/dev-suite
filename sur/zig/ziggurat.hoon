@@ -31,6 +31,7 @@
   $:  test-result-num-characters=@ud
       state-num-characters=@ud
       compiler-error-num-lines=@ud
+      code-max-characters=@ud
   ==
 ::
 +$  status
