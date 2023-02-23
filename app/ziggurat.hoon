@@ -1407,7 +1407,7 @@
               /[now]/[who]/[app]/dbug/state/noun/noun
           ==
       =^  subject=(each vase @t)  state
-        %^  compile-imports:zig-lib  `@tas`project.act
+        %^  compile-test-imports:zig-lib  `@tas`project.act
         ~(tap by test-imports.act)  state
       ?:  ?=(%| -.subject)
         :_  state
@@ -1440,7 +1440,7 @@
       =/  chain-state=(map @ux batch:ui)
         (get-chain-state:zig-lib project.act configs)
       =^  subject=(each vase @t)  state
-        %^  compile-imports:zig-lib  `@tas`project.act
+        %^  compile-test-imports:zig-lib  `@tas`project.act
         ~(tap by test-imports.act)  state
       ?:  ?=(%| -.subject)
         :_  state
