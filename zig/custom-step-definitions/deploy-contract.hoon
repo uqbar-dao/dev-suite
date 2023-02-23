@@ -31,7 +31,7 @@
         contract={<publish-contract-id>}
         town=0x0  ::  hardcode
         :-  %noun
-        [%deploy mutable={<mutable>} cont={<get-escrow-contract>} interface=~ types=~]
+        [%deploy mutable={<mutable>} code={<get-escrow-contract>} interface=~]
     ==
     """
   expected

@@ -61,10 +61,11 @@
     ::
         %+  ~(put by *configs:zig)  'global'
         %-  ~(gas by *config:zig)
-        :^    [[~nec %address] nec-address]
+        :~  [[~nec %address] nec-address]
             [[~bud %address] bud-address]
-          [[~wes %address] wes-address]
-        ~
+            [[~wes %address] wes-address]
+            [[~nec %sequencer] 0x0]
+        ==
     ::
         ~
         ''
@@ -1436,9 +1437,8 @@
       ::   because there are casts deep in vanes that don't
       ::   take too kindly to vases within vases: ideally
       ::   this should be a %pyro-agent-state like the scry
-      =/  =project:zig  (~(got by projects) project.act)
       =/  chain-state=(map @ux batch:ui)
-        (get-state:zig-lib project.act project configs)
+        (get-chain-state:zig-lib project.act configs)
       =^  subject=(each vase @t)  state
         %^  compile-imports:zig-lib  `@tas`project.act
         ~(tap by test-imports.act)  state
@@ -1496,7 +1496,9 @@
         ~
       ::
           %thread-done
-        =+  !<(result=(each test-results:zig @t) q.cage.sign)
+        =/  result=(each (pair test-results:zig configs:zig) @t)
+          !<  (each [test-results:zig configs:zig] @t)
+          q.cage.sign
         ?:  ?=(%| -.result)
           =.  status  [%ready ~]
           :_  this
@@ -1508,7 +1510,7 @@
             %~  status  make-update-vase:zig-lib
             [project-name %ziggurat-test-run-thread-fail ~]
           ~
-        =*  test-results  p.result
+        =*  test-results  p.p.result
         =/  =shown-test-results:zig
           (show-test-results:zig-lib test-results)
         =.  tests.project
@@ -1522,6 +1524,9 @@
           %~  test-results  make-update-vase:zig-lib
           [project-name %ziggurat-test-run-thread-done ~]
         :_  %=  this
+                configs
+              (uni-configs:zig-lib configs q.p.result)
+            ::
                 projects
               (~(put by projects) project-name project)
             ==
@@ -1770,13 +1775,10 @@
   ::
       [%pyro-chain-state @ ~]
     =*  project-name  i.t.t.p
-    =/  project=(unit project:zig)
-      (~(get by projects) project-name)
     :^  ~  ~  %ziggurat-update
     !>  ^-  update:zig
-    ?~  project  ~
     :^  %pyro-chain-state  [project-name %pyro-chain-state ~]
-      [%& (get-state:zig-lib project-name u.project configs)]
+      [%& (get-chain-state:zig-lib project-name configs)]
     ~
   ::
       [%test-queue ~]

@@ -659,8 +659,8 @@
     [p compilation-result]
   ==
 ::
-++  get-state
-  |=  [project-name=@t =project:zig =configs:zig]
+++  get-chain-state
+  |=  [project-name=@t =configs:zig]
   ^-  (map @ux batch:ui)
   =/  now-ta=@ta   (scot %da now.bowl)
   %-  ~(gas by *(map @ux batch:ui))
@@ -733,12 +733,16 @@
 ++  get-town-id-to-sequencer-map
   |=  [project-name=@t =configs:zig]
   ^-  (map @ux @p)
-  %-  ~(gas by *(map @ux @p))
-  %+  murn  ~(tap bi:mip configs)
-  |=  [pn=@t [who=@p what=@tas] item=@]
-  ?.  =(project-name pn)   ~
-  ?.  ?=(%sequencer what)  ~
-  `[`@ux`item who]
+  =/  town-id-to-sequencer=(map @ux @p)
+    %-  ~(gas by *(map @ux @p))
+    %+  murn  ~(tap bi:mip configs)
+    |=  [pn=@t [who=@p what=@tas] item=@]
+    ?.  =(project-name pn)   ~
+    ?.  ?=(%sequencer what)  ~
+    `[`@ux`item who]
+  ?.  &(?=(~ town-id-to-sequencer) !=('global' project-name))
+    town-id-to-sequencer
+  (get-town-id-to-sequencer-map 'global' configs)
 ::
 ++  scry-virtualship-desks
   |=  [virtualship=@p now-da=@da]
@@ -1268,6 +1272,16 @@
     ?.  ?=(%add-test -.update)  update
     :-  %edit-test  +.update
   ==
+::
+++  uni-configs
+  |=  [olds=configs:zig news=configs:zig]
+  ^-  configs:zig
+  %-  ~(gas by *configs:zig)
+  %+  turn  ~(tap by olds)
+  |=  [project-name=@t old=config:zig]
+  :-  project-name
+  ?~  new=(~(get by news) project-name)  old
+  (~(uni by old) u.new)
 ::
 ::  files we delete from zig desk to make new gall desk
 ::

@@ -376,7 +376,7 @@
           =test-steps:zig
           snapshot-ships=(list @p)
       ==
-  =/  m  (strand ,(each test-results:zig @t))
+  =/  m  (strand ,(each [test-results:zig configs:zig] @t))
   ^-  form:m
   =|  =test-results:zig
   =|  step-number=@ud
@@ -390,7 +390,11 @@
         step-number
         snapshot-ships
     ==
-  ?~  test-steps  (pure:m [%& (flop test-results)])
+  ?~  test-steps
+    %-  pure:m
+    :+  %&  (flop test-results)
+    !<  configs:zig
+    (slap subject (ream 'configs:test-globals'))
   =*  test-step   i.test-steps
   ;<  =bowl:strand  bind:m  get-bowl
   =.  settings  (get-settings bowl)
@@ -407,42 +411,54 @@
   ::
       %dojo
     ;<  ~  bind:m  (send-pyro-dojo payload.test-step)
-    ;<  result-from-expected=(each test-results:zig @t)  bind:m
+    ;<  result-from-expected=(each (pair test-results:zig configs:zig) @t)
+        bind:m
       %-  run-steps
       :^  project-id  test-id
       `test-steps:zig`expected.test-step  ~
-    ?:  ?=(%| -.result-from-expected)  !!
-    =*  trs  p.result-from-expected
+    ?:  ?=(%| -.result-from-expected)
+      (pure:m [%| p.result-from-expected])
+    =*  trs  p.p.result-from-expected
     ?~  tr=(test-results-of-reads-to-test-result trs)
-      ~|("ziggurat-test-run: %dojo expected can only contain %scrys, %subscribes, %waits" !!)
+      %-  pure:m
+      :-  %|
+      '%dojo expected can only contain %scrys, %subscribes, %waits'
     =.  test-results  [u.tr test-results]
     %=  $
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
       %-  build-next-subject
-      [subject !>(test-results) bowl result-face.test-step ~]
+      :-  subject
+      :^  !>(test-results)  bowl  result-face.test-step
+      `q.p.result-from-expected
     ==
   ::
       %poke
     ;<  poke-result=(each ~ @t)  bind:m
       (send-pyro-poke payload.test-step)
     ?:  ?=(%| -.poke-result)  (pure:m [%| p.poke-result])
-    ;<  result-from-expected=(each test-results:zig @t)  bind:m
+    ;<  result-from-expected=(each (pair test-results:zig configs:zig) @t)
+        bind:m
       %-  run-steps
       :^  project-id  test-id
       `test-steps:zig`expected.test-step  ~
-    ?:  ?=(%| -.result-from-expected)  !!
-    =*  trs  p.result-from-expected
+    ?:  ?=(%| -.result-from-expected)
+      (pure:m [%| p.result-from-expected])
+    =*  trs  p.p.result-from-expected
     ?~  tr=(test-results-of-reads-to-test-result trs)
-      ~|("ziggurat-test-run: %poke expected can only contain %scrys, %subscribes, %waits" !!)
+      %-  pure:m
+      :-  %|
+      'ziggurat-test-run: %poke expected can only contain %scrys, %subscribes, %waits'
     =.  test-results  [u.tr test-results]
     %=  $
         test-steps    t.test-steps
         step-number   +(step-number)
         subject
       %-  build-next-subject
-      [subject !>(test-results) bowl result-face.test-step ~]
+      :-  subject
+      :^  !>(test-results)  bowl  result-face.test-step
+      `q.p.result-from-expected
     ==
   ::
       %scry
@@ -476,12 +492,13 @@
   ::
       %subscribe
     ;<  ~  bind:m  (send-pyro-subscription payload.test-step)
-    ;<  result-from-expected=(each test-results:zig @t)  bind:m
+    ;<  result-from-expected=(each (pair test-results:zig configs:zig) @t)
+        bind:m
       %-  run-steps
       :^  project-id  test-id
       `test-steps:zig`expected.test-step  ~
     ?:  ?=(%| -.result-from-expected)  !!
-    =*  trs  p.result-from-expected
+    =*  trs  p.p.result-from-expected
     ?~  tr=(test-results-of-reads-to-test-result trs)
       ~|("ziggurat-test-run: %subscribe expected can only contain %scrys, %subscribes, %waits" !!)
     %=  $
@@ -604,7 +621,9 @@
     (build-next-subject subject.u.args !>(`~`~) bowl ~ ~)
   ::
   ;<  ~  bind:m  (watch-our /effect %pyro /effect)
-  ;<  result=(each test-results:zig @t)  bind:m
+  ;<  result=(each [test-results:zig configs:zig] @t)
+      bind:m
     (run-steps project-id test-id test-steps snapshot-ships)
-  (pure:m !>(`(each test-results:zig @t)`result))
+  %-  pure:m
+  !>(`(each [test-results:zig configs:zig] @t)`result)
 --
