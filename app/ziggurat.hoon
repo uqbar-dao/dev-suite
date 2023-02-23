@@ -4,6 +4,7 @@
 ::
 /-  spider,
     pyro=zig-pyro,
+    ui=zig-indexer,
     zig=zig-ziggurat,
     zink=zig-zink
 /+  agentio,
@@ -71,7 +72,7 @@
         ~
         ~
         [%uninitialized ~]
-        [1.024 10]
+        [1.024 10.000 10]
     ==
   ==
 ::
@@ -1391,23 +1392,33 @@
         %pyro-agent-state
       =/  who=@ta  (scot %p who.act)
       =*  app      app.act
-      =*  grab     grab.act
-      =?  grab  =('' grab)  '-'
+      =?  grab.act  =('' grab.act)  '-'
       =/  now=@ta  (scot %da now.bowl)
-      =+  .^  agent-state=vase
-              %gx
-              :+  (scot %p our.bowl)  %pyro
-              /[now]/[who]/[app]/dbug/state/noun/noun
-          ==
-      =.  agent-state
-        %-  slap  :_  (ream grab)
-        (slop agent-state !>([bowl=bowl ..zuse]))
       =/  [wex=boat:gall sup=bitt:gall]
         .^  [boat:gall bitt:gall]
             %gx
             :+  (scot %p our.bowl)  %pyro
             /[now]/[who]/[app]/dbug/subscriptions/noun/noun
         ==
+      =+  .^  agent-state=vase
+              %gx
+              :+  (scot %p our.bowl)  %pyro
+              /[now]/[who]/[app]/dbug/state/noun/noun
+          ==
+      =^  subject=(each vase @t)  state
+        %^  compile-imports:zig-lib  `@tas`project.act
+        ~(tap by test-imports.act)  state
+      ?:  ?=(%| -.subject)
+        :_  state
+        :_  ~
+        %-  update-vase-to-card:zig-lib
+        %-  %~  pyro-agent-state  make-error-vase:zig-lib
+            [update-info %error]
+        %^  cat  3  'compilation of test-imports failed:\0a'
+        p.subject
+      =.  p.subject
+        (slop agent-state (slop !>(bowl=bowl) p.subject))
+      =/  modified-state=vase  (slap p.subject (ream grab.act))
       ::  %shown-pyro-agent-state over %pyro-agent-state
       ::   because there are casts deep in vanes that don't
       ::   take too kindly to vases within vases: ideally
@@ -1415,9 +1426,39 @@
       :_  state
       :_  ~
       %-  update-vase-to-card:zig-lib
-      %.  [(show-agent-state:zig-lib agent-state) wex sup]
+      %.  [(show-state:zig-lib modified-state) wex sup]
       %~  shown-pyro-agent-state  make-update-vase:zig-lib
-      ['' %pyro-agent-state ~]
+      update-info
+    ::
+        %pyro-chain-state
+      =?  grab.act  =('' grab.act)  '-'
+      ::  %shown-pyro-chain-state over %pyro-chain-state
+      ::   because there are casts deep in vanes that don't
+      ::   take too kindly to vases within vases: ideally
+      ::   this should be a %pyro-agent-state like the scry
+      =/  =project:zig  (~(got by projects) project.act)
+      =/  chain-state=(map @ux batch:ui)
+        (get-state:zig-lib project.act project configs)
+      =^  subject=(each vase @t)  state
+        %^  compile-imports:zig-lib  `@tas`project.act
+        ~(tap by test-imports.act)  state
+      ?:  ?=(%| -.subject)
+        :_  state
+        :_  ~
+        %-  update-vase-to-card:zig-lib
+        %-  %~  pyro-chain-state  make-error-vase:zig-lib
+            [update-info %error]
+        %^  cat  3  'compilation of test-imports failed:\0a'
+        p.subject
+      =.  p.subject
+        (slop !>(chain-state) (slop !>(bowl=bowl) p.subject))
+      =/  modified-state=vase  (slap p.subject (ream grab.act))
+      :_  state
+      :_  ~
+      %-  update-vase-to-card:zig-lib
+      %.  (show-state:zig-lib modified-state)
+      %~  shown-pyro-chain-state  make-update-vase:zig-lib
+      update-info
     ::
         %change-settings
       `state(settings settings.act)
@@ -1727,15 +1768,16 @@
     %.  u.project
     ~(project make-update-vase:zig-lib [project-name %project ~])
   ::
-      [%state @ ~]
+      [%pyro-chain-state @ ~]
     =*  project-name  i.t.t.p
     =/  project=(unit project:zig)
       (~(get by projects) project-name)
     :^  ~  ~  %ziggurat-update
     !>  ^-  update:zig
     ?~  project  ~
-    :^  %state  [project-name %state ~]  [%& ~]
-    (get-state:zig-lib project-name u.project configs)
+    :^  %pyro-chain-state  [project-name %pyro-chain-state ~]
+      [%& (get-state:zig-lib project-name u.project configs)]
+    ~
   ::
       [%test-queue ~]
     :^  ~  ~  %ziggurat-update
