@@ -115,6 +115,7 @@
       ships=(list @p)
       install=?
       start=(list @tas)
+      state-views=(list [who=@p app=(unit @tas) file=path])
       setup=(map @p test-steps)
       imports=(list [@tas path])
   ==
@@ -231,6 +232,7 @@
       %focused-linked
       %save-file
       %settings
+      %state-views
   ==
 +$  update-level  ?(%success error-level)
 +$  error-level   ?(%info %warning %error)
@@ -277,6 +279,7 @@
       [%focused-linked update-info payload=(data focused-linked-data) ~]
       [%save-file update-info payload=(data path) ~]
       [%settings update-info payload=(data settings) ~]
+      [%state-views update-info payload=(data (list [@p (unit @tas) path])) ~]
   ==
 ::
 +$  shown-projects  (map @t shown-project)

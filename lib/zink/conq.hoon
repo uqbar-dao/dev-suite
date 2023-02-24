@@ -252,4 +252,38 @@
     ;~(plug (stag ~ sym) ;~(pfix tis sym))
     (cook |=(a=term [`a a]) sym)
   ==
+::
+::  abbreviated parser from lib/zink/conq.hoon:
+::   parse to end of imports, start of hoon.
+::   used to find start of hoon for compilation and to find
+::   proper line error number in case of error
+::   (see +mule-slap-subject)
+::
++$  small-start-of-pile  (list [face=term =path])
+::
+++  parse-start-of-pile
+  |=  tex=tape
+  ^-  [small-start-of-pile hair]
+  =/  [=hair res=(unit [=small-start-of-pile =nail])]
+    (start-of-pile-rule [1 1] tex)
+  ?^  res  [small-start-of-pile.u.res hair]
+  %-  mean  %-  flop
+  =/  lyn  p.hair
+  =/  col  q.hair
+  :~  leaf+"syntax error"
+      leaf+"\{{<lyn>} {<col>}}"
+      leaf+(runt [(dec col) '-'] "^")
+      leaf+(trip (snag (dec lyn) (to-wain:format (crip tex))))
+  ==
+::
+++  start-of-pile-rule
+  %+  ifix
+    :_  gay
+    ::  parse optional smart library import and ignore
+    ;~(plug gay (punt ;~(plug fas lus gap taut-rule:conq gap)))
+  ;~  plug
+  ::  only accept /= imports for contract libraries
+    %+  rune:conq  tis
+    ;~(plug sym ;~(pfix gap stap))
+  ==
 --

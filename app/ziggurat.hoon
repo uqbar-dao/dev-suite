@@ -1890,6 +1890,19 @@
     %~  settings  make-update-vase:zig-lib
     ['' %settings ~]
   ::
+      [%state-views @ ~]
+    =*  project-name  i.t.t.p
+    =*  update-info  [project-name %state-views ~]
+    =/  [* cfo=(unit configuration-file-output:zig) *]
+      (load-configuration-file:zig-lib update-info state)
+    :^  ~  ~  %json
+    !>  ^-  json
+    ?~  cfo  ~
+    %-  update:enjs:zig-lib
+    !<  update:zig
+    %.  state-views.u.cfo
+    %~  state-views  make-update-vase:zig-lib  update-info
+  ::
       [%file-exists @ ^]
     =/  des=@ta    i.t.t.p
     =/  pat=path  `path`t.t.t.p
