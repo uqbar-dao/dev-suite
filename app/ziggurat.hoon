@@ -1407,7 +1407,7 @@
               /[now]/[who]/[app]/dbug/state/noun/noun
           ==
       =^  subject=(each vase @t)  state
-        %^  compile-imports:zig-lib  `@tas`project.act
+        %^  compile-test-imports:zig-lib  `@tas`project.act
         ~(tap by test-imports.act)  state
       ?:  ?=(%| -.subject)
         :_  state
@@ -1440,7 +1440,7 @@
       =/  chain-state=(map @ux batch:ui)
         (get-chain-state:zig-lib project.act configs)
       =^  subject=(each vase @t)  state
-        %^  compile-imports:zig-lib  `@tas`project.act
+        %^  compile-test-imports:zig-lib  `@tas`project.act
         ~(tap by test-imports.act)  state
       ?:  ?=(%| -.subject)
         :_  state
@@ -1889,6 +1889,19 @@
     %.  settings
     %~  settings  make-update-vase:zig-lib
     ['' %settings ~]
+  ::
+      [%state-views @ ~]
+    =*  project-name  i.t.t.p
+    =*  update-info  [project-name %state-views ~]
+    =/  [* cfo=(unit configuration-file-output:zig) *]
+      (load-configuration-file:zig-lib update-info state)
+    :^  ~  ~  %json
+    !>  ^-  json
+    ?~  cfo  ~
+    %-  update:enjs:zig-lib
+    !<  update:zig
+    %.  state-views.u.cfo
+    %~  state-views  make-update-vase:zig-lib  update-info
   ::
       [%file-exists @ ^]
     =/  des=@ta    i.t.t.p

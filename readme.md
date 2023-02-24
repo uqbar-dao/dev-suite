@@ -320,10 +320,11 @@ The configuration file has a specified form.
 Imports may be specified using the `/=` rune at the top of the file.
 The file is then composed of a core with the following arms:
 
-Arm name                     | Return type               | Description
----------------------------- | ------------------------- | -----------
-`+make-config`               | `config:zig`              | Set global state for the project, accessible during `test-steps`.
-`+make-virtualships-to-sync` | `(list @p)`               | Set `%pyro` ships to mirror the project desk on.
-`+make-install`              | `?`                       | Install the mirrored desk on synced `%pyro` ships?
-`+make-start-apps`           | `(list @tas)`             | Additionaly apps to start in the project on synced `%pyro` ships (that are not included in the project's `desk.bill`).
-`+make-setup`                | `(map @p test-steps:zig)` | Set the initial state on synced `%pyro` ships by running these `test-steps`.
+Arm name                     | Return type                                      | Description
+---------------------------- | ------------------------------------------------ | -----------
+`+make-config`               | `config:zig`                                     | Set global state for the project, accessible during `test-steps`.
+`+make-virtualships-to-sync` | `(list @p)`                                      | Set `%pyro` ships to mirror the project desk on.
+`+make-install`              | `?`                                              | Install the mirrored desk on synced `%pyro` ships?
+`+make-start-apps`           | `(list @tas)`                                    | Additional apps to start on synced `%pyro` ships (that are not included in the project's `desk.bill`).
+`+make-state-views`          | `(list [who=@p app=(unit @tas) file-path=path])` | Default state views, specified in the file path. `app=~` -> chain view, not an agent view.
+`+make-setup`                | `(map @p test-steps:zig)`                        | Set the initial state on synced `%pyro` ships by running these `test-steps`.

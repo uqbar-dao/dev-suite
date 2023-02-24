@@ -176,6 +176,7 @@
           vships-to-sync=(list @p)
           install=?
           start-apps=(list @tas)
+          state-views=(list [@p (unit @tas) path])
           setup=(map @p test-steps:zig)
           imports-list=(list [@tas path])
       ==
@@ -231,6 +232,16 @@
     '''
     '  '
     (crip (noah !>(`(list @tas)`start-apps)))
+    '\0a'
+    '''
+    ++  make-state-views
+      ^-  (list [who=@p app=(unit @tas) file-path=path])
+      ::  app=~ -> chain view, not an agent view
+
+    '''
+    '  '
+    %-  crip
+    (noah !>(`(list [@p (unit @tas) path])`state-views))
     '\0a'
     make-make-setup
   ::  suffix
@@ -1074,6 +1085,7 @@
       %.y
       ~
       ~
+      ~
       [%zig /sur/zig/ziggurat]~
   ==
 ::
@@ -1144,6 +1156,13 @@
       %+  make-error  p.start-apps-result
       'failed to call +make-start-apps arm:\0a'
     ::
+    =/  state-views-result
+      %+  mule-slap-subject  p.config-core
+      (ream %make-state-views)
+    ?:  ?=(%| -.state-views-result)
+      %+  make-error  p.state-views-result
+      'failed to call +make-state-views arm:\0a'
+    ::
     =/  setup-result
       (mule-slap-subject p.config-core (ream %make-setup))
     ?:  ?=(%| -.setup-result)
@@ -1155,6 +1174,7 @@
         !<((list @p) p.virtualships-to-sync-result)
         !<(? p.install-result)
         !<((list @tas) p.start-apps-result)
+        !<((list [@p (unit @tas) path]) p.state-views-result)
         !<((map @p test-steps:zig) p.setup-result)
         imports
     ==
@@ -1174,6 +1194,7 @@
             virtualships-to-sync=(list @p)
             install=?
             start-apps=(list @tas)
+            state-views=(list [who=@p app=(unit @tas) file=path])
             setups=(map @p test-steps:zig)
             imports=(list [@tas path])
         ==
@@ -1231,6 +1252,13 @@
           virtualships-to-sync  t.virtualships-to-sync
           cards                 (weld cards cis-cards)
       ==
+    =.  cards
+      :_  cards
+      %-  update-vase-to-card
+      :: %.  (state-views:enjs project-name state-views)
+      %.  state-views
+      %~  state-views  make-update-vase
+      [project-name %load-configuration-file ~]
     :-  :_  cards
         %-  update-vase-to-card
         %.  new-status
@@ -1801,6 +1829,12 @@
     ^-  vase
     !>  ^-  update:zig
     [%settings update-info [%& settings] ~]
+  ::
+  ++  state-views
+    |=  state-views=(list [@p (unit @tas) path])
+    ^-  vase
+    !>  ^-  update:zig
+    [%state-views update-info [%& state-views] ~]
   --
 ::
 ++  make-error-vase
@@ -2051,6 +2085,11 @@
     ::
         %settings
       ['data' (settings p.payload.update)]~
+    ::
+        %state-views
+      :_  ~
+      :-  'data'
+      (state-views project-name.update p.payload.update)
     ==
   ::
   ++  settings
@@ -2485,6 +2524,39 @@
         [%ship %s (scot %p who)]
         [%path (path p)]
     ==
+  ::
+  ++  state-views
+    |=  $:  project-name=@tas
+            state-views=(list [@p (unit @tas) ^path])
+        ==
+    ^-  json
+    :-  %a
+    %+  murn  state-views
+    |=  [who=@p app=(unit @tas) file-path=^path]
+    =/  file-scry-path=^path
+      %-  weld  :_  file-path
+      /(scot %p our.bowl)/[project-name]/(scot %da now.bowl)
+    =+  .^(is-file-found=? %cu file-scry-path)
+    ?.  is-file-found  ~
+    =+  .^(file-contents=@t %cx file-scry-path)
+    =/  [imports=(list [@tas ^path]) =hair]
+      (parse-start-of-pile:conq (trip file-contents))
+    =/  json-pairs=(list [@tas json])
+      :~  [%who %s (scot %p who)]
+          [%what %s ?~(app %chain %agent)]
+      ::
+          :+  %body  %s
+          %-  of-wain:format
+          (slag (dec p.hair) (to-wain:format file-contents))
+      ::
+          :-  %imports
+          %-  pairs
+          %+  turn  imports
+          |=([face=@tas import=^path] [face (path import)])
+      ==
+    :-  ~
+    %-  pairs
+    ?~(app json-pairs [[%app %s u.app] json-pairs])
   --
 ++  dejs
   =,  dejs:format
