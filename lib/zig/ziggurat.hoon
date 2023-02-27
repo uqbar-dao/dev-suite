@@ -1254,7 +1254,11 @@
       ==
     =.  cards
       :_  cards
-      %-  update-vase-to-card
+      %-  fact:io  :_  ~[/project]
+      :-  %json
+      !>  ^-  json
+      %-  update:enjs
+      !<  update:zig
       :: %.  (state-views:enjs project-name state-views)
       %.  state-views
       %~  state-views  make-update-vase
