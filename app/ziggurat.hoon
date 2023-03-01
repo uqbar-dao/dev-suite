@@ -1469,7 +1469,7 @@
         %^  cat  3  'compilation of test-imports failed:\0a'
         p.subject
       =.  p.subject
-        (slop !>(chain-state) (slop !>(bowl=bowl) p.subject))
+        (slop !>(p.chain-state) (slop !>(bowl=bowl) p.subject))
       =/  modified-state=vase  (slap p.subject (ream grab.act))
       :_  state
       :_  ~
