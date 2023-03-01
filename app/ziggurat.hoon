@@ -883,6 +883,14 @@
         %+  add-test-error  0x0
         %^  cat  3  'compilation of test-imports failed:\0a'
         p.subject
+      =*  service-host  ~nec  ::  TODO: remove hardcode
+      =.  path.act
+        ?+    (rear path.act)  !!  ::  TODO: error handle
+            %jam   path.act
+            %hoon
+          %-  need  ::  TODO: error handle
+          (convert-contract-hoon-to-jam:zig-lib path.act)
+        ==
       =/  =test:zig
         :*  `test-name
             ~
@@ -896,10 +904,12 @@
               %-  crip
               %-  noah
               !>  ^-  [@p @p test-write-step:zig]
-              :+  u.who  ~nec  ::  TODO: remove hardcode
+              :+  u.who  service-host
               :-  %custom-write
               :^  %deploy-contract  ~
-              (crip "[{<u.who>} {<path.act>} ~]")  ~
+                %-  crip
+                "[{<u.who>} {<service-host>} {<path.act>} %.n ~]"
+              ~
             ~
         ::
             ~
