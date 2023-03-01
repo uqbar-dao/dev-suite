@@ -128,6 +128,13 @@
   :-  %ziggurat-action
   !>(`action:zig`project-name^request-id^[%run-queue ~])
 ::
+++  make-delete-test
+  |=  [id=@ux project-name=@t request-id=(unit @t)]
+  ^-  card
+  %-  ~(poke-self pass:io /self-wire)
+  :-  %ziggurat-action
+  !>(`action:zig`project-name^request-id^[%delete-test id])
+::
 ++  make-test-steps-file
   |=  =test:zig
   ^-  @t
