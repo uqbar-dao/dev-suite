@@ -11,6 +11,7 @@
     dbug,
     default-agent,
     mip,
+    strandio,
     verb,
     conq=zink-conq,
     dock=docket,
@@ -36,6 +37,7 @@
 +*  this  .
     def      ~(. (default-agent this %|) bowl)
     io       ~(. agentio bowl)
+    strand   strand:spider
     zig-lib  ~(. ziggurat-lib bowl settings)
 ::
 ++  on-init
@@ -883,6 +885,14 @@
         %+  add-test-error  0x0
         %^  cat  3  'compilation of test-imports failed:\0a'
         p.subject
+      =*  service-host  ~nec  ::  TODO: remove hardcode
+      =.  path.act
+        ?+    (rear path.act)  !!  ::  TODO: error handle
+            %jam   path.act
+            %hoon
+          %-  need  ::  TODO: error handle
+          (convert-contract-hoon-to-jam:zig-lib path.act)
+        ==
       =/  =test:zig
         :*  `test-name
             ~
@@ -896,10 +906,12 @@
               %-  crip
               %-  noah
               !>  ^-  [@p @p test-write-step:zig]
-              :+  u.who  ~nec  ::  TODO: remove hardcode
+              :+  u.who  service-host
               :-  %custom-write
               :^  %deploy-contract  ~
-              (crip "[{<u.who>} {<path.act>} ~]")  ~
+                %-  crip
+                "[{<u.who>} {<service-host>} {<path.act>} %.n ~]"
+              ~
             ~
         ::
             ~
@@ -923,6 +935,24 @@
               projects
             (~(put by projects) project.act project)
           ==
+      :-  %-  %~  arvo  pass:io
+              /delete-test/[project.act]/(scot %ux test-id)
+          :^  %k  %lard  q.byk.bowl
+          =/  m  (strand ,vase)
+          ^-  form:m
+          ;<  ~  bind:m
+            %^  watch-our:strandio  /updates  %ziggurat
+            /project
+          |-
+          ;<  update-cage=cage  bind:m
+            (take-fact:strandio /updates)
+          ?.  ?=(%ziggurat-update -.update-cage)  $
+          =+  !<(=update:zig q.update-cage)
+          ?~  update                              $
+          ?.  ?=(%test-results -.update)          $
+          ?.  =(test-id test-id.update)           $
+          (pure:m !>(`?`-.payload.update))
+      ^-  (list card)
       :^    (make-run-queue:zig-lib [project request-id]:act)
           %-  update-vase-to-card:zig-lib
           %.  test-queue
@@ -1432,7 +1462,8 @@
         p.subject
       =.  p.subject
         (slop agent-state (slop !>(bowl=bowl) p.subject))
-      =/  modified-state=vase  (slap p.subject (ream grab.act))
+      =/  modified-state=vase
+        (slap p.subject (loud-ream:zig-lib grab.act /))
       ::  %shown-pyro-agent-state over %pyro-agent-state
       ::   because there are casts deep in vanes that don't
       ::   take too kindly to vases within vases
@@ -1470,7 +1501,8 @@
         p.subject
       =.  p.subject
         (slop !>(p.chain-state) (slop !>(bowl=bowl) p.subject))
-      =/  modified-state=vase  (slap p.subject (ream grab.act))
+      =/  modified-state=vase
+        (slap p.subject (loud-ream:zig-lib grab.act /))
       :_  state
       :_  ~
       %-  update-vase-to-card:zig-lib
@@ -1748,6 +1780,17 @@
     =/  new-status=status:zig  [%ready ~]
     :_  this(status new-status)
     (make-done-cards:zig-lib status desk)
+  ::
+      [%delete-test @ @ ~]
+    ?.  ?&  ?=(%khan -.sign-arvo)
+            ?=(%arow -.+.sign-arvo)
+            ?=(%& -.p.+.sign-arvo)
+        ==
+      (on-arvo:def w sign-arvo)
+    =*  project-name  i.t.w
+    =*  test-id=@ux   (slav %ux i.t.t.w)
+    :_  this
+    ~[(make-delete-test:zig-lib test-id project-name ~)]
   ==
   ::
   ++  is-cis-done

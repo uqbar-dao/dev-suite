@@ -128,6 +128,13 @@
   :-  %ziggurat-action
   !>(`action:zig`project-name^request-id^[%run-queue ~])
 ::
+++  make-delete-test
+  |=  [id=@ux project-name=@t request-id=(unit @t)]
+  ^-  card
+  %-  ~(poke-self pass:io /self-wire)
+  :-  %ziggurat-action
+  !>(`action:zig`project-name^request-id^[%delete-test id])
+::
 ++  make-test-steps-file
   |=  =test:zig
   ^-  @t
@@ -1039,6 +1046,19 @@
     ^-  card
     %.  [%ziggurat /project]
     ~(watch-our pass:io /cis-setup-done/[desk])
+  --
+::
+++  loud-ream
+  |=  [txt=@ error-path=path]
+  |^  ^-  hoon
+  (rash txt loud-vest)
+  ::
+  ++  loud-vest
+    |=  tub=nail
+    ^-  (like hoon)
+    %.  tub
+    %-  full
+    (ifix [gay gay] tall:(vang %.y error-path))
   --
 ::
 ++  compile-test-imports

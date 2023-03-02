@@ -126,8 +126,8 @@ By default we run `~nec`, `~bud`, and `~wes` as `%pyro` ships.
    ```bash
    cd ~/git/urbit/pkg  # Replace with your chosen directory.
 
-   rm -rf nec/suite/*
-   cp -RL dev-suite/* nec/suite/
+   rm -rf zod/suite/*
+   cp -RL dev-suite/* zod/suite/
    ```
 6. In the Dojo of the fakeship, commit the copied files and install.
    ```hoon
