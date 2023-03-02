@@ -1048,6 +1048,19 @@
     ~(watch-our pass:io /cis-setup-done/[desk])
   --
 ::
+++  loud-ream
+  |=  [txt=@ error-path=path]
+  |^  ^-  hoon
+  (rash txt loud-vest)
+  ::
+  ++  loud-vest
+    |=  tub=nail
+    ^-  (like hoon)
+    %.  tub
+    %-  full
+    (ifix [gay gay] tall:(vang %.y error-path))
+  --
+::
 ++  compile-test-imports
   |=  $:  project-desk=@tas
           imports=(list [face=@tas =path])

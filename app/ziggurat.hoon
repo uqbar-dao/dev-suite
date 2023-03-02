@@ -1462,7 +1462,8 @@
         p.subject
       =.  p.subject
         (slop agent-state (slop !>(bowl=bowl) p.subject))
-      =/  modified-state=vase  (slap p.subject (ream grab.act))
+      =/  modified-state=vase
+        (slap p.subject (loud-ream:zig-lib grab.act /))
       ::  %shown-pyro-agent-state over %pyro-agent-state
       ::   because there are casts deep in vanes that don't
       ::   take too kindly to vases within vases
@@ -1500,7 +1501,8 @@
         p.subject
       =.  p.subject
         (slop !>(p.chain-state) (slop !>(bowl=bowl) p.subject))
-      =/  modified-state=vase  (slap p.subject (ream grab.act))
+      =/  modified-state=vase
+        (slap p.subject (loud-ream:zig-lib grab.act /))
       :_  state
       :_  ~
       %-  update-vase-to-card:zig-lib
