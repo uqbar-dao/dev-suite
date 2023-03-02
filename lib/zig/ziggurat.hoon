@@ -128,6 +128,13 @@
   :-  %ziggurat-action
   !>(`action:zig`project-name^request-id^[%run-queue ~])
 ::
+++  make-delete-test
+  |=  [id=@ux project-name=@t request-id=(unit @t)]
+  ^-  card
+  %-  ~(poke-self pass:io /self-wire)
+  :-  %ziggurat-action
+  !>(`action:zig`project-name^request-id^[%delete-test id])
+::
 ++  make-test-steps-file
   |=  =test:zig
   ^-  @t
@@ -674,38 +681,56 @@
 ::
 ++  get-chain-state
   |=  [project-name=@t =configs:zig]
-  ^-  (map @ux batch:ui)
-  =/  now-ta=@ta   (scot %da now.bowl)
-  %-  ~(gas by *(map @ux batch:ui))
-  %+  murn
+  ^-  (each (map @ux batch:ui) @t)
+  =/  now=@ta   (scot %da now.bowl)
+  =/  sequencers=(list [town-id=@ux who=@p])
     %~  tap  by
     (get-town-id-to-sequencer-map project-name configs)
-  |=  [town-id=@ux who=@p]
-  =/  who-ta=@ta   (scot %p who)
+  =|  town-states=(list [@ux batch:ui])
+  |-
+  ?~  sequencers
+    [%& (~(gas by *(map @ux batch:ui)) town-states)]
+  =*  town-id  town-id.i.sequencers
+  =/  who=@ta   (scot %p who.i.sequencers)
   =/  town-ta=@ta  (scot %ux town-id)
+  ?.  .^  ?
+          %gx
+          :+  (scot %p our.bowl)  %pyro
+          /[now]/i/[who]/gu/[who]/indexer/[now]/noun
+      ==
+    :-  %|
+    %-  crip
+    "%pyro ship {<who.i.sequencers>} not running %indexer"
   =/  batch-order=update:ui
     .^  update:ui
         %gx
         %+  weld
-          /(scot %p our.bowl)/pyro/[now-ta]/[who-ta]/indexer
+          /(scot %p our.bowl)/pyro/[now]/[who]/indexer
         /batch-order/[town-ta]/noun/noun
     ==
-  ?~  batch-order                     ~
-  ?.  ?=(%batch-order -.batch-order)  ~
-  ?~  batch-order.batch-order         ~
+  ?~  batch-order              $(sequencers t.sequencers)
+  ?.  ?=(%batch-order -.batch-order)
+    $(sequencers t.sequencers)
+  ?~  batch-order.batch-order  $(sequencers t.sequencers)
   =*  newest-batch  i.batch-order.batch-order
   =/  batch-update=update:ui
     .^  update:ui
         %gx
         ;:  weld
-            /(scot %p our.bowl)/pyro/[now-ta]/[who-ta]
+            /(scot %p our.bowl)/pyro/[now]/[who]
             /indexer/newest/batch/[town-ta]
             /(scot %ux newest-batch)/noun/noun
     ==  ==
-  ?~  batch-update                                         ~
-  ?.  ?=(%batch -.batch-update)                            ~
-  ?~  batch=(~(get by batches.batch-update) newest-batch)  ~
-  `[town-id (snip-batch-code batch.u.batch)]
+  ?~  batch-update               $(sequencers t.sequencers)
+  ?.  ?=(%batch -.batch-update)  $(sequencers t.sequencers)
+  ?~  batch=(~(get by batches.batch-update) newest-batch)
+    $(sequencers t.sequencers)
+  %=  $
+      sequencers  t.sequencers
+      town-states
+    :_  town-states
+    [town-id (snip-batch-code batch.u.batch)]
+  ==
 ::
 ++  snip-batch-code
   |=  =batch:ui
@@ -1023,6 +1048,19 @@
     ~(watch-our pass:io /cis-setup-done/[desk])
   --
 ::
+++  loud-ream
+  |=  [txt=@ error-path=path]
+  |^  ^-  hoon
+  (rash txt loud-vest)
+  ::
+  ++  loud-vest
+    |=  tub=nail
+    ^-  (like hoon)
+    %.  tub
+    %-  full
+    (ifix [gay gay] tall:(vang %.y error-path))
+  --
+::
 ++  compile-test-imports
   |=  $:  project-desk=@tas
           imports=(list [face=@tas =path])
@@ -1259,7 +1297,6 @@
       !>  ^-  json
       %-  update:enjs
       !<  update:zig
-      :: %.  (state-views:enjs project-name state-views)
       %.  state-views
       %~  state-views  make-update-vase
       [project-name %load-configuration-file ~]
