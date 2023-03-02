@@ -298,10 +298,12 @@
   :~  /ames/pump
       /eyre/channel
       /eyre/sessions
-      /gall/use/pyre
+      /gall/use/eth-watcher
       /gall/use/hark-system-hook
       /gall/use/hark
       /gall/use/notify
+      /gall/use/ping
+      /gall/use/pyre
   ==
 ::
 ++  filter-timers
